@@ -1,0 +1,46 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% block affichage_informatif %}
+
+        {% block informations_personnelles %}
+
+            <ul>
+                <li>Username : {{ user.username }}</li>
+                <li>Prénom : {{ user.first_name }}</li>
+                <li>Nom : {{ user.last_name }}</li>
+                <li>Buque : {{ user.surname }}</li>
+                <li>Num'ss : {{ user.family }}</li>
+                <li>Prom'ss : {{ user.campus }}{{ year_pg }}</li>
+                <li>Solde : {{ user.balance }} €</li>
+            </ul>
+
+        {% endblock %}
+
+    {% endblock %}
+
+    {% block modifications_informations %}
+
+        <a href="{% url 'accounts.views.change_informations_view' %}">Changer informations personnelles</a>
+        <a href="{% url 'django.contrib.auth.views.password_change' %}">Changer mot de passe</a>
+
+    {% endblock %}
+
+    {% block redirections %}
+
+        <a href="{% url 'django.contrib.auth.views.logout' %}">Logout</a>
+
+    {% endblock %}
+
+    {% if perms.accounts.add_user == True %}
+
+        {% block administration %}
+
+            <a href="{% url 'url_create_user' %}">Créer un compte utilisateur</a>
+
+        {% endblock %}
+
+    {% endif %}
+
+{% endblock %}
