@@ -14,6 +14,24 @@
                 <li>Num'ss : {{ user.family }}</li>
                 <li>Prom'ss : {{ user.campus }}{{ year_pg }}</li>
                 <li>Solde : {{ user.balance }} €</li>
+                <li>Permissions :
+                    {% if user.is_superuser %}
+                        <p>superuser -> toutes les permissions</p>
+                    {% else %}
+                        <ul>
+                            {% for e in user.user_permissions.all %}
+                                <li>{{ e.name }}</li>
+                            {% endfor %}
+                        </ul>
+                    {% endif %}
+                </li>
+                <li>Groupes :
+                    <ul>
+                        {% for e in user.groups.all %}
+                            <li>{{ e.name }}</li>
+                        {% endfor %}
+                    </ul>
+                </li>
             </ul>
 
         {% endblock %}

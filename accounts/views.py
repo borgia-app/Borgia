@@ -1,18 +1,16 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required, permission_required
 from accounts.forms import ChangeInformationsForm, UserCreationCustomForm, UserUpdateCustomForm
-from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin
 from accounts.models import User
+from django.contrib.auth.models import Permission
 
 
 # Page de profil
 @login_required
 def profile_view(request):
-
-    # Récupération des variables
-    user = request.user
     # Mise en forme de l'année mode Pg, 2014 -> 214
-    year_pg = int(str(user.year)[:1] + str(user.year)[-2:])
+    year_pg = int(str(request.user.year)[:1] + str(request.user.year)[-2:])
 
     return render(request, 'accounts/profile.html', locals())
 
@@ -64,6 +62,15 @@ class UserCreateView(CreateView):
     form_class = UserCreationCustomForm
     template_name = 'accounts/user_create_form.html'
     success_url = 'profile'  # Redirection à la fin
+
+    # Override form_valid pour enregistrer les attributs issues d'autres classes (m2m ou autres)
+    def form_valid(self, form):
+        """
+        If the form is valid, save the associated model.
+        """
+        self.object = form.save()  # Save l'object et ses attributs
+        form.save_m2m()  # Save les m2m de l'object créé
+        return super(ModelFormMixin, self).form_valid(form)
 
 
 # Modification d'un user
