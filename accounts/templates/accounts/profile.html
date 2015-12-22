@@ -40,7 +40,7 @@
 
     {% block modifications_informations %}
 
-        <a href="{% url 'accounts.views.change_informations_view' %}">Changer informations personnelles</a>
+        <a href="{% url 'url_update_user' pk=user.id  %}">Changer informations personnelles</a>
         <a href="{% url 'django.contrib.auth.views.password_change' %}">Changer mot de passe</a>
 
     {% endblock %}

@@ -10,15 +10,15 @@ urlpatterns = [
     url(r'^logout', logout, {'template_name': 'accounts/logout.html', 'next_page': login}),
 
     # Password
-    url(r'^change_informations', change_informations_view),
     url(r'^password_change', password_change, {'template_name': 'accounts/password_change.html',
                                                'post_change_redirect': password_change_done}, name='password_change'),
     url(r'^password_change_done', password_change_done, {'template_name': 'accounts/password_change_done.html'}),
 
     # Profile
     url(r'^profile', profile_view, name='url_profile'),
-    #url(r'^user_update/(?P<pk>\d+)/&', UserUpdateView.as_view(), name='url_update_user'),
 
     # Administration
     url(r'^user_create', permission_required('accounts.add_user')(UserCreateView.as_view()), name='url_create_user'),
+    url(r'^user_update/(?P<pk>\d+)/$', UserUpdateView.as_view(), name='url_update_user'),
+
 ]

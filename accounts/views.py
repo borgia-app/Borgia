@@ -1,9 +1,9 @@
 from django.shortcuts import render
-from django.contrib.auth.decorators import login_required, permission_required
-from accounts.forms import ChangeInformationsForm, UserCreationCustomForm, UserUpdateCustomForm
+from django.contrib.auth.decorators import login_required
+from accounts.forms import ChangeInformationsForm, UserCreationCustomForm
 from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin
 from accounts.models import User
-from django.contrib.auth.models import Permission
+
 
 
 # Page de profil
@@ -76,6 +76,6 @@ class UserCreateView(CreateView):
 # Modification d'un user
 class UserUpdateView(UpdateView):
     model = User
-    form_class = UserUpdateCustomForm
+    fields = ['last_name', 'first_name']
     template_name = 'accounts/user_update_form.html'
-    success_url = 'profile'  # Redirection à la fin
+    success_url = '/accounts/profile/'
