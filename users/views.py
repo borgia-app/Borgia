@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from users.forms import UserCreationCustomForm
-from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin
+from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin, DeleteView
 from django.views.generic import ListView, DetailView
 from users.models import User
 
@@ -56,7 +56,7 @@ class UserUpdateAdminView(UpdateView):
 
 
 # D - Suppression d'un user
-class UserDeleteView(DetailView):
+class UserDeleteView(DeleteView):
     model = User
     template_name = 'users/delete.html'
     success_url = '/users/'
