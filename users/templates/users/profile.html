@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% block affichage_informatif_modifications%}
+        <div>
+            {% include 'users/retrieve.html' with object=user %}
+        </div>
+    {% endblock %}
+
+    {% block modifications_password %}
+        <div>
+            <a href="{% url 'django.contrib.auth.views.password_change' %}">Changer mot de passe</a>
+        </div>
+    {% endblock %}
+
+    {% block redirections %}
+        <div>
+            <a href="{% url 'django.contrib.auth.views.logout' %}">Logout</a>
+        </div>
+    {% endblock %}
+
+    {% block administration %}
+        <div>
+            {% if perms.users.add_user %}
+                <a href="{% url 'url_create_user' %}">Créer un compte utilisateur</a>
+            {% endif %}
+            {% if perms.users.list_user %}
+                <a href="{% url 'url_list_user' %}">Liste des utilisateurs</a>
+            {% endif %}
+        </div>
+    {% endblock %}
+
+{% endblock %}

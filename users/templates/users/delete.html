@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="" method="post">{% csrf_token %}
+    <p>Supprimer l'utilisateur {{ object.username }} ({{ object.first_name }} {{ object.last_name }}) ?</p>
+    <input type="submit" value="Confirm" />
+</form>
+
+{% endblock %}

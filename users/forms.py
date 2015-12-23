@@ -1,5 +1,5 @@
 from django import forms
-from accounts.models import User
+from users.models import User
 from django.contrib.auth.forms import UserCreationForm, UserChangeForm
 from django.contrib.auth.models import Permission, Group
 
