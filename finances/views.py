@@ -147,8 +147,13 @@ class TransactionValidationView(UpdateView):
         """
         If the form is valid, save the associated model.
         """
-        form.save()
-        # AJOUTER LES DEBITS/CREDITS ET AUTRES ICI
+        # Crédit du client
+        credit = self.object.client.credit(self.object.total())
+        # Vérification
+        if credit == self.object.total():
+            self.object.error_credit = False
+            form.save()
+
         return super(ModelFormMixin, self).form_valid(form)
 
 

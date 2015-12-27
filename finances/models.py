@@ -15,8 +15,9 @@ class Transaction(models.Model):
     cashs = models.ManyToManyField('Cash', blank=True)
     lydias = models.ManyToManyField('Lydia', blank=True)
 
-    # Validation (utilité ?)
+    # Validation
     validated = models.BooleanField(default=False)
+    error_credit = models.BooleanField(default=True)
 
     def __str__(self):
         return 'Transaction n°' + str(self.id)

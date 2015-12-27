@@ -32,10 +32,12 @@ class User(AbstractUser):
         old_balance = self.balance
         if x > 0:
             self.balance += x
+        self.save()
         return self.balance - old_balance
 
     def debit(self, x):
         old_balance = self.balance
         if x > 0:
             self.balance -= x
+        self.save()
         return old_balance - self.balance

@@ -9,6 +9,7 @@
             <th>Date</th>
             <th>Heure</th>
             <th>Validation</th>
+            <th>Erreur lors du crédit</th>
             <th>Montant total (€)</th>
             <th>Chèque(s) lié(s)</th>
             <th>Espèce(s) liée(s)</th>
@@ -24,6 +25,7 @@
                 <td>{{ e.date }}</td>
                 <td>{{ e.time }}</td>
                 <td>{{ e.validated }}</td>
+                <td>{{ e.error_credit }}</td>
                 <td>{{ e.total }}</td>
                 <td>{% for h in e.list_cheques %}
                     <a href="{% url 'url_retrieve_cheque' pk=h.id %}">{{ h }}</a>
