@@ -28,8 +28,8 @@ class UserCreationCustomForm(UserCreationForm):
     last_name = forms.CharField(label='Nom', max_length=255)
     surname = forms.CharField(label='Buque', max_length=255)
     family = forms.CharField(label='Fam\'ss', max_length=255)
-    campus = forms.CharField(label='Tabagn\'s', max_length=2)
-    year = forms.IntegerField(label='Prom\'ss')
+    campus = forms.ChoiceField(label='Tabagn\'s', choices=User.CAMPUS_CHOICES)
+    year = forms.ChoiceField(label='Prom\'ss', choices=User.YEAR_CHOICES)
     user_permissions = forms.ModelMultipleChoiceField(label='Permissions', required=False,
                                                       widget=forms.CheckboxSelectMultiple,
                                                       queryset=Permission.objects.all())

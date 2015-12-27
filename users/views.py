@@ -28,6 +28,9 @@ class UserCreateView(CreateView):
         form.save_m2m()  # Save les m2m de l'object créé
         return super(ModelFormMixin, self).form_valid(form)
 
+    def get_initial(self):
+        return {'campus': 'Me', 'year': 2014}
+
 
 # R - Récupération d'un user
 class UserRetrieveView(DetailView):
