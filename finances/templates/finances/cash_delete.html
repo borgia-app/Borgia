@@ -1,0 +1,10 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<form action="" method="post">{% csrf_token %}
+    <p>Supprimer les espèces {{ object }} ?</p>
+    <input type="submit" value="Confirm" />
+</form>
+
+{% endblock %}

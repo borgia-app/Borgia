@@ -6,6 +6,7 @@ urlpatterns = [
     # Applications
     url(r'^admin/', admin.site.urls),
     url(r'^users/', include('users.urls')),
+    url(r'^finances/', include('finances.urls')),
 
     # Authentification
     url(r'^auth/login', login, {'template_name': 'login.html'}),

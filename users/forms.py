@@ -1,6 +1,6 @@
 from django import forms
 from users.models import User
-from django.contrib.auth.forms import UserCreationForm, UserChangeForm
+from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth.models import Permission, Group
 
 
@@ -36,11 +36,3 @@ class UserCreationCustomForm(UserCreationForm):
     groups = forms.ModelMultipleChoiceField(label='Groupes', required=False,
                                             widget=forms.CheckboxSelectMultiple,
                                             queryset=Group.objects.all())
-
-
-# A voir si on peut utiliser UserUpdateCustomForm plutot
-class ChangeInformationsForm(forms.Form):
-    new_surname = forms.CharField(label='Buque', max_length=255)
-    new_family = forms.CharField(label='Fam\'ss', max_length=255)
-    new_campus = forms.CharField(label='Tabagn\'ss', max_length=4)
-    new_year = forms.IntegerField(label='Prom\'ss')

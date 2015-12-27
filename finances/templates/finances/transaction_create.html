@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    {% block transaction %}
+        <div>
+            <p>Création d'une transaction</p>
+            <form action= "{% url 'url_create_transaction' %}" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Submit"/>
+            </form>
+        </div>
+    {% endblock %}
+
+    {% block cheque %}
+        <a href="{% url 'url_create_cheque' %}">Ajouter un chèque</a>
+    {% endblock %}
+    {% block cash %}
+        <a href="{% url 'url_create_cash' %}">Ajouter de l'espèce</a>
+    {% endblock %}
+    {% block lydia %}
+        <a href="{% url 'url_create_lydia' %}">Ajouter un virement Lydia</a>
+    {% endblock %}
+
+{% endblock %}

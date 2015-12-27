@@ -9,9 +9,6 @@ from users.models import User
 # Page de profil
 @login_required
 def profile_view(request):
-    # Mise en forme de l'année mode Pg, 2014 -> 214
-    year_pg = int(str(request.user.year)[:1] + str(request.user.year)[-2:])
-
     return render(request, 'users/profile.html', locals())
 
 

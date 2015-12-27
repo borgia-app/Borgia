@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+        <div>
+            <p>Crédit rapide d'un compte avec des espèces</p>
+            <form action= "{% url 'url_create_transaction_cash_fast' %}" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Submit"/>
+            </form>
+        </div>
+
+{% endblock %}

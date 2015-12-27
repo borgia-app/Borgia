@@ -1,0 +1,43 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <p>Récapitulatif de la transaction</p>
+
+    <div>
+        <p>Chèques</p>
+        {% for c in object.list_cheques %}
+            {{ c }}
+        {% endfor%}
+        <p>Sous total : {{ object.sub_total_cheques }}€</p>
+    </div>
+    <div>
+        <p>Espèces</p>
+        {% for c in object.list_cashs %}
+            {{ c }}
+        {% endfor%}
+        <p>Sous total : {{ object.sub_total_cashs }}€</p>
+    </div>
+    <div>
+        <p>Lydia</p>
+        {% for c in object.list_lydias %}
+            {{ c }}
+        {% endfor%}
+        <p>Sous total : {{ object.sub_total_lydias }}€</p>
+    </div>
+
+    <div>
+        <p>TOTAL</p>
+        <p>{{ object.sub_total_cheques|add:object.sub_total_cashs|add:object.sub_total_lydias }}€</p>
+    </div>
+
+    <div>
+        <form action= "" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Valider"/>
+        </form>
+        <a href="{% url 'url_create_transaction' %}">Annuler la transaction</a>
+    </div>
+
+{% endblock %}

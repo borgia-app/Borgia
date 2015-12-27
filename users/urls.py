@@ -1,9 +1,8 @@
 from django.conf.urls import url
 from django.contrib.auth.views import password_change, password_change_done
-from users.views import profile_view, UserCreateView, UserUpdatePersoView, UserUpdateAdminView, UserDeleteView, UserRetrieveView, UserListView
+from users.views import profile_view, UserCreateView, UserUpdatePersoView, UserUpdateAdminView, UserDeleteView, \
+    UserRetrieveView, UserListView
 from django.contrib.auth.decorators import permission_required
-
-from users.models import User
 
 
 urlpatterns = [
