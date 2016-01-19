@@ -9,10 +9,6 @@ class TimeStampedDescription(models.Model):
     """
     created = models.DateTimeField(_('created'), auto_now_add=True)
     modified = models.DateTimeField(_('modified'), auto_now=True)
-    name = models.CharField(_('name'), max_length=255)
-    description = models.TextField(_('description'), blank=True, null=True)
-    slug = models.SlugField(unique=True)
-    # Le slug est un nom unique que l'on peut passer dans l'url pour appeler l'objet
 
     class Meta:
         get_latest_by = 'modified'

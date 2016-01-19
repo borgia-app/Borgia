@@ -20,15 +20,15 @@ class Product(TimeStampedDescription):
     x unites de produit.
     """
 
-    is_available_for_sale = models.BooleanField()
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True, null=True)
+    is_available_for_sale = models.BooleanField(default=False)
     # Permet de savoir si le produit est disponible a la vente (par exemple un fut de biere peut etre es stock mais
     # conserve pour un evenement a venir)
-    is_available_for_borrowing = models.BooleanField()
-    # Permet de savoir si le produit est disponiblr a l'emprunt
-    price = models.FloatField()
+    is_available_for_borrowing = models.BooleanField(default=False)
+    # Permet de savoir si le produit est disponible a l'emprunt
     peremption_date = models.DateField(blank=True, null=True)
-    # Un videoprojecteur ne perimme pas
-    localisation = models.CharField(max_length=50)
+    # Un videoprojecteur ne perime pas
 
     def __str__(self):
         return self.name
@@ -43,7 +43,8 @@ class SingleProduct(Product):
     une casquette
     """
 
-    is_sold = models.BooleanField()
+    is_sold = models.BooleanField(default=False)
+    price = models.FloatField()
 
 
 class Container(Product):
@@ -54,14 +55,16 @@ class Container(Product):
 
     un fut de biere contient 15, 30, etc. litres de biere.
     """
-
+    product_unit = models.ForeignKey('ProductUnit')
     initial_quantity = models.FloatField()
     estimated_remaining_quantity = models.FloatField(blank=True, null=True)
-    is_empty = models.BooleanField()
+    is_empty = models.BooleanField(default=False)
+
     opening_date = models.DateField(blank=True, null=True)
-    duration_of_use_after_opening = models.FloatField()
+    removing_date = models.DateField(blank=True, null=True)
+
     is_returnable = models.BooleanField()  # Consigne
-    value_when_returnabled = models.FloatField(blank=True, null=True)
+    value_when_returned = models.FloatField(blank=True, null=True)
     return_date = models.DateField(blank=True, null=True)
 
 
@@ -73,5 +76,9 @@ class ProductUnit(TimeStampedDescription):
     un centilitre pour les liquides
     un gramme pour les fromages
     """
-
     price = models.FloatField()
+    unit = models.CharField(max_length=10)
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    TYPE_CHOICES = (('fût', 'fût'), ('morceau', 'morceau'))
+    type = models.CharField(max_length=255, choices=TYPE_CHOICES)

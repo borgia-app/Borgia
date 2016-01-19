@@ -73,7 +73,8 @@ class UserListView(ListView):
             ('list_user', 'Accéder à la liste des Users')
         )
 
-
+def test(request):
+    return UserListView.as_view()
 
 
 

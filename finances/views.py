@@ -1,4 +1,4 @@
-from django.shortcuts import HttpResponseRedirect, force_text
+from django.shortcuts import HttpResponseRedirect, force_text, render
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, ModelFormMixin
 from django.views.generic import ListView, DetailView, FormView
 from django.contrib.auth import authenticate
