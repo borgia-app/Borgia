@@ -17,9 +17,9 @@ urlpatterns = [
     # Model User (les tests de permissions sont soit dans l'url soit dans le template)
     # Seul ceux qui peuvent add des users
     url(r'^create/', UserCreateView.as_view(), name='url_create_user'),  # C
-    # Soit on retrieve soit même, soit on a la permission de tous
+    # Soit on retrieve soit meme, soit on a la permission de tous
     url(r'^retrieve/(?P<pk>\d+)/$', UserRetrieveView.as_view(), name='url_retrieve_user'),  # R
-    # Soit on s'update soit même, soit on a la permission de tous
+    # Soit on s'update soit meme, soit on a la permission de tous
     url(r'^updateP/(?P<pk>\d+)/$', UserUpdatePersoView.as_view(), name='url_updateperso_user'),  # U
     url(r'^updateA/(?P<pk>\d+)/$', permission_required('users.change_user')(UserUpdateAdminView.as_view()),
         name='url_updateadmin_user'),  # U

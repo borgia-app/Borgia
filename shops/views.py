@@ -12,14 +12,14 @@ from users.models import User
 
 def purchase_foyer(request):
 
-    # PB à résoudre :
-    # Pas de problème si l'integer field est mal renseigné (négatif ou alpha etc)
+    # PB a resoudre :
+    # Pas de problème si l'integer field est mal renseigne (negatif ou alpha etc)
     # Mais problème s'il est vide !
-    # La méthode post passe quand même, mais on n'entre pas dans le if, que faire ??
+    # La methode post passe quand même, mais on n'entre pas dans le if, que faire ??
 
-    # Ne pas commander avec un solde négatif
+    # Ne pas commander avec un solde negatif
 
-    # Peut être utiliser une FormView (mais plus complexe à cause du tap_list qu'il faut envoyer ...)
+    # Peut être utiliser une FormView (mais plus complexe a cause du tap_list qu'il faut envoyer ...)
     # Cf get_context_data avec kwargs: tap_list
 
     # Que se passe-t-il si on change un fut entre temps sur une tireuse ?
@@ -29,7 +29,7 @@ def purchase_foyer(request):
     tap_list = Tap.objects.filter(container__isnull=False)
     # Liste des objects unitaires disponibles au foyer (ex: skolls 33cl, ...)
     single_product_list = Shop.objects.get(name="Foyer").list_single_product_unsold_name()
-    # Liste des unités de produits, hors bières issues de fûts, disponibles au foyer (ex: sirop de fraise, ...)
+    # Liste des unites de produits, hors bières issues de fûts, disponibles au foyer (ex: sirop de fraise, ...)
     product_unit_other_list = ProductUnit.objects.filter(Q(type='other'))
 
     # Cas du premier envoi
@@ -39,7 +39,7 @@ def purchase_foyer(request):
 
         if form.is_valid():
 
-            # Créations des dictionnaires (demande, element) de correspondance
+            # Creations des dictionnaires (demande, element) de correspondance
             list_results_tap = []
             list_results_single_product = []
             list_results_product_unit_other = []
@@ -53,8 +53,8 @@ def purchase_foyer(request):
                 list_results_product_unit_other.append((form.cleaned_data["field_product_unit_other_%s" % i],
                                                         product_unit_other_list[i]))
 
-            # Création de la purchase
-                # Informations générales
+            # Creation de la purchase
+                # Informations generales
             purchase = Purchase(operator=User.objects.get(username="AE_ENSAM"), client=request.user)
             purchase.save()
 
@@ -63,7 +63,7 @@ def purchase_foyer(request):
             # Fûts de bières, ce sont ceux qui sont sous les tireuses
             for e in list_results_tap:
                 if e[0] != 0:  # Le client a pris un objet issu du container e[1]
-                    # Création d'un objet issu de e[1] lié à la purchase et sauvegarde
+                    # Creation d'un objet issu de e[1] lie a la purchase et sauvegarde
                     spfc = SingleProductFromContainer(container=e[1].container, quantity=e[0]*25,
                                                       price=e[0]*e[1].container.product_unit.price_glass(),
                                                       purchase=purchase)
@@ -72,8 +72,8 @@ def purchase_foyer(request):
             # Sirops, softs et alcools fort
             for e in list_results_product_unit_other:
                 if e[0] != 0:
-                    # 1 ou 0 pour début de la liste ?
-                    # 4 ou 25 cl ? ou même autre chose, il faut différencier les cas
+                    # 1 ou 0 pour debut de la liste ?
+                    # 4 ou 25 cl ? ou même autre chose, il faut differencier les cas
                     # soft -> 25 cl
                     # alcool fort, sirop -> 4 cl
                     spfc = SingleProductFromContainer(container=Container.objects.filter(product_unit__name=e[1])[0],
@@ -89,9 +89,9 @@ def purchase_foyer(request):
             # quand on ajoute un produit plus ou moins cher dans la liste
             for e in list_results_single_product:
                 if e[0] != 0:
-                    # Le client demande e[0] objets identiques à e[1]
+                    # Le client demande e[0] objets identiques a e[1]
                     # On les prends dans l'ordre du queryset (on s'en fiche) des objets non vendus bien sûr
-                    k = 0  # k est le nombres d'objets similaires à e[1] que l'on a lié à la purchase courante
+                    k = 0  # k est le nombres d'objets similaires a e[1] que l'on a lie a la purchase courante
                     if e[0] <= len(SingleProduct.objects.filter(Q(name=e[1]) & Q(is_sold=False))):
                         lim = e[0]
                     else:
@@ -104,21 +104,21 @@ def purchase_foyer(request):
                         k += 1
 
             # Payement total par le foyer
-            # Débit du client + vérification
+            # Debit du client + verification
             if purchase.client.debit(purchase.total_product()) == purchase.total_product():
                 purchase.foyer = purchase.total_product()
                 purchase.save()
             # SINON ERREUR
 
-            # Déconnection
+            # Deconnection
             logout(request)
 
             # Affichage de la purchase au client
             return render(request, 'shops/purchase_validation_foyer.html', {'purchase': purchase})
 
     else:
-        # Création des dictionnaires (field, element, n°) de correspondance
-        # Sert à l'affichage sur le template et au post traitement
+        # Creation des dictionnaires (field, element, n°) de correspondance
+        # Sert a l'affichage sur le template et au post traitement
         dict_field_tap = []
         dict_field_single_product = []
         dict_field_product_unit_other = []

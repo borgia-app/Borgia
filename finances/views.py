@@ -15,7 +15,7 @@ class TransactionCreateView(FormView):
     form_class = CreationTransactionForm
 
     def get_initial(self):
-        # L'opérateur est celui qui est connecté
+        # L'operateur est celui qui est connecte
         return {'operator': self.request.user}
 
     def form_valid(self, form):
@@ -37,7 +37,7 @@ class TransactionCreateView(FormView):
 
 class TransactionChequeFastCreateView(FormView):
     """"
-    Vue de création rapide d'une transaction, associée à un seul et unique chèque
+    Vue de creation rapide d'une transaction, associee a un seul et unique cheque
     """""
     template_name = 'finances/transaction_cheque_fast_create.html'
     form_class = CreationTransactionChequeFastForm
@@ -47,10 +47,10 @@ class TransactionChequeFastCreateView(FormView):
         """
         If the form is valid, redirect to the supplied URL.
         """
-        # Procédure d'authentification
+        # Procedure d'authentification
         user = authenticate(username=form.cleaned_data['operator'].username, password=form.cleaned_data['password'])
-        if user:  # Opérateur identifié
-            # Création du chèque et de la transaction
+        if user:  # Operateur identifie
+            # Creation du cheque et de la transaction
             cheque = Cheque(number=form.cleaned_data['number'], signatory=form.cleaned_data['client'],
                             recipient=User.objects.get(username='AE_ENSAM'),
                             amount=form.cleaned_data['amount'])
@@ -61,7 +61,7 @@ class TransactionChequeFastCreateView(FormView):
             transaction.cheques.add(cheque)
             transaction.save()
 
-            # Crédit du compte
+            # Credit du compte
             credit = transaction.client.credit(transaction.total())
             if credit == transaction.total():
                 transaction.error_credit = False
@@ -76,7 +76,7 @@ class TransactionChequeFastCreateView(FormView):
 
 class TransactionCashFastCreateView(FormView):
     """"
-    Vue de création rapide d'une transaction, associée à un seul et unique chèque
+    Vue de creation rapide d'une transaction, associee a un seul et unique cheque
     """""
     template_name = 'finances/transaction_cash_fast_create.html'
     form_class = CreationTransactionPaymentFast
@@ -86,10 +86,10 @@ class TransactionCashFastCreateView(FormView):
         """
         If the form is valid, redirect to the supplied URL.
         """
-        # Procédure d'authentification
+        # Procedure d'authentification
         user = authenticate(username=form.cleaned_data['operator'].username, password=form.cleaned_data['password'])
-        if user:  # Opérateur identifié
-            # Création du cash et de la transaction
+        if user:  # Operateur identifie
+            # Creation du cash et de la transaction
             cash = Cash(giver=form.cleaned_data['client'], amount=form.cleaned_data['amount'])
             cash.save()
             transaction = Transaction(operator=user, client=form.cleaned_data['client'],
@@ -98,7 +98,7 @@ class TransactionCashFastCreateView(FormView):
             transaction.cashs.add(cash)
             transaction.save()
 
-            # Crédit du compte
+            # Credit du compte
             credit = transaction.client.credit(transaction.total())
             if credit == transaction.total():
                 transaction.error_credit = False
@@ -113,7 +113,7 @@ class TransactionCashFastCreateView(FormView):
 
 class TransactionLydiaFastCreateView(FormView):
     """"
-    Vue de création rapide d'une transaction, associée à un seul et unique chèque
+    Vue de creation rapide d'une transaction, associee a un seul et unique cheque
     """""
     template_name = 'finances/transaction_lydia_fast_create.html'
     form_class = CreationTransactionLydiaFastForm
@@ -123,10 +123,10 @@ class TransactionLydiaFastCreateView(FormView):
         """
         If the form is valid, redirect to the supplied URL.
         """
-        # Procédure d'authentification
+        # Procedure d'authentification
         user = authenticate(username=form.cleaned_data['operator'].username, password=form.cleaned_data['password'])
-        if user:  # Opérateur identifié
-            # Création du virement lydia et de la transaction
+        if user:  # Operateur identifie
+            # Creation du virement lydia et de la transaction
             lydia = Lydia(giver=form.cleaned_data['client'], recipient=user, amount=form.cleaned_data['amount'],
                           time_operation=form.cleaned_data['time_operation'])
             lydia.save()
@@ -136,7 +136,7 @@ class TransactionLydiaFastCreateView(FormView):
             transaction.lydias.add(lydia)
             transaction.save()
 
-            # Crédit du compte
+            # Credit du compte
             credit = transaction.client.credit(transaction.total())
             if credit == transaction.total():
                 transaction.error_credit = False
@@ -160,9 +160,9 @@ class TransactionValidationView(UpdateView):
         """
         If the form is valid, save the associated model.
         """
-        # Crédit du client
+        # Credit du client
         credit = self.object.client.credit(self.object.total())
-        # Vérification
+        # Verification
         if credit == self.object.total():
             self.object.error_credit = False
             form.save()
@@ -171,7 +171,7 @@ class TransactionValidationView(UpdateView):
         return super(ModelFormMixin, self).form_valid(form)
 
 
-# Affichage détaillé d'une transaction - R
+# Affichage detaille d'une transaction - R
 class TransactionRetrieveView(DetailView):
     model = Transaction
     template_name = "finances/transaction_retrieve.html"
@@ -200,7 +200,7 @@ class TransactionListView(ListView):
 
 
 # Model CHEQUE
-# Création d'un chèque - C
+# Creation d'un cheque - C
 class ChequeCreateView(CreateView):
     model = Cheque
     form_class = CreationChequeForm
@@ -211,13 +211,13 @@ class ChequeCreateView(CreateView):
         return {'recipient': User.objects.get(username='AE_ENSAM')}
 
 
-# Affichage détaillé d'un chèque - R
+# Affichage detaille d'un cheque - R
 class ChequeRetrieveView(DetailView):
     model = Cheque
     template_name = "finances/cheque_retrieve.html"
 
 
-# Update d'un chèque - U
+# Update d'un cheque - U
 class ChequeUpdateView(UpdateView):
     model = Cheque
     fields = ['giver', 'receiver', 'number', 'date_cash', 'date_sign', 'date_received', 'amount', 'cashed']
@@ -225,14 +225,14 @@ class ChequeUpdateView(UpdateView):
     success_url = '/finances/cheque/'
 
 
-# Suppression d'un chèque - D
+# Suppression d'un cheque - D
 class ChequeDeleteView(DeleteView):
     model = Cheque
     template_name = 'finances/cheque_delete.html'
     success_url = '/finances/cheque'
 
 
-# Liste de chéques - List
+# Liste de cheques - List
 class ChequeListView(ListView):
     model = Cheque
     template_name = "finances/cheque_list.html"
@@ -240,7 +240,7 @@ class ChequeListView(ListView):
 
 
 # Model CASH
-# Création d'espèces - C
+# Creation d'especes - C
 class CashCreateView(CreateView):
     model = Cash
     form_class = CreationCashForm
@@ -248,13 +248,13 @@ class CashCreateView(CreateView):
     success_url = '/finances/transaction/create'
 
 
-# Affichage détaillé d'espèces - R
+# Affichage detaille d'especes - R
 class CashRetrieveView(DetailView):
     model = Cash
     template_name = "finances/cash_retrieve.html"
 
 
-# Update d'espèces - U
+# Update d'especes - U
 class CashUpdateView(UpdateView):
     model = Cash
     fields = ['giver', 'amount', 'cashed']
@@ -262,14 +262,14 @@ class CashUpdateView(UpdateView):
     success_url = '/finances/cash/'
 
 
-# Suppression d'espèces - D
+# Suppression d'especes - D
 class CashDeleteView(DeleteView):
     model = Cash
     template_name = 'finances/cash_delete.html'
     success_url = '/finances/cash'
 
 
-# Liste d'espèces - List
+# Liste d'especes - List
 class CashListView(ListView):
     model = Cash
     template_name = "finances/cash_list.html"
@@ -277,7 +277,7 @@ class CashListView(ListView):
 
 
 # Model LYDIA
-# Création d'un virement Lydia - C
+# Creation d'un virement Lydia - C
 class LydiaCreateView(CreateView):
     model = Lydia
     form_class = CreationLydiaForm
@@ -288,7 +288,7 @@ class LydiaCreateView(CreateView):
         return {'receiver': self.request.user}
 
 
-# Affichage détaillé d'un virement Lydia - R
+# Affichage detaille d'un virement Lydia - R
 class LydiaRetrieveView(DetailView):
     model = Lydia
     template_name = "finances/lydia_retrieve.html"
@@ -317,9 +317,9 @@ class LydiaListView(ListView):
 
 
 # Model PURCHASE
-# Création d'un achat - C
+# Creation d'un achat - C
 
-# Affichage détaillé d'un achat - R
+# Affichage detaille d'un achat - R
 class PurchaseRetrieveView(DetailView):
     model = Purchase
     template_name = 'finances/purchase_retrieve.html'

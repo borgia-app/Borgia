@@ -4,7 +4,7 @@ from django.utils.timezone import now
 
 
 class Purchase(models.Model):
-    # Informations générales
+    # Informations generales
     operator = models.ForeignKey('users.User', related_name='purchase_operator')
     client = models.ForeignKey('users.User', related_name='purchase_client')
     date = models.DateField(default=now)
@@ -99,7 +99,7 @@ class Purchase(models.Model):
 
 
 class Transaction(models.Model):
-    # Informations générales
+    # Informations generales
     operator = models.ForeignKey('users.User', related_name='transaction_operator')
     client = models.ForeignKey('users.User', related_name='transaction_client')
     date = models.DateField(default=now)
@@ -149,14 +149,14 @@ class Transaction(models.Model):
 
 
 class Cheque(models.Model):
-    # Informations sur l'identité du chèque
+    # Informations sur l'identite du cheque
     number = models.CharField(max_length=7)
     signatory = models.ForeignKey('users.User', related_name='cheque_signatory')
     date_sign = models.DateField(default=now)
     recipient = models.ForeignKey('users.User', related_name='cheque_recipient')
     amount = models.FloatField()
 
-    # Information de comptabilité
+    # Information de comptabilite
     date_cash = models.DateField(blank=True, null=True)
     cashed = models.BooleanField(default=False)
 
@@ -168,11 +168,11 @@ class Cheque(models.Model):
 
 
 class Cash(models.Model):
-    # Information sur l'identité des espèces
+    # Information sur l'identite des especes
     amount = models.FloatField()
     giver = models.ForeignKey('users.User', related_name='cash_giver')
 
-    # Information de comptabilité
+    # Information de comptabilite
     cashed = models.BooleanField(default=False)
     date_cash = models.DateField(blank=True, null=True)
 
@@ -184,15 +184,15 @@ class Cash(models.Model):
 
 
 class Lydia(models.Model):
-    # Information sur l'identité du virement lydia
+    # Information sur l'identite du virement lydia
     date_operation = models.DateField(default=now)
     time_operation = models.TimeField(default=now)
     amount = models.FloatField()
-    # numéro unique ?
+    # numero unique ?
     giver = models.ForeignKey('users.User', related_name='lydia_giver')
     recipient = models.ForeignKey('users.User', related_name='lydia_recipient')
 
-    # Information de comptabilité
+    # Information de comptabilite
     cashed = models.BooleanField(default=False)
     date_cash = models.DateField(blank=True, null=True)
 

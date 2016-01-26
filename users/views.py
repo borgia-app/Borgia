@@ -17,12 +17,12 @@ def profile_view(request):
     return render(request, 'users/profile.html', locals())
 
 
-# C - Création d'un user
+# C - Creation d'un user
 class UserCreateView(CreateView):
     model = User
     form_class = UserCreationCustomForm
     template_name = 'users/create.html'
-    success_url = '/users/profile/'  # Redirection à la fin
+    success_url = '/users/profile/'  # Redirection a la fin
 
     # Override form_valid pour enregistrer les attributs issues d'autres classes (m2m ou autres)
     def form_valid(self, form):
@@ -30,21 +30,21 @@ class UserCreateView(CreateView):
         If the form is valid, save the associated model.
         """
         self.object = form.save()  # Save l'object et ses attributs
-        form.save_m2m()  # Save les m2m de l'object créé
+        form.save_m2m()  # Save les m2m de l'object cree
         return super(ModelFormMixin, self).form_valid(form)
 
     def get_initial(self):
         return {'campus': 'Me', 'year': 2014}
 
 
-# R - Récupération d'un user
+# R - Recuperation d'un user
 class UserRetrieveView(DetailView):
     model = User
     template_name = "users/retrieve.html"
 
 
 # U - Modification d'un user
-# Si l'on se modifie soit même
+# Si l'on se modifie soit meme
 class UserUpdatePersoView(UpdateView):
     model = User
     fields = ['first_name', 'last_name', 'surname', 'family', 'year', 'campus']
@@ -75,5 +75,5 @@ class UserListView(ListView):
 
     class Meta:
         permissions = (
-            ('list_user', 'Accéder à la liste des Users')
+            ('list_user', 'Acceder a la liste des Users')
         )

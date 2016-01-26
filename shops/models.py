@@ -24,7 +24,7 @@ class Shop(TimeStampedDescription):
         """
         Renvoie une liste du genre (single product 1, qt 1), (single product 2, qt 2)
         """
-        list_qt = []  # Liste de la forme (nom du single product, quantité disponible)
+        list_qt = []  # Liste de la forme (nom du single product, quantite disponible)
         single_products = SingleProduct.objects.filter(shop=self)
 
         # Initialisation de la liste
@@ -32,10 +32,10 @@ class Shop(TimeStampedDescription):
 
         for sp in single_products:
             in_list = False
-            # On regarde si le produit se trouve déjà dans la liste
+            # On regarde si le produit se trouve dejà dans la liste
             for i, e in enumerate(list_qt):
                 if e[0] == sp.name:
-                    # Trouvé dans la liste
+                    # Trouve dans la liste
                     in_list = True
                     list_qt[i][1] += 1
                     break
@@ -47,7 +47,7 @@ class Shop(TimeStampedDescription):
     def list_single_product_name(self):
         """
         Renvoie une liste du genre (single product 1, single product 2)
-        Des éléments qui n'ont pas une qt nulle (dispo au shop)
+        Des elements qui n'ont pas une qt nulle (dispo au shop)
         """
         list_name = []
         for e in self.list_single_product():
@@ -59,7 +59,7 @@ class Shop(TimeStampedDescription):
         """
         Renvoie une liste du genre (single product 1, qt 1), (single product 2, qt 2)
         """
-        list_qt = []  # Liste de la forme (nom du single product, quantité disponible)
+        list_qt = []  # Liste de la forme (nom du single product, quantite disponible)
         single_products = SingleProduct.objects.filter(Q(shop=self) & Q(is_sold=False))
 
         # Initialisation de la liste
@@ -67,10 +67,10 @@ class Shop(TimeStampedDescription):
             list_qt.append([single_products[0].name, 0])
             for sp in single_products:
                 in_list = False
-                # On regarde si le produit se trouve déjà dans la liste
+                # On regarde si le produit se trouve dejà dans la liste
                 for i, e in enumerate(list_qt):
                     if e[0] == sp.name:
-                        # Trouvé dans la liste
+                        # Trouve dans la liste
                         in_list = True
                         list_qt[i][1] += 1
                         break
@@ -82,7 +82,7 @@ class Shop(TimeStampedDescription):
     def list_single_product_unsold_name(self):
         """
         Renvoie une liste du genre (single product 1, single product 2)
-        Des éléments qui n'ont pas une qt nulle (dispo au shop)
+        Des elements qui n'ont pas une qt nulle (dispo au shop)
         """
         list_name = []
         for e in self.list_single_product_unsold():
@@ -171,7 +171,7 @@ class ProductUnit(Product):
 
 class SingleProductFromContainer(models.Model):
     """
-    Produit unique crée à partir d'un container
+    Produit unique cree à partir d'un container
     par exemple : un verre de X product unit d'un container
     """
     container = models.ForeignKey('Container')
