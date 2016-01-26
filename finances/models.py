@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 from django.db import models
 from shops.models import SingleProduct, SingleProductFromContainer
 from django.utils.timezone import now

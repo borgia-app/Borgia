@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 from django.conf.urls import url
 from django.contrib.auth.views import password_change, password_change_done
 from users.views import profile_view, UserCreateView, UserUpdatePersoView, UserUpdateAdminView, UserDeleteView, \

@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 from django.shortcuts import HttpResponseRedirect, force_text, render, render_to_response
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, ModelFormMixin
 from django.views.generic import ListView, DetailView, FormView

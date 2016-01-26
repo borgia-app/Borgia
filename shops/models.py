@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 from django.db.models import Q
 from django.db.models import Model
 from contrib.models import TimeStampedDescription
