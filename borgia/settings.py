@@ -25,7 +25,7 @@ SECRET_KEY = 'd8!^$6uved6+1d)iiqwhf5q8ao3*z)ykfdff3&zi4@i7pv#jzd'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['www.borgia.iresam.org']
 
 
 # Application definition
