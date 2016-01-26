@@ -1,5 +1,8 @@
-from django.db import models
+from django.db.models import Q
+from django.db.models import Model
 from contrib.models import TimeStampedDescription
+
+from finances.models import *
 
 
 class Shop(TimeStampedDescription):
@@ -11,8 +14,81 @@ class Shop(TimeStampedDescription):
         l'auberge
     """
 
+    name = models.CharField(max_length=255)
+    description = models.TextField()
+
     def __str__(self):
         return self.name
+
+    def list_single_product(self):
+        """
+        Renvoie une liste du genre (single product 1, qt 1), (single product 2, qt 2)
+        """
+        list_qt = []  # Liste de la forme (nom du single product, quantité disponible)
+        single_products = SingleProduct.objects.filter(shop=self)
+
+        # Initialisation de la liste
+        list_qt.append([single_products[1].name, 0])
+
+        for sp in single_products:
+            in_list = False
+            # On regarde si le produit se trouve déjà dans la liste
+            for i, e in enumerate(list_qt):
+                if e[0] == sp.name:
+                    # Trouvé dans la liste
+                    in_list = True
+                    list_qt[i][1] += 1
+                    break
+            if in_list == False:
+                list_qt.append([sp.name, 1])
+
+        return list_qt
+
+    def list_single_product_name(self):
+        """
+        Renvoie une liste du genre (single product 1, single product 2)
+        Des éléments qui n'ont pas une qt nulle (dispo au shop)
+        """
+        list_name = []
+        for e in self.list_single_product():
+            list_name.append(e[0])
+
+        return list_name
+
+    def list_single_product_unsold(self):
+        """
+        Renvoie une liste du genre (single product 1, qt 1), (single product 2, qt 2)
+        """
+        list_qt = []  # Liste de la forme (nom du single product, quantité disponible)
+        single_products = SingleProduct.objects.filter(Q(shop=self) & Q(is_sold=False))
+
+        # Initialisation de la liste
+        if len(single_products) != 0:
+            list_qt.append([single_products[0].name, 0])
+            for sp in single_products:
+                in_list = False
+                # On regarde si le produit se trouve déjà dans la liste
+                for i, e in enumerate(list_qt):
+                    if e[0] == sp.name:
+                        # Trouvé dans la liste
+                        in_list = True
+                        list_qt[i][1] += 1
+                        break
+                if in_list == False:
+                    list_qt.append([sp.name, 1])
+
+        return list_qt
+
+    def list_single_product_unsold_name(self):
+        """
+        Renvoie une liste du genre (single product 1, single product 2)
+        Des éléments qui n'ont pas une qt nulle (dispo au shop)
+        """
+        list_name = []
+        for e in self.list_single_product_unsold():
+            list_name.append(e[0])
+
+        return list_name
 
 
 class Product(TimeStampedDescription):
@@ -30,6 +106,8 @@ class Product(TimeStampedDescription):
     peremption_date = models.DateField(blank=True, null=True)
     # Un videoprojecteur ne perime pas
 
+    shop = models.ForeignKey('Shop', blank=True, null=True)
+
     def __str__(self):
         return self.name
 
@@ -45,6 +123,7 @@ class SingleProduct(Product):
 
     is_sold = models.BooleanField(default=False)
     price = models.FloatField()
+    purchase = models.ForeignKey('finances.Purchase', null=True, blank=True)
 
 
 class Container(Product):
@@ -67,8 +146,11 @@ class Container(Product):
     value_when_returned = models.FloatField(blank=True, null=True)
     return_date = models.DateField(blank=True, null=True)
 
+    def __str__(self):
+        return str(self.id) + " " + self.product_unit.__str__()
 
-class ProductUnit(TimeStampedDescription):
+
+class ProductUnit(Product):
     """Unite de produit.
 
     :Example:
@@ -78,7 +160,29 @@ class ProductUnit(TimeStampedDescription):
     """
     price = models.FloatField()
     unit = models.CharField(max_length=10)
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
-    TYPE_CHOICES = (('fût', 'fût'), ('morceau', 'morceau'))
+    TYPE_CHOICES = (('keg', 'Fût'), ('other', 'Autre'))
     type = models.CharField(max_length=255, choices=TYPE_CHOICES)
+
+    def price_glass(self):
+        return self.price*25
+
+    def price_shoot(self):
+        return self.price*4
+
+class SingleProductFromContainer(models.Model):
+    """
+    Produit unique crée à partir d'un container
+    par exemple : un verre de X product unit d'un container
+    """
+    container = models.ForeignKey('Container')
+    quantity = models.IntegerField()
+    price = models.FloatField()
+    purchase = models.ForeignKey('finances.Purchase')
+
+    def nb_glass(self):
+        return int(self.quantity/25)
+
+
+class Tap(Model):
+    number = models.IntegerField()
+    container = models.ForeignKey('Container', null=True, blank=True)

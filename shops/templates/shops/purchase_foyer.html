@@ -1,0 +1,163 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <form method="POST" action="{% url 'url_purchase_foyer' %}">
+        {% csrf_token %}
+
+        <div id="infos_user_consumption">
+            <ul>
+                <li>Username : {{ user.username }}</li>
+                <li>{{ user.surname }} {{ user.family }} {{ user.campus }}{{ user.year_pg }}</li>
+                <li>Solde disponible : <b id="balance_before">{{ user.balance|floatformat:2 }}</b><b> €</b></li>
+                <li>Consommation : <b id="total_consumption">0 </b><b> €</b></li>
+                <li>Prévision du solde : <b id="balance_after"></b><b> €</b></li>
+            </ul>
+
+        </div>
+
+        <div id="tap">
+            <h2><u>Tireuses à bière</u></h2>
+            <table>
+                <th>N° tireuse</th>
+                <th>Bière</th>
+                <th>Prix 25 cl</th>
+                <th>Nombre de verres</th>
+                <th>Prix correspondant</th>
+
+                {% for e in dict_field_tap %}
+                    <tr>
+                        <div class="fieldWrapper">
+                            <td>{{ e.1.number }}</td>
+                            <td>{{ e.1.container.product_unit.name }}</td>
+                            <td><span id="selected_initial_price_tap_{{ e.2 }}">{{ e.1.container.product_unit.price_glass|floatformat:2 }}</span> €</td>
+                            <td>{{ e.0 }}</td>
+                            <td><span id="selected_price_tap_{{ e.2 }}">0</span> €</td>
+                        </div>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+
+        <div id="single_product">
+            <h2><u>Produits unitaires</u></h2>
+            <table>
+                <th>Produit</th>
+                <th>Prix</th>
+                <th>Nombre</th>
+                <th>Prix correspondant</th>
+
+                {% for e in dict_field_single_product %}
+                    <tr>
+                        <div class="fieldWrapper">
+                            <td>{{ e.1.name }}</td>
+                            <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.price|floatformat:2 }}</span> €</td>
+                            <td>{{ e.0 }}</td>
+                            <td> <span id="selected_price_single_product_{{ e.2 }}">0</span> €</td>
+                        </div>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+
+        <div id="product_unit_other">
+            <h2><u>Autres produits</u></h2>
+            <table>
+                <th>Produit</th>
+                <th>Prix 4 cl</th>
+                <th>Nombre</th>
+                <th>Prix correspondant</th>
+
+                {% for e in dict_field_product_unit_other %}
+                    <tr>
+                        <div class="fieldWrapper">
+                            <td>{{ e.1.name }}</td>
+                            <td><span id="selected_initial_price_product_unit_other_{{ e.2 }}">{{ e.1.price_shoot|floatformat:2 }}</span> €</td>
+                            <td>{{ e.0 }}</td>
+                            <td> <span id="selected_price_product_unit_other_{{ e.2 }}">0</span> €</td>
+                        </div>
+                    </tr>
+                {% endfor %}
+
+            </table>
+        </div>
+
+        <input type=submit value="Valider">
+
+    </form>
+
+    <script>
+        function update_consumption() {
+            var sum_tap = 0;
+            var sum_single_product = 0;
+            var sum_product_unit_other = 0;
+
+            for (i=0; i<{{ tap_list|length }}; i++) {
+                sum_tap += Number(document.getElementById("selected_price_tap_" + i).textContent);
+            }
+            for (i=0; i<{{ single_product_list|length }}; i++) {
+                sum_single_product += Number(document.getElementById("selected_price_single_product_" + i).textContent);
+            }
+            for (i=0; i<{{ product_unit_other_list|length }}; i++) {
+                sum_product_unit_other += Number(document.getElementById("selected_price_product_unit_other_" + i).textContent);
+            }
+            var balance_before = Number(document.getElementById("balance_before").textContent.replace(",","."));
+            document.getElementById("total_consumption").textContent = String(sum_tap+sum_single_product+sum_product_unit_other);
+            document.getElementById("balance_after").textContent = String(balance_before-sum_tap-sum_single_product-sum_product_unit_other);
+        }
+
+        var selected_quantity_tap = [];
+        var selected_price_tap = [];
+        var selected_initial_price_tap = [];
+        var selected_quantity_single_product = [];
+        var selected_price_single_product = [];
+        var selected_initial_price_single_product = [];
+        var selected_quantity_product_unit_other = [];
+        var selected_price_product_unit_other = [];
+        var selected_initial_price_product_unit_other = [];
+
+        for (i=0; i<{{ tap_list|length }}; i++) {
+            selected_price_tap.push(document.getElementById("selected_price_tap_"+i));
+            selected_quantity_tap.push(document.getElementById("id_field_tap_"+i));
+            selected_initial_price_tap.push(document.getElementById("selected_initial_price_tap_"+i));
+        }
+        for (i=0; i<{{ single_product_list|length }}; i++) {
+            selected_price_single_product.push(document.getElementById("selected_price_single_product_"+i));
+            selected_quantity_single_product.push(document.getElementById("id_field_single_product_"+i));
+            selected_initial_price_single_product.push(document.getElementById("selected_initial_price_single_product_"+i));
+        }
+        for (i=0; i<{{ product_unit_other_list|length }}; i++) {
+            selected_price_product_unit_other.push(document.getElementById("selected_price_product_unit_other_"+i));
+            selected_quantity_product_unit_other.push(document.getElementById("id_field_product_unit_other_"+i));
+            selected_initial_price_product_unit_other.push(document.getElementById("selected_initial_price_product_unit_other_"+i));
+        }
+        for(i=0;i<{{ tap_list|length }};i++){
+            (function(x) {
+                selected_quantity_tap[i].addEventListener('change', function(e) {
+                    selected_price_tap[x].textContent = String(e.target.value * Number(selected_initial_price_tap[x].textContent.replace(",", ".")));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+        for(i=0;i<{{ single_product_list|length }};i++){
+            (function(x) {
+                selected_quantity_single_product[i].addEventListener('change', function(e) {
+                    selected_price_single_product[x].textContent = String(e.target.value * Number(selected_initial_price_single_product[x].textContent.replace(",", ".")));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+        for(i=0;i<{{ product_unit_other_list|length }};i++){
+            (function(x) {
+                selected_quantity_product_unit_other[i].addEventListener('change', function(e) {
+                    selected_price_product_unit_other[x].textContent = String(e.target.value * Number(selected_initial_price_product_unit_other[x].textContent.replace(",", ".")));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+
+    </script>
+
+{% endblock %}

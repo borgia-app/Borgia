@@ -1,10 +1,11 @@
-from django.shortcuts import HttpResponseRedirect, force_text, render
+from django.shortcuts import HttpResponseRedirect, force_text, render, render_to_response
 from django.views.generic.edit import CreateView, UpdateView, DeleteView, ModelFormMixin
 from django.views.generic import ListView, DetailView, FormView
 from django.contrib.auth import authenticate
 
 from finances.forms import *
 from finances.models import *
+from shops.forms import *
 
 
 # Model TRANSACTION
@@ -61,7 +62,11 @@ class TransactionChequeFastCreateView(FormView):
             transaction.save()
 
             # Crédit du compte
-            # ...
+            credit = transaction.client.credit(transaction.total())
+            if credit == transaction.total():
+                transaction.error_credit = False
+                transaction.client.save()
+                transaction.save()
 
             return HttpResponseRedirect(self.get_success_url())
 
@@ -94,7 +99,11 @@ class TransactionCashFastCreateView(FormView):
             transaction.save()
 
             # Crédit du compte
-            # ...
+            credit = transaction.client.credit(transaction.total())
+            if credit == transaction.total():
+                transaction.error_credit = False
+                transaction.client.save()
+                transaction.save()
 
             return HttpResponseRedirect(self.get_success_url())
 
@@ -128,7 +137,11 @@ class TransactionLydiaFastCreateView(FormView):
             transaction.save()
 
             # Crédit du compte
-            # ...
+            credit = transaction.client.credit(transaction.total())
+            if credit == transaction.total():
+                transaction.error_credit = False
+                transaction.client.save()
+                transaction.save()
 
             return HttpResponseRedirect(self.get_success_url())
 
@@ -153,6 +166,7 @@ class TransactionValidationView(UpdateView):
         if credit == self.object.total():
             self.object.error_credit = False
             form.save()
+            self.object.client.save()
 
         return super(ModelFormMixin, self).form_valid(form)
 
@@ -300,3 +314,34 @@ class LydiaListView(ListView):
     model = Lydia
     template_name = "finances/lydia_list.html"
     queryset = Lydia.objects.all()
+
+
+# Model PURCHASE
+# Création d'un achat - C
+
+# Affichage détaillé d'un achat - R
+class PurchaseRetrieveView(DetailView):
+    model = Purchase
+    template_name = 'finances/purchase_retrieve.html'
+
+
+# Update d'un virement Lydia - U
+class PurchaseUpdateView(UpdateView):
+    model = Purchase
+    fields = []
+    template_name = 'finances/purchase_update.html'
+    success_url = '/finances/purchase/'
+
+
+# Suppression d'un virement Lydia - D
+class PurchaseDeleteView(DeleteView):
+    model = Purchase
+    template_name = 'finances/purchase_delete.html'
+    success_url = '/finances/purchase'
+
+
+# Liste virements Lydias - List
+class PurchaseListView(ListView):
+    model = Purchase
+    template_name = "finances/purchase_list.html"
+    queryset = Purchase.objects.all().order_by('-time')

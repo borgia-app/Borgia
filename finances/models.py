@@ -1,12 +1,107 @@
 from django.db import models
-from users.models import User
+from shops.models import SingleProduct, SingleProductFromContainer
 from django.utils.timezone import now
+
+
+class Purchase(models.Model):
+    # Informations générales
+    operator = models.ForeignKey('users.User', related_name='purchase_operator')
+    client = models.ForeignKey('users.User', related_name='purchase_client')
+    date = models.DateField(default=now)
+    time = models.TimeField(default=now)
+
+    # Liste des moyens de payement
+    cheques = models.ManyToManyField('Cheque', blank=True)
+    cashs = models.ManyToManyField('Cash', blank=True)
+    lydias = models.ManyToManyField('Lydia', blank=True)
+    foyer = models.FloatField(blank=True, null=True, default=0)
+
+    # Les objets sont introduits avec des ForeignKeys dans les objets
+    # Cf def lists
+
+    def __str__(self):
+        return 'Achat n°' + str(self.id)
+
+    def use_cheque(self):
+        if len(self.list_cheques()) == 0:
+            return False
+        else:
+            return True
+
+    def use_lydia(self):
+        if len(self.list_lydias()) == 0:
+            return False
+        else:
+            return True
+
+    def use_cash(self):
+        if len(self.list_cashs()) == 0:
+            return False
+        else:
+            return True
+
+    def use_foyer(self):
+        if self.foyer == 0:
+            return False
+        else:
+            return True
+
+    def list_cheques(self):
+        return Cheque.objects.filter(purchase__cheques__purchase=self)
+
+    def sub_total_cheques(self):
+        u_c = 0
+        for e in self.list_cheques():
+            u_c = u_c + e.amount
+        return u_c
+
+    def list_cashs(self):
+            return Cash.objects.filter(purchase__cashs__purchase=self)
+
+    def sub_total_cashs(self):
+        u_ca = 0
+        for e in self.list_cashs():
+            u_ca = u_ca + e.amount
+        return u_ca
+
+    def list_lydias(self):
+            return Lydia.objects.filter(purchase__lydias__purchase=self)
+
+    def sub_total_lydias(self):
+        u_l = 0
+        for e in self.list_lydias():
+            u_l = u_l + e.amount
+        return u_l
+
+    def total(self):
+        return self.sub_total_cashs()+self.sub_total_cheques()+self.sub_total_lydias()
+
+    def list_single_products(self):
+        return SingleProduct.objects.filter(purchase=self)
+
+    def sub_total_single_products(self):
+        u_sp = 0
+        for e in self.list_single_products():
+            u_sp = u_sp + e.price
+        return u_sp
+
+    def list_single_products_from_container(self):
+        return SingleProductFromContainer.objects.filter(purchase=self)
+
+    def sub_total_single_products_from_container(self):
+        u_spfc = 0
+        for e in self.list_single_products_from_container():
+            u_spfc = u_spfc + e.price
+        return u_spfc
+
+    def total_product(self):
+        return self.sub_total_single_products() + self.sub_total_single_products_from_container()
 
 
 class Transaction(models.Model):
     # Informations générales
-    operator = models.ForeignKey(User, related_name='transaction_operator')
-    client = models.ForeignKey(User, related_name='transaction_client')
+    operator = models.ForeignKey('users.User', related_name='transaction_operator')
+    client = models.ForeignKey('users.User', related_name='transaction_client')
     date = models.DateField(default=now)
     time = models.TimeField(default=now)
 
@@ -46,7 +141,7 @@ class Transaction(models.Model):
     def sub_total_lydias(self):
         u_l = 0
         for e in self.list_lydias():
-            u_ca = u_l + e.amount
+            u_l = u_l + e.amount
         return u_l
 
     def total(self):
@@ -56,9 +151,9 @@ class Transaction(models.Model):
 class Cheque(models.Model):
     # Informations sur l'identité du chèque
     number = models.CharField(max_length=7)
-    signatory = models.ForeignKey(User, related_name='cheque_signatory')
+    signatory = models.ForeignKey('users.User', related_name='cheque_signatory')
     date_sign = models.DateField(default=now)
-    recipient = models.ForeignKey(User, related_name='cheque_recipient')
+    recipient = models.ForeignKey('users.User', related_name='cheque_recipient')
     amount = models.FloatField()
 
     # Information de comptabilité
@@ -75,7 +170,7 @@ class Cheque(models.Model):
 class Cash(models.Model):
     # Information sur l'identité des espèces
     amount = models.FloatField()
-    giver = models.ForeignKey(User, related_name='cash_giver')
+    giver = models.ForeignKey('users.User', related_name='cash_giver')
 
     # Information de comptabilité
     cashed = models.BooleanField(default=False)
@@ -94,8 +189,8 @@ class Lydia(models.Model):
     time_operation = models.TimeField(default=now)
     amount = models.FloatField()
     # numéro unique ?
-    giver = models.ForeignKey(User, related_name='lydia_giver')
-    recipient = models.ForeignKey(User, related_name='lydia_recipient')
+    giver = models.ForeignKey('users.User', related_name='lydia_giver')
+    recipient = models.ForeignKey('users.User', related_name='lydia_recipient')
 
     # Information de comptabilité
     cashed = models.BooleanField(default=False)

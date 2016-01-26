@@ -7,16 +7,16 @@ from django.contrib.auth.decorators import permission_required
 
 urlpatterns = [
     # Password
-    url(r'^password_change', password_change, {'template_name': 'users/password_change.html',
+    url(r'^password_change$', password_change, {'template_name': 'users/password_change.html',
                                                'post_change_redirect': password_change_done}, name='password_change'),
-    url(r'^password_change_done', password_change_done, {'template_name': 'users/password_change_done.html'}),
+    url(r'^password_change_done$', password_change_done, {'template_name': 'users/password_change_done.html'}),
 
     # Profile
-    url(r'^profile', profile_view, name='url_profile'),
+    url(r'^profile/$', profile_view, name='url_profile'),
 
     # Model User (les tests de permissions sont soit dans l'url soit dans le template)
     # Seul ceux qui peuvent add des users
-    url(r'^create/$', permission_required('users.add_user')(UserCreateView.as_view()), name='url_create_user'),  # C
+    url(r'^create/', UserCreateView.as_view(), name='url_create_user'),  # C
     # Soit on retrieve soit même, soit on a la permission de tous
     url(r'^retrieve/(?P<pk>\d+)/$', UserRetrieveView.as_view(), name='url_retrieve_user'),  # R
     # Soit on s'update soit même, soit on a la permission de tous

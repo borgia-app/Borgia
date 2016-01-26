@@ -1,8 +1,7 @@
 from django import forms
 from django.db.models import Q
 from django.forms import ModelForm
-from django.forms.widgets import PasswordInput, SelectDateWidget, SplitDateTimeWidget
-from django.contrib.admin.widgets import AdminDateWidget
+from django.forms.widgets import PasswordInput
 
 from users.models import User
 from finances.models import Cheque, Transaction, Cash, Lydia

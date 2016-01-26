@@ -1,8 +1,19 @@
+{% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Borgia - WIP</title>
+
+    <script src="{% static 'users/js/jquery.min.js' %}"></script>
+    <script src="{% static 'users/js/skel.min.js' %}"></script>
+    <script src="{% static 'users/js/skel-layers.min.js' %}"></script>
+    <script src="{% static 'users/js/init.js' %}"></script>
+
+    <link rel="stylesheet" href="{% static 'users/css/skel.css' %}" />
+    <link rel="stylesheet" href="{% static 'users/css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'users/css/style-medium.css' %}" />
+
 </head>
 <body>
 {%  block content %}

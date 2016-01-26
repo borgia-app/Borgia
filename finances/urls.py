@@ -40,4 +40,12 @@ urlpatterns = [
         name='url_create_transaction_cash_fast'),
     url(r'^transaction/create_lydia_fast/$', TransactionLydiaFastCreateView.as_view(),
         name='url_create_transaction_lydia_fast'),
+
+    # Model Lydia
+    # url(r'^purchase/create/$', PurchaseCreateView.as_view(), name='url_create_lydia'),  # C
+    url(r'^purchase/retrieve/(?P<pk>\d+)/$', PurchaseRetrieveView.as_view(), name='url_retrieve_purchase'),  # R
+    url(r'^purchase/update/(?P<pk>\d+)/$', PurchaseUpdateView.as_view(), name='url_update_purchase'),  # U
+    url(r'^purchase/delete/(?P<pk>\d+)/$', PurchaseDeleteView.as_view(), name='url_delete_purchase'),  # D
+    url(r'^purchase/$', PurchaseListView.as_view(), name='url_list_purchase'),  # Liste
+
 ]

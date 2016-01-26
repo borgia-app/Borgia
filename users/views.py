@@ -3,12 +3,17 @@ from django.contrib.auth.decorators import login_required
 from users.forms import UserCreationCustomForm
 from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin, DeleteView
 from django.views.generic import ListView, DetailView
-from users.models import User
 
+
+from users.models import User
+from finances.models import Purchase
 
 # Page de profil
 @login_required
 def profile_view(request):
+
+    list_purchase_perso = Purchase.objects.filter(client=request.user)
+
     return render(request, 'users/profile.html', locals())
 
 
@@ -72,9 +77,3 @@ class UserListView(ListView):
         permissions = (
             ('list_user', 'Accéder à la liste des Users')
         )
-
-def test(request):
-    return UserListView.as_view()
-
-
-

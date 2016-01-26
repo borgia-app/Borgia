@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="div_login">
-    <form action= '' method="post">{% csrf_token %}
+
+    <form action= "{% url 'url_create_tap' %}" method="post">
+        {% csrf_token %}
         {{ form.as_p }}
         <input type="submit" value="Submit"/>
     </form>
-</div>
+
 {% endblock %}

@@ -2,7 +2,7 @@
 
 {% block content %}
     {% if object == request.user or  perms.user.list_user  %}
-        {% block informations_personnelles %}
+        <div id="personal_informations">
             <ul>
                 <li>Username : {{ object.username }}</li>
                 <li>Prénom : {{ object.first_name }}</li>
@@ -10,7 +10,7 @@
                 <li>Buque : {{ object.surname }}</li>
                 <li>Num'ss : {{ object.family }}</li>
                 <li>Prom'ss : {{ object.campus }}{{ user.year_pg }}</li>
-                <li>Solde : {{ object.balance }} €</li>
+                <li>Solde : {{ object.balance|floatformat:2 }} €</li>
                 <li>Permissions :
                     {% if object.is_superuser %}
                         <p>superuser -> toutes les permissions</p>
@@ -30,8 +30,8 @@
                     </ul>
                 </li>
             </ul>
-        {% endblock %}
-        {% block modifications %}
+        </div>
+        <div class="links">
             {% if perms.users.delete_user %}
                 <a href="{% url 'url_delete_user' pk=object.id %}">Supprimer cet utilisateur</a>
             {% endif %}
@@ -40,6 +40,7 @@
             {% elif request.user == object %}
                 <a href="{% url 'url_updateperso_user' pk=object.id %}">Modifier les informations</a>
             {% endif %}
-        {% endblock %}
+        </div>
+        {% include 'finances/purchase_list.html' with object_list=user.list_purchase %}
     {% endif %}
 {% endblock %}
