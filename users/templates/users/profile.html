@@ -25,9 +25,6 @@
             {% if perms.users.add_user %}
                 <a href="{% url 'url_create_user' %}">Créer un compte utilisateur</a>
             {% endif %}
-            {% if perms.users.list_user %}
-                <a href="{% url 'url_list_user' %}">Liste des utilisateurs</a>
-            {% endif %}
         </div>
     {% endblock %}
 

@@ -1,22 +1,17 @@
-{% extends 'base.html' %}
-
-{% block content %}
-
-    <table>
+<table>
+    <tr>
+        <th>Produit Unitaire</th>
+        <th>Modifier</th>
+        <th>Supprimer</th>
+        <th>Détails</th>
+    </tr>
+    {% for e in object_list %}
         <tr>
-            <th>Produit Unitaire</th>
-            <th>Modifier</th>
-            <th>Supprimer</th>
-            <th>Détails</th>
+            <td>{{ e.product_unit }}</td>
+            <td><a href="{% url 'url_update_container' pk=e.id %}">modifier</a></td>
+            <td><a href="{% url 'url_delete_container' pk=e.id %}">supprimer</a></td>
+            <td><a href="{% url 'url_retrieve_container' pk=e.id %}">détail</a></td>
         </tr>
-        {% for e in object_list %}
-            <tr>
-                <td>{{ e.product_unit }}</td>
-                <td><a href="{% url 'url_update_container' pk=e.id %}">modifier</a></td>
-                <td><a href="{% url 'url_delete_container' pk=e.id %}">supprimer</a></td>
-                <td><a href="{% url 'url_retrieve_container' pk=e.id %}">détail</a></td>
-            </tr>
-        {% endfor %}
-    </table>
+    {% endfor %}
+</table>
 
-{% endblock %}

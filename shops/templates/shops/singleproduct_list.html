@@ -1,24 +1,18 @@
-{% extends 'base.html' %}
-
-{% block content %}
-
-    <table>
+<table>
+    <tr>
+        <th>Nom</th>
+        <th>Vendu</th>
+        <th>Modifier</th>
+        <th>Supprimer</th>
+        <th>Détails</th>
+    </tr>
+    {% for e in object_list %}
         <tr>
-            <th>Nom</th>
-            <th>Vendu</th>
-            <th>Modifier</th>
-            <th>Supprimer</th>
-            <th>Détails</th>
+            <td>{{ e.name }}</td>
+            <td>{{ e.is_sold }}</td>
+            <td><a href="{% url 'url_update_singleproduct' pk=e.id %}">modifier</a></td>
+            <td><a href="{% url 'url_delete_singleproduct' pk=e.id %}">supprimer</a></td>
+            <td><a href="{% url 'url_retrieve_singleproduct' pk=e.id %}">détail</a></td>
         </tr>
-        {% for e in object_list %}
-            <tr>
-                <td>{{ e.name }}</td>
-                <td>{{ e.is_sold }}</td>
-                <td><a href="{% url 'url_update_singleproduct' pk=e.id %}">modifier</a></td>
-                <td><a href="{% url 'url_delete_singleproduct' pk=e.id %}">supprimer</a></td>
-                <td><a href="{% url 'url_retrieve_singleproduct' pk=e.id %}">détail</a></td>
-            </tr>
-        {% endfor %}
-    </table>
-
-{% endblock %}
+    {% endfor %}
+</table>

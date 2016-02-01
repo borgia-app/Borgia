@@ -1,36 +1,36 @@
-    <table>
+<table>
+    <tr>
+        <th>Date</th>
+        <th>Heure</th>
+        <th>Client</th>
+        <th>Opérateur</th>
+        <th>Chèque</th>
+        <th>Lydia</th>
+        <th>Espèce</th>
+        <th>Compte foyer</th>
+        <th>Produits dénombrables</th>
+        <th>Produits indénombrables</th>
+        <th>Montant total</th>
+        <th>Modifier</th>
+        <th>Supprimer</th>
+        <th>Détails</th>
+    </tr>
+    {% for e in object_list %}
         <tr>
-            <th>Date</th>
-            <th>Heure</th>
-            <th>Client</th>
-            <th>Opérateur</th>
-            <th>Chèque</th>
-            <th>Lydia</th>
-            <th>Espèce</th>
-            <th>Compte foyer</th>
-            <th>Produits dénombrables</th>
-            <th>Produits indénombrables</th>
-            <th>Montant total</th>
-            <th>Modifier</th>
-            <th>Supprimer</th>
-            <th>Détails</th>
+            <td>{{ e.date }}</td>
+            <td>{{ e.time }}</td>
+            <td><a href="{% url 'url_retrieve_user' pk=e.client.id %}">{{ e.client }}</a></td>
+            <td><a href="{% url 'url_retrieve_user' pk=e.operator.id %}">{{ e.operator }}</a></td>
+            <td>{{ e.use_cheque }}</td>
+            <td>{{ e.use_lydia }}</td>
+            <td>{{ e.use_cash }}</td>
+            <td>{{ e.use_foyer }}</td>
+            <td>{{ e.list_single_products|length }}</td>
+            <td>{{ e.list_single_products_from_container|length }}</td>
+            <td>{{ e.total_product }}</td>
+            <td><a href="{% url 'url_update_purchase' pk=e.id %}">modifier</a></td>
+            <td><a href="{% url 'url_delete_purchase' pk=e.id %}">supprimer</a></td>
+            <td><a href="{% url 'url_retrieve_purchase' pk=e.id %}">détail</a></td>
         </tr>
-        {% for e in object_list %}
-            <tr>
-                <td>{{ e.date }}</td>
-                <td>{{ e.time }}</td>
-                <td><a href="{% url 'url_retrieve_user' pk=e.client.id %}">{{ e.client }}</a></td>
-                <td><a href="{% url 'url_retrieve_user' pk=e.operator.id %}">{{ e.operator }}</a></td>
-                <td>{{ e.use_cheque }}</td>
-                <td>{{ e.use_lydia }}</td>
-                <td>{{ e.use_cash }}</td>
-                <td>{{ e.use_foyer }}</td>
-                <td>{{ e.list_single_products|length }}</td>
-                <td>{{ e.list_single_products_from_container|length }}</td>
-                <td>{{ e.total_product }}</td>
-                <td><a href="{% url 'url_update_purchase' pk=e.id %}">modifier</a></td>
-                <td><a href="{% url 'url_delete_purchase' pk=e.id %}">supprimer</a></td>
-                <td><a href="{% url 'url_retrieve_purchase' pk=e.id %}">détail</a></td>
-            </tr>
-        {% endfor %}
-    </table>
+    {% endfor %}
+</table>

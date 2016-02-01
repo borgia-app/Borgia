@@ -1,46 +1,40 @@
-{% extends 'base.html' %}
-
-{% block content %}
-
-    <table>
+<table>
+    <tr>
+        <th>Opérateur</th>
+        <th>Client</th>
+        <th>Date</th>
+        <th>Heure</th>
+        <th>Validation</th>
+        <th>Erreur lors du crédit</th>
+        <th>Montant total (€)</th>
+        <th>Chèque(s) lié(s)</th>
+        <th>Espèce(s) liée(s)</th>
+        <th>Virement(s) Lydia lié(s)</th>
+        <th>Modifier</th>
+        <th>Supprimer</th>
+        <th>Détails</th>
+    </tr>
+    {% for e in object_list %}
         <tr>
-            <th>Opérateur</th>
-            <th>Client</th>
-            <th>Date</th>
-            <th>Heure</th>
-            <th>Validation</th>
-            <th>Erreur lors du crédit</th>
-            <th>Montant total (€)</th>
-            <th>Chèque(s) lié(s)</th>
-            <th>Espèce(s) liée(s)</th>
-            <th>Virement(s) Lydia lié(s)</th>
-            <th>Modifier</th>
-            <th>Supprimer</th>
-            <th>Détails</th>
+            <td><a href="{% url 'url_retrieve_user' pk=e.operator.id %}">{{ e.operator }}</a></td>
+            <td><a href="{% url 'url_retrieve_user' pk=e.client.id %}">{{ e.client }}</a></td>
+            <td>{{ e.date }}</td>
+            <td>{{ e.time }}</td>
+            <td>{{ e.validated }}</td>
+            <td>{{ e.error_credit }}</td>
+            <td>{{ e.total }}</td>
+            <td>{% for h in e.list_cheques %}
+                <a href="{% url 'url_retrieve_cheque' pk=h.id %}">{{ h }}</a>
+            {% endfor %}</td>
+            <td>{% for h in e.list_cashs %}
+                <a href="{% url 'url_retrieve_cash' pk=h.id %}">{{ h }}</a>
+            {% endfor %}</td>
+            <td>{% for h in e.list_lydias %}
+                <a href="{% url 'url_retrieve_lydia' pk=h.id %}">{{ h }}</a>
+            {% endfor %}</td>
+            <td><a href="{% url 'url_update_transaction' pk=e.id %}">modifier</a></td>
+            <td><a href="{% url 'url_delete_transaction' pk=e.id %}">supprimer</a></td>
+            <td><a href="{% url 'url_retrieve_transaction' pk=e.id %}">détail</a></td>
         </tr>
-        {% for e in object_list %}
-            <tr>
-                <td><a href="{% url 'url_retrieve_user' pk=e.operator.id %}">{{ e.operator }}</a></td>
-                <td><a href="{% url 'url_retrieve_user' pk=e.client.id %}">{{ e.client }}</a></td>
-                <td>{{ e.date }}</td>
-                <td>{{ e.time }}</td>
-                <td>{{ e.validated }}</td>
-                <td>{{ e.error_credit }}</td>
-                <td>{{ e.total }}</td>
-                <td>{% for h in e.list_cheques %}
-                    <a href="{% url 'url_retrieve_cheque' pk=h.id %}">{{ h }}</a>
-                {% endfor %}</td>
-                <td>{% for h in e.list_cashs %}
-                    <a href="{% url 'url_retrieve_cash' pk=h.id %}">{{ h }}</a>
-                {% endfor %}</td>
-                <td>{% for h in e.list_lydias %}
-                    <a href="{% url 'url_retrieve_lydia' pk=h.id %}">{{ h }}</a>
-                {% endfor %}</td>
-                <td><a href="{% url 'url_update_transaction' pk=e.id %}">modifier</a></td>
-                <td><a href="{% url 'url_delete_transaction' pk=e.id %}">supprimer</a></td>
-                <td><a href="{% url 'url_retrieve_transaction' pk=e.id %}">détail</a></td>
-            </tr>
-        {% endfor %}
-    </table>
-
-{% endblock %}
+    {% endfor %}
+</table>

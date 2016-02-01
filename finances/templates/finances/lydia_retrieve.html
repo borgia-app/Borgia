@@ -1,20 +1,16 @@
-{% extends 'base.html' %}
-
-{% block content %}
-    <ul>
-        <li>Donnateur : <a href="{% url 'url_retrieve_user' pk=object.giver.id %}">{{ object.giver }}</a></li>
-        <li>Receveur : <a href="{% url 'url_retrieve_user' pk=object.recipient.id %}">{{ object.recipient }}</a></li>
-        <li>Montant : {{ object.amount }} €</li>
-        <li>Date d'opération : {{ object.date_operation }}</li>
-        <li>Heure d'opération : {{ object.time_operation }}</li>
-        <li>Encaissé : {{ object.cashed }}</li>
-        <li>Date d'encaissement : {{ object.date_cash }}</li>
-        <li>Transaction(s) correspondante(s) :
-            <ul>
-                {% for e in object.list_transaction %}
-                    <li><a href="{% url 'url_retrieve_transaction' pk=e.id %}">{{ e }}</a></li>
-                {% endfor %}
-            </ul>
-        </li>
-    </ul>
-{% endblock %}
+<ul>
+    <li>Donnateur : <a href="{% url 'url_retrieve_user' pk=object.giver.id %}">{{ object.giver }}</a></li>
+    <li>Receveur : <a href="{% url 'url_retrieve_user' pk=object.recipient.id %}">{{ object.recipient }}</a></li>
+    <li>Montant : {{ object.amount }} €</li>
+    <li>Date d'opération : {{ object.date_operation }}</li>
+    <li>Heure d'opération : {{ object.time_operation }}</li>
+    <li>Encaissé : {{ object.cashed }}</li>
+    <li>Date d'encaissement : {{ object.date_cash }}</li>
+    <li>Transaction(s) correspondante(s) :
+        <ul>
+            {% for e in object.list_transaction %}
+                <li><a href="{% url 'url_retrieve_transaction' pk=e.id %}">{{ e }}</a></li>
+            {% endfor %}
+        </ul>
+    </li>
+</ul>
