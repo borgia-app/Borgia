@@ -3,7 +3,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime
 
-from finances.models import Purchase
+from finances.models import Purchase, Transaction
+
 
 class User(AbstractUser):
     surname = models.CharField(max_length=255, default='noname')
@@ -46,3 +47,6 @@ class User(AbstractUser):
 
     def list_purchase(self):
         return Purchase.objects.filter(client=self)
+
+    def list_transaction(self):
+        return Transaction.objects.filter(client=self)

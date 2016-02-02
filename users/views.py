@@ -13,8 +13,6 @@ from finances.models import Purchase
 @login_required
 def profile_view(request):
 
-    list_purchase_perso = Purchase.objects.filter(client=request.user)
-
     return render(request, 'users/profile.html', locals())
 
 

@@ -1,16 +1,12 @@
 {% load staticfiles %}
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Borgia - betaV1.2.25</title>
 
-    <script src="{% static 'js/jquery.min.js' %}"></script>
-    <script src="{% static 'js/skel.min.js' %}"></script>
-    <script src="{% static 'js/skel-layers.min.js' %}"></script>
-    <script src="{% static 'js/init.js' %}"></script>
-
-    <link rel="stylesheet" href="{% static 'css/skel.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/skeleton.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style-xsmall.css' %}" />
     <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.jpg' %}"/>
@@ -21,6 +17,14 @@
 {%  endblock %}
 </body>
 <footer>
-    <p id="version">Borgia WIP v1.2.25</p>
+    {% if request.user|has_group:"Foyer" %}
+    <p>GROUPE</p>
+    {% endif %}
+    <div class="container">
+        <div class="column">
+            <hr>
+            <p class="align-center">Borgia WIP v1.2.25</p>
+        </div>
+    </div>
 </footer>
 </html>

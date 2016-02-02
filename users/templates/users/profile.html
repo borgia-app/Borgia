@@ -2,30 +2,43 @@
 
 {% block content %}
 
-    {% block affichage_informatif_modifications%}
-        <div>
+    <h1 class="align-center">Profil</h1>
+    <hr>
+
+    <div class="container">
+        <div class="one-half column">
+            <h3>Informations personnelles</h3>
             {% include 'users/retrieve.html' with object=user %}
         </div>
-    {% endblock %}
-
-    {% block modifications_password %}
-        <div>
-            <a href="{% url 'django.contrib.auth.views.password_change' %}">Changer mot de passe</a>
+        <div class="one-half column">
+            <h3>Modifications</h3>
+            <p><a href="{% url 'django.contrib.auth.views.password_change' %}">Changer de mot de passe</a></p>
+            <p><a href="{% url 'url_updateperso_user'  pk=request.user.id %}">Modifier ses informations personnelles</a></p>
+            <p><a href="{% url 'django.contrib.auth.views.logout' %}">Se déconnecter</a></p>
         </div>
-    {% endblock %}
+    </div>
 
-    {% block redirections %}
-        <div>
-            <a href="{% url 'django.contrib.auth.views.logout' %}">Logout</a>
+    <div class="container">
+    {% if request.user|has_group:"Foyer" %}
+        <div class="four columns">
+            <h3>Groupe du foyer</h3>
         </div>
-    {% endblock %}
-
-    {% block administration %}
-        <div>
-            {% if perms.users.add_user %}
-                <a href="{% url 'url_create_user' %}">Créer un compte utilisateur</a>
-            {% endif %}
+    {% endif %}
+        <div class="four columns">
+            <h3>Groupe du trésors</h3>
         </div>
-    {% endblock %}
+        <div class="four columns">
+            <h3>Groupe de la C-Vis</h3>
+        </div>
+    </div>
 
+    <div class="container">
+        <h3>Dernières commandes</h3>
+        {% include 'finances/purchase_list.html' with object=request.user.list_purchase %}
+    </div>
+
+    <div class="container">
+        <h3>Dernières transactions</h3>
+        {% include 'finances/transaction_list.html' with object=request.user.list_transaction %}
+    </div>
 {% endblock %}
