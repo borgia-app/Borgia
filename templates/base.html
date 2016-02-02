@@ -18,10 +18,20 @@
 </body>
 <footer>
     <div class="container">
-        <div class="column">
-            <hr>
-            <p class="align-center">Borgia WIP v1.2.25</p>
+        <hr>
+        <div class="row">
+            <div class="one-half column align-center">
+                <p class="align-center">Borgia WIP v1.2.25</p>
+            </div>
+            <div class="one-half column align-center">
+                <input type="submit" value="Reporter un bug" id="mailto_report">
+            </div>
         </div>
+        <script>
+            document.getElementById("mailto_report").addEventListener('click', function(e) {
+                window = window.open("mailto:support@iresam.org", 'EmailWindow')
+            }, false);
+        </script>
     </div>
 </footer>
 </html>
