@@ -1,0 +1,9 @@
+{# Utilisation d'un _view.html supplémentaire de façon à pour l'utiliser pour d'autres templates  #}
+
+{% extends 'base.html' %}
+
+{% block content %}
+    {% include "finances/cheque_list.html" %}
+{% endblock %}
+
+

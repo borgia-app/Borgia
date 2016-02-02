@@ -163,7 +163,7 @@ class TapCreateView(CreateView):
 # R
 class TapRetrieveView(DetailView):
     model = Tap
-    template_name = 'shops/tap_retrieve.html'
+    template_name = 'shops/tap_retrieve_view.html'
 
 
 # U
@@ -184,7 +184,7 @@ class TapDeleteView(DeleteView):
 # List
 class TapListView(ListView):
     model = Tap
-    template_name = 'shops/tap_list.html'
+    template_name = 'shops/tap_list_view.html'
     queryset = Tap.objects.all()
 
 
@@ -200,7 +200,7 @@ class ShopCreateView(CreateView):
 # R
 class ShopRetrieveView(DetailView):
     model = Shop
-    template_name = 'shops/shop_retrieve.html'
+    template_name = 'shops/shop_retrieve_view.html'
 
 
 # U
@@ -221,7 +221,7 @@ class ShopDeleteView(DeleteView):
 # List
 class ShopListView(ListView):
     model = Shop
-    template_name = 'shops/shop_list.html'
+    template_name = 'shops/shop_list_view.html'
     queryset = Shop.objects.all()
 
 
@@ -237,7 +237,7 @@ class SingleProductCreateView(CreateView):
 # R
 class SingleProductRetrieveView(DetailView):
     model = SingleProduct
-    template_name = 'shops/singleproduct_retrieve.html'
+    template_name = 'shops/singleproduct_retrieve_view.html'
 
 
 # U
@@ -259,7 +259,7 @@ class SingleProductDeleteView(DeleteView):
 # List
 class SingleProductListView(ListView):
     model = SingleProduct
-    template_name = 'shops/singleproduct_list.html'
+    template_name = 'shops/singleproduct_list_view.html'
     queryset = SingleProduct.objects.all()
 
 
@@ -275,7 +275,7 @@ class ContainerCreateView(CreateView):
 # R
 class ContainerRetrieveView(DetailView):
     model = Container
-    template_name = 'shops/container_retrieve.html'
+    template_name = 'shops/container_retrieve_view.html'
 
 
 # U
@@ -296,7 +296,7 @@ class ContainerDeleteView(DeleteView):
 # List
 class ContainerListView(ListView):
     model = Container
-    template_name = 'shops/container_list.html'
+    template_name = 'shops/container_list_view.html'
     queryset = Container.objects.all()
 
 
@@ -312,7 +312,7 @@ class ProductUnitCreateView(CreateView):
 # R
 class ProductUnitRetrieveView(DetailView):
     model = ProductUnit
-    template_name = 'shops/productunit_retrieve.html'
+    template_name = 'shops/productunit_retrieve_view.html'
 
 
 # U
@@ -333,5 +333,5 @@ class ProductUnitDeleteView(DeleteView):
 # List
 class ProductUnitListView(ListView):
     model = ProductUnit
-    template_name = 'shops/productunit_list.html'
+    template_name = 'shops/productunit_list_view.html'
     queryset = ProductUnit.objects.all()

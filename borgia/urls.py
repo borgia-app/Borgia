@@ -12,6 +12,7 @@ urlpatterns = [
     url(r'^shops/', include('shops.urls')),
 
     # Authentification
+    url(r'^$', login, {'template_name': 'login.html'}, name='url_login'), # A rediriger vers /auth/login
     url(r'^auth/login', login, {'template_name': 'login.html'}, name='url_login'),
     url(r'^auth/logout', logout, {'template_name': 'logout.html', 'next_page': login}),
 ]
