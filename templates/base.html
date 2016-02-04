@@ -24,12 +24,13 @@
                 <p class="align-center">Borgia WIP v1.2.25</p>
             </div>
             <div class="one-half column align-center">
+                <p> Un bug? Une remarque? Partage la nous! </p>
                 <input type="submit" value="Reporter un bug" id="mailto_report">
             </div>
         </div>
         <script>
             document.getElementById("mailto_report").addEventListener('click', function(e) {
-                window = window.open("mailto:support@iresam.org", 'EmailWindow')
+                window = window.open("mailto:support@iresam.org?Subject=Feedback Borgia", 'EmailWindow')
             }, false);
         </script>
     </div>
