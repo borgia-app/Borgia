@@ -32,11 +32,11 @@
 
     <div class="container">
         <h3>Dernières commandes</h3>
-        {% include 'finances/purchase_list.html' with object=request.user.list_purchase %}
+        {% include 'finances/purchase_list.html' with object_list=user.list_purchase %}
     </div>
 
     <div class="container">
         <h3>Dernières transactions</h3>
-        {% include 'finances/transaction_list.html' with object=request.user.list_transaction %}
+        {% include 'finances/transaction_list.html' with object_list=user.list_transaction %}
     </div>
 {% endblock %}
