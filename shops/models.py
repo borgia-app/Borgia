@@ -148,7 +148,8 @@ class Container(Product):
     return_date = models.DateField(blank=True, null=True)
 
     def __str__(self):
-        return str(self.id) + " " + self.product_unit.__str__()
+        return self.product_unit.__str__() + " " + str(self.initial_quantity) + " " + self.product_unit.unit +\
+               " n° " + str(self.pk)
 
 
 class ProductUnit(Product):
@@ -170,6 +171,7 @@ class ProductUnit(Product):
     def price_shoot(self):
         return self.price*4
 
+
 class SingleProductFromContainer(models.Model):
     """
     Produit unique cree à partir d'un container
@@ -187,3 +189,6 @@ class SingleProductFromContainer(models.Model):
 class Tap(Model):
     number = models.IntegerField()
     container = models.ForeignKey('Container', null=True, blank=True)
+
+    def __str__(self):
+        return "Tireuse n° " + str(self.number)
