@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="div_edit_view">
+    <div class="container30">
         <form action= "{% url 'url_create_user' %}" method="post">
             {% csrf_token %}
             {{ form.as_p }}

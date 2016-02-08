@@ -1,15 +1,15 @@
 {% extends 'base.html' %}
 
 {% block content %}
+    <div class="container30">
+        {% if object == user or  perm.change_user  %}
 
-    {% if object == user or  perm.change_user  %}
+            <form action="" method="post">{% csrf_token %}
 
-        <form action="" method="post">{% csrf_token %}
+                {{ form.as_p }}
+                <input type="submit" value="Update" />
+            </form>
 
-            {{ form.as_p }}
-            <input type="submit" value="Update" />
-        </form>
-
-    {% endif %}
-
+        {% endif %}
+    </div>
 {% endblock %}
