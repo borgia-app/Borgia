@@ -27,7 +27,7 @@
             <td>{{ e.use_foyer }}</td>
             <td>{{ e.list_single_products|length }}</td>
             <td>{{ e.list_single_products_from_container|length }}</td>
-            <td>{{ e.total_product }}</td>
+            <td>{{ e.total_product|floatformat:2 }}</td>
             <td><a href="{% url 'url_update_purchase' pk=e.id %}">modifier</a></td>
             <td><a href="{% url 'url_delete_purchase' pk=e.id %}">supprimer</a></td>
             <td><a href="{% url 'url_retrieve_purchase' pk=e.id %}">détail</a></td>

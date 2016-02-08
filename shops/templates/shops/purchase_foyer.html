@@ -104,8 +104,8 @@
                 sum_product_unit_other += Number(document.getElementById("selected_price_product_unit_other_" + i).textContent);
             }
             var balance_before = Number(document.getElementById("balance_before").textContent.replace(",","."));
-            document.getElementById("total_consumption").textContent = String(sum_tap+sum_single_product+sum_product_unit_other);
-            document.getElementById("balance_after").textContent = String(balance_before-sum_tap-sum_single_product-sum_product_unit_other);
+            document.getElementById("total_consumption").textContent = String((sum_tap+sum_single_product+sum_product_unit_other).toFixed(2));
+            document.getElementById("balance_after").textContent = String((balance_before-sum_tap-sum_single_product-sum_product_unit_other).toFixed(2));
         }
 
         var selected_quantity_tap = [];
@@ -136,7 +136,7 @@
         for(i=0;i<{{ tap_list|length }};i++){
             (function(x) {
                 selected_quantity_tap[i].addEventListener('change', function(e) {
-                    selected_price_tap[x].textContent = String(e.target.value * Number(selected_initial_price_tap[x].textContent.replace(",", ".")));
+                    selected_price_tap[x].textContent = String((e.target.value * Number(selected_initial_price_tap[x].textContent.replace(",", "."))).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
@@ -144,7 +144,7 @@
         for(i=0;i<{{ single_product_list|length }};i++){
             (function(x) {
                 selected_quantity_single_product[i].addEventListener('change', function(e) {
-                    selected_price_single_product[x].textContent = String(e.target.value * Number(selected_initial_price_single_product[x].textContent.replace(",", ".")));
+                    selected_price_single_product[x].textContent = String((e.target.value * Number(selected_initial_price_single_product[x].textContent.replace(",", "."))).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
@@ -152,7 +152,7 @@
         for(i=0;i<{{ product_unit_other_list|length }};i++){
             (function(x) {
                 selected_quantity_product_unit_other[i].addEventListener('change', function(e) {
-                    selected_price_product_unit_other[x].textContent = String(e.target.value * Number(selected_initial_price_product_unit_other[x].textContent.replace(",", ".")));
+                    selected_price_product_unit_other[x].textContent = String((e.target.value * Number(selected_initial_price_product_unit_other[x].textContent.replace(",", "."))).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
