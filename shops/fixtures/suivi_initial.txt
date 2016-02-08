@@ -1,0 +1,57 @@
+# Impossible de poser des commentaires dans JSON donc je met le suivi ici:
+
+# Fichier: initial.json
+# Dans l'ordre d'apparition sur le fichier JSON
+
+## Initialisation
+User AE_ENSAM base pour purchase 3
+Shop Foyer base pour purchase 2
+
+## Produits unitaires
+# De fûts
+Kronembourg 1
+1664 Blanche 2
+Grimbergen Réserve 3
+Apple Frost 4
+El Grande 5
+Grimbergen de Noël 6
+# De softs
+Soda 7
+Boisson énergisante 8
+Jus de fruit 9
+Sirop 10
+# D'alcools forts
+Picon 11
+Vodka 12
+Rhum 13
+Whisky 14
+Jägermeister 15
+Pastis 16
+
+## Tireuses
+Tireuse n°1 5001
+Tireuse n°2 5002
+Tireuse n°3 5003
+Tireuse n°4 5004
+Tireuse n°5 5005
+
+## Containers # Je ne crée qu'un seul container à chaque fois, car le test actuel ne permet pas de vider les containers
+# Fûts
+Kronembourg 50 L 17
+1664 Blanche 50 L 18
+Grimbergen Réserve 50 L 19
+Apple Frost 50 L 20
+El Grande 50 L 21
+Grimbergen de Noël 50 L 22
+# Softs
+Soda 23
+Boisson énergisante 24
+Jus de fruit 25
+Sirop 26
+# Alcools forts
+Picon 27
+Vodka 28
+Rhum 29
+Whisky 30
+Jägermeister 31
+Pastis 32

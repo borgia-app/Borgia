@@ -1,0 +1,883 @@
+[
+  {
+    "model": "users.User",
+    "pk": 3,
+    "fields": {
+      "username": "AE_ENSAM"
+    }
+  },
+  {
+    "model": "shops.shop",
+    "pk": 2,
+    "fields": {
+      "created": "2016-02-07T10:17:20.142Z",
+      "modified": "2016-02-07T10:17:20.142Z",
+      "name": "Foyer",
+      "description": "Foyer des élèves de l'AE ENSAM, Metz"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 1,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Kronembourg",
+      "description": "Produit unitaire Kronembourg",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 1,
+    "fields": {
+      "price": 0.025,
+      "unit": "cl",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 2,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "1664 Blanche",
+      "description": "Produit unitaire 1664 Blanche",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 2,
+    "fields": {
+      "price": 0.0262,
+      "unit": "cl",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 3,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Grimbergen Réserve",
+      "description": "Produit unitaire Grimbergen Réserve",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 3,
+    "fields": {
+      "price": 0.0294,
+      "unit": "cl",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 4,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Apple Frost",
+      "description": "Produit unitaire Apple Frost",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 4,
+    "fields": {
+      "price": 0.0200,
+      "unit": "cl",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 5,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "El Grande",
+      "description": "Produit unitaire El Grande",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 5,
+    "fields": {
+      "price": 0.0334,
+      "unit": "cl",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 6,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Grimbergen de Noël",
+      "description": "Produit unitaire Grimbergen de Noël",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 6,
+    "fields": {
+      "price": 0.0350,
+      "unit": "cl",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 7,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Soda",
+      "description": "Produit unitaire Soda",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 7,
+    "fields": {
+      "price": 0.0216,
+      "unit": "cl",
+      "type": "other"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 8,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Boisson énergisante",
+      "description": "Produit unitaire boisson énergissante",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 8,
+    "fields": {
+      "price": 0.0199,
+      "unit": "cl",
+      "type": "other"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 9,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Jus de fruit",
+      "description": "Produit unitaire jus de fruit",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 9,
+    "fields": {
+      "price": 0.0102,
+      "unit": "cl",
+      "type": "other"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 10,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Sirop",
+      "description": "Produit unitaire sirop",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 10,
+    "fields": {
+      "price": 0.0369,
+      "unit": "cl",
+      "type": "other"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 11,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Picon",
+      "description": "Produit unitaire picon",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 11,
+    "fields": {
+      "price": 0.1333,
+      "unit": "cl",
+      "type": "other"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 12,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Vodka",
+      "description": "Produit unitaire vodka",
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 12,
+    "fields": {
+      "price": 0.1411,
+      "unit": "cl",
+      "type": "other"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 13,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Rhum",
+      "description": "Produit unitaire rhum",
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 13,
+    "fields": {
+      "price": 0.1680,
+      "unit": "cl",
+      "type": "other"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 14,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Whisky",
+      "description": "Produit unitaire whisky",
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 14,
+    "fields": {
+      "price": 0.1260,
+      "unit": "cl",
+      "type": "other"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 15,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Jägermeister",
+      "description": "Produit unitaire jägermeister",
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 15,
+    "fields": {
+      "price": 0.1293,
+      "unit": "cl",
+      "type": "other"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 16,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "Pastis",
+      "description": "Produit unitaire pastis",
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 16,
+    "fields": {
+      "price": 0.2687,
+      "unit": "cl",
+      "type": "other"
+    }
+  },
+  {
+    "model": "shops.Tap",
+    "pk": 5001,
+    "fields": {
+      "number": "1"
+    }
+  },
+  {
+    "model": "shops.Tap",
+    "pk": 5002,
+    "fields": {
+      "number": "2"
+    }
+  },
+  {
+    "model": "shops.Tap",
+    "pk": 5003,
+    "fields": {
+      "number": "3"
+    }
+  },
+  {
+    "model": "shops.Tap",
+    "pk": 5004,
+    "fields": {
+      "number": "4"
+    }
+  },
+  {
+    "model": "shops.Tap",
+    "pk": 5005,
+    "fields": {
+      "number": "5"
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 17,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 17,
+    "fields": {
+      "product_unit": 1,
+      "initial_quantity": 5000.0,
+      "estimated_remaining_quantity": 5000.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 18,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 18,
+    "fields": {
+      "product_unit": 2,
+      "initial_quantity": 5000.0,
+      "estimated_remaining_quantity": 5000.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 19,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 19,
+    "fields": {
+      "product_unit": 3,
+      "initial_quantity": 5000.0,
+      "estimated_remaining_quantity": 5000.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 20,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 20,
+    "fields": {
+      "product_unit": 4,
+      "initial_quantity": 5000.0,
+      "estimated_remaining_quantity": 5000.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 21,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 21,
+    "fields": {
+      "product_unit": 5,
+      "initial_quantity": 3000.0,
+      "estimated_remaining_quantity": 3000.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 22,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 22,
+    "fields": {
+      "product_unit": 6,
+      "initial_quantity": 3000.0,
+      "estimated_remaining_quantity": 3000.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 23,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 23,
+    "fields": {
+      "product_unit": 7,
+      "initial_quantity": 75.0,
+      "estimated_remaining_quantity": 75.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 24,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 24,
+    "fields": {
+      "product_unit": 8,
+      "initial_quantity": 75.0,
+      "estimated_remaining_quantity": 75.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 25,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 25,
+    "fields": {
+      "product_unit": 9,
+      "initial_quantity": 75.0,
+      "estimated_remaining_quantity": 75.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 26,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 26,
+    "fields": {
+      "product_unit": 10,
+      "initial_quantity": 75.0,
+      "estimated_remaining_quantity": 75.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 27,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 27,
+    "fields": {
+      "product_unit": 11,
+      "initial_quantity": 75.0,
+      "estimated_remaining_quantity": 75.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 28,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 28,
+    "fields": {
+      "product_unit": 12,
+      "initial_quantity": 75.0,
+      "estimated_remaining_quantity": 75.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 29,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 29,
+    "fields": {
+      "product_unit": 13,
+      "initial_quantity": 75.0,
+      "estimated_remaining_quantity": 75.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 30,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 30,
+    "fields": {
+      "product_unit": 14,
+      "initial_quantity": 75.0,
+      "estimated_remaining_quantity": 75.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 31,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 31,
+    "fields": {
+      "product_unit": 15,
+      "initial_quantity": 75.0,
+      "estimated_remaining_quantity": 75.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  },
+  {
+    "model": "shops.product",
+    "pk": 32,
+    "fields": {
+      "created": "2016-02-07T10:18:02.378Z",
+      "modified": "2016-02-07T10:18:02.378Z",
+      "name": "",
+      "description": null,
+      "is_available_for_sale": false,
+      "is_available_for_borrowing": false,
+      "peremption_date": null,
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 32,
+    "fields": {
+      "product_unit": 16,
+      "initial_quantity": 75.0,
+      "estimated_remaining_quantity": 75.0,
+      "is_empty": false,
+      "opening_date": null,
+      "removing_date": null,
+      "is_returnable": false,
+      "value_when_returned": null,
+      "return_date": null
+    }
+  }
+
+]
