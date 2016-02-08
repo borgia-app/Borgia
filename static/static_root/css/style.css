@@ -982,10 +982,6 @@
 		position: relative;
 	}
 
-		#navigation li {
-  			display: inline;
-		}
-
 		#banner:before {
 			content: '';
 			position: absolute;
@@ -1084,8 +1080,34 @@
 			color: #bbb;
 		}
 
-/* NAVIGATION */
+/* Navigation */
 
-#navigation li {
-  display: inline;
+nav
+{
+	background-color: #555f66;
+	height: 30px;
+}
+
+nav ul
+{
+    list-style-type: none;
+    display: flex;
+}
+
+nav li
+{
+    margin-right: 15px;
+}
+
+nav a
+{
+    font-size: 1.3em;
+    color: white;
+    padding-bottom: 3px;
+    text-decoration: none;
+}
+
+nav a:hover
+{
+    color: #5b80b2;
 }
