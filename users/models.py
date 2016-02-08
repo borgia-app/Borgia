@@ -36,14 +36,14 @@ class User(AbstractUser):
         if x > 0:
             self.balance += x
         self.save()
-        return self.balance - old_balance
+        return round(self.balance - old_balance,4)
 
     def debit(self, x):
         old_balance = self.balance
         if x > 0:
             self.balance -= x
         self.save()
-        return old_balance - self.balance
+        return round(old_balance - self.balance, 4)
 
     def list_purchase(self):
         return Purchase.objects.filter(client=self)

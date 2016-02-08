@@ -174,7 +174,7 @@
     "fields": {
       "price": 0.0216,
       "unit": "cl",
-      "type": "other"
+      "type": "soft"
     }
   },
   {
@@ -197,7 +197,7 @@
     "fields": {
       "price": 0.0199,
       "unit": "cl",
-      "type": "other"
+      "type": "soft"
     }
   },
   {
@@ -220,7 +220,7 @@
     "fields": {
       "price": 0.0102,
       "unit": "cl",
-      "type": "other"
+      "type": "soft"
     }
   },
   {
@@ -243,7 +243,7 @@
     "fields": {
       "price": 0.0369,
       "unit": "cl",
-      "type": "other"
+      "type": "liquor"
     }
   },
   {
@@ -266,7 +266,7 @@
     "fields": {
       "price": 0.1333,
       "unit": "cl",
-      "type": "other"
+      "type": "liquor"
     }
   },
   {
@@ -289,7 +289,7 @@
     "fields": {
       "price": 0.1411,
       "unit": "cl",
-      "type": "other"
+      "type": "liquor"
     }
   },
   {
@@ -311,7 +311,7 @@
     "fields": {
       "price": 0.1680,
       "unit": "cl",
-      "type": "other"
+      "type": "liquor"
     }
   },
   {
@@ -333,7 +333,7 @@
     "fields": {
       "price": 0.1260,
       "unit": "cl",
-      "type": "other"
+      "type": "liquor"
     }
   },
   {
@@ -355,7 +355,7 @@
     "fields": {
       "price": 0.1293,
       "unit": "cl",
-      "type": "other"
+      "type": "liquor"
     }
   },
   {
@@ -377,7 +377,7 @@
     "fields": {
       "price": 0.2687,
       "unit": "cl",
-      "type": "other"
+      "type": "liquor"
     }
   },
   {

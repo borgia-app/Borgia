@@ -162,7 +162,7 @@ class ProductUnit(Product):
     """
     price = models.FloatField()
     unit = models.CharField(max_length=10)
-    TYPE_CHOICES = (('keg', 'Fût'), ('other', 'Autre'))
+    TYPE_CHOICES = (('keg', 'Fût'), ('soft', 'Soft'), ('alcool fort', 'liquor'))
     type = models.CharField(max_length=255, choices=TYPE_CHOICES)
 
     def price_glass(self):

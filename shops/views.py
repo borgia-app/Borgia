@@ -31,28 +31,34 @@ def purchase_foyer(request):
     # Liste des objects unitaires disponibles au foyer (ex: skolls 33cl, ...)
     single_product_list = Shop.objects.get(name="Foyer").list_single_product_unsold_name()
     # Liste des unites de produits, hors bières issues de fûts, disponibles au foyer (ex: sirop de fraise, ...)
-    product_unit_other_list = ProductUnit.objects.filter(Q(type='other'))
+    product_unit_soft_list = ProductUnit.objects.filter(Q(type='soft'))
+    product_unit_liquor_list = ProductUnit.objects.filter(Q(type='liquor'))
 
     # Cas du premier envoi
     if request.method == 'POST':
         form = PurchaseFoyerForm(request.POST, tap_list=tap_list, single_product_list=single_product_list,
-                                 product_unit_other_list=product_unit_other_list)
+                                 product_unit_soft_list=product_unit_soft_list,
+                                 product_unit_liquor_list=product_unit_liquor_list)
 
         if form.is_valid():
 
             # Creations des dictionnaires (demande, element) de correspondance
             list_results_tap = []
             list_results_single_product = []
-            list_results_product_unit_other = []
+            list_results_product_unit_soft = []
+            list_results_product_unit_liquor = []
 
             for i in range(0, len(tap_list)):
                 list_results_tap.append((form.cleaned_data["field_tap_%s" % i], tap_list[i]))
             for i in range(0, len(single_product_list)):
                 list_results_single_product.append((form.cleaned_data["field_single_product_%s" % i],
                                                     single_product_list[i]))
-            for i in range(0, len(product_unit_other_list)):
-                list_results_product_unit_other.append((form.cleaned_data["field_product_unit_other_%s" % i],
-                                                        product_unit_other_list[i]))
+            for i in range(0, len(product_unit_soft_list)):
+                list_results_product_unit_soft.append((form.cleaned_data["field_product_unit_soft_%s" % i],
+                                                       product_unit_soft_list[i]))
+            for i in range(0, len(product_unit_liquor_list)):
+                list_results_product_unit_liquor.append((form.cleaned_data["field_product_unit_liquor_%s" % i],
+                                                         product_unit_liquor_list[i]))
 
             # Creation de la purchase
                 # Informations generales
@@ -65,18 +71,21 @@ def purchase_foyer(request):
             for e in list_results_tap:
                 if e[0] != 0:  # Le client a pris un objet issu du container e[1]
                     # Creation d'un objet issu de e[1] lie a la purchase et sauvegarde
-                    spfc = SingleProductFromContainer(container=e[1].container, quantity=e[0]*25,
+                    spfc = SingleProductFromContainer(container=e[1].container, quantity=e[0]*75,
                                                       price=e[0]*e[1].container.product_unit.price_glass(),
                                                       purchase=purchase)
                     spfc.save()
 
             # Sirops, softs et alcools fort
-            for e in list_results_product_unit_other:
+            for e in list_results_product_unit_soft:
                 if e[0] != 0:
-                    # 1 ou 0 pour debut de la liste ?
-                    # 4 ou 25 cl ? ou même autre chose, il faut differencier les cas
-                    # soft -> 25 cl
-                    # alcool fort, sirop -> 4 cl
+                    spfc = SingleProductFromContainer(container=Container.objects.filter(product_unit__name=e[1])[0],
+                                                      quantity=e[0]*75,
+                                                      price=e[0]*ProductUnit.objects.filter(name=e[1])[0].price_glass(),
+                                                      purchase=purchase)
+                    spfc.save()
+            for e in list_results_product_unit_liquor:
+                if e[0] != 0:
                     spfc = SingleProductFromContainer(container=Container.objects.filter(product_unit__name=e[1])[0],
                                                       quantity=e[0]*4,
                                                       price=e[0]*ProductUnit.objects.filter(name=e[1])[0].price_shoot(),
@@ -122,27 +131,33 @@ def purchase_foyer(request):
         # Sert a l'affichage sur le template et au post traitement
         dict_field_tap = []
         dict_field_single_product = []
-        dict_field_product_unit_other = []
+        dict_field_product_unit_soft = []
+        dict_field_product_unit_liquor = []
         initial = {}
 
         for i in range(0, len(tap_list)):
             initial['field_tap_%s' % i] = 0
         for i in range(0, len(single_product_list)):
             initial['field_single_product_%s' % i] = 0
-        for i in range(0, len(product_unit_other_list)):
-            initial['field_product_unit_other_%s' % i] = 0
-
+        for i in range(0, len(product_unit_soft_list)):
+            initial['field_product_unit_soft_%s' % i] = 0
+        for i in range(0, len(product_unit_liquor_list)):
+            initial['field_product_unit_liquor_%s' % i] = 0
         form = PurchaseFoyerForm(tap_list=tap_list, single_product_list=single_product_list,
-                                 product_unit_other_list=product_unit_other_list, initial=initial)
+                                 product_unit_soft_list=product_unit_soft_list,
+                                 product_unit_liquor_list=product_unit_liquor_list, initial=initial)
 
         for i in range(0, len(tap_list)):  # Envoi de l'object directement
             dict_field_tap.append((form['field_tap_%s' % i], tap_list[i], i))
         for i in range(0, len(single_product_list)):  # Attention, envoi d'un object, mais ce sont tous les mêmes
             dict_field_single_product.append((form['field_single_product_%s' % i],
                                               SingleProduct.objects.filter(name=single_product_list[i])[0], i))
-        for i in range(0, len(product_unit_other_list)):  # Attention, envoi d'un object, mais ce sont tous les mêmes
-            dict_field_product_unit_other.append((form['field_product_unit_other_%s' % i],
-                                                  ProductUnit.objects.filter(name=product_unit_other_list[i])[0], i))
+        for i in range(0, len(product_unit_soft_list)):
+            dict_field_product_unit_soft.append((form['field_product_unit_soft_%s' % i],
+                                                 ProductUnit.objects.filter(name=product_unit_soft_list[i])[0], i))
+        for i in range(0, len(product_unit_liquor_list)):
+            dict_field_product_unit_liquor.append((form['field_product_unit_liquor_%s' % i],
+                                                   ProductUnit.objects.filter(name=product_unit_liquor_list[i])[0], i))
 
     return render(request, 'shops/purchase_foyer.html', locals())
 

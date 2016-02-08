@@ -10,7 +10,8 @@ class PurchaseFoyerForm(forms.Form):
     def __init__(self, *args, **kwargs):
         tap_list = kwargs.pop('tap_list')
         single_product_list = kwargs.pop('single_product_list')
-        product_unit_other = kwargs.pop('product_unit_other_list')
+        product_unit_soft_list = kwargs.pop('product_unit_soft_list')
+        product_unit_liquor_list = kwargs.pop('product_unit_liquor_list')
 
         super(PurchaseFoyerForm, self).__init__(*args, **kwargs)
 
@@ -20,8 +21,11 @@ class PurchaseFoyerForm(forms.Form):
         for (i, t) in enumerate(single_product_list):
             self.fields['field_single_product_%s' % i] = forms.IntegerField(required=True, min_value=0)
 
-        for (i, t) in enumerate(product_unit_other):
-            self.fields['field_product_unit_other_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        for (i, t) in enumerate(product_unit_soft_list):
+            self.fields['field_product_unit_soft_%s' % i] = forms.IntegerField(required=True, min_value=0)
+
+        for (i, t) in enumerate(product_unit_liquor_list):
+            self.fields['field_product_unit_liquor_%s' % i] = forms.IntegerField(required=True, min_value=0)
 
     def tap_answers(self):
         for name, value in self.cleaned_data.items():
@@ -33,7 +37,12 @@ class PurchaseFoyerForm(forms.Form):
             if name.startwith('field_single_product_'):
                 yield (self.fields[name].label, value)
 
-    def product_unit_other_answers(self):
+    def product_unit_soft_answers(self):
         for name, value in self.cleaned_data.items():
-            if name.startwith('field_product_unit_other_'):
+            if name.startwith('field_product_unit_soft_'):
+                yield (self.fields[name].label, value)
+
+    def product_unit_liquor_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_product_unit_liquor_'):
                 yield (self.fields[name].label, value)
