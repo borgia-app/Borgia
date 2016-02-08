@@ -1,20 +1,7 @@
-<table>
-    <tr>
-        <th>Username</th>
-        <th>Nom</th>
-        <th>Prénom</th>
-        <th>Modifier</th>
-        <th>Supprimer</th>
-        <th>Détail</th>
-    </tr>
-    {% for e in object_list %}
-        <tr>
-            <td>{{ e.username }}</td>
-            <td>{{ e.last_name }}</td>
-            <td>{{ e.first_name }}</td>
-            <td><a href="{% url 'url_updateadmin_user' pk=e.id %}">modifier</a></td>
-            <td><a href="{% url 'url_delete_user' pk=e.id %}">supprimer</a></td>
-            <td><a href="{% url 'url_retrieve_user' pk=e.id %}">détail</a></td>
-        </tr>
-    {% endfor %}
-</table>
+{# Utilisation d'un _module.html supplémentaire de façon à pour l'utiliser pour d'autres templates  #}
+
+{% extends 'base.html' %}
+
+{% block content %}
+    {% include "users/list_module.html" %}
+{% endblock %}

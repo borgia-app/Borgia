@@ -175,7 +175,7 @@ class TransactionValidationView(UpdateView):
 # Affichage detaille d'une transaction - R
 class TransactionRetrieveView(DetailView):
     model = Transaction
-    template_name = "finances/transaction_retrieve_view.html"
+    template_name = "finances/transaction_retrieve.html"
 
 
 # Update d'une transaction - U
@@ -196,7 +196,7 @@ class TransactionDeleteView(DeleteView):
 # Liste de transactions - List
 class TransactionListView(ListView):
     model = Transaction
-    template_name = "finances/transaction_list_view.html"
+    template_name = "finances/transaction_list.html"
     queryset = Transaction.objects.all()
 
 
@@ -215,7 +215,7 @@ class ChequeCreateView(CreateView):
 # Affichage detaille d'un cheque - R
 class ChequeRetrieveView(DetailView):
     model = Cheque
-    template_name = "finances/cheque_retrieve_view.html"
+    template_name = "finances/cheque_retrieve.html"
 
 
 # Update d'un cheque - U
@@ -236,7 +236,7 @@ class ChequeDeleteView(DeleteView):
 # Liste de cheques - List
 class ChequeListView(ListView):
     model = Cheque
-    template_name = "finances/cheque_list_view.html"
+    template_name = "finances/cheque_list.html"
     queryset = Cheque.objects.all()
 
 
@@ -252,7 +252,7 @@ class CashCreateView(CreateView):
 # Affichage detaille d'especes - R
 class CashRetrieveView(DetailView):
     model = Cash
-    template_name = "finances/cash_retrieve_view.html"
+    template_name = "finances/cash_retrieve.html"
 
 
 # Update d'especes - U
@@ -273,7 +273,7 @@ class CashDeleteView(DeleteView):
 # Liste d'especes - List
 class CashListView(ListView):
     model = Cash
-    template_name = "finances/cash_list_view.html"
+    template_name = "finances/cash_list.html"
     queryset = Cash.objects.all()
 
 
@@ -292,7 +292,7 @@ class LydiaCreateView(CreateView):
 # Affichage detaille d'un virement Lydia - R
 class LydiaRetrieveView(DetailView):
     model = Lydia
-    template_name = "finances/lydia_retrieve_view.html"
+    template_name = "finances/lydia_retrieve.html"
 
 
 # Update d'un virement Lydia - U
@@ -313,7 +313,7 @@ class LydiaDeleteView(DeleteView):
 # Liste virements Lydias - List
 class LydiaListView(ListView):
     model = Lydia
-    template_name = "finances/lydia_list_view.html"
+    template_name = "finances/lydia_list.html"
     queryset = Lydia.objects.all()
 
 
@@ -323,7 +323,7 @@ class LydiaListView(ListView):
 # Affichage detaille d'un achat - R
 class PurchaseRetrieveView(DetailView):
     model = Purchase
-    template_name = 'finances/purchase_retrieve_view.html'
+    template_name = 'finances/purchase_retrieve.html'
 
 
 # Update d'un virement Lydia - U
@@ -344,5 +344,5 @@ class PurchaseDeleteView(DeleteView):
 # Liste virements Lydias - List
 class PurchaseListView(ListView):
     model = Purchase
-    template_name = "finances/purchase_list_view.html"
+    template_name = "finances/purchase_list.html"
     queryset = Purchase.objects.all().order_by('-time')

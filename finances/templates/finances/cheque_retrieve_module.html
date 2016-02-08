@@ -1,0 +1,16 @@
+<ul>
+    <li>Signataire : <a href="{% url 'url_retrieve_user' pk=object.signatory.id %}">{{ object.signatory }}</a></li>
+    <li>Ordre : <a href="{% url 'url_retrieve_user' pk=object.recipient.id %}">{{ object.recipient }}</a></li>
+    <li>Date de signature : {{ object.date_sign }}</li>
+    <li>Numéro : {{ object.number }}</li>
+    <li>Montant : {{ object.amount }} €</li>
+    <li>Encaissé : {{ object.cashed }}</li>
+    <li>Date d'encaissement : {{ object.date_cash }}</li>
+    <li>Transaction(s) correspondante(s) :
+        <ul>
+            {% for e in object.list_transaction %}
+                <li><a href="{% url 'url_retrieve_transaction' pk=e.id %}">{{ e }}</a></li>
+            {% endfor %}
+        </ul>
+    </li>
+</ul>

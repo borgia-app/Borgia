@@ -1,0 +1,16 @@
+<table>
+    <tr>
+        <th>Nom</th>
+        <th>Modifier</th>
+        <th>Supprimer</th>
+        <th>Détails</th>
+    </tr>
+    {% for e in object_list %}
+        <tr>
+            <td>{{ e.name }}</td>
+            <td><a href="{% url 'url_update_productunit' pk=e.id %}">modifier</a></td>
+            <td><a href="{% url 'url_delete_productunit' pk=e.id %}">supprimer</a></td>
+            <td><a href="{% url 'url_retrieve_productunit' pk=e.id %}">détail</a></td>
+        </tr>
+    {% endfor %}
+</table>

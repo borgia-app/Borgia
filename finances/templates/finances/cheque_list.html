@@ -1,32 +1,9 @@
-<table>
-    <tr>
-        <th>Signataire</th>
-        <th>Date de signature</th>
-        <th>Ordre</th>
-        <th>Montant (€)</th>
-        <th>Numéro</th>
-        <th>Encaissé</th>
-        <th>Date d'encaissement</th>
-        <th>Transaction(s) correspondante(s)</th>
-        <th>Modifier</th>
-        <th>Supprimer</th>
-        <th>Détails</th>
-    </tr>
-    {% for e in object_list %}
-        <tr>
-            <td><a href="{% url 'url_retrieve_user' pk=e.signatory.id %}">{{ e.signatory }}</a></td>
-            <td>{{ e.date_sign }}</td>
-            <td><a href="{% url 'url_retrieve_user' pk=e.recipient.id %}">{{ e.recipient }}</a></td>
-            <td>{{ e.amount }}</td>
-            <td>{{ e.number }}</td>
-            <td>{{ e.cashed }}</td>
-            <td>{{ e.date_cash }}</td>
-            <td>{% for h in e.list_transaction %}
-                <a href="{% url 'url_retrieve_transaction' pk=h.id %}">{{ h }}</a>
-            {% endfor %}</td>
-            <td><a href="{% url 'url_update_cheque' pk=e.id %}">modifier</a></td>
-            <td><a href="{% url 'url_delete_cheque' pk=e.id %}">supprimer</a></td>
-            <td><a href="{% url 'url_retrieve_cheque' pk=e.id %}">détail</a></td>
-        </tr>
-    {% endfor %}
-</table>
+{# Utilisation d'un _module.html supplémentaire de façon à pour l'utiliser pour d'autres templates  #}
+
+{% extends 'base.html' %}
+
+{% block content %}
+    {% include "finances/cheque_list_module.html" %}
+{% endblock %}
+
+

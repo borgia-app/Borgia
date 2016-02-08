@@ -39,7 +39,7 @@ class UserCreateView(CreateView):
 # R - Recuperation d'un user
 class UserRetrieveView(DetailView):
     model = User
-    template_name = "users/retrieve_view.html"
+    template_name = "users/retrieve.html"
 
 
 # U - Modification d'un user
@@ -69,7 +69,7 @@ class UserDeleteView(DeleteView):
 # Liste d'users
 class UserListView(ListView):
     model = User
-    template_name = "users/list_view.html"
+    template_name = "users/list.html"
     queryset = User.objects.all()
 
     class Meta:

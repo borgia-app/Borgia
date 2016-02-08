@@ -1,12 +1,7 @@
-<ul>
-    <li>Nom : {{ object.name }}</li>
-    <li>Description : {{ object.description }} €</li>
-    <li>Produit unitaire : {{ object.product_unit }}</li>
-    <li>Quantité initiale : {{ object.initial_quantity }}</li>
-    <li>Quantité restante estimée : {{ object.estimated_remaining_quantity }}</li>
-    <li>Vide : {{ object.is_empty }}</li>
-    <li>Date de mise en service : {{ object.opening_date }}</li>
-    <li>Date de retrait du service : {{ object.removing_date }}</li>
-    <li>Consigné : {{ object.is_returnable }}</li>
-    <li>Retour consigne : {{ object.return_date }}</li>
-</ul>
+{# Utilisation d'un _module.html supplémentaire de façon à pour l'utiliser pour d'autres templates  #}
+
+{% extends 'base.html' %}
+
+{% block content %}
+    {% include "shops/container_retrieve_module.html" %}
+{% endblock %}

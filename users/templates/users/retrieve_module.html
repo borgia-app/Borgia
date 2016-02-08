@@ -1,0 +1,29 @@
+<div id="personal_informations">
+    <ul>
+        <li>Username : {{ object.username }}</li>
+        <li>Prénom : {{ object.first_name }}</li>
+        <li>Nom : {{ object.last_name }}</li>
+        <li>Buque : {{ object.surname }}</li>
+        <li>Num'ss : {{ object.family }}</li>
+        <li>Prom'ss : {{ object.campus }}{{ user.year_pg }}</li>
+        <li>Solde : {{ object.balance|floatformat:2 }} €</li>
+        <li>Permissions :
+            {% if object.is_superuser %}
+                <p>superuser -> toutes les permissions</p>
+            {% else %}
+                <ul>
+                    {% for p in object.user_permissions.all %}
+                        <li>{{ p.name }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </li>
+        <li>Groupes :
+            <ul>
+                {% for g in object.groups.all %}
+                    <li>{{ g.name }}</li>
+                {% endfor %}
+            </ul>
+        </li>
+    </ul>
+</div>

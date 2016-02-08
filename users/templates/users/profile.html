@@ -8,7 +8,7 @@
     <div class="container">
         <div class="one-half column">
             <h3>Informations personnelles</h3>
-            {% include 'users/retrieve.html' with object=user %}
+            {% include 'users/retrieve_module.html' with object=user %}
         </div>
         <div class="one-half column">
             <h3>Modifications</h3>
@@ -32,11 +32,11 @@
 
     <div class="container">
         <h3>Dernières commandes</h3>
-        {% include 'finances/purchase_list.html' with object_list=user.list_purchase %}
+        {% include 'finances/purchase_list_module.html' with object_list=user.list_purchase %}
     </div>
 
     <div class="container">
         <h3>Dernières transactions</h3>
-        {% include 'finances/transaction_list.html' with object_list=user.list_transaction %}
+        {% include 'finances/transaction_list_module.html' with object_list=user.list_transaction %}
     </div>
 {% endblock %}

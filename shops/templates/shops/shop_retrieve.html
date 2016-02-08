@@ -1,4 +1,7 @@
-<ul>
-    <li>Nom : {{ object.name }}</li>
-    <li>Description : {{ object.description }}</li>
-</ul>
+{# Utilisation d'un _module.html supplémentaire de façon à pour l'utiliser pour d'autres templates  #}
+
+{% extends 'base.html' %}
+
+{% block content %}
+    {% include "shops/shop_retrieve_module.html" %}
+{% endblock %}
