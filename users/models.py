@@ -16,7 +16,8 @@ class User(AbstractUser):
         ('AI', 'Ai'),
         ('BO', 'Bo'),
         ('LI', 'Li'),
-        ('CL', 'Cl')
+        ('CL', 'Cl'),
+        ('KIN', 'Kin')
     )
     campus = models.CharField(choices=CAMPUS_CHOICES, default='ME', max_length=2)
     YEAR_CHOICES = []
