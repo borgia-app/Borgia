@@ -4,6 +4,8 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView
 from django.contrib.auth import logout
 from django.db.models import Q
+from django.contrib.messages.views import SuccessMessageMixin
+from django.contrib import messages
 
 from shops.models import *
 from shops.forms import *
@@ -168,11 +170,12 @@ def workboard_foyer(request):
 
 # Model TAP
 # C
-class TapCreateView(CreateView):
+class TapCreateView(SuccessMessageMixin, CreateView):
     model = Tap
     fields = ['number']
     template_name = 'shops/tap_create.html'
-    success_url = '/shops/tap/list'
+    success_url = '/shops/tap/'
+    success_message = "Tap %(number)s was created successfully" # Permet de passer une notification de succès
 
 
 # R
@@ -182,18 +185,26 @@ class TapRetrieveView(DetailView):
 
 
 # U
-class TapUpdateView(UpdateView):
+class TapUpdateView(SuccessMessageMixin, UpdateView):
     model = Tap
     fields = ['number', 'container']
     template_name = 'shops/tap_update.html'
-    success_url = '/shops/tap/list'
+    success_url = '/shops/tap/'
+    success_message = "Tap %(number)s was updated successfully"
 
 
 # D
-class TapDeleteView(DeleteView):
+class TapDeleteView(SuccessMessageMixin, DeleteView):
     model = Tap
     template_name = 'shops/tap_delete.html'
-    success_url = '/shops/tap/list'
+    success_url = '/shops/tap/'
+    success_message = "Tap was deleted successfully"
+
+    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
+    # https://code.djangoproject.com/ticket/21926
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(TapDeleteView, self).delete(request, *args, **kwargs)
 
 
 # List
@@ -205,11 +216,12 @@ class TapListView(ListView):
 
 # Model SHOP
 # C
-class ShopCreateView(CreateView):
+class ShopCreateView(SuccessMessageMixin, CreateView):
     model = Shop
     fields = ['name', 'description']
     template_name = 'shops/shop_create.html'
-    success_url = '/shops/shop/list'
+    success_url = '/shops/shop/'
+    success_message = "%(name)s was created successfully"
 
 
 # R
@@ -219,18 +231,26 @@ class ShopRetrieveView(DetailView):
 
 
 # U
-class ShopUpdateView(UpdateView):
+class ShopUpdateView(SuccessMessageMixin, UpdateView):
     model = Shop
     fields = ['name', 'description']
     template_name = 'shops/shop_update.html'
-    success_url = '/shops/shop/list'
+    success_url = '/shops/shop/'
+    success_message = "%(name)s was updated successfully"
 
 
 # D
-class ShopDeleteView(DeleteView):
+class ShopDeleteView(SuccessMessageMixin, DeleteView):
     model = Shop
     template_name = 'shops/shop_delete.html'
-    success_url = '/shops/shop/list'
+    success_url = '/shops/shop/'
+    success_message = "Shop was deleted successfully"
+
+    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
+    # https://code.djangoproject.com/ticket/21926
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(ShopDeleteView, self).delete(request, *args, **kwargs)
 
 
 # List
@@ -242,11 +262,12 @@ class ShopListView(ListView):
 
 # Model SINGLEPRODUCT
 # C
-class SingleProductCreateView(CreateView):
+class SingleProductCreateView(SuccessMessageMixin, CreateView):
     model = SingleProduct
     fields = ['name', 'description', 'price', 'shop']
     template_name = 'shops/singleproduct_create.html'
-    success_url = '/shops/singleproduct/list'
+    success_url = '/shops/singleproduct/'
+    success_message = "%(name)s was created successfully"
 
 
 # R
@@ -256,19 +277,27 @@ class SingleProductRetrieveView(DetailView):
 
 
 # U
-class SingleProductUpdateView(UpdateView):
+class SingleProductUpdateView(SuccessMessageMixin, UpdateView):
     model = SingleProduct
     fields = ['name', 'description', 'is_available_for_sale', 'is_available_for_borrowing', 'peremption_date',
               'is_sold', 'price', 'shop']
     template_name = 'shops/singleproduct_update.html'
-    success_url = '/shops/singleproduct/list'
+    success_url = '/shops/singleproduct/'
+    success_message = "%(name)s was updated successfully"
 
 
 # D
-class SingleProductDeleteView(DeleteView):
+class SingleProductDeleteView(SuccessMessageMixin, DeleteView):
     model = SingleProduct
     template_name = 'shops/singleproduct_delete.html'
-    success_url = '/shops/singleproduct/list'
+    success_url = '/shops/singleproduct/'
+    success_message = Single product was delated successfully"
+
+    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
+    # https://code.djangoproject.com/ticket/21926
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(SingleProductDeleteView, self).delete(request, *args, **kwargs)
 
 
 # List
@@ -280,11 +309,12 @@ class SingleProductListView(ListView):
 
 # Model CONTAINER
 # C
-class ContainerCreateView(CreateView):
+class ContainerCreateView(SuccessMessageMixin, CreateView):
     model = Container
     fields = ['product_unit', 'initial_quantity', 'is_returnable', 'value_when_returned']
     template_name = 'shops/container_create.html'
-    success_url = '/shops/container/list'
+    success_url = '/shops/container/'
+    success_message = "%(name)s was created successfully"
 
 
 # R
@@ -294,18 +324,26 @@ class ContainerRetrieveView(DetailView):
 
 
 # U
-class ContainerUpdateView(UpdateView):
+class ContainerUpdateView(SuccessMessageMixin, UpdateView):
     model = Container
     fields = ['product_unit', 'initial_quantity', 'is_returnable', 'value_when_returned']
     template_name = 'shops/container_update.html'
-    success_url = '/shops/container/list'
+    success_url = '/shops/container/'
+    success_message = "%(name)s was updated successfully"
 
 
 # D
-class ContainerDeleteView(DeleteView):
+class ContainerDeleteView(SuccessMessageMixin, DeleteView):
     model = Container
     template_name = 'shops/container_delete.html'
     success_url = '/shops/container/list'
+    success_message = "Container was delated successfully"
+
+    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
+    # https://code.djangoproject.com/ticket/21926
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(ContainerDeleteView, self).delete(request, *args, **kwargs)
 
 
 # List
@@ -317,11 +355,12 @@ class ContainerListView(ListView):
 
 # Model PRODUCTUNIT
 # C
-class ProductUnitCreateView(CreateView):
+class ProductUnitCreateView(SuccessMessageMixin, CreateView):
     model = ProductUnit
     fields = ['name', 'description', 'price', 'unit', 'type', 'shop']
     template_name = 'shops/productunit_create.html'
     success_url = '/shops/productunit/list'
+    success_message = "%(name)s was created successfully"
 
 
 # R
@@ -331,18 +370,26 @@ class ProductUnitRetrieveView(DetailView):
 
 
 # U
-class ProductUnitUpdateView(UpdateView):
+class ProductUnitUpdateView(SuccessMessageMixin, UpdateView):
     model = ProductUnit
     fields = ['name', 'description', 'price', 'unit', 'type', 'shop']
     template_name = 'shops/productunit_update.html'
     success_url = '/shops/productunit/list'
+    success_message = "%(name)s was updated successfully"
 
 
 # D
-class ProductUnitDeleteView(DeleteView):
+class ProductUnitDeleteView(SuccessMessageMixin, DeleteView):
     model = ProductUnit
     template_name = 'shops/productunit_delete.html'
     success_url = '/shops/productunit/list'
+    success_message = "Product unit was delated successfully"
+
+    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
+    # https://code.djangoproject.com/ticket/21926
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(ProductUnitDeleteView, self).delete(request, *args, **kwargs)
 
 
 # List

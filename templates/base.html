@@ -20,7 +20,16 @@
         <li><a href="/shops/foyer/consumption" title="Aller au foyer">Buquage foyer</a></li>
     </ul>
 </nav>
-<hr>
+<br />
+{% if messages %}
+    <div class="container">
+        {% for message in messages %}
+            <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">
+           {{ message }}</div>
+        {% endfor %}
+    </div>
+    <br />
+{% endif %}
 {%  block content %}
 {%  endblock %}
 </body>
