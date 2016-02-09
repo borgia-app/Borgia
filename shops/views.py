@@ -291,7 +291,7 @@ class SingleProductDeleteView(SuccessMessageMixin, DeleteView):
     model = SingleProduct
     template_name = 'shops/singleproduct_delete.html'
     success_url = '/shops/singleproduct/'
-    success_message = Single product was delated successfully"
+    success_message = "Single product was delated successfully"
 
     # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
     # https://code.djangoproject.com/ticket/21926
