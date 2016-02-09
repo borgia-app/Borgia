@@ -202,6 +202,7 @@
 		margin: 0 0 1em 0;
 	}
 
+	input[type="number"],
 	input[type="text"],
 	input[type="password"],
 	input[type="email"],
@@ -224,6 +225,11 @@
 		width: 100%;
 	}
 
+		input[type="number"] {
+			width: 80%;
+		}
+
+		input[type="number"]:invalid,
 		input[type="text"]:invalid,
 		input[type="password"]:invalid,
 		input[type="email"]:invalid,
@@ -232,6 +238,7 @@
 			box-shadow: none;
 		}
 
+		input[type="number"]:focus,
 		input[type="text"]:focus,
 		input[type="password"]:focus,
 		input[type="email"]:focus,
@@ -286,8 +293,7 @@
 	}
 
 	input[type="checkbox"],
-	input[type="radio"] {
-		-moz-appearance: none;
+	input[type="radio"]{
 		-webkit-appearance: none;
 		-o-appearance: none;
 		-ms-appearance: none;
@@ -295,7 +301,6 @@
 		display: block;
 		float: left;
 		margin-right: -2em;
-		opacity: 0;
 		width: 1em;
 		z-index: -1;
 	}

@@ -2,14 +2,17 @@
 
 {% block content %}
 
-{% include 'finances/purchase_retrieve_module.html' with object=purchase %}
-
-    <div>
-        <p>Redirection dans <b id="time_before_redirect">X</b> secondes</p>
-    </div>
-    <div>
-        <p>Pas assez rapide ?</p>
-        <input type="submit" value="Redirection vers le login" id="manual_redirect">
+    <div class="container">
+        <div class="row">
+            {% include 'finances/purchase_retrieve_module.html' with object=purchase %}
+        </div>
+        <div class="row">
+            <p>Redirection dans <b id="time_before_redirect">X</b> secondes</p>
+        </div>
+        <div class="row">
+            <p>Pas assez rapide ?</p>
+            <input type="submit" value="Redirection vers le login" id="manual_redirect">
+        </div>
     </div>
     <script>
         // Pilotage depuis time_initial (en secondes)
