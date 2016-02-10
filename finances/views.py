@@ -345,4 +345,9 @@ class PurchaseDeleteView(DeleteView):
 class PurchaseListView(ListView):
     model = Purchase
     template_name = "finances/purchase_list.html"
-    queryset = Purchase.objects.all().order_by('-time')
+    queryset = Purchase.objects.all().order_by('time')
+
+class PurchaseListLightView(ListView):
+    model = Purchase
+    template_name = "finances/purchase_list_light.html"
+    queryset = Purchase.objects.all().order_by('time')
