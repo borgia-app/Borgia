@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, redirect
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import ListView, DetailView
+from django.shortcuts import render, redirect, force_text
+from django.views.generic.edit import CreateView, UpdateView, DeleteView, ModelFormMixin
+from django.views.generic import ListView, DetailView, FormView
 from django.contrib.auth import logout
 from django.db.models import Q
 from django.contrib.messages.views import SuccessMessageMixin
@@ -13,6 +13,7 @@ from finances.models import Purchase
 from users.models import User
 
 
+# FOYER
 def purchase_foyer(request):
 
     # PB a resoudre :
@@ -32,6 +33,7 @@ def purchase_foyer(request):
     tap_list = Tap.objects.filter(container__isnull=False)
     # Liste des objects unitaires disponibles au foyer (ex: skolls 33cl, ...)
     single_product_list = Shop.objects.get(name="Foyer").list_single_product_unsold_name()
+    single_product_list_qt = Shop.objects.get(name="Foyer").list_single_product_unsold_qt()
     # Liste des unites de produits, hors bières issues de fûts, disponibles au foyer (ex: sirop de fraise, ...)
     product_unit_soft_list = ProductUnit.objects.filter(Q(type='soft'))
     product_unit_liquor_list = ProductUnit.objects.filter(Q(type='liquor'))
@@ -39,6 +41,7 @@ def purchase_foyer(request):
     # Cas du premier envoi
     if request.method == 'POST':
         form = PurchaseFoyerForm(request.POST, tap_list=tap_list, single_product_list=single_product_list,
+                                 single_product_list_qt=single_product_list_qt,
                                  product_unit_soft_list=product_unit_soft_list,
                                  product_unit_liquor_list=product_unit_liquor_list)
 
@@ -62,7 +65,7 @@ def purchase_foyer(request):
                 list_results_product_unit_liquor.append((form.cleaned_data["field_product_unit_liquor_%s" % i],
                                                          product_unit_liquor_list[i]))
 
-            # Creation de la purchase
+                # Creation de la purchase
                 # Informations generales
             purchase = Purchase(operator=User.objects.get(username="AE_ENSAM"), client=request.user)
             purchase.save()
@@ -103,17 +106,12 @@ def purchase_foyer(request):
                 if e[0] != 0:
                     # Le client demande e[0] objets identiques a e[1]
                     # On les prends dans l'ordre du queryset (on s'en fiche) des objets non vendus bien sûr
-                    k = 0  # k est le nombres d'objets similaires a e[1] que l'on a lie a la purchase courante
-                    if e[0] <= len(SingleProduct.objects.filter(Q(name=e[1]) & Q(is_sold=False))):
-                        lim = e[0]
-                    else:
-                        lim = len(SingleProduct.objects.filter(Q(name=e[1]) & Q(is_sold=False)))
-                    while k < lim:
-                        sp = SingleProduct.objects.filter(Q(name=e[1]) & Q(is_sold=False))[k]
+                    # La limitation se fait directement dans le form, via _list_qt
+                    for i in range(0, e[0]):
+                        sp = SingleProduct.objects.filter(Q(name=e[1]) & Q(is_sold=False))[i]
                         sp.purchase = purchase
                         sp.is_sold = True
                         sp.save()
-                        k += 1
 
             # Payement total par le foyer
             # Debit du client + verification
@@ -146,6 +144,7 @@ def purchase_foyer(request):
         for i in range(0, len(product_unit_liquor_list)):
             initial['field_product_unit_liquor_%s' % i] = 0
         form = PurchaseFoyerForm(tap_list=tap_list, single_product_list=single_product_list,
+                                 single_product_list_qt=single_product_list_qt,
                                  product_unit_soft_list=product_unit_soft_list,
                                  product_unit_liquor_list=product_unit_liquor_list, initial=initial)
 
@@ -165,7 +164,9 @@ def purchase_foyer(request):
 
 
 def workboard_foyer(request):
-    return render(request, 'shops/workboard_foyer.html')
+
+    list_tap = Tap.objects.all()
+    return render(request, 'shops/workboard_foyer.html', locals())
 
 
 # Model TAP
@@ -176,6 +177,14 @@ class TapCreateView(SuccessMessageMixin, CreateView):
     template_name = 'shops/tap_create.html'
     success_url = '/shops/tap/'
     success_message = "Tap %(number)s was created successfully" # Permet de passer une notification de succès
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(TapCreateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
 
 
 # R
@@ -191,6 +200,9 @@ class TapUpdateView(SuccessMessageMixin, UpdateView):
     template_name = 'shops/tap_update.html'
     success_url = '/shops/tap/'
     success_message = "Tap %(number)s was updated successfully"
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.success_url))
 
 
 # D
@@ -223,6 +235,14 @@ class ShopCreateView(SuccessMessageMixin, CreateView):
     success_url = '/shops/shop/'
     success_message = "%(name)s was created successfully"
 
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(ShopCreateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
 
 # R
 class ShopRetrieveView(DetailView):
@@ -237,6 +257,9 @@ class ShopUpdateView(SuccessMessageMixin, UpdateView):
     template_name = 'shops/shop_update.html'
     success_url = '/shops/shop/'
     success_message = "%(name)s was updated successfully"
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.success_url))
 
 
 # D
@@ -269,6 +292,46 @@ class SingleProductCreateView(SuccessMessageMixin, CreateView):
     success_url = '/shops/singleproduct/'
     success_message = "%(name)s was created successfully"
 
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(SingleProductCreateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
+
+class SingleProductCreateMultipleView(FormView):
+    template_name = 'shops/singleproduct_create_multiple.html'
+    form_class = SingleProductCreateMultipleForm
+    success_url = '/shops/singleproduct/'
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def form_valid(self, form):
+
+        for i in range(0, form.cleaned_data['quantity']):
+            SingleProduct(name=form.cleaned_data['single_product'].name,
+                          description=form.cleaned_data['single_product'].description,
+                          price=form.cleaned_data['price'],
+                          shop=Shop.objects.get(name=self.request.GET.get('shop', 'Foyer'))
+                          ).save()
+
+        return super(SingleProductCreateMultipleView, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super(SingleProductCreateMultipleView, self).get_form_kwargs()
+        kwargs['single_product_list'] = Shop.objects.get(name=self.request.GET.get('shop', 'Foyer')).list_single_product()
+
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(SingleProductCreateMultipleView, self).get_context_data(**kwargs)
+        context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', 'Foyer'))
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
 
 # R
 class SingleProductRetrieveView(DetailView):
@@ -284,6 +347,9 @@ class SingleProductUpdateView(SuccessMessageMixin, UpdateView):
     template_name = 'shops/singleproduct_update.html'
     success_url = '/shops/singleproduct/'
     success_message = "%(name)s was updated successfully"
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.success_url))
 
 
 # D
@@ -314,7 +380,47 @@ class ContainerCreateView(SuccessMessageMixin, CreateView):
     fields = ['product_unit', 'initial_quantity', 'is_returnable', 'value_when_returned']
     template_name = 'shops/container_create.html'
     success_url = '/shops/container/'
-    success_message = "%(name)s was created successfully"
+    success_message = "Container was created successfully"
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(ContainerCreateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
+
+class ContainerCreateMultipleView(FormView):
+    template_name = 'shops/container_create_multiple.html'
+    form_class = ContainerCreateMultipleForm
+    success_url = '/shops/container/'
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def form_valid(self, form):
+
+        for i in range(0, form.cleaned_data['quantity']):
+            Container(product_unit=form.cleaned_data['container'].product_unit,
+                      initial_quantity=form.cleaned_data['container'].initial_quantity,
+                      is_returnable=form.cleaned_data['container'].is_returnable,
+                      shop=Shop.objects.get(name=self.request.GET.get('shop', 'Foyer'))).save()
+
+        return super(ContainerCreateMultipleView, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super(ContainerCreateMultipleView, self).get_form_kwargs()
+        kwargs['container_list'] = Container.objects.filter(
+                shop=Shop.objects.get(name=self.request.GET.get('shop', 'Foyer')))
+
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(ContainerCreateMultipleView, self).get_context_data(**kwargs)
+        context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', 'Foyer'))
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
 
 
 # R
@@ -329,7 +435,10 @@ class ContainerUpdateView(SuccessMessageMixin, UpdateView):
     fields = ['product_unit', 'initial_quantity', 'is_returnable', 'value_when_returned']
     template_name = 'shops/container_update.html'
     success_url = '/shops/container/'
-    success_message = "%(name)s was updated successfully"
+    success_message = "Container was updated successfully"
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.success_url))
 
 
 # D
@@ -362,6 +471,14 @@ class ProductUnitCreateView(SuccessMessageMixin, CreateView):
     success_url = '/shops/productunit/list'
     success_message = "%(name)s was created successfully"
 
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(ProductUnitCreateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
 
 # R
 class ProductUnitRetrieveView(DetailView):
@@ -376,6 +493,9 @@ class ProductUnitUpdateView(SuccessMessageMixin, UpdateView):
     template_name = 'shops/productunit_update.html'
     success_url = '/shops/productunit/list'
     success_message = "%(name)s was updated successfully"
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.success_url))
 
 
 # D

@@ -23,6 +23,29 @@ class Shop(TimeStampedDescription):
 
     def list_single_product(self):
         """
+        Renvoie une liste du genre (single product 1), (single product 2) avec les objects directement
+        """
+        list = []  # Liste de la forme (nom du single product, quantite disponible)
+        single_products = SingleProduct.objects.filter(shop=self)
+
+        # Initialisation de la liste
+        list.append(single_products[0])
+
+        for sp in single_products:
+            in_list = False
+            # On regarde si le produit se trouve dejà dans la liste
+            for e in list:
+                if e.name == sp.name and e.description == sp.description:
+                    # Trouve dans la liste
+                    in_list = True
+                    break
+            if in_list == False:
+                list.append(sp)
+
+        return list
+
+    def list_single_product_with_qt(self):
+        """
         Renvoie une liste du genre (single product 1, qt 1), (single product 2, qt 2)
         """
         list_qt = []  # Liste de la forme (nom du single product, quantite disponible)
@@ -51,12 +74,12 @@ class Shop(TimeStampedDescription):
         Des elements qui n'ont pas une qt nulle (dispo au shop)
         """
         list_name = []
-        for e in self.list_single_product():
+        for e in self.list_single_product_with_qt():
             list_name.append(e[0])
 
         return list_name
 
-    def list_single_product_unsold(self):
+    def list_single_product_with_qt_unsold(self):
         """
         Renvoie une liste du genre (single product 1, qt 1), (single product 2, qt 2)
         """
@@ -86,10 +109,21 @@ class Shop(TimeStampedDescription):
         Des elements qui n'ont pas une qt nulle (dispo au shop)
         """
         list_name = []
-        for e in self.list_single_product_unsold():
+        for e in self.list_single_product_with_qt_unsold():
             list_name.append(e[0])
 
         return list_name
+
+    def list_single_product_unsold_qt(self):
+        """
+        Renvoie une liste du genre (qt 1, qt 2)
+        Des elements qui n'ont pas une qt nulle (dispo au shop), dans le même ordre que _name
+        """
+        list_qt = []
+        for e in self.list_single_product_with_qt_unsold():
+            list_qt.append(e[1])
+
+        return list_qt
 
 
 class Product(TimeStampedDescription):
@@ -137,7 +171,7 @@ class Container(Product):
     """
     product_unit = models.ForeignKey('ProductUnit')
     initial_quantity = models.FloatField()
-    estimated_remaining_quantity = models.FloatField(blank=True, null=True)
+    estimated_remaining_quantity = models.FloatField()
     is_empty = models.BooleanField(default=False)
 
     opening_date = models.DateField(blank=True, null=True)
@@ -150,6 +184,14 @@ class Container(Product):
     def __str__(self):
         return self.product_unit.__str__() + " " + str(self.initial_quantity) + " " + self.product_unit.unit +\
                " n° " + str(self.pk)
+
+    def clean(self):
+        if self.estimated_remaining_quantity is None:
+            self.estimated_remaining_quantity = self.initial_quantity
+        return super(Container, self).clean()
+
+    def pourcentage_estimated_remaining_quantity(self):
+        return (self.estimated_remaining_quantity / self.initial_quantity) * 100
 
 
 class ProductUnit(Product):

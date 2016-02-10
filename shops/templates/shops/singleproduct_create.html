@@ -5,6 +5,7 @@
     <form action= "{% url 'url_create_singleproduct' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
+        <input type=hidden name="next" value="{{ next }}" />
         <input type="submit" value="Submit"/>
     </form>
 

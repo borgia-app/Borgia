@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="container30">
+        <h1>Ajout de produits unitaires</h1>
+        <h3>Magasin: {{ shop.name }}</h3>
+        <form action= "{% url 'url_create_singleproduct_multiple' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type=hidden name="next" value="{{ next }}" />
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+{% endblock %}

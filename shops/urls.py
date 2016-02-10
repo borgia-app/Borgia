@@ -14,6 +14,8 @@ urlpatterns = [
 
     # Model Single Product
     url(r'^singleproduct/create/$', SingleProductCreateView.as_view(), name='url_create_singleproduct'),  # C
+    url(r'^singleproduct/create/multiple/$', SingleProductCreateMultipleView.as_view(),
+        name='url_create_singleproduct_multiple'),  # C multiple
     url(r'^singleproduct/retrieve/(?P<pk>\d+)/$', SingleProductRetrieveView.as_view(), name='url_retrieve_singleproduct'),  # R
     url(r'^singleproduct/update/(?P<pk>\d+)/$', SingleProductUpdateView.as_view(), name='url_update_singleproduct'),  # U
     url(r'^singleproduct/delete/(?P<pk>\d+)/$', SingleProductDeleteView.as_view(), name='url_delete_singleproduct'),  # D
@@ -21,6 +23,8 @@ urlpatterns = [
 
     # Model Container
     url(r'^container/create/$', ContainerCreateView.as_view(), name='url_create_container'),  # C
+    url(r'^container/create/multiple/$', ContainerCreateMultipleView.as_view(),
+        name='url_create_container_multiple'),  # C multiple
     url(r'^container/retrieve/(?P<pk>\d+)/$', ContainerRetrieveView.as_view(), name='url_retrieve_container'),  # R
     url(r'^container/update/(?P<pk>\d+)/$', ContainerUpdateView.as_view(), name='url_update_container'),  # U
     url(r'^container/delete/(?P<pk>\d+)/$', ContainerDeleteView.as_view(), name='url_delete_container'),  # D
@@ -44,5 +48,5 @@ urlpatterns = [
     url(r'^foyer/consumption/$', purchase_foyer, name='url_purchase_foyer'),
 
     # Workboard
-    url(r'^workboard/foyer$', workboard_foyer, name='url_workboard_foyer'),
+    url(r'^foyer/workboard$', workboard_foyer, name='url_workboard_foyer'),
 ]

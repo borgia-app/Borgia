@@ -2,8 +2,8 @@
 
 {% block content %}
 
-        <div>
-            <p>Crédit rapide d'un compte avec un chèque</p>
+        <div class="container30">
+            <h1>Crédit rapide d'un compte avec un chèque</h1>
             <form action= "{% url 'url_create_transaction_cheque_fast' %}" method="post">
                 {% csrf_token %}
                 {{ form.as_p }}

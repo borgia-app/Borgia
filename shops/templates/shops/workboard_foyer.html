@@ -2,11 +2,45 @@
 
 {% block content %}
 
-    <div id="workboard_foyer_transactions">
-        <p><a href="{% url 'url_create_transaction' %}">Alimentation de compte - complexe</a></p>
-        <p><a href="{% url 'url_create_transaction_cash_fast' %}">Alimentation de compte - espèces seulement</a></p>
-        <p><a href="{% url 'url_create_transaction_cheque_fast' %}">Alimentation de compte - chèque seulement</a></p>
-        <p><a href="{% url 'url_create_transaction_lydia_fast' %}">Alimentation de compte - Lydia seulement</a></p>
+    <h1 class="align-center">Workboard Foyer</h1>
+    <hr>
+
+    <div class="container">
+        <div class="one-half column">
+            <h3>Alimentation de comptes</h3>
+            <ul>
+                <li><a href="{% url 'url_create_transaction' %}">Mixte</a></li>
+                <li><a href="{% url 'url_create_transaction_cash_fast' %}">Espèces seulement</a></li>
+                <li><a href="{% url 'url_create_transaction_cheque_fast' %}">Chèque seulement</a></li>
+                <li><a href="{% url 'url_create_transaction_lydia_fast' %}">Lydia seulement</a></li>
+            </ul>
+        </div>
+        <div class="one-half column">
+            <h3>Gestion du stock</h3>
+                <ul>
+                    <li><a href="{% url 'url_create_singleproduct' %}?next=/shops/foyer/workboard">Ajouts d'un nouveau produit unitaire</a></li>
+                    <li><a href="{% url 'url_create_singleproduct_multiple' %}?shop=Foyer&next=/shops/foyer/workboard">Ajouts de produits unitaires existants</a></li>
+                    <li><a href="{% url 'url_create_productunit' %}?next=/shops/foyer/workboard">Ajouts d'une nouvelle unité produit</a></li>
+                    <li><a href="{% url 'url_create_container' %}?next=/shops/foyer/workboard">Ajouts d'un nouveau container</a></li>
+                    <li><a href="{% url 'url_create_container_multiple' %}?shop=Foyer&next=/shops/foyer/workboard">Ajouts de containers existants</a></li>
+                </ul>
+        </div>
     </div>
 
+    <div class="container">
+        <h3>Gestion des tireuses</h3>
+        {% for e in list_tap %}
+            <div class="two columns">
+                <h5>N° {{ e.number }}</h5>
+                {% if e.container == None %}
+                    <p>Hors service</p>
+                {% else %}
+                    <p>{{ e.container }}</p>
+                    <p>{{ e.container.estimated_remaining_quantity }} {{ e.container.product_unit.unit }} - {{ e.container.pourcentage_estimated_remaining_quantity }}% restants</p>
+                    <p><progress class="fit" max="{{ e.container.initial_quantity }}" value="{{ e.container.estimated_remaining_quantity }}">67.8%</progress></p>
+                {% endif %}
+                <p><a href="{% url 'url_update_tap' pk=e.pk %}?next=/shops/foyer/workboard">Modifier</a></p>
+            </div>
+        {% endfor %}
+    </div>
 {% endblock %}
