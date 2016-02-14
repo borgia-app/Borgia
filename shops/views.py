@@ -171,7 +171,6 @@ def workboard_foyer(request):
     return render(request, 'shops/workboard_foyer.html', locals())
 
 
-# TODO: a modifier
 # Model SHOP
 # C
 class ShopCreateView(SuccessMessageMixin, CreateView):
@@ -229,15 +228,14 @@ class ShopListView(ListView):
     queryset = Shop.objects.all()
 
 
-# TODO: a modifier
 # Model SINGLEPRODUCT
 # C
 class SingleProductCreateView(SuccessMessageMixin, CreateView):
     model = SingleProduct
-    fields = ['name', 'description', 'price', 'shop']
+    fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place']
     template_name = 'shops/singleproduct_create.html'
     success_url = '/shops/singleproduct/'
-    success_message = "%(name)s was created successfully"
+    success_message = "single product was created successfully"
 
     def get_success_url(self):
         return force_text(self.request.POST.get('next', self.success_url))
@@ -248,6 +246,7 @@ class SingleProductCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
+# TODO: à modifier
 class SingleProductCreateMultipleView(FormView):
     template_name = 'shops/singleproduct_create_multiple.html'
     form_class = SingleProductCreateMultipleForm
@@ -289,8 +288,7 @@ class SingleProductRetrieveView(DetailView):
 # U
 class SingleProductUpdateView(SuccessMessageMixin, UpdateView):
     model = SingleProduct
-    fields = ['name', 'description', 'is_available_for_sale', 'is_available_for_borrowing', 'peremption_date',
-              'is_sold', 'price', 'shop']
+    fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place', 'is_sold']
     template_name = 'shops/singleproduct_update.html'
     success_url = '/shops/singleproduct/'
     success_message = "%(name)s was updated successfully"
