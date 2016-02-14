@@ -94,7 +94,8 @@ class ProductBase(models.Model):
     shop = models.ForeignKey('Shop')
 
     # Méthodes
-    # TODO: task T59
+    def __str__(self):
+        return self.name
 
 
 class SingleProduct(ProductBase):
