@@ -240,9 +240,3 @@ class SingleProductFromContainer(models.Model):
         return int(self.quantity/25)
 
 
-class Tap(Model):
-    number = models.IntegerField()
-    container = models.ForeignKey('Container', null=True, blank=True)
-
-    def __str__(self):
-        return "Tireuse n° " + str(self.number)
