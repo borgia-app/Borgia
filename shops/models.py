@@ -145,6 +145,7 @@ class Container(ProductBase):
     place = models.CharField(max_length=255)
     quantity = models.FloatField(default=0)
     quantity_remaining = models.FloatField(default=0)
+    # TODO: gestion des consignes
 
     # Relations
     # Avec shops.models
@@ -152,20 +153,17 @@ class Container(ProductBase):
     product_unit = models.ForeignKey('ProductUnit')
     # Avec finances.models
 
-    # TODO: gestion des consignes
-
     # Méthodes
     def __str__(self):
-        return self.product_unit.__str__() + " " + str(self.initial_quantity) + " " + self.product_unit.unit +\
-               " n° " + str(self.pk)
+        return self.product_unit.__str__() + self.product_base.__str__() + str(self.pk)
 
     def clean(self):
         if self.quantity_remaining is None:
             self.quantity_remaining = self.quantity
         return super(Container, self).clean()
 
-    def pourcentage_estimated_remaining_quantity(self):
-        return (self.estimated_remaining_quantity / self.initial_quantity) * 100
+    def pourcentage_quantity_remaining(self):
+        return (self.quantity_remaining / self.quantity) * 100
 
 
 class ProductUnit(models.Model):
