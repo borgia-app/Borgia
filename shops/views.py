@@ -463,3 +463,60 @@ class ProductUnitListView(ListView):
     model = ProductUnit
     template_name = 'shops/productunit_list.html'
     queryset = ProductUnit.objects.all()
+
+
+# Model PRODUCTBASE
+# C
+class ProductBaseCreateView(SuccessMessageMixin, CreateView):
+    model = ProductBase
+    fields = ['name', 'description', 'brand', 'type']
+    template_name = 'shops/productbase_create.html'
+    success_url = '/shops/productbase/list'
+    success_message = "%(name)s was created successfully"
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(ProductBaseCreateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
+
+# R
+class ProductBaseRetrieveView(DetailView):
+    model = ProductBase
+    template_name = 'shops/productbase_retrieve.html'
+
+
+# U
+class ProductBaseUpdateView(SuccessMessageMixin, UpdateView):
+    model = ProductBase
+    fields = ['name', 'description', 'brand', 'type']
+    template_name = 'shops/productbase_update.html'
+    success_url = '/shops/productbase/list'
+    success_message = "%(name)s was updated successfully"
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.success_url))
+
+
+# D
+class ProductBaseDeleteView(SuccessMessageMixin, DeleteView):
+    model = ProductUnit
+    template_name = 'shops/productunit_delete.html'
+    success_url = '/shops/productunit/list'
+    success_message = "Product unit was delated successfully"
+
+    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
+    # https://code.djangoproject.com/ticket/21926
+    def delete(self, request, *args, **kwargs):
+        messages.success(self.request, self.success_message)
+        return super(ProductUnitDeleteView, self).delete(request, *args, **kwargs)
+
+
+# List
+class ProductBaseListView(ListView):
+    model = ProductBase
+    template_name = 'shops/productunit_list.html'
+    queryset = ProductBase.objects.all()

@@ -38,11 +38,11 @@ urlpatterns = [
     url(r'^productunit/$', ProductUnitListView.as_view(), name='url_list_productunit'),  # L
 
     # Model Tap
-    url(r'^tap/create/$', TapCreateView.as_view(), name='url_create_tap'),  # C
-    url(r'^tap/retrieve/(?P<pk>\d+)/$', TapRetrieveView.as_view(), name='url_retrieve_tap'),  # C
-    url(r'^tap/update/(?P<pk>\d+)/$', TapUpdateView.as_view(), name='url_update_tap'),  # C
-    url(r'^tap/delete/(?P<pk>\d+)/$', TapDeleteView.as_view(), name='url_delete_tap'),  # C
-    url(r'^tap/$', TapListView.as_view(), name='url_list_tap'),  # C
+    url(r'^productbase/create/$', ProductBaseCreateView.as_view(), name='url_create_productbase'),  # C
+    url(r'^productbase/retrieve/(?P<pk>\d+)/$', ProductBaseRetrieveView.as_view(), name='url_retrieve_productbase'),  # C
+    url(r'^productbase/update/(?P<pk>\d+)/$', ProductBaseUpdateView.as_view(), name='url_update_productbase'),  # C
+    url(r'^productbase/delete/(?P<pk>\d+)/$', ProductBaseDeleteView.as_view(), name='url_delete_productbase'),  # C
+    url(r'^productbase/$', ProductBaseListView.as_view(), name='url_list_productbase'),  # C
 
     # Consommation foyer
     url(r'^foyer/consumption/$', purchase_foyer, name='url_purchase_foyer'),

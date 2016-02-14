@@ -2,7 +2,7 @@
 
 {% block content %}
 
-    <form action= "{% url 'url_create_tap' %}" method="post">
+    <form action= "{% url 'url_create_productbase' %}" method="post">
         {% csrf_token %}
         {{ form.as_p }}
         <input type=hidden name="next" value="{{ next }}" />
