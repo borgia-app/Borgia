@@ -32,6 +32,7 @@ class Shop(models.Model):
         :param status_sold:
         :return une liste contenant des (produit_base, quantités)
         """
+
         list_product_base_single_product = []
         for e in ProductBase.objects.all():
             if status_sold is False:
@@ -46,25 +47,31 @@ class Shop(models.Model):
                 list_product_base_single_product.append((e, SingleProduct.objects.filter(product_base=e, shop=self)))
         return list_product_base_single_product
 
-    def list_product_base_container(self, status_sold="both"):
+    def list_product_base_container(self, status_sold="both", type=ProductUnit.TYPE_CHOICES):
         """
         Renvoie une liste contenant les produits de base avec les différentes quantités disponibles,
         vendu ou non selon le paramètre status_sold
         qui sont dans le shop
         qui sont des containers
+        qui sont dans les types listés dans "type"
         :param status_sold:
-        :return une liste contenant des (produit_base, quantités)
+        :param type:
+        :return:
         """
+
         list_product_base_container = []
         for e in ProductBase.objects.all():
             if status_sold is False:
                 list_product_base_container.append((e, Container.objects.filter(product_base=e, is_sold=False,
-                                                                                shop=self)))
+                                                                                shop=self,
+                                                                                product_unit__type__in=type)))
             elif status_sold is True:
                 list_product_base_container.append((e,Container.objects.filter(product_base=e, is_sold=True,
-                                                                               shop=self)))
+                                                                               shop=self,
+                                                                               product_unit__type__in=type)))
             else:
-                list_product_base_container.append((e, Container.objects.filter(product_base=e, shop=self)))
+                list_product_base_container.append((e, Container.objects.filter(product_base=e, shop=self,
+                                                                                product_unit__type__in=type)))
         return list_product_base_container
 
 
