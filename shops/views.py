@@ -318,12 +318,11 @@ class SingleProductListView(ListView):
     queryset = SingleProduct.objects.all()
 
 
-# TODO: a modifier
 # Model CONTAINER
 # C
 class ContainerCreateView(SuccessMessageMixin, CreateView):
     model = Container
-    fields = ['product_unit', 'initial_quantity', 'is_returnable', 'value_when_returned']
+    fields = ['product_base', 'product_unit', 'price', 'purchase_date', 'expiry_date', 'place', 'quantity']
     template_name = 'shops/container_create.html'
     success_url = '/shops/container/'
     success_message = "Container was created successfully"
@@ -337,6 +336,7 @@ class ContainerCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
+# TODO: à modifier
 class ContainerCreateMultipleView(FormView):
     template_name = 'shops/container_create_multiple.html'
     form_class = ContainerCreateMultipleForm
@@ -378,7 +378,7 @@ class ContainerRetrieveView(DetailView):
 # U
 class ContainerUpdateView(SuccessMessageMixin, UpdateView):
     model = Container
-    fields = ['product_unit', 'initial_quantity', 'is_returnable', 'value_when_returned']
+    fields = ['product_base', 'product_unit', 'price', 'purchase_date', 'expiry_date', 'place', 'quantity']
     template_name = 'shops/container_update.html'
     success_url = '/shops/container/'
     success_message = "Container was updated successfully"
