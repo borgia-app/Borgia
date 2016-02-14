@@ -169,8 +169,10 @@ class Product(TimeStampedDescription):
         return self.name
 
 
-class SingleProduct(Product):
+class SingleProduct(ProductBase):
     """Le produit unitaire ("single product") est un objet indivisible.
+    Cette classe représente un objet physique qui est un jour passé entre les mains de l'association
+    Diverses informations viennent de ProductBase, mais le prix est ici
 
     :Example:
 
@@ -178,9 +180,15 @@ class SingleProduct(Product):
     une casquette
     """
 
+    # Attributs
+    price = models.FloatField(default=0)
+    purchase_date = models.DateField(default=now)
+    expiry_date = models.DateField(blank=True, null=True)
+    place = models.CharField(max_length=255)
     is_sold = models.BooleanField(default=False)
-    price = models.FloatField()
-    purchase = models.ForeignKey('finances.Purchase', null=True, blank=True)
+    # purchase = models.ForeignKey('finances.Purchase', null=True, blank=True)
+
+    # Méthodes
 
 
 class Container(Product):
