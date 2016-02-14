@@ -18,116 +18,54 @@ class Shop(models.Model):
     # Atttributs
     name = models.CharField(max_length=255, default="Shop name")
     description = models.TextField()
-    # TODO: ajouter permissions
 
     # Méthodes
-    # TODO: task T57
     def __str__(self):
         return self.name
 
-    def list_single_product(self):
+    def list_product_base_single_product(self, status_sold="both"):
         """
-        Renvoie une liste du genre (single product 1), (single product 2) avec les objects directement
+        Renvoie une liste contenant les produits de base avec les différentes quantités disponibles,
+        vendu ou non selon le paramètre status_sold
+        qui sont dans le shop
+        qui sont des singles products
+        :param status_sold:
+        :return une liste contenant des (produit_base, quantités)
         """
-        list = []  # Liste de la forme (nom du single product, quantite disponible)
-        single_products = SingleProduct.objects.filter(shop=self)
+        list_product_base_single_product = []
+        for e in ProductBase.objects.all():
+            if status_sold is False:
+                list_product_base_single_product.append((e,
+                                                         SingleProduct.objects.filter(product_base=e, is_sold=False,
+                                                                                      shop=self)))
+            elif status_sold is True:
+                list_product_base_single_product.append((e,
+                                                         SingleProduct.objects.filter(product_base=e, is_sold=True,
+                                                                                      shop=self)))
+            else:
+                list_product_base_single_product.append((e, SingleProduct.objects.filter(product_base=e, shop=self)))
+        return list_product_base_single_product
 
-        # Initialisation de la liste
-        list.append(single_products[0])
-
-        for sp in single_products:
-            in_list = False
-            # On regarde si le produit se trouve dejà dans la liste
-            for e in list:
-                if e.name == sp.name and e.description == sp.description:
-                    # Trouve dans la liste
-                    in_list = True
-                    break
-            if in_list == False:
-                list.append(sp)
-
-        return list
-
-    def list_single_product_with_qt(self):
+    def list_product_base_container(self, status_sold="both"):
         """
-        Renvoie une liste du genre (single product 1, qt 1), (single product 2, qt 2)
+        Renvoie une liste contenant les produits de base avec les différentes quantités disponibles,
+        vendu ou non selon le paramètre status_sold
+        qui sont dans le shop
+        qui sont des containers
+        :param status_sold:
+        :return une liste contenant des (produit_base, quantités)
         """
-        list_qt = []  # Liste de la forme (nom du single product, quantite disponible)
-        single_products = SingleProduct.objects.filter(shop=self)
-
-        # Initialisation de la liste
-        list_qt.append([single_products[1].name, 0])
-
-        for sp in single_products:
-            in_list = False
-            # On regarde si le produit se trouve dejà dans la liste
-            for i, e in enumerate(list_qt):
-                if e[0] == sp.name:
-                    # Trouve dans la liste
-                    in_list = True
-                    list_qt[i][1] += 1
-                    break
-            if in_list == False:
-                list_qt.append([sp.name, 1])
-
-        return list_qt
-
-    def list_single_product_name(self):
-        """
-        Renvoie une liste du genre (single product 1, single product 2)
-        Des elements qui n'ont pas une qt nulle (dispo au shop)
-        """
-        list_name = []
-        for e in self.list_single_product_with_qt():
-            list_name.append(e[0])
-
-        return list_name
-
-    def list_single_product_with_qt_unsold(self):
-        """
-        Renvoie une liste du genre (single product 1, qt 1), (single product 2, qt 2)
-        """
-        list_qt = []  # Liste de la forme (nom du single product, quantite disponible)
-        single_products = SingleProduct.objects.filter(Q(shop=self) & Q(is_sold=False))
-
-        # Initialisation de la liste
-        if len(single_products) != 0:
-            list_qt.append([single_products[0].name, 0])
-            for sp in single_products:
-                in_list = False
-                # On regarde si le produit se trouve dejà dans la liste
-                for i, e in enumerate(list_qt):
-                    if e[0] == sp.name:
-                        # Trouve dans la liste
-                        in_list = True
-                        list_qt[i][1] += 1
-                        break
-                if in_list == False:
-                    list_qt.append([sp.name, 1])
-
-        return list_qt
-
-    def list_single_product_unsold_name(self):
-        """
-        Renvoie une liste du genre (single product 1, single product 2)
-        Des elements qui n'ont pas une qt nulle (dispo au shop)
-        """
-        list_name = []
-        for e in self.list_single_product_with_qt_unsold():
-            list_name.append(e[0])
-
-        return list_name
-
-    def list_single_product_unsold_qt(self):
-        """
-        Renvoie une liste du genre (qt 1, qt 2)
-        Des elements qui n'ont pas une qt nulle (dispo au shop), dans le même ordre que _name
-        """
-        list_qt = []
-        for e in self.list_single_product_with_qt_unsold():
-            list_qt.append(e[1])
-
-        return list_qt
+        list_product_base_container = []
+        for e in ProductBase.objects.all():
+            if status_sold is False:
+                list_product_base_container.append((e, Container.objects.filter(product_base=e, is_sold=False,
+                                                                                shop=self)))
+            elif status_sold is True:
+                list_product_base_container.append((e,Container.objects.filter(product_base=e, is_sold=True,
+                                                                               shop=self)))
+            else:
+                list_product_base_container.append((e, Container.objects.filter(product_base=e, shop=self)))
+        return list_product_base_container
 
 
 class ProductBase(models.Model):
