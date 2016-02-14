@@ -169,11 +169,13 @@ class ProductUnit(models.Model):
 
     # Listes de validations
     UNIT_CHOICES = (('CL', 'cl'), ('G', 'g'))
+    TYPE_CHOICES = (('keg', 'fut'), ('liquor', 'alcool fort'), ('syrup', 'sirop'), ('soft', 'soft'))
 
     # Attributs
     name = models.CharField(max_length=255, default="Product unit name")
     description = models.TextField(max_length=255, null=True, blank=True)
     unit = models.CharField(max_length=255, choices=UNIT_CHOICES, default=UNIT_CHOICES[0][0])
+    type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
 
     # Méthodes
     def price_glass(self):
