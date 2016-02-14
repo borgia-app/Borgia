@@ -191,33 +191,35 @@ class SingleProduct(ProductBase):
     # Méthodes
 
 
-class Container(Product):
+class Container(ProductBase):
     """Le contenant ("container") est un produit qui contient x unites d'un autre produit: c'est un emballage.
     Les contenants sont souvents consignes.
+    Cette classe représente un objet physique qui est un jour passé entre les mains de l'association
+    Diverses informations viennent de ProductBase, mais le prix est ici
 
     :Example:
 
     un fut de biere contient 15, 30, etc. litres de biere.
     """
-    product_unit = models.ForeignKey('ProductUnit')
-    initial_quantity = models.FloatField()
-    estimated_remaining_quantity = models.FloatField()
-    is_empty = models.BooleanField(default=False)
 
-    opening_date = models.DateField(blank=True, null=True)
-    removing_date = models.DateField(blank=True, null=True)
+    # Attributs
+    price = models.FloatField(default=0)
+    purchase_date = models.DateField(default=now)
+    expiry_date = models.DateField(blank=True, null=True)
+    place = models.CharField(max_length=255)
+    quantity = models.FloatField(default=0)
+    quantity_remaining = models.FloatField(default=0)
 
-    is_returnable = models.BooleanField()  # Consigne
-    value_when_returned = models.FloatField(blank=True, null=True)
-    return_date = models.DateField(blank=True, null=True)
+    # TODO: gestion des consignes
 
+    # Méthodes
     def __str__(self):
         return self.product_unit.__str__() + " " + str(self.initial_quantity) + " " + self.product_unit.unit +\
                " n° " + str(self.pk)
 
     def clean(self):
-        if self.estimated_remaining_quantity is None:
-            self.estimated_remaining_quantity = self.initial_quantity
+        if self.quantity_remaining is None:
+            self.quantity_remaining = self.quantity
         return super(Container, self).clean()
 
     def pourcentage_estimated_remaining_quantity(self):
@@ -232,6 +234,7 @@ class ProductUnit(Product):
     un centilitre pour les liquides
     un gramme pour les fromages
     """
+
     price = models.FloatField()
     unit = models.CharField(max_length=10)
     TYPE_CHOICES = (('keg', 'Fût'), ('soft', 'Soft'), ('alcool fort', 'liquor'))
