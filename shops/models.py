@@ -143,6 +143,10 @@ class ProductBase(TimeStampedDescription):
     calculated_price = models.FloatField(default=0)
     brand = models.CharField(max_length=255)
     type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
+    
+    # Relations
+    # Avec shops.models
+    shop = models.ForeignKey('Shop')
 
     # Méthodes
     # TODO: task T59
@@ -165,6 +169,11 @@ class SingleProduct(ProductBase):
     expiry_date = models.DateField(blank=True, null=True)
     place = models.CharField(max_length=255)
     is_sold = models.BooleanField(default=False)
+
+    # Relations
+    # Avec shops.models
+    product_base = models.ForeignKey('ProductBase')
+    # Avec finances.models
     # purchase = models.ForeignKey('finances.Purchase', null=True, blank=True)
 
     # Méthodes
@@ -188,6 +197,12 @@ class Container(ProductBase):
     place = models.CharField(max_length=255)
     quantity = models.FloatField(default=0)
     quantity_remaining = models.FloatField(default=0)
+
+    # Relations
+    # Avec shops.models
+    product_base = models.ForeignKey('ProductBase')
+    product_unit = models.ForeignKey('ProductUnit')
+    # Avec finances.models
 
     # TODO: gestion des consignes
 
