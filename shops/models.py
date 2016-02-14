@@ -6,7 +6,7 @@ from contrib.models import TimeStampedDescription
 from finances.models import *
 
 
-class Shop(TimeStampedDescription):
+class Shop(models.Model):
     """Le magasin ("shop") est l'objet qui possede les contenants ou les produits unitaire.
 
         :Example:
@@ -130,7 +130,7 @@ class Shop(TimeStampedDescription):
         return list_qt
 
 
-class ProductBase(TimeStampedDescription):
+class ProductBase(models.Model):
     """
 
     """
