@@ -186,11 +186,11 @@ class ProductUnit(models.Model):
     type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
 
     # Méthodes
-    def price_glass(self):
-        return self.price*25
-
-    def price_shoot(self):
-        return self.price*4
+    def usual_quantity(self):
+        if self.type is "keg" or "soft":
+            return 25
+        elif self.type is "liquor" or "syrup":
+            return 4
 
 
 class SingleProductFromContainer(models.Model):
