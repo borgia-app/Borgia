@@ -148,27 +148,6 @@ class ProductBase(TimeStampedDescription):
     # TODO: task T59
 
 
-class Product(TimeStampedDescription):
-    """Le produit ("product") est l'objet vendu par l'AE. Il est soit produit unique, soit contenant qui contient
-    x unites de produit.
-    """
-
-    name = models.CharField(max_length=255)
-    description = models.TextField(blank=True, null=True)
-    is_available_for_sale = models.BooleanField(default=False)
-    # Permet de savoir si le produit est disponible a la vente (par exemple un fut de biere peut etre es stock mais
-    # conserve pour un evenement a venir)
-    is_available_for_borrowing = models.BooleanField(default=False)
-    # Permet de savoir si le produit est disponible a l'emprunt
-    peremption_date = models.DateField(blank=True, null=True)
-    # Un videoprojecteur ne perime pas
-
-    shop = models.ForeignKey('Shop', blank=True, null=True)
-
-    def __str__(self):
-        return self.name
-
-
 class SingleProduct(ProductBase):
     """Le produit unitaire ("single product") est un objet indivisible.
     Cette classe représente un objet physique qui est un jour passé entre les mains de l'association
