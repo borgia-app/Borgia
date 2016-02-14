@@ -130,6 +130,24 @@ class Shop(TimeStampedDescription):
         return list_qt
 
 
+class ProductBase(TimeStampedDescription):
+    """
+
+    """
+    # Listes de validations
+    TYPE_CHOICES = (('single_product', 'Produit unitaire'), ('container', 'Conteneur'))
+
+    # Attributs
+    name = models.CharField(max_length=255, default="Product base name")
+    description = models.TextField()
+    calculated_price = models.FloatField(default=0)
+    brand = models.CharField(max_length=255)
+    type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
+
+    # Méthodes
+    # TODO: task T59
+
+
 class Product(TimeStampedDescription):
     """Le produit ("product") est l'objet vendu par l'AE. Il est soit produit unique, soit contenant qui contient
     x unites de produit.
