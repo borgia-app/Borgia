@@ -124,7 +124,7 @@ class SingleProduct(ProductBase):
 
     # Méthodes
     def __str__(self):
-        return self.product_base.name + str(self.pk)
+        return self.product_base.__str__() + str(self.pk)
 
 
 class Container(ProductBase):
