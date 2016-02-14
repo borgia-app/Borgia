@@ -408,12 +408,11 @@ class ContainerListView(ListView):
     queryset = Container.objects.all()
 
 
-# TODO: a modifier
 # Model PRODUCTUNIT
 # C
 class ProductUnitCreateView(SuccessMessageMixin, CreateView):
     model = ProductUnit
-    fields = ['name', 'description', 'price', 'unit', 'type', 'shop']
+    fields = ['name', 'description', 'unit', 'type']
     template_name = 'shops/productunit_create.html'
     success_url = '/shops/productunit/list'
     success_message = "%(name)s was created successfully"
@@ -436,7 +435,7 @@ class ProductUnitRetrieveView(DetailView):
 # U
 class ProductUnitUpdateView(SuccessMessageMixin, UpdateView):
     model = ProductUnit
-    fields = ['name', 'description', 'price', 'unit', 'type', 'shop']
+    fields = ['name', 'description', 'unit', 'type']
     template_name = 'shops/productunit_update.html'
     success_url = '/shops/productunit/list'
     success_message = "%(name)s was updated successfully"
