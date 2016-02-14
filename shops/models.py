@@ -123,6 +123,8 @@ class SingleProduct(ProductBase):
     # purchase = models.ForeignKey('finances.Purchase', null=True, blank=True)
 
     # Méthodes
+    def __str__(self):
+        return self.product_base.name + str(self.pk)
 
 
 class Container(ProductBase):
