@@ -7,8 +7,8 @@ from finances.models import Purchase, Transaction
 
 
 class User(AbstractUser):
-    surname = models.CharField(max_length=255, default='noname')
-    family = models.CharField(max_length=255, default=0)
+
+    # Listes de validations
     CAMPUS_CHOICES = (
         ('ME', 'Me'),
         ('KA', 'Ka'),
@@ -19,13 +19,20 @@ class User(AbstractUser):
         ('CL', 'Cl'),
         ('KIN', 'Kin')
     )
-    campus = models.CharField(choices=CAMPUS_CHOICES, default='ME', max_length=2)
     YEAR_CHOICES = []
     for i in range(1900, datetime.now().year):
         YEAR_CHOICES.append((i, i))
-    year = models.IntegerField(choices=YEAR_CHOICES, default='2014')
-    balance = models.FloatField(default=0)
 
+    # Attributs
+    # ID, last_name, first_name, email sont dans AbstractUser
+    surname = models.CharField(max_length=255, blank=True, Null=True)
+    family = models.CharField(max_length=255, blank=True, Null=True)
+    balance = models.FloatField(default=0)
+    year = models.IntegerField(choices=YEAR_CHOICES, blank=True)
+    campus = models.CharField(choices=CAMPUS_CHOICES, max_length=2, blank=True, Null=True)
+    phone = models.CharField(max_length=255, blank=True, Null=True)
+
+    # TODO: task T55
     def __str__(self):
         return self.surname+' '+self.family+self.campus+str(self.year_pg())+' ('+self.first_name+' '+self.last_name+')'
 
