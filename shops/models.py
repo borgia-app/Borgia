@@ -205,7 +205,7 @@ class Container(ProductBase):
         return (self.estimated_remaining_quantity / self.initial_quantity) * 100
 
 
-class ProductUnit(Product):
+class ProductUnit(models.Model):
     """Unite de produit.
 
     :Example:
@@ -214,11 +214,15 @@ class ProductUnit(Product):
     un gramme pour les fromages
     """
 
-    price = models.FloatField()
-    unit = models.CharField(max_length=10)
-    TYPE_CHOICES = (('keg', 'Fût'), ('soft', 'Soft'), ('alcool fort', 'liquor'))
-    type = models.CharField(max_length=255, choices=TYPE_CHOICES)
+    # Listes de validations
+    UNIT_CHOICES = (('CL', 'cl'), ('G', 'g'))
 
+    # Attributs
+    name = models.CharField(max_length=255, default="Product unit name")
+    description = models.TextField(max_length=255, null=True, blank=True)
+    unit = models.CharField(max_length=255, choices=UNIT_CHOICES, default=UNIT_CHOICES[0][0])
+
+    # Méthodes
     def price_glass(self):
         return self.price*25
 
