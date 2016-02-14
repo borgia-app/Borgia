@@ -15,9 +15,13 @@ class Shop(TimeStampedDescription):
         l'auberge
     """
 
-    name = models.CharField(max_length=255)
+    # Atttributs
+    name = models.CharField(max_length=255, default="Shop name")
     description = models.TextField()
+    # TODO: ajouter permissions
 
+    # Méthodes
+    # TODO: task T57
     def __str__(self):
         return self.name
 
