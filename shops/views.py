@@ -14,6 +14,7 @@ from users.models import User
 
 
 # FOYER
+# TODO: a modifier
 def purchase_foyer(request):
 
     # PB a resoudre :
@@ -163,69 +164,14 @@ def purchase_foyer(request):
     return render(request, 'shops/purchase_foyer.html', locals())
 
 
+# TODO: a modifier
 def workboard_foyer(request):
 
     list_tap = Tap.objects.all()
     return render(request, 'shops/workboard_foyer.html', locals())
 
 
-# Model TAP
-# C
-class TapCreateView(SuccessMessageMixin, CreateView):
-    model = Tap
-    fields = ['number']
-    template_name = 'shops/tap_create.html'
-    success_url = '/shops/tap/'
-    success_message = "Tap %(number)s was created successfully" # Permet de passer une notification de succès
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(TapCreateView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        return context
-
-
-# R
-class TapRetrieveView(DetailView):
-    model = Tap
-    template_name = 'shops/tap_retrieve.html'
-
-
-# U
-class TapUpdateView(SuccessMessageMixin, UpdateView):
-    model = Tap
-    fields = ['number', 'container']
-    template_name = 'shops/tap_update.html'
-    success_url = '/shops/tap/'
-    success_message = "Tap %(number)s was updated successfully"
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.success_url))
-
-
-# D
-class TapDeleteView(SuccessMessageMixin, DeleteView):
-    model = Tap
-    template_name = 'shops/tap_delete.html'
-    success_url = '/shops/tap/'
-    success_message = "Tap was deleted successfully"
-
-    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
-    # https://code.djangoproject.com/ticket/21926
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super(TapDeleteView, self).delete(request, *args, **kwargs)
-
-
-# List
-class TapListView(ListView):
-    model = Tap
-    template_name = 'shops/tap_list.html'
-    queryset = Tap.objects.all()
-
-
+# TODO: a modifier
 # Model SHOP
 # C
 class ShopCreateView(SuccessMessageMixin, CreateView):
@@ -283,6 +229,7 @@ class ShopListView(ListView):
     queryset = Shop.objects.all()
 
 
+# TODO: a modifier
 # Model SINGLEPRODUCT
 # C
 class SingleProductCreateView(SuccessMessageMixin, CreateView):
@@ -373,6 +320,7 @@ class SingleProductListView(ListView):
     queryset = SingleProduct.objects.all()
 
 
+# TODO: a modifier
 # Model CONTAINER
 # C
 class ContainerCreateView(SuccessMessageMixin, CreateView):
@@ -462,6 +410,7 @@ class ContainerListView(ListView):
     queryset = Container.objects.all()
 
 
+# TODO: a modifier
 # Model PRODUCTUNIT
 # C
 class ProductUnitCreateView(SuccessMessageMixin, CreateView):
