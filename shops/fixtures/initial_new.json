@@ -1,5 +1,27 @@
 [
   {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+      "is_superuser": false,
+      "username": "AE_ENSAM",
+      "first_name": "AE",
+      "last_name": "ENSAM",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2016-02-15T13:32:56.781Z",
+      "surname": null,
+      "family": null,
+      "balance": 0.0,
+      "year": null,
+      "campus": null,
+      "phone": null,
+      "groups": [],
+      "user_permissions": []
+    }
+  },
+  {
     "model": "shops.shop",
     "pk": 1,
     "fields": {
@@ -7,48 +29,618 @@
       "description": "Foyer des élèves de l'AE ENSAM"
     }
   },
-{
-  "model": "users.user",
-  "pk": 1,
-  "fields": {
-    "is_superuser": false,
-    "username": "AE_ENSAM",
-    "first_name": "AE",
-    "last_name": "ENSAM",
-    "email": "",
-    "is_staff": false,
-    "is_active": true,
-    "date_joined": "2016-02-15T13:32:56.781Z",
-    "surname": null,
-    "family": null,
-    "balance": 0.0,
-    "year": null,
-    "campus": null,
-    "phone": null,
-    "groups": [],
-    "user_permissions": []
-  }
-},
   {
-    "model": "users.user",
+    "model": "shops.productunit",
+    "pk": 1,
+    "fields": {
+      "name": "Kronembourg",
+      "description": "Produit unitaire de Kronembourg pour fut",
+      "unit": "CL",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.productunit",
     "pk": 2,
     "fields": {
-      "is_superuser": false,
-      "username": "pastys",
-      "first_name": "Alexandre",
-      "last_name": "PALO",
-      "email": "",
-      "is_staff": false,
-      "is_active": true,
-      "date_joined": "2016-02-15T13:35:22.467Z",
-      "surname": "Past'ys",
-      "family": "101-99",
-      "balance": 0.0,
-      "year": 2014,
-      "campus": "ME",
-      "phone": null,
-      "groups": [],
-      "user_permissions": []
+      "name": "1664 Blanche",
+      "description": "Produit unitaire de 1664 Blanche pour fut",
+      "unit": "CL",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 3,
+    "fields": {
+      "name": "Grimbergen réserve",
+      "description": "Produit unitaire de Grimbergen réserve pour fut",
+      "unit": "CL",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 4,
+    "fields": {
+      "name": "Apple Frost",
+      "description": "Produit unitaire d'Apple Frost pour fut",
+      "unit": "CL",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 5,
+    "fields": {
+      "name": "El Grande",
+      "description": "Produit unitaire d'El Grande pour fut",
+      "unit": "CL",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 6,
+    "fields": {
+      "name": "Grimbergen de Noël",
+      "description": "Produit unitaire de Grimbergen de Noël pour fut",
+      "unit": "CL",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 7,
+    "fields": {
+      "name": "Soda",
+      "description": "Produit unitaire de soda",
+      "unit": "CL",
+      "type": "soft"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 8,
+    "fields": {
+      "name": "Boisson énergissante",
+      "description": "Produit unitaire de Boisson énergissante",
+      "unit": "CL",
+      "type": "soft"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 9,
+    "fields": {
+      "name": "Jus de fruit",
+      "description": "Produit unitaire de Jus de fruit pour fut",
+      "unit": "CL",
+      "type": "soft"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 10,
+    "fields": {
+      "name": "Sirop",
+      "description": "Produit unitaire de Sirop",
+      "unit": "CL",
+      "type": "syrup"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 11,
+    "fields": {
+      "name": "Picon",
+      "description": "Produit unitaire de Picon",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 12,
+    "fields": {
+      "name": "Vodka",
+      "description": "Produit unitaire de Vodka",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 13,
+    "fields": {
+      "name": "Rhum",
+      "description": "Produit unitaire de Rhum",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 14,
+    "fields": {
+      "name": "Whisky",
+      "description": "Produit unitaire de Whisky",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 15,
+    "fields": {
+      "name": "Jägermeister",
+      "description": "Produit unitaire de Jägermeister",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 16,
+    "fields": {
+      "name": "Pastis",
+      "description": "Produit unitaire de Pastis",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 1,
+    "fields": {
+      "name": "Fut de Kronembourg",
+      "description": "Fut de Kronembourg",
+      "calculated_price": 125.16,
+      "brand": "Kronembourg",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 2,
+    "fields": {
+      "name": "Fut de 1664 Blanche",
+      "description": "Fut de 1664 Blanche",
+      "calculated_price": 78.68,
+      "brand": "1664",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 3,
+    "fields": {
+      "name": "Fut de Grimbergen réserve",
+      "description": "Fut de Grimbergen réserve",
+      "calculated_price": 88.07,
+      "brand": "Grimbergen",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 4,
+    "fields": {
+      "name": "Fut d'Apple Frost",
+      "description": "Fut d'Apple Frost",
+      "calculated_price": 60.01,
+      "brand": "Apple Frost",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 5,
+    "fields": {
+      "name": "Fut d'El Grande",
+      "description": "Fut d'El Grande",
+      "calculated_price": 50.1,
+      "brand": "El Grande",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 6,
+    "fields": {
+      "name": "Fut de Grimbergen de Noël",
+      "description": "Fut de Grimbergen de Noël",
+      "calculated_price": 90,
+      "brand": "Grimbergen",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 7,
+    "fields": {
+      "name": "Bouteille de soda",
+      "description": "Bouteille de soda",
+      "calculated_price": 1.50,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 8,
+    "fields": {
+      "name": "Bouteille de boisson énergissante",
+      "description": "Bouteille de boisson énergissante",
+      "calculated_price": 1.49,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 9,
+    "fields": {
+      "name": "Bouteille de Jus de fruit",
+      "description": "Bouteille de Jus de fruit",
+      "calculated_price": 0.7,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 10,
+    "fields": {
+      "name": "Bouteille de sirop",
+      "description": "Bouteille de sirop",
+      "calculated_price": 3.0,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 11,
+    "fields": {
+      "name": "Bouteille de Picon",
+      "description": "Bouteille de Picon",
+      "calculated_price": 10,
+      "brand": "Picon",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 12,
+    "fields": {
+      "name": "Bouteille de vodka",
+      "description": "Bouteille de vodka",
+      "calculated_price": 10.6,
+      "brand": "Vodka",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 13,
+    "fields": {
+      "name": "Bouteille de rhum",
+      "description": "Bouteille de rhum",
+      "calculated_price": 12.6,
+      "brand": "Rhum",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 14,
+    "fields": {
+      "name": "Bouteille de whisky",
+      "description": "Bouteille de whisky",
+      "calculated_price": 12.25,
+      "brand": "Whisky",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 15,
+    "fields": {
+      "name": "Bouteille de Jaëgermeister",
+      "description": "Bouteille de Jaëgermeister",
+      "calculated_price": 9.7,
+      "brand": "Jaëgermeister",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 16,
+    "fields": {
+      "name": "Bouteille de Pastis",
+      "description": "Bouteille de Pastis",
+      "calculated_price": 20.15,
+      "brand": "Pastis",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 17,
+    "fields": {
+      "name": "Skoll 33 cl",
+      "description": "Bouteille de Skoll 33 cl",
+      "calculated_price": 1.20,
+      "brand": "Skoll",
+      "type": "single_product",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.singleproduct",
+    "pk": 1,
+    "fields": {
+      "price": 1.5,
+      "expiry_date": null,
+      "place": "stock foyer",
+      "product_base": 17
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 1,
+    "fields": {
+      "price": 125.0,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 5000,
+      "quantity_remaining": 5000,
+      "is_sold": false,
+      "product_base": 1,
+      "product_unit": 1
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 2,
+    "fields": {
+      "price": 78,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 3000,
+      "quantity_remaining": 3000,
+      "is_sold": false,
+      "product_base": 2,
+      "product_unit": 2
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 3,
+    "fields": {
+      "price": 90,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 3000,
+      "quantity_remaining": 3000,
+      "is_sold": false,
+      "product_base": 3,
+      "product_unit": 3
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 4,
+    "fields": {
+      "price": 60,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 2000,
+      "quantity_remaining": 2000,
+      "is_sold": false,
+      "product_base": 4,
+      "product_unit": 4
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 5,
+    "fields": {
+      "price": 50,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 2000,
+      "quantity_remaining": 2000,
+      "is_sold": false,
+      "product_base": 5,
+      "product_unit": 5
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 6,
+    "fields": {
+      "price": 90,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 3000,
+      "quantity_remaining": 3000,
+      "is_sold": false,
+      "product_base": 6,
+      "product_unit": 6
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 7,
+    "fields": {
+      "price": 1.5,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 75,
+      "quantity_remaining": 75,
+      "is_sold": false,
+      "product_base": 7,
+      "product_unit": 7
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 8,
+    "fields": {
+      "price": 1.5,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 75,
+      "quantity_remaining": 75,
+      "is_sold": false,
+      "product_base": 8,
+      "product_unit": 8
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 9,
+    "fields": {
+      "price": 0.8,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 75,
+      "quantity_remaining": 75,
+      "is_sold": false,
+      "product_base": 9,
+      "product_unit": 9
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 10,
+    "fields": {
+      "price": 3,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 75,
+      "quantity_remaining": 75,
+      "is_sold": false,
+      "product_base": 10,
+      "product_unit": 10
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 11,
+    "fields": {
+      "price": 10,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 75,
+      "quantity_remaining": 75,
+      "is_sold": false,
+      "product_base": 11,
+      "product_unit": 11
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 12,
+    "fields": {
+      "price": 10,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 75,
+      "quantity_remaining": 75,
+      "is_sold": false,
+      "product_base": 12,
+      "product_unit": 12
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 13,
+    "fields": {
+      "price": 10,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 75,
+      "quantity_remaining": 75,
+      "is_sold": false,
+      "product_base": 13,
+      "product_unit": 13
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 14,
+    "fields": {
+      "price": 10,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 75,
+      "quantity_remaining": 75,
+      "is_sold": false,
+      "product_base": 14,
+      "product_unit": 14
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 15,
+    "fields": {
+      "price": 1.5,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 75,
+      "quantity_remaining": 75,
+      "is_sold": false,
+      "product_base": 15,
+      "product_unit": 15
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 16,
+    "fields": {
+      "price": 20,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "stock foyer",
+      "quantity": 75,
+      "quantity_remaining": 75,
+      "is_sold": false,
+      "product_base": 16,
+      "product_unit": 16
     }
   }
 ]
