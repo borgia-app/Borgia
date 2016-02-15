@@ -95,13 +95,25 @@ class ProductBase(models.Model):
     brand = models.CharField(max_length=255)
     type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
 
+    quantity = models.FloatField(default=0, null=True, blank=True)
+
     # Relations
     # Avec shops.models
     shop = models.ForeignKey('Shop')
+    product_unit = models.ForeignKey('ProductUnit', related_name='product_unit', blank=True, null=True)
 
     # Méthodes
     def __str__(self):
-        return self.name
+        if self.product_unit is not None:
+            return self.name + ' ' + self.product_unit
+        else:
+            return self.name
+
+    def calculated_price_usual(self):
+        if self.quantity is not None:
+            return (self.product_unit.usual_quantity() / self.quantity) * self.calculated_price
+        else:
+            return self.calculated_price
 
 
 class SingleProduct(models.Model):
@@ -150,7 +162,6 @@ class Container(models.Model):
     purchase_date = models.DateField(default=now)
     expiry_date = models.DateField(blank=True, null=True)
     place = models.CharField(max_length=255)
-    quantity = models.FloatField(default=0)
     quantity_remaining = models.FloatField(default=0)
     is_sold = models.BooleanField(default=False)
     # TODO: gestion des consignes
@@ -158,7 +169,6 @@ class Container(models.Model):
     # Relations
     # Avec shops.models
     product_base = models.ForeignKey('ProductBase', related_name='product_base_container')
-    product_unit = models.ForeignKey('ProductUnit', related_name='product_unit')
     # Avec finances.models
 
     # Méthodes
@@ -167,7 +177,7 @@ class Container(models.Model):
 
     def clean(self):
         if self.quantity_remaining is None:
-            self.quantity_remaining = self.quantity
+            self.quantity_remaining = self.product_base.quantity
         return super(Container, self).clean()
 
     def pourcentage_quantity_remaining(self):
