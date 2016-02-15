@@ -4,22 +4,29 @@ from shops.models import SingleProduct, SingleProductFromContainer
 from django.utils.timezone import now
 
 
-class Purchase(models.Model):
-    # Informations generales
-    operator = models.ForeignKey('users.User', related_name='purchase_operator')
-    client = models.ForeignKey('users.User', related_name='purchase_client')
-    date = models.DateField(default=now)
-    time = models.TimeField(default=now)
+class Sale(models.Model):
+    """Une transaction.
 
-    # Liste des moyens de payement
-    cheques = models.ManyToManyField('Cheque', blank=True)
-    cashs = models.ManyToManyField('Cash', blank=True)
-    lydias = models.ManyToManyField('Lydia', blank=True)
-    foyer = models.FloatField(blank=True, null=True, default=0)
+    Défini un échange entre deux personnes,
+    entre deux membres, entre un membre et l'association, ...
 
-    # Les objets sont introduits avec des ForeignKeys dans les objets
-    # Cf def lists
+    """
 
+    # Attributs
+    amount = models.FloatField(default=0)
+    date = models.DateTimeField(default=now)
+    done = models.BooleanField(default=False)
+
+    # Relations
+    # Avec users
+    sender = models.ForeignKey('users.User', related_name='sender')
+    recipient = models.ForeignKey('users.User', related_name='recipient')
+    # Avec shops
+
+    # Avec finances
+    payment = models.ForeignKey('Payment')
+
+    # Méthodes
     def __str__(self):
         return 'Achat n°' + str(self.id)
 
