@@ -37,7 +37,7 @@ urlpatterns = [
     url(r'^productunit/delete/(?P<pk>\d+)/$', ProductUnitDeleteView.as_view(), name='url_delete_productunit'),  # D
     url(r'^productunit/$', ProductUnitListView.as_view(), name='url_list_productunit'),  # L
 
-    # Model Tap
+    # Model Product Base
     url(r'^productbase/create/$', ProductBaseCreateView.as_view(), name='url_create_productbase'),  # C
     url(r'^productbase/retrieve/(?P<pk>\d+)/$', ProductBaseRetrieveView.as_view(), name='url_retrieve_productbase'),  # C
     url(r'^productbase/update/(?P<pk>\d+)/$', ProductBaseUpdateView.as_view(), name='url_update_productbase'),  # C
@@ -49,4 +49,5 @@ urlpatterns = [
 
     # Workboard
     url(r'^foyer/workboard$', workboard_foyer, name='url_workboard_foyer'),
+    url(r'^foyer/replacement_active_keg$', ReplacementActiveKeyView.as_view(), name='url_replacement_active_keg'),
 ]

@@ -104,10 +104,7 @@ class ProductBase(models.Model):
 
     # Méthodes
     def __str__(self):
-        if self.product_unit is not None:
-            return self.name + ' ' + self.product_unit.__str__()
-        else:
-            return self.name
+        return self.name
 
     def calculated_price_usual(self):
         if self.quantity is not None:
@@ -173,7 +170,7 @@ class Container(models.Model):
 
     # Méthodes
     def __str__(self):
-        return self.product_base.__str__() + str(self.pk)
+        return self.product_base.__str__() + ' ' + str(self.pk)
 
     def clean(self):
         if self.quantity_remaining is None:
@@ -181,7 +178,7 @@ class Container(models.Model):
         return super(Container, self).clean()
 
     def pourcentage_quantity_remaining(self):
-        return (self.quantity_remaining / self.quantity) * 100
+        return (self.quantity_remaining / self.product_base.quantity) * 100
 
 
 class ProductUnit(models.Model):

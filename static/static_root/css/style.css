@@ -1087,32 +1087,45 @@
 
 /* Navigation */
 
-nav
-{
-	background-color: #555f66;
-	height: 30px;
-}
+	nav
+	{
+		background-color: #555f66;
+		height: 30px;
+		border-radius: 5px;
+	}
 
-nav ul
-{
-    list-style-type: none;
-    display: flex;
-}
+	nav ul
+	{
+		list-style-type: none;
+		display: flex;
+	}
 
-nav li
-{
-    margin-right: 15px;
-}
+	nav li
+	{
+		margin-right: 15px;
+	}
 
-nav a
-{
-    font-size: 1.3em;
-    color: white;
-    padding-bottom: 3px;
-    text-decoration: none;
-}
+	nav a
+	{
+		font-size: 1.3em;
+		color: white;
+		padding-bottom: 3px;
+		text-decoration: none;
+	}
 
-nav a:hover
-{
-    color: #5b80b2;
-}
+	nav a:hover
+	{
+		color: #5b80b2;
+	}
+
+/* Notifications */
+
+	.notifications.success
+	{
+		background-color: limegreen;
+		height: 30px;
+		border-radius: 5px;
+		color: white;
+		padding-left: 5px;
+		padding-right: 5px;
+	}

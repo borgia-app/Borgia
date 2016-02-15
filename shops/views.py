@@ -196,11 +196,43 @@ def purchase_foyer(request):
     return render(request, 'shops/sale_foyer.html', locals())
 
 
-# TODO: a modifier
 def workboard_foyer(request):
 
-    list_tap = Tap.objects.all()
+    # Liste des conteneurs sous une tireuse
+    active_keg_container_list = Container.objects.filter(product_base__shop=Shop.objects.get(name='Foyer'),
+                                                         product_base__product_unit__type='keg',
+                                                         place__startswith='tireuse')
+
     return render(request, 'shops/workboard_foyer.html', locals())
+
+
+class ReplacementActiveKeyView(FormView):
+    template_name = 'shops/replacement_active_keg.html'
+    form_class = ReplacementActiveKegForm
+    success_url = '/auth/login'
+
+    def form_valid(self, form):
+
+        # Définition des objets de travail
+        old_keg = Container.objects.get(pk=self.request.GET.get('pk', ""))
+        new_keg = form.cleaned_data['new_keg']
+
+        # L'ancien fut est envoyé vers le stock
+        old_keg.place = "stock foyer"
+        old_keg.save()
+        # Le nouveau est envoyé sous la tireuse
+        new_keg.place = "tireuse"
+        new_keg.save()
+
+        return super(ReplacementActiveKeyView, self).form_valid(form)
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(ReplacementActiveKeyView, self).get_context_data(**kwargs)
+        context['old_active_keg'] = Container.objects.get(pk=self.request.GET.get('pk', ""))
+        return context
 
 
 # Model SHOP
