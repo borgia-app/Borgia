@@ -32,9 +32,9 @@
                                 <tr>
                                     <div class="fieldWrapper">
                                         <td>{{ e.1.product_base.product_unit }}</td>
-                                        <td><span id="selected_initial_price_tap_{{ e.2 }}">{{ e.1.product_base.calculated_price_usual }}</span> €</td>
+                                        <td><span id="selected_initial_price_active_keg_{{ e.2 }}">{{ e.1.product_base.calculated_price_usual }}</span> €</td>
                                         <td>{{ e.0 }}</td>
-                                        <td><span id="selected_price_tap_{{ e.2 }}">0</span> €</td>
+                                        <td><span id="selected_price_active_keg_{{ e.2 }}">0</span> €</td>
                                     </div>
                                 </tr>
                             {% endfor %}
@@ -53,9 +53,9 @@
                                 <tr>
                                     <div class="fieldWrapper">
                                         <td>{{ e.1.product_unit }}</td>
-                                        <td><span id="selected_initial_price_product_unit_liquor_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                        <td><span id="selected_initial_price_container_liquor_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
                                         <td>{{ e.0 }}</td>
-                                        <td> <span id="selected_price_product_unit_liquor_{{ e.2 }}">0</span> €</td>
+                                        <td> <span id="selected_price_container_liquor_{{ e.2 }}">0</span> €</td>
                                     </div>
                                 </tr>
                             {% endfor %}
@@ -63,9 +63,9 @@
                                 <tr>
                                     <div class="fieldWrapper">
                                         <td>{{ e.1.product_unit }}</td>
-                                        <td><span id="selected_initial_price_product_unit_liquor_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                        <td><span id="selected_initial_price_container_syrup_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
                                         <td>{{ e.0 }}</td>
-                                        <td> <span id="selected_price_product_unit_liquor_{{ e.2 }}">0</span> €</td>
+                                        <td> <span id="selected_price_container_syrup_{{ e.2 }}">0</span> €</td>
                                     </div>
                                 </tr>
                             {% endfor %}
@@ -108,9 +108,9 @@
                                 <tr>
                                     <div class="fieldWrapper">
                                         <td>{{ e.1.product_unit }}</td>
-                                        <td><span id="selected_initial_price_product_unit_soft_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                        <td><span id="selected_initial_price_container_soft_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
                                         <td>{{ e.0 }}</td>
-                                        <td> <span id="selected_price_product_unit_soft_{{ e.2 }}">0</span> €</td>
+                                        <td> <span id="selected_price_container_soft_{{ e.2 }}">0</span> €</td>
                                     </div>
                                 </tr>
                             {% endfor %}
@@ -123,70 +123,82 @@
     </form>
     <script>
         function update_consumption() {
-            var sum_tap = 0;
+            var sum_active_keg = 0;
             var sum_single_product = 0;
-            var sum_product_unit_soft = 0;
-            var sum_product_unit_liquor = 0;
+            var sum_container_soft = 0;
+            var sum_container_liquor = 0;
+            var sum_container_syrup = 0;
 
-            for (i=0; i<{{ tap_list|length }}; i++) {
-                sum_tap += Number(document.getElementById("selected_price_tap_" + i).textContent);
+            for (i=0; i<{{ active_keg_container_list|length }}; i++) {
+                sum_active_keg += Number(document.getElementById("selected_price_active_keg_" + i).textContent);
             }
-            for (i=0; i<{{ single_product_list|length }}; i++) {
+            for (i=0; i<{{ single_product_available_list|length }}; i++) {
                 sum_single_product += Number(document.getElementById("selected_price_single_product_" + i).textContent);
             }
-            for (i=0; i<{{ product_unit_soft_list|length }}; i++) {
-                sum_product_unit_soft += Number(document.getElementById("selected_price_product_unit_soft_" + i).textContent);
+            for (i=0; i<{{ container_soft_list|length }}; i++) {
+                sum_container_soft += Number(document.getElementById("selected_price_container_soft_" + i).textContent);
             }
-            for (i=0; i<{{ product_unit_liquor_list|length }}; i++) {
-                sum_product_unit_liquor += Number(document.getElementById("selected_price_product_unit_liquor_" + i).textContent);
+            for (i=0; i<{{ container_liquor_list|length }}; i++) {
+                sum_container_liquor += Number(document.getElementById("selected_price_container_liquor_" + i).textContent);
+            }
+            for (i=0; i<{{ container_syrup_list|length }}; i++) {
+                sum_container_syrup += Number(document.getElementById("selected_price_container_syrup_" + i).textContent);
             }
             var balance_before = Number(document.getElementById("balance_before").textContent.replace(",","."));
-            document.getElementById("total_consumption").textContent = String((sum_tap+sum_single_product+sum_product_unit_soft+sum_product_unit_liquor).toFixed(2));
-            document.getElementById("balance_after").textContent = String((balance_before-sum_tap-sum_single_product-sum_product_unit_soft-sum_product_unit_liquor).toFixed(2));
+            document.getElementById("total_consumption").textContent = String((sum_active_keg+sum_single_product+sum_container_soft+sum_container_liquor+sum_container_syrup).toFixed(2));
+            document.getElementById("balance_after").textContent = String((balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2));
         }
 
-        var selected_quantity_tap = [];
-        var selected_price_tap = [];
-        var selected_initial_price_tap = [];
+        var selected_quantity_active_keg = [];
+        var selected_price_active_keg = [];
+        var selected_initial_price_active_keg = [];
         var selected_quantity_single_product = [];
         var selected_price_single_product = [];
         var selected_initial_price_single_product = [];
-        var selected_quantity_product_unit_soft = [];
-        var selected_price_product_unit_soft = [];
-        var selected_initial_price_product_unit_soft = [];
-        var selected_quantity_product_unit_liquor = [];
-        var selected_price_product_unit_liquor = [];
-        var selected_initial_price_product_unit_liquor = [];
+        var selected_quantity_container_soft = [];
+        var selected_price_container_soft = [];
+        var selected_initial_price_container_soft = [];
+        var selected_quantity_container_liquor = [];
+        var selected_price_container_liquor = [];
+        var selected_initial_price_container_liquor = [];
+        var selected_quantity_container_syrup = [];
+        var selected_price_container_syrup = [];
+        var selected_initial_price_container_syrup = [];
 
-        for (i=0; i<{{ tap_list|length }}; i++) {
-            selected_price_tap.push(document.getElementById("selected_price_tap_"+i));
-            selected_quantity_tap.push(document.getElementById("id_field_tap_"+i));
-            selected_initial_price_tap.push(document.getElementById("selected_initial_price_tap_"+i));
+        for (i=0; i<{{ active_keg_container_list|length }}; i++) {
+            selected_price_active_keg.push(document.getElementById("selected_price_active_keg_"+i));
+            selected_quantity_active_keg.push(document.getElementById("id_field_active_keg_container_"+i));
+            selected_initial_price_active_keg.push(document.getElementById("selected_initial_price_active_keg_"+i));
         }
-        for (i=0; i<{{ single_product_list|length }}; i++) {
+        for (i=0; i<{{ single_product_available_list|length }}; i++) {
             selected_price_single_product.push(document.getElementById("selected_price_single_product_"+i));
             selected_quantity_single_product.push(document.getElementById("id_field_single_product_"+i));
             selected_initial_price_single_product.push(document.getElementById("selected_initial_price_single_product_"+i));
         }
-        for (i=0; i<{{ product_unit_soft_list|length }}; i++) {
-            selected_price_product_unit_soft.push(document.getElementById("selected_price_product_unit_soft_"+i));
-            selected_quantity_product_unit_soft.push(document.getElementById("id_field_product_unit_soft_"+i));
-            selected_initial_price_product_unit_soft.push(document.getElementById("selected_initial_price_product_unit_soft_"+i));
+        for (i=0; i<{{ container_soft_list|length }}; i++) {
+            selected_price_container_soft.push(document.getElementById("selected_price_container_soft_"+i));
+            selected_quantity_container_soft.push(document.getElementById("id_field_container_soft_"+i));
+            selected_initial_price_container_soft.push(document.getElementById("selected_initial_price_container_soft_"+i));
         }
-        for (i=0; i<{{ product_unit_liquor_list|length }}; i++) {
-            selected_price_product_unit_liquor.push(document.getElementById("selected_price_product_unit_liquor_"+i));
-            selected_quantity_product_unit_liquor.push(document.getElementById("id_field_product_unit_liquor_"+i));
-            selected_initial_price_product_unit_liquor.push(document.getElementById("selected_initial_price_product_unit_liquor_"+i));
+        for (i=0; i<{{ container_liquor_list|length }}; i++) {
+            selected_price_container_liquor.push(document.getElementById("selected_price_container_liquor_"+i));
+            selected_quantity_container_liquor.push(document.getElementById("id_field_container_liquor_"+i));
+            selected_initial_price_container_liquor.push(document.getElementById("selected_initial_price_container_liquor_"+i));
         }
-        for(i=0;i<{{ tap_list|length }};i++){
+        for (i=0; i<{{ container_syrup_list|length }}; i++) {
+            selected_price_container_syrup.push(document.getElementById("selected_price_container_syrup_"+i));
+            selected_quantity_container_syrup.push(document.getElementById("id_field_container_syrup_"+i));
+            selected_initial_price_container_syrup.push(document.getElementById("selected_initial_price_container_syrup_"+i));
+        }
+        for(i=0;i<{{ active_keg_container_list|length }};i++){
             (function(x) {
-                selected_quantity_tap[i].addEventListener('change', function(e) {
-                    selected_price_tap[x].textContent = String((e.target.value * Number(selected_initial_price_tap[x].textContent.replace(",", "."))).toFixed(2));
+                selected_quantity_active_keg[i].addEventListener('change', function(e) {
+                    selected_price_active_keg[x].textContent = String((e.target.value * Number(selected_initial_price_active_keg[x].textContent.replace(",", "."))).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
         }
-        for(i=0;i<{{ single_product_list|length }};i++){
+        for(i=0;i<{{ single_product_available_list|length }};i++){
             (function(x) {
                 selected_quantity_single_product[i].addEventListener('change', function(e) {
                     selected_price_single_product[x].textContent = String((e.target.value * Number(selected_initial_price_single_product[x].textContent.replace(",", "."))).toFixed(2));
@@ -194,18 +206,26 @@
                 }, false);
             })(i);
         }
-        for(i=0;i<{{ product_unit_soft_list|length }};i++){
+        for(i=0;i<{{ container_soft_list|length }};i++){
             (function(x) {
-                selected_quantity_product_unit_soft[i].addEventListener('change', function(e) {
-                    selected_price_product_unit_soft[x].textContent = String((e.target.value * Number(selected_initial_price_product_unit_soft[x].textContent.replace(",", "."))).toFixed(2));
+                selected_quantity_container_soft[i].addEventListener('change', function(e) {
+                    selected_price_container_soft[x].textContent = String((e.target.value * Number(selected_initial_price_container_soft[x].textContent.replace(",", "."))).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
         }
-        for(i=0;i<{{ product_unit_liquor_list|length }};i++){
+        for(i=0;i<{{ container_liquor_list|length }};i++){
             (function(x) {
-                selected_quantity_product_unit_liquor[i].addEventListener('change', function(e) {
-                    selected_price_product_unit_liquor[x].textContent = String((e.target.value * Number(selected_initial_price_product_unit_liquor[x].textContent.replace(",", "."))).toFixed(2));
+                selected_quantity_container_liquor[i].addEventListener('change', function(e) {
+                    selected_price_container_liquor[x].textContent = String((e.target.value * Number(selected_initial_price_container_liquor[x].textContent.replace(",", "."))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+        for(i=0;i<{{ container_syrup_list|length }};i++){
+            (function(x) {
+                selected_quantity_container_syrup[i].addEventListener('change', function(e) {
+                    selected_price_container_syrup[x].textContent = String((e.target.value * Number(selected_initial_price_container_syrup[x].textContent.replace(",", "."))).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
