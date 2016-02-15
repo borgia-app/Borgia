@@ -1,6 +1,9 @@
 <ul>
-    <li>Nom : {{ object.name }}</li>
-    <li>Description : {{ object.description }}</li>
-    <li>Prix : {{ object.price }}</li>
+    <li>Nom : {{ object.product_base.name }}</li>
+    <li>Description : {{ object.product_base.description }}</li>
+    <li>Prix d'achat : {{ object.price }}</li>
+    <li>Date d'achat : {{ object.purchase_date }}</li>
+    <li>Date de péremption : {{ object.expiry_date }}</li>
+    <li>Lieu de stockage : {{ e.place }}</li>
     <li>Vendu : {{ object.is_sold }}</li>
 </ul>

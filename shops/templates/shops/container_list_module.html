@@ -1,5 +1,6 @@
 <table>
     <tr>
+        <th>ID</th>
         <th>Produit Unitaire</th>
         <th>Modifier</th>
         <th>Supprimer</th>
@@ -7,6 +8,7 @@
     </tr>
     {% for e in object_list %}
         <tr>
+            <td>{{ e.pk }}</td>
             <td>{{ e.product_unit }}</td>
             <td><a href="{% url 'url_update_container' pk=e.id %}">modifier</a></td>
             <td><a href="{% url 'url_delete_container' pk=e.id %}">supprimer</a></td>

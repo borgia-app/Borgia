@@ -1,4 +1,8 @@
 <ul>
-    <li>N° : {{ object.number }}</li>
-    <li>Containeur : {{ object.container }}</li>
+    <li>Nom : {{ object.name }}</li>
+    <li>Description : {{ object.description }}</li>
+    <li>Prix de vente actuel : {{ object.calculated_price }}</li>
+    <li>Marque : {{ object.brand }}</li>
+    <li>Type : {{ object.type }}</li>
+    <li>Magasin : <a href="{% url 'url_retrieve_shop' pk=e.shop.id %}">{{ object.shop.str }}</a></li>
 </ul>
