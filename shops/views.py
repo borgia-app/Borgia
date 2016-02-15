@@ -501,7 +501,7 @@ class ProductUnitListView(ListView):
 # C
 class ProductBaseCreateView(SuccessMessageMixin, CreateView):
     model = ProductBase
-    fields = ['name', 'description', 'brand', 'type', 'shop']
+    fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price']
     template_name = 'shops/productbase_create.html'
     success_url = '/shops/productbase/'
     success_message = "%(name)s was created successfully"
