@@ -173,7 +173,7 @@ class Container(models.Model):
 
     # Méthodes
     def __str__(self):
-        return self.product_unit.__str__() + self.product_base.__str__() + str(self.pk)
+        return self.product_base.__str__() + str(self.pk)
 
     def clean(self):
         if self.quantity_remaining is None:
@@ -205,9 +205,9 @@ class ProductUnit(models.Model):
 
     # Méthodes
     def usual_quantity(self):
-        if self.type is "keg" or "soft":
+        if self.type in ('keg', 'soft'):
             return 25
-        elif self.type is "liquor" or "syrup":
+        elif self.type in ('liquor', 'syrup'):
             return 4
 
     def __str__(self):
@@ -229,5 +229,6 @@ class SingleProductFromContainer(models.Model):
     sale = models.ForeignKey('finances.Sale')
 
     def __str__(self):
-        return self.container.product_unit.__str__() + ' ' + str(self.quantity) + self.container.product_unit.unit
+        return self.container.product_base.product_unit.__str__() + ' ' +\
+               str(self.quantity) + self.container.product_base.product_unit.unit
 

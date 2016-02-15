@@ -62,11 +62,11 @@ def purchase_foyer(request):
                 list_results_container_soft.append((form.cleaned_data["field_container_soft_%s" % i],
                                                     container_soft_list[i][0]))
             for i in range(0, len(container_liquor_list)):
-                list_results_container_liquor.append((form.cleaned_data["field_container_syrup_%s" % i],
+                list_results_container_liquor.append((form.cleaned_data["field_container_liquor_%s" % i],
                                                       container_liquor_list[i][0]))
             for i in range(0, len(container_syrup_list)):
-                list_results_container_liquor.append((form.cleaned_data["field_container_liquor_%s" % i],
-                                                      container_syrup_list[i][0]))
+                list_results_container_syrup.append((form.cleaned_data["field_container_syrup_%s" % i],
+                                                     container_syrup_list[i][0]))
 
             # Creation de la vente entre l'AE ENSAM (représentée par le foyer) et le client
 
@@ -110,10 +110,12 @@ def purchase_foyer(request):
                 list_results_container_soft + list_results_container_syrup + list_results_container_liquor
             for e in list_results_container_no_keg:
                 if e[0] != 0:
-                    spfc = SingleProductFromContainer(container=e[1][0], sale=sale)
+                    # Premier conteneur de la liste dans le queryset du product base
+                    spfc = SingleProductFromContainer(container=Container.objects.filter(product_base=e[1])[0],
+                                                      sale=sale)
                     spfc.save()
-                    spfc.quantity = spfc.container.product_base.product_unit.usual_quantity() * e[0]
-                    spfc.sale_price = spfc.container.product_base.calculated_price_usual() * e[0]
+                    spfc.quantity = e[0] * e[1].product_unit.usual_quantity()
+                    spfc.sale_price = e[1].calculated_price_usual() * e[0]
                     spfc.save()
 
             # Payement total par le foyer ici
@@ -352,7 +354,7 @@ class SingleProductListView(ListView):
 # C
 class ContainerCreateView(SuccessMessageMixin, CreateView):
     model = Container
-    fields = ['product_base', 'product_unit', 'price', 'purchase_date', 'expiry_date', 'place', 'quantity']
+    fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place']
     template_name = 'shops/container_create.html'
     success_url = '/shops/container/'
     success_message = "Container was created successfully"
@@ -408,7 +410,7 @@ class ContainerRetrieveView(DetailView):
 # U
 class ContainerUpdateView(SuccessMessageMixin, UpdateView):
     model = Container
-    fields = ['product_base', 'product_unit', 'price', 'purchase_date', 'expiry_date', 'place', 'quantity']
+    fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place']
     template_name = 'shops/container_update.html'
     success_url = '/shops/container/'
     success_message = "Container was updated successfully"
@@ -499,7 +501,7 @@ class ProductUnitListView(ListView):
 # C
 class ProductBaseCreateView(SuccessMessageMixin, CreateView):
     model = ProductBase
-    fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price']
+    fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price', 'quantity', 'product_unit']
     template_name = 'shops/productbase_create.html'
     success_url = '/shops/productbase/'
     success_message = "%(name)s was created successfully"
@@ -522,7 +524,7 @@ class ProductBaseRetrieveView(DetailView):
 # U
 class ProductBaseUpdateView(SuccessMessageMixin, UpdateView):
     model = ProductBase
-    fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price']
+    fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price', 'quantity', 'product_unit']
     template_name = 'shops/productbase_update.html'
     success_url = '/shops/productbase/'
     success_message = "%(name)s was updated successfully"

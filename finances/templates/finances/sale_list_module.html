@@ -16,7 +16,7 @@
         <tr>
             <td>{{ e.date }}</td>
             <td><a href="{% url 'url_retrieve_user' pk=e.sender.pk %}">{{ e.sender }}</a></td>
-            <td><a href="{% url 'url_retrieve_user' pk=e.recipient.pk %}">{{ e.recipient.pk }}</a></td>
+            <td><a href="{% url 'url_retrieve_user' pk=e.recipient.pk %}">{{ e.recipient }}</a></td>
             <td>{{ e.payment.list_cheque.1 }}</td>
             <td>{{ e.payment.list_lydia.1 }}</td>
             <td>{{ e.payment.list_cash.1 }}</td>
