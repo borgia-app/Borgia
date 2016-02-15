@@ -88,7 +88,7 @@ class ProductBase(models.Model):
     calculated_price = models.FloatField(default=0)
     brand = models.CharField(max_length=255)
     type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
-    
+
     # Relations
     # Avec shops.models
     shop = models.ForeignKey('Shop')
@@ -111,6 +111,7 @@ class SingleProduct(ProductBase):
 
     # Attributs
     price = models.FloatField(default=0)
+    sale_price = models.FloatField(default=0)
     purchase_date = models.DateField(default=now)
     expiry_date = models.DateField(blank=True, null=True)
     place = models.CharField(max_length=255)
@@ -198,12 +199,14 @@ class SingleProductFromContainer(models.Model):
     Produit unique cree à partir d'un container
     par exemple : un verre de X product unit d'un container
     """
-    container = models.ForeignKey('Container')
-    quantity = models.IntegerField()
-    price = models.FloatField()
-    purchase = models.ForeignKey('finances.Purchase')
 
-    def nb_glass(self):
-        return int(self.quantity/25)
+    # Attributs
+    quantity = models.IntegerField()
+    sale_price = models.FloatField(default=0)
+
+    # Relations
+    container = models.ForeignKey('Container')
+    sale = models.ForeignKey('finances.Sale')
+
 
 
