@@ -6,6 +6,7 @@ from django.contrib.auth import logout
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from datetime import datetime
+from django.core.exceptions import ObjectDoesNotExist
 
 from shops.models import *
 from shops.forms import *
@@ -199,9 +200,13 @@ def purchase_foyer(request):
 def workboard_foyer(request):
 
     # Liste des conteneurs sous une tireuse
-    active_keg_container_list = Container.objects.filter(product_base__shop=Shop.objects.get(name='Foyer'),
-                                                         product_base__product_unit__type='keg',
-                                                         place__startswith='tireuse')
+    active_keg_container_list = []
+
+    for i in range(1, 6):
+        try:
+            active_keg_container_list.append(('tireuse %s' % i, Container.objects.get(place='tireuse %s' % i)))
+        except ObjectDoesNotExist:
+            active_keg_container_list.append(('tireuse %s' % i, None))
 
     return render(request, 'shops/workboard_foyer.html', locals())
 
@@ -214,14 +219,16 @@ class ReplacementActiveKeyView(FormView):
     def form_valid(self, form):
 
         # Définition des objets de travail
-        old_keg = Container.objects.get(pk=self.request.GET.get('pk', ""))
-        new_keg = form.cleaned_data['new_keg']
 
-        # L'ancien fut est envoyé vers le stock
-        old_keg.place = "stock foyer"
-        old_keg.save()
+        # L'ancien fut, s'il existe, est envoyé vers le stock
+        if self.request.GET.get('pk', None) is not '':
+            old_keg = Container.objects.get(pk=self.request.GET.get('pk', None))
+            old_keg.place = "stock foyer"
+            old_keg.save()
+
         # Le nouveau est envoyé sous la tireuse
-        new_keg.place = "tireuse"
+        new_keg = form.cleaned_data['new_keg']
+        new_keg.place = self.request.GET.get('place', None)
         new_keg.save()
 
         return super(ReplacementActiveKeyView, self).form_valid(form)
@@ -231,7 +238,10 @@ class ReplacementActiveKeyView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(ReplacementActiveKeyView, self).get_context_data(**kwargs)
-        context['old_active_keg'] = Container.objects.get(pk=self.request.GET.get('pk', ""))
+        if self.request.GET.get('pk', None) is not '':
+            context['old_active_keg'] = Container.objects.get(pk=self.request.GET.get('pk', None))
+        else:
+            context['old_active_keg'] = 'Pas de fut actuellement'
         return context
 
 

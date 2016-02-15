@@ -31,9 +31,14 @@
         <h3>Gestion des tireuses</h3>
         {% for e in active_keg_container_list %}
             <div class="two columns">
-                    <p>{{ e.product_base }}</p>
-                    <p>{{ e.quantity_remaining }} {{ e.product_base.product_unit.unit }} - {{ e.pourcentage_quantity_remaining }}% restants</p>
-                <p><a href="{% url 'url_replacement_active_keg' %}?next=/shops/foyer/workboard&pk={{ e.pk }}">Remplacer</a></p>
+                    <h4>{{ e.0 }}</h4>
+                {% if e.1 %}
+                    <p>{{ e.1.product_base }}</p>
+                    <p>{{ e.1.quantity_remaining }} {{ e.1.product_base.product_unit.unit }} - {{ e.1.pourcentage_quantity_remaining }}% restants</p>
+                {% else %}
+                    <p>Non utilisée actuellement</p>
+                {% endif %}
+                <p><a href="{% url 'url_replacement_active_keg' %}?next=/shops/foyer/workboard&pk={{ e.1.pk }}&place={{ e.0 }}">Remplacer</a></p>
             </div>
         {% endfor %}
     </div>
