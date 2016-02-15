@@ -111,7 +111,7 @@ class SingleProduct(ProductBase):
 
     # Attributs
     price = models.FloatField(default=0)
-    sale_price = models.FloatField(default=0)
+    sale_price = models.FloatField()
     purchase_date = models.DateField(default=now)
     expiry_date = models.DateField(blank=True, null=True)
     place = models.CharField(max_length=255)
@@ -202,7 +202,7 @@ class SingleProductFromContainer(models.Model):
 
     # Attributs
     quantity = models.IntegerField()
-    sale_price = models.FloatField(default=0)
+    sale_price = models.FloatField()
 
     # Relations
     container = models.ForeignKey('Container')
