@@ -61,8 +61,29 @@ class Payment(models.Model):
     lydias = models.ManyToManyField('Lydia', blank=True)
 
     # Méthodes
+    def list_cheques (self):
+        list_cheque = Cheque.objects.filter(payment__cheques__payment=self)
+        total_cheque = 0
+        for e in list_cheque:
+            total_cheque += e.amount
+        return list_cheque, total_cheque
+
+    def list_lydias (self):
+        list_lydia = Lydia.objects.filter(payment__lydias__payment=self)
+        total_lydia = 0
+        for e in list_lydia:
+            total_lydia += e.amount
+        return list_lydia, total_lydia
+
+    def list_cash (self):
+        list_cash = Cheque.objects.filter(payment__cashs__payment=self)
+        total_cash = 0
+        for e in list_cash:
+            total_cash += e.amount
+        return list_cash, total_cash
 
 
+# TODO: a modifier
 class Cheque(models.Model):
     # Informations sur l'identite du cheque
     number = models.CharField(max_length=7)
@@ -81,7 +102,7 @@ class Cheque(models.Model):
     def list_transaction(self):
         return Transaction.objects.filter(cheques__transaction__cheques=self)
 
-
+# TODO: a modifier
 class Cash(models.Model):
     # Information sur l'identite des especes
     amount = models.FloatField()
@@ -97,7 +118,7 @@ class Cash(models.Model):
     def list_transaction(self):
         return Transaction.objects.filter(cashs__transaction__cashs=self)
 
-
+# TODO: a modifier
 class Lydia(models.Model):
     # Information sur l'identite du virement lydia
     date_operation = models.DateField(default=now)
