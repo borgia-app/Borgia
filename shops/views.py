@@ -14,7 +14,6 @@ from finances.models import Sale, DebitBalance, Payment
 
 
 # FOYER
-# TODO: a modifier
 def purchase_foyer(request):
 
     # Peut être utiliser une FormView (mais plus complexe a cause du tap_list qu'il faut envoyer ...)
@@ -137,7 +136,6 @@ def purchase_foyer(request):
             payment.save()
             payment.maj_amount()
             payment.save()
-
 
             # Liaison entre le paiement et la vente
             sale.payment = payment
