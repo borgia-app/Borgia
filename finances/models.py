@@ -106,6 +106,24 @@ class Sale(models.Model):
         return self.sub_total_single_products() + self.sub_total_single_products_from_container()
 
 
+class Payment(models.Model):
+    """Un paiement.
+
+    Regroupe les différents moyens de paiements utilisés pour une sale
+
+    """
+
+    # Attributs
+    amount = models.FloatField(default=0)
+
+    # Relations
+    cheques = models.ManyToManyField('Cheque', blank=True)
+    cashs = models.ManyToManyField('Cash', blank=True)
+    lydias = models.ManyToManyField('Lydia', blank=True)
+
+    # Méthodes
+
+
 class Cheque(models.Model):
     # Informations sur l'identite du cheque
     number = models.CharField(max_length=7)
