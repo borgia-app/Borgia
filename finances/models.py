@@ -106,56 +106,6 @@ class Sale(models.Model):
         return self.sub_total_single_products() + self.sub_total_single_products_from_container()
 
 
-class Transaction(models.Model):
-    # Informations generales
-    operator = models.ForeignKey('users.User', related_name='transaction_operator')
-    client = models.ForeignKey('users.User', related_name='transaction_client')
-    date = models.DateField(default=now)
-    time = models.TimeField(default=now)
-
-    # Liste des moyens de payement
-    cheques = models.ManyToManyField('Cheque', blank=True)
-    cashs = models.ManyToManyField('Cash', blank=True)
-    lydias = models.ManyToManyField('Lydia', blank=True)
-
-    # Validation
-    validated = models.BooleanField(default=False)
-    error_credit = models.BooleanField(default=True)
-
-    def __str__(self):
-        return 'Transaction n°' + str(self.id)
-
-    def list_cheques(self):
-        return Cheque.objects.filter(transaction__cheques__transaction=self)
-
-    def sub_total_cheques(self):
-        u_c = 0
-        for e in self.list_cheques():
-            u_c = u_c + e.amount
-        return u_c
-
-    def list_cashs(self):
-            return Cash.objects.filter(transaction__cashs__transaction=self)
-
-    def sub_total_cashs(self):
-        u_ca = 0
-        for e in self.list_cashs():
-            u_ca = u_ca + e.amount
-        return u_ca
-
-    def list_lydias(self):
-            return Lydia.objects.filter(transaction__lydias__transaction=self)
-
-    def sub_total_lydias(self):
-        u_l = 0
-        for e in self.list_lydias():
-            u_l = u_l + e.amount
-        return u_l
-
-    def total(self):
-        return self.sub_total_cashs()+self.sub_total_cheques()+self.sub_total_lydias()
-
-
 class Cheque(models.Model):
     # Informations sur l'identite du cheque
     number = models.CharField(max_length=7)
