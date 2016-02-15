@@ -30,80 +30,19 @@ class Sale(models.Model):
     def __str__(self):
         return 'Achat n°' + str(self.id)
 
-    def use_cheque(self):
-        if len(self.list_cheques()) == 0:
-            return False
-        else:
-            return True
-
-    def use_lydia(self):
-        if len(self.list_lydias()) == 0:
-            return False
-        else:
-            return True
-
-    def use_cash(self):
-        if len(self.list_cashs()) == 0:
-            return False
-        else:
-            return True
-
-    def use_foyer(self):
-        if self.foyer == 0:
-            return False
-        else:
-            return True
-
-    def list_cheques(self):
-        return Cheque.objects.filter(purchase__cheques__purchase=self)
-
-    def sub_total_cheques(self):
-        u_c = 0
-        for e in self.list_cheques():
-            u_c = u_c + e.amount
-        return u_c
-
-    def list_cashs(self):
-            return Cash.objects.filter(purchase__cashs__purchase=self)
-
-    def sub_total_cashs(self):
-        u_ca = 0
-        for e in self.list_cashs():
-            u_ca = u_ca + e.amount
-        return u_ca
-
-    def list_lydias(self):
-            return Lydia.objects.filter(purchase__lydias__purchase=self)
-
-    def sub_total_lydias(self):
-        u_l = 0
-        for e in self.list_lydias():
-            u_l = u_l + e.amount
-        return u_l
-
-    def total(self):
-        return self.sub_total_cashs()+self.sub_total_cheques()+self.sub_total_lydias()
-
     def list_single_products(self):
-        return SingleProduct.objects.filter(purchase=self)
-
-    def sub_total_single_products(self):
-        u_sp = 0
-        for e in self.list_single_products():
-            u_sp = u_sp + e.price
-        return u_sp
+        list_single_product = SingleProduct.objects.filter(sale=self)
+        total_sale_price = 0
+        for e in list_single_product:
+            total_sale_price += e.sale_price
+        return list_single_product, total_sale_price
 
     def list_single_products_from_container(self):
-        return SingleProductFromContainer.objects.filter(purchase=self)
-
-    def sub_total_single_products_from_container(self):
-        u_spfc = 0
-        for e in self.list_single_products_from_container():
-            u_spfc = u_spfc + e.price
-        return u_spfc
-
-    def total_product(self):
-        return self.sub_total_single_products() + self.sub_total_single_products_from_container()
+        list_single_product_from_container = SingleProductFromContainer.objects.filter(sale=self)
+        total_sale_price = 0
+        for e in list_single_product_from_container:
+            total_sale_price += e.sale_price
+        return list_single_product_from_container, total_sale_price
 
 
 class Payment(models.Model):
