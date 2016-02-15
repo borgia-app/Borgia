@@ -21,7 +21,7 @@ def purchase_foyer(request):
 
     # Liste des conteneurs utilisés sous une tireuse
     active_keg_container_list = Container.objects.filter(product_base__shop=Shop.objects.get(name='Foyer'),
-                                                         product_unit__type='keg',
+                                                         product_base__product_unit__type='keg',
                                                          place__startswith='tireuse')
     # Liste des objects unitaires disponibles au foyer (ex: skolls 33cl, ...)
     single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
@@ -100,8 +100,8 @@ def purchase_foyer(request):
                     # Le prix de vente est le prix du base product à l'instant de la vente
                     spfc = SingleProductFromContainer(container=e[1], sale=sale)
                     spfc.save()
-                    spfc.quantity = spfc.container.product_unit.usual_quantity() * e[0]
-                    spfc.sale_price = spfc.container.product_base.calculated_price * e[0]
+                    spfc.quantity = spfc.container.product_base.product_unit.usual_quantity() * e[0]
+                    spfc.sale_price = spfc.container.product_base.calculated_price_usual() * e[0]
                     spfc.save()
 
             # Soft, syrup et liquor
@@ -112,8 +112,8 @@ def purchase_foyer(request):
                 if e[0] != 0:
                     spfc = SingleProductFromContainer(container=e[1][0], sale=sale)
                     spfc.save()
-                    spfc.quantity = spfc.container.product_unit.usual_quantity() * e[0]
-                    spfc.sale_price = spfc.container.product_base.calculated_price * e[0]
+                    spfc.quantity = spfc.container.product_base.product_unit.usual_quantity() * e[0]
+                    spfc.sale_price = spfc.container.product_base.calculated_price_usual() * e[0]
                     spfc.save()
 
             # Payement total par le foyer ici

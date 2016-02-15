@@ -65,19 +65,19 @@ class Shop(models.Model):
         list_product_base_container = []
         for e in ProductBase.objects.all():
             if status_sold is False and Container.objects.filter(product_base=e, is_sold=False, product_base__shop=self,
-                                                                 product_unit__type=type).exists():
+                                                                 product_base__product_unit__type=type).exists():
                 list_product_base_container.append((e, Container.objects.filter(product_base=e, is_sold=False,
                                                                                 product_base__shop=self,
-                                                                                product_unit__type=type)))
+                                                                                product_base__product_unit__type=type)))
             elif status_sold is True and Container.objects.filter(product_base=e, is_sold=True, product_base__shop=self,
-                                                                  product_unit__type=type).exists():
+                                                                  product_base__product_unit__type=type).exists():
                 list_product_base_container.append((e,Container.objects.filter(product_base=e, is_sold=True,
                                                                                product_base__shop=self,
-                                                                               product_unit__type=type)))
+                                                                               product_base__product_unit__type=type)))
             elif status_sold is "both":
                 list_product_base_container.append((e, Container.objects.filter(product_base=e,
                                                                                 product_base__shop=self,
-                                                                                product_unit__type=type)))
+                                                                                product_base__product_unit__type=type)))
         return list_product_base_container
 
 
@@ -105,7 +105,7 @@ class ProductBase(models.Model):
     # Méthodes
     def __str__(self):
         if self.product_unit is not None:
-            return self.name + ' ' + self.product_unit
+            return self.name + ' ' + self.product_unit.__str__()
         else:
             return self.name
 
