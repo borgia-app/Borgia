@@ -99,6 +99,18 @@ class Payment(models.Model):
                       + self.list_cash()[1] + self.list_debit_balance()[1]
         self.save()
 
+    def payments_used(self):
+        payments_used = []
+        if self.list_cheque()[1] != 0:
+            payments_used.append('Cheque')
+        if self.list_cash()[1] != 0:
+            payments_used.append('Espèces')
+        if self.list_lydia()[1] != 0:
+            payments_used.append('Lydia')
+        if self.list_debit_balance()[1] != 0:
+            payments_used.append('Compte foyer')
+        return payments_used
+
 
 class DebitBalance(models.Model):
 

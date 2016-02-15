@@ -3,6 +3,8 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime
 
+from finances.models import Sale
+
 
 class User(AbstractUser):
 
@@ -46,3 +48,6 @@ class User(AbstractUser):
         if x > 0:
             self.balance -= x
         self.save()
+
+    def list_sale(self):
+        return Sale.objects.filter(sender=self)

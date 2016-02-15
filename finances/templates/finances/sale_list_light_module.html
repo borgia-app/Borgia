@@ -1,34 +1,26 @@
 <table>
     <tr>
         <th>Date</th>
-        <th>Heure</th>
-        <th>Client</th>
-        <th>Opérateur</th>
-        <th>Payement</th>
+        <th>Emetteur</th>
+        <th>Receveur</th>
+        <th>Mode de paiement</th>
         <th>Montant total</th>
         <th>Détails</th>
     </tr>
     {% for e in object_list %}
         <tr>
             <td>{{ e.date }}</td>
-            <td>{{ e.time }}</td>
-            <td><a href="{% url 'url_retrieve_user' pk=e.client.id %}">{{ e.client }}</a></td>
-            <td><a href="{% url 'url_retrieve_user' pk=e.operator.id %}">{{ e.operator }}</a></td>
+            <td><a href="{% url 'url_retrieve_user' pk=e.sender.id %}">{{ e.sender }}</a></td>
+            <td><a href="{% url 'url_retrieve_user' pk=e.recipient.id %}">{{ e.recipient }}</a></td>
             <td>
                 <ul>
-                    {% if e.use_cheque %}
-                        <li>Chèque</li>
-                    {% elif e.use_lydia %}
-                        <li>Lydia</li>
-                    {% elif e.use_cash %}
-                        <li>Espèces</li>
-                    {% elif e.use_foyer %}
-                        <li>Foyer</li>
-                    {% endif %}
+                {% for mode_payment in e.payment.payments_used %}
+                    <li>{{ mode_payment }}</li>
+                {% endfor %}
                 </ul>
             </td>
-            <td>{{ e.total_product }} €</td>
-            <td><a href="{% url 'url_retrieve_purchase' pk=e.id %}">détail</a></td>
+            <td>{{ e.amount }} €</td>
+            <td><a href="{% url 'url_retrieve_sale' pk=e.id %}">détail</a></td>
         </tr>
     {% endfor %}
 </table>
