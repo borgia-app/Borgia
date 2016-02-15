@@ -120,7 +120,7 @@ class SingleProduct(ProductBase):
     # Avec shops.models
     product_base = models.ForeignKey('ProductBase')
     # Avec finances.models
-    # purchase = models.ForeignKey('finances.Purchase', null=True, blank=True)
+    sale = models.ForeignKey('finances.Sale', null=True, blank=True)
 
     # Méthodes
     def __str__(self):
