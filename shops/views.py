@@ -1,167 +1,199 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, redirect, force_text
-from django.views.generic.edit import CreateView, UpdateView, DeleteView, ModelFormMixin
+from django.shortcuts import render, force_text
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView
 from django.contrib.auth import logout
-from django.db.models import Q
 from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
+from datetime import datetime
 
 from shops.models import *
 from shops.forms import *
-from finances.models import Purchase
 from users.models import User
+from finances.models import Sale, DebitBalance, Payment
 
 
 # FOYER
 # TODO: a modifier
 def purchase_foyer(request):
 
-    # PB a resoudre :
-    # Pas de problème si l'integer field est mal renseigne (negatif ou alpha etc)
-    # Mais problème s'il est vide !
-    # La methode post passe quand même, mais on n'entre pas dans le if, que faire ??
-
-    # Ne pas commander avec un solde negatif
-
     # Peut être utiliser une FormView (mais plus complexe a cause du tap_list qu'il faut envoyer ...)
     # Cf get_context_data avec kwargs: tap_list
 
-    # Que se passe-t-il si on change un fut entre temps sur une tireuse ?
-    # Il vaut peut être mieux passer le container plutôt que la tireuse ?
-
-    # Liste des tireuses en service (qui ont un container)
-    tap_list = Tap.objects.filter(container__isnull=False)
+    # Liste des conteneurs utilisés sous une tireuse
+    active_keg_container_list = Container.objects.filter(product_base__shop=Shop.objects.get(name='Foyer'),
+                                                         product_unit__type='keg',
+                                                         place__startswith='tireuse')
     # Liste des objects unitaires disponibles au foyer (ex: skolls 33cl, ...)
-    single_product_list = Shop.objects.get(name="Foyer").list_single_product_unsold_name()
-    single_product_list_qt = Shop.objects.get(name="Foyer").list_single_product_unsold_qt()
-    # Liste des unites de produits, hors bières issues de fûts, disponibles au foyer (ex: sirop de fraise, ...)
-    product_unit_soft_list = ProductUnit.objects.filter(Q(type='soft'))
-    product_unit_liquor_list = ProductUnit.objects.filter(Q(type='liquor'))
+    single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+    # Liste des conteneurs, hors futs, disponibles au foyer (ex: sirop de fraise, ...)
+    container_soft_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
+    container_syrup_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
+    container_liquor_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
+                                                                                       type='liquor')
 
-    # Cas du premier envoi
+    # Cas du POST
     if request.method == 'POST':
-        form = PurchaseFoyerForm(request.POST, tap_list=tap_list, single_product_list=single_product_list,
-                                 single_product_list_qt=single_product_list_qt,
-                                 product_unit_soft_list=product_unit_soft_list,
-                                 product_unit_liquor_list=product_unit_liquor_list)
 
+        # Création du formulaire de base
+        form = PurchaseFoyerForm(request.POST,
+                                 active_keg_container_list=active_keg_container_list,
+                                 single_product_available_list=single_product_available_list,
+                                 container_soft_list=container_soft_list,
+                                 container_syrup_list=container_syrup_list,
+                                 container_liquor_list=container_liquor_list)
+
+        # Formulaire valide -> traitement des données
         if form.is_valid():
 
-            # Creations des dictionnaires (demande, element) de correspondance
-            list_results_tap = []
+            # Initialisation des listes de réponses
+            list_results_active_keg_container = []
             list_results_single_product = []
-            list_results_product_unit_soft = []
-            list_results_product_unit_liquor = []
+            list_results_container_soft = []
+            list_results_container_syrup = []
+            list_results_container_liquor = []
 
-            for i in range(0, len(tap_list)):
-                list_results_tap.append((form.cleaned_data["field_tap_%s" % i], tap_list[i]))
-            for i in range(0, len(single_product_list)):
+            for i in range(0, len(active_keg_container_list)):
+                list_results_active_keg_container.append((form.cleaned_data["field_active_keg_container_%s" % i],
+                                                          active_keg_container_list[i]))
+            for i in range(0, len(single_product_available_list)):
                 list_results_single_product.append((form.cleaned_data["field_single_product_%s" % i],
-                                                    single_product_list[i]))
-            for i in range(0, len(product_unit_soft_list)):
-                list_results_product_unit_soft.append((form.cleaned_data["field_product_unit_soft_%s" % i],
-                                                       product_unit_soft_list[i]))
-            for i in range(0, len(product_unit_liquor_list)):
-                list_results_product_unit_liquor.append((form.cleaned_data["field_product_unit_liquor_%s" % i],
-                                                         product_unit_liquor_list[i]))
+                                                    single_product_available_list[i][0]))
+            for i in range(0, len(container_soft_list)):
+                list_results_container_soft.append((form.cleaned_data["field_container_soft_%s" % i],
+                                                    container_soft_list[i][0]))
+            for i in range(0, len(container_liquor_list)):
+                list_results_container_liquor.append((form.cleaned_data["field_container_syrup_%s" % i],
+                                                      container_liquor_list[i][0]))
+            for i in range(0, len(container_syrup_list)):
+                list_results_container_liquor.append((form.cleaned_data["field_container_liquor_%s" % i],
+                                                      container_syrup_list[i][0]))
 
-                # Creation de la purchase
-                # Informations generales
-            purchase = Purchase(operator=User.objects.get(username="AE_ENSAM"), client=request.user)
-            purchase.save()
+            # Creation de la vente entre l'AE ENSAM (représentée par le foyer) et le client
+
+            # Informations generales
+            sale = Sale(date=datetime.now(),
+                        sender=request.user,
+                        recipient=User.objects.get(username="AE_ENSAM"))
+            sale.save()
 
             # Objects
-            # Issus d'un container
-            # Fûts de bières, ce sont ceux qui sont sous les tireuses
-            for e in list_results_tap:
-                if e[0] != 0:  # Le client a pris un objet issu du container e[1]
-                    # Creation d'un objet issu de e[1] lie a la purchase et sauvegarde
-                    spfc = SingleProductFromContainer(container=e[1].container, quantity=e[0]*75,
-                                                      price=e[0]*e[1].container.product_unit.price_glass(),
-                                                      purchase=purchase)
-                    spfc.save()
-
-            # Sirops, softs et alcools fort
-            for e in list_results_product_unit_soft:
-                if e[0] != 0:
-                    spfc = SingleProductFromContainer(container=Container.objects.filter(product_unit__name=e[1])[0],
-                                                      quantity=e[0]*75,
-                                                      price=e[0]*ProductUnit.objects.filter(name=e[1])[0].price_glass(),
-                                                      purchase=purchase)
-                    spfc.save()
-            for e in list_results_product_unit_liquor:
-                if e[0] != 0:
-                    spfc = SingleProductFromContainer(container=Container.objects.filter(product_unit__name=e[1])[0],
-                                                      quantity=e[0]*4,
-                                                      price=e[0]*ProductUnit.objects.filter(name=e[1])[0].price_shoot(),
-                                                      purchase=purchase)
-                    spfc.save()
 
             # Objects unitaires - ex: Skolls
-            # Nous avons seulement le nom, on s'en fiche de savoir quel est l'objet que l'on prend, on le prend
-            # dans l'ordre de la liste ...
-            # Il faut supposer que les prix sont les mêmes pour tous, si ce n'est pas le cas il faudra lisser les prix
-            # quand on ajoute un produit plus ou moins cher dans la liste
             for e in list_results_single_product:
                 if e[0] != 0:
-                    # Le client demande e[0] objets identiques a e[1]
+                    # Le client demande e[0] objets identiques au produit de base e[1]
                     # On les prends dans l'ordre du queryset (on s'en fiche) des objets non vendus bien sûr
-                    # La limitation se fait directement dans le form, via _list_qt
+                    # Le prix de vente est le prix du base product à l'instant de la vente
                     for i in range(0, e[0]):
-                        sp = SingleProduct.objects.filter(Q(name=e[1]) & Q(is_sold=False))[i]
-                        sp.purchase = purchase
+                        sp = SingleProduct.objects.filter(product_base=e[1])[0]
+                        sp.save()
                         sp.is_sold = True
+                        sp.sale = sale
+                        sp.sale_price = sp.product_base.calculated_price
                         sp.save()
 
-            # Payement total par le foyer
-            # Debit du client + verification
-            if purchase.client.debit(purchase.total_product()) == purchase.total_product():
-                purchase.foyer = purchase.total_product()
-                purchase.save()
-            # SINON ERREUR
+            # Issus d'un container
+            # Fûts de bières, ce sont ceux qui sont sous les tireuses
+            for e in list_results_active_keg_container:
+                if e[0] != 0:  # Le client a pris un objet issu du container e[1]
+                    # Création d'un objet fictif qui correspond à un bout du conteneur
+                    # Le prix de vente est le prix du base product à l'instant de la vente
+                    spfc = SingleProductFromContainer(container=e[1], sale=sale)
+                    spfc.save()
+                    spfc.quantity = spfc.container.product_unit.usual_quantity() * e[0]
+                    spfc.sale_price = spfc.container.product_base.calculated_price * e[0]
+                    spfc.save()
+
+            # Soft, syrup et liquor
+            # Le traitement est le même pour tous, je n'utilise qu'une seule liste
+            list_results_container_no_keg = \
+                list_results_container_soft + list_results_container_syrup + list_results_container_liquor
+            for e in list_results_container_no_keg:
+                if e[0] != 0:
+                    spfc = SingleProductFromContainer(container=e[1][0], sale=sale)
+                    spfc.save()
+                    spfc.quantity = spfc.container.product_unit.usual_quantity() * e[0]
+                    spfc.sale_price = spfc.container.product_base.calculated_price * e[0]
+                    spfc.save()
+
+            # Payement total par le foyer ici
+
+            # Total à payer d'après les achats
+            sale.maj_amount()
+
+            # Création d'un débit sur compte foyer
+            d_b = DebitBalance(amount=sale.amount,
+                               date=datetime.now(),
+                               sender=sale.sender,
+                               recipient=sale.recipient)
+            d_b.save()
+
+            # Création d'un paiement
+            payment = Payment()
+            payment.save()
+            # Liaison entre le paiement et le debit sur compte foyer
+            payment.debit_balance.add(d_b)
+            payment.save()
+            payment.maj_amount()
+            payment.save()
+
+
+            # Liaison entre le paiement et la vente
+            sale.payment = payment
+            sale.save()
 
             # Deconnection
             logout(request)
 
             # Affichage de la purchase au client
-            return render(request, 'shops/purchase_validation_foyer.html', {'purchase': purchase})
+            return render(request, 'shops/sale_validation_foyer.html', {'sale': sale})
 
     else:
         # Creation des dictionnaires (field, element, n°) de correspondance
         # Sert a l'affichage sur le template et au post traitement
-        dict_field_tap = []
+        dict_field_active_keg_container = []
         dict_field_single_product = []
-        dict_field_product_unit_soft = []
-        dict_field_product_unit_liquor = []
+        dict_field_container_soft = []
+        dict_field_container_syrup = []
+        dict_field_container_liquor = []
         initial = {}
 
-        for i in range(0, len(tap_list)):
-            initial['field_tap_%s' % i] = 0
-        for i in range(0, len(single_product_list)):
+        for i in range(0, len(active_keg_container_list)):
+            initial['field_active_keg_container_%s' % i] = 0
+        for i in range(0, len(single_product_available_list)):
             initial['field_single_product_%s' % i] = 0
-        for i in range(0, len(product_unit_soft_list)):
-            initial['field_product_unit_soft_%s' % i] = 0
-        for i in range(0, len(product_unit_liquor_list)):
-            initial['field_product_unit_liquor_%s' % i] = 0
-        form = PurchaseFoyerForm(tap_list=tap_list, single_product_list=single_product_list,
-                                 single_product_list_qt=single_product_list_qt,
-                                 product_unit_soft_list=product_unit_soft_list,
-                                 product_unit_liquor_list=product_unit_liquor_list, initial=initial)
+        for i in range(0, len(container_soft_list)):
+            initial['field_container_soft_%s' % i] = 0
+        for i in range(0, len(container_syrup_list)):
+            initial['field_container_syrup_%s' % i] = 0
+        for i in range(0, len(container_liquor_list)):
+            initial['field_container_liquor_%s' % i] = 0
 
-        for i in range(0, len(tap_list)):  # Envoi de l'object directement
-            dict_field_tap.append((form['field_tap_%s' % i], tap_list[i], i))
-        for i in range(0, len(single_product_list)):  # Attention, envoi d'un object, mais ce sont tous les mêmes
+        form = PurchaseFoyerForm(active_keg_container_list=active_keg_container_list,
+                                 single_product_available_list=single_product_available_list,
+                                 container_soft_list=container_soft_list,
+                                 container_syrup_list=container_syrup_list,
+                                 container_liquor_list=container_liquor_list,
+                                 initial=initial)
+
+        for i in range(0, len(active_keg_container_list)):
+            dict_field_active_keg_container.append((form['field_active_keg_container_%s' % i],
+                                                    active_keg_container_list[i], i))
+        for i in range(0, len(single_product_available_list)):
             dict_field_single_product.append((form['field_single_product_%s' % i],
-                                              SingleProduct.objects.filter(name=single_product_list[i])[0], i))
-        for i in range(0, len(product_unit_soft_list)):
-            dict_field_product_unit_soft.append((form['field_product_unit_soft_%s' % i],
-                                                 ProductUnit.objects.filter(name=product_unit_soft_list[i])[0], i))
-        for i in range(0, len(product_unit_liquor_list)):
-            dict_field_product_unit_liquor.append((form['field_product_unit_liquor_%s' % i],
-                                                   ProductUnit.objects.filter(name=product_unit_liquor_list[i])[0], i))
+                                              single_product_available_list[i][0], i))
+        for i in range(0, len(container_soft_list)):
+            dict_field_container_soft.append((form['field_container_soft_%s' % i],
+                                              container_soft_list[i][0], i))
+        for i in range(0, len(container_syrup_list)):
+            dict_field_container_syrup.append((form['field_container_syrup_%s' % i],
+                                               container_syrup_list[i][0], i))
+        for i in range(0, len(container_liquor_list)):
+            dict_field_container_liquor.append((form['field_container_liquor_%s' % i],
+                                                container_liquor_list[i][0], i))
 
-    return render(request, 'shops/purchase_foyer.html', locals())
+    return render(request, 'shops/sale_foyer.html', locals())
 
 
 # TODO: a modifier
@@ -414,7 +446,7 @@ class ProductUnitCreateView(SuccessMessageMixin, CreateView):
     model = ProductUnit
     fields = ['name', 'description', 'unit', 'type']
     template_name = 'shops/productunit_create.html'
-    success_url = '/shops/productunit/list'
+    success_url = '/shops/productunit/'
     success_message = "%(name)s was created successfully"
 
     def get_success_url(self):
@@ -437,7 +469,7 @@ class ProductUnitUpdateView(SuccessMessageMixin, UpdateView):
     model = ProductUnit
     fields = ['name', 'description', 'unit', 'type']
     template_name = 'shops/productunit_update.html'
-    success_url = '/shops/productunit/list'
+    success_url = '/shops/productunit/'
     success_message = "%(name)s was updated successfully"
 
     def get_success_url(self):
@@ -448,7 +480,7 @@ class ProductUnitUpdateView(SuccessMessageMixin, UpdateView):
 class ProductUnitDeleteView(SuccessMessageMixin, DeleteView):
     model = ProductUnit
     template_name = 'shops/productunit_delete.html'
-    success_url = '/shops/productunit/list'
+    success_url = '/shops/productunit/'
     success_message = "Product unit was delated successfully"
 
     # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
@@ -469,9 +501,9 @@ class ProductUnitListView(ListView):
 # C
 class ProductBaseCreateView(SuccessMessageMixin, CreateView):
     model = ProductBase
-    fields = ['name', 'description', 'brand', 'type']
+    fields = ['name', 'description', 'brand', 'type', 'shop']
     template_name = 'shops/productbase_create.html'
-    success_url = '/shops/productbase/list'
+    success_url = '/shops/productbase/'
     success_message = "%(name)s was created successfully"
 
     def get_success_url(self):
@@ -492,9 +524,9 @@ class ProductBaseRetrieveView(DetailView):
 # U
 class ProductBaseUpdateView(SuccessMessageMixin, UpdateView):
     model = ProductBase
-    fields = ['name', 'description', 'brand', 'type']
+    fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price']
     template_name = 'shops/productbase_update.html'
-    success_url = '/shops/productbase/list'
+    success_url = '/shops/productbase/'
     success_message = "%(name)s was updated successfully"
 
     def get_success_url(self):
@@ -504,19 +536,19 @@ class ProductBaseUpdateView(SuccessMessageMixin, UpdateView):
 # D
 class ProductBaseDeleteView(SuccessMessageMixin, DeleteView):
     model = ProductUnit
-    template_name = 'shops/productunit_delete.html'
-    success_url = '/shops/productunit/list'
-    success_message = "Product unit was delated successfully"
+    template_name = 'shops/productbase_delete.html'
+    success_url = '/shops/productbase/'
+    success_message = "Product base was delated successfully"
 
     # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
     # https://code.djangoproject.com/ticket/21926
     def delete(self, request, *args, **kwargs):
         messages.success(self.request, self.success_message)
-        return super(ProductUnitDeleteView, self).delete(request, *args, **kwargs)
+        return super(ProductBaseDeleteView, self).delete(request, *args, **kwargs)
 
 
 # List
 class ProductBaseListView(ListView):
     model = ProductBase
-    template_name = 'shops/productunit_list.html'
+    template_name = 'shops/productbase_list.html'
     queryset = ProductBase.objects.all()

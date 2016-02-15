@@ -2,6 +2,7 @@
 from django.db.models import Q
 from django.db.models import Model
 from contrib.models import TimeStampedDescription
+from django.utils.timezone import now
 
 from finances.models import *
 
@@ -35,19 +36,22 @@ class Shop(models.Model):
 
         list_product_base_single_product = []
         for e in ProductBase.objects.all():
-            if status_sold is False:
+            if status_sold is False and SingleProduct.objects.filter(product_base=e, is_sold=False,
+                                                                     product_base__shop=self).exists():
                 list_product_base_single_product.append((e,
                                                          SingleProduct.objects.filter(product_base=e, is_sold=False,
-                                                                                      shop=self)))
-            elif status_sold is True:
+                                                                                      product_base__shop=self)))
+            elif status_sold is True and SingleProduct.objects.filter(product_base=e, is_sold=True,
+                                                                      product_base__shop=self).exists():
                 list_product_base_single_product.append((e,
                                                          SingleProduct.objects.filter(product_base=e, is_sold=True,
-                                                                                      shop=self)))
-            else:
-                list_product_base_single_product.append((e, SingleProduct.objects.filter(product_base=e, shop=self)))
+                                                                                      product_base__shop=self)))
+            elif status_sold is "both":
+                list_product_base_single_product.append((e, SingleProduct.objects.filter(product_base=e,
+                                                                                         product_base__shop=self)))
         return list_product_base_single_product
 
-    def list_product_base_container(self, status_sold="both", type=ProductUnit.TYPE_CHOICES):
+    def list_product_base_container(self, type, status_sold="both"):
         """
         Renvoie une liste contenant les produits de base avec les différentes quantités disponibles,
         vendu ou non selon le paramètre status_sold
@@ -58,20 +62,22 @@ class Shop(models.Model):
         :param type:
         :return:
         """
-
         list_product_base_container = []
         for e in ProductBase.objects.all():
-            if status_sold is False:
+            if status_sold is False and Container.objects.filter(product_base=e, is_sold=False, product_base__shop=self,
+                                                                 product_unit__type=type).exists():
                 list_product_base_container.append((e, Container.objects.filter(product_base=e, is_sold=False,
-                                                                                shop=self,
-                                                                                product_unit__type__in=type)))
-            elif status_sold is True:
+                                                                                product_base__shop=self,
+                                                                                product_unit__type=type)))
+            elif status_sold is True and Container.objects.filter(product_base=e, is_sold=True, product_base__shop=self,
+                                                                  product_unit__type=type).exists():
                 list_product_base_container.append((e,Container.objects.filter(product_base=e, is_sold=True,
-                                                                               shop=self,
-                                                                               product_unit__type__in=type)))
-            else:
-                list_product_base_container.append((e, Container.objects.filter(product_base=e, shop=self,
-                                                                                product_unit__type__in=type)))
+                                                                               product_base__shop=self,
+                                                                               product_unit__type=type)))
+            elif status_sold is "both":
+                list_product_base_container.append((e, Container.objects.filter(product_base=e,
+                                                                                product_base__shop=self,
+                                                                                product_unit__type=type)))
         return list_product_base_container
 
 
@@ -98,7 +104,7 @@ class ProductBase(models.Model):
         return self.name
 
 
-class SingleProduct(ProductBase):
+class SingleProduct(models.Model):
     """Le produit unitaire ("single product") est un objet indivisible.
     Cette classe représente un objet physique qui est un jour passé entre les mains de l'association
     Diverses informations viennent de ProductBase, mais le prix est ici
@@ -111,7 +117,7 @@ class SingleProduct(ProductBase):
 
     # Attributs
     price = models.FloatField(default=0)
-    sale_price = models.FloatField()
+    sale_price = models.FloatField(null=True, blank=True)
     purchase_date = models.DateField(default=now)
     expiry_date = models.DateField(blank=True, null=True)
     place = models.CharField(max_length=255)
@@ -119,16 +125,16 @@ class SingleProduct(ProductBase):
 
     # Relations
     # Avec shops.models
-    product_base = models.ForeignKey('ProductBase')
+    product_base = models.ForeignKey('ProductBase', related_name='product_base_single_product')
     # Avec finances.models
     sale = models.ForeignKey('finances.Sale', null=True, blank=True)
 
     # Méthodes
     def __str__(self):
-        return self.product_base.__str__() + str(self.pk)
+        return self.product_base.__str__() + ' n°' + str(self.pk)
 
 
-class Container(ProductBase):
+class Container(models.Model):
     """Le contenant ("container") est un produit qui contient x unites d'un autre produit: c'est un emballage.
     Les contenants sont souvents consignes.
     Cette classe représente un objet physique qui est un jour passé entre les mains de l'association
@@ -146,12 +152,13 @@ class Container(ProductBase):
     place = models.CharField(max_length=255)
     quantity = models.FloatField(default=0)
     quantity_remaining = models.FloatField(default=0)
+    is_sold = models.BooleanField(default=False)
     # TODO: gestion des consignes
 
     # Relations
     # Avec shops.models
-    product_base = models.ForeignKey('ProductBase')
-    product_unit = models.ForeignKey('ProductUnit')
+    product_base = models.ForeignKey('ProductBase', related_name='product_base_container')
+    product_unit = models.ForeignKey('ProductUnit', related_name='product_unit')
     # Avec finances.models
 
     # Méthodes
@@ -193,6 +200,9 @@ class ProductUnit(models.Model):
         elif self.type is "liquor" or "syrup":
             return 4
 
+    def __str__(self):
+        return self.name
+
 
 class SingleProductFromContainer(models.Model):
     """
@@ -201,12 +211,13 @@ class SingleProductFromContainer(models.Model):
     """
 
     # Attributs
-    quantity = models.IntegerField()
-    sale_price = models.FloatField()
+    quantity = models.IntegerField(default=0)
+    sale_price = models.FloatField(default=0)
 
     # Relations
     container = models.ForeignKey('Container')
     sale = models.ForeignKey('finances.Sale')
 
-
+    def __str__(self):
+        return self.container.product_unit.__str__() + ' ' + str(self.quantity) + self.container.product_unit.unit
 

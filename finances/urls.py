@@ -5,14 +5,6 @@ from finances.views import *
 
 
 urlpatterns = [
-    # Model Transaction
-    url(r'^transaction/create/$', TransactionCreateView.as_view(), name='url_create_transaction'),  # C
-    url(r'^transaction/validation/(?P<pk>\d+)/$', TransactionValidationView.as_view(),
-        name='url_validation_transaction'),  # Validation
-    url(r'^transaction/retrieve/(?P<pk>\d+)/$', TransactionRetrieveView.as_view(), name='url_retrieve_transaction'),  # R
-    url(r'^transaction/update/(?P<pk>\d+)/$', TransactionUpdateView.as_view(), name='url_update_transaction'),  # U
-    url(r'^transaction/delete/(?P<pk>\d+)/$', TransactionDeleteView.as_view(), name='url_delete_transaction'),  # D
-    url(r'^transaction/$', TransactionListView.as_view(), name='url_list_transaction'),  # Liste
 
     # Model Cheque
     url(r'^cheque/create/$', ChequeCreateView.as_view(), name='url_create_cheque'),  # C
@@ -35,18 +27,8 @@ urlpatterns = [
     url(r'^lydia/delete/(?P<pk>\d+)/$', LydiaDeleteView.as_view(), name='url_delete_lydia'),  # D
     url(r'^lydia/$', LydiaListView.as_view(), name='url_list_lydia'),  # Liste
 
-    url(r'^transaction/create_cheque_fast/$', TransactionChequeFastCreateView.as_view(),
-        name='url_create_transaction_cheque_fast'),
-    url(r'^transaction/create_cash_fast/$', TransactionCashFastCreateView.as_view(),
-        name='url_create_transaction_cash_fast'),
-    url(r'^transaction/create_lydia_fast/$', TransactionLydiaFastCreateView.as_view(),
-        name='url_create_transaction_lydia_fast'),
-
-    # Model Lydia
-    # url(r'^purchase/create/$', PurchaseCreateView.as_view(), name='url_create_lydia'),  # C
-    url(r'^purchase/retrieve/(?P<pk>\d+)/$', PurchaseRetrieveView.as_view(), name='url_retrieve_purchase'),  # R
-    url(r'^purchase/update/(?P<pk>\d+)/$', PurchaseUpdateView.as_view(), name='url_update_purchase'),  # U
-    url(r'^purchase/delete/(?P<pk>\d+)/$', PurchaseDeleteView.as_view(), name='url_delete_purchase'),  # D
-    url(r'^purchase/$', PurchaseListView.as_view(), name='url_list_purchase'),  # Liste
+    # Model Sale
+    url(r'^sale/retrieve/(?P<pk>\d+)/$', SaleRetrieveView.as_view(), name='url_retrieve_sale'),  # R
+    url(r'^sale/$', SaleListView.as_view(), name='url_list_sale'),  # Liste
 
 ]

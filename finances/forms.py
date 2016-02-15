@@ -5,7 +5,7 @@ from django.forms import ModelForm
 from django.forms.widgets import PasswordInput
 
 from users.models import User
-from finances.models import Cheque, Transaction, Cash, Lydia
+from finances.models import Cheque, Cash, Lydia
 
 
 class CreationChequeForm(ModelForm):
@@ -32,26 +32,6 @@ class CreationCashForm(ModelForm):
         fields = ['giver', 'amount']
 
     giver = forms.ModelChoiceField(label='Donnateur', queryset=User.objects.all().order_by('last_name'))
-
-
-# Cas complexe et complet
-class CreationTransactionForm(ModelForm):
-    class Meta:
-        model = Transaction
-        fields = ['operator', 'client', 'date', 'time', 'cheques', 'cashs', 'lydias']
-
-    cheques = forms.ModelMultipleChoiceField(label="Cheques", required=False,
-                                             queryset=Cheque.objects.filter(
-                                                     Q(transaction__cheques__transaction=None) or
-                                                     Q(transaction__cheques__transaction__validated=False)))
-    cashs = forms.ModelMultipleChoiceField(label="Especes", required=False,
-                                           queryset=Cash.objects.filter(
-                                                   Q(transaction__cashs__transaction=None) or
-                                                   Q(transaction__cashs__transaction__validated=False)))
-    lydias = forms.ModelMultipleChoiceField(label="Lydias", required=False,
-                                            queryset=Lydia.objects.filter(
-                                                    Q(transaction__lydias__transaction=None) or
-                                                    Q(transaction__lydias__transaction__validated=False)))
 
 
 # Classe mère transaction rapide

@@ -1,0 +1,22 @@
+
+<ul>
+    <li><strong>Emetteur :</strong> <a href="{% url 'url_retrieve_user' pk=object.sender.pk %}">{{ object.sender }}</a></li>
+    <li><strong>Receveur : </strong><a href="{% url 'url_retrieve_user' pk=object.recipient.pk %}">{{ object.recipient }}</a></li>
+
+    <li><h4><strong>Objets indénombrables :</strong></h4>
+        <table>
+            {% for e in object.list_single_products_from_container.0 %}
+                <tr><td>{{ e }}</td><td>{{ e.sale_price }} €</td></tr>
+            {% endfor %}
+        </table>
+    </li>
+    <li><h4><strong>Objets dénombrables :</strong></h4>
+        <table>
+            {% for e in object.list_single_products.0 %}
+                <tr><td>{{ e }}</td><td>{{ e.sale_price }} €</td></tr>
+            {% endfor %}
+        </table>
+    </li>
+</ul>
+<p><strong>TOTAL : </strong><strong>{{ object.amount }} €</strong></p>
+<p>Payement par foyer : {{ object.payment.list_debit_balance.1 }} €</p>

@@ -1,0 +1,54 @@
+[
+  {
+    "model": "shops.shop",
+    "pk": 1,
+    "fields": {
+      "name": "Foyer",
+      "description": "Foyer des élèves de l'AE ENSAM"
+    }
+  },
+{
+  "model": "users.user",
+  "pk": 1,
+  "fields": {
+    "is_superuser": false,
+    "username": "AE_ENSAM",
+    "first_name": "AE",
+    "last_name": "ENSAM",
+    "email": "",
+    "is_staff": false,
+    "is_active": true,
+    "date_joined": "2016-02-15T13:32:56.781Z",
+    "surname": null,
+    "family": null,
+    "balance": 0.0,
+    "year": null,
+    "campus": null,
+    "phone": null,
+    "groups": [],
+    "user_permissions": []
+  }
+},
+  {
+    "model": "users.user",
+    "pk": 2,
+    "fields": {
+      "is_superuser": false,
+      "username": "pastys",
+      "first_name": "Alexandre",
+      "last_name": "PALO",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2016-02-15T13:35:22.467Z",
+      "surname": "Past'ys",
+      "family": "101-99",
+      "balance": 0.0,
+      "year": 2014,
+      "campus": "ME",
+      "phone": null,
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]

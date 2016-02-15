@@ -8,7 +8,6 @@ from django.contrib.messages.views import SuccessMessageMixin
 
 
 from users.models import User
-from finances.models import Purchase
 
 # Page de profil
 @login_required
@@ -74,8 +73,3 @@ class UserListView(ListView):
     model = User
     template_name = "users/list.html"
     queryset = User.objects.all()
-
-    class Meta:
-        permissions = (
-            ('list_user', 'Acceder a la liste des Users')
-        )

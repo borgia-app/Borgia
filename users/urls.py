@@ -22,11 +22,11 @@ urlpatterns = [
     url(r'^retrieve/(?P<pk>\d+)/$', UserRetrieveView.as_view(), name='url_retrieve_user'),  # R
     # Soit on s'update soit meme, soit on a la permission de tous
     url(r'^updateP/(?P<pk>\d+)/$', UserUpdatePersoView.as_view(), name='url_updateperso_user'),  # U
-    url(r'^updateA/(?P<pk>\d+)/$', permission_required('users.change_user')(UserUpdateAdminView.as_view()),
+    url(r'^updateA/(?P<pk>\d+)/$', UserUpdateAdminView.as_view(),
         name='url_updateadmin_user'),  # U
     # Seul ceux qui peuvent del des users
-    url(r'^delete/(?P<pk>\d+)/$', permission_required('users.delete_user')(UserDeleteView.as_view()),
+    url(r'^delete/(?P<pk>\d+)/$', UserDeleteView.as_view(),
         name='url_delete_user'),  # D
     # Seul ceux qui peuvent list des users
-    url(r'^$', permission_required('users.list_user')(UserListView.as_view()), name='url_list_user'),  # Liste
+    url(r'^$', UserListView.as_view(), name='url_list_user'),  # Liste
 ]

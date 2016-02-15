@@ -23,18 +23,16 @@
                     <div class="row">
                         <h2><u>Tireuses à bière</u></h2>
                         <table>
-                            <th>N° tireuse</th>
                             <th>Bière</th>
                             <th>Prix 25 cl</th>
                             <th>Nombre de verres</th>
                             <th>Prix correspondant</th>
 
-                            {% for e in dict_field_tap %}
+                            {% for e in dict_field_active_keg_container %}
                                 <tr>
                                     <div class="fieldWrapper">
-                                        <td>{{ e.1.number }}</td>
-                                        <td>{{ e.1.container.product_unit.name }}</td>
-                                        <td><span id="selected_initial_price_tap_{{ e.2 }}">{{ e.1.container.product_unit.price_glass|floatformat:2 }}</span> €</td>
+                                        <td>{{ e.1.product_unit.str }}</td>
+                                        <td><span id="selected_initial_price_tap_{{ e.2 }}">XX</span> €</td>
                                         <td>{{ e.0 }}</td>
                                         <td><span id="selected_price_tap_{{ e.2 }}">0</span> €</td>
                                     </div>
@@ -51,11 +49,21 @@
                             <th>Nombre</th>
                             <th>Prix correspondant</th>
 
-                            {% for e in dict_field_product_unit_liquor %}
+                            {% for e in dict_field_container_liquor %}
                                 <tr>
                                     <div class="fieldWrapper">
-                                        <td>{{ e.1.name }}</td>
-                                        <td><span id="selected_initial_price_product_unit_liquor_{{ e.2 }}">{{ e.1.price_shoot|floatformat:2 }}</span> €</td>
+                                        <td>{{ e.1.str }}</td>
+                                        <td><span id="selected_initial_price_product_unit_liquor_{{ e.2 }}">XX</span> €</td>
+                                        <td>{{ e.0 }}</td>
+                                        <td> <span id="selected_price_product_unit_liquor_{{ e.2 }}">0</span> €</td>
+                                    </div>
+                                </tr>
+                            {% endfor %}
+                            {% for e in dict_field_container_syrup %}
+                                <tr>
+                                    <div class="fieldWrapper">
+                                        <td>{{ e.1.str }}</td>
+                                        <td><span id="selected_initial_price_product_unit_liquor_{{ e.2 }}">XX</span> €</td>
                                         <td>{{ e.0 }}</td>
                                         <td> <span id="selected_price_product_unit_liquor_{{ e.2 }}">0</span> €</td>
                                     </div>
@@ -78,8 +86,8 @@
                             {% for e in dict_field_single_product %}
                                 <tr>
                                     <div class="fieldWrapper">
-                                        <td>{{ e.1.name }}</td>
-                                        <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.price|floatformat:2 }}</span> €</td>
+                                        <td>{{ e.1.str }}</td>
+                                        <td><span id="selected_initial_price_single_product_{{ e.2 }}">XX</span> €</td>
                                         <td>{{ e.0 }}</td>
                                         <td> <span id="selected_price_single_product_{{ e.2 }}">0</span> €</td>
                                     </div>
@@ -96,11 +104,11 @@
                             <th>Nombre</th>
                             <th>Prix correspondant</th>
 
-                            {% for e in dict_field_product_unit_soft %}
+                            {% for e in dict_field_container_soft %}
                                 <tr>
                                     <div class="fieldWrapper">
-                                        <td>{{ e.1.name }}</td>
-                                        <td><span id="selected_initial_price_product_unit_soft_{{ e.2 }}">{{ e.1.price_glass|floatformat:2 }}</span> €</td>
+                                        <td>{{ e.1.str }}</td>
+                                        <td><span id="selected_initial_price_product_unit_soft_{{ e.2 }}">XX</span> €</td>
                                         <td>{{ e.0 }}</td>
                                         <td> <span id="selected_price_product_unit_soft_{{ e.2 }}">0</span> €</td>
                                     </div>

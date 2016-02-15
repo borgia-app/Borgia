@@ -9,46 +9,52 @@ from shops.models import Shop, SingleProduct, Container
 class PurchaseFoyerForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
-        tap_list = kwargs.pop('tap_list')
-        single_product_list = kwargs.pop('single_product_list')
-        single_product_list_qt = kwargs.pop('single_product_list_qt')
-        product_unit_soft_list = kwargs.pop('product_unit_soft_list')
-        product_unit_liquor_list = kwargs.pop('product_unit_liquor_list')
 
+        # Initialisation des listes de produits
+        active_keg_container_list = kwargs.pop('active_keg_container_list')
+        single_product_available_list = kwargs.pop('single_product_available_list')
+        container_soft_list = kwargs.pop('container_soft_list')
+        container_syrup_list = kwargs.pop('container_syrup_list')
+        container_liquor_list = kwargs.pop('container_liquor_list')
         super(PurchaseFoyerForm, self).__init__(*args, **kwargs)
 
-        for (i, t) in enumerate(tap_list):
-            self.fields['field_tap_%s' % i] = forms.IntegerField(required=True, min_value=0)
-
-        # TODO: problème si on prend exactement tout ce qu'il reste ...
-        for (i, t) in enumerate(single_product_list):
+        # Création des éléments de formulaire
+        for (i, t) in enumerate(active_keg_container_list):
+            self.fields['field_active_keg_container_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        for (i, t) in enumerate(single_product_available_list):
             self.fields['field_single_product_%s' % i] = forms.IntegerField(required=True, min_value=0,
-                                                                            max_value=single_product_list_qt[i])
+                                                                            max_value=len(t[1]))
+        for (i, t) in enumerate(container_soft_list):
+            self.fields['field_container_soft_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        for (i, t) in enumerate(container_syrup_list):
+            self.fields['field_container_syrup_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        for (i, t) in enumerate(container_liquor_list):
+            self.fields['field_container_liquor_%s' % i] = forms.IntegerField(required=True, min_value=0)
 
-        for (i, t) in enumerate(product_unit_soft_list):
-            self.fields['field_product_unit_soft_%s' % i] = forms.IntegerField(required=True, min_value=0)
-
-        for (i, t) in enumerate(product_unit_liquor_list):
-            self.fields['field_product_unit_liquor_%s' % i] = forms.IntegerField(required=True, min_value=0)
-
-    def tap_answers(self):
+    # Fonctions de récupérations des réponses en POST
+    def active_keg_container_answers(self):
         for name, value in self.cleaned_data.items():
-            if name.startwith('field_tap_'):
+            if name.startwith('field_active_keg_container_'):
                 yield (self.fields[name].label, value)
 
-    def single_product_answers(self):
+    def single_product_available_answers(self):
         for name, value in self.cleaned_data.items():
             if name.startwith('field_single_product_'):
                 yield (self.fields[name].label, value)
 
-    def product_unit_soft_answers(self):
+    def container_soft_answers(self):
         for name, value in self.cleaned_data.items():
-            if name.startwith('field_product_unit_soft_'):
+            if name.startwith('field_container_soft_'):
                 yield (self.fields[name].label, value)
 
-    def product_unit_liquor_answers(self):
+    def container_syrup_answers(self):
         for name, value in self.cleaned_data.items():
-            if name.startwith('field_product_unit_liquor_'):
+            if name.startwith('field_container_syrup_'):
+                yield (self.fields[name].label, value)
+
+    def container_liquor_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_container_liquor_'):
                 yield (self.fields[name].label, value)
 
 

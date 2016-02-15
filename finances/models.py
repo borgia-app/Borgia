@@ -19,12 +19,12 @@ class Sale(models.Model):
 
     # Relations
     # Avec users
-    sender = models.ForeignKey('users.User', related_name='sender')
-    recipient = models.ForeignKey('users.User', related_name='recipient')
+    sender = models.ForeignKey('users.User', related_name='sender_sale')
+    recipient = models.ForeignKey('users.User', related_name='recipient_sale')
     # Avec shops
 
     # Avec finances
-    payment = models.ForeignKey('Payment')
+    payment = models.ForeignKey('Payment', blank=True, null=True)
 
     # Méthodes
     def __str__(self):
@@ -44,6 +44,10 @@ class Sale(models.Model):
             total_sale_price += e.sale_price
         return list_single_product_from_container, total_sale_price
 
+    def maj_amount(self):
+        self.amount = self.list_single_products()[1] + self.list_single_products_from_container()[1]
+        self.save()
+
 
 class Payment(models.Model):
     """Un paiement.
@@ -59,28 +63,55 @@ class Payment(models.Model):
     cheques = models.ManyToManyField('Cheque', blank=True)
     cashs = models.ManyToManyField('Cash', blank=True)
     lydias = models.ManyToManyField('Lydia', blank=True)
+    debit_balance = models.ManyToManyField('DebitBalance', blank=True)
 
     # Méthodes
-    def list_cheques (self):
+    def list_cheque(self):
         list_cheque = Cheque.objects.filter(payment__cheques__payment=self)
         total_cheque = 0
         for e in list_cheque:
             total_cheque += e.amount
         return list_cheque, total_cheque
 
-    def list_lydias (self):
+    def list_lydia(self):
         list_lydia = Lydia.objects.filter(payment__lydias__payment=self)
         total_lydia = 0
         for e in list_lydia:
             total_lydia += e.amount
         return list_lydia, total_lydia
 
-    def list_cash (self):
+    def list_cash(self):
         list_cash = Cheque.objects.filter(payment__cashs__payment=self)
         total_cash = 0
         for e in list_cash:
             total_cash += e.amount
         return list_cash, total_cash
+
+    def list_debit_balance(self):
+        list_debit_balance = DebitBalance.objects.filter(payment__debit_balance__payment=self)
+        total_debit_balance = 0
+        for e in list_debit_balance:
+            total_debit_balance += e.amount
+        return list_debit_balance, total_debit_balance
+
+    def maj_amount(self):
+        self.amount = self.list_cheque()[1] + self.list_lydia()[1]\
+                      + self.list_cash()[1] + self.list_debit_balance()[1]
+        self.save()
+
+
+class DebitBalance(models.Model):
+
+    # Attributs
+    amount = models.FloatField(default=0)
+    date = models.DateTimeField(default=now)
+    # Relations
+    sender = models.ForeignKey('users.User', related_name='sender_debit_balance')
+    recipient = models.ForeignKey('users.User', related_name='recipient_debit_balance')
+
+    # Méthodes
+    def __str__(self):
+        return str(self.amount) + ' ' + str(self.date)
 
 
 # TODO: a modifier
@@ -102,6 +133,7 @@ class Cheque(models.Model):
     def list_transaction(self):
         return Transaction.objects.filter(cheques__transaction__cheques=self)
 
+
 # TODO: a modifier
 class Cash(models.Model):
     # Information sur l'identite des especes
@@ -117,6 +149,7 @@ class Cash(models.Model):
 
     def list_transaction(self):
         return Transaction.objects.filter(cashs__transaction__cashs=self)
+
 
 # TODO: a modifier
 class Lydia(models.Model):
