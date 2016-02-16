@@ -13,9 +13,10 @@ from shops.forms import *
 # Creation d'un cheque - C
 class ChequeCreateView(CreateView):
     model = Cheque
-    form_class = CreationChequeForm
+    fields = ['amount', 'is_cashed', 'signature_date', 'cheque_number', 'cheque_number', 'bank', 'account_number',
+              'sender', 'recipient']
     template_name = 'finances/cheque_create.html'
-    success_url = '/finances/transaction/create'
+    success_url = '/finances/cheque/'
 
     def get_initial(self):
         return {'recipient': User.objects.get(username='AE_ENSAM')}
@@ -30,7 +31,8 @@ class ChequeRetrieveView(DetailView):
 # Update d'un cheque - U
 class ChequeUpdateView(UpdateView):
     model = Cheque
-    fields = ['giver', 'receiver', 'number', 'date_cash', 'date_sign', 'date_received', 'amount', 'cashed']
+    fields = ['amount', 'is_cashed', 'signature_date', 'cheque_number', 'cheque_number', 'bank', 'account_number',
+              'sender', 'recipient']
     template_name = 'finances/cheque_update.html'
     success_url = '/finances/cheque/'
 

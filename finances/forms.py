@@ -8,15 +8,6 @@ from users.models import User
 from finances.models import Cheque, Cash, Lydia
 
 
-class CreationChequeForm(ModelForm):
-    class Meta:
-        model = Cheque
-        fields = ['signatory', 'recipient', 'date_sign', 'amount', 'number']
-
-    signatory = forms.ModelChoiceField(label='Signataire', queryset=User.objects.all().order_by('last_name'))
-    recipient = forms.ModelChoiceField(label='Ordre', queryset=User.objects.all().order_by('last_name'))
-
-
 class CreationLydiaForm(ModelForm):
     class Meta:
         model = Lydia

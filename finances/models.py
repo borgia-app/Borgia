@@ -126,24 +126,29 @@ class DebitBalance(models.Model):
         return str(self.amount) + ' ' + str(self.date)
 
 
-# TODO: a modifier
 class Cheque(models.Model):
-    # Informations sur l'identite du cheque
-    number = models.CharField(max_length=7)
-    signatory = models.ForeignKey('users.User', related_name='cheque_signatory')
-    date_sign = models.DateField(default=now)
+
+    # Attributs
+    amount = models.FloatField(default=0)
+    is_cashed = models.BooleanField(default=False)
+    signature_date = models.DateField(default=now)
+    cheque_number = models.CharField(max_length=7)
+    bank = models.CharField(max_length=255)
+    account_number = models.CharField(max_length=20)
+
+    # Relations
+    sender = models.ForeignKey('users.User', related_name='cheque_sender')
     recipient = models.ForeignKey('users.User', related_name='cheque_recipient')
-    amount = models.FloatField()
 
-    # Information de comptabilite
-    date_cash = models.DateField(blank=True, null=True)
-    cashed = models.BooleanField(default=False)
-
+    # Méthodes
     def __str__(self):
-        return self.signatory.last_name+' '+self.signatory.first_name+' '+str(self.amount)+'€ n°'+self.number
+        return self.sender.last_name+' '+self.sender.first_name+' '+str(self.amount)+'€ n°'+self.cheque_number
 
-    def list_transaction(self):
-        return Transaction.objects.filter(cheques__transaction__cheques=self)
+    def list_payments(self):
+        return Payment.objects.filter(cheques__payment__cheques=self)
+
+    def list_sale(self):
+        return Sale.objects.filter(payment__cheques=self)
 
 
 # TODO: a modifier
