@@ -49,5 +49,4 @@ urlpatterns = [
 
     # Workboard
     url(r'^foyer/workboard$', workboard_foyer, name='url_workboard_foyer'),
-    url(r'^foyer/replacement_active_keg$', ReplacementActiveKeyView.as_view(), name='url_replacement_active_keg'),
 ]

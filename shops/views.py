@@ -211,40 +211,6 @@ def workboard_foyer(request):
     return render(request, 'shops/workboard_foyer.html', locals())
 
 
-class ReplacementActiveKeyView(FormView):
-    template_name = 'shops/replacement_active_keg.html'
-    form_class = ReplacementActiveKegForm
-    success_url = '/auth/login'
-
-    def form_valid(self, form):
-
-        # Définition des objets de travail
-
-        # L'ancien fut, s'il existe, est envoyé vers le stock
-        if self.request.GET.get('pk', None) is not '':
-            old_keg = Container.objects.get(pk=self.request.GET.get('pk', None))
-            old_keg.place = "stock foyer"
-            old_keg.save()
-
-        # Le nouveau est envoyé sous la tireuse
-        new_keg = form.cleaned_data['new_keg']
-        new_keg.place = self.request.GET.get('place', None)
-        new_keg.save()
-
-        return super(ReplacementActiveKeyView, self).form_valid(form)
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(ReplacementActiveKeyView, self).get_context_data(**kwargs)
-        if self.request.GET.get('pk', None) is not '':
-            context['old_active_keg'] = Container.objects.get(pk=self.request.GET.get('pk', None))
-        else:
-            context['old_active_keg'] = 'Pas de fut actuellement'
-        return context
-
-
 # Model SHOP
 # C
 class ShopCreateView(SuccessMessageMixin, CreateView):
