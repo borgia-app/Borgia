@@ -194,7 +194,7 @@ class LydiaCreateView(CreateView):
     model = Lydia
     form_class = CreationLydiaForm
     template_name = 'finances/lydia_create.html'
-    success_url = '/finances/transaction/create'
+    success_url = '/finances/sale/'
 
     def get_initial(self):
         return {'receiver': self.request.user}
@@ -209,7 +209,7 @@ class LydiaRetrieveView(DetailView):
 # Update d'un virement Lydia - U
 class LydiaUpdateView(UpdateView):
     model = Lydia
-    fields = ['giver', 'receiver', 'date_received', 'amount', 'cashed']
+    fields = ['sender_user_id', 'recipient_user_id', 'date_operation', 'time_operation', 'amount', 'banked', 'date_banked','id_from_lydia',]
     template_name = 'finances/lydia_update.html'
     success_url = '/finances/lydia/'
 

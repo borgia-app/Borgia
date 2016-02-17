@@ -188,25 +188,25 @@ class Cash(models.Model):
         return Transaction.objects.filter(cashs__transaction__cashs=self)
 
 
-# TODO: a modifier
 class Lydia(models.Model):
     # Information sur l'identite du virement lydia
     date_operation = models.DateField(default=now)
     time_operation = models.TimeField(default=now)
     amount = models.FloatField()
-    # numero unique ?
-    giver = models.ForeignKey('users.User', related_name='lydia_giver')
-    recipient = models.ForeignKey('users.User', related_name='lydia_recipient')
+    # numero unique du virement lydia (communiqué par lydia: comment?)
+    id_from_lydia = models.IntegerField()
+    sender_user_id = models.ForeignKey('users.User', related_name='lydia_sender')
+    recipient_user_id = models.ForeignKey('users.User', related_name='lydia_recipient')
 
     # Information de comptabilite
-    cashed = models.BooleanField(default=False)
-    date_cash = models.DateField(blank=True, null=True)
+    banked = models.BooleanField(default=False)
+    date_banked = models.DateField(blank=True, null=True)
 
     def __str__(self):
         return self.giver.last_name+' '+self.giver.first_name+' '+str(self.amount)+'€'
 
     def list_transaction(self):
-        return Transaction.objects.filter(lydias__transaction__lydias=self)
+        return Sale.objects.filter(payment__lydias=self)
 
 
 

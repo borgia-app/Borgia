@@ -19,10 +19,10 @@ class ChequeCreateForm(ModelForm):
 class CreationLydiaForm(ModelForm):
     class Meta:
         model = Lydia
-        fields = ['giver', 'receiver', 'date_operation', 'time_operation', 'amount']
+        fields = ['sender_user_id', 'recipient_user_id', 'date_operation', 'time_operation', 'id_from_lydia', 'amount', 'banked', 'date_banked']
 
-    giver = forms.ModelChoiceField(label='Donnateur', queryset=User.objects.all().order_by('last_name'))
-    receiver = forms.ModelChoiceField(label='Receveur', queryset=User.objects.all().order_by('last_name'))
+    sender_user_id = forms.ModelChoiceField(label='Impulseur', queryset=User.objects.all().order_by('last_name'))
+    recipient_user_id = forms.ModelChoiceField(label='Destinataire', queryset=User.objects.all().order_by('last_name'))
 
 
 class CreationCashForm(ModelForm):
