@@ -1,15 +1,15 @@
 <ul>
-    <li>Signataire : <a href="{% url 'url_retrieve_user' pk=object.signatory.id %}">{{ object.signatory }}</a></li>
-    <li>Ordre : <a href="{% url 'url_retrieve_user' pk=object.recipient.id %}">{{ object.recipient }}</a></li>
-    <li>Date de signature : {{ object.date_sign }}</li>
-    <li>Numéro : {{ object.number }}</li>
+    <li>Emetteur : <a href="{% url 'url_retrieve_user' pk=object.sender.pk %}">{{ object.sender }}</a></li>
+    <li>Receveur : <a href="{% url 'url_retrieve_user' pk=object.recipient.pk %}">{{ object.recipient }}</a></li>
     <li>Montant : {{ object.amount }} €</li>
-    <li>Encaissé : {{ object.cashed }}</li>
-    <li>Date d'encaissement : {{ object.date_cash }}</li>
+    <li>Encaissé : {{ object.is_cashed }}</li>
+    <li>Numéro unique : {{ object.cheque_number }}</li>
+    <li>Banque : {{ object.bank_account }}</li>
+    <li>Date de signature : {{ object.signature_date }}</li>
     <li>Transaction(s) correspondante(s) :
         <ul>
-            {% for e in object.list_transaction %}
-                <li><a href="{% url 'url_retrieve_transaction' pk=e.id %}">{{ e }}</a></li>
+            {% for h in object.list_sale %}
+                <a href="{% url 'url_retrieve_sale' pk=h.id %}">{{ h }}</a>
             {% endfor %}
         </ul>
     </li>

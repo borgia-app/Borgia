@@ -5,7 +5,15 @@ from django.forms import ModelForm
 from django.forms.widgets import PasswordInput
 
 from users.models import User
-from finances.models import Cheque, Cash, Lydia
+from finances.models import Cheque, Cash, Lydia, BankAccount
+
+
+class ChequeCreateForm(ModelForm):
+    class Meta:
+        model = Cheque
+        fields = ['amount', 'is_cashed', 'signature_date', 'cheque_number', 'sender', 'bank_account', 'recipient']
+
+    bank_account = forms.ModelChoiceField(label='Compte en banque', queryset=BankAccount.objects.all())
 
 
 class CreationLydiaForm(ModelForm):

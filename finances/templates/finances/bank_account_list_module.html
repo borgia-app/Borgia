@@ -1,0 +1,18 @@
+<table>
+    <tr>
+        <th>Possesseur</th>
+        <th>Banque</th>
+        <th>Compte</th>
+        <th>Modifier</th>
+        <th>Supprimer</th>
+    </tr>
+    {% for e in object_list %}
+        <tr>
+            <td><a href="{% url 'url_retrieve_user' pk=e.owner.pk %}">{{ e.owner }}</a></td>
+            <td>{{ e.bank }}</td>
+            <td>{{ e.account }}</td>
+            <td><a href="{% url 'url_update_bank_account' pk=e.id %}">modifier</a></td>
+            <td><a href="{% url 'url_delete_bank_account' pk=e.id %}">supprimer</a></td>
+        </tr>
+    {% endfor %}
+</table>

@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime
 
-from finances.models import Sale
+from finances.models import Sale, BankAccount
 
 
 class User(AbstractUser):
@@ -51,3 +51,6 @@ class User(AbstractUser):
 
     def list_sale(self):
         return Sale.objects.filter(sender=self)
+
+    def list_bank_account(self):
+        return BankAccount.objects.filter(owner=self)

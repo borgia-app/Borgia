@@ -1,20 +1,55 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import HttpResponseRedirect, force_text, render, render_to_response
-from django.views.generic.edit import CreateView, UpdateView, DeleteView, ModelFormMixin
-from django.views.generic import ListView, DetailView, FormView
-from django.contrib.auth import authenticate
+from django.shortcuts import render, HttpResponse
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView
+from django.core import serializers
 
 from finances.forms import *
 from finances.models import *
-from shops.forms import *
+
+
+def bank_account_from_user(request):
+    data = serializers.serialize('xml',
+                                 BankAccount.objects.filter(owner=User.objects.get(pk=request.GET.get('user_pk'))))
+    return HttpResponse(data)
+
+
+# Model BANKACCOUNT
+# Creation d'un compte en banque - C
+class BankAccountCreateView(CreateView):
+    model = BankAccount
+    fields = ['bank', 'account', 'owner']
+    template_name = 'finances/bank_account_create.html'
+    success_url = '/finances/bank_account'
+
+
+# Update d'un compte en banque - U
+class BankAccountUpdateView(UpdateView):
+    model = BankAccount
+    fields = ['bank', 'account', 'owner']
+    template_name = 'finances/bank_account_update.html'
+    success_url = '/finances/bank_account/'
+
+
+# Suppression d'un compte en banque - D
+class BankAccountDeleteView(DeleteView):
+    model = BankAccount
+    template_name = 'finances/bank_account_delete.html'
+    success_url = '/finances/bank_account'
+
+
+# Liste de compte en banque - List
+class BankAccountListView(ListView):
+    model = BankAccount
+    template_name = "finances/bank_account_list.html"
+    queryset = BankAccount.objects.all()
 
 
 # Model CHEQUE
 # Creation d'un cheque - C
 class ChequeCreateView(CreateView):
     model = Cheque
-    fields = ['amount', 'is_cashed', 'signature_date', 'cheque_number', 'cheque_number', 'bank', 'account_number',
-              'sender', 'recipient']
+    form_class = ChequeCreateForm
     template_name = 'finances/cheque_create.html'
     success_url = '/finances/cheque/'
 
@@ -31,8 +66,7 @@ class ChequeRetrieveView(DetailView):
 # Update d'un cheque - U
 class ChequeUpdateView(UpdateView):
     model = Cheque
-    fields = ['amount', 'is_cashed', 'signature_date', 'cheque_number', 'cheque_number', 'bank', 'account_number',
-              'sender', 'recipient']
+    fields = ['amount', 'is_cashed', 'signature_date', 'cheque_number','sender', 'bank_account', 'recipient']
     template_name = 'finances/cheque_update.html'
     success_url = '/finances/cheque/'
 

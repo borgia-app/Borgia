@@ -13,6 +13,13 @@ urlpatterns = [
     url(r'^cheque/delete/(?P<pk>\d+)/$', ChequeDeleteView.as_view(), name='url_delete_cheque'),  # D
     url(r'^cheque/$', ChequeListView.as_view(), name='url_list_cheque'),  # Liste
 
+    # Model Bank Account
+    url(r'^bank_account/create/$', BankAccountCreateView.as_view(), name='url_create_bank_account'),  # C
+    url(r'^bank_account/update/(?P<pk>\d+)/$', BankAccountUpdateView.as_view(), name='url_update_bank_account'),  # U
+    url(r'^bank_account/delete/(?P<pk>\d+)/$', BankAccountDeleteView.as_view(), name='url_delete_bank_account'),  # D
+    url(r'^bank_account/$', BankAccountListView.as_view(), name='url_list_bank_account'),  # Liste
+    url(r'^bank_account_from_user/$', bank_account_from_user, name='url_bank_account_from_user'),
+
     # Model Cash
     url(r'^cash/create/$', CashCreateView.as_view(), name='url_create_cash'),  # C
     url(r'^cash/retrieve/(?P<pk>\d+)/$', CashRetrieveView.as_view(), name='url_retrieve_cash'),  # R

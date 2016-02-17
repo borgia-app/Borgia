@@ -133,12 +133,11 @@ class Cheque(models.Model):
     is_cashed = models.BooleanField(default=False)
     signature_date = models.DateField(default=now)
     cheque_number = models.CharField(max_length=7)
-    bank = models.CharField(max_length=255)
-    account_number = models.CharField(max_length=20)
 
     # Relations
     sender = models.ForeignKey('users.User', related_name='cheque_sender')
     recipient = models.ForeignKey('users.User', related_name='cheque_recipient')
+    bank_account = models.ForeignKey('BankAccount', related_name='cheque_bank_account')
 
     # Méthodes
     def __str__(self):
@@ -149,6 +148,20 @@ class Cheque(models.Model):
 
     def list_sale(self):
         return Sale.objects.filter(payment__cheques=self)
+
+
+class BankAccount(models.Model):
+
+    # Attributs
+    bank = models.CharField(max_length=255)
+    account = models.CharField(max_length=255)
+
+    # Relations
+    owner = models.ForeignKey('users.User', related_name='owner_bank_account')
+
+    # Méthodes
+    def __str__(self):
+        return self.bank + self.account
 
 
 # TODO: a modifier

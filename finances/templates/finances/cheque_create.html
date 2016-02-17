@@ -2,10 +2,60 @@
 
 {% block content %}
 
-    <form action= "{% url 'url_create_cheque' %}" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type="submit" value="Submit"/>
-    </form>
+    <div class="container30">
+        <form action= "{% url 'url_create_cheque' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
 
+    <script>
+
+        // Il faut supprimer les choix pour qu'ils n'apparaissent pas
+        // Cependant ils doivent être dans la liste initiale (dans le form), sinon django n'est pas d'accord et ne valide pas
+        var select = document.getElementById('id_bank_account');
+        while (select.firstChild) {
+            select.removeChild(select.firstChild);
+        }
+
+        document.getElementById('id_sender').addEventListener('change', function() {
+
+            // Remise à zéro des selects avant le changement
+            var select = document.getElementById('id_bank_account');
+            while (select.firstChild) {
+                select.removeChild(select.firstChild);
+            }
+            var sender_elmt = document.getElementById('id_sender');
+            var user_pk = sender_elmt.options[sender_elmt.selectedIndex].value;
+
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '{% url 'url_bank_account_from_user' %}?user_pk=' + user_pk);
+            xhr.send(null);
+
+            xhr.addEventListener('readystatechange', function() {
+                if (xhr.readyState === 4 && xhr.status === 200) {
+                    var parser = new DOMParser();
+                    var XMLxhr = parser.parseFromString(xhr.responseText, "application/xml");
+
+                    var list_xml_object = XMLxhr.getElementsByTagName('object');
+
+                    for (var i = 0, c = list_xml_object.length ; i < c ; i++) {
+
+                        var add_select = document.createElement('option');
+                        add_select.setAttribute('value', list_xml_object[i].getAttribute('pk'));
+
+                        var add_select_str = list_xml_object[i].getElementsByTagName('field')[0].innerHTML +
+                                ' ' + list_xml_object[i].getElementsByTagName('field')[1].innerHTML;
+                        add_select.text = add_select_str;
+
+                        add_select.setAttribute('selected', 'selected');
+
+                        document.getElementById('id_bank_account').appendChild(add_select);
+                    }
+                }
+            }, false);
+
+        }, false);
+    </script>
 {% endblock %}
