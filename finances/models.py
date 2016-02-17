@@ -125,6 +125,13 @@ class DebitBalance(models.Model):
     def __str__(self):
         return str(self.amount) + ' ' + str(self.date)
 
+    def set_movement(self):
+        # On se place du point de vue de l'association AE ENSAM
+        # amount(recu) > 0 : debit du client
+        # amount(recu) < 0 : crédit du client
+        self.sender.balance -= self.amount
+        self.sender.save()
+
 
 class Cheque(models.Model):
 

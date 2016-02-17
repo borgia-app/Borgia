@@ -144,6 +144,9 @@ def purchase_foyer(request):
             sale.payment = payment
             sale.save()
 
+            # Paiement par le client
+            sale.payment.debit_balance.all()[0].set_movement()
+
             # Deconnection
             logout(request)
 
