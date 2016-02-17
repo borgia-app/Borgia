@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 from django import forms
-from django.db.models import Q
+from django.contrib.auth import authenticate
 from django.forms import ModelForm
 from django.forms.widgets import PasswordInput
 
@@ -33,27 +33,28 @@ class CreationCashForm(ModelForm):
     giver = forms.ModelChoiceField(label='Donnateur', queryset=User.objects.all().order_by('last_name'))
 
 
-# Classe mère transaction rapide
-class CreationTransactionPaymentFast(forms.Form):
-    # Champs d'authentification
-    operator = forms.ModelChoiceField(label='Opérateur',
-                                      queryset=User.objects.filter(groups__name='Gestionnaires du foyer'))
-    password = forms.CharField(label='Mot de passe', widget=PasswordInput)
+class SupplyChequeForm(forms.Form):
 
-    # Payement
-    amount = forms.FloatField(label='Montant en euros')
+    # Chèque
+    amount = forms.FloatField(label='Montant')
+    sender = forms.ModelChoiceField(label='Payeur', queryset=User.objects.all())
+    bank_account = forms.ModelChoiceField(label='Compte bancaire', queryset=BankAccount.objects.all())
+    cheque_number = forms.CharField(label='Numéro unique', max_length=7)
+    signature_date = forms.DateField(label='Date de signature')
 
-    # Création de la transaction
-    client = forms.ModelChoiceField(label='Client', queryset=User.objects.all().order_by('last_name'))
+    # Gestionnaire - opérateur
+    operator_username = forms.CharField(label='Gestionnaire')
+    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
 
+    def clean(self):
 
-# Classe fille transaction rapide chèque
-class CreationTransactionChequeFastForm(CreationTransactionPaymentFast):
-    # Création du chèque
-    number = forms.CharField(label='Numéro unique', max_length=7)
+        cleaned_data = super(SupplyChequeForm, self).clean()
+        operator_username = cleaned_data['operator_username']
+        operator_password = cleaned_data['operator_password']
 
-
-# Classe fille transaction rapide lydia
-class CreationTransactionLydiaFastForm(CreationTransactionPaymentFast):
-    # Création du virement lydia
-    time_operation = forms.TimeField(label='Heure du virement Lydia')
+        # Essaye d'authentification seulement si les deux champs sont valides
+        if operator_password and operator_password:
+            # Cas d'échec d'authentification
+            if authenticate(username=operator_username, password=operator_password) is None:
+                raise forms.ValidationError('Echec d\'authentification')
+        return super(SupplyChequeForm, self).clean()

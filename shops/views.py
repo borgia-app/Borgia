@@ -74,7 +74,8 @@ def purchase_foyer(request):
             # Informations generales
             sale = Sale(date=datetime.now(),
                         sender=request.user,
-                        recipient=User.objects.get(username="AE_ENSAM"))
+                        recipient=User.objects.get(username="AE_ENSAM"),
+                        operator=request.user)
             sale.save()
 
             # Objects

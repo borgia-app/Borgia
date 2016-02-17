@@ -191,8 +191,9 @@ class ProductUnit(models.Model):
     """
 
     # Listes de validations
-    UNIT_CHOICES = (('CL', 'cl'), ('G', 'g'))
-    TYPE_CHOICES = (('keg', 'fut'), ('liquor', 'alcool fort'), ('syrup', 'sirop'), ('soft', 'soft'))
+    UNIT_CHOICES = (('CL', 'cl'), ('G', 'g'), ('CENT', 'cent'))
+    TYPE_CHOICES = (('keg', 'fut'), ('liquor', 'alcool fort'), ('syrup', 'sirop'), ('soft', 'soft'),
+                    ('fictional_money', 'fictional money'))
 
     # Attributs
     name = models.CharField(max_length=255, default="Product unit name")

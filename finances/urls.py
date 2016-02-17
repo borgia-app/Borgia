@@ -38,4 +38,6 @@ urlpatterns = [
     url(r'^sale/retrieve/(?P<pk>\d+)/$', SaleRetrieveView.as_view(), name='url_retrieve_sale'),  # R
     url(r'^sale/$', SaleListView.as_view(), name='url_list_sale'),  # Liste
 
+    # Supply
+    url(r'^supply/cheque/$', SupplyChequeView.as_view(), name='url_supply_cheque'),
 ]

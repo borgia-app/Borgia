@@ -74,3 +74,8 @@ Pastis
 
 ## Produits unitaires
 Skoll
+
+## Argent fictif
+unité produit
+produit base
+1 seul conteneur (on se fiche de la quantité)

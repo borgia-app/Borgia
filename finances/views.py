@@ -1,11 +1,77 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import render, HttpResponse, force_text
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import ListView, DetailView
+from django.views.generic import ListView, DetailView, FormView
 from django.core import serializers
+from datetime import datetime
 
 from finances.forms import *
 from finances.models import *
+from shops.models import Container
+
+
+class SupplyChequeView(FormView):
+    form_class = SupplyChequeForm
+    template_name = 'finances/supply_cheque.html'
+    success_url = '/auth/login'
+
+    def form_valid(self, form):
+
+        # Identification du gestionnaire
+        # Le cas d'échec d'authentification est géré dans le form.clean()
+        operator = authenticate(username=form.cleaned_data['operator_username'],
+                                password=form.cleaned_data['operator_password'])
+
+        # Création du chèque
+        cheque = Cheque(amount=form.cleaned_data['amount'],
+                        signature_date=form.cleaned_data['signature_date'],
+                        cheque_number=form.cleaned_data['cheque_number'],
+                        sender=form.cleaned_data['sender'],
+                        recipient=User.objects.get(username='AE_ENSAM'),
+                        bank_account=form.cleaned_data['bank_account'])
+        cheque.save()
+
+        # Création du paiement
+        payment = Payment()
+        payment.save()
+        payment.cheques.add(cheque)
+        payment.maj_amount()
+        payment.save()
+
+        # Création de la vente
+        sale = Sale(date=datetime.now(),
+                    sender=form.cleaned_data['sender'],
+                    operator=operator,
+                    recipient=User.objects.get(username='AE_ENSAM'),
+                    payment=payment)
+        sale.save()
+
+        # Création d'un spfc d'argent fictif
+        spfc = SingleProductFromContainer(container=Container.objects.get(
+                product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
+                sale_price=payment.amount, sale=sale)
+        spfc.save()
+
+        # Mise à jour du compte foyer du client
+        sale.maj_amount()
+        sale.save()
+        sender = form.cleaned_data['sender']
+        sender.credit(sale.amount)
+
+        return super(SupplyChequeView, self).form_valid(form)
+
+    def get_initial(self):
+        initial = super(SupplyChequeView, self).get_initial()
+        initial['signature_date'] = now
+        return initial
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(SupplyChequeView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
 
 
 def bank_account_from_user(request):

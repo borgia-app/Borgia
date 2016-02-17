@@ -21,7 +21,7 @@ class Sale(models.Model):
     # Avec users
     sender = models.ForeignKey('users.User', related_name='sender_sale')
     recipient = models.ForeignKey('users.User', related_name='recipient_sale')
-    # Avec shops
+    operator = models.ForeignKey('users.User', related_name='operator_sale')
 
     # Avec finances
     payment = models.ForeignKey('Payment', blank=True, null=True)
