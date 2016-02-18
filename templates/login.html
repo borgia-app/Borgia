@@ -79,7 +79,7 @@
                     }
                     divs[++selectedResult].className = 'result_focus';
                 }
-                else if (e.keyCode == 13 && selectedResult > -1) { // Si la touche pressée est "Entrée"
+                else if (e.keyCode == 39 && selectedResult > -1) { // Si la touche pressée est "Entrée"
                     chooseResult(divs[selectedResult]);
                 }
                 else if (searchElement.value != previousValue) { // Si le contenu du champ de recherche a changé
