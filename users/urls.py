@@ -1,15 +1,14 @@
 #-*- coding: utf-8 -*-
 from django.conf.urls import url
 from django.contrib.auth.views import password_change, password_change_done
-from users.views import profile_view, UserCreateView, UserUpdatePersoView, UserUpdateAdminView, UserDeleteView, \
-    UserRetrieveView, UserListView
+from users.views import *
 from django.contrib.auth.decorators import permission_required
 
 
 urlpatterns = [
     # Password
     url(r'^password_change$', password_change, {'template_name': 'users/password_change.html',
-                                               'post_change_redirect': password_change_done}, name='password_change'),
+                                                'post_change_redirect': password_change_done}, name='password_change'),
     url(r'^password_change_done$', password_change_done, {'template_name': 'users/password_change_done.html'}),
 
     # Profile
@@ -29,4 +28,6 @@ urlpatterns = [
         name='url_delete_user'),  # D
     # Seul ceux qui peuvent list des users
     url(r'^$', UserListView.as_view(), name='url_list_user'),  # Liste
+
+    url(r'^username_from_username_part/$', username_from_username_part, name='url_username_from_username_part')
 ]

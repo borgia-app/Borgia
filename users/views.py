@@ -1,16 +1,23 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render
-from django.contrib.auth.decorators import login_required
+from django.shortcuts import render, HttpResponse
 from users.forms import UserCreationCustomForm
 from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin, DeleteView
 from django.views.generic import ListView, DetailView
 from django.contrib.messages.views import SuccessMessageMixin
+from django.core import serializers
 
 
 from users.models import User
 
+
+def username_from_username_part(request):
+    data = ''
+    for e in User.objects.filter(username__startswith=request.GET.get('keywords')):
+        data += e.username + '|'
+    return HttpResponse(data)
+
+
 # Page de profil
-@login_required
 def profile_view(request):
 
     return render(request, 'users/profile.html', locals())
