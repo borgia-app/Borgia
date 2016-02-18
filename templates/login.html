@@ -26,7 +26,7 @@
 
             function getResults(keywords) { // Effectue une requête et récupère les résultats
                 var xhr = new XMLHttpRequest();
-                xhr.open('GET', '{% url 'url_username_from_username_part' %}?keywords=' + encodeURIComponent(keywords));
+                xhr.open('GET', '{% url 'url_username_from_username_part' %}?keywords=' + keywords);
                 xhr.onreadystatechange = function() {
                     if (xhr.readyState == 4 && xhr.status == 200) {
                         displayResults(xhr.responseText);

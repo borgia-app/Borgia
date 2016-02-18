@@ -131,6 +131,7 @@ LOGIN_REDIRECT_URL = '/users/profile'
 LOGIN_URL = '/auth/login'
 
 LOGIN_EXEMPT_URLS = (
+    '/users/username_from_username_part'
 )
 
 STATIC_URL = '/static/'
