@@ -6,6 +6,16 @@ from django.db.models import Q
 from shops.models import Shop, SingleProduct, Container
 
 
+class ReplacementActiveKegForm(forms.Form):
+
+    new_keg = forms.ModelChoiceField(required=True,
+                                     queryset=Container.objects.filter(product_base__shop=Shop.objects.get(name='Foyer'),
+                                                                       quantity_remaining__isnull=False,
+                                                                       product_base__product_unit__type='keg').exclude(
+                                             place__contains='tireuse'),
+                                     label='Nouveau fut')
+
+
 class PurchaseFoyerForm(forms.Form):
 
     def __init__(self, *args, **kwargs):
