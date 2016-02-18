@@ -81,14 +81,11 @@ class SingleProductCreateMultipleForm(forms.Form):
 
 class ContainerCreateMultipleForm(forms.Form):
 
-    quantity = forms.IntegerField()
-
-    def __init__(self, *args, **kwargs):
-        container_list = kwargs.pop('container_list')
-        container_pk_list = []
-        for e in container_list:
-            container_pk_list.append(e.pk)
-
-        super(ContainerCreateMultipleForm, self).__init__(*args, **kwargs)
-        self.fields['container'] = forms.ModelChoiceField(
-                queryset=Container.objects.filter(pk__in=container_pk_list))
+    product_base = forms.ModelChoiceField(label='Base produit',
+                                          queryset=ProductBase.objects.filter(
+                                                  type='container').exclude(product_unit__type='fictional_money'))
+    quantity = forms.IntegerField(label='Quantité à ajouter')
+    price = forms.FloatField(label='Prix d\'achat unitaire')
+    purchase_date = forms.DateField(label='Date d\'achat')
+    expiry_date = forms.DateField(label='Date d\'expiration', required=False)
+    place = forms.CharField(max_length=255, label='Lieu de stockage')

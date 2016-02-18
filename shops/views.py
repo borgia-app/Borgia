@@ -413,7 +413,6 @@ class ContainerCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-# TODO: à modifier
 class ContainerCreateMultipleView(FormView):
     template_name = 'shops/container_create_multiple.html'
     form_class = ContainerCreateMultipleForm
@@ -425,23 +424,22 @@ class ContainerCreateMultipleView(FormView):
     def form_valid(self, form):
 
         for i in range(0, form.cleaned_data['quantity']):
-            Container(product_unit=form.cleaned_data['container'].product_unit,
-                      initial_quantity=form.cleaned_data['container'].initial_quantity,
-                      is_returnable=form.cleaned_data['container'].is_returnable,
-                      shop=Shop.objects.get(name=self.request.GET.get('shop', 'Foyer'))).save()
+            c = Container(price=form.cleaned_data['price'],
+                          purchase_date=form.cleaned_data['purchase_date'],
+                          expiry_date=form.cleaned_data['expiry_date'],
+                          place=form.cleaned_data['place'],
+                          product_base=form.cleaned_data['product_base'])
+            c.save()
 
         return super(ContainerCreateMultipleView, self).form_valid(form)
 
-    def get_form_kwargs(self):
-        kwargs = super(ContainerCreateMultipleView, self).get_form_kwargs()
-        kwargs['container_list'] = Container.objects.filter(
-                shop=Shop.objects.get(name=self.request.GET.get('shop', 'Foyer')))
-
-        return kwargs
+    def get_initial(self):
+        initial = super(ContainerCreateMultipleView, self).get_initial()
+        initial['purchase_date'] = now
+        return initial
 
     def get_context_data(self, **kwargs):
         context = super(ContainerCreateMultipleView, self).get_context_data(**kwargs)
-        context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', 'Foyer'))
         context['next'] = self.request.GET.get('next', self.success_url)
         return context
 

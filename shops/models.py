@@ -104,7 +104,10 @@ class ProductBase(models.Model):
 
     # Méthodes
     def __str__(self):
-        return self.name
+        if self.quantity:
+            return self.name + ' ' + str(self.quantity) + ' ' + self.product_unit.unit
+        else:
+            return self.name
 
     def calculated_price_usual(self):
         if self.quantity is not None:
