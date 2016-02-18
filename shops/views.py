@@ -325,7 +325,6 @@ class SingleProductCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-# TODO: à modifier
 class SingleProductCreateMultipleView(FormView):
     template_name = 'shops/singleproduct_create_multiple.html'
     form_class = SingleProductCreateMultipleForm
@@ -337,23 +336,22 @@ class SingleProductCreateMultipleView(FormView):
     def form_valid(self, form):
 
         for i in range(0, form.cleaned_data['quantity']):
-            SingleProduct(name=form.cleaned_data['single_product'].name,
-                          description=form.cleaned_data['single_product'].description,
-                          price=form.cleaned_data['price'],
-                          shop=Shop.objects.get(name=self.request.GET.get('shop', 'Foyer'))
-                          ).save()
+            sp = SingleProduct(price=form.cleaned_data['price'],
+                               purchase_date=form.cleaned_data['purchase_date'],
+                               expiry_date=form.cleaned_data['expiry_date'],
+                               place=form.cleaned_data['place'],
+                               product_base=form.cleaned_data['product_base'])
+            sp.save()
 
         return super(SingleProductCreateMultipleView, self).form_valid(form)
 
-    def get_form_kwargs(self):
-        kwargs = super(SingleProductCreateMultipleView, self).get_form_kwargs()
-        kwargs['single_product_list'] = Shop.objects.get(name=self.request.GET.get('shop', 'Foyer')).list_single_product()
-
-        return kwargs
+    def get_initial(self):
+        initial = super(SingleProductCreateMultipleView, self).get_initial()
+        initial['purchase_date'] = now
+        return initial
 
     def get_context_data(self, **kwargs):
         context = super(SingleProductCreateMultipleView, self).get_context_data(**kwargs)
-        context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', 'Foyer'))
         context['next'] = self.request.GET.get('next', self.success_url)
         return context
 

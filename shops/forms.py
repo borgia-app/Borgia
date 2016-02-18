@@ -3,7 +3,7 @@ from django import forms
 from django.forms.widgets import Textarea
 from django.db.models import Q
 
-from shops.models import Shop, SingleProduct, Container
+from shops.models import Shop, Container, ProductBase
 
 
 class ReplacementActiveKegForm(forms.Form):
@@ -70,18 +70,13 @@ class PurchaseFoyerForm(forms.Form):
 
 class SingleProductCreateMultipleForm(forms.Form):
 
-    quantity = forms.IntegerField()
-    price = forms.FloatField()
-
-    def __init__(self, *args, **kwargs):
-        single_product_list = kwargs.pop('single_product_list')
-        single_product_pk_list = []
-        for e in single_product_list:
-            single_product_pk_list.append(e.pk)
-
-        super(SingleProductCreateMultipleForm, self).__init__(*args, **kwargs)
-        self.fields['single_product'] = forms.ModelChoiceField(
-                queryset=SingleProduct.objects.filter(pk__in=single_product_pk_list))
+    product_base = forms.ModelChoiceField(label='Base produit',
+                                          queryset=ProductBase.objects.filter(type='single_product'))
+    quantity = forms.IntegerField(label='Quantité à ajouter')
+    price = forms.FloatField(label='Prix d\'achat unitaire')
+    purchase_date = forms.DateField(label='Date d\'achat')
+    expiry_date = forms.DateField(label='Date d\'expiration', required=False)
+    place = forms.CharField(max_length=255, label='Lieu de stockage')
 
 
 class ContainerCreateMultipleForm(forms.Form):

@@ -8,7 +8,7 @@
     </tr>
     {% for e in object_list %}
         <tr>
-            <td>{{ e.name }}</td>
+            <td>{{ e }}</td>
             <td>{{ e.is_sold }}</td>
             <td><a href="{% url 'url_update_singleproduct' pk=e.id %}">modifier</a></td>
             <td><a href="{% url 'url_delete_singleproduct' pk=e.id %}">supprimer</a></td>
