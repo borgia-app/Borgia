@@ -6,24 +6,50 @@
     <hr>
 
     <div class="container">
-        <div class="one-half column">
+        <div class="one-third column">
             <h3>Alimentation de comptes</h3>
             <ul>
-                <li><a href="">Mixte</a></li>
                 <li><a href="">Espèces seulement</a></li>
-                <li><a href="">Chèque seulement</a></li>
+                <li><a href="{% url 'url_supply_cheque' %}?next=/shops/foyer/workboard">Chèque seulement</a></li>
                 <li><a href="">Lydia seulement</a></li>
             </ul>
         </div>
-        <div class="one-half column">
+        <div class="one-third column">
             <h3>Gestion du stock</h3>
+            <div class="row">
+                <h5>Unités de produits</h5>
                 <ul>
-                    <li><a href="{% url 'url_create_singleproduct' %}?next=/shops/foyer/workboard">Ajouts d'un nouveau produit unitaire</a></li>
-                    <li><a href="">Ajouts de produits unitaires existants</a></li>
-                    <li><a href="{% url 'url_create_productunit' %}?next=/shops/foyer/workboard">Ajouts d'une nouvelle unité produit</a></li>
-                    <li><a href="{% url 'url_create_container' %}?next=/shops/foyer/workboard">Ajouts d'un nouveau container</a></li>
-                    <li><a href="">Ajouts de containers existants</a></li>
+                    <li><a href="{% url 'url_list_productunit' %}">Listes des unités produits</a></li>
+                    <li><a href="{% url 'url_create_productunit' %}?next=/shops/foyer/workboard">Nouvelle unité produit</a></li>
                 </ul>
+            </div>
+            <div class="row">
+                <h5>Bases de produits</h5>
+                <ul>
+                    <li><a href="{% url 'url_list_productbase' %}">Listes des bases de produits</a></li>
+                    <li><a href="{% url 'url_create_productbase' %}?next=/shops/foyer/workboard">Nouvelle base produit</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="one-third column">
+            <div class="row">
+                <h5>Produits</h5>
+                <div class="row">
+                    <h6>Produits unitaires</h6>
+                    <ul>
+                        <li><a href="{% url 'url_list_singleproduct' %}">Listes des produits unitaires</a></li>
+                        <li><a href="{% url 'url_create_singleproduct_multiple' %}?next=/shops/foyer/workboard">Ajouts de produits unitaires</a></li>
+                    </ul>
+                </div>
+                <div class="row">
+                    <h6>Conteneurs</h6>
+                    <ul>
+                        <li><a href="{% url 'url_list_container' %}">Listes des conteneurs</a></li>
+                        <li><a href="{% url 'url_create_container_multiple' %}?next=/shops/foyer/workboard">Ajouts de conteneurs</a></li>
+                    </ul>
+                </div>
+            </div>
+            </p>
         </div>
     </div>
 
@@ -31,7 +57,7 @@
         <h3>Gestion des tireuses</h3>
         {% for e in active_keg_container_list %}
             <div class="two columns">
-                    <h4>{{ e.0 }}</h4>
+                <h4>{{ e.0 }}</h4>
                 {% if e.1 %}
                     <p>{{ e.1.product_base }}</p>
                     <p>{{ e.1.quantity_remaining }} {{ e.1.product_base.product_unit.unit }} - {{ e.1.pourcentage_quantity_remaining }}% restants</p>
@@ -42,4 +68,5 @@
             </div>
         {% endfor %}
     </div>
+
 {% endblock %}

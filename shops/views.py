@@ -466,7 +466,7 @@ class ContainerUpdateView(SuccessMessageMixin, UpdateView):
 class ContainerDeleteView(SuccessMessageMixin, DeleteView):
     model = Container
     template_name = 'shops/container_delete.html'
-    success_url = '/shops/container/list'
+    success_url = '/shops/container/'
     success_message = "Container was delated successfully"
 
     # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
