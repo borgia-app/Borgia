@@ -14,7 +14,6 @@ def username_from_username_part(request):
     data = ''
     for e in User.objects.filter(username__startswith=request.GET.get('keywords')):
         data += e.username + '|'
-    print(data)
     return HttpResponse(data)
 
 

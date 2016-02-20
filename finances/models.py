@@ -81,7 +81,7 @@ class Payment(models.Model):
         return list_lydia, total_lydia
 
     def list_cash(self):
-        list_cash = Cheque.objects.filter(payment__cashs__payment=self)
+        list_cash = Cash.objects.filter(payment__cashs__payment=self)
         total_cash = 0
         for e in list_cash:
             total_cash += e.amount
@@ -171,21 +171,24 @@ class BankAccount(models.Model):
         return self.bank + self.account
 
 
-# TODO: a modifier
 class Cash(models.Model):
-    # Information sur l'identite des especes
+
+    # Attributs
     amount = models.FloatField()
-    giver = models.ForeignKey('users.User', related_name='cash_giver')
 
-    # Information de comptabilite
-    cashed = models.BooleanField(default=False)
-    date_cash = models.DateField(blank=True, null=True)
+    # Relations
+    sender = models.ForeignKey('users.User', related_name='cash_sender')
+    recipient = models.ForeignKey('users.User', related_name='cash_recipient')
 
+    # Méthodes
     def __str__(self):
-        return self.giver.last_name+' '+self.giver.first_name+' '+str(self.amount)+'€'
+        return self.sender.last_name+' '+self.sender.first_name+' '+str(self.amount)+'€'
 
-    def list_transaction(self):
-        return Transaction.objects.filter(cashs__transaction__cashs=self)
+    def list_sale(self):
+        return Sale.objects.filter(payment__cashs=self)
+
+    def list_payment(self):
+        return Payment.objects.filter(cashs__payment__cashs=self)
 
 
 class Lydia(models.Model):

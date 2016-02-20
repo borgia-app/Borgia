@@ -58,3 +58,27 @@ class SupplyChequeForm(forms.Form):
             if authenticate(username=operator_username, password=operator_password) is None:
                 raise forms.ValidationError('Echec d\'authentification')
         return super(SupplyChequeForm, self).clean()
+
+
+class SupplyCashForm(forms.Form):
+
+    # Cash
+    amount = forms.FloatField(label='Montant')
+    sender = forms.ModelChoiceField(label='Payeur', queryset=User.objects.all())
+
+    # Gestionnaire - opérateur
+    operator_username = forms.CharField(label='Gestionnaire')
+    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
+
+    def clean(self):
+
+        cleaned_data = super(SupplyCashForm, self).clean()
+        operator_username = cleaned_data['operator_username']
+        operator_password = cleaned_data['operator_password']
+
+        # Essaye d'authentification seulement si les deux champs sont valides
+        if operator_password and operator_password:
+            # Cas d'échec d'authentification
+            if authenticate(username=operator_username, password=operator_password) is None:
+                raise forms.ValidationError('Echec d\'authentification')
+        return super(SupplyCashForm, self).clean()

@@ -9,8 +9,8 @@
         <div class="one-third column">
             <h3>Alimentation de comptes</h3>
             <ul>
-                <li><a href="">Espèces seulement</a></li>
-                <li><a href="{% url 'url_supply_cheque' %}?next=/shops/foyer/workboard">Chèque seulement</a></li>
+                <li><a href="{% url 'url_supply_cash' %}?next=/shops/foyer/wordkboard/">Espèces seulement</a></li>
+                <li><a href="{% url 'url_supply_cheque' %}?next=/shops/foyer/workboard/">Chèque seulement</a></li>
                 <li><a href="">Lydia seulement</a></li>
             </ul>
         </div>
@@ -20,14 +20,14 @@
                 <h5>Unités de produits</h5>
                 <ul>
                     <li><a href="{% url 'url_list_productunit' %}">Listes des unités produits</a></li>
-                    <li><a href="{% url 'url_create_productunit' %}?next=/shops/foyer/workboard">Nouvelle unité produit</a></li>
+                    <li><a href="{% url 'url_create_productunit' %}?next=/shops/foyer/workboard/">Nouvelle unité produit</a></li>
                 </ul>
             </div>
             <div class="row">
                 <h5>Bases de produits</h5>
                 <ul>
                     <li><a href="{% url 'url_list_productbase' %}">Listes des bases de produits</a></li>
-                    <li><a href="{% url 'url_create_productbase' %}?next=/shops/foyer/workboard">Nouvelle base produit</a></li>
+                    <li><a href="{% url 'url_create_productbase' %}?next=/shops/foyer/workboard/">Nouvelle base produit</a></li>
                 </ul>
             </div>
         </div>

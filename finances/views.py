@@ -74,6 +74,62 @@ class SupplyChequeView(FormView):
         return context
 
 
+class SupplyCashView(FormView):
+    form_class = SupplyCashForm
+    template_name = 'finances/supply_cash.html'
+    success_url = '/auth/login'
+
+    def form_valid(self, form):
+
+        # Identification du gestionnaire
+        # Le cas d'échec d'authentification est géré dans le form.clean()
+        operator = authenticate(username=form.cleaned_data['operator_username'],
+                                password=form.cleaned_data['operator_password'])
+
+        # Création du cash
+        cash = Cash(sender=form.cleaned_data['sender'],
+                    recipient=User.objects.get(username='AE_ENSAM'),
+                    amount=form.cleaned_data['amount'])
+        cash.save()
+
+        # Création du paiement
+        payment = Payment()
+        payment.save()
+        payment.cashs.add(cash)
+        payment.maj_amount()
+        payment.save()
+
+        # Création de la vente
+        sale = Sale(date=datetime.now(),
+                    sender=form.cleaned_data['sender'],
+                    operator=operator,
+                    recipient=User.objects.get(username='AE_ENSAM'),
+                    payment=payment)
+        sale.save()
+
+        # Création d'un spfc d'argent fictif
+        spfc = SingleProductFromContainer(container=Container.objects.get(
+                product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
+                sale_price=payment.amount, sale=sale)
+        spfc.save()
+
+        # Mise à jour du compte foyer du client
+        sale.maj_amount()
+        sale.save()
+        sender = form.cleaned_data['sender']
+        sender.credit(sale.amount)
+
+        return super(SupplyCashView, self).form_valid(form)
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(SupplyCashView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
+
 def bank_account_from_user(request):
     data = serializers.serialize('xml',
                                  BankAccount.objects.filter(owner=User.objects.get(pk=request.GET.get('user_pk'))))
@@ -169,7 +225,7 @@ class CashRetrieveView(DetailView):
 # Update d'especes - U
 class CashUpdateView(UpdateView):
     model = Cash
-    fields = ['giver', 'amount', 'cashed']
+    fields = ['sender', 'recipient', 'amount']
     template_name = 'finances/cash_update.html'
     success_url = '/finances/cash/'
 
