@@ -130,6 +130,69 @@ class SupplyCashView(FormView):
         return context
 
 
+class SupplyLydiaView(FormView):
+    form_class = SupplyLydiaForm
+    template_name = 'finances/supply_lydia.html'
+    success_url = '/auth/login'
+
+    def form_valid(self, form):
+
+        # Identification du gestionnaire
+        # Le cas d'échec d'authentification est géré dans le form.clean()
+        operator = authenticate(username=form.cleaned_data['operator_username'],
+                                password=form.cleaned_data['operator_password'])
+
+        # Création du cash
+        lydia = Lydia(time_operation=form.cleaned_data['time_operation'],
+                      id_from_lydia=form.cleaned_data['id_from_lydia'],
+                      sender_user_id=form.cleaned_data['sender'],
+                      recipient_user_id=User.objects.get(username='AE_ENSAM'),
+                      amount=form.cleaned_data['amount'])
+        lydia.save()
+
+        # Création du paiement
+        payment = Payment()
+        payment.save()
+        payment.lydias.add(lydia)
+        payment.maj_amount()
+        payment.save()
+
+        # Création de la vente
+        sale = Sale(date=datetime.now(),
+                    sender=form.cleaned_data['sender'],
+                    operator=operator,
+                    recipient=User.objects.get(username='AE_ENSAM'),
+                    payment=payment)
+        sale.save()
+
+        # Création d'un spfc d'argent fictif
+        spfc = SingleProductFromContainer(container=Container.objects.get(
+                product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
+                sale_price=payment.amount, sale=sale)
+        spfc.save()
+
+        # Mise à jour du compte foyer du client
+        sale.maj_amount()
+        sale.save()
+        sender = form.cleaned_data['sender']
+        sender.credit(sale.amount)
+
+        return super(SupplyLydiaView, self).form_valid(form)
+
+    def get_initial(self):
+        initial = super(SupplyLydiaView, self).get_initial()
+        initial['time_operation'] = datetime.now()
+        return initial
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(SupplyLydiaView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
+
 def bank_account_from_user(request):
     data = serializers.serialize('xml',
                                  BankAccount.objects.filter(owner=User.objects.get(pk=request.GET.get('user_pk'))))

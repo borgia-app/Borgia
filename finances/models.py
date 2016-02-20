@@ -2,6 +2,7 @@
 from django.db import models
 from shops.models import SingleProduct, SingleProductFromContainer
 from django.utils.timezone import now
+from datetime import datetime
 
 
 class Sale(models.Model):
@@ -193,11 +194,10 @@ class Cash(models.Model):
 
 class Lydia(models.Model):
     # Information sur l'identite du virement lydia
-    date_operation = models.DateField(default=now)
-    time_operation = models.TimeField(default=now)
-    amount = models.FloatField()
+    time_operation = models.DateTimeField(default=datetime.now())
+    amount = models.FloatField(default=0)
     # numero unique du virement lydia (communiqué par lydia: comment?)
-    id_from_lydia = models.IntegerField()
+    id_from_lydia = models.CharField(max_length=255)
     sender_user_id = models.ForeignKey('users.User', related_name='lydia_sender')
     recipient_user_id = models.ForeignKey('users.User', related_name='lydia_recipient')
 

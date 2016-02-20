@@ -19,7 +19,8 @@ class ChequeCreateForm(ModelForm):
 class CreationLydiaForm(ModelForm):
     class Meta:
         model = Lydia
-        fields = ['sender_user_id', 'recipient_user_id', 'date_operation', 'time_operation', 'id_from_lydia', 'amount', 'banked', 'date_banked']
+        fields = ['sender_user_id', 'recipient_user_id', 'time_operation', 'id_from_lydia', 'amount',
+                  'banked', 'date_banked']
 
     sender_user_id = forms.ModelChoiceField(label='Impulseur', queryset=User.objects.all().order_by('last_name'))
     recipient_user_id = forms.ModelChoiceField(label='Destinataire', queryset=User.objects.all().order_by('last_name'))
@@ -28,9 +29,10 @@ class CreationLydiaForm(ModelForm):
 class CreationCashForm(ModelForm):
     class Meta:
         model = Cash
-        fields = ['giver', 'amount']
+        fields = ['sender', 'recipient', 'amount']
 
     giver = forms.ModelChoiceField(label='Donnateur', queryset=User.objects.all().order_by('last_name'))
+    recipient = forms.ModelChoiceField(label='Receveur', queryset=User.objects.all().order_by('last_name'))
 
 
 class SupplyChequeForm(forms.Form):
@@ -82,3 +84,29 @@ class SupplyCashForm(forms.Form):
             if authenticate(username=operator_username, password=operator_password) is None:
                 raise forms.ValidationError('Echec d\'authentification')
         return super(SupplyCashForm, self).clean()
+
+
+class SupplyLydiaForm(forms.Form):
+
+    # Cash
+    amount = forms.FloatField(label='Montant')
+    sender = forms.ModelChoiceField(label='Payeur', queryset=User.objects.all())
+    id_from_lydia = forms.CharField(label='Numéro unique Lydia')
+    time_operation = forms.DateTimeField(label='Heure d\'opération Lydia')
+
+    # Gestionnaire - opérateur
+    operator_username = forms.CharField(label='Gestionnaire')
+    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
+
+    def clean(self):
+
+        cleaned_data = super(SupplyLydiaForm, self).clean()
+        operator_username = cleaned_data['operator_username']
+        operator_password = cleaned_data['operator_password']
+
+        # Essaye d'authentification seulement si les deux champs sont valides
+        if operator_password and operator_password:
+            # Cas d'échec d'authentification
+            if authenticate(username=operator_username, password=operator_password) is None:
+                raise forms.ValidationError('Echec d\'authentification')
+        return super(SupplyLydiaForm, self).clean()

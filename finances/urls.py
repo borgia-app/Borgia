@@ -41,4 +41,5 @@ urlpatterns = [
     # Supply
     url(r'^supply/cheque/$', SupplyChequeView.as_view(), name='url_supply_cheque'),
     url(r'^supply/cash/$', SupplyCashView.as_view(), name='url_supply_cash'),
+    url(r'^supply/lydia/$', SupplyLydiaView.as_view(), name='url_supply_lydia'),
 ]
