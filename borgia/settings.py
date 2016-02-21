@@ -130,9 +130,10 @@ AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = '/users/profile'
 LOGIN_URL = '/auth/login'
 
-LOGIN_EXEMPT_URLS = (
-    '/users/username_from_username_part'
-)
+LOGIN_EXEMPT_URLS = [
+    '/auth/login',
+    '/users/username_from_username_part',
+]
 
 STATIC_URL = '/static/'
 # STATIC_ROOT = 'static/static_root/'

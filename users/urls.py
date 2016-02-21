@@ -29,5 +29,5 @@ urlpatterns = [
     # Seul ceux qui peuvent list des users
     url(r'^$', UserListView.as_view(), name='url_list_user'),  # Liste
 
-    url(r'^username_from_username_part/$', username_from_username_part, name='url_username_from_username_part')
+    url(r'^username_from_username_part$', username_from_username_part, name='url_username_from_username_part')
 ]
