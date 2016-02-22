@@ -91,11 +91,11 @@ class ProductBase(models.Model):
     # Attributs
     name = models.CharField(max_length=255, default="Product base name")
     description = models.TextField()
-    calculated_price = models.FloatField(default=0)
+    calculated_price = models.DecimalField(default=0, decimal_places=2, max_digits=9)
     brand = models.CharField(max_length=255)
     type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
 
-    quantity = models.FloatField(default=0, null=True, blank=True)
+    quantity = models.DecimalField(default=0, null=True, blank=True, decimal_places=2, max_digits=9)
 
     # Relations
     # Avec shops.models
@@ -111,7 +111,10 @@ class ProductBase(models.Model):
 
     def calculated_price_usual(self):
         if self.quantity is not None:
-            return (self.product_unit.usual_quantity() / self.quantity) * self.calculated_price
+            # Il faut round la fraction (sinon 2/3 = ...)
+            # Il faut en plus round  à 2 chiffres Decimal * Decimal
+            # Car 1,50 * 2,00 = 3,0000 sinon
+            return round(round((self.product_unit.usual_quantity() / self.quantity), 2) * self.calculated_price, 2)
         else:
             return self.calculated_price
 
@@ -128,7 +131,7 @@ class SingleProduct(models.Model):
     """
 
     # Attributs
-    price = models.FloatField(default=0)
+    price = models.DecimalField(default=0, decimal_places=2, max_digits=9)
     sale_price = models.FloatField(null=True, blank=True)
     purchase_date = models.DateField(default=now)
     expiry_date = models.DateField(blank=True, null=True)
@@ -158,7 +161,7 @@ class Container(models.Model):
     """
 
     # Attributs
-    price = models.FloatField(default=0)
+    price = models.DecimalField(default=0, decimal_places=2, max_digits=9)
     purchase_date = models.DateField(default=now)
     expiry_date = models.DateField(blank=True, null=True)
     place = models.CharField(max_length=255)
@@ -223,7 +226,7 @@ class SingleProductFromContainer(models.Model):
 
     # Attributs
     quantity = models.IntegerField(default=0)
-    sale_price = models.FloatField(default=0)
+    sale_price = models.DecimalField(default=0, decimal_places=2, max_digits=9)
 
     # Relations
     container = models.ForeignKey('Container')

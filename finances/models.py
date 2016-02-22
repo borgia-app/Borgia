@@ -14,7 +14,7 @@ class Sale(models.Model):
     """
 
     # Attributs
-    amount = models.FloatField(default=0)
+    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
     date = models.DateTimeField(default=now)
     done = models.BooleanField(default=False)
 
@@ -58,7 +58,7 @@ class Payment(models.Model):
     """
 
     # Attributs
-    amount = models.FloatField(default=0)
+    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
 
     # Relations
     cheques = models.ManyToManyField('Cheque', blank=True)
@@ -116,7 +116,7 @@ class Payment(models.Model):
 class DebitBalance(models.Model):
 
     # Attributs
-    amount = models.FloatField(default=0)
+    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
     date = models.DateTimeField(default=now)
     # Relations
     sender = models.ForeignKey('users.User', related_name='sender_debit_balance')
@@ -137,7 +137,7 @@ class DebitBalance(models.Model):
 class Cheque(models.Model):
 
     # Attributs
-    amount = models.FloatField(default=0)
+    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
     is_cashed = models.BooleanField(default=False)
     signature_date = models.DateField(default=now)
     cheque_number = models.CharField(max_length=7)
@@ -175,7 +175,7 @@ class BankAccount(models.Model):
 class Cash(models.Model):
 
     # Attributs
-    amount = models.FloatField()
+    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
 
     # Relations
     sender = models.ForeignKey('users.User', related_name='cash_sender')
@@ -195,7 +195,7 @@ class Cash(models.Model):
 class Lydia(models.Model):
     # Information sur l'identite du virement lydia
     time_operation = models.DateTimeField(default=datetime.now())
-    amount = models.FloatField(default=0)
+    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
     # numero unique du virement lydia (communiqué par lydia: comment?)
     id_from_lydia = models.CharField(max_length=255)
     sender_user_id = models.ForeignKey('users.User', related_name='lydia_sender')

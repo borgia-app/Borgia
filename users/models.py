@@ -27,7 +27,7 @@ class User(AbstractUser):
     # ID, last_name, first_name, email sont dans AbstractUser
     surname = models.CharField(max_length=255, blank=True, null=True)
     family = models.CharField(max_length=255, blank=True, null=True)
-    balance = models.FloatField(default=0)
+    balance = models.DecimalField(default=0, max_digits=9, decimal_places=2)
     year = models.IntegerField(choices=YEAR_CHOICES, blank=True, null=True)
     campus = models.CharField(choices=CAMPUS_CHOICES, max_length=2, blank=True, null=True)
     phone = models.CharField(max_length=255, blank=True, null=True)
