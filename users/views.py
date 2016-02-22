@@ -12,8 +12,9 @@ from users.models import User
 
 def username_from_username_part(request):
     data = ''
-    for e in User.objects.filter(username__startswith=request.GET.get('keywords')):
-        data += e.username + '|'
+    if len(request.GET.get('keywords')) >= 3:
+        for e in User.objects.filter(username__startswith=request.GET.get('keywords')):
+            data += e.username + '|'
     return HttpResponse(data)
 
 
