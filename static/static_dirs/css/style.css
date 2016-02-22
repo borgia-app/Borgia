@@ -29,7 +29,7 @@ body {
 }
 
 body, input, select, textarea {
-	color: #555f66;
+	color: #000000;
 	font-family: "Roboto", Helvetica, sans-serif;
 	font-size: 14pt;
 	font-weight: 300;
@@ -37,7 +37,7 @@ body, input, select, textarea {
 }
 
 a {
-	color: #629DD1;
+	color: #245B54;
 	text-decoration: underline;
 }
 
@@ -46,7 +46,7 @@ a:hover {
 }
 
 strong, b {
-	color: #666f77;
+	color: #000000;
 	font-weight: 500;
 }
 
@@ -59,7 +59,7 @@ p {
 }
 
 h1, h2, h3, h4, h5, h6 {
-	color: #666f77;
+	color: #000000;
 	font-weight: 300;
 	line-height: 1em;
 	margin: 0 0 1em 0;
@@ -215,7 +215,7 @@ form {
 }
 
 label {
-	color: #666f77;
+	color: #000000;
 	display: block;
 	font-size: 0.9em;
 	font-weight: 500;
@@ -658,7 +658,7 @@ table td {
 }
 
 table th {
-	color: #666f77;
+	color: #000000;
 	font-size: 0.9em;
 	font-weight: 500;
 	padding: 0 0.75em 0.75em 0.75em;
@@ -793,7 +793,7 @@ input[type="button"].alt,
 .button.alt {
 	background-color: transparent;
 	box-shadow: inset 0 0 0 1px rgba(144, 144, 144, 0.25);
-	color: #666f77 !important;
+	color: #000000 !important;
 }
 
 input[type="submit"].alt:hover,
@@ -915,7 +915,7 @@ input[type="button"]:disabled,
 }
 
 #header h1 {
-	color: #666f77;
+	color: #000000;
 	font-weight: 500;
 	height: inherit;
 	left: 1.25em;
