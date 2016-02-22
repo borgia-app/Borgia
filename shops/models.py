@@ -165,7 +165,7 @@ class Container(models.Model):
     purchase_date = models.DateField(default=now)
     expiry_date = models.DateField(blank=True, null=True)
     place = models.CharField(max_length=255)
-    quantity_remaining = models.FloatField(default=0)
+    quantity_remaining = models.DecimalField(default=0, decimal_places=2, max_digits=9)
     is_sold = models.BooleanField(default=False)
     # TODO: gestion des consignes
 
