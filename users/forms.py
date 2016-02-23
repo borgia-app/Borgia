@@ -31,3 +31,24 @@ class UserCreationCustomForm(UserCreationForm):
     family = forms.CharField(label='Fam\'ss', max_length=255)
     campus = forms.ChoiceField(label='Tabagn\'s', choices=User.CAMPUS_CHOICES)
     year = forms.ChoiceField(label='Prom\'ss', choices=User.YEAR_CHOICES)
+
+
+# Formulaire de modification d'un groupe
+class ManageGroupForm(forms.Form):
+
+    def __init__(self, *args, **kwargs):
+
+        possible_members = kwargs.pop('possible_members')
+        possible_permissions = kwargs.pop('possible_permissions')
+        super(ManageGroupForm, self).__init__(*args, **kwargs)
+
+        self.fields['members'] = forms.ModelMultipleChoiceField(label='Membres', queryset=possible_members,
+                                                                required=False)
+        # Utilisation d'un custom field pour pouvoir changer l'affichage des permissions
+        self.fields['permissions'] = ModelMultipleChoiceCustomField(label='Permissions', queryset=possible_permissions,
+                                                                    required=False)
+
+
+class ModelMultipleChoiceCustomField(forms.ModelMultipleChoiceField):
+    def label_from_instance(self, obj):
+        return obj.name

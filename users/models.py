@@ -54,3 +54,10 @@ class User(AbstractUser):
 
     def list_bank_account(self):
         return BankAccount.objects.filter(owner=self)
+
+    class Meta:
+        permissions = (
+            ('presidents_group_manage', 'Gérer le groupe des présidents'),
+            ('chefs_gestionnaires_du_foyer_group_manage', 'Gérer le groupe des chefs gestionnaires du foyer'),
+            ('gestionnaires_du_foyer_group_manage', 'Gérer le groupe des gestionnaires du foyer'),
+        )

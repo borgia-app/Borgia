@@ -6,6 +6,8 @@ from django.contrib.auth.decorators import permission_required
 
 
 urlpatterns = [
+    url(r'^manage_group$', ManageGroupView.as_view(), name='url_manage_group'),
+
     # Password
     url(r'^password_change$', password_change, {'template_name': 'users/password_change.html',
                                                 'post_change_redirect': password_change_done}, name='password_change'),

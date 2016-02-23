@@ -308,6 +308,11 @@ select {
 	height: 2.75em;
 }
 
+select[multiple]
+{
+  min-height: 150px;
+}
+
 textarea {
 	padding: 0.75em 1em;
 }

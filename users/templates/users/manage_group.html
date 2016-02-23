@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container30">
+        <div class="row"><h2>Gestion du groupe {{ group_name }}</h2></div>
+        <div class="row">
+            <form action= "{% url 'url_manage_group' %}" method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <input type=hidden name="group_pk" value="{{ group_pk }}" />
+                <input type=hidden name="next" value="{{ next }}" />
+                <input type="submit" value="Submit"/>
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
