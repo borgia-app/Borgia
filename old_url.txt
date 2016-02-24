@@ -1,0 +1,231 @@
+# Model Shop
+# url(r'^shop/create/$', ShopCreateView.as_view(), name='url_create_shop'),  # C
+# url(r'^shop/retrieve/(?P<pk>\d+)/$', ShopRetrieveView.as_view(), name='url_retrieve_shop'),  # R
+# url(r'^shop/update/(?P<pk>\d+)/$', ShopUpdateView.as_view(), name='url_update_shop'),  # U
+# url(r'^shop/delete/(?P<pk>\d+)/$', ShopDeleteView.as_view(), name='url_delete_shop'),  # D
+# url(r'^shop/$', ShopListView.as_view(), name='url_list_shop'),  # L
+# url(r'^singleproduct/update/(?P<pk>\d+)/$', SingleProductUpdateView.as_view(), name='url_update_singleproduct'),  # U
+# url(r'^singleproduct/create/$', SingleProductCreateView.as_view(), name='url_create_singleproduct'),  # C
+# url(r'^singleproduct/delete/(?P<pk>\d+)/$', SingleProductDeleteView.as_view(), name='url_delete_singleproduct'),  # D
+# url(r'^container/create/$', ContainerCreateView.as_view(), name='url_create_container'),  # C
+# url(r'^container/update/(?P<pk>\d+)/$', ContainerUpdateView.as_view(), name='url_update_container'),  # U
+# url(r'^container/delete/(?P<pk>\d+)/$', ContainerDeleteView.as_view(), name='url_delete_container'),  # D
+
+# url(r'^cheque/update/(?P<pk>\d+)/$', ChequeUpdateView.as_view(), name='url_update_cheque'),  # U
+# url(r'^cheque/delete/(?P<pk>\d+)/$', ChequeDeleteView.as_view(), name='url_delete_cheque'),  # D
+# url(r'^cheque/create/$', ChequeCreateView.as_view(), name='url_create_cheque'),  # C
+# url(r'^cash/update/(?P<pk>\d+)/$', CashUpdateView.as_view(), name='url_update_cash'),  # U
+# url(r'^cash/delete/(?P<pk>\d+)/$', CashDeleteView.as_view(), name='url_delete_cash'),  # D
+# url(r'^cash/create/$', CashCreateView.as_view(), name='url_create_cash'),  # C
+# url(r'^lydia/create/$', LydiaCreateView.as_view(), name='url_create_lydia'),  # C
+# url(r'^lydia/update/(?P<pk>\d+)/$', LydiaUpdateView.as_view(), name='url_update_lydia'),  # U
+# url(r'^lydia/delete/(?P<pk>\d+)/$', LydiaDeleteView.as_view(), name='url_delete_lydia'),  # D
+
+
+# class LydiaCreateView(CreateView):
+#     model = Lydia
+#     form_class = CreationLydiaForm
+#     template_name = 'finances/templates/finances_unused/lydia_create.html'
+#     success_url = '/finances/sale/'
+#
+#     def get_initial(self):
+#         return {'receiver': self.request.user}
+#
+#
+# class LydiaUpdateView(UpdateView):
+#     model = Lydia
+#     fields = ['sender_user_id', 'recipient_user_id', 'date_operation', 'time_operation', 'amount', 'banked', 'date_banked','id_from_lydia',]
+#     template_name = 'finances/templates/finances_unused/lydia_update.html'
+#     success_url = '/finances/lydia/'
+#
+#
+# class LydiaDeleteView(DeleteView):
+#     model = Lydia
+#     template_name = 'finances/templates/finances_unused/lydia_delete.html'
+#     success_url = '/finances/lydia'
+#
+#
+# class CashUpdateView(UpdateView):
+#     model = Cash
+#     fields = ['sender', 'recipient', 'amount']
+#     template_name = 'finances/templates/finances_unused/cash_update.html'
+#     success_url = '/finances/cash/'
+#
+#
+# class CashDeleteView(DeleteView):
+#     model = Cash
+#     template_name = 'finances/templates/finances_unused/cash_delete.html'
+#     success_url = '/finances/cash'
+#
+#
+# class CashCreateView(CreateView):
+#     model = Cash
+#     form_class = CreationCashForm
+#     template_name = 'finances/templates/finances_unused/cash_create.html'
+#     success_url = '/finances/transaction/create'
+#
+#
+# class ChequeUpdateView(UpdateView):
+#     model = Cheque
+#     fields = ['amount', 'is_cashed', 'signature_date', 'cheque_number','sender', 'bank_account', 'recipient']
+#     template_name = 'finances/templates/finances_unused/cheque_update.html'
+#     success_url = '/finances/cheque/'
+#
+#
+# class ChequeDeleteView(DeleteView):
+#     model = Cheque
+#     template_name = 'finances/templates/finances_unused/cheque_delete.html'
+#     success_url = '/finances/cheque'
+#
+#
+# class ChequeCreateView(CreateView):
+#     model = Cheque
+#     form_class = ChequeCreateForm
+#     template_name = 'finances/templates/finances_unused/cheque_create.html'
+#     success_url = '/finances/cheque/'
+#
+#     def get_initial(self):
+#         return {'recipient': User.objects.get(username='AE_ENSAM')}
+
+# # Model SHOP
+# # C
+# class ShopCreateView(SuccessMessageMixin, CreateView):
+#     model = Shop
+#     fields = ['name', 'description']
+#     template_name = 'shops/templates/shop_unused/shop_create.html'
+#     success_url = '/shops/shop/'
+#     success_message = "%(name)s was created successfully"
+#
+#     def get_success_url(self):
+#         return force_text(self.request.POST.get('next', self.success_url))
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ShopCreateView, self).get_context_data(**kwargs)
+#         context['next'] = self.request.GET.get('next', self.success_url)
+#         return context
+#
+#
+# # R
+# class ShopRetrieveView(DetailView):
+#     model = Shop
+#     template_name = 'shops/templates/shop_unused/shop_retrieve.html'
+#
+#
+# # U
+# class ShopUpdateView(SuccessMessageMixin, UpdateView):
+#     model = Shop
+#     fields = ['name', 'description']
+#     template_name = 'shops/templates/shop_unused/shop_update.html'
+#     success_url = '/shops/shop/'
+#     success_message = "%(name)s was updated successfully"
+#
+#     def get_success_url(self):
+#         return force_text(self.request.GET.get('next', self.success_url))
+#
+#
+# # D
+# class ShopDeleteView(SuccessMessageMixin, DeleteView):
+#     model = Shop
+#     template_name = 'shops/templates/shop_unused/shop_delete.html'
+#     success_url = '/shops/shop/'
+#     success_message = "Shop was deleted successfully"
+#
+#     # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
+#     # https://code.djangoproject.com/ticket/21926
+#     def delete(self, request, *args, **kwargs):
+#         messages.success(self.request, self.success_message)
+#         return super(ShopDeleteView, self).delete(request, *args, **kwargs)
+#
+#
+# # List
+# class ShopListView(ListView):
+#     model = Shop
+#     template_name = 'shops/templates/shop_unused/shop_list.html'
+#     queryset = Shop.objects.all()
+
+# C
+# class SingleProductCreateView(SuccessMessageMixin, CreateView):
+#     model = SingleProduct
+#     fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place']
+#     template_name = 'shops/templates/shop_unused/singleproduct_create.html'
+#     success_url = '/shops/singleproduct/'
+#     success_message = "single product was created successfully"
+#
+#     def get_success_url(self):
+#         return force_text(self.request.POST.get('next', self.success_url))
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(SingleProductCreateView, self).get_context_data(**kwargs)
+#         context['next'] = self.request.GET.get('next', self.success_url)
+#         return context
+#
+#
+# # U
+# class SingleProductUpdateView(SuccessMessageMixin, UpdateView):
+#     model = SingleProduct
+#     fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place', 'is_sold']
+#     template_name = 'shops/singleproduct_update.html'
+#     success_url = '/shops/singleproduct/'
+#     success_message = "%(name)s was updated successfully"
+#
+#     def get_success_url(self):
+#         return force_text(self.request.GET.get('next', self.success_url))
+#
+#
+# # D
+# class SingleProductDeleteView(SuccessMessageMixin, DeleteView):
+#     model = SingleProduct
+#     template_name = 'shops/templates/shop_unused/singleproduct_delete.html'
+#     success_url = '/shops/singleproduct/'
+#     success_message = "Single product was delated successfully"
+#
+#     # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
+#     # https://code.djangoproject.com/ticket/21926
+#     def delete(self, request, *args, **kwargs):
+#         messages.success(self.request, self.success_message)
+#         return super(SingleProductDeleteView, self).delete(request, *args, **kwargs)
+#
+#
+#
+# # U
+#
+#
+# class ContainerUpdateView(SuccessMessageMixin, UpdateView):
+#     model = Container
+#     fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place']
+#     template_name = 'shops/templates/shop_unused/container_update.html'
+#     success_url = '/shops/container/'
+#     success_message = "Container was updated successfully"
+#
+#     def get_success_url(self):
+#         return force_text(self.request.GET.get('next', self.success_url))
+#
+#
+# class ContainerCreateView(SuccessMessageMixin, CreateView):
+#     model = Container
+#     fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place']
+#     template_name = 'shops/templates/shop_unused/container_create.html'
+#     success_url = '/shops/container/'
+#     success_message = "Container was created successfully"
+#
+#     def get_success_url(self):
+#         return force_text(self.request.POST.get('next', self.success_url))
+#
+#     def get_context_data(self, **kwargs):
+#         context = super(ContainerCreateView, self).get_context_data(**kwargs)
+#         context['next'] = self.request.GET.get('next', self.success_url)
+#         return context
+#
+#
+# # D
+# class ContainerDeleteView(SuccessMessageMixin, DeleteView):
+#     model = Container
+#     template_name = 'shops/container_delete.html'
+#     success_url = '/shops/container/'
+#     success_message = "Container was delated successfully"
+#
+#     # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
+#     # https://code.djangoproject.com/ticket/21926
+#     def delete(self, request, *args, **kwargs):
+#         messages.success(self.request, self.success_message)
+#         return super(ContainerDeleteView, self).delete(request, *args, **kwargs)

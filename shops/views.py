@@ -15,7 +15,6 @@ from finances.models import Sale, DebitBalance, Payment
 
 
 # FOYER
-
 class ReplacementActiveKeyView(FormView):
     template_name = 'shops/replacement_active_keg.html'
     form_class = ReplacementActiveKegForm
@@ -250,81 +249,7 @@ def workboard_foyer(request):
     return render(request, 'shops/workboard_foyer.html', locals())
 
 
-# Model SHOP
-# C
-class ShopCreateView(SuccessMessageMixin, CreateView):
-    model = Shop
-    fields = ['name', 'description']
-    template_name = 'shops/shop_create.html'
-    success_url = '/shops/shop/'
-    success_message = "%(name)s was created successfully"
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(ShopCreateView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        return context
-
-
-# R
-class ShopRetrieveView(DetailView):
-    model = Shop
-    template_name = 'shops/shop_retrieve.html'
-
-
-# U
-class ShopUpdateView(SuccessMessageMixin, UpdateView):
-    model = Shop
-    fields = ['name', 'description']
-    template_name = 'shops/shop_update.html'
-    success_url = '/shops/shop/'
-    success_message = "%(name)s was updated successfully"
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.success_url))
-
-
-# D
-class ShopDeleteView(SuccessMessageMixin, DeleteView):
-    model = Shop
-    template_name = 'shops/shop_delete.html'
-    success_url = '/shops/shop/'
-    success_message = "Shop was deleted successfully"
-
-    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
-    # https://code.djangoproject.com/ticket/21926
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super(ShopDeleteView, self).delete(request, *args, **kwargs)
-
-
-# List
-class ShopListView(ListView):
-    model = Shop
-    template_name = 'shops/shop_list.html'
-    queryset = Shop.objects.all()
-
-
-# Model SINGLEPRODUCT
-# C
-class SingleProductCreateView(SuccessMessageMixin, CreateView):
-    model = SingleProduct
-    fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place']
-    template_name = 'shops/singleproduct_create.html'
-    success_url = '/shops/singleproduct/'
-    success_message = "single product was created successfully"
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(SingleProductCreateView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        return context
-
-
+# Models
 class SingleProductCreateMultipleView(FormView):
     template_name = 'shops/singleproduct_create_multiple.html'
     form_class = SingleProductCreateMultipleForm
@@ -356,61 +281,15 @@ class SingleProductCreateMultipleView(FormView):
         return context
 
 
-# R
 class SingleProductRetrieveView(DetailView):
     model = SingleProduct
     template_name = 'shops/singleproduct_retrieve.html'
 
 
-# U
-class SingleProductUpdateView(SuccessMessageMixin, UpdateView):
-    model = SingleProduct
-    fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place', 'is_sold']
-    template_name = 'shops/singleproduct_update.html'
-    success_url = '/shops/singleproduct/'
-    success_message = "%(name)s was updated successfully"
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.success_url))
-
-
-# D
-class SingleProductDeleteView(SuccessMessageMixin, DeleteView):
-    model = SingleProduct
-    template_name = 'shops/singleproduct_delete.html'
-    success_url = '/shops/singleproduct/'
-    success_message = "Single product was delated successfully"
-
-    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
-    # https://code.djangoproject.com/ticket/21926
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super(SingleProductDeleteView, self).delete(request, *args, **kwargs)
-
-
-# List
 class SingleProductListView(ListView):
     model = SingleProduct
     template_name = 'shops/singleproduct_list.html'
     queryset = SingleProduct.objects.all()
-
-
-# Model CONTAINER
-# C
-class ContainerCreateView(SuccessMessageMixin, CreateView):
-    model = Container
-    fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place']
-    template_name = 'shops/container_create.html'
-    success_url = '/shops/container/'
-    success_message = "Container was created successfully"
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(ContainerCreateView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        return context
 
 
 class ContainerCreateMultipleView(FormView):
@@ -444,47 +323,17 @@ class ContainerCreateMultipleView(FormView):
         return context
 
 
-# R
 class ContainerRetrieveView(DetailView):
     model = Container
     template_name = 'shops/container_retrieve.html'
 
 
-# U
-class ContainerUpdateView(SuccessMessageMixin, UpdateView):
-    model = Container
-    fields = ['product_base', 'price', 'purchase_date', 'expiry_date', 'place']
-    template_name = 'shops/container_update.html'
-    success_url = '/shops/container/'
-    success_message = "Container was updated successfully"
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.success_url))
-
-
-# D
-class ContainerDeleteView(SuccessMessageMixin, DeleteView):
-    model = Container
-    template_name = 'shops/container_delete.html'
-    success_url = '/shops/container/'
-    success_message = "Container was delated successfully"
-
-    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
-    # https://code.djangoproject.com/ticket/21926
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super(ContainerDeleteView, self).delete(request, *args, **kwargs)
-
-
-# List
 class ContainerListView(ListView):
     model = Container
     template_name = 'shops/container_list.html'
     queryset = Container.objects.all()
 
 
-# Model PRODUCTUNIT
-# C
 class ProductUnitCreateView(SuccessMessageMixin, CreateView):
     model = ProductUnit
     fields = ['name', 'description', 'unit', 'type']
@@ -501,13 +350,11 @@ class ProductUnitCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-# R
 class ProductUnitRetrieveView(DetailView):
     model = ProductUnit
     template_name = 'shops/productunit_retrieve.html'
 
 
-# U
 class ProductUnitUpdateView(SuccessMessageMixin, UpdateView):
     model = ProductUnit
     fields = ['name', 'description', 'unit', 'type']
@@ -519,7 +366,6 @@ class ProductUnitUpdateView(SuccessMessageMixin, UpdateView):
         return force_text(self.request.GET.get('next', self.success_url))
 
 
-# D
 class ProductUnitDeleteView(SuccessMessageMixin, DeleteView):
     model = ProductUnit
     template_name = 'shops/productunit_delete.html'
@@ -533,15 +379,12 @@ class ProductUnitDeleteView(SuccessMessageMixin, DeleteView):
         return super(ProductUnitDeleteView, self).delete(request, *args, **kwargs)
 
 
-# List
 class ProductUnitListView(ListView):
     model = ProductUnit
     template_name = 'shops/productunit_list.html'
     queryset = ProductUnit.objects.all()
 
 
-# Model PRODUCTBASE
-# C
 class ProductBaseCreateView(SuccessMessageMixin, CreateView):
     model = ProductBase
     fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price', 'quantity', 'product_unit']
@@ -558,13 +401,11 @@ class ProductBaseCreateView(SuccessMessageMixin, CreateView):
         return context
 
 
-# R
 class ProductBaseRetrieveView(DetailView):
     model = ProductBase
     template_name = 'shops/productbase_retrieve.html'
 
 
-# U
 class ProductBaseUpdateView(SuccessMessageMixin, UpdateView):
     model = ProductBase
     fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price', 'quantity', 'product_unit']
@@ -576,7 +417,6 @@ class ProductBaseUpdateView(SuccessMessageMixin, UpdateView):
         return force_text(self.request.GET.get('next', self.success_url))
 
 
-# D
 class ProductBaseDeleteView(SuccessMessageMixin, DeleteView):
     model = ProductUnit
     template_name = 'shops/productbase_delete.html'
@@ -590,7 +430,6 @@ class ProductBaseDeleteView(SuccessMessageMixin, DeleteView):
         return super(ProductBaseDeleteView, self).delete(request, *args, **kwargs)
 
 
-# List
 class ProductBaseListView(ListView):
     model = ProductBase
     template_name = 'shops/productbase_list.html'
