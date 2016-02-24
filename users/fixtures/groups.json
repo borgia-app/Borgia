@@ -1,10 +1,15 @@
 [
   {
-    "model": "auth.permission",
+    "model": "auth.group",
+    "pk": 1,
     "fields": {
-      "name": "Gérer le groupe des présidents",
-      "content_type": 6,
-      "codename": "presidents_group_manage"
+      "name": "Présidents",
+      "permissions": [["membres_d_honneurs_group_manage", "users", "user"],
+        ["gadz_arts_group_manage", "users", "user"],
+        ["tresoriers_group_manage", "users", "user"],
+        ["vices_presidents_delegues_a_la_vie_interne_group_manage", "users", "user"],
+        ["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
+        ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"]]
     }
   },
   {
@@ -16,27 +21,11 @@
     }
   },
   {
-    "model": "auth.permission",
-    "fields": {
-      "name": "Gérer le groupe des trésoriers",
-      "content_type": 6,
-      "codename": "tresoriers_group_manage"
-    }
-  },
-  {
     "model": "auth.group",
     "pk": 3,
     "fields": {
       "name": "Chefs gestionnaires du foyer",
       "permissions": [["gestionnaires_du_foyer_group_manage", "users", "user"]]
-    }
-  },
-  {
-    "model": "auth.permission",
-    "fields": {
-      "name": "Gérer le groupe des chefs gestionnaires du foyer",
-      "content_type": 6,
-      "codename": "chefs_gestionnaires_du_foyer_group_manage"
     }
   },
   {
@@ -48,27 +37,11 @@
     }
   },
   {
-    "model": "auth.permission",
-    "fields": {
-      "name": "Gérer le groupe des gestionnaires du foyer",
-      "content_type": 6,
-      "codename": "gestionnaires_du_foyer_group_manage"
-    }
-  },
-  {
     "model": "auth.group",
     "pk": 5,
     "fields": {
       "name": "Chefs gestionnaires de l'auberge",
       "permissions": [["gestionnaires_de_l_auberge_group_manage", "users", "user"]]
-    }
-  },
-  {
-    "model": "auth.permission",
-    "fields": {
-      "name": "Gérer le groupe des chefs gestionnaires de l'auberge",
-      "content_type": 6,
-      "codename": "chefs_gestionnaires_de_l_auberge_group_manage"
     }
   },
   {
@@ -80,27 +53,11 @@
     }
   },
   {
-    "model": "auth.permission",
-    "fields": {
-      "name": "Gérer le groupe des gestionnaires de l'auberge",
-      "content_type": 6,
-      "codename": "gestionnaires_de_l_auberge_group_manage"
-    }
-  },
-  {
     "model": "auth.group",
     "pk": 7,
     "fields": {
       "name": "Gadz'Arts",
       "permissions": []
-    }
-  },
-  {
-    "model": "auth.permission",
-    "fields": {
-      "name": "Gérer le groupe des Gadz'Arts",
-      "content_type": 6,
-      "codename": "gadz_arts_group_manage"
     }
   },
   {
@@ -112,14 +69,6 @@
     }
   },
   {
-    "model": "auth.permission",
-    "fields": {
-      "name": "Gérer le groupe des membres d'honneurs",
-      "content_type": 6,
-      "codename": "membres_d_honneurs_group_manage"
-    }
-  },
-  {
     "model": "auth.group",
     "pk": 9,
     "fields": {
@@ -128,40 +77,11 @@
     }
   },
   {
-    "model": "auth.permission",
-    "fields": {
-      "name": "Gérer le groupe des membres spéciaux",
-      "content_type": 6,
-      "codename": "membres_speciaux_group_manage"
-    }
-  },
-  {
     "model": "auth.group",
     "pk": 10,
     "fields": {
       "name": "Vices présidents délégués à la vie interne",
       "permissions": [["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
-        ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"]]
-    }
-  },
-  {
-    "model": "auth.permission",
-    "fields": {
-      "name": "Gérer le groupe des vices présidents délégués à la vie interne",
-      "content_type": 6,
-      "codename": "vices_presidents_delegues_a_la_vie_interne_group_manage"
-    }
-  },
-  {
-    "model": "auth.group",
-    "pk": 1,
-    "fields": {
-      "name": "Présidents",
-      "permissions": [["membres_d_honneurs_group_manage", "users", "user"],
-        ["gadz_arts_group_manage", "users", "user"],
-        ["tresoriers_group_manage", "users", "user"],
-        ["vices_presidents_delegues_a_la_vie_interne_group_manage", "users", "user"],
-        ["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
         ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"]]
     }
   }

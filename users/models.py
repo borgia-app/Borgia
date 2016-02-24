@@ -58,6 +58,14 @@ class User(AbstractUser):
     class Meta:
         permissions = (
             ('presidents_group_manage', 'Gérer le groupe des présidents'),
+            ('tresoriers_group_manage', 'Gérer le groupe des trésoriers'),
             ('chefs_gestionnaires_du_foyer_group_manage', 'Gérer le groupe des chefs gestionnaires du foyer'),
             ('gestionnaires_du_foyer_group_manage', 'Gérer le groupe des gestionnaires du foyer'),
+            ('chefs_gestionnaires_de_l_auberge_group_manage', 'Gérer le groupe des chefs gestionnaires de l\'auberge'),
+            ('gestionnaires_de_l_auberge_group_manage', 'Gérer le groupe des gestionnaires de l\'auberge'),
+            ('gadz_arts_group_manage', 'Gérer le groupe des Gadz\'Arts'),
+            ('membres_d_honneurs_group_manage', 'Gérer le groupe des membres d\'honneurs'),
+            ('membres_speciaux_group_manage', 'Gérer le groupe des membres spéciaux'),
+            ('vices_presidents_delegues_a_la_vie_interne_group_manage',
+             'Gérer le groupe des vices présidents délégués à la vie interne')
         )

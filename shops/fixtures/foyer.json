@@ -1,26 +1,5 @@
 [
-  {
-    "model": "users.user",
-    "pk": 1,
-    "fields": {
-      "is_superuser": false,
-      "username": "AE_ENSAM",
-      "first_name": "AE",
-      "last_name": "ENSAM",
-      "email": "",
-      "is_staff": false,
-      "is_active": true,
-      "date_joined": "2016-02-15T13:32:56.781Z",
-      "surname": null,
-      "family": null,
-      "balance": 0.0,
-      "year": null,
-      "campus": null,
-      "phone": null,
-      "groups": [],
-      "user_permissions": []
-    }
-  },
+
   {
     "model": "shops.shop",
     "pk": 1,
@@ -641,41 +620,6 @@
       "quantity_remaining": 75,
       "is_sold": false,
       "product_base": 16
-    }
-  },
-  {
-    "model": "shops.productunit",
-    "pk": 17,
-    "fields": {
-      "name": "Argent fictif",
-      "description": "Produit unitaire d'argent fictif utilisé pour les comptes de foyer",
-      "unit": "CENT",
-      "type": "fictional_money"
-    }
-  },
-  {
-    "model": "shops.productbase",
-    "pk": 18,
-    "fields": {
-      "name": "Argent fictif",
-      "description": "Argent fictif utilisé pour les comptes de foyer",
-      "calculated_price": 0,
-      "product_unit": 17,
-      "brand": "AE ENSAM",
-      "type": "container",
-      "shop": 1
-    }
-  },
-  {
-    "model": "shops.container",
-    "pk": 17,
-    "fields": {
-      "price": 0,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "les nuages",
-      "is_sold": false,
-      "product_base": 18
     }
   }
 ]
