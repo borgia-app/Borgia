@@ -25,7 +25,22 @@
     "pk": 3,
     "fields": {
       "name": "Chefs gestionnaires du foyer",
-      "permissions": [["gestionnaires_du_foyer_group_manage", "users", "user"]]
+      "permissions": [
+        ["add_container", "shops", "container"],
+        ["change_active_keg", "shops", "container"],
+        ["list_container", "shops", "container"],
+        ["add_productbase", "shops", "productbase"],
+        ["change_productbase", "shops", "productbase"],
+        ["list_productbase", "shops", "productbase"],
+        ["add_productunit", "shops", "productunit"],
+        ["change_productunit", "shops", "productunit"],
+        ["list_productunit", "shops", "productunit"],
+        ["reach_workboard_foyer", "shops", "shop"],
+        ["add_singleproduct", "shops", "singleproduct"],
+        ["list_singleproduct", "shops", "singleproduct"],
+        ["add_user", "users", "user"],
+        ["gestionnaires_du_foyer_group_manage", "users", "user"]
+      ]
     }
   },
   {
@@ -41,7 +56,9 @@
     "pk": 5,
     "fields": {
       "name": "Chefs gestionnaires de l'auberge",
-      "permissions": [["gestionnaires_de_l_auberge_group_manage", "users", "user"]]
+      "permissions": [
+        ["gestionnaires_de_l_auberge_group_manage", "users", "user"]
+      ]
     }
   },
   {

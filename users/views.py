@@ -34,7 +34,7 @@ class ManageGroupView(FormView):
     def get_form_kwargs(self):
 
         kwgars = super(ManageGroupView, self).get_form_kwargs()
-        group = Group.objects.get(pk=self.request.GET.get('group_pk'))
+        group = Group.objects.get(pk=self.request.GET.get('group_pk', self.request.POST.get('group_pk')))
 
         # Cas d'un groupe de gestionnaires d'organes
         # Permissions possibles -> celles du groupe des chefs de l'organes (hors celle de gérer le group des chefs)

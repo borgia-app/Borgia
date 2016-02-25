@@ -7,6 +7,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.contrib import messages
 from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth.models import Group
 
 from shops.models import *
 from shops.forms import *
@@ -236,6 +237,8 @@ def purchase_foyer(request):
 
 
 def workboard_foyer(request):
+
+    group_gestionnaires_du_foyer_pk = Group.objects.get(name='Gestionnaires du foyer').pk
 
     # Liste des conteneurs sous une tireuse
     active_keg_container_list = []

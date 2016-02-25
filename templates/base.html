@@ -19,7 +19,9 @@
         <li><a href="/auth/logout" title="Se déconnecter">Logout</a></li>
         <li><a href="/users/profile" title="Aller au profil">Profil</a></li>
         <li><a href="/shops/foyer/consumption" title="Aller au foyer">Buquage foyer</a></li>
-        <li><a href="/shops/foyer/workboard" title="Aller à la gestion du foyer">Workboard foyer</a></li>
+        {% if perms.shops.reach_workboard_foyer %}
+            <li><a href="/shops/foyer/workboard" title="Aller à la gestion du foyer">Workboard foyer</a></li>
+        {% endif %}
     </ul>
 </nav>
 <br />
@@ -27,7 +29,7 @@
     <div class="container">
         {% for message in messages %}
             <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">
-           {{ message }}</div>
+                {{ message }}</div>
         {% endfor %}
     </div>
     <br />

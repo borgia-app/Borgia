@@ -80,6 +80,11 @@ class Shop(models.Model):
                                                                                 product_base__product_unit__type=type)))
         return list_product_base_container
 
+    class Meta:
+        permissions = (
+            ('reach_workboard_foyer', 'Aller sur le workboard du foyer'),
+        )
+
 
 class ProductBase(models.Model):
     """
@@ -118,6 +123,12 @@ class ProductBase(models.Model):
         else:
             return self.calculated_price
 
+    class Meta:
+        permissions = (
+            ('list_productbase', 'Lister les produits de base'),
+            ('retrieve_productbase', 'Afficher un produit de base')
+        )
+
 
 class SingleProduct(models.Model):
     """Le produit unitaire ("single product") est un objet indivisible.
@@ -147,6 +158,12 @@ class SingleProduct(models.Model):
     # Méthodes
     def __str__(self):
         return self.product_base.__str__() + ' n°' + str(self.pk)
+
+    class Meta:
+        permissions = (
+            ('list_singleproduct', 'Lister les produits unitaires'),
+            ('retrieve_singleproduct', 'Afficher un produit unitaire')
+        )
 
 
 class Container(models.Model):
@@ -186,6 +203,13 @@ class Container(models.Model):
     def pourcentage_quantity_remaining(self):
         return (self.quantity_remaining / self.product_base.quantity) * 100
 
+    class Meta:
+        permissions = (
+            ('list_container', 'Lister les conteneurs'),
+            ('retrieve_container', 'Afficher un conteneur'),
+            ('change_active_keg', 'Changer le fut d\'une tireuse'),
+        )
+
 
 class ProductUnit(models.Model):
     """Unite de produit.
@@ -216,6 +240,12 @@ class ProductUnit(models.Model):
 
     def __str__(self):
         return self.name
+
+    class Meta:
+        permissions = (
+            ('list_productunit', 'Lister les unités de produits'),
+            ('retrieve_productunit', 'Afficher une unité de produit'),
+        )
 
 
 class SingleProductFromContainer(models.Model):
