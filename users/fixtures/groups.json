@@ -4,12 +4,14 @@
     "pk": 1,
     "fields": {
       "name": "Présidents",
-      "permissions": [["membres_d_honneurs_group_manage", "users", "user"],
+      "permissions": [
+        ["membres_d_honneurs_group_manage", "users", "user"],
         ["gadz_arts_group_manage", "users", "user"],
         ["tresoriers_group_manage", "users", "user"],
         ["vices_presidents_delegues_a_la_vie_interne_group_manage", "users", "user"],
         ["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
-        ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"]]
+        ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"]
+      ]
     }
   },
   {
@@ -17,7 +19,40 @@
     "pk": 2,
     "fields": {
       "name": "Trésoriers",
-      "permissions": []
+      "permissions": [
+        ["retrieve_sale", "finances", "sale"],
+        ["list_sale", "finances", "sale"],
+        ["retrieve_cheque", "finances", "cheque"],
+        ["list_cheque", "finances", "cheque"],
+        ["retrieve_lydia", "finances", "lydia"],
+        ["list_lydia", "finances", "lydia"],
+        ["retrieve_cash", "finances", "cash"],
+        ["list_cash", "finances", "cash"],
+        ["retrieve_debitbalance", "finances", "debitbalance"],
+        ["list_debitbalance", "finances", "debitbalance"],
+
+        ["add_user", "users", "user"],
+        ["change_user", "users", "user"],
+        ["delete_user", "users", "user"],
+        ["retrieve_user", "users", "user"],
+        ["list_user", "users", "user"],
+
+        ["change_productbase", "shops", "productbase"],
+        ["retrieve_productbase", "shops", "productbase"],
+        ["list_productbase", "shops", "productbase"],
+        ["delete_productbase", "shops", "productbase"],
+
+        ["change_productunit", "shops", "productunit"],
+        ["retrieve_productunit", "shops", "productunit"],
+        ["list_productunit", "shops", "productunit"],
+        ["delete_productunit", "shops", "productunit"],
+
+        ["retrieve_container", "shops", "container"],
+        ["list_container", "shops", "container"],
+
+        ["retrieve_singleproduct", "shops", "singleproduct"],
+        ["list_singleproduct", "shops", "singleproduct"]
+      ]
     }
   },
   {
@@ -48,7 +83,21 @@
     "pk": 4,
     "fields": {
       "name": "Gestionnaires du foyer",
-      "permissions": []
+      "permissions": [
+        ["add_container", "shops", "container"],
+        ["change_active_keg", "shops", "container"],
+        ["list_container", "shops", "container"],
+        ["add_productbase", "shops", "productbase"],
+        ["change_productbase", "shops", "productbase"],
+        ["list_productbase", "shops", "productbase"],
+        ["add_productunit", "shops", "productunit"],
+        ["change_productunit", "shops", "productunit"],
+        ["list_productunit", "shops", "productunit"],
+        ["reach_workboard_foyer", "shops", "shop"],
+        ["add_singleproduct", "shops", "singleproduct"],
+        ["list_singleproduct", "shops", "singleproduct"],
+        ["add_user", "users", "user"]
+      ]
     }
   },
   {

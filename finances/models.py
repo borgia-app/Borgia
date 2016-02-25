@@ -49,6 +49,12 @@ class Sale(models.Model):
         self.amount = self.list_single_products()[1] + self.list_single_products_from_container()[1]
         self.save()
 
+    class Meta:
+        permissions = (
+            ('retrieve_sale', 'Afficher une vente'),
+            ('list_sale', 'Lister les ventes'),
+        )
+
 
 class Payment(models.Model):
     """Un paiement.
@@ -133,6 +139,12 @@ class DebitBalance(models.Model):
         self.sender.balance -= self.amount
         self.sender.save()
 
+    class Meta:
+        permissions = (
+            ('retrieve_debitbalance', 'Afficher un débit sur compte foyer'),
+            ('list_debitbalance', 'Lister les débits sur comptes foyers'),
+        )
+
 
 class Cheque(models.Model):
 
@@ -157,6 +169,12 @@ class Cheque(models.Model):
     def list_sale(self):
         return Sale.objects.filter(payment__cheques=self)
 
+    class Meta:
+        permissions = (
+            ('retrieve_cheque', 'Afficher un cheque'),
+            ('list_cheque', 'Lister les chèques'),
+        )
+
 
 class BankAccount(models.Model):
 
@@ -170,6 +188,12 @@ class BankAccount(models.Model):
     # Méthodes
     def __str__(self):
         return self.bank + self.account
+
+    class Meta:
+        permissions = (
+            ('retrieve_bankaccount', 'Afficher un compte en banque'),
+            ('list_bankaccount', 'Lister les comptes en banque'),
+        )
 
 
 class Cash(models.Model):
@@ -191,6 +215,12 @@ class Cash(models.Model):
     def list_payment(self):
         return Payment.objects.filter(cashs__payment__cashs=self)
 
+    class Meta:
+        permissions = (
+            ('retrieve_cash', 'Afficher des espèces'),
+            ('list_cash', 'Lister les espèces'),
+        )
+
 
 class Lydia(models.Model):
     # Information sur l'identite du virement lydia
@@ -211,5 +241,9 @@ class Lydia(models.Model):
     def list_transaction(self):
         return Sale.objects.filter(payment__lydias=self)
 
-
+    class Meta:
+        permissions = (
+            ('retrieve_lydia', 'Afficher un virement Lydia'),
+            ('list_lydia', 'Lister les virements Lydias'),
+        )
 
