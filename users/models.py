@@ -67,5 +67,8 @@ class User(AbstractUser):
             ('membres_d_honneurs_group_manage', 'Gérer le groupe des membres d\'honneurs'),
             ('membres_speciaux_group_manage', 'Gérer le groupe des membres spéciaux'),
             ('vices_presidents_delegues_a_la_vie_interne_group_manage',
-             'Gérer le groupe des vices présidents délégués à la vie interne')
+             'Gérer le groupe des vices présidents délégués à la vie interne'),
+
+            ('list_user', 'Lister les users'),
+            ('retrieve_user', 'Afficher les users'),
         )

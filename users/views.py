@@ -105,13 +105,11 @@ def username_from_username_part(request):
     return HttpResponse(data)
 
 
-# Page de profil
 def profile_view(request):
 
     return render(request, 'users/profile.html', locals())
 
 
-# C - Creation d'un user
 class UserCreateView(SuccessMessageMixin, CreateView):
     model = User
     form_class = UserCreationCustomForm
@@ -132,30 +130,32 @@ class UserCreateView(SuccessMessageMixin, CreateView):
         return {'campus': 'Me', 'year': 2014}
 
 
-# R - Recuperation d'un user
 class UserRetrieveView(DetailView):
     model = User
     template_name = "users/retrieve.html"
 
+    def get(self, request, *args, **kwargs):
 
-# U - Modification d'un user
-# Si l'on se modifie soit meme
-class UserUpdatePersoView(UpdateView):
+        if request.user.has_perm('users.retrieve_user') is False and int(kwargs['pk']) != request.user.pk:
+            raise PermissionDenied
+
+        return super(UserRetrieveView, self).get(request, *args, **kwargs)
+
+
+class UserUpdateView(UpdateView):
     model = User
     fields = ['first_name', 'last_name', 'surname', 'family', 'year', 'campus']
     template_name = 'users/update.html'
     success_url = '/users/profile/'
 
+    def get(self, request, *args, **kwargs):
 
-# Si un admin veut modifier quelqu'un d'autre
-class UserUpdateAdminView(UpdateView):
-    model = User
-    fields = ['first_name', 'last_name', 'surname', 'family', 'year', 'campus', 'user_permissions', 'groups']
-    template_name = 'users/update.html'
-    success_url = '/users/'
+        if request.user.has_perm('users.change_user') is False and int(kwargs['pk']) != request.user.pk:
+            raise PermissionDenied
+
+        return super(UserUpdateView, self).get(request, *args, **kwargs)
 
 
-# D - Suppression d'un user
 class UserDeleteView(SuccessMessageMixin, DeleteView):
     model = User
     template_name = 'users/delete.html'
@@ -163,7 +163,6 @@ class UserDeleteView(SuccessMessageMixin, DeleteView):
     success_message = "Supression"
 
 
-# Liste d'users
 class UserListView(ListView):
     model = User
     template_name = "users/list.html"
@@ -180,6 +179,7 @@ def permission_to_manage_group(group):
     perm = Permission.objects.get(codename=group_name_clean_for_perm(group.name) + '_group_manage')
     perm_name = 'users.' + perm.codename
     return perm, perm_name
+
 
 def group_name_clean_for_perm(group_name):
     """

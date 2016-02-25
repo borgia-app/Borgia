@@ -13,7 +13,7 @@
         <div class="one-half column">
             <h3>Modifications</h3>
             <p><a href="{% url 'django.contrib.auth.views.password_change' %}">Changer de mot de passe</a></p>
-            <p><a href="{% url 'url_updateperso_user'  pk=request.user.id %}">Modifier ses informations personnelles</a></p>
+            <p><a href="{% url 'url_update_user'  pk=request.user.id %}">Modifier ses informations personnelles</a></p>
             <p><a href="{% url 'django.contrib.auth.views.logout' %}">Se déconnecter</a></p>
         </div>
     </div>
