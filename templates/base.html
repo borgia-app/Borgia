@@ -15,8 +15,11 @@
 <body>
 <nav class="container">
     <ul>
-        <li><a href="/auth/login" title="Aller au login">Login</a></li>
-        <li><a href="/auth/logout" title="Se déconnecter">Logout</a></li>
+        {% if user.is_authenticated %}
+            <li><a href="/auth/logout" title="Se déconnecter">Logout</a></li>
+        {% else %}
+            <li><a href="/auth/login" title="Aller au login">Login</a></li>
+        {% endif %}
         <li><a href="/users/profile" title="Aller au profil">Profil</a></li>
         <li><a href="/shops/foyer/consumption" title="Aller au foyer">Buquage foyer</a></li>
         {% if perms.shops.reach_workboard_foyer %}
