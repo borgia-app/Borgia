@@ -189,11 +189,12 @@ def group_name_clean_for_perm(group_name):
     :param group_name:
     :return: string
     """
-    dirty = ['é', 'è', 'ê', 'à', 'ù', 'û', 'ç', 'ô', 'î', 'ï', 'â', ' ', '\'']
+    dirty = ['é', 'è', 'ê', 'à', 'ù', 'û', 'ç', 'ô', 'î', 'ï', 'â', ' ', "\'"]
     clean = ['e', 'e', 'e', 'a', 'u', 'u', 'c', 'o', 'i', 'i', 'a', '_', '_']
 
-    for i in range(0, len(dirty)-1):
+    for i in range(0, len(dirty)):
         group_name = group_name.replace(dirty[i], clean[i])
 
     group_name = group_name.lower()
+    print(group_name)
     return group_name
