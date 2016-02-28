@@ -14,7 +14,7 @@
             <td>{{ e.last_name }}</td>
             <td>{{ e.first_name }}</td>
             <td>{{ e.surname }} {{ e.campus }}{{ e.year_pg }}</td>
-            <td><a href="{% url 'url_updateadmin_user' pk=e.id %}">modifier</a></td>
+            <td><a href="{% url 'url_update_user' pk=e.id %}">modifier</a></td>
             <td><a href="{% url 'url_delete_user' pk=e.id %}">supprimer</a></td>
             <td><a href="{% url 'url_retrieve_user' pk=e.id %}">détail</a></td>
         </tr>
