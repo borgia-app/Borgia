@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <form method="POST" action="{% url 'url_purchase_foyer' %}">
+    <form method="POST" action="{% url 'url_purchase_foyer' %}" id="form_purchase">
         {% csrf_token %}
         <div class="container">
             <div class="one-half column">
@@ -17,111 +17,179 @@
                 <input type=submit value="Valider">
             </div>
         </div>
-        <div class="container">
+
+        <div class="container50">
             <div class="row">
-                <div class="one-half column">
-                    <div class="row">
-                        <h2><u>Tireuses à bière</u></h2>
-                        <table>
-                            <th>Bière</th>
-                            <th>Prix 25 cl</th>
-                            <th>Nombre</th>
-                            <th>Prix correspondant</th>
+                <ul id="onglets">
+                    <li id="li_active_keg_container">Tireuses à bières</li>
+                    <li id="li_single_product">Produits unitaires</li>
+                    <li id="li_liquor">Alcools forts</li>
+                    <li id="li_syrup">Sirops</li>
+                    <li id="li_soft">Soft</li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="row" id="div_active_keg_container">
+                    <table>
+                        <th>Bière</th>
+                        <th>Prix 25 cl</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
 
-                            {% for e in dict_field_active_keg_container %}
-                                <tr>
-                                    <div class="fieldWrapper">
-                                        <td>{{ e.1.product_base.product_unit }}</td>
-                                        <td><span id="selected_initial_price_active_keg_{{ e.2 }}">{{ e.1.product_base.calculated_price_usual }}</span> €</td>
-                                        <td>{{ e.0 }}</td>
-                                        <td><span id="selected_price_active_keg_{{ e.2 }}">0</span> €</td>
-                                    </div>
-                                </tr>
-                            {% endfor %}
+                        {% for e in dict_field_active_keg_container %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{{ e.1.product_base.product_unit }}</td>
+                                    <td><span id="selected_initial_price_active_keg_{{ e.2 }}">{{ e.1.product_base.calculated_price_usual }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td><span id="selected_price_active_keg_{{ e.2 }}">0</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
 
-                        </table>
-                    </div>
-                    <div class="row">
-                        <h2><u>Alcools forts & sirops</u></h2>
-                        <table>
-                            <th>Produit</th>
-                            <th>Prix 4 cl</th>
-                            <th>Nombre</th>
-                            <th>Prix correspondant</th>
-
-                            {% for e in dict_field_container_liquor %}
-                                <tr>
-                                    <div class="fieldWrapper">
-                                        <td>{{ e.1.product_unit }}</td>
-                                        <td><span id="selected_initial_price_container_liquor_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
-                                        <td>{{ e.0 }}</td>
-                                        <td> <span id="selected_price_container_liquor_{{ e.2 }}">0</span> €</td>
-                                    </div>
-                                </tr>
-                            {% endfor %}
-                            {% for e in dict_field_container_syrup %}
-                                <tr>
-                                    <div class="fieldWrapper">
-                                        <td>{{ e.1.product_unit }}</td>
-                                        <td><span id="selected_initial_price_container_syrup_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
-                                        <td>{{ e.0 }}</td>
-                                        <td> <span id="selected_price_container_syrup_{{ e.2 }}">0</span> €</td>
-                                    </div>
-                                </tr>
-                            {% endfor %}
-
-                        </table>
-                    </div>
+                    </table>
                 </div>
+                <div class="row" id="div_container_liquor">
+                    <table>
+                        <th>Produit</th>
+                        <th>Prix 4 cl</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
 
-                <div class="one-half column">
-                    <div class="row">
-                        <h2><u>Produits unitaires</u></h2>
-                        <table>
-                            <th>Produit</th>
-                            <th>Prix</th>
-                            <th>Nombre</th>
-                            <th>Prix correspondant</th>
+                        {% for e in dict_field_container_liquor %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{{ e.1.product_unit }}</td>
+                                    <td><span id="selected_initial_price_container_liquor_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_container_liquor_{{ e.2 }}">0</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="row" id="div_container_syrup">
+                    <table>
+                        <th>Produit</th>
+                        <th>Prix 4 cl</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
+                        {% for e in dict_field_container_syrup %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{{ e.1.product_unit }}</td>
+                                    <td><span id="selected_initial_price_container_syrup_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_container_syrup_{{ e.2 }}">0</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="row" id="div_single_product">
+                    <table>
+                        <th>Produit</th>
+                        <th>Prix</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
 
-                            {% for e in dict_field_single_product %}
-                                <tr>
-                                    <div class="fieldWrapper">
-                                        <td>{{ e.1 }}</td>
-                                        <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.calculated_price }}</span> €</td>
-                                        <td>{{ e.0 }}</td>
-                                        <td> <span id="selected_price_single_product_{{ e.2 }}">0</span> €</td>
-                                    </div>
-                                </tr>
-                            {% endfor %}
+                        {% for e in dict_field_single_product %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{{ e.1 }}</td>
+                                    <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.calculated_price }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_single_product_{{ e.2 }}">0</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
 
-                        </table>
-                    </div>
-                    <div class="row">
-                        <h2><u>Soft</u></h2>
-                        <table>
-                            <th>Produit</th>
-                            <th>Prix 25 cl</th>
-                            <th>Nombre</th>
-                            <th>Prix correspondant</th>
+                    </table>
+                </div>
+                <div class="row" id="div_soft">
+                    <table>
+                        <th>Produit</th>
+                        <th>Prix 25 cl</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
 
-                            {% for e in dict_field_container_soft %}
-                                <tr>
-                                    <div class="fieldWrapper">
-                                        <td>{{ e.1.product_unit }}</td>
-                                        <td><span id="selected_initial_price_container_soft_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
-                                        <td>{{ e.0 }}</td>
-                                        <td> <span id="selected_price_container_soft_{{ e.2 }}">0</span> €</td>
-                                    </div>
-                                </tr>
-                            {% endfor %}
+                        {% for e in dict_field_container_soft %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{{ e.1.product_unit }}</td>
+                                    <td><span id="selected_initial_price_container_soft_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_container_soft_{{ e.2 }}">0</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
 
-                        </table>
-                    </div>
+                    </table>
                 </div>
             </div>
         </div>
     </form>
     <script>
+        onglets = document.getElementById('onglets');
+        var li_list = onglets.getElementsByTagName('li');
+        div_list = [];
+        div_list.push(document.getElementById('div_active_keg_container'));
+        div_list.push(document.getElementById('div_single_product'));
+        div_list.push(document.getElementById('div_container_liquor'));
+        div_list.push(document.getElementById('div_container_syrup'));
+        div_list.push(document.getElementById('div_soft'));
+        var active_li = 0;
+
+        // initialisation -> affichage des tireuses par défaut
+        set_active_li(0);
+
+
+        document.getElementById('li_active_keg_container').addEventListener('click', function(e) {
+            set_active_li(0);
+        }, false);
+        document.getElementById('li_single_product').addEventListener('click', function(e) {
+            set_active_li(1);
+        }, false);
+        document.getElementById('li_liquor').addEventListener('click', function(e) {
+            set_active_li(2);
+        }, false);
+        document.getElementById('li_syrup').addEventListener('click', function(e) {
+            set_active_li(3);
+        }, false);
+        document.getElementById('li_soft').addEventListener('click', function(e) {
+            set_active_li(4);
+        }, false);
+
+        document.onkeyup = function(e) {
+            if (e.keyCode == 37 && active_li>0) { // Flêche gauche
+                set_active_li(active_li - 1);
+            }
+            if (e.keyCode == 39 && active_li<li_list.length-1) { // Flêche droite
+                set_active_li(active_li + 1);
+            }
+            if (e.keyCode == 13) { // Flêche droite
+                document.getElementById('form_purchase').submit();
+            }
+        };
+
+        function set_active_li(new_active_li) {
+            active_li = new_active_li;
+            display_none_all(div_list[active_li]);
+        }
+
+        function display_none_all(div_except) {
+            for (i=0; i<div_list.length; i++) {
+                if (div_list[i] != div_except) {
+                    li_list[i].className = '';
+                    div_list[i].style.display = 'none';
+                }
+                else {
+                    div_list[i].style.display = 'block';
+                    li_list[i].className = 'active';
+                }
+            }
+        }
+
         function update_consumption() {
             var sum_active_keg = 0;
             var sum_single_product = 0;

@@ -2,7 +2,32 @@
 @import url(font-awesome.min.css);
 @import url("http://fonts.googleapis.com/css?family=Roboto:500,300");
 
+#onglets
+{
+	list-style-type: none;
+	margin-left : 0;
+	padding-bottom : 30px;
+}
 
+#onglets li
+{
+	float: left;
+	background-color: rgba(144, 144, 144, 0.075);
+	border: 1px solid rgba(144, 144, 144, 0.25);
+	margin : 2px 2px 0 4px !important;
+	height : 30px
+}
+
+#onglets li.active
+{
+    border-bottom: 1px solid #fff;
+    background-color: #fff;
+}
+
+#onglets li:hover
+{
+	background: #fff;
+}
 
 #results {
 	display: none;
