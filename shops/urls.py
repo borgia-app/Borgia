@@ -47,5 +47,6 @@ urlpatterns = [
     url(r'^foyer/replacement_keg', permission_required('shops.change_active_keg', raise_exception=True)
     (ReplacementActiveKeyView.as_view()), name='url_replacement_active_keg'),
     # Auberge
-    url(r'^auberge/consumption/$', PurchaseAuberge.as_view(), name='url_purchase_auberge'),
+    url(r'^auberge/consumption/$', permission_required('shops.sell_auberge', raise_exception=True)
+    (PurchaseAuberge.as_view()), name='url_purchase_auberge'),
 ]

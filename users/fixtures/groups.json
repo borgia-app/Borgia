@@ -106,7 +106,8 @@
     "fields": {
       "name": "Chefs gestionnaires de l'auberge",
       "permissions": [
-        ["gestionnaires_de_l_auberge_group_manage", "users", "user"]
+        ["gestionnaires_de_l_auberge_group_manage", "users", "user"],
+        ["sell_auberge", "shops", "shop"]
       ]
     }
   },
@@ -115,7 +116,9 @@
     "pk": 6,
     "fields": {
       "name": "Gestionnaires de l'auberge",
-      "permissions": []
+      "permissions": [
+        ["sell_auberge", "shops", "shop"]
+      ]
     }
   },
   {

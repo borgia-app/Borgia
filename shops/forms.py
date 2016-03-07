@@ -57,7 +57,11 @@ class PurchaseAubergeForm(forms.Form):
         # Essaye d'authentification seulement si les deux champs sont valides
         if operator_password and operator_password:
             # Cas d'échec d'authentification
-            if authenticate(username=operator_username, password=operator_password) is None:
+            operator = authenticate(username=operator_username, password=operator_password)
+            if operator is not None:
+                if operator.has_perm('shops.sell_auberge') is False:
+                    raise forms.ValidationError('Permission refusée !')
+            else:
                 raise forms.ValidationError('Echec d\'authentification')
 
         client_username = cleaned_data['client_username']
