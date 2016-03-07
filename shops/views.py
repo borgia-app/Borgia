@@ -64,8 +64,10 @@ class PurchaseAuberge(FormView):
 
     def form_valid(self, form):
 
-        container_food_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='food')
-        single_product_available_list = Shop.objects.get(name='Auberge').list_product_base_single_product(status_sold=False)
+        container_food_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False,
+                                                                                           type='food')
+        single_product_available_list = Shop.objects.get(name='Auberge').list_product_base_single_product(
+            status_sold=False)
         list_results_container_food = []
         list_results_single_product = []
 
@@ -140,7 +142,8 @@ class PurchaseAuberge(FormView):
         # Paiement par le client
         sale.payment.debit_balance.all()[0].set_movement()
 
-        return super(PurchaseAuberge, self).form_valid(form)
+        return render(self.request, 'shops/sale_validation.html', {'sale': sale,
+                                                                   'next': '/shops/auberge/consumption/'})
 
 
 # FOYER
@@ -315,7 +318,8 @@ def purchase_foyer(request):
             logout(request)
 
             # Affichage de la purchase au client
-            return render(request, 'shops/sale_validation_foyer.html', {'sale': sale})
+            return render(request, 'shops/sale_validation.html', {'sale': sale,
+                                                                  'next': '/auth/login?next=/shops/foyer/consumption'})
 
     else:
         # Creation des dictionnaires (field, element, n°) de correspondance

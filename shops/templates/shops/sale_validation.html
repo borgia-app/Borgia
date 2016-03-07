@@ -11,7 +11,7 @@
         </div>
         <div class="row">
             <p>Pas assez rapide ?</p>
-            <input type="submit" value="Redirection vers le buquage auberge" id="manual_redirect">
+            <input type="submit" value="Redirection vers le login" id="manual_redirect">
         </div>
     </div>
     <script>
@@ -25,11 +25,11 @@
 
         setTimeout(function() {
             clearInterval(timer);
-            window.location = "{% url 'url_purchase_auberge' %}";
+            window.location = "{{ next }}";
         }, time_initial*1000);
 
         document.getElementById("manual_redirect").addEventListener('click', function() {
-            window.location = "{% url 'url_purchase_auberge' %}";
+            window.location = "{{ next }}";
         }, false);
 
         // Donner le focus au chargement sur le bouton de redirection
