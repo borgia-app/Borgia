@@ -146,6 +146,11 @@ class PurchaseAuberge(FormView):
                                                                    'next': '/shops/auberge/consumption/'})
 
 
+def workboard_auberge(request):
+    group_gestionnaire_de_l_auberge_pk = Group.objects.get(name='Gestionnaires de l\'auberge').pk
+    return render(request, 'shops/workboard_auberge.html', locals())
+
+
 # FOYER
 class ReplacementActiveKeyView(FormView):
     template_name = 'shops/replacement_active_keg.html'

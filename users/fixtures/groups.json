@@ -106,8 +106,20 @@
     "fields": {
       "name": "Chefs gestionnaires de l'auberge",
       "permissions": [
+        ["add_container", "shops", "container"],
+        ["change_active_keg", "shops", "container"],
+        ["list_container", "shops", "container"],
+        ["add_productbase", "shops", "productbase"],
+        ["change_productbase", "shops", "productbase"],
+        ["list_productbase", "shops", "productbase"],
+        ["add_productunit", "shops", "productunit"],
+        ["change_productunit", "shops", "productunit"],
+        ["list_productunit", "shops", "productunit"],
+        ["add_singleproduct", "shops", "singleproduct"],
+        ["list_singleproduct", "shops", "singleproduct"],
         ["gestionnaires_de_l_auberge_group_manage", "users", "user"],
-        ["sell_auberge", "shops", "shop"]
+        ["sell_auberge", "shops", "shop"],
+        ["reach_workboard_auberge", "shops", "shop"]
       ]
     }
   },
@@ -117,7 +129,19 @@
     "fields": {
       "name": "Gestionnaires de l'auberge",
       "permissions": [
-        ["sell_auberge", "shops", "shop"]
+        ["add_container", "shops", "container"],
+        ["change_active_keg", "shops", "container"],
+        ["list_container", "shops", "container"],
+        ["add_productbase", "shops", "productbase"],
+        ["change_productbase", "shops", "productbase"],
+        ["list_productbase", "shops", "productbase"],
+        ["add_productunit", "shops", "productunit"],
+        ["change_productunit", "shops", "productunit"],
+        ["list_productunit", "shops", "productunit"],
+        ["add_singleproduct", "shops", "singleproduct"],
+        ["list_singleproduct", "shops", "singleproduct"],
+        ["sell_auberge", "shops", "shop"],
+        ["reach_workboard_auberge", "shops", "shop"]
       ]
     }
   },

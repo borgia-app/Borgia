@@ -28,6 +28,9 @@
         {% if perms.shops.sell_auberge %}
             <li><a href="/shops/auberge/consumption" title="Aller à l'auberge">Buquage auberge</a></li>
         {% endif %}
+        {% if perms.shops.reach_workboard_auberge %}
+            <li><a href="/shops/auberge/workboard" title="Aller à la gestion de l'auberge">Workboard auberge</a></li>
+        {% endif %}
     </ul>
 </nav>
 <br />
