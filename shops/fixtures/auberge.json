@@ -1,0 +1,12 @@
+[
+
+  {
+    "model": "shops.shop",
+    "pk": 2,
+    "fields": {
+      "name": "Auberge",
+      "description": "Auberge des élèves de l'AE ENSAM"
+    }
+  }
+
+  ]

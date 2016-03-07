@@ -1,0 +1,385 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <form method="POST" action="{% url 'url_purchase_auberge' %}" id="form_purchase">
+        {% csrf_token %}
+        <div class="container50">
+            <div class="row">
+                {{ form.non_field_errors }}
+                {{ error }}
+                </div>
+            <div class="row">
+                <div class="one-half column">
+                    <div class="row">
+                        <div class="fieldWrapper">
+                            {{ form.client_username.errors }}
+                            <label for="{{ form.client_username.id_for_label }}">Client:</label>
+                            {{ form.client_username }}
+                        </div>
+                    </div>
+                    <div class="row">
+                        <input id="id_submit" type=submit value="Valider"/>
+                    </div>
+                </div>
+                <div class="one-half column">
+                    <div class="fieldWrapper">
+                        {{ form.operator_username.errors }}
+                        <label for="{{ form.operator_username.id_for_label }}">Opérateur:</label>
+                        {{ form.operator_username }}
+                    </div>
+                    <div class="fieldWrapper">
+                        {{ form.operator_password.errors }}
+                        <label for="{{ form.operator_password.id_for_label }}">Mot de passe:</label>
+                        {{ form.operator_password }}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="container50">
+            <div class="row">
+                <ul id="onglets">
+                    <li id="li_food">Alimentaire</li>
+                    <li id="li_single_product">Produits unitaires</li>
+                </ul>
+            </div>
+            <div class="row">
+
+                <div class="row" id="div_container_food">
+                    <table>
+                        <th>Produit</th>
+                        <th>Prix 1 gr</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
+
+                        {% for e in dict_field_container_food %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{{ e.1.product_unit }}</td>
+                                    <td><span id="selected_initial_price_container_food_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_container_food_{{ e.2 }}">0</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <div class="row" id="div_single_product">
+                    <table>
+                        <th>Produit</th>
+                        <th>Prix</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
+
+                        {% for e in dict_field_single_product %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{{ e.1 }}</td>
+                                    <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.calculated_price }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_single_product_{{ e.2 }}">0</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </form>
+    <script>
+        onglets = document.getElementById('onglets');
+        var li_list = onglets.getElementsByTagName('li');
+        div_list = [];
+        div_list.push(document.getElementById('div_container_food'));
+        div_list.push(document.getElementById('div_single_product'));
+
+        var active_li = 0;
+
+        // initialisation -> affichage des tireuses par défaut
+        set_active_li(0);
+
+        document.getElementById('li_single_product').addEventListener('click', function(e) {
+            set_active_li(1);
+        }, false);
+        document.getElementById('li_food').addEventListener('click', function(e) {
+            set_active_li(2);
+        }, false);
+
+        document.onkeyup = function(e) {
+            if (e.keyCode == 37 && active_li>0) { // Flêche gauche
+                set_active_li(active_li - 1);
+            }
+            if (e.keyCode == 39 && active_li<li_list.length-1) { // Flêche droite
+                set_active_li(active_li + 1);
+            }
+        };
+
+        function set_active_li(new_active_li) {
+            active_li = new_active_li;
+            display_none_all(div_list[active_li]);
+        }
+
+        function display_none_all(div_except) {
+            for (i=0; i<div_list.length; i++) {
+                if (div_list[i] != div_except) {
+                    li_list[i].className = '';
+                    div_list[i].style.display = 'none';
+                }
+                else {
+                    div_list[i].style.display = 'block';
+                    li_list[i].className = 'active';
+                }
+            }
+        }
+
+        function update_consumption() {
+            var sum_single_product = 0;
+            var sum_container_food = 0;
+
+            for (i=0; i<{{ single_product_available_list|length }}; i++) {
+                sum_single_product += Number(document.getElementById("selected_price_single_product_" + i).textContent);
+            }
+            for (i=0; i<{{ container_soft_list|length }}; i++) {
+                sum_container_food += Number(document.getElementById("selected_price_container_food_" + i).textContent);
+            }
+
+            var balance_before = Number(document.getElementById("balance_before").textContent.replace(",","."));
+            document.getElementById("total_consumption").textContent = String((sum_single_product+sum_container_food).toFixed(2));
+            document.getElementById("balance_after").textContent = String((balance_before-sum_single_product-sum_container_food).toFixed(2));
+        }
+
+        var selected_quantity_single_product = [];
+        var selected_price_single_product = [];
+        var selected_initial_price_single_product = [];
+        var selected_quantity_container_food = [];
+        var selected_price_container_food = [];
+        var selected_initial_price_container_food = [];
+
+        for (i=0; i<{{ single_product_available_list|length }}; i++) {
+            selected_price_single_product.push(document.getElementById("selected_price_single_product_"+i));
+            selected_quantity_single_product.push(document.getElementById("id_field_single_product_"+i));
+            selected_initial_price_single_product.push(document.getElementById("selected_initial_price_single_product_"+i));
+        }
+        for (i=0; i<{{ container_food_list|length }}; i++) {
+            selected_price_container_food.push(document.getElementById("selected_price_container_food_"+i));
+            selected_quantity_container_food.push(document.getElementById("id_field_container_food_"+i));
+            selected_initial_price_container_food.push(document.getElementById("selected_initial_price_container_food_"+i));
+        }
+        for(i=0;i<{{ single_product_available_list|length }};i++){
+            (function(x) {
+                selected_quantity_single_product[i].addEventListener('change', function(e) {
+                    selected_price_single_product[x].textContent = String((e.target.value * Number(selected_initial_price_single_product[x].textContent.replace(",", "."))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+        for(i=0;i<{{ container_food_list|length }};i++){
+            (function(x) {
+                selected_quantity_container_food[i].addEventListener('change', function(e) {
+                    selected_price_container_food[x].textContent = String((e.target.value * Number(selected_initial_price_container_food[x].textContent.replace(",", "."))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+    </script>
+    <script>
+        div_results_operator = document.createElement('div');
+        div_results_operator.setAttribute('id', 'results_operator');
+        div_results_client = document.createElement('div');
+        div_results_client.setAttribute('id', 'results_client');
+        var searchElementClient = document.getElementById('id_client_username');
+        var searchElementOperator = document.getElementById('id_operator_username');
+        var passwordElementOperator = document.getElementById('id_operator_password');
+        var submitElement = document.getElementById('id_submit');
+        submitElement.disabled = 'disabled';
+        searchElementOperator.setAttribute('autocomplete', 'off');
+        searchElementClient.setAttribute('autocomplete', 'off');
+        insertAfter(div_results_operator, searchElementOperator);
+        insertAfter(div_results_client, searchElementClient);
+
+        passwordElementOperator.addEventListener('focus', function() {
+            if (searchElementOperator.value != '') {
+                submitElement.disabled = '';
+            }
+        }, false);
+        (function() {
+            var searchElement = document.getElementById('id_client_username'),
+                    results = document.getElementById('results_client'),
+                    selectedResult = -1, // Permet de savoir quel résultat est sélectionné : -1 signifie "aucune sélection"
+                    previousRequest, // On stocke notre précédente requête dans cette variable
+                    previousValue = searchElement.value; // On fait de même avec la précédente valeur
+
+            function getResults(keywords) { // Effectue une requête et récupère les résultats
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{% url 'url_username_from_username_part' %}?keywords=' + keywords);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        displayResults(xhr.responseText);
+                    }
+                };
+                xhr.send(null);
+                return xhr;
+            }
+
+            function displayResults(response) { // Affiche les résultats d'une requête
+                results.style.display = response.length ? 'block' : 'none'; // On cache le conteneur si on n'a pas de résultats
+                if (response.length) { // On ne modifie les résultats que si on en a obtenu
+                    response = response.split('|');
+                    var responseLen = response.length;
+                    results.innerHTML = ''; // On vide les résultats
+                    for (var i = 0, div ; i < responseLen ; i++) {
+                        div = results.appendChild(document.createElement('div'));
+                        div.innerHTML = response[i];
+                        div.onclick = function() {
+                            chooseResult(this);
+                        };
+                    }
+                }
+            }
+
+            function chooseResult(result) { // Choisi un des résultats d'une requête et gère tout ce qui y est attaché
+                searchElement.value = previousValue = result.innerHTML; // On change le contenu du champ de recherche et on enregistre en tant que précédente valeur
+                results.style.display = 'none'; // On cache les résultats
+                result.className = ''; // On supprime l'effet de focus
+                selectedResult = -1; // On remet la sélection à "zéro"
+                searchElement.focus(); // Si le résultat a été choisi par le biais d'un clique alors le focus est perdu, donc on le réattribue
+            }
+
+            searchElement.addEventListener('blur', function() {
+                results.style.display = 'none'; // On cache les résultats
+            }, false);
+
+            searchElement.onkeyup = function(e) {
+                e = e || window.event; // On n'oublie pas la compatibilité pour IE
+                var divs = results.getElementsByTagName('div');
+                if (e.keyCode == 38 && selectedResult > -1) { // Si la touche pressée est la flèche "haut"
+                    divs[selectedResult--].className = '';
+                    if (selectedResult > -1) { // Cette condition évite une modification de childNodes[-1], qui n'existe pas, bien entendu
+                        divs[selectedResult].className = 'result_focus';
+                    }
+                }
+
+                else if (e.keyCode == 40 && selectedResult < divs.length - 1) { // Si la touche pressée est la flèche "bas"
+                    results.style.display = 'block'; // On affiche les résultats
+
+                    if (selectedResult > -1) { // Cette condition évite une modification de childNodes[-1], qui n'existe pas, bien entendu
+                        divs[selectedResult].className = '';
+                    }
+                    divs[++selectedResult].className = 'result_focus';
+                    searchElement.value = divs[selectedResult].innerHTML;
+                }
+                else if (e.keyCode == 39 && selectedResult > -1) { // Si la touche pressée est "flèche de droite"
+                    chooseResult(divs[selectedResult]);
+                }
+                else if (e.keyCode == 13 && selectedResult > -1) { // Si la touche pressée est "entrée"
+                    chooseResult(divs[selectedResult]);
+                }
+                else if (searchElement.value != previousValue) { // Si le contenu du champ de recherche a changé
+                    previousValue = searchElement.value;
+                    if (previousRequest && previousRequest.readyState < 4) {
+                        previousRequest.abort(); // Si on a toujours une requête en cours, on l'arrête
+                    }
+                    previousRequest = getResults(previousValue); // On stocke la nouvelle requête
+                    selectedResult = -1; // On remet la sélection à "zéro" à chaque caractère écrit
+                }
+            };
+        })();
+        (function() {
+            var searchElement = document.getElementById('id_operator_username'),
+                    passwordElement = document.getElementById('id_operator_password'),
+                    results = document.getElementById('results_operator'),
+                    selectedResult = -1, // Permet de savoir quel résultat est sélectionné : -1 signifie "aucune sélection"
+                    previousRequest, // On stocke notre précédente requête dans cette variable
+                    previousValue = searchElement.value; // On fait de même avec la précédente valeur
+
+            function getResults(keywords) { // Effectue une requête et récupère les résultats
+                var xhr = new XMLHttpRequest();
+                xhr.open('GET', '{% url 'url_username_from_username_part' %}?keywords=' + keywords);
+                xhr.onreadystatechange = function() {
+                    if (xhr.readyState == 4 && xhr.status == 200) {
+                        displayResults(xhr.responseText);
+                    }
+                };
+                xhr.send(null);
+                return xhr;
+            }
+
+            function displayResults(response) { // Affiche les résultats d'une requête
+                results.style.display = response.length ? 'block' : 'none'; // On cache le conteneur si on n'a pas de résultats
+                if (response.length) { // On ne modifie les résultats que si on en a obtenu
+                    response = response.split('|');
+                    var responseLen = response.length;
+                    results.innerHTML = ''; // On vide les résultats
+                    for (var i = 0, div ; i < responseLen ; i++) {
+                        div = results.appendChild(document.createElement('div'));
+                        div.innerHTML = response[i];
+                        div.onclick = function() {
+                            chooseResult(this);
+                        };
+                    }
+                }
+            }
+
+            function chooseResult(result) { // Choisi un des résultats d'une requête et gère tout ce qui y est attaché
+                searchElement.value = previousValue = result.innerHTML; // On change le contenu du champ de recherche et on enregistre en tant que précédente valeur
+                results.style.display = 'none'; // On cache les résultats
+                result.className = ''; // On supprime l'effet de focus
+                selectedResult = -1; // On remet la sélection à "zéro"
+                searchElement.focus(); // Si le résultat a été choisi par le biais d'un clique alors le focus est perdu, donc on le réattribue
+            }
+
+            searchElement.addEventListener('blur', function() {
+                results.style.display = 'none'; // On cache les résultats
+            }, false);
+
+            searchElement.onkeyup = function(e) {
+                e = e || window.event; // On n'oublie pas la compatibilité pour IE
+                var divs = results.getElementsByTagName('div');
+                if (e.keyCode == 38 && selectedResult > -1) { // Si la touche pressée est la flèche "haut"
+                    divs[selectedResult--].className = '';
+                    if (selectedResult > -1) { // Cette condition évite une modification de childNodes[-1], qui n'existe pas, bien entendu
+                        divs[selectedResult].className = 'result_focus';
+                    }
+                }
+
+                else if (e.keyCode == 40 && selectedResult < divs.length - 1) { // Si la touche pressée est la flèche "bas"
+                    results.style.display = 'block'; // On affiche les résultats
+
+                    if (selectedResult > -1) { // Cette condition évite une modification de childNodes[-1], qui n'existe pas, bien entendu
+                        divs[selectedResult].className = '';
+                    }
+                    divs[++selectedResult].className = 'result_focus';
+                    searchElement.value = divs[selectedResult].innerHTML;
+                }
+                else if (e.keyCode == 39 && selectedResult > -1) { // Si la touche pressée est "flèche de droite"
+                    chooseResult(divs[selectedResult]);
+                }
+                else if (e.keyCode == 13 && selectedResult > -1) { // Si la touche pressée est "entrée"
+                    chooseResult(divs[selectedResult]);
+                    passwordElement.focus();
+                }
+                else if (searchElement.value != previousValue) { // Si le contenu du champ de recherche a changé
+                    previousValue = searchElement.value;
+                    if (previousRequest && previousRequest.readyState < 4) {
+                        previousRequest.abort(); // Si on a toujours une requête en cours, on l'arrête
+                    }
+                    previousRequest = getResults(previousValue); // On stocke la nouvelle requête
+                    selectedResult = -1; // On remet la sélection à "zéro" à chaque caractère écrit
+                }
+            };
+        })();
+
+        function insertAfter(newElement, afterElement) {
+            var parent = afterElement.parentNode;
+            if (parent.lastChild === afterElement) { // Si le dernier élément est le même que l'élément après lequel on veut insérer, il suffit de faire appendChild()
+                parent.appendChild(newElement);
+            } else { // Dans le cas contraire, on fait un insertBefore() sur l'élément suivant
+                parent.insertBefore(newElement, afterElement.nextSibling);
+            }
+        }
+    </script>
+
+{% endblock %}

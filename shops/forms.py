@@ -1,9 +1,12 @@
 #-*- coding: utf-8 -*-
 from django import forms
-from django.forms.widgets import Textarea
+from django.forms.widgets import Textarea, PasswordInput
 from django.db.models import Q
+from django.contrib.auth import authenticate
+from django.core.exceptions import ObjectDoesNotExist
 
 from shops.models import Shop, Container, ProductBase
+from users.models import User
 
 
 class ReplacementActiveKegForm(forms.Form):
@@ -13,6 +16,57 @@ class ReplacementActiveKegForm(forms.Form):
                                                                        product_base__product_unit__type='keg').exclude(
                                              place__contains='tireuse'),
                                      label='Nouveau fut')
+
+
+class PurchaseAubergeForm(forms.Form):
+
+    # Gestionnaire - opérateur
+    operator_username = forms.CharField(label='Gestionnaire')
+    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
+
+    # Client
+    client_username = forms.CharField(label='Client')
+
+    def __init__(self, *args, **kwargs):
+
+        # Initialisation des listes de produits
+        container_food_list = kwargs.pop('container_food_list')
+        single_product_available_list = kwargs.pop('single_product_available_list')
+        super(PurchaseAubergeForm, self).__init__(*args, **kwargs)
+
+        # Création des éléments de formulaire
+        for (i, t) in enumerate(single_product_available_list):
+            self.fields['field_single_product_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        for (i, t) in enumerate(container_food_list):
+            self.fields['field_container_food_%s' % i] = forms.IntegerField(required=True, min_value=0)
+
+    def single_product_avalaible_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_signle_product_'):
+                yield (self.fields[name].label, value)
+
+    def container_food_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_container_food_'):
+                yield (self.fields[name].label, value)
+
+    def clean(self):
+        cleaned_data = super(PurchaseAubergeForm, self).clean()
+        operator_username = cleaned_data['operator_username']
+        operator_password = cleaned_data['operator_password']
+        # Essaye d'authentification seulement si les deux champs sont valides
+        if operator_password and operator_password:
+            # Cas d'échec d'authentification
+            if authenticate(username=operator_username, password=operator_password) is None:
+                raise forms.ValidationError('Echec d\'authentification')
+
+        client_username = cleaned_data['client_username']
+        try:
+            User.objects.get(username=client_username)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError('Le client n\'existe pas')
+
+        return super(PurchaseAubergeForm, self).clean()
 
 
 class PurchaseFoyerForm(forms.Form):

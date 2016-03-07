@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, force_text
+from django.shortcuts import render, force_text, HttpResponseRedirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView
 from django.contrib.auth import logout
@@ -13,6 +13,134 @@ from shops.models import *
 from shops.forms import *
 from users.models import User
 from finances.models import Sale, DebitBalance, Payment
+
+
+# AUBERGE
+class PurchaseAuberge(FormView):
+    form_class = PurchaseAubergeForm
+    template_name = 'shops/sale_auberge.html'
+    success_url = '/auth/login'
+
+    def get_form_kwargs(self):
+        kwargs = super(PurchaseAuberge, self).get_form_kwargs()
+        kwargs['container_food_list'] = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='food')
+        kwargs['single_product_available_list'] = Shop.objects.get(name='Auberge').list_product_base_single_product(status_sold=False)
+        return kwargs
+
+    def get_initial(self):
+        initial = super(PurchaseAuberge, self).get_initial()
+        container_food_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='food')
+        single_product_available_list = Shop.objects.get(name='Auberge').list_product_base_single_product(status_sold=False)
+
+        for i in range(0, len(single_product_available_list)):
+            initial['field_single_product_%s' % i] = 0
+        for i in range(0, len(container_food_list)):
+            initial['field_container_food_%s' % i] = 0
+
+        return initial
+
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response(self.get_context_data())
+
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data())
+
+    def get_context_data(self, **kwargs):
+        context = super(PurchaseAuberge, self).get_context_data(**kwargs)
+        form = self.get_form()
+        dict_field_single_product = []
+        dict_field_container_food = []
+        container_food_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='food')
+        single_product_available_list = Shop.objects.get(name='Auberge').list_product_base_single_product(status_sold=False)
+        for i in range(0, len(single_product_available_list)):
+            dict_field_single_product.append((form['field_single_product_%s' % i],
+                                              single_product_available_list[i][0], i))
+        for i in range(0, len(container_food_list)):
+            dict_field_container_food.append((form['field_container_food_%s' % i],
+                                              container_food_list[i][0], i))
+        context['dict_field_single_product'] = dict_field_single_product
+        context['dict_field_container_food'] = dict_field_container_food
+        return context
+
+    def form_valid(self, form):
+
+        container_food_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='food')
+        single_product_available_list = Shop.objects.get(name='Auberge').list_product_base_single_product(status_sold=False)
+        list_results_container_food = []
+        list_results_single_product = []
+
+        for i in range(0, len(single_product_available_list)):
+            list_results_single_product.append((form.cleaned_data["field_single_product_%s" % i],
+                                                single_product_available_list[i][0]))
+        for i in range(0, len(container_food_list)):
+            list_results_container_food.append((form.cleaned_data["field_container_food_%s" % i],
+                                                container_food_list[i][0]))
+
+        # Creation de la vente entre l'AE ENSAM (représentée par le foyer) et le client
+
+        # Informations generales
+        sale = Sale(date=datetime.now(),
+                    sender=User.objects.get(username=form.cleaned_data['client_username']),
+                    recipient=User.objects.get(username='AE_ENSAM'),
+                    operator=User.objects.get(username=form.cleaned_data['operator_username']))
+        sale.save()
+
+        # Objects
+
+        # Objects unitaires - ex: Skolls
+        for e in list_results_single_product:
+            if e[0] != 0:
+                # Le client demande e[0] objets identiques au produit de base e[1]
+                # On les prends dans l'ordre du queryset (on s'en fiche) des objets non vendus bien sûr
+                # Le prix de vente est le prix du base product à l'instant de la vente
+                for i in range(0, e[0]):
+                    sp = SingleProduct.objects.filter(product_base=e[1])[0]
+                    sp.save()
+                    sp.is_sold = True
+                    sp.sale = sale
+                    sp.sale_price = sp.product_base.calculated_price
+                    sp.save()
+
+        # Food
+        for e in list_results_container_food:
+            if e[0] != 0:
+                # Premier conteneur de la liste dans le queryset du product base
+                spfc = SingleProductFromContainer(container=Container.objects.filter(product_base=e[1])[0],
+                                                  sale=sale)
+                spfc.save()
+                spfc.quantity = e[0] * e[1].product_unit.usual_quantity()
+                spfc.sale_price = e[1].calculated_price_usual() * e[0]
+                spfc.save()
+
+        # Payement total par le foyer ici
+
+        # Total à payer d'après les achats
+        sale.maj_amount()
+
+        # Création d'un débit sur compte foyer
+        d_b = DebitBalance(amount=sale.amount,
+                           date=datetime.now(),
+                           sender=sale.sender,
+                           recipient=sale.recipient)
+        d_b.save()
+
+        # Création d'un paiement
+        payment = Payment()
+        payment.save()
+        # Liaison entre le paiement et le debit sur compte foyer
+        payment.debit_balance.add(d_b)
+        payment.save()
+        payment.maj_amount()
+        payment.save()
+
+        # Liaison entre le paiement et la vente
+        sale.payment = payment
+        sale.save()
+
+        # Paiement par le client
+        sale.payment.debit_balance.all()[0].set_movement()
+
+        return super(PurchaseAuberge, self).form_valid(form)
 
 
 # FOYER
@@ -271,6 +399,9 @@ class SingleProductCreateMultipleView(FormView):
                                product_base=form.cleaned_data['product_base'])
             sp.save()
 
+        # Mise à jour du prix du product base
+        form.cleaned_data['product_base'].set_calculated_price_mean()
+
         return super(SingleProductCreateMultipleView, self).form_valid(form)
 
     def get_initial(self):
@@ -312,6 +443,9 @@ class ContainerCreateMultipleView(FormView):
                           place=form.cleaned_data['place'],
                           product_base=form.cleaned_data['product_base'])
             c.save()
+
+        # Mise à jour du prix du product base
+        form.cleaned_data['product_base'].set_calculated_price_mean()
 
         return super(ContainerCreateMultipleView, self).form_valid(form)
 

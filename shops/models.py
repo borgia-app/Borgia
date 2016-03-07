@@ -123,6 +123,23 @@ class ProductBase(models.Model):
         else:
             return self.calculated_price
 
+    def set_calculated_price_mean(self):
+        """
+        Calcule le prix de vente du produit de base en faisant une moyenne sur les produits encore en stock, non vendu
+        :return:
+        """
+        sum_prices = 0
+        if self.product_unit is not None:
+            instances_products = Container.objects.filter(product_base=self, quantity_remaining__isnull=False)
+        else:
+            instances_products = SingleProduct.objects.filter(product_base=self, is_sold=False)
+
+        for i in instances_products:
+            sum_prices += i.price
+
+        self.calculated_price = round(sum_prices / len(instances_products), 2)
+        self.save()
+
     class Meta:
         permissions = (
             ('list_productbase', 'Lister les produits de base'),
@@ -223,6 +240,7 @@ class ProductUnit(models.Model):
     # Listes de validations
     UNIT_CHOICES = (('CL', 'cl'), ('G', 'g'), ('CENT', 'cent'))
     TYPE_CHOICES = (('keg', 'fut'), ('liquor', 'alcool fort'), ('syrup', 'sirop'), ('soft', 'soft'),
+                    ('food', 'alimentaire'),
                     ('fictional_money', 'fictional money'))
 
     # Attributs
@@ -237,6 +255,8 @@ class ProductUnit(models.Model):
             return 25
         elif self.type in ('liquor', 'syrup'):
             return 4
+        elif self.type in ('food'):
+            return 1
 
     def __str__(self):
         return self.name
@@ -263,6 +283,6 @@ class SingleProductFromContainer(models.Model):
     sale = models.ForeignKey('finances.Sale')
 
     def __str__(self):
-        return self.container.product_base.product_unit.__str__() + ' ' +\
+        return self.container.product_base.product_unit.__str__() + ' ' + \
                str(self.quantity) + self.container.product_base.product_unit.unit
 
