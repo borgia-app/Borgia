@@ -9,6 +9,7 @@
             {% csrf_token %}
             {{ form.as_p }}
             <input type=hidden name="next" value="{{ next }}" />
+            <input type=hidden name="shop" value="{{ shop }}" />
             <input type="submit" value="Submit"/>
         </form>
     </div>

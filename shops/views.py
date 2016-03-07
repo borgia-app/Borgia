@@ -415,8 +415,14 @@ class SingleProductCreateMultipleView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(SingleProductCreateMultipleView, self).get_context_data(**kwargs)
+        context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
         context['next'] = self.request.GET.get('next', self.success_url)
         return context
+
+    def get_form_kwargs(self):
+        kwargs = super(SingleProductCreateMultipleView, self).get_form_kwargs()
+        kwargs['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
+        return kwargs
 
 
 class SingleProductRetrieveView(DetailView):
@@ -460,8 +466,14 @@ class ContainerCreateMultipleView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(ContainerCreateMultipleView, self).get_context_data(**kwargs)
+        context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
         context['next'] = self.request.GET.get('next', self.success_url)
         return context
+
+    def get_form_kwargs(self):
+        kwargs = super(ContainerCreateMultipleView, self).get_form_kwargs()
+        kwargs['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
+        return kwargs
 
 
 class ContainerRetrieveView(DetailView):

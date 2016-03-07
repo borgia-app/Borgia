@@ -127,22 +127,30 @@ class PurchaseFoyerForm(forms.Form):
 
 class SingleProductCreateMultipleForm(forms.Form):
 
-    product_base = forms.ModelChoiceField(label='Base produit',
-                                          queryset=ProductBase.objects.filter(type='single_product'))
-    quantity = forms.IntegerField(label='Quantité à ajouter')
-    price = forms.FloatField(label='Prix d\'achat unitaire')
-    purchase_date = forms.DateField(label='Date d\'achat')
-    expiry_date = forms.DateField(label='Date d\'expiration', required=False)
-    place = forms.CharField(max_length=255, label='Lieu de stockage')
+    def __init__(self, **kwargs):
+        shop = kwargs.pop('shop')
+        super(SingleProductCreateMultipleForm, self).__init__(**kwargs)
+        self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
+                                                             queryset=ProductBase.objects.filter(type='single_product',
+                                                                                                 shop=shop))
+        self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter')
+        self.fields['price'] = forms.FloatField(label='Prix d\'achat unitaire')
+        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat')
+        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False)
+        self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
 
 
 class ContainerCreateMultipleForm(forms.Form):
 
-    product_base = forms.ModelChoiceField(label='Base produit',
-                                          queryset=ProductBase.objects.filter(
-                                                  type='container').exclude(product_unit__type='fictional_money'))
-    quantity = forms.IntegerField(label='Quantité à ajouter')
-    price = forms.FloatField(label='Prix d\'achat unitaire')
-    purchase_date = forms.DateField(label='Date d\'achat')
-    expiry_date = forms.DateField(label='Date d\'expiration', required=False)
-    place = forms.CharField(max_length=255, label='Lieu de stockage')
+    def __init__(self, **kwargs):
+        shop = kwargs.pop('shop')
+        super(ContainerCreateMultipleForm, self).__init__(**kwargs)
+        self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
+                                                             queryset=ProductBase.objects.filter(type='container',
+                                                                                                 shop=shop).exclude(
+                                                                 product_unit__type='fictional_money'))
+        self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter')
+        self.fields['price'] = forms.FloatField(label='Prix d\'achat unitaire')
+        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat')
+        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False)
+        self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
