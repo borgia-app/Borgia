@@ -3,6 +3,7 @@ from django.shortcuts import render, HttpResponse, force_text
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView
 from django.core import serializers
+from django.core.exceptions import PermissionDenied
 from datetime import datetime
 
 from finances.forms import *
@@ -263,6 +264,20 @@ class LydiaListView(ListView):
 class SaleRetrieveView(DetailView):
     model = Sale
     template_name = 'finances/sale_retrieve.html'
+
+    def get(self, request, *args, **kwargs):
+
+        # Recherche si l'user est lié à la sale
+        is_linked = False
+        sale = Sale.objects.get(pk=int(kwargs['pk']))
+        print(sale)
+        if sale.operator == request.user or sale.sender == request.user or sale.recipient == request.user:
+            is_linked = True
+
+        if request.user.has_perm('finances.retrieve_sale') is False and is_linked is False:
+            raise PermissionDenied
+
+        return super(SaleRetrieveView, self).get(request, *args, **kwargs)
 
 
 class SaleListView(ListView):

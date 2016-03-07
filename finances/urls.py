@@ -28,8 +28,7 @@ urlpatterns = [
     (LydiaRetrieveView.as_view()), name='url_retrieve_lydia'),  # R
     url(r'^lydia/$', permission_required('finances.list_lydia', raise_exception=True)
     (LydiaListView.as_view()), name='url_list_lydia'),  # Liste
-    url(r'^sale/retrieve/(?P<pk>\d+)/$', permission_required('finances.retrieve_sale', raise_exception=True)
-    (SaleRetrieveView.as_view()), name='url_retrieve_sale'),  # R
+    url(r'^sale/retrieve/(?P<pk>\d+)/$', SaleRetrieveView.as_view(), name='url_retrieve_sale'),  # R
     url(r'^sale/$', permission_required('finances.list_sale', raise_exception=True)
     (SaleListView.as_view()), name='url_list_sale'),  # Liste
 

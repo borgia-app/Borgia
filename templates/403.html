@@ -2,10 +2,25 @@
 
 {% block content %}
 
-        <div class="container30">
-            <h1>Erreur 403</h1>
-            <p>Permission requise.</p>
-            <a href="{% url 'url_profile' %}">Retourner au profil.</a>
-        </div>
-
+    <div class="container30">
+        <h1>Erreur 403</h1>
+        <input type=hidden name="user" id="user" value="{{ user.username }}" />
+        <p>Permission requise.</p>
+        <a href="{% url 'url_profile' %}">Retourner au profil.</a>
+    </div>
+    <script>
+        var username;
+        username = document.getElementById('user').value;
+        if (username === '24Me214') {
+            for (i=0; i<100; i++) {
+                var txt;
+                txt = 'Martal que fais-tu là';
+                for (j=0; j<i; j++) {
+                    txt += 'à';
+                }
+                txt += '?';
+                alert(txt);
+            }
+        }
+    </script>
 {% endblock %}
