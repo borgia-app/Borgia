@@ -11,12 +11,12 @@
         </div>
         <div class="row">
             <p>Pas assez rapide ?</p>
-            <input type="submit" value="Redirection vers le login" id="manual_redirect">
+            <input type="submit" value="Redirection" id="manual_redirect">
         </div>
     </div>
     <script>
         // Pilotage depuis time_initial (en secondes)
-        var time_initial = 10;
+        var time_initial = 5;
         document.getElementById("time_before_redirect").textContent = String(time_initial);
 
         var timer = setInterval(function() {
