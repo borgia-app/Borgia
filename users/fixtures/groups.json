@@ -74,7 +74,10 @@
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
         ["add_user", "users", "user"],
-        ["gestionnaires_du_foyer_group_manage", "users", "user"]
+        ["gestionnaires_du_foyer_group_manage", "users", "user"],
+        ["add_cheque", "finances", "cheque"],
+        ["add_lydia", "finances", "lydia"],
+        ["add_cash", "finances", "cash"]
       ]
     }
   },
@@ -96,7 +99,10 @@
         ["reach_workboard_foyer", "shops", "shop"],
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
-        ["add_user", "users", "user"]
+        ["add_user", "users", "user"],
+        ["add_cheque", "finances", "cheque"],
+        ["add_lydia", "finances", "lydia"],
+        ["add_cash", "finances", "cash"]
       ]
     }
   },
@@ -119,7 +125,10 @@
         ["list_singleproduct", "shops", "singleproduct"],
         ["gestionnaires_de_l_auberge_group_manage", "users", "user"],
         ["sell_auberge", "shops", "shop"],
-        ["reach_workboard_auberge", "shops", "shop"]
+        ["reach_workboard_auberge", "shops", "shop"],
+        ["add_cheque", "finances", "cheque"],
+        ["add_lydia", "finances", "lydia"],
+        ["add_cash", "finances", "cash"]
       ]
     }
   },
@@ -141,7 +150,10 @@
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
         ["sell_auberge", "shops", "shop"],
-        ["reach_workboard_auberge", "shops", "shop"]
+        ["reach_workboard_auberge", "shops", "shop"],
+        ["add_cheque", "finances", "cheque"],
+        ["add_lydia", "finances", "lydia"],
+        ["add_cash", "finances", "cash"]
       ]
     }
   },
