@@ -2,11 +2,41 @@
 
 {% block content %}
 
-    <form action= "{% url 'url_create_productbase' %}" method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <input type=hidden name="next" value="{{ next }}" />
-        <input type="submit" value="Submit"/>
-    </form>
+    <div class="container50">
+        <form action= "{% url 'url_create_productbase' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type=hidden name="next" value="{{ next }}" />
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+
+    <script>
+        var labels = document.getElementsByTagName('LABEL');
+        for (var i = 0; i < labels.length; i++) {
+            if (labels[i].htmlFor != '') {
+                var elem = document.getElementById(labels[i].htmlFor);
+                if (elem)
+                    elem.label = labels[i];
+            }
+        }
+
+        document.getElementById('id_type').addEventListener('change', function(e) {
+            if (e.target.value == 'single_product') {
+                document.getElementById('id_product_unit').style.display = 'None';
+                document.getElementById('id_product_unit').label.style.display = 'None';
+                document.getElementById('id_quantity').style.display = 'None';
+                document.getElementById('id_quantity').label.style.display = 'None';
+                document.getElementById('id_product_unit').value = '';
+                document.getElementById('id_quantity').value = 0;
+            }
+            if (e.target.value == 'container') {
+                document.getElementById('id_product_unit').style.display = '';
+                document.getElementById('id_product_unit').label.style.display = '';
+                document.getElementById('id_quantity').style.display = '';
+                document.getElementById('id_quantity').label.style.display = '';
+            }
+        }, false)
+    </script>
 
 {% endblock %}

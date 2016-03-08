@@ -587,6 +587,11 @@ class ProductBaseCreateView(SuccessMessageMixin, CreateView):
         context['next'] = self.request.GET.get('next', self.success_url)
         return context
 
+    def get_initial(self):
+        initial = super(ProductBaseCreateView, self).get_initial()
+        initial['type'] = 'container'
+        return initial
+
 
 class ProductBaseRetrieveView(DetailView):
     model = ProductBase
