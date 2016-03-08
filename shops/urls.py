@@ -41,7 +41,7 @@ urlpatterns = [
     (ProductBaseListView.as_view()), name='url_list_productbase'),  # C
 
     # Foyer
-    url(r'^foyer/consumption/$', purchase_foyer, name='url_purchase_foyer'),
+    url(r'^foyer/consumption/$', PurchaseFoyer.as_view(), name='url_purchase_foyer'),
     url(r'^foyer/workboard$', permission_required('shops.reach_workboard_foyer', raise_exception=True)
     (workboard_foyer), name='url_workboard_foyer'),
     url(r'^foyer/replacement_keg', permission_required('shops.change_active_keg', raise_exception=True)

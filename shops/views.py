@@ -188,173 +188,45 @@ class ReplacementActiveKeyView(FormView):
         return context
 
 
-def purchase_foyer(request):
+class PurchaseFoyer(FormView):
+    form_class = PurchaseFoyerForm
+    template_name = 'shops/sale_foyer.html'
+    success_url = '/auth/login'
 
-    # Peut être utiliser une FormView (mais plus complexe a cause du tap_list qu'il faut envoyer ...)
-    # Cf get_context_data avec kwargs: tap_list
+    def get_form_kwargs(self):
+        kwargs = super(PurchaseFoyer, self).get_form_kwargs()
+        kwargs['active_keg_container_list'] = Container.objects.filter(product_base__shop=Shop.objects.get(name='Foyer'),
+                                                                       product_base__product_unit__type='keg',
+                                                                       place__startswith='tireuse')
+        kwargs['single_product_available_list'] = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        kwargs['container_soft_list'] = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
+        kwargs['container_syrup_list'] = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
+        kwargs['container_liquor_list'] = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
+                                                                                                     type='liquor')
+        return kwargs
 
-    # Liste des conteneurs utilisés sous une tireuse
-    active_keg_container_list = Container.objects.filter(product_base__shop=Shop.objects.get(name='Foyer'),
-                                                         product_base__product_unit__type='keg',
-                                                         place__startswith='tireuse')
-    # Liste des objects unitaires disponibles au foyer (ex: skolls 33cl, ...)
-    single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
-    # Liste des conteneurs, hors futs, disponibles au foyer (ex: sirop de fraise, ...)
-    container_soft_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
-    container_syrup_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
-    container_liquor_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
-                                                                                       type='liquor')
+    def get(self, request, *args, **kwargs):
+        return self.render_to_response(self.get_context_data())
 
-    # Cas du POST
-    if request.method == 'POST':
+    def form_invalid(self, form):
+        return self.render_to_response(self.get_context_data())
 
-        # Création du formulaire de base
-        form = PurchaseFoyerForm(request.POST,
-                                 active_keg_container_list=active_keg_container_list,
-                                 single_product_available_list=single_product_available_list,
-                                 container_soft_list=container_soft_list,
-                                 container_syrup_list=container_syrup_list,
-                                 container_liquor_list=container_liquor_list)
-
-        # Formulaire valide -> traitement des données
-        if form.is_valid():
-
-            # Initialisation des listes de réponses
-            list_results_active_keg_container = []
-            list_results_single_product = []
-            list_results_container_soft = []
-            list_results_container_syrup = []
-            list_results_container_liquor = []
-
-            for i in range(0, len(active_keg_container_list)):
-                list_results_active_keg_container.append((form.cleaned_data["field_active_keg_container_%s" % i],
-                                                          active_keg_container_list[i]))
-            for i in range(0, len(single_product_available_list)):
-                list_results_single_product.append((form.cleaned_data["field_single_product_%s" % i],
-                                                    single_product_available_list[i][0]))
-            for i in range(0, len(container_soft_list)):
-                list_results_container_soft.append((form.cleaned_data["field_container_soft_%s" % i],
-                                                    container_soft_list[i][0]))
-            for i in range(0, len(container_liquor_list)):
-                list_results_container_liquor.append((form.cleaned_data["field_container_liquor_%s" % i],
-                                                      container_liquor_list[i][0]))
-            for i in range(0, len(container_syrup_list)):
-                list_results_container_syrup.append((form.cleaned_data["field_container_syrup_%s" % i],
-                                                     container_syrup_list[i][0]))
-
-            # Creation de la vente entre l'AE ENSAM (représentée par le foyer) et le client
-
-            # Informations generales
-            sale = Sale(date=datetime.now(),
-                        sender=request.user,
-                        recipient=User.objects.get(username="AE_ENSAM"),
-                        operator=request.user)
-            sale.save()
-
-            # Objects
-
-            # Objects unitaires - ex: Skolls
-            for e in list_results_single_product:
-                if e[0] != 0:
-                    # Le client demande e[0] objets identiques au produit de base e[1]
-                    # On les prends dans l'ordre du queryset (on s'en fiche) des objets non vendus bien sûr
-                    # Le prix de vente est le prix du base product à l'instant de la vente
-                    for i in range(0, e[0]):
-                        sp = SingleProduct.objects.filter(product_base=e[1])[0]
-                        sp.save()
-                        sp.is_sold = True
-                        sp.sale = sale
-                        sp.sale_price = sp.product_base.calculated_price
-                        sp.save()
-
-            # Issus d'un container
-            # Fûts de bières, ce sont ceux qui sont sous les tireuses
-            for e in list_results_active_keg_container:
-                if e[0] != 0:  # Le client a pris un objet issu du container e[1]
-                    # Création d'un objet fictif qui correspond à un bout du conteneur
-                    # Le prix de vente est le prix du base product à l'instant de la vente
-                    spfc = SingleProductFromContainer(container=e[1], sale=sale)
-                    spfc.save()
-                    spfc.quantity = spfc.container.product_base.product_unit.usual_quantity() * e[0]
-                    spfc.sale_price = spfc.container.product_base.calculated_price_usual() * e[0]
-                    spfc.save()
-
-            # Soft, syrup et liquor
-            # Le traitement est le même pour tous, je n'utilise qu'une seule liste
-            list_results_container_no_keg = \
-                list_results_container_soft + list_results_container_syrup + list_results_container_liquor
-            for e in list_results_container_no_keg:
-                if e[0] != 0:
-                    # Premier conteneur de la liste dans le queryset du product base
-                    spfc = SingleProductFromContainer(container=Container.objects.filter(product_base=e[1])[0],
-                                                      sale=sale)
-                    spfc.save()
-                    spfc.quantity = e[0] * e[1].product_unit.usual_quantity()
-                    spfc.sale_price = e[1].calculated_price_usual() * e[0]
-                    spfc.save()
-
-            # Payement total par le foyer ici
-
-            # Total à payer d'après les achats
-            sale.maj_amount()
-
-            # Création d'un débit sur compte foyer
-            d_b = DebitBalance(amount=sale.amount,
-                               date=datetime.now(),
-                               sender=sale.sender,
-                               recipient=sale.recipient)
-            d_b.save()
-
-            # Création d'un paiement
-            payment = Payment()
-            payment.save()
-            # Liaison entre le paiement et le debit sur compte foyer
-            payment.debit_balance.add(d_b)
-            payment.save()
-            payment.maj_amount()
-            payment.save()
-
-            # Liaison entre le paiement et la vente
-            sale.payment = payment
-            sale.save()
-
-            # Paiement par le client
-            sale.payment.debit_balance.all()[0].set_movement()
-
-            # Deconnection
-            logout(request)
-
-            # Affichage de la purchase au client
-            return render(request, 'shops/sale_validation.html', {'sale': sale,
-                                                                  'next': '/auth/login?next=/shops/foyer/consumption'})
-
-    else:
-        # Creation des dictionnaires (field, element, n°) de correspondance
-        # Sert a l'affichage sur le template et au post traitement
+    def get_context_data(self, **kwargs):
+        context = super(PurchaseFoyer, self).get_context_data(**kwargs)
+        form = self.get_form()
+        active_keg_container_list = Container.objects.filter(product_base__shop=Shop.objects.get(name='Foyer'),
+                                                             product_base__product_unit__type='keg',
+                                                             place__startswith='tireuse')
+        single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        container_soft_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
+        container_syrup_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
+        container_liquor_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
+                                                                                           type='liquor')
         dict_field_active_keg_container = []
         dict_field_single_product = []
         dict_field_container_soft = []
         dict_field_container_syrup = []
         dict_field_container_liquor = []
-        initial = {}
-
-        for i in range(0, len(active_keg_container_list)):
-            initial['field_active_keg_container_%s' % i] = 0
-        for i in range(0, len(single_product_available_list)):
-            initial['field_single_product_%s' % i] = 0
-        for i in range(0, len(container_soft_list)):
-            initial['field_container_soft_%s' % i] = 0
-        for i in range(0, len(container_syrup_list)):
-            initial['field_container_syrup_%s' % i] = 0
-        for i in range(0, len(container_liquor_list)):
-            initial['field_container_liquor_%s' % i] = 0
-
-        form = PurchaseFoyerForm(active_keg_container_list=active_keg_container_list,
-                                 single_product_available_list=single_product_available_list,
-                                 container_soft_list=container_soft_list,
-                                 container_syrup_list=container_syrup_list,
-                                 container_liquor_list=container_liquor_list,
-                                 initial=initial)
 
         for i in range(0, len(active_keg_container_list)):
             dict_field_active_keg_container.append((form['field_active_keg_container_%s' % i],
@@ -372,7 +244,160 @@ def purchase_foyer(request):
             dict_field_container_liquor.append((form['field_container_liquor_%s' % i],
                                                 container_liquor_list[i][0], i))
 
-    return render(request, 'shops/sale_foyer.html', locals())
+        context['dict_field_active_keg_container'] = dict_field_active_keg_container
+        context['dict_field_single_product'] = dict_field_single_product
+        context['dict_field_container_soft'] = dict_field_container_soft
+        context['dict_field_container_syrup'] = dict_field_container_syrup
+        context['dict_field_container_liquor'] = dict_field_container_liquor
+
+        context['single_product_available_list'] = single_product_available_list
+        context['container_soft_list'] = container_soft_list
+        context['container_syrup_list'] = container_syrup_list
+        context['container_liquor_list'] = container_liquor_list
+        context['active_keg_container_list'] = active_keg_container_list
+
+        return context
+
+    def get_initial(self):
+        initial = super(PurchaseFoyer, self).get_initial()
+        active_keg_container_list = Container.objects.filter(product_base__shop=Shop.objects.get(name='Foyer'),
+                                                             product_base__product_unit__type='keg',
+                                                             place__startswith='tireuse')
+        single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        container_soft_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
+        container_syrup_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
+        container_liquor_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
+                                                                                           type='liquor')
+
+        for i in range(0, len(single_product_available_list)):
+            initial['field_single_product_%s' % i] = 0
+        for i in range(0, len(container_soft_list)):
+            initial['field_container_soft_%s' % i] = 0
+        for i in range(0, len(container_syrup_list)):
+            initial['field_container_syrup_%s' % i] = 0
+        for i in range(0, len(container_liquor_list)):
+            initial['field_container_liquor_%s' % i] = 0
+        for i in range(0, len(active_keg_container_list)):
+            initial['field_active_keg_container_%s' % i] = 0
+        return initial
+
+    def form_valid(self, form):
+
+        active_keg_container_list = Container.objects.filter(product_base__shop=Shop.objects.get(name='Foyer'),
+                                                             product_base__product_unit__type='keg',
+                                                             place__startswith='tireuse')
+        single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        container_soft_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
+        container_syrup_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
+        container_liquor_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
+                                                                                           type='liquor')
+        list_results_active_keg_container = []
+        list_results_single_product = []
+        list_results_container_soft = []
+        list_results_container_syrup = []
+        list_results_container_liquor = []
+
+        for i in range(0, len(active_keg_container_list)):
+            list_results_active_keg_container.append((form.cleaned_data["field_active_keg_container_%s" % i],
+                                                      active_keg_container_list[i]))
+        for i in range(0, len(single_product_available_list)):
+            list_results_single_product.append((form.cleaned_data["field_single_product_%s" % i],
+                                                single_product_available_list[i][0]))
+        for i in range(0, len(container_soft_list)):
+            list_results_container_soft.append((form.cleaned_data["field_container_soft_%s" % i],
+                                                container_soft_list[i][0]))
+        for i in range(0, len(container_liquor_list)):
+            list_results_container_liquor.append((form.cleaned_data["field_container_liquor_%s" % i],
+                                                  container_liquor_list[i][0]))
+        for i in range(0, len(container_syrup_list)):
+            list_results_container_syrup.append((form.cleaned_data["field_container_syrup_%s" % i],
+                                                 container_syrup_list[i][0]))
+
+        # Creation de la vente entre l'AE ENSAM (représentée par le foyer) et le client
+
+        # Informations generales
+        sale = Sale(date=datetime.now(),
+                    sender=self.request.user,
+                    recipient=User.objects.get(username="AE_ENSAM"),
+                    operator=self.request.user)
+        sale.save()
+
+        # Objects
+
+        # Objects unitaires - ex: Skolls
+        for e in list_results_single_product:
+            if e[0] != 0:
+                # Le client demande e[0] objets identiques au produit de base e[1]
+                # On les prends dans l'ordre du queryset (on s'en fiche) des objets non vendus bien sûr
+                # Le prix de vente est le prix du base product à l'instant de la vente
+                for i in range(0, e[0]):
+                    sp = SingleProduct.objects.filter(product_base=e[1])[0]
+                    sp.save()
+                    sp.is_sold = True
+                    sp.sale = sale
+                    sp.sale_price = sp.product_base.calculated_price
+                    sp.save()
+
+        # Issus d'un container
+        # Fûts de bières, ce sont ceux qui sont sous les tireuses
+        for e in list_results_active_keg_container:
+            if e[0] != 0:  # Le client a pris un objet issu du container e[1]
+                # Création d'un objet fictif qui correspond à un bout du conteneur
+                # Le prix de vente est le prix du base product à l'instant de la vente
+                spfc = SingleProductFromContainer(container=e[1], sale=sale)
+                spfc.save()
+                spfc.quantity = spfc.container.product_base.product_unit.usual_quantity() * e[0]
+                spfc.sale_price = spfc.container.product_base.calculated_price_usual() * e[0]
+                spfc.save()
+
+        # Soft, syrup et liquor
+        # Le traitement est le même pour tous, je n'utilise qu'une seule liste
+        list_results_container_no_keg = \
+            list_results_container_soft + list_results_container_syrup + list_results_container_liquor
+        for e in list_results_container_no_keg:
+            if e[0] != 0:
+                # Premier conteneur de la liste dans le queryset du product base
+                spfc = SingleProductFromContainer(container=Container.objects.filter(product_base=e[1])[0],
+                                                  sale=sale)
+                spfc.save()
+                spfc.quantity = e[0] * e[1].product_unit.usual_quantity()
+                spfc.sale_price = e[1].calculated_price_usual() * e[0]
+                spfc.save()
+
+        # Payement total par le foyer ici
+
+        # Total à payer d'après les achats
+        sale.maj_amount()
+
+        # Création d'un débit sur compte foyer
+        d_b = DebitBalance(amount=sale.amount,
+                           date=datetime.now(),
+                           sender=sale.sender,
+                           recipient=sale.recipient)
+        d_b.save()
+
+        # Création d'un paiement
+        payment = Payment()
+        payment.save()
+        # Liaison entre le paiement et le debit sur compte foyer
+        payment.debit_balance.add(d_b)
+        payment.save()
+        payment.maj_amount()
+        payment.save()
+
+        # Liaison entre le paiement et la vente
+        sale.payment = payment
+        sale.save()
+
+        # Paiement par le client
+        sale.payment.debit_balance.all()[0].set_movement()
+
+        # Deconnection
+        logout(self.request)
+
+        # Affichage de la purchase au client
+        return render(self.request, 'shops/sale_validation.html', {'sale': sale,
+                                                              'next': '/auth/login?next=/shops/foyer/consumption'})
 
 
 def workboard_foyer(request):
