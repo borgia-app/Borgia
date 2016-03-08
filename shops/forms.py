@@ -32,6 +32,7 @@ class PurchaseAubergeForm(forms.Form):
         # Initialisation des listes de produits
         container_food_list = kwargs.pop('container_food_list')
         single_product_available_list = kwargs.pop('single_product_available_list')
+        self.request = kwargs.pop('request')
         super(PurchaseAubergeForm, self).__init__(*args, **kwargs)
 
         # Création des éléments de formulaire
@@ -51,7 +52,10 @@ class PurchaseAubergeForm(forms.Form):
                 yield (self.fields[name].label, value)
 
     def clean(self):
+
         cleaned_data = super(PurchaseAubergeForm, self).clean()
+
+        # Authentification de l'opérateur
         operator_username = cleaned_data['operator_username']
         operator_password = cleaned_data['operator_password']
         # Essaye d'authentification seulement si les deux champs sont valides
@@ -64,11 +68,16 @@ class PurchaseAubergeForm(forms.Form):
             else:
                 raise forms.ValidationError('Echec d\'authentification')
 
+        # Validation de l'username
         client_username = cleaned_data['client_username']
         try:
             User.objects.get(username=client_username)
         except ObjectDoesNotExist:
             raise forms.ValidationError('Le client n\'existe pas')
+
+        # Vérification de la commande sans provision
+        if float(self.request.POST.get('hidden_balance_after')) < 0:
+            raise forms.ValidationError('Commande sans provision')
 
         return super(PurchaseAubergeForm, self).clean()
 
@@ -83,6 +92,8 @@ class PurchaseFoyerForm(forms.Form):
         container_soft_list = kwargs.pop('container_soft_list')
         container_syrup_list = kwargs.pop('container_syrup_list')
         container_liquor_list = kwargs.pop('container_liquor_list')
+
+        self.request = kwargs.pop('request')
         super(PurchaseFoyerForm, self).__init__(*args, **kwargs)
 
         # Création des éléments de formulaire
@@ -123,6 +134,15 @@ class PurchaseFoyerForm(forms.Form):
         for name, value in self.cleaned_data.items():
             if name.startwith('field_container_liquor_'):
                 yield (self.fields[name].label, value)
+
+    def clean(self):
+
+        # Vérification de la commande sans provision
+        print(self.request.POST.get('hidden_balance_after'))
+        if float(self.request.POST.get('hidden_balance_after')) < 0:
+            raise forms.ValidationError('Commande sans provision')
+
+        return super(PurchaseFoyerForm, self).clean()
 
 
 class SingleProductCreateMultipleForm(forms.Form):

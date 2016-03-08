@@ -25,6 +25,7 @@ class PurchaseAuberge(FormView):
         kwargs = super(PurchaseAuberge, self).get_form_kwargs()
         kwargs['container_food_list'] = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='food')
         kwargs['single_product_available_list'] = Shop.objects.get(name='Auberge').list_product_base_single_product(status_sold=False)
+        kwargs['request'] = self.request
         return kwargs
 
     def get_initial(self):
@@ -203,6 +204,7 @@ class PurchaseFoyer(FormView):
         kwargs['container_syrup_list'] = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
         kwargs['container_liquor_list'] = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
                                                                                                      type='liquor')
+        kwargs['request'] = self.request
         return kwargs
 
     def get(self, request, *args, **kwargs):

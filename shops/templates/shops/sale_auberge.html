@@ -7,7 +7,6 @@
         <div class="container50">
             <div class="row">
                 {{ form.non_field_errors }}
-                {{ error }}
             </div>
             <div class="row">
                 <div class="one-half column">
@@ -18,6 +17,7 @@
                             {{ form.client_username }}
                         </div>
                         <strong><span id="balance_before"></span> € - <span id="total_consumption"></span> € = <span id="balance_after"></span> €</strong>
+                        <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
                     </div>
                     <div class="row">
                         <input id="id_submit" type=submit value="Valider"/>
@@ -150,6 +150,7 @@
             var balance_before = Number(document.getElementById("balance_before").textContent);
             document.getElementById("total_consumption").textContent = String((sum_single_product+sum_container_food).toFixed(2));
             document.getElementById("balance_after").textContent = String((balance_before-sum_single_product-sum_container_food).toFixed(2));
+            document.getElementById("hidden_balance_after").value = (balance_before-sum_single_product-sum_container_food).toFixed(2);
         }
 
         var selected_quantity_single_product = [];

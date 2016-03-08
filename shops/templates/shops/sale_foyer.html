@@ -4,17 +4,21 @@
     <form method="POST" action="{% url 'url_purchase_foyer' %}" id="form_purchase">
         {% csrf_token %}
         <div class="container">
-            <div class="one-half column">
-                <ul>
-                    <li><strong>Username : </strong>{{ user.username }}</li>
-                    <li>{{ user.surname }} {{ user.family }} {{ user.campus }}{{ user.year_pg }}</li>
-                    <li><strong>Solde disponible : </strong><b id="balance_before">{{ user.balance }}</b><b> €</b></li>
-                    <li><strong>Consommation : </strong><b id="total_consumption">0 </b><b> €</b></li>
-                    <li><strong>Prévision du solde : </strong><b id="balance_after"></b><b> €</b></li>
-                </ul>
+            <div class="row">
+                {{ form.non_field_errors }}
             </div>
-            <div class="one-half column">
-                <input type=submit value="Valider">
+            <div class="row">
+                <div class="one-half column">
+                    <ul>
+                        <li><strong>Username : </strong>{{ user.username }}</li>
+                        <li>{{ user.surname }} {{ user.family }} {{ user.campus }}{{ user.year_pg }}</li>
+                        <li><b id="balance_before">{{ user.balance }}</b><b> €</b> - <b id="total_consumption">0 </b><b> €</b> = <b id="balance_after"></b><b> €</b></li>
+                        <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
+                    </ul>
+                </div>
+                <div class="one-half column">
+                    <input type=submit value="Valider">
+                </div>
             </div>
         </div>
 
@@ -215,6 +219,7 @@
             var balance_before = Number(document.getElementById("balance_before").textContent.replace(",","."));
             document.getElementById("total_consumption").textContent = String((sum_active_keg+sum_single_product+sum_container_soft+sum_container_liquor+sum_container_syrup).toFixed(2));
             document.getElementById("balance_after").textContent = String((balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2));
+            document.getElementById("hidden_balance_after").value = (balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2);
         }
 
         var selected_quantity_active_keg = [];
