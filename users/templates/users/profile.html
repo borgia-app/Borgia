@@ -6,27 +6,19 @@
     <hr>
 
     <div class="container">
-        <div class="one-half column">
+        <div class="one-third column">
             <h3>Informations personnelles</h3>
             {% include 'users/retrieve_module.html' with object=user %}
         </div>
-        <div class="one-half column">
+        <div class="one-third column">
             <h3>Modifications</h3>
             <p><a href="{% url 'django.contrib.auth.views.password_change' %}">Changer de mot de passe</a></p>
             <p><a href="{% url 'url_update_user'  pk=request.user.id %}">Modifier ses informations personnelles</a></p>
             <p><a href="{% url 'django.contrib.auth.views.logout' %}">Se déconnecter</a></p>
         </div>
-    </div>
-
-    <div class="container">
-        <div class="four columns">
-            <h3>Groupe du foyer</h3>
-        </div>
-        <div class="four columns">
-            <h3>Groupe du trésors</h3>
-        </div>
-        <div class="four columns">
-            <h3>Groupe de la C-Vis</h3>
+        <div class="one-third column">
+            <h3>Transfert d'argent</h3>
+            <p><a href="{% url 'url_create_transfert' %}">Effectuer un transfert</a></p>
         </div>
     </div>
 

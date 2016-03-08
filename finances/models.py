@@ -53,6 +53,7 @@ class Sale(models.Model):
         permissions = (
             ('retrieve_sale', 'Afficher une vente'),
             ('list_sale', 'Lister les ventes'),
+            ('add_transfert', 'Effectuer un transfert d\'argent')
         )
 
 

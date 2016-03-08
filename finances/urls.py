@@ -33,10 +33,14 @@ urlpatterns = [
     (SaleListView.as_view()), name='url_list_sale'),  # Liste
 
     # Supply
-    url(r'^supply/cheque/$', permission_required('finances.add_cheque')
+    url(r'^supply/cheque/$', permission_required('finances.add_cheque', raise_exception=True)
     (SupplyChequeView.as_view()), name='url_supply_cheque'),
-    url(r'^supply/cash/$', permission_required('finances.add_cash')
+    url(r'^supply/cash/$', permission_required('finances.add_cash', raise_exception=True)
     (SupplyCashView.as_view()), name='url_supply_cash'),
-    url(r'^supply/lydia/$', permission_required('finances.add_lydia')
+    url(r'^supply/lydia/$', permission_required('finances.add_lydia', raise_exception=True)
     (SupplyLydiaView.as_view()), name='url_supply_lydia'),
+
+    # Transfert
+    url(r'^transfert/create/$', permission_required('finances.add_transfert', raise_exception=True)
+    (TransfertCreateView.as_view()), name='url_create_transfert')
 ]

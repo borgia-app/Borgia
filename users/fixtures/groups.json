@@ -162,7 +162,9 @@
     "pk": 7,
     "fields": {
       "name": "Gadz'Arts",
-      "permissions": []
+      "permissions": [
+        ["add_transfert", "finances", "sale"]
+      ]
     }
   },
   {
@@ -170,7 +172,9 @@
     "pk": 8,
     "fields": {
       "name": "Membres d'honneurs",
-      "permissions": []
+      "permissions": [
+        ["add_transfert", "finances", "sale"]
+      ]
     }
   },
   {

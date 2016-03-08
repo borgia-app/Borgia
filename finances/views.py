@@ -11,6 +11,56 @@ from finances.models import *
 from shops.models import Container
 
 
+class TransfertCreateView(FormView):
+    form_class = TransfertCreateForm
+    template_name = 'finances/transfert_create.html'
+    success_url = '/users/profile'
+
+    def form_valid(self, form):
+
+        # Création du virement par compte foyer
+        debit_balance = DebitBalance(amount=form.cleaned_data['amount'],
+                                     sender=self.request.user,
+                                     recipient=User.objects.get(username=form.cleaned_data['recipient']))
+        debit_balance.save()
+
+        # Création du paiement
+        payment = Payment()
+        payment.save()
+        payment.debit_balance.add(debit_balance)
+        payment.maj_amount()
+        payment.save()
+
+        # Création de la vente
+        sale = Sale(date=datetime.now(),
+                    sender=self.request.user,
+                    operator=self.request.user,
+                    recipient=User.objects.get(username=form.cleaned_data['recipient']),
+                    payment=payment)
+        sale.save()
+
+        # Création d'un spfc d'argent fictif
+        spfc = SingleProductFromContainer(container=Container.objects.get(
+            product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
+            sale_price=payment.amount, sale=sale)
+        spfc.save()
+
+        # Mise à jour des comptes foyer
+        sale.maj_amount()
+        sale.save()
+        self.request.user.debit(sale.amount)
+        self.request.user.save()
+        User.objects.get(username=form.cleaned_data['recipient']).credit(sale.amount)
+        User.objects.get(username=form.cleaned_data['recipient']).save()
+
+        return super(TransfertCreateView, self).form_valid(form)
+
+    def get_form_kwargs(self):
+        kwargs = super(TransfertCreateView, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+
 # Supply
 class SupplyChequeView(FormView):
     form_class = SupplyChequeForm
@@ -50,8 +100,8 @@ class SupplyChequeView(FormView):
 
         # Création d'un spfc d'argent fictif
         spfc = SingleProductFromContainer(container=Container.objects.get(
-                product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
-                sale_price=payment.amount, sale=sale)
+            product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
+            sale_price=payment.amount, sale=sale)
         spfc.save()
 
         # Mise à jour du compte foyer du client
@@ -111,8 +161,8 @@ class SupplyCashView(FormView):
 
         # Création d'un spfc d'argent fictif
         spfc = SingleProductFromContainer(container=Container.objects.get(
-                product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
-                sale_price=payment.amount, sale=sale)
+            product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
+            sale_price=payment.amount, sale=sale)
         spfc.save()
 
         # Mise à jour du compte foyer du client
@@ -169,8 +219,8 @@ class SupplyLydiaView(FormView):
 
         # Création d'un spfc d'argent fictif
         spfc = SingleProductFromContainer(container=Container.objects.get(
-                product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
-                sale_price=payment.amount, sale=sale)
+            product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
+            sale_price=payment.amount, sale=sale)
         spfc.save()
 
         # Mise à jour du compte foyer du client

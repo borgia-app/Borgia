@@ -3,9 +3,30 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.forms import ModelForm
 from django.forms.widgets import PasswordInput
+from django.core.exceptions import ObjectDoesNotExist
 
 from users.models import User
 from finances.models import Cheque, Cash, Lydia, BankAccount
+
+
+class TransfertCreateForm(forms.Form):
+    recipient = forms.CharField(label='Receveur', max_length=255)
+    amount = forms.IntegerField(label='Montant')
+
+    def __init__(self, **kwargs):
+        self.request = kwargs.pop('request')
+        super(TransfertCreateForm, self).__init__(**kwargs)
+
+    def clean(self):
+        cleaned_data = super(TransfertCreateForm, self).clean()
+        recipient = cleaned_data['recipient']
+        try:
+            User.objects.get(username=recipient)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError('Cette personne n\'existe pas')
+
+        if User.objects.get(username=recipient) == self.request.user:
+            raise forms.ValidationError('Transfert vers soi-même impossible')
 
 
 class ChequeCreateForm(ModelForm):

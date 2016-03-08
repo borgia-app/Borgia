@@ -1,5 +1,6 @@
 #-*- coding: utf-8 -*-
 from django.db import models
+from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime
 
@@ -50,7 +51,7 @@ class User(AbstractUser):
         self.save()
 
     def list_sale(self):
-        return Sale.objects.filter(sender=self)
+        return Sale.objects.filter(Q(sender=self) | Q(recipient=self))
 
     def list_bank_account(self):
         return BankAccount.objects.filter(owner=self)
