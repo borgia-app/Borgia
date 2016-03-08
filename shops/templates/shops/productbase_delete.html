@@ -2,9 +2,11 @@
 
 {% block content %}
 
-<form action="" method="post">{% csrf_token %}
-    <p>Supprimer le produit de base {{ object }} ?</p>
-    <input type="submit" value="Confirm" />
-</form>
+    <div class="container30">
+        <form action="" method="post">{% csrf_token %}
+            <p>Supprimer le produit de base {{ object }} ?</p>
+            <input type="submit" value="Confirm" />
+        </form>
+    </div>
 
 {% endblock %}
