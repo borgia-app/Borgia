@@ -8,7 +8,7 @@
             <div class="row">
                 {{ form.non_field_errors }}
                 {{ error }}
-                </div>
+            </div>
             <div class="row">
                 <div class="one-half column">
                     <div class="row">
@@ -17,6 +17,7 @@
                             <label for="{{ form.client_username.id_for_label }}">Client:</label>
                             {{ form.client_username }}
                         </div>
+                        <strong><span id="balance_before"></span> € - <span id="total_consumption"></span> € = <span id="balance_after"></span> €</strong>
                     </div>
                     <div class="row">
                         <input id="id_submit" type=submit value="Valider"/>
@@ -146,7 +147,7 @@
                 sum_container_food += Number(document.getElementById("selected_price_container_food_" + i).textContent);
             }
 
-            var balance_before = Number(document.getElementById("balance_before").textContent.replace(",","."));
+            var balance_before = Number(document.getElementById("balance_before").textContent);
             document.getElementById("total_consumption").textContent = String((sum_single_product+sum_container_food).toFixed(2));
             document.getElementById("balance_after").textContent = String((balance_before-sum_single_product-sum_container_food).toFixed(2));
         }
@@ -157,6 +158,17 @@
         var selected_quantity_container_food = [];
         var selected_price_container_food = [];
         var selected_initial_price_container_food = [];
+
+        document.getElementById('id_client_username').addEventListener('blur', function() {
+            var xhr = new XMLHttpRequest();
+            xhr.open('GET', '{% url 'url_balance_from_username' %}?username=' + document.getElementById('id_client_username').value);
+            xhr.onreadystatechange = function() {
+                if (xhr.readyState == 4 && xhr.status == 200) {
+                    document.getElementById('balance_before').textContent = xhr.response;
+                }
+            };
+            xhr.send(null);
+        });
 
         for (i=0; i<{{ single_product_available_list|length }}; i++) {
             selected_price_single_product.push(document.getElementById("selected_price_single_product_"+i));

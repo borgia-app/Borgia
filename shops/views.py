@@ -60,6 +60,8 @@ class PurchaseAuberge(FormView):
                                               container_food_list[i][0], i))
         context['dict_field_single_product'] = dict_field_single_product
         context['dict_field_container_food'] = dict_field_container_food
+        context['single_product_available_list'] = single_product_available_list
+        context['container_food_list'] = container_food_list
         return context
 
     def form_valid(self, form):

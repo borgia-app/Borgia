@@ -24,5 +24,7 @@ urlpatterns = [
     (UserListView.as_view()), name='url_list_user'),
 
     # Ajax
-    url(r'^username_from_username_part$', username_from_username_part, name='url_username_from_username_part')
+    url(r'^username_from_username_part$', username_from_username_part, name='url_username_from_username_part'),
+    url(r'^balance_from_username', permission_required('shops.sell_auberge', raise_exception=True)
+    (balance_from_username), name='url_balance_from_username')
 ]

@@ -11,6 +11,10 @@ from django.core.exceptions import PermissionDenied
 from users.models import User
 
 
+def balance_from_username(request):
+    return HttpResponse(User.objects.get(username=request.GET.get('username')).balance)
+
+
 class ManageGroupView(FormView):
     template_name = 'users/manage_group.html'
     success_url = '/auth/login'
