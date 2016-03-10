@@ -40,26 +40,68 @@
         <div class="container50">
             <div class="row">
                 <ul id="onglets">
-                    <li id="li_food">Alimentaire</li>
+                    <li id="li_meat">Viandes</li>
+                    <li id="li_cheese">Fromages</li>
+                    <li id="li_side">Acoompagnements</li>
                     <li id="li_single_product">Produits unitaires</li>
                 </ul>
             </div>
             <div class="row">
 
-                <div class="row" id="div_container_food">
+                <div class="row" id="div_container_meat">
                     <table>
                         <th>Produit</th>
                         <th>Prix 1 gr</th>
                         <th>Nombre</th>
                         <th>Prix correspondant</th>
 
-                        {% for e in dict_field_container_food %}
+                        {% for e in dict_field_container_meat %}
                             <tr>
                                 <div class="fieldWrapper">
                                     <td>{{ e.1.product_unit }}</td>
-                                    <td><span id="selected_initial_price_container_food_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td><span id="selected_initial_price_container_meat_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_container_food_{{ e.2 }}">0</span> €</td>
+                                    <td> <span id="selected_price_container_meat_{{ e.2 }}">0</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <div class="row" id="div_container_cheese">
+                    <table>
+                        <th>Produit</th>
+                        <th>Prix 1 gr</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
+
+                        {% for e in dict_field_container_cheese %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{{ e.1.product_unit }}</td>
+                                    <td><span id="selected_initial_price_container_cheese_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_container_cheese_{{ e.2 }}">0</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+
+                <div class="row" id="div_container_side">
+                    <table>
+                        <th>Produit</th>
+                        <th>Prix 1 gr</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
+
+                        {% for e in dict_field_container_side %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{{ e.1.product_unit }}</td>
+                                    <td><span id="selected_initial_price_container_side_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_container_side_{{ e.2 }}">0</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -94,20 +136,28 @@
         onglets = document.getElementById('onglets');
         var li_list = onglets.getElementsByTagName('li');
         div_list = [];
-        div_list.push(document.getElementById('div_container_food'));
+        div_list.push(document.getElementById('div_container_meat'));
+        div_list.push(document.getElementById('div_container_cheese'));
+        div_list.push(document.getElementById('div_container_side'));
         div_list.push(document.getElementById('div_single_product'));
 
         var active_li = 0;
 
-        // initialisation -> affichage des tireuses par défaut
+        // initialisation -> Viandes
         set_active_li(0);
-
-        document.getElementById('li_single_product').addEventListener('click', function(e) {
+        document.getElementById('li_meat').addEventListener('click', function(e) {
+            set_active_li(0);
+        }, false);
+        document.getElementById('li_cheese').addEventListener('click', function(e) {
             set_active_li(1);
         }, false);
-        document.getElementById('li_food').addEventListener('click', function(e) {
+        document.getElementById('li_side').addEventListener('click', function(e) {
             set_active_li(2);
         }, false);
+        document.getElementById('li_single_product').addEventListener('click', function(e) {
+            set_active_li(3);
+        }, false);
+
 
         document.onkeyup = function(e) {
             if (e.keyCode == 37 && active_li>0) { // Flêche gauche
@@ -138,27 +188,42 @@
 
         function update_consumption() {
             var sum_single_product = 0;
-            var sum_container_food = 0;
+            var sum_container_meat = 0;
+            var sum_container_cheese = 0;
+            var sum_container_side = 0;
+
 
             for (i=0; i<{{ single_product_available_list|length }}; i++) {
                 sum_single_product += Number(document.getElementById("selected_price_single_product_" + i).textContent);
             }
-            for (i=0; i<{{ container_soft_list|length }}; i++) {
-                sum_container_food += Number(document.getElementById("selected_price_container_food_" + i).textContent);
+            for (i=0; i<{{ container_meat_list|length }}; i++) {
+                sum_container_meat += Number(document.getElementById("selected_price_container_meat_" + i).textContent);
+            }
+            for (i=0; i<{{ container_cheese_list|length }}; i++) {
+                sum_container_cheese += Number(document.getElementById("selected_price_container_cheese_" + i).textContent);
+            }
+            for (i=0; i<{{ container_side_list|length }}; i++) {
+                sum_container_side += Number(document.getElementById("selected_price_container_side_" + i).textContent);
             }
 
             var balance_before = Number(document.getElementById("balance_before").textContent);
-            document.getElementById("total_consumption").textContent = String((sum_single_product+sum_container_food).toFixed(2));
-            document.getElementById("balance_after").textContent = String((balance_before-sum_single_product-sum_container_food).toFixed(2));
-            document.getElementById("hidden_balance_after").value = (balance_before-sum_single_product-sum_container_food).toFixed(2);
+            document.getElementById("total_consumption").textContent = String((sum_single_product+sum_container_meat+sum_container_cheese+sum_container_side).toFixed(2));
+            document.getElementById("balance_after").textContent = String((balance_before-sum_single_product-sum_container_meat-sum_container_cheese-sum_container_side).toFixed(2));
+            document.getElementById("hidden_balance_after").value = (balance_before-sum_single_product-sum_container_meat-sum_container_cheese-sum_container_side).toFixed(2);
         }
 
         var selected_quantity_single_product = [];
         var selected_price_single_product = [];
         var selected_initial_price_single_product = [];
-        var selected_quantity_container_food = [];
-        var selected_price_container_food = [];
-        var selected_initial_price_container_food = [];
+        var selected_quantity_container_meat = [];
+        var selected_price_container_meat = [];
+        var selected_initial_price_container_meat = [];
+        var selected_quantity_container_cheese = [];
+        var selected_price_container_cheese = [];
+        var selected_initial_price_container_cheese = [];
+        var selected_quantity_container_side = [];
+        var selected_price_container_side = [];
+        var selected_initial_price_container_side = [];
 
         document.getElementById('id_client_username').addEventListener('blur', function() {
             var xhr = new XMLHttpRequest();
@@ -176,12 +241,22 @@
             selected_quantity_single_product.push(document.getElementById("id_field_single_product_"+i));
             selected_initial_price_single_product.push(document.getElementById("selected_initial_price_single_product_"+i));
         }
-        for (i=0; i<{{ container_food_list|length }}; i++) {
-            selected_price_container_food.push(document.getElementById("selected_price_container_food_"+i));
-            selected_quantity_container_food.push(document.getElementById("id_field_container_food_"+i));
-            selected_initial_price_container_food.push(document.getElementById("selected_initial_price_container_food_"+i));
+        for (i=0; i<{{ container_meat_list|length }}; i++) {
+            selected_price_container_meat.push(document.getElementById("selected_price_container_meat_"+i));
+            selected_quantity_container_meat.push(document.getElementById("id_field_container_meat_"+i));
+            selected_initial_price_container_meat.push(document.getElementById("selected_initial_price_container_meat_"+i));
         }
-        for(i=0;i<{{ single_product_available_list|length }};i++){
+        for (i=0; i<{{ container_cheese_list|length }}; i++) {
+            selected_price_container_cheese.push(document.getElementById("selected_price_container_cheese_"+i));
+            selected_quantity_container_cheese.push(document.getElementById("id_field_container_cheese_"+i));
+            selected_initial_price_container_cheese.push(document.getElementById("selected_initial_price_container_cheese_"+i));
+        }
+        for (i=0; i<{{ container_side_list|length }}; i++) {
+            selected_price_container_side.push(document.getElementById("selected_price_container_side_"+i));
+            selected_quantity_container_side.push(document.getElementById("id_field_container_side_"+i));
+            selected_initial_price_container_side.push(document.getElementById("selected_initial_price_container_side_"+i));
+        }
+        for (i=0;i<{{ single_product_available_list|length }};i++){
             (function(x) {
                 selected_quantity_single_product[i].addEventListener('change', function(e) {
                     selected_price_single_product[x].textContent = String((e.target.value * Number(selected_initial_price_single_product[x].textContent.replace(",", "."))).toFixed(2));
@@ -189,10 +264,26 @@
                 }, false);
             })(i);
         }
-        for(i=0;i<{{ container_food_list|length }};i++){
+        for (i=0;i<{{ container_meat_list|length }};i++){
             (function(x) {
-                selected_quantity_container_food[i].addEventListener('change', function(e) {
-                    selected_price_container_food[x].textContent = String((e.target.value * Number(selected_initial_price_container_food[x].textContent.replace(",", "."))).toFixed(2));
+                selected_quantity_container_meat[i].addEventListener('change', function(e) {
+                    selected_price_container_meat[x].textContent = String((e.target.value * Number(selected_initial_price_container_meat[x].textContent.replace(",", "."))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+        for (i=0;i<{{ container_cheese_list|length }};i++){
+            (function(x) {
+                selected_quantity_container_cheese[i].addEventListener('change', function(e) {
+                    selected_price_container_cheese[x].textContent = String((e.target.value * Number(selected_initial_price_container_cheese[x].textContent.replace(",", "."))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+        for (i=0;i<{{ container_side_list|length }};i++){
+            (function(x) {
+                selected_quantity_container_side[i].addEventListener('change', function(e) {
+                    selected_price_container_side[x].textContent = String((e.target.value * Number(selected_initial_price_container_side[x].textContent.replace(",", "."))).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);

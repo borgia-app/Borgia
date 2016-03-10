@@ -69,6 +69,7 @@ class Shop(models.Model):
                 list_product_base_container.append((e, Container.objects.filter(product_base=e, is_sold=False,
                                                                                 product_base__shop=self,
                                                                                 product_base__product_unit__type=type)))
+
             elif status_sold is True and Container.objects.filter(product_base=e, is_sold=True, product_base__shop=self,
                                                                   product_base__product_unit__type=type).exists():
                 list_product_base_container.append((e,Container.objects.filter(product_base=e, is_sold=True,
@@ -242,8 +243,8 @@ class ProductUnit(models.Model):
     # Listes de validations
     UNIT_CHOICES = (('CL', 'cl'), ('G', 'g'), ('CENT', 'cent'))
     TYPE_CHOICES = (('keg', 'fut'), ('liquor', 'alcool fort'), ('syrup', 'sirop'), ('soft', 'soft'),
-                    ('food', 'alimentaire'),
-                    ('fictional_money', 'fictional money'))
+                    ('food', 'alimentaire'), ('meat', 'viande'), ('cheese', 'fromage'), ('side', 'accompagnement'),
+                    ('fictional_money', 'argent fictif'))
 
     # Attributs
     name = models.CharField(max_length=255, default="Product unit name")
@@ -257,7 +258,7 @@ class ProductUnit(models.Model):
             return 25
         elif self.type in ('liquor', 'syrup'):
             return 4
-        elif self.type in ('food'):
+        elif self.type in ('meat', 'cheese', 'side'):
             return 1
 
     def __str__(self):

@@ -30,7 +30,9 @@ class PurchaseAubergeForm(forms.Form):
     def __init__(self, *args, **kwargs):
 
         # Initialisation des listes de produits
-        container_food_list = kwargs.pop('container_food_list')
+        container_meat_list = kwargs.pop('container_meat_list')
+        container_cheese_list = kwargs.pop('container_cheese_list')
+        container_side_list = kwargs.pop('container_side_list')
         single_product_available_list = kwargs.pop('single_product_available_list')
         self.request = kwargs.pop('request')
         super(PurchaseAubergeForm, self).__init__(*args, **kwargs)
@@ -38,17 +40,31 @@ class PurchaseAubergeForm(forms.Form):
         # Création des éléments de formulaire
         for (i, t) in enumerate(single_product_available_list):
             self.fields['field_single_product_%s' % i] = forms.IntegerField(required=True, min_value=0)
-        for (i, t) in enumerate(container_food_list):
-            self.fields['field_container_food_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        for (i, t) in enumerate(container_meat_list):
+            self.fields['field_container_meat_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        for (i, t) in enumerate(container_cheese_list):
+            self.fields['field_container_cheese_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        for (i, t) in enumerate(container_side_list):
+            self.fields['field_container_side_%s' % i] = forms.IntegerField(required=True, min_value=0)
 
     def single_product_avalaible_answers(self):
         for name, value in self.cleaned_data.items():
             if name.startwith('field_signle_product_'):
                 yield (self.fields[name].label, value)
 
-    def container_food_answers(self):
+    def container_meat_answers(self):
         for name, value in self.cleaned_data.items():
-            if name.startwith('field_container_food_'):
+            if name.startwith('field_container_meat_'):
+                yield (self.fields[name].label, value)
+
+    def container_cheese_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_container_cheese_'):
+                yield (self.fields[name].label, value)
+
+    def container_side_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_container_side_'):
                 yield (self.fields[name].label, value)
 
     def clean(self):

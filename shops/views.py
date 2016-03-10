@@ -23,20 +23,28 @@ class PurchaseAuberge(FormView):
 
     def get_form_kwargs(self):
         kwargs = super(PurchaseAuberge, self).get_form_kwargs()
-        kwargs['container_food_list'] = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='food')
+        kwargs['container_meat_list'] = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='meat')
+        kwargs['container_cheese_list'] = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='cheese')
+        kwargs['container_side_list'] = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='side')
         kwargs['single_product_available_list'] = Shop.objects.get(name='Auberge').list_product_base_single_product(status_sold=False)
         kwargs['request'] = self.request
         return kwargs
 
     def get_initial(self):
         initial = super(PurchaseAuberge, self).get_initial()
-        container_food_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='food')
+        container_meat_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='meat')
+        container_cheese_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='cheese')
+        container_side_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='side')
         single_product_available_list = Shop.objects.get(name='Auberge').list_product_base_single_product(status_sold=False)
 
         for i in range(0, len(single_product_available_list)):
             initial['field_single_product_%s' % i] = 0
-        for i in range(0, len(container_food_list)):
-            initial['field_container_food_%s' % i] = 0
+        for i in range(0, len(container_meat_list)):
+            initial['field_container_meat_%s' % i] = 0
+        for i in range(0, len(container_cheese_list)):
+            initial['field_container_cheese_%s' % i] = 0
+        for i in range(0, len(container_side_list)):
+            initial['field_container_side_%s' % i] = 0
 
         return initial
 
@@ -50,36 +58,59 @@ class PurchaseAuberge(FormView):
         context = super(PurchaseAuberge, self).get_context_data(**kwargs)
         form = self.get_form()
         dict_field_single_product = []
-        dict_field_container_food = []
-        container_food_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='food')
+        dict_field_container_meat = []
+        dict_field_container_cheese = []
+        dict_field_container_side = []
+        container_meat_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='meat')
+        container_cheese_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='cheese')
+        container_side_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='side')
         single_product_available_list = Shop.objects.get(name='Auberge').list_product_base_single_product(status_sold=False)
         for i in range(0, len(single_product_available_list)):
             dict_field_single_product.append((form['field_single_product_%s' % i],
                                               single_product_available_list[i][0], i))
-        for i in range(0, len(container_food_list)):
-            dict_field_container_food.append((form['field_container_food_%s' % i],
-                                              container_food_list[i][0], i))
+        for i in range(0, len(container_meat_list)):
+            dict_field_container_meat.append((form['field_container_meat_%s' % i],
+                                              container_meat_list[i][0], i))
+        for i in range(0, len(container_cheese_list)):
+            dict_field_container_cheese.append((form['field_container_cheese_%s' % i],
+                                                container_cheese_list[i][0], i))
+        for i in range(0, len(container_side_list)):
+            dict_field_container_side.append((form['field_container_side_%s' % i],
+                                              container_side_list[i][0], i))
         context['dict_field_single_product'] = dict_field_single_product
-        context['dict_field_container_food'] = dict_field_container_food
+        context['dict_field_container_meat'] = dict_field_container_meat
+        context['dict_field_container_cheese'] = dict_field_container_cheese
+        context['dict_field_container_side'] = dict_field_container_side
         context['single_product_available_list'] = single_product_available_list
-        context['container_food_list'] = container_food_list
+        context['container_meat_list'] = container_meat_list
+        context['container_cheese_list'] = container_cheese_list
+        context['container_side_list'] = container_side_list
         return context
 
     def form_valid(self, form):
 
-        container_food_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False,
-                                                                                           type='food')
+        container_meat_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='meat')
+        container_cheese_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='cheese')
+        container_side_list = Shop.objects.get(name='Auberge').list_product_base_container(status_sold=False, type='side')
         single_product_available_list = Shop.objects.get(name='Auberge').list_product_base_single_product(
             status_sold=False)
-        list_results_container_food = []
+        list_results_container_meat = []
+        list_results_container_cheese = []
+        list_results_container_side = []
         list_results_single_product = []
 
         for i in range(0, len(single_product_available_list)):
             list_results_single_product.append((form.cleaned_data["field_single_product_%s" % i],
                                                 single_product_available_list[i][0]))
-        for i in range(0, len(container_food_list)):
-            list_results_container_food.append((form.cleaned_data["field_container_food_%s" % i],
-                                                container_food_list[i][0]))
+        for i in range(0, len(container_meat_list)):
+            list_results_container_meat.append((form.cleaned_data["field_container_meat_%s" % i],
+                                                container_meat_list[i][0]))
+        for i in range(0, len(container_cheese_list)):
+            list_results_container_cheese.append((form.cleaned_data["field_container_cheese_%s" % i],
+                                                  container_cheese_list[i][0]))
+        for i in range(0, len(container_side_list)):
+            list_results_container_side.append((form.cleaned_data["field_container_side_%s" % i],
+                                                container_side_list[i][0]))
 
         # Creation de la vente entre l'AE ENSAM (représentée par le foyer) et le client
 
@@ -107,7 +138,8 @@ class PurchaseAuberge(FormView):
                     sp.save()
 
         # Food
-        for e in list_results_container_food:
+        list_results_containers = list_results_container_meat + list_results_container_cheese + list_results_container_side
+        for e in list_results_containers:
             if e[0] != 0:
                 # Premier conteneur de la liste dans le queryset du product base
                 spfc = SingleProductFromContainer(container=Container.objects.filter(product_base=e[1])[0],
@@ -399,7 +431,7 @@ class PurchaseFoyer(FormView):
 
         # Affichage de la purchase au client
         return render(self.request, 'shops/sale_validation.html', {'sale': sale,
-                                                              'next': '/auth/login?next=/shops/foyer/consumption'})
+                                                                   'next': '/auth/login?next=/shops/foyer/consumption'})
 
 
 def workboard_foyer(request):

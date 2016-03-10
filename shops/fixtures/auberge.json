@@ -1,5 +1,4 @@
 [
-
   {
     "model": "shops.shop",
     "pk": 2,
@@ -7,6 +6,557 @@
       "name": "Auberge",
       "description": "Auberge des élèves de l'AE ENSAM"
     }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 17,
+    "fields": {
+      "name": "Jambon de Parme",
+      "description": "Produit unitaire Jambon de Parme",
+      "unit": "G",
+      "type": "meat"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 18,
+    "fields": {
+      "name": "Jambon Fôret Noire",
+      "description": "Produit unitaire Jambon Forêt Noire",
+      "unit": "G",
+      "type": "meat"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 19,
+    "fields": {
+      "name": "Coppa",
+      "description": "Produit unitaire Coppa",
+      "unit": "G",
+      "type": "meat"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 20,
+    "fields": {
+      "name": "Rosette Poivre",
+      "description": "Produit unitaire Rosette Poivre",
+      "unit": "G",
+      "type": "meat"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 21,
+    "fields": {
+      "name": "Roti de porc",
+      "description": "Produit unitaire Roti de porc",
+      "unit": "G",
+      "type": "meat"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 22,
+    "fields": {
+      "name": "Chorizo",
+      "description": "Produit unitaire Coppa",
+      "unit": "G",
+      "type": "meat"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 23,
+    "fields": {
+      "name": "Saucisson Marin",
+      "description": "Produit unitaire Saucisson Marin",
+      "unit": "G",
+      "type": "meat"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 24,
+    "fields": {
+      "name": "Rosette",
+      "description": "Produit unitaire Rosette",
+      "unit": "G",
+      "type": "meat"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 25,
+    "fields": {
+      "name": "Mozzarella",
+      "description": "Produit unitaire Mozzarella",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 26,
+    "fields": {
+      "name": "Munster",
+      "description": "Produit unitaire Munster",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 27,
+    "fields": {
+      "name": "Comte",
+      "description": "Produit unitaire Comte",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 28,
+    "fields": {
+      "name": "St Nectaire",
+      "description": "Produit unitaire de St Nectaire",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 29,
+    "fields": {
+      "name": "Tomme de Savoie",
+      "description": "Produit unitaire de Tomme de Savoie",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 30,
+    "fields": {
+      "name": "Roblochon",
+      "description": "Produit unitaire de Roblochon",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 31,
+    "fields": {
+      "name": "Feta",
+      "description": "Produit unitaire de Feta",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 32,
+    "fields": {
+      "name": "Raclette",
+      "description": "Produit unitaire de Raclette",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 33,
+    "fields": {
+      "name": "Roquefort",
+      "description": "Produit unitaire de Roquefort",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 34,
+    "fields": {
+      "name": "Morbier",
+      "description": "Produit unitaire de Morbier",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 35,
+    "fields": {
+      "name": "Brie",
+      "description": "Produit unitaire de Brie",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 36,
+    "fields": {
+      "name": "Mozzarella fumée",
+      "description": "Produit unitaire de Mozzarella fumée",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 37,
+    "fields": {
+      "name": "Chèvre",
+      "description": "Produit unitaire de Chèvre",
+      "unit": "G",
+      "type": "cheese"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 38,
+    "fields": {
+      "name": "Tomates",
+      "description": "Produit unitaire de Tomates",
+      "unit": "G",
+      "type": "side"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 39,
+    "fields": {
+      "name": "Poivrons",
+      "description": "Produit unitaire de Poivrons",
+      "unit": "G",
+      "type": "side"
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 18,
+    "fields": {
+      "name": "Morceaux de Jambon de Parme",
+      "description": "Morceaux de Jambon de Parme",
+      "calculated_price": 16.49,
+      "quantity": 1000,
+      "product_unit": 17,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 19,
+    "fields": {
+      "name": "Morceaux de Jambon Fôret Noire",
+      "description": "Morceaux de Jambon Fôret Noire",
+      "calculated_price": 11.9,
+      "quantity": 1000,
+      "product_unit": 18,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 20,
+    "fields": {
+      "name": "Morceaux de Coppa",
+      "description": "Morceaux de Coppa",
+      "calculated_price": 14.29,
+      "quantity": 1000,
+      "product_unit": 19,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 21,
+    "fields": {
+      "name": "Morceaux de Rosette Poivre",
+      "description": "Morceaux de Rosette Poivre ",
+      "calculated_price": 9.79,
+      "quantity": 1000,
+      "product_unit": 20,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 22,
+    "fields": {
+      "name": "Morceaux de Roti de Porc",
+      "description": "Morceaux de Roti de Porc",
+      "calculated_price": 7.59,
+      "quantity": 1000,
+      "product_unit": 21,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 23,
+    "fields": {
+      "name": "Morceaux de Chorizo",
+      "description": "Morceaux de Chorizo",
+      "calculated_price": 6.79,
+      "quantity": 1000,
+      "product_unit": 22,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 24,
+    "fields": {
+      "name": "Morceaux de Saucisson Marin",
+      "description": "Morceaux de Saucisson Marin",
+      "calculated_price": 19.95,
+      "quantity": 1000,
+      "product_unit": 23,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 25,
+    "fields": {
+      "name": "Morceaux de Rosette",
+      "description": "Morceaux de Rosette",
+      "calculated_price": 7.29,
+      "quantity": 1000,
+      "product_unit": 24,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 26,
+    "fields": {
+      "name": "Morceaux de Mozzarella",
+      "description": "Morceaux de Mozzarella",
+      "calculated_price": 7.29,
+      "quantity": 1000,
+      "product_unit": 25,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 27,
+    "fields": {
+      "name": "Morceaux de Munster",
+      "description": "Morceaux de Munster",
+      "calculated_price": 11.5,
+      "quantity": 1000,
+      "product_unit": 26,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 28,
+    "fields": {
+      "name": "Morceaux de Comte",
+      "description": "Morceaux de Comte",
+      "calculated_price": 10.66,
+      "quantity": 1000,
+      "product_unit": 27,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 29,
+    "fields": {
+      "name": "Morceau de St Nectaire",
+      "description": "Morceau de St Nectaire",
+      "calculated_price": 7.73,
+      "quantity": 1000,
+      "product_unit": 28,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 30,
+    "fields": {
+      "name": "Morceau de Tomme de Savoie",
+      "description": "Morceau de Tomme de Savoie",
+      "calculated_price": 8.95,
+      "quantity": 1000,
+      "product_unit": 29,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 31,
+    "fields": {
+      "name": "Morceau de Roblochon",
+      "description": "Morceau de Roblochon",
+      "calculated_price": 12.63,
+      "quantity": 1000,
+      "product_unit": 30,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 32,
+    "fields": {
+      "name": "Morceau de Feta",
+      "description": "Morceau de Feta",
+      "calculated_price": 11.21,
+      "quantity": 1000,
+      "product_unit": 31,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 33,
+    "fields": {
+      "name": "Morceau de Raclette",
+      "description": "Morceau de Raclette",
+      "calculated_price": 7.69,
+      "quantity": 1000,
+      "product_unit": 32,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 34,
+    "fields": {
+      "name": "Morceau de Roquefort",
+      "description": "Morceau de Roquefort",
+      "calculated_price": 16.34,
+      "quantity": 1000,
+      "product_unit": 33,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 35,
+    "fields": {
+      "name": "Morceau de Morbier",
+      "description": "Morceau de Morbier",
+      "calculated_price": 9.17,
+      "quantity": 1000,
+      "product_unit": 34,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 36,
+    "fields": {
+      "name": "Morceau de Brie",
+      "description": "Morceau de Brie",
+      "calculated_price": 6.36,
+      "quantity": 1000,
+      "product_unit": 35,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 37,
+    "fields": {
+      "name": "Morceau de Mozzarella fumée",
+      "description": "Morceau de Mozzarella fumée",
+      "calculated_price": 9.49,
+      "quantity": 1000,
+      "product_unit": 36,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 38,
+    "fields": {
+      "name": "Morceau de Chèvre",
+      "description": "Morceau de Chèvre",
+      "calculated_price": 7.63,
+      "quantity": 1000,
+      "product_unit": 37,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 39,
+    "fields": {
+      "name": "Paquet de Tomates",
+      "description": "Paquet de Tomates",
+      "calculated_price": 9.48,
+      "quantity": 1000,
+      "product_unit": 38,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 40,
+    "fields": {
+      "name": "Paquet de Poivron",
+      "description": "Paquet de Poivron",
+      "calculated_price": 9.80,
+      "quantity": 1000,
+      "product_unit": 39,
+      "brand": "Metro",
+      "type": "container",
+      "shop": 2
+    }
   }
-
-  ]
+]
