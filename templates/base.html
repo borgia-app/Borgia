@@ -31,6 +31,9 @@
         {% if perms.shops.reach_workboard_auberge %}
             <li><a href="/shops/auberge/workboard" title="Aller à la gestion de l'auberge">Workboard auberge</a></li>
         {% endif %}
+        {% if perms.users.reach_workboard_treasury %}
+            <li><a href="/finances/treasury/workboard" title="Aller à la gestion de la trésorerie">Workboard trésors</a></li>
+        {% endif %}
     </ul>
 </nav>
 <br />

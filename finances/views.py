@@ -11,6 +11,11 @@ from finances.models import *
 from shops.models import Container
 
 
+def workboard_treasury(request):
+
+    return render(request, 'finances/workboard_tresury.html', locals())
+
+
 class TransfertCreateView(FormView):
     form_class = TransfertCreateForm
     template_name = 'finances/transfert_create.html'

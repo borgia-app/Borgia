@@ -42,5 +42,9 @@ urlpatterns = [
 
     # Transfert
     url(r'^transfert/create/$', permission_required('finances.add_transfert', raise_exception=True)
-    (TransfertCreateView.as_view()), name='url_create_transfert')
+    (TransfertCreateView.as_view()), name='url_create_transfert'),
+
+    # Trésorerie
+    url(r'^treasury/workboard$', permission_required('users.reach_workboard_treasury', raise_exception=True)
+    (workboard_treasury), name='url_workboard_treasury'),
 ]
