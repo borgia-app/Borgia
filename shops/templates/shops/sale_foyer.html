@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-
+{% load static %}
 {% block content %}
     <form method="POST" action="{% url 'url_purchase_foyer' %}" id="form_purchase">
         {% csrf_token %}
@@ -24,6 +24,7 @@
 
         <div class="container50">
             <div class="row">
+                <input type=hidden name="hidden_active_div" id="hidden_active_div" value=""/>
                 <ul id="onglets">
                     <li id="li_active_keg_container">Tireuses à bières</li>
                     <li id="li_single_product">Produits unitaires</li>
@@ -34,6 +35,7 @@
             </div>
             <div class="row">
                 <div class="row" id="div_active_keg_container">
+                    <span id="div_active_keg_container_txt"></span>
                     <table>
                         <th>Bière</th>
                         <th>Prix 25 cl</th>
@@ -136,63 +138,18 @@
     <script>
         onglets = document.getElementById('onglets');
         var li_list = onglets.getElementsByTagName('li');
-        div_list = [];
+        var div_list = [];
         div_list.push(document.getElementById('div_active_keg_container'));
         div_list.push(document.getElementById('div_single_product'));
         div_list.push(document.getElementById('div_container_liquor'));
         div_list.push(document.getElementById('div_container_syrup'));
         div_list.push(document.getElementById('div_soft'));
         var active_li = 0;
-
         // initialisation -> affichage des tireuses par défaut
         set_active_li(0);
 
-
-        document.getElementById('li_active_keg_container').addEventListener('click', function(e) {
-            set_active_li(0);
-        }, false);
-        document.getElementById('li_single_product').addEventListener('click', function(e) {
-            set_active_li(1);
-        }, false);
-        document.getElementById('li_liquor').addEventListener('click', function(e) {
-            set_active_li(2);
-        }, false);
-        document.getElementById('li_syrup').addEventListener('click', function(e) {
-            set_active_li(3);
-        }, false);
-        document.getElementById('li_soft').addEventListener('click', function(e) {
-            set_active_li(4);
-        }, false);
-
-        document.onkeyup = function(e) {
-            if (e.keyCode == 37 && active_li>0) { // Flêche gauche
-                set_active_li(active_li - 1);
-            }
-            if (e.keyCode == 39 && active_li<li_list.length-1) { // Flêche droite
-                set_active_li(active_li + 1);
-            }
-            if (e.keyCode == 13) { // Flêche droite
-                document.getElementById('form_purchase').submit();
-            }
-        };
-
-        function set_active_li(new_active_li) {
-            active_li = new_active_li;
-            display_none_all(div_list[active_li]);
-        }
-
-        function display_none_all(div_except) {
-            for (i=0; i<div_list.length; i++) {
-                if (div_list[i] != div_except) {
-                    li_list[i].className = '';
-                    div_list[i].style.display = 'none';
-                }
-                else {
-                    div_list[i].style.display = 'block';
-                    li_list[i].className = 'active';
-                }
-            }
-        }
+        var fields_list = [];
+        var active_field = 0;
 
         function update_consumption() {
             var sum_active_keg = 0;
@@ -263,7 +220,7 @@
             selected_quantity_container_syrup.push(document.getElementById("id_field_container_syrup_"+i));
             selected_initial_price_container_syrup.push(document.getElementById("selected_initial_price_container_syrup_"+i));
         }
-        for(i=0;i<{{ active_keg_container_list|length }};i++){
+        for (i=0;i<{{ active_keg_container_list|length }};i++){
             (function(x) {
                 selected_quantity_active_keg[i].addEventListener('change', function(e) {
                     selected_price_active_keg[x].textContent = String((e.target.value * Number(selected_initial_price_active_keg[x].textContent.replace(",", "."))).toFixed(2));
@@ -271,7 +228,7 @@
                 }, false);
             })(i);
         }
-        for(i=0;i<{{ single_product_available_list|length }};i++){
+        for (i=0;i<{{ single_product_available_list|length }};i++){
             (function(x) {
                 selected_quantity_single_product[i].addEventListener('change', function(e) {
                     selected_price_single_product[x].textContent = String((e.target.value * Number(selected_initial_price_single_product[x].textContent.replace(",", "."))).toFixed(2));
@@ -279,7 +236,7 @@
                 }, false);
             })(i);
         }
-        for(i=0;i<{{ container_soft_list|length }};i++){
+        for (i=0;i<{{ container_soft_list|length }};i++){
             (function(x) {
                 selected_quantity_container_soft[i].addEventListener('change', function(e) {
                     selected_price_container_soft[x].textContent = String((e.target.value * Number(selected_initial_price_container_soft[x].textContent.replace(",", "."))).toFixed(2));
@@ -287,7 +244,7 @@
                 }, false);
             })(i);
         }
-        for(i=0;i<{{ container_liquor_list|length }};i++){
+        for (i=0;i<{{ container_liquor_list|length }};i++){
             (function(x) {
                 selected_quantity_container_liquor[i].addEventListener('change', function(e) {
                     selected_price_container_liquor[x].textContent = String((e.target.value * Number(selected_initial_price_container_liquor[x].textContent.replace(",", "."))).toFixed(2));
@@ -295,7 +252,7 @@
                 }, false);
             })(i);
         }
-        for(i=0;i<{{ container_syrup_list|length }};i++){
+        for (i=0;i<{{ container_syrup_list|length }};i++){
             (function(x) {
                 selected_quantity_container_syrup[i].addEventListener('change', function(e) {
                     selected_price_container_syrup[x].textContent = String((e.target.value * Number(selected_initial_price_container_syrup[x].textContent.replace(",", "."))).toFixed(2));
@@ -303,6 +260,164 @@
                 }, false);
             })(i);
         }
-    </script>
 
+        fields_list.push(selected_quantity_active_keg);
+        fields_list.push(selected_quantity_single_product);
+        fields_list.push(selected_quantity_container_liquor);
+        fields_list.push(selected_quantity_container_syrup);
+        fields_list.push(selected_quantity_container_soft);
+
+        function set_active_field(new_active_field) {
+            fields_list[active_li][new_active_field].focus();
+            active_field = new_active_field;
+        }
+
+        document.onkeydown = function (e) {
+            if (!e.metaKey) {
+                e.preventDefault();
+            }
+
+            // Touches F1 à F12
+            if (e.keyCode == 112) {
+                fields_list[active_li][0].value = Number(fields_list[active_li][0].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][0].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 113) {
+                fields_list[active_li][1].value = Number(fields_list[active_li][1].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][1].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 114) {
+                fields_list[active_li][2].value = Number(fields_list[active_li][2].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][2].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 115) {
+                fields_list[active_li][2].value = Number(fields_list[active_li][2].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][2].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 116) {
+                fields_list[active_li][3].value = Number(fields_list[active_li][3].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][3].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 117) {
+                fields_list[active_li][4].value = Number(fields_list[active_li][4].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][4].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 118) {
+                fields_list[active_li][5].value = Number(fields_list[active_li][5].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][5].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 119) {
+                fields_list[active_li][6].value = Number(fields_list[active_li][6].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][6].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 120) {
+                fields_list[active_li][7].value = Number(fields_list[active_li][7].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][8].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 121) {
+                fields_list[active_li][9].value = Number(fields_list[active_li][9].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][9].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 122) {
+                fields_list[active_li][10].value = Number(fields_list[active_li][10].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][10].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 123) {
+                fields_list[active_li][11].value = Number(fields_list[active_li][11].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][11].dispatchEvent(new Event('change'));
+            }
+
+            // Naviguation avec haut et bas à l'intérieur d'un div
+            if (e.keyCode == 40) {
+                if (active_field < fields_list[active_li].length-1) {
+                    set_active_field(active_field+1);
+                }
+            }
+            if (e.keyCode == 38) {
+                if (active_field > 0) {
+                    set_active_field(active_field-1);
+                }
+            }
+
+            // Navigation avec gauche et droite
+            if (e.keyCode == 37 && active_li>0) {
+                set_active_li(active_li - 1);
+                active_field = 0;
+                set_active_field(0);
+            }
+            if (e.keyCode == 39 && active_li<li_list.length-1) {
+                set_active_li(active_li + 1);
+                active_field = 0;
+                set_active_field(0);
+            }
+
+            // + et - pour ajouter ou enlever de la quantité
+            if (e.keyCode == 107) {
+                fields_list[active_li][active_field].value = Number(fields_list[active_li][active_field].value) + 1;
+                fields_list[active_li][active_field].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 109) {
+                if (Number(fields_list[active_li][active_field].value) > 0) {
+                    fields_list[active_li][active_field].value = Number(fields_list[active_li][active_field].value) - 1;
+                    fields_list[active_li][active_field].dispatchEvent(new Event('change'));
+                }
+            }
+
+            // Entrée pour submit le form
+            if (e.keyCode == 13) {
+                document.getElementById('form_purchase').submit();
+            }
+        };
+
+        document.getElementById('li_active_keg_container').addEventListener('click', function(e) {
+            set_active_li(0);
+        }, false);
+        document.getElementById('li_single_product').addEventListener('click', function(e) {
+            set_active_li(1);
+        }, false);
+        document.getElementById('li_liquor').addEventListener('click', function(e) {
+            set_active_li(2);
+        }, false);
+        document.getElementById('li_syrup').addEventListener('click', function(e) {
+            set_active_li(3);
+        }, false);
+        document.getElementById('li_soft').addEventListener('click', function(e) {
+            set_active_li(4);
+        }, false);
+
+        document.onkeyup = function(e) {
+
+        };
+
+        function set_active_li(new_active_li) {
+            active_li = new_active_li;
+            display_none_all(div_list[active_li]);
+            document.getElementById('hidden_active_div').value = new_active_li;
+        }
+
+        function display_none_all(div_except) {
+            for (i=0; i<div_list.length; i++) {
+                if (div_list[i] != div_except) {
+                    li_list[i].className = '';
+                    div_list[i].style.display = 'none';
+                }
+                else {
+                    div_list[i].style.display = 'block';
+                    li_list[i].className = 'active';
+                }
+            }
+        }
+    </script>
 {% endblock %}
