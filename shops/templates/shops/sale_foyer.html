@@ -9,15 +9,15 @@
             </div>
             <div class="row">
                 <div class="one-half column">
-                    <ul>
-                        <li><strong>Username : </strong>{{ user.username }}</li>
-                        <li>{{ user.surname }} {{ user.family }} {{ user.campus }}{{ user.year_pg }}</li>
-                        <li><b id="balance_before">{{ user.balance }}</b><b> €</b> - <b id="total_consumption">0 </b><b> €</b> = <b id="balance_after"></b><b> €</b></li>
-                        <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
-                    </ul>
+                    <span class="user-container user-container-info">
+                        <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
+                        <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
+                        <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0</span> € = <span id="balance_after">0</span> €</span>
+                    </span>
+                    <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
                 </div>
-                <div class="one-half column">
-                    <input type=submit value="Valider">
+                <div class="two columns offset-by-ten">
+                    <input type=submit value="Valider" style="display: none;">
                 </div>
             </div>
         </div>

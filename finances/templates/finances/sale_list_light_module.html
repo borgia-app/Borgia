@@ -3,21 +3,19 @@
         <th>Date</th>
         <th>Emetteur</th>
         <th>Receveur</th>
-        <th>Mode de paiement</th>
-        <th>Montant total</th>
+        <th>Paiement</th>
+        <th>Montant</th>
         <th>Détails</th>
     </tr>
     {% for e in object_list %}
         <tr>
-            <td>{{ e.date }}</td>
-            <td><a href="{% url 'url_retrieve_user' pk=e.sender.id %}">{{ e.sender }}</a></td>
-            <td><a href="{% url 'url_retrieve_user' pk=e.recipient.id %}">{{ e.recipient }}</a></td>
+            <td>{{ e.date|date:"d/m/y" }}</td>
+            <td>{{ e.sender }}</td>
+            <td>{{ e.recipient }}</td>
             <td>
-                <ul>
                 {% for mode_payment in e.payment.payments_used %}
-                    <li>{{ mode_payment }}</li>
+                    <span>{{ mode_payment }}</span>
                 {% endfor %}
-                </ul>
             </td>
             <td>{{ e.amount }} €</td>
             <td><a href="{% url 'url_retrieve_sale' pk=e.id %}">détail</a></td>

@@ -1,30 +1,42 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 
-    <h1 class="align-center">Profil</h1>
-    <hr>
-
     <div class="container">
-        <div class="one-third column">
-            <h3>Informations personnelles</h3>
-            {% include 'users/retrieve_module.html' with object=user %}
+        <div class="row">
+            <div class="overlay">
+                <div class="wrapper user">
+                    <ul class="user-menu">
+                        <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
+                    </ul>
+                    <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
+                        <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
+                        <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
+                        <span class="user-balance">{{ user.balance }} €</span>
+                    </a>
+                </div>
+            </div>
         </div>
-        <div class="one-third column">
-            <h3>Modifications</h3>
-            <p><a href="{% url 'django.contrib.auth.views.password_change' %}">Changer de mot de passe</a></p>
-            <p><a href="{% url 'url_update_user'  pk=request.user.id %}">Modifier ses informations personnelles</a></p>
-            <p><a href="{% url 'django.contrib.auth.views.logout' %}">Se déconnecter</a></p>
-        </div>
-        <div class="one-third column">
-            <h3>Transfert d'argent</h3>
-            <p><a href="{% url 'url_create_transfert' %}">Effectuer un transfert</a></p>
-        </div>
-    </div>
+        <div class="row">
 
-    <div class="container">
-        <h3>Derniers achats</h3>
-        {% include 'finances/sale_list_light_module.html' with object_list=user.list_sale %}
+
+            <div>
+                <ul class="listing-apps">
+                    <li><a href=""><img src="{% static 'img/lydia.png' %}" alt="Crédit lydia"><span class="name">Crédit Lydia</span></a></li>
+                    <li><a href="{% url 'url_create_transfert' %}"><img src="{% static 'img/transfer.png' %}" alt="Transfer"><span class="name">Transfert</span></a></li>
+                    {% if perms.shops.reach_workboard_foyer %}
+                        <li><a href="{% url 'url_workboard_foyer' %}"><img src="{% static 'img/food.png' %}"><span class="name">Foyer workboard</span></a></li>
+                    {% endif %}
+                    {% if perms.shops.reach_workboard_auberge %}
+                        <li><a href="{% url 'url_workboard_auberge' %}"><img src="{% static 'img/auberge.png' %}"><span class="name">Auberge workboard</span></a></li>
+                    {% endif %}
+                </ul>
+            </div>
+            <div>
+                {% include 'finances/sale_list_light_module.html' with object_list=user.list_sale %}
+            </div>
+        </div>
     </div>
 
 {% endblock %}

@@ -3,7 +3,7 @@
 {% block content %}
 
     <div class="container30">
-        <form action= '' method="post">{% csrf_token %}
+        <form class="login-form" action= '' method="post">{% csrf_token %}
             {{ form.as_p }}
             <input id='id_submit' type="submit" value="Login"/>
         </form>

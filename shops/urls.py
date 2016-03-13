@@ -49,6 +49,6 @@ urlpatterns = [
     # Auberge
     url(r'^auberge/consumption/$', permission_required('shops.sell_auberge', raise_exception=True)
     (PurchaseAuberge.as_view()), name='url_purchase_auberge'),
-    url(r'^auberge/workboard', permission_required('shops.reach_workboard_auberge')
-    (workboard_auberge), name='url_workboard_foyer'),
+    url(r'^auberge/workboard', permission_required('shops.reach_workboard_auberge', raise_exception=True)
+    (workboard_auberge), name='url_workboard_auberge'),
 ]
