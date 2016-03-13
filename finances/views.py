@@ -5,7 +5,7 @@ from django.views.generic import ListView, DetailView, FormView
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from datetime import datetime
-import json
+import json, time
 
 from finances.forms import *
 from finances.models import *
@@ -43,7 +43,7 @@ def electrovanne_request2(request):
 
 
 def electrovanne_date(request):
-    return HttpResponse(datetime.now())
+    return HttpResponse(time.time())
 
 
 def workboard_treasury(request):
