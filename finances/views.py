@@ -42,6 +42,10 @@ def electrovanne_request2(request):
     return
 
 
+def electrovanne_date(request):
+    return HttpResponse(datetime.now())
+
+
 def workboard_treasury(request):
 
     return render(request, 'finances/workboard_tresury.html', locals())

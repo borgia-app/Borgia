@@ -51,4 +51,5 @@ urlpatterns = [
     # Requetes
     url(r'^electrovanne/request1$', electrovanne_request1, name='url_electrovanne_request1'),
     url(r'^electrovanne/request2$', electrovanne_request2, name='url_electrovanne_request2'),
+    url(r'^electrovanne/date$', electrovanne_date, name='url_electrovanne_date'),
 ]
