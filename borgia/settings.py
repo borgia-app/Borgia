@@ -133,6 +133,9 @@ LOGIN_URL = '/auth/login'
 LOGIN_EXEMPT_URLS = [
     '/auth/login',
     '/users/username_from_username_part',
+    '/finances/electrovanne/request1',
+    '/finances/electrovanne/request2',
+    '/finances/electrovanne/date',
 ]
 
 STATIC_URL = '/static/'
