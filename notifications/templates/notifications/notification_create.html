@@ -1,0 +1,13 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="container30">
+        <form action= "{% url 'url_create_notification' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+
+{% endblock %}

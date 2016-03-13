@@ -13,6 +13,8 @@ from shops.models import *
 from shops.forms import *
 from users.models import User
 from finances.models import Sale, DebitBalance, Payment
+from notifications.models import *
+from django.contrib.contenttypes.models import ContentType
 
 
 # AUBERGE
@@ -468,6 +470,12 @@ class SingleProductCreateMultipleView(FormView):
                                place=form.cleaned_data['place'],
                                product_base=form.cleaned_data['product_base'])
             sp.save()
+            # Notifications
+
+            # Notification success de la création du produit unitaire
+            single_product_creation_notify_success_to_user(self.request, sp)
+
+            # TODO : Notification warning de la création aux admins
 
         # Mise à jour du prix du product base
         form.cleaned_data['product_base'].set_calculated_price_mean()
@@ -519,6 +527,12 @@ class ContainerCreateMultipleView(FormView):
                           place=form.cleaned_data['place'],
                           product_base=form.cleaned_data['product_base'])
             c.save()
+
+            # Notifications
+
+            # Notification success de la création
+            container_creation_notify_success_to_user(self.request, c)
+            # TODO : Notification warning de la création aux admins
 
         # Mise à jour du prix du product base
         form.cleaned_data['product_base'].set_calculated_price_mean()

@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <table>
+        <tr>
+            <th>Id</th>
+            <th>Acteur</th>
+            <th>Verbe</th>
+            <th>Utilisateur cible</th>
+            <th>Mettre à jour</th>
+            <th>Supprimer</th>
+        </tr>
+        {% for e in object_list %}
+            <tr>
+                <td><a href="/notifications/retrieve/{{ e.pk }}" >{{ e.pk }}</a></td>
+                <td>{{ e.actor_object }}</td>
+                <td>{{ e.verb }}</td>
+                <td>{{ e.target_user }}</td>
+                <td><a href="/notifications/update/{{ e.pk }}" >Mettre à jour</a></td>
+                <td><a href="/notifications/delete/{{ e.pk }}" >Supprimer</a></td>
+            </tr>
+        {% endfor %}
+    </table>
+</div>
+
+{% endblock %}

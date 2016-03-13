@@ -10,6 +10,7 @@ urlpatterns = [
     url(r'^users/', include('users.urls')),
     url(r'^finances/', include('finances.urls')),
     url(r'^shops/', include('shops.urls')),
+    url(r'notifications/', include('notifications.urls')),
 
     # Authentification
     url(r'^$', login, {'template_name': 'login.html'}, name='url_login'), # A rediriger vers /auth/login

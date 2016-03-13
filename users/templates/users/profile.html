@@ -5,20 +5,6 @@
 
     <div class="container">
         <div class="row">
-            <div class="overlay">
-                <div class="wrapper user">
-                    <ul class="user-menu">
-                        <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
-                    </ul>
-                    <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
-                        <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
-                        <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
-                        <span class="user-balance">{{ user.balance }} €</span>
-                    </a>
-                </div>
-            </div>
-        </div>
-        <div class="row">
 
 
             <div>

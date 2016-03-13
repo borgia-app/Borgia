@@ -1,4 +1,7 @@
 {% load staticfiles %}
+{% load notifications_extra %}
+
+{{ request|filter_get_undisplayed_notifications_for_user }}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -13,28 +16,24 @@
 
 </head>
 <body>
-<!--<nav class="container">
-    <ul>
-        {% if user.is_authenticated %}
-            <li><a href="/auth/logout" title="Se déconnecter">Logout</a></li>
-        {% else %}
-            <li><a href="/auth/login" title="Aller au login">Login</a></li>
-        {% endif %}
-        <li><a href="/users/profile" title="Aller au profil">Profil</a></li>
-        <li><a href="/shops/foyer/consumption" title="Aller au foyer">Buquage foyer</a></li>
-        {% if perms.shops.reach_workboard_foyer %}
-            <li><a href="/shops/foyer/workboard" title="Aller à la gestion du foyer">Workboard foyer</a></li>
-        {% endif %}
-        {% if perms.shops.sell_auberge %}
-            <li><a href="/shops/auberge/consumption" title="Aller à l'auberge">Buquage auberge</a></li>
-        {% endif %}
-        {% if perms.shops.reach_workboard_auberge %}
-            <li><a href="/shops/auberge/workboard" title="Aller à la gestion de l'auberge">Workboard auberge</a></li>
-        {% endif %}
-        {% if perms.users.reach_workboard_treasury %}
-            <li><a href="/finances/treasury/workboard" title="Aller à la gestion de la trésorerie">Workboard trésors</a></li>
-        {% endif %}
-    </ul>
+<nav class="container">
+    <div class="row">
+        <div class="overlay">
+            <div class="wrapper user">
+                <ul class="user-menu">
+                    <li><a class="icon icon-notification" href=""></a></li>
+                    <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
+                </ul>
+                {% if user.is_authenticated %}
+                <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
+                    <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
+                    <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
+                    <span class="user-balance">{{ user.balance }} €</span>
+                </a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
 </nav>
 <br />
 {% if messages %}
@@ -45,7 +44,7 @@
         {% endfor %}
     </div>
     <br />
-{% endif %}-->
+{% endif %}
 {%  block content %}
 {%  endblock %}
 </body>

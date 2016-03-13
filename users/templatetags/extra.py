@@ -3,6 +3,7 @@ from django.contrib.auth.models import Group
 
 register = template.Library()
 
+# TODO: commenter ce templatetag
 
 @register.filter(name='has_group')
 def has_group(user, group_name):
