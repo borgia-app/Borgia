@@ -5,10 +5,41 @@ from django.views.generic import ListView, DetailView, FormView
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from datetime import datetime
+import json
 
 from finances.forms import *
 from finances.models import *
 from shops.models import Container
+
+
+def electrovanne_request1(request):
+    data = []
+    try:
+        # Variables
+        user = User.objects.get(pk=request.GET.get('user_pk'))
+        container = Container.objects.get(place='tireuse %s' % request.GET.get('tireuse_pk'))
+        id = request.GET.get('id')
+
+        # Quantité max possible
+        if user.balance <= 0:
+            max_quantity = 0
+        else:
+            max_quantity = round(float((container.product_base.quantity * user.balance) / container.product_base.calculated_price), 0)
+
+        # Ecriture de la liste
+        data.append(request.GET.get('user_pk'))
+        data.append(request.GET.get('tireuse_pk'))
+        data.append(id)
+        data.append(max_quantity)
+
+    except ObjectDoesNotExist:
+        data.append('error0')
+
+    return HttpResponse(json.dumps(data))
+
+
+def electrovanne_request2(request):
+    return
 
 
 def workboard_treasury(request):

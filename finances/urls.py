@@ -47,4 +47,8 @@ urlpatterns = [
     # Trésorerie
     url(r'^treasury/workboard$', permission_required('users.reach_workboard_treasury', raise_exception=True)
     (workboard_treasury), name='url_workboard_treasury'),
+
+    # Requetes
+    url(r'^electrovanne/request1$', electrovanne_request1, name='url_electrovanne_request1'),
+    url(r'^electrovanne/request2$', electrovanne_request2, name='url_electrovanne_request2'),
 ]
