@@ -128,7 +128,6 @@ body {
     font-size: 1em;
     line-height:1.5;
     margin: 0;
-    padding-top: 20px;
 }
 
 h1:first-child,
@@ -167,12 +166,13 @@ img {
 
 /* Layout */
 .overlay {
-    padding: 2%;
+    padding: 1%;
 }
 
 .wrapper {
-    width: 90%;
-    margin: 2% 5%;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
     position: relative;
     z-index: 1;
 }
@@ -275,7 +275,7 @@ textarea {
 
 [class^="icon-"]:before, [class*=" icon-"]:before {
     font-family: 'ynh_ssowat';
-    font-size: 1em;
+    font-size: 1.2em;
     speak: none;
     font-style: normal;
     font-weight: normal;
@@ -283,6 +283,7 @@ textarea {
     text-transform: none;
     line-height: 1;
     margin-right: 0.5em;
+    color: white;
 
     /* Better Font Rendering =========== */
     -webkit-font-smoothing: antialiased;
@@ -295,6 +296,26 @@ textarea {
 .icon-pencil:before { content: '\e804'; }
 .icon-trash:before { content: '\e80c'; }
 .icon-angle-left:before { content: '\e803'; }
+.icon-notification:before{
+    content: '\f20e';
+    font-family: FontAwesome;
+}
+.icon-people:before{
+    content: '\f0c0';
+    font-family: FontAwesome;
+}
+.icon-settings:before{
+    content: '\f013';
+    font-family: FontAwesome;
+}
+.icon-admin:before{
+    content: '\f1d1';
+    font-family: FontAwesome;
+}
+.icon-home:before{
+    content: '\f015';
+    font-family: FontAwesome;
+}
 
 
 /* ==========================================================================
@@ -446,13 +467,12 @@ textarea {
 }
 
 .user-container:before {
-    display: block;
     position: relative;
     z-index: 1;
     float: left;
     margin-right: 10px;
     content: '\e801';
-    display: block;
+    display: inline-block;
     font-family: 'ynh_ssowat';
     font-size: 4em;
     text-align: center;
@@ -512,11 +532,12 @@ textarea {
     padding: 0;
 }
 .user-menu li {
-    list-style: none;
+    list-style-type: none;
+    display: inline-block;
 }
 .user-menu a {
     color: #999;
-    display: block;
+    display: inline-block;
     padding: 1.25em 1em;
     position: relative;
     z-index: 1;
@@ -1037,5 +1058,4 @@ summary {
 nav.container {
     background-color: #202227;
     width: 100%;
-    margin-top: -20px;
 }

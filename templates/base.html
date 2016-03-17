@@ -8,21 +8,28 @@
 <head>
     <meta charset="UTF-8">
     <title>Borgia - beta V1.35</title>
-
     <link rel="stylesheet" href="{% static 'css/skeleton.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style-xsmall.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
     <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.jpg' %}"/>
 
 </head>
 <body>
-<nav class="container">
-    <div class="row">
+<nav class="container"
         <div class="overlay">
             <div class="wrapper user">
                 <ul class="user-menu">
-                    <li><a class="icon icon-notification" href=""></a></li>
-                    <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
+                    <li><a class="icon icon-home" href="{% url 'url_profile' %}"></a></li>
+                    {% if user.is_authenticated %}
+                        <li><a class="icon icon-people" href=""></a></li>
+                        <li><a class="icon icon-notification" href=""></a></li>
+                        <li><a class="icon icon-settings" href=""></a></li>
+                        <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
+                        <li><a class="icon icon-admin" href=""></a></li>
+                    {% else %}
+                        <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
+                    {% endif %}
                 </ul>
                 {% if user.is_authenticated %}
                 <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
@@ -33,18 +40,18 @@
                 {% endif %}
             </div>
         </div>
-    </div>
 </nav>
-<br />
-{% if messages %}
-    <div class="container">
-        {% for message in messages %}
-            <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">
-                {{ message }}</div>
-        {% endfor %}
-    </div>
-    <br />
-{% endif %}
+{% if user.is_authenticated %}
+    {% if messages %}
+        <br />
+            <div class="container">
+                {% for message in messages %}
+                    <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            </div>
+        <br />
+    {% endif %}
+{%  endif %}
 {%  block content %}
 {%  endblock %}
 </body>
