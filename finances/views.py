@@ -361,7 +361,6 @@ class SaleRetrieveView(DetailView):
         # Recherche si l'user est lié à la sale
         is_linked = False
         sale = Sale.objects.get(pk=int(kwargs['pk']))
-        print(sale)
         if sale.operator == request.user or sale.sender == request.user or sale.recipient == request.user:
             is_linked = True
 
