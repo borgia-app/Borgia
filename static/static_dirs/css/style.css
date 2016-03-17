@@ -470,6 +470,7 @@ textarea {
 }
 
 .user-container:before {
+    display: block;
     position: relative;
     z-index: 1;
     float: left;
@@ -818,13 +819,23 @@ input.btn {
 
 .footer {
     display: inline-block;
-    width: auto;
+    position: absolute;
+    bottom: 0;
+    background-color: #565a68;
+    width: 100%;
 }
 .footer nav {
     margin: 0 1em;
     padding: 0.25em;
     border-top: 1px solid #666;
     font-size: 0.9em;
+}
+
+.footer .credit {
+    text-align: center;
+}
+.footer .ideas {
+    text-align: center;
 }
 
 .footer a {
@@ -1061,4 +1072,21 @@ summary {
 nav.container {
     background-color: #202227;
     width: 100%;
+}
+html{
+  height:100%;
+}
+
+body{
+  height:100%;
+  position: relative;
+}
+
+#wrap{
+  min-height:100%;
+  position: relative;
+}
+#main{
+  position relative;
+  padding-bottom: 100px;
 }

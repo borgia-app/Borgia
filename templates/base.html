@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="{% static 'css/style-xsmall.css' %}" />
     <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
     <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.jpg' %}"/>
-
 </head>
 <body>
 <nav class="container"
@@ -52,28 +51,33 @@
         <br />
     {% endif %}
 {%  endif %}
-{%  block content %}
-{%  endblock %}
+ <div id="main">
+     {%  block content %}
+     {%  endblock %}
+ </div>
+        <footer class="footer">
+                <div class="wrapper">
+                    <div class="credit">
+                        <small>
+                            WIP - Borgia v2.0 - 17/03/2016 - <a href="https://wikiae.iresam.org/doku.php?id=historique_version_borgia">Historique des versions</a><br/>
+                            Borgia is an open-source project, developped by Arts et Métiers students.<br/>
+                            Me214 - Pastys 101-99 & Elek 142<br/>
+                            CSS d'après <a href="https://yunohost.org">Yunohost</a><br/>
+                            <a href="http://fortawesome.github.io/Font-Awesome/">FontAwesome</a>
+                        </small>
+                    </div>
+                    <div class="ideas">
+                        <small>
+                            Un bug? Des remarques? Partage les nous! <input type="submit" value="Reporter un bug" id="mailto_report">
+                        </small>
+                    </div>
+                </div>
+                <script>
+                    document.getElementById("mailto_report").addEventListener('click', function(e) {
+                        window = window.open("mailto:support@iresam.org?Subject=Feedback Borgia", 'EmailWindow')
+                    }, false);
+                </script>
+        </footer>
 </body>
-<!--<footer>
-    <div class="container">
-        <hr>
-        <div class="row">
-            <div class="one-half column align-center">
-                <p class="align-center">Borgia WIP v1.35 - 28/02/2016</p>
-                <p><a href="https://wikiae.iresam.org/doku.php?id=historique_version_borgia">Historique des versions</a></p>
-            </div>
-            <div class="one-half column align-center">
-                <p> Un bug? Des remarques? Partage les nous! </p>
-                <input type="submit" value="Reporter un bug" id="mailto_report">
-            </div>
-        </div>
-        <script>
-            document.getElementById("mailto_report").addEventListener('click', function(e) {
-                window = window.open("mailto:support@iresam.org?Subject=Feedback Borgia", 'EmailWindow')
-            }, false);
-        </script>
-    </div>
-</footer>
--->
+
 </html>
