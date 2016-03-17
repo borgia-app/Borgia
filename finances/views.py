@@ -43,7 +43,8 @@ def electrovanne_request2(request):
 
 
 def electrovanne_date(request):
-    return HttpResponse(time.time())
+    data = [time.time()]
+    return HttpResponse(json.dumps(data))
 
 
 def workboard_treasury(request):
