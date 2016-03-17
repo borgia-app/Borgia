@@ -45,6 +45,8 @@
 
 /* Autocompletion */
 #results {
+    font-family: source_sans_proregular;
+    color: black;
     display: none;
     width: 228px;
     border: 1px solid #AAA;
@@ -54,6 +56,7 @@
 #results div {
     width: 220px;
     padding: 2px 4px;
+    padding-left: 47px;
     text-align: left;
     border: 0;
 }

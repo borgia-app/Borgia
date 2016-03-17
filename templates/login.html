@@ -2,12 +2,25 @@
 
 {% block content %}
 
-    <div class="container30">
-        <form class="login-form" action= '' method="post">{% csrf_token %}
-            {{ form.as_p }}
-            <input id='id_submit' type="submit" value="Login"/>
-        </form>
+    <div class="overlay">
+        <div class="wrapper login">
+            {{ form.non_field_errors }}
+            {{ form.username.errors }}
+            {{ form.password.errors }}
+            <form class="login-form" action= '' method="post">{% csrf_token %}
+                <div class="form-group">
+                    <label class="icon icon-user" for="id_username"><span class="element-invisible">Nom d'utilisateur</span></label>
+                    <input id="id_username" type="text" name="username" placeholder="Nom d'utilisateur" class="form-text" maxlength="254" required>
+                </div>
+                <div class="form-group">
+                    <label class="icon icon-lock" for="id_password"><span class="element-invisible">Mot de passe</span></label>
+                    <input id="id_password" type="password" name="password" placeholder="Mot de passe" class="form-text" required>
+                </div>
+                <input id="id_submit" type="submit" value="Connexion" class="btn classic-btn large-btn">
+            </form>
+        </div>
     </div>
+
 
     <script>
 
