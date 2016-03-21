@@ -1,0 +1,40 @@
+{% load staticfiles %}
+{% load notifications_extra %}
+
+{{ request|filter_get_undisplayed_notifications_for_user }}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Borgia - beta V1.35</title>
+    <link rel="stylesheet" href="{% static 'css/skeleton.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/style-xsmall.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.jpg' %}"/>
+</head>
+<body>
+
+{% if user.is_authenticated %}
+    {% if messages %}
+        <br />
+        <div class="container">
+            {% for message in messages %}
+                <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+            {% endfor %}
+        </div>
+        <br />
+    {% endif %}
+{%  endif %}
+
+<div class="container">
+
+    {%  block content %}
+    {%  endblock %}
+
+</div>
+
+</body>
+
+</html>
