@@ -45,8 +45,8 @@ class ManageGroupView(FormView):
         if group.name.startswith('Gestionnaires') is True:
             chefs_gestionnaires_group_name = group.name.replace('Gestionnaires', 'Chefs gestionnaires')
             kwgars['possible_permissions'] = Group.objects.get(
-                    name=chefs_gestionnaires_group_name).permissions.all().exclude(
-                    pk=permission_to_manage_group(group)[0].pk)
+                name=chefs_gestionnaires_group_name).permissions.all().exclude(
+                pk=permission_to_manage_group(group)[0].pk)
 
         # Pour les autres groupes, tout est possible (utilisation normalement par le président seulement)
         else:
@@ -114,24 +114,37 @@ def profile_view(request):
     return render(request, 'users/profile.html', locals())
 
 
-class UserCreateView(SuccessMessageMixin, CreateView):
-    model = User
+class UserCreateView(FormView):
     form_class = UserCreationCustomForm
     template_name = 'users/create.html'
-    success_message = "%(name)s was created successfully"
     success_url = '/users/'  # Redirection a la fin
 
     # Override form_valid pour enregistrer les attributs issues d'autres classes (m2m ou autres)
     def form_valid(self, form):
-        """
-        If the form is valid, save the associated model.
-        """
-        self.object = form.save()  # Save l'object et ses attributs
-        form.save_m2m()  # Save les m2m de l'object cree
-        return super(ModelFormMixin, self).form_valid(form)
+        user = User.objects.create(username=form.cleaned_data['username'],
+                                   first_name=form.cleaned_data['first_name'],
+                                   last_name=form.cleaned_data['last_name'],
+                                   surname=form.cleaned_data['surname'],
+                                   family=form.cleaned_data['family'],
+                                   campus=form.cleaned_data['campus'],
+                                   year=form.cleaned_data['year'])
+        user.set_password(form.cleaned_data['password'])
+        user.save()
+        return super(UserCreateView, self).form_valid(form)
 
     def get_initial(self):
         return {'campus': 'Me', 'year': 2014}
+
+    def get_context_data(self, **kwargs):
+        context = super(UserCreateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
+    def get_success_url(self):
+        if self.request.POST.get('next') != 'None':
+            return force_text(self.request.POST.get('next', self.success_url))
+        else:
+            return force_text(self.success_url)
 
 
 class UserRetrieveView(DetailView):

@@ -12,10 +12,11 @@
                 <ul class="listing-apps">
                     <li><a href="{% url 'url_supply_united' %}?next=/shops/foyer/workboard"><img src="{% static 'img/lydia.png' %}" alt="Crédit compte"><span class="name">Crédit compte</span></a></li>
                     {% if perms.users.gestionnaires_du_foyer_group_manage %}
-                        <li><a href="{% url 'url_manage_group' %}?group_pk={{ group_gestionnaires_du_foyer_pk }}&next=/shops/foyer/workboard"><img src="{% static 'img/lydia.png' %}" alt="Gestion groupe"><span class="name">Gestionnaires du foyer</span></a></li>
+                        <li><a href="{% url 'url_manage_group' %}?group_pk={{ group_gestionnaires_du_foyer_pk }}&next=/shops/foyer/workboard"><img src="{% static 'img/group.png' %}" alt="Gestion groupe"><span class="name">Gestionnaires du foyer</span></a></li>
                     {% endif %}
-                    <li><a href="{% url 'url_create_product_multiple' %}?shop=Foyer&next=/shop/foyer/workboard"><img src="{% static 'img/lydia.png' %}" alt="Gestion produits"><span class="name">Produits foyer</span></a></li>
-                    <li><a href="{% url 'url_list_active_keg' %}"><img src="{% static 'img/lydia.png' %}" alt="Gestion tireuses"><span class="name">Tireuses</span></a></li>
+                    <li><a href="{% url 'url_create_product_multiple' %}?shop=Foyer&next=/shops/foyer/workboard"><img src="{% static 'img/shopping.png' %}" alt="Gestion produits"><span class="name">Produits foyer</span></a></li>
+                    <li><a href="{% url 'url_list_active_keg' %}"><img src="{% static 'img/keg.png' %}" alt="Gestion tireuses"><span class="name">Tireuses</span></a></li>
+                    <li><a href="{% url 'url_create_user' %}?next=/shops/foyer/workboard"><img src="{% static 'img/user.png' %}" alt="Ajout user"><span class="name">Ajout membre</span></a></li>
                 </ul>
             </div>
         </div>
