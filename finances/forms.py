@@ -40,7 +40,7 @@ class ChequeCreateForm(ModelForm):
 class CreationLydiaForm(ModelForm):
     class Meta:
         model = Lydia
-        fields = ['sender_user_id', 'recipient_user_id', 'time_operation', 'id_from_lydia', 'amount',
+        fields = ['sender_user_id', 'recipient_user_id', 'date_operation', 'id_from_lydia', 'amount',
                   'banked', 'date_banked']
 
     sender_user_id = forms.ModelChoiceField(label='Impulseur', queryset=User.objects.all().order_by('last_name'))
@@ -54,6 +54,39 @@ class CreationCashForm(ModelForm):
 
     giver = forms.ModelChoiceField(label='Donnateur', queryset=User.objects.all().order_by('last_name'))
     recipient = forms.ModelChoiceField(label='Receveur', queryset=User.objects.all().order_by('last_name'))
+
+
+class SupplyUnitedForm(forms.Form):
+
+    # Général
+    # Type
+    type = forms.ChoiceField(label='Type', choices=(('cash', 'Espèces'), ('cheque', 'Chèque'), ('lydia', 'Lydia')))
+    # Informations générales
+    amount = forms.FloatField(label='Montant (€)')
+    sender = forms.CharField(label='Payeur')
+    unique_number = forms.CharField(label='Numéro unique', required=False)  # Inutile pour Cash
+    signature_date = forms.DateField(label='Date de signature', required=False)  # Inutile pour Cash
+    bank_account = forms.ModelChoiceField(label='Compte bancaire', queryset=BankAccount.objects.all(),
+                                          required=False)  # Inutile pour Cash et Lydia
+
+    # Gestionnaire - opérateur
+    operator_username = forms.CharField(label='Gestionnaire')
+    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
+
+    def clean(self):
+
+        cleaned_data = super(SupplyUnitedForm, self).clean()
+        operator_username = cleaned_data['operator_username']
+        operator_password = cleaned_data['operator_password']
+
+        # Essaye d'authentification seulement si les deux champs sont valides
+        if operator_password and operator_password:
+            # Cas d'échec d'authentification
+            if authenticate(username=operator_username, password=operator_password) is None:
+                raise forms.ValidationError('Echec d\'authentification')
+            elif authenticate(username=operator_username, password=operator_password).has_perm('users.supply_account') is False:
+                raise forms.ValidationError('Erreur de permission')
+        return super(SupplyUnitedForm, self).clean()
 
 
 class SupplyChequeForm(forms.Form):
@@ -109,11 +142,11 @@ class SupplyCashForm(forms.Form):
 
 class SupplyLydiaForm(forms.Form):
 
-    # Cash
+    # Lydia
     amount = forms.FloatField(label='Montant')
     sender = forms.ModelChoiceField(label='Payeur', queryset=User.objects.all())
     id_from_lydia = forms.CharField(label='Numéro unique Lydia')
-    time_operation = forms.DateTimeField(label='Heure d\'opération Lydia')
+    date_operation = forms.DateField(label='Date d\'opération')
 
     # Gestionnaire - opérateur
     operator_username = forms.CharField(label='Gestionnaire')

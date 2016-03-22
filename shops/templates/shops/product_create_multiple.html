@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="container50">
+        <h1>Ajout de produits</h1>
+        <h3>Magasin: {{ shop.name }}</h3>
+        <form action= "{% url 'url_create_product_multiple' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <p id="id_link_create_productbase">Le produit n'est pas dans la liste ? <a href="{% url 'url_create_productbase' %}?next=/shops/product/create/multiple">Ajout !</a></p>
+            <input type=hidden name="next" value="{{ next }}" />
+            <input type=hidden name="shop" id='hidden_shop' value="{{ shop }}" />
+            <input type="submit" value="Submit"/>
+        </form>
+    </div>
+    <script>
+        document.getElementById('id_shop').value = document.getElementById('hidden_shop').value;
+    </script>
+{% endblock %}

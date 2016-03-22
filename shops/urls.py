@@ -7,6 +7,8 @@ from shops.views import *
 
 urlpatterns = [
     # Models
+    url(r'^product/create/multiple/$', permission_required('users.add_product', raise_exception=True)
+    (ProductCreateMultipleView.as_view()), name='url_create_product_multiple'),
     url(r'^singleproduct/create/multiple/$', permission_required('shops.add_singleproduct', raise_exception=True)
     (SingleProductCreateMultipleView.as_view()), name='url_create_singleproduct_multiple'),  # C multiple
     url(r'^singleproduct/retrieve/(?P<pk>\d+)/$', permission_required('shops.retrieve_singleproduct', raise_exception=True)
@@ -44,8 +46,11 @@ urlpatterns = [
     url(r'^foyer/consumption/$', PurchaseFoyer.as_view(), name='url_purchase_foyer'),
     url(r'^foyer/workboard$', permission_required('shops.reach_workboard_foyer', raise_exception=True)
     (workboard_foyer), name='url_workboard_foyer'),
+    url(r'^foyer/list_active_keg', permission_required('shops.change_active_keg', raise_exception=True)
+    (list_active_keg), name='url_list_active_keg'),
     url(r'^foyer/replacement_keg', permission_required('shops.change_active_keg', raise_exception=True)
     (ReplacementActiveKeyView.as_view()), name='url_replacement_active_keg'),
+
     # Auberge
     url(r'^auberge/consumption/$', permission_required('shops.sell_auberge', raise_exception=True)
     (PurchaseAuberge.as_view()), name='url_purchase_auberge'),

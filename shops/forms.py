@@ -5,7 +5,7 @@ from django.db.models import Q
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 
-from shops.models import Shop, Container, ProductBase
+from shops.models import Shop, Container, ProductBase, ProductUnit
 from users.models import User
 
 
@@ -14,7 +14,7 @@ class ReplacementActiveKegForm(forms.Form):
     new_keg = forms.ModelChoiceField(required=True,
                                      queryset=Container.objects.filter(quantity_remaining__isnull=False,
                                                                        product_base__product_unit__type='keg').exclude(
-                                             place__contains='tireuse'),
+                                         place__contains='tireuse'),
                                      label='Nouveau fut')
 
 
@@ -184,6 +184,21 @@ class ContainerCreateMultipleForm(forms.Form):
         self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
                                                              queryset=ProductBase.objects.filter(type='container',
                                                                                                  shop=shop).exclude(
+                                                                 product_unit__type='fictional_money'))
+        self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter')
+        self.fields['price'] = forms.FloatField(label='Prix d\'achat unitaire')
+        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat')
+        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False)
+        self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
+
+
+class ProductCreateMultipleForm(forms.Form):
+
+    def __init__(self, **kwargs):
+        shop = kwargs.pop('shop')
+        super(ProductCreateMultipleForm, self).__init__(**kwargs)
+        self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
+                                                             queryset=ProductBase.objects.filter(shop=shop).exclude(
                                                                  product_unit__type='fictional_money'))
         self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter')
         self.fields['price'] = forms.FloatField(label='Prix d\'achat unitaire')

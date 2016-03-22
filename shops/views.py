@@ -440,6 +440,10 @@ def workboard_foyer(request):
 
     group_gestionnaires_du_foyer_pk = Group.objects.get(name='Gestionnaires du foyer').pk
 
+    return render(request, 'shops/workboard_foyer.html', locals())
+
+
+def list_active_keg(request):
     # Liste des conteneurs sous une tireuse
     active_keg_container_list = []
 
@@ -449,7 +453,7 @@ def workboard_foyer(request):
         except ObjectDoesNotExist:  # Cas où la tireuse est vide
             active_keg_container_list.append(('tireuse %s' % i, None))
 
-    return render(request, 'shops/workboard_foyer.html', locals())
+    return render(request, 'shops/list_active_keg.html', locals())
 
 
 # Models
@@ -618,12 +622,11 @@ class ProductUnitListView(ListView):
     queryset = ProductUnit.objects.all()
 
 
-class ProductBaseCreateView(SuccessMessageMixin, CreateView):
+class ProductBaseCreateView(CreateView):
+    fields = ['name', 'description', 'shop', 'brand', 'type', 'product_unit', 'quantity']
     model = ProductBase
-    fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price', 'quantity', 'product_unit']
     template_name = 'shops/productbase_create.html'
     success_url = '/shops/productbase/'
-    success_message = "%(name)s was created successfully"
 
     def get_success_url(self):
         return force_text(self.request.POST.get('next', self.success_url))
@@ -672,3 +675,55 @@ class ProductBaseListView(ListView):
     model = ProductBase
     template_name = 'shops/productbase_list.html'
     queryset = ProductBase.objects.all()
+
+
+class ProductCreateMultipleView(FormView):
+    template_name = 'shops/product_create_multiple.html'
+    form_class = ProductCreateMultipleForm
+    success_url = '/auth/login'
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def form_valid(self, form):
+
+        if form.cleaned_data['product_base'].type == 'container':
+            for i in range(0, form.cleaned_data['quantity']):
+                product = Container.objects.create(price=form.cleaned_data['price'],
+                                                   purchase_date=form.cleaned_data['purchase_date'],
+                                                   expiry_date=form.cleaned_data['expiry_date'],
+                                                   place=form.cleaned_data['place'],
+                                                   product_base=form.cleaned_data['product_base'])
+                # Notifications
+                container_creation_notify_success_to_user(self.request, product)
+
+        elif form.cleaned_data['product_base'].type == 'single_product':
+            for i in range(0, form.cleaned_data['quantity']):
+                product = SingleProduct.objects.create(price=form.cleaned_data['price'],
+                                                       purchase_date=form.cleaned_data['purchase_date'],
+                                                       expiry_date=form.cleaned_data['expiry_date'],
+                                                       place=form.cleaned_data['place'],
+                                                       product_base=form.cleaned_data['product_base'])
+                # Notifications
+                container_creation_notify_success_to_user(self.request, product)
+
+        # Mise à jour du prix du product base
+        form.cleaned_data['product_base'].set_calculated_price_mean()
+
+        return super(ProductCreateMultipleView, self).form_valid(form)
+
+    def get_initial(self):
+        initial = super(ProductCreateMultipleView, self).get_initial()
+        initial['purchase_date'] = now
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(ProductCreateMultipleView, self).get_context_data(**kwargs)
+        context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
+    def get_form_kwargs(self):
+        kwargs = super(ProductCreateMultipleView, self).get_form_kwargs()
+        kwargs['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
+        return kwargs

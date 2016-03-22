@@ -73,4 +73,8 @@ class User(AbstractUser):
 
             ('list_user', 'Lister les users'),
             ('retrieve_user', 'Afficher les users'),
+
+            ('supply_account', 'Ajouter de l\'argent à un compte'),
+
+            ('add_product', 'Ajouter des produits'),
         )

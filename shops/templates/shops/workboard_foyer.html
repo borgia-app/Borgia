@@ -1,80 +1,24 @@
 {% extends 'base.html' %}
+{% load static %}
 
 {% block content %}
 
-    <h1 class="align-center">Workboard Foyer</h1>
-    <hr>
-
     <div class="container">
-        <div class="one-third column">
-            <div class="row">
-                <h3>Alimentation de comptes</h3>
-                <ul>
-                    <li><a href="{% url 'url_supply_cash' %}?next=/shops/foyer/workboard">Espèces seulement</a></li>
-                    <li><a href="{% url 'url_supply_cheque' %}?next=/shops/foyer/workboard">Chèque seulement</a></li>
-                    <li><a href="{% url 'url_supply_lydia' %}?next=/shops/foyer/workboard">Lydia seulement</a></li>
-                </ul>
-            </div>
-            {% if perms.users.gestionnaires_du_foyer_group_manage %}
-                <div class="row">
-                    <h3>Gestion du groupe du foyer</h3>
-                    <p><a href="{% url 'url_manage_group' %}?group_pk={{ group_gestionnaires_du_foyer_pk }}">Gérer le groupe</a></p>
-                </div>
-            {% endif %}
+        <div class="row">
+            <h1 class="align-center">Workboard Foyer</h1>
         </div>
-        <div class="one-third column">
-            <h3>Gestion du stock</h3>
-            <div class="row">
-                <h5>Unités de produits</h5>
-                <ul>
-                    <li><a href="{% url 'url_list_productunit' %}">Listes des unités produits</a></li>
-                    <li><a href="{% url 'url_create_productunit' %}?next=/shops/foyer/workboard">Nouvelle unité produit</a></li>
-                </ul>
-            </div>
-            <div class="row">
-                <h5>Bases de produits</h5>
-                <ul>
-                    <li><a href="{% url 'url_list_productbase' %}">Listes des bases de produits</a></li>
-                    <li><a href="{% url 'url_create_productbase' %}?next=/shops/foyer/workboard">Nouvelle base produit</a></li>
+        <div class="row">
+            <div>
+                <ul class="listing-apps">
+                    <li><a href="{% url 'url_supply_united' %}?next=/shops/foyer/workboard"><img src="{% static 'img/lydia.png' %}" alt="Crédit compte"><span class="name">Crédit compte</span></a></li>
+                    {% if perms.users.gestionnaires_du_foyer_group_manage %}
+                        <li><a href="{% url 'url_manage_group' %}?group_pk={{ group_gestionnaires_du_foyer_pk }}&next=/shops/foyer/workboard"><img src="{% static 'img/lydia.png' %}" alt="Gestion groupe"><span class="name">Gestionnaires du foyer</span></a></li>
+                    {% endif %}
+                    <li><a href="{% url 'url_create_product_multiple' %}?shop=Foyer&next=/shop/foyer/workboard"><img src="{% static 'img/lydia.png' %}" alt="Gestion produits"><span class="name">Produits foyer</span></a></li>
+                    <li><a href="{% url 'url_list_active_keg' %}"><img src="{% static 'img/lydia.png' %}" alt="Gestion tireuses"><span class="name">Tireuses</span></a></li>
                 </ul>
             </div>
         </div>
-        <div class="one-third column">
-            <div class="row">
-                <h5>Produits</h5>
-                <div class="row">
-                    <h6>Produits unitaires</h6>
-                    <ul>
-                        <li><a href="{% url 'url_list_singleproduct' %}">Listes des produits unitaires</a></li>
-                        <li><a href="{% url 'url_create_singleproduct_multiple' %}?next=/shops/foyer/workboard&shop=Foyer">Ajouts de produits unitaires</a></li>
-                    </ul>
-                </div>
-                <div class="row">
-                    <h6>Conteneurs</h6>
-                    <ul>
-                        <li><a href="{% url 'url_list_container' %}">Listes des conteneurs</a></li>
-                        <li><a href="{% url 'url_create_container_multiple' %}?next=/shops/foyer/workboard&shop=Foyer">Ajouts de conteneurs</a></li>
-                    </ul>
-                </div>
-            </div>
-            </p>
-        </div>
-    </div>
-
-    <div class="container">
-        <h3>Gestion des tireuses</h3>
-        {% for e in active_keg_container_list %}
-            <div class="two columns">
-                <h4>{{ e.0 }}</h4>
-                {% if e.1 %}
-                    <p>{{ e.1.product_base }}</p>
-                    <p>{{ e.1.quantity_remaining }} {{ e.1.product_base.product_unit.unit }} - {{ e.1.pourcentage_quantity_remaining }}% restants</p>
-                {% else %}
-                    <p>Non utilisée actuellement</p>
-                {% endif %}
-                <p><a href="{% url 'url_replacement_active_keg' %}?next=/shops/foyer/workboard&pk={{ e.1.pk }}&place={{ e.0 }}">Remplacer</a></p>
-            </div>
-        {% endfor %}
     </div>
 
 {% endblock %}

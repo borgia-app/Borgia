@@ -103,9 +103,9 @@ class TransfertCreateView(FormView):
 
 
 # Supply
-class SupplyChequeView(FormView):
-    form_class = SupplyChequeForm
-    template_name = 'finances/supply_cheque.html'
+class SupplyUnitedView(FormView):
+    form_class = SupplyUnitedForm
+    template_name = 'finances/supply_united.html'
     success_url = '/auth/login'
 
     def form_valid(self, form):
@@ -114,47 +114,61 @@ class SupplyChequeView(FormView):
         # Le cas d'échec d'authentification est géré dans le form.clean()
         operator = authenticate(username=form.cleaned_data['operator_username'],
                                 password=form.cleaned_data['operator_password'])
-
-        # Création du chèque
-        cheque = Cheque(amount=form.cleaned_data['amount'],
-                        signature_date=form.cleaned_data['signature_date'],
-                        cheque_number=form.cleaned_data['cheque_number'],
-                        sender=form.cleaned_data['sender'],
-                        recipient=User.objects.get(username='AE_ENSAM'),
-                        bank_account=form.cleaned_data['bank_account'])
-        cheque.save()
-
+        sender = User.objects.get(username=form.cleaned_data['sender'])
         # Création du paiement
-        payment = Payment()
-        payment.save()
-        payment.cheques.add(cheque)
-        payment.maj_amount()
-        payment.save()
+        payment = Payment.objects.create()
+
+        if form.cleaned_data['type'] == 'cheque':
+
+            cheque = Cheque.objects.create(amount=form.cleaned_data['amount'],
+                                           signature_date=form.cleaned_data['signature_date'],
+                                           cheque_number=form.cleaned_data['unique_number'],
+                                           sender=sender,
+                                           recipient=User.objects.get(username='AE_ENSAM'),
+                                           bank_account=form.cleaned_data['bank_account'])
+            payment.cheques.add(cheque)
+            payment.maj_amount()
+            payment.save()
+
+        elif form.cleaned_data['type'] == 'cash':
+            cash = Cash.objects.create(sender=sender,
+                                       recipient=User.objects.get(username='AE_ENSAM'),
+                                       amount=form.cleaned_data['amount'])
+            payment.cashs.add(cash)
+            payment.maj_amount()
+            payment.save()
+
+        elif form.cleaned_data['type'] == 'lydia':
+            lydia = Lydia.objects.create(date_operation=form.cleaned_data['signature_date'],
+                                         id_from_lydia=form.cleaned_data['unique_number'],
+                                         sender_user_id=sender,
+                                         recipient_user_id=User.objects.get(username='AE_ENSAM'),
+                                         amount=form.cleaned_data['amount'])
+            payment.lydias.add(lydia)
+            payment.maj_amount()
+            payment.save()
 
         # Création de la vente
-        sale = Sale(date=datetime.now(),
-                    sender=form.cleaned_data['sender'],
-                    operator=operator,
-                    recipient=User.objects.get(username='AE_ENSAM'),
-                    payment=payment)
-        sale.save()
+        sale = Sale.objects.create(date=datetime.now(),
+                                   sender=sender,
+                                   operator=operator,
+                                   recipient=User.objects.get(username='AE_ENSAM'),
+                                   payment=payment)
 
         # Création d'un spfc d'argent fictif
-        spfc = SingleProductFromContainer(container=Container.objects.get(
+        spfc = SingleProductFromContainer.objects.create(container=Container.objects.get(
             product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
             sale_price=payment.amount, sale=sale)
-        spfc.save()
 
         # Mise à jour du compte foyer du client
         sale.maj_amount()
         sale.save()
-        sender = form.cleaned_data['sender']
         sender.credit(sale.amount)
 
-        return super(SupplyChequeView, self).form_valid(form)
+        return super(SupplyUnitedView, self).form_valid(form)
 
     def get_initial(self):
-        initial = super(SupplyChequeView, self).get_initial()
+        initial = super(SupplyUnitedView, self).get_initial()
         initial['signature_date'] = now
         return initial
 
@@ -162,133 +176,15 @@ class SupplyChequeView(FormView):
         return force_text(self.request.POST.get('next', self.success_url))
 
     def get_context_data(self, **kwargs):
-        context = super(SupplyChequeView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        return context
-
-
-class SupplyCashView(FormView):
-    form_class = SupplyCashForm
-    template_name = 'finances/supply_cash.html'
-    success_url = '/auth/login'
-
-    def form_valid(self, form):
-
-        # Identification du gestionnaire
-        # Le cas d'échec d'authentification est géré dans le form.clean()
-        operator = authenticate(username=form.cleaned_data['operator_username'],
-                                password=form.cleaned_data['operator_password'])
-
-        # Création du cash
-        cash = Cash(sender=form.cleaned_data['sender'],
-                    recipient=User.objects.get(username='AE_ENSAM'),
-                    amount=form.cleaned_data['amount'])
-        cash.save()
-
-        # Création du paiement
-        payment = Payment()
-        payment.save()
-        payment.cashs.add(cash)
-        payment.maj_amount()
-        payment.save()
-
-        # Création de la vente
-        sale = Sale(date=datetime.now(),
-                    sender=form.cleaned_data['sender'],
-                    operator=operator,
-                    recipient=User.objects.get(username='AE_ENSAM'),
-                    payment=payment)
-        sale.save()
-
-        # Création d'un spfc d'argent fictif
-        spfc = SingleProductFromContainer(container=Container.objects.get(
-            product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
-            sale_price=payment.amount, sale=sale)
-        spfc.save()
-
-        # Mise à jour du compte foyer du client
-        sale.maj_amount()
-        sale.save()
-        sender = form.cleaned_data['sender']
-        sender.credit(sale.amount)
-
-        return super(SupplyCashView, self).form_valid(form)
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(SupplyCashView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        return context
-
-
-class SupplyLydiaView(FormView):
-    form_class = SupplyLydiaForm
-    template_name = 'finances/supply_lydia.html'
-    success_url = '/auth/login'
-
-    def form_valid(self, form):
-
-        # Identification du gestionnaire
-        # Le cas d'échec d'authentification est géré dans le form.clean()
-        operator = authenticate(username=form.cleaned_data['operator_username'],
-                                password=form.cleaned_data['operator_password'])
-
-        # Création du cash
-        lydia = Lydia(time_operation=form.cleaned_data['time_operation'],
-                      id_from_lydia=form.cleaned_data['id_from_lydia'],
-                      sender_user_id=form.cleaned_data['sender'],
-                      recipient_user_id=User.objects.get(username='AE_ENSAM'),
-                      amount=form.cleaned_data['amount'])
-        lydia.save()
-
-        # Création du paiement
-        payment = Payment()
-        payment.save()
-        payment.lydias.add(lydia)
-        payment.maj_amount()
-        payment.save()
-
-        # Création de la vente
-        sale = Sale(date=datetime.now(),
-                    sender=form.cleaned_data['sender'],
-                    operator=operator,
-                    recipient=User.objects.get(username='AE_ENSAM'),
-                    payment=payment)
-        sale.save()
-
-        # Création d'un spfc d'argent fictif
-        spfc = SingleProductFromContainer(container=Container.objects.get(
-            product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
-            sale_price=payment.amount, sale=sale)
-        spfc.save()
-
-        # Mise à jour du compte foyer du client
-        sale.maj_amount()
-        sale.save()
-        sender = form.cleaned_data['sender']
-        sender.credit(sale.amount)
-
-        return super(SupplyLydiaView, self).form_valid(form)
-
-    def get_initial(self):
-        initial = super(SupplyLydiaView, self).get_initial()
-        initial['time_operation'] = datetime.now()
-        return initial
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(SupplyLydiaView, self).get_context_data(**kwargs)
+        context = super(SupplyUnitedView, self).get_context_data(**kwargs)
         context['next'] = self.request.GET.get('next', self.success_url)
         return context
 
 
 def bank_account_from_user(request):
     data = serializers.serialize('xml',
-                                 BankAccount.objects.filter(owner=User.objects.get(pk=request.GET.get('user_pk'))))
+                                 BankAccount.objects.filter(owner=User.objects.get(
+                                     username=request.GET.get('user_username'))))
     return HttpResponse(data)
 
 
@@ -298,6 +194,14 @@ class BankAccountCreateView(CreateView):
     fields = ['bank', 'account', 'owner']
     template_name = 'finances/bank_account_create.html'
     success_url = '/finances/bank_account'
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(BankAccountCreateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
 
 
 class BankAccountUpdateView(UpdateView):

@@ -2,15 +2,15 @@
 
 {% block content %}
 
-    <div class="container30">
-        <form action= "{% url 'url_create_productbase' %}" method="post">
+    <div class="container50">
+        <form action= "{% url 'url_create_productbase' %}" method="POST">
             {% csrf_token %}
             {{ form.as_p }}
+            <p id="id_link_create_productunit">L'unité n'est pas dans la liste ? <a href="{% url 'url_create_productunit' %}?next=/shops/productbase/create">Ajout !</a></p>
             <input type=hidden name="next" value="{{ next }}" />
             <input type="submit" value="Submit"/>
         </form>
     </div>
-
     <script>
         var labels = document.getElementsByTagName('LABEL');
         for (var i = 0; i < labels.length; i++) {
@@ -29,12 +29,14 @@
                 document.getElementById('id_quantity').label.style.display = 'None';
                 document.getElementById('id_product_unit').value = '';
                 document.getElementById('id_quantity').value = 0;
+                document.getElementById('id_link_create_productunit').style.display = 'None';
             }
             if (e.target.value == 'container') {
                 document.getElementById('id_product_unit').style.display = '';
                 document.getElementById('id_product_unit').label.style.display = '';
                 document.getElementById('id_quantity').style.display = '';
                 document.getElementById('id_quantity').label.style.display = '';
+                document.getElementById('id_link_create_productunit').style.display = '';
             }
         }, false)
     </script>

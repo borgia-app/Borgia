@@ -31,6 +31,8 @@
         ["retrieve_debitbalance", "finances", "debitbalance"],
         ["list_debitbalance", "finances", "debitbalance"],
 
+        ["supply_account", "users", "user"],
+
         ["add_user", "users", "user"],
         ["change_user", "users", "user"],
         ["delete_user", "users", "user"],
@@ -73,11 +75,10 @@
         ["reach_workboard_foyer", "shops", "shop"],
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
+        ["add_product", "users", "user"],
         ["add_user", "users", "user"],
         ["gestionnaires_du_foyer_group_manage", "users", "user"],
-        ["add_cheque", "finances", "cheque"],
-        ["add_lydia", "finances", "lydia"],
-        ["add_cash", "finances", "cash"]
+        ["supply_account", "users", "user"]
       ]
     }
   },
@@ -99,10 +100,9 @@
         ["reach_workboard_foyer", "shops", "shop"],
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
+        ["add_product", "users", "user"],
         ["add_user", "users", "user"],
-        ["add_cheque", "finances", "cheque"],
-        ["add_lydia", "finances", "lydia"],
-        ["add_cash", "finances", "cash"]
+        ["supply_account", "users", "user"]
       ]
     }
   },
@@ -123,12 +123,10 @@
         ["list_productunit", "shops", "productunit"],
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
+        ["add_product", "users", "user"],
         ["gestionnaires_de_l_auberge_group_manage", "users", "user"],
         ["sell_auberge", "shops", "shop"],
-        ["reach_workboard_auberge", "shops", "shop"],
-        ["add_cheque", "finances", "cheque"],
-        ["add_lydia", "finances", "lydia"],
-        ["add_cash", "finances", "cash"]
+        ["reach_workboard_auberge", "shops", "shop"]
       ]
     }
   },
@@ -149,11 +147,9 @@
         ["list_productunit", "shops", "productunit"],
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
+        ["add_product", "users", "user"],
         ["sell_auberge", "shops", "shop"],
-        ["reach_workboard_auberge", "shops", "shop"],
-        ["add_cheque", "finances", "cheque"],
-        ["add_lydia", "finances", "lydia"],
-        ["add_cash", "finances", "cash"]
+        ["reach_workboard_auberge", "shops", "shop"]
       ]
     }
   },
