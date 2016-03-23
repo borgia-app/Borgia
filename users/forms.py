@@ -2,6 +2,7 @@
 from django import forms
 from users.models import User
 from django.forms.widgets import PasswordInput
+from django.core.exceptions import ObjectDoesNotExist
 
 
 # Formulaire de creation d'un user
@@ -45,3 +46,21 @@ class ManageGroupForm(forms.Form):
 class ModelMultipleChoiceCustomField(forms.ModelMultipleChoiceField):
     def label_from_instance(self, obj):
         return obj.name
+
+
+class LinkTokenUserForm(forms.Form):
+    username = forms.CharField(label='User à lié')
+    token_id = forms.CharField(label='Numéro unique du jeton')
+
+    def clean(self):
+
+        cleaned_data = super(LinkTokenUserForm, self).clean()
+
+        # Validation de l'username
+        username = cleaned_data['username']
+        try:
+            User.objects.get(username=username)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError('Cette personne n\'existe pas')
+
+        return super(LinkTokenUserForm, self).clean()

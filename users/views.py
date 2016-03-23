@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 from django.shortcuts import render, HttpResponse, force_text
-from users.forms import UserCreationCustomForm, ManageGroupForm
+from users.forms import UserCreationCustomForm, ManageGroupForm, LinkTokenUserForm
 from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin, DeleteView
 from django.views.generic import ListView, DetailView, FormView
 from django.contrib.messages.views import SuccessMessageMixin
@@ -9,6 +9,29 @@ from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
 
 from users.models import User
+
+
+class LinkTokenUserView(FormView):
+    form_class = LinkTokenUserForm
+    template_name = 'users/link_token_user.html'
+    success_url = '/auth/login'
+
+    def form_valid(self, form):
+        user = User.objects.get(username=form.cleaned_data['username'])
+        user.token_id = form.cleaned_data['token_id']
+        user.save()
+        return super(LinkTokenUserView, self).form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super(LinkTokenUserView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
+    def get_success_url(self):
+        if self.request.POST.get('next') != 'None':
+            return force_text(self.request.POST.get('next', self.success_url))
+        else:
+            return force_text(self.success_url)
 
 
 def balance_from_username(request):
