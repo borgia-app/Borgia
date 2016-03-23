@@ -5,7 +5,7 @@ from django.views.generic import ListView, DetailView, FormView
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from datetime import datetime
-import json, time
+import json, time, re
 
 from finances.forms import *
 from finances.models import *
@@ -16,9 +16,18 @@ def electrovanne_request1(request):
     data = []
     try:
         # Variables
-        user = User.objects.get(pk=request.GET.get('user_pk'))
         container = Container.objects.get(place='tireuse %s' % request.GET.get('tireuse_pk'))
         id = request.GET.get('id')
+
+        # Liaison entre le token et un user
+        # Manipulation du token pour extraire le code final
+        token_end = ''
+        for dual in re.findall(r"[0-9]{2}", request.GET.get('token_pk')[1:len(request.GET.get('token_pk'))-5]):
+            token_end += chr(int(dual))
+        token_end = token_end[4:]
+        # User lié
+        print(token_end)
+        user = User.objects.get(token_id=token_end)
 
         # Quantité max possible
         if user.balance <= 0:
@@ -27,7 +36,7 @@ def electrovanne_request1(request):
             max_quantity = round(float((container.product_base.quantity * user.balance) / container.product_base.calculated_price), 0)
 
         # Ecriture de la liste
-        data.append(request.GET.get('user_pk'))
+        data.append(request.GET.get('token_pk'))
         data.append(request.GET.get('tireuse_pk'))
         data.append(id)
         data.append(max_quantity)

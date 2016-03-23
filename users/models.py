@@ -32,6 +32,7 @@ class User(AbstractUser):
     year = models.IntegerField(choices=YEAR_CHOICES, blank=True, null=True)
     campus = models.CharField(choices=CAMPUS_CHOICES, max_length=2, blank=True, null=True)
     phone = models.CharField(max_length=255, blank=True, null=True)
+    token_id = models.CharField(max_length=6, blank=True, null=True)
 
     def __str__(self):
         return self.first_name+' '+self.last_name
