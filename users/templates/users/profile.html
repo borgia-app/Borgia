@@ -18,6 +18,9 @@
                     {% if perms.users.reach_workboard_treasury %}
                         <li><a href="{% url 'url_workboard_treasury' %}"><img src="{% static 'img/coffre.png' %}"><span class="name">Trésoriers workboard</span></a></li>
                     {% endif %}
+                    {% if perms.users.reach_workboard_presidents %}
+                        <li><a href="{% url 'url_workboard_presidents' %}"><img src="{% static 'img/ceo.png' %}"><span class="name">Présidents workboard</span></a></li>
+                    {% endif %}
                 </ul>
             </div>
             <div>

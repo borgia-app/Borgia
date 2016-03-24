@@ -33,4 +33,8 @@ urlpatterns = [
     # Token
     url(r'^token/link_token_user$', permission_required('users.link_token_user', raise_exception=True)
     (LinkTokenUserView.as_view()), name='url_link_token_user'),
+
+    # Workboards
+    url(r'^presidents/workboard$', permission_required('users.reach_workboard_presidents', raise_exception=True)
+    (workboard_presidents), name='url_workboard_presidents'),
 ]

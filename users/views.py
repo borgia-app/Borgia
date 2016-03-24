@@ -264,3 +264,12 @@ def group_name_clean_for_perm(group_name):
     group_name = group_name.lower()
     print(group_name)
     return group_name
+
+
+def workboard_presidents(request):
+
+    group_vices_presidents_vie_interne_pk = Group.objects.get(name='Vices présidents délégués à la vie interne').pk
+    group_tresoriers_pk = Group.objects.get(name='Trésoriers').pk
+    group_presidents_pk = Group.objects.get(name='Présidents').pk
+
+    return render(request, 'users/workboard_presidents.html', locals())
