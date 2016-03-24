@@ -194,7 +194,8 @@
     "fields": {
       "name": "Vices présidents délégués à la vie interne",
       "permissions": [["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
-        ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"]]
+        ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"],
+        ["reach_workboard_vices_presidents_vie_interne", "users", "user"]]
     }
   }
 ]

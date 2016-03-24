@@ -37,4 +37,6 @@ urlpatterns = [
     # Workboards
     url(r'^presidents/workboard$', permission_required('users.reach_workboard_presidents', raise_exception=True)
     (workboard_presidents), name='url_workboard_presidents'),
+    url(r'^vices_presidents_vie_interne/workboard$', permission_required('users.reach_workboard_vices_presidents_vie_interne', raise_exception=True)
+    (workboard_vices_presidents_vie_interne), name='url_workboard_vices_presidents_vie_interne'),
 ]

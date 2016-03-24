@@ -72,6 +72,7 @@ class User(AbstractUser):
              'Gérer le groupe des vices présidents délégués à la vie interne'),
             ('reach_workboard_treasury', 'Accéder au workboard de la trésorie'),
             ('reach_workboard_presidents', 'Accéder au workboard des présidents'),
+            ('reach_workboard_vices_presidents_vie_interne', 'Accéder au workboard des vices présidents délégués à la vie interne'),
 
             ('list_user', 'Lister les users'),
             ('retrieve_user', 'Afficher les users'),

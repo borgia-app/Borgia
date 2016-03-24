@@ -273,3 +273,11 @@ def workboard_presidents(request):
     group_presidents_pk = Group.objects.get(name='Présidents').pk
 
     return render(request, 'users/workboard_presidents.html', locals())
+
+
+def workboard_vices_presidents_vie_interne(request):
+
+    group_chefs_gestionnaires_foyer_pk = Group.objects.get(name='Chefs gestionnaires du foyer').pk
+    group_chefs_gestionnaires_auberge_pk = Group.objects.get(name='Chefs gestionnaires de l\'auberge').pk
+
+    return render(request, 'users/workboard_vices_presidents_vie_interne.html', locals())

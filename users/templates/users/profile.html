@@ -21,6 +21,9 @@
                     {% if perms.users.reach_workboard_presidents %}
                         <li><a href="{% url 'url_workboard_presidents' %}"><img src="{% static 'img/ceo.png' %}"><span class="name">Présidents workboard</span></a></li>
                     {% endif %}
+                    {% if perms.users.reach_workboard_vices_presidents_vie_interne %}
+                        <li><a href="{% url 'url_workboard_vices_presidents_vie_interne' %}"><img src="{% static 'img/vice_ceo.png' %}"><span class="name">V. Présidents workboard</span></a></li>
+                    {% endif %}
                 </ul>
             </div>
             <div>
