@@ -164,3 +164,23 @@ class SupplyLydiaForm(forms.Form):
             if authenticate(username=operator_username, password=operator_password) is None:
                 raise forms.ValidationError('Echec d\'authentification')
         return super(SupplyLydiaForm, self).clean()
+
+
+class RetrieveMoneyForm(forms.Form):
+
+    date_begin = forms.DateField(label='Date de début')
+    date_end = forms.DateField(label='Date de fin')
+    order_by = forms.ChoiceField(label='Tri par',
+                                 choices=(('operator', 'Opérateur'), ('date', 'Date'), ('amount', 'Montant')))
+
+    def __init__(self, *args, **kwargs):
+        user_list = kwargs.pop('user_list')
+        super(RetrieveMoneyForm, self).__init__(*args, **kwargs)
+
+        for (i, u) in enumerate(user_list):
+            self.fields['field_user_%s' % i] = forms.BooleanField(label=str(u.username + ' ' + u.__str__()), required=False)
+
+    def user_list_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_user_'):
+                yield (self.fields[name].label, value)

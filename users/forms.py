@@ -64,3 +64,23 @@ class LinkTokenUserForm(forms.Form):
             raise forms.ValidationError('Cette personne n\'existe pas')
 
         return super(LinkTokenUserForm, self).clean()
+
+
+class UserListCompleteForm(forms.Form):
+
+    order_by = forms.ChoiceField(label='Trier par',
+                                 choices=(('surname', 'Bucque'), ('balance', 'Solde'),
+                                          ('last_name', 'Nom de famille'), ('first_name', 'Prénom')))
+    all = forms.BooleanField(label='Selectionner tout les users', required=False)
+
+    def __init__(self, **kwargs):
+        list_year = kwargs.pop('list_year')
+        super(UserListCompleteForm, self).__init__(**kwargs)
+
+        for (i, y) in enumerate(list_year):
+            self.fields['field_year_%s' % i] = forms.BooleanField(label=y, required=False)
+
+    def year_pg_list_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_year_pg_'):
+                yield (self.fields[name].label, value)

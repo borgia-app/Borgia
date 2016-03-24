@@ -5,8 +5,6 @@
 
     <div class="container">
         <div class="row">
-
-
             <div>
                 <ul class="listing-apps">
                     <li><a href=""><img src="{% static 'img/lydia.png' %}" alt="Crédit lydia"><span class="name">Crédit Lydia</span></a></li>
@@ -16,6 +14,9 @@
                     {% endif %}
                     {% if perms.shops.reach_workboard_auberge %}
                         <li><a href="{% url 'url_workboard_auberge' %}"><img src="{% static 'img/auberge.png' %}"><span class="name">Auberge workboard</span></a></li>
+                    {% endif %}
+                    {% if perms.users.reach_workboard_treasury %}
+                        <li><a href="{% url 'url_workboard_treasury' %}"><img src="{% static 'img/coffre.png' %}"><span class="name">Trésoriers workboard</span></a></li>
                     {% endif %}
                 </ul>
             </div>

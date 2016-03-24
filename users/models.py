@@ -77,5 +77,16 @@ class User(AbstractUser):
 
             ('supply_account', 'Ajouter de l\'argent à un compte'),
 
+            ('link_token_user', 'Lier un jeton à un user'),
+
             ('add_product', 'Ajouter des produits'),
         )
+
+
+def list_year():
+    list_year = []
+    for u in User.objects.all().exclude(groups=9):
+        if u.year not in list_year:
+            if u.year is not None:
+                list_year.append(u.year)
+    return sorted(list_year, reverse=True)

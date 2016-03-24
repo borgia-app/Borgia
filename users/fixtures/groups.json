@@ -32,6 +32,7 @@
         ["list_debitbalance", "finances", "debitbalance"],
 
         ["supply_account", "users", "user"],
+        ["add_bankaccount", "finances", "bankaccount"],
 
         ["add_user", "users", "user"],
         ["change_user", "users", "user"],
@@ -53,7 +54,10 @@
         ["list_container", "shops", "container"],
 
         ["retrieve_singleproduct", "shops", "singleproduct"],
-        ["list_singleproduct", "shops", "singleproduct"]
+        ["list_singleproduct", "shops", "singleproduct"],
+
+        ["link_token_user", "users", "user"],
+        ["reach_workboard_treasury", "users", "user"]
       ]
     }
   },
@@ -78,7 +82,8 @@
         ["add_product", "users", "user"],
         ["add_user", "users", "user"],
         ["gestionnaires_du_foyer_group_manage", "users", "user"],
-        ["supply_account", "users", "user"]
+        ["supply_account", "users", "user"],
+        ["add_bankaccount", "finances", "bankaccount"]
       ]
     }
   },
@@ -102,7 +107,8 @@
         ["list_singleproduct", "shops", "singleproduct"],
         ["add_product", "users", "user"],
         ["add_user", "users", "user"],
-        ["supply_account", "users", "user"]
+        ["supply_account", "users", "user"],
+        ["add_bankaccount", "finances", "bankaccount"]
       ]
     }
   },

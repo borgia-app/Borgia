@@ -4,6 +4,8 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
+from django.contrib.auth.models import Permission
+from django.db.models import Q
 from datetime import datetime
 import json, time, re
 
@@ -26,7 +28,6 @@ def electrovanne_request1(request):
             token_end += chr(int(dual))
         token_end = token_end[4:]
         # User lié
-        print(token_end)
         user = User.objects.get(token_id=token_end)
 
         # Quantité max possible
@@ -59,6 +60,47 @@ def electrovanne_date(request):
 def workboard_treasury(request):
 
     return render(request, 'finances/workboard_tresury.html', locals())
+
+
+class RetrieveMoneyView(FormView):
+    form_class = RetrieveMoneyForm
+    template_name = 'finances/retrieve_money.html'
+    success_url = '/auth/login'
+
+    def get_form_kwargs(self):
+        kwargs = super(RetrieveMoneyView, self).get_form_kwargs()
+        kwargs['user_list'] = User.objects.filter(
+            Q(groups__permissions=Permission.objects.get(codename='supply_account'))
+            | Q(user_permissions=Permission.objects.get(codename='supply_account'))).distinct()
+        return kwargs
+
+    def form_valid(self, form, **kwargs):
+
+        user_list = User.objects.filter(
+            Q(groups__permissions=Permission.objects.get(codename='supply_account'))
+            | Q(user_permissions=Permission.objects.get(codename='supply_account'))).distinct()
+        list_user_result = []
+        for i in range(0, len(user_list)):
+            list_user_result.append((form.cleaned_data["field_user_%s" % i], user_list[i]))
+
+        date_begin = form.cleaned_data['date_begin']
+        date_end = form.cleaned_data['date_end']
+
+        query_supply = Sale.objects.none()
+        for e in list_user_result:
+            if e[0] != 0:
+                query_supply = query_supply | Sale.objects.filter(singleproductfromcontainer__container=Container.objects.get(
+                    product_base__product_unit__name='Argent fictif'), operator=e[1],
+                    date__range=[date_begin, date_end])
+
+        # Enlever les transferts
+        for e in query_supply:
+            if e.payment.list_debit_balance()[1] != 0:
+                query_supply = query_supply.exclude(pk=e.pk)
+
+        context = self.get_context_data(**kwargs)
+        context['query_supply'] = query_supply.order_by(form.cleaned_data['order_by'])
+        return self.render_to_response(context)
 
 
 class TransfertCreateView(FormView):

@@ -22,6 +22,8 @@ urlpatterns = [
     (UserDeleteView.as_view()), name='url_delete_user'),
     url(r'^$', permission_required('users.list_user', raise_exception=True)
     (UserListView.as_view()), name='url_list_user'),
+    url(r'^list_complete$', permission_required('users.list_user', raise_exception=True)
+    (UserListCompleteView.as_view()), name='url_list_user_complete'),
 
     # Ajax
     url(r'^username_from_username_part$', username_from_username_part, name='url_username_from_username_part'),
@@ -29,5 +31,6 @@ urlpatterns = [
     (balance_from_username), name='url_balance_from_username'),
 
     # Token
-    url(r'^token/link_token_user$', LinkTokenUserView.as_view(), name='url_link_token_user')
+    url(r'^token/link_token_user$', permission_required('users.link_token_user', raise_exception=True)
+    (LinkTokenUserView.as_view()), name='url_link_token_user'),
 ]

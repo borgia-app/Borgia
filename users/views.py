@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 from django.shortcuts import render, HttpResponse, force_text
-from users.forms import UserCreationCustomForm, ManageGroupForm, LinkTokenUserForm
+from users.forms import UserCreationCustomForm, ManageGroupForm, LinkTokenUserForm, UserListCompleteForm
 from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin, DeleteView
 from django.views.generic import ListView, DetailView, FormView
 from django.contrib.messages.views import SuccessMessageMixin
@@ -8,7 +8,7 @@ from django.core import serializers
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
 
-from users.models import User
+from users.models import User, list_year
 
 
 class LinkTokenUserView(FormView):
@@ -207,6 +207,32 @@ class UserListView(ListView):
     model = User
     template_name = "users/list.html"
     queryset = User.objects.all()
+
+
+class UserListCompleteView(FormView):
+    form_class = UserListCompleteForm
+    template_name = 'users/user_list_complete.html'
+    success_url = '/auth/login'
+
+    def get_form_kwargs(self):
+        kwargs = super(UserListCompleteView, self).get_form_kwargs()
+        kwargs['list_year'] = list_year()
+        return kwargs
+
+    def form_valid(self, form, **kwargs):
+        list_year_result = []
+        if form.cleaned_data['all'] is True:
+            list_year_result = list_year()
+        else:
+            for i in range(0, len(list_year())):
+                if form.cleaned_data["field_year_%s" % i] is True:
+                    list_year_result.append(list_year()[i])
+
+        query_user = User.objects.filter(year__in=list_year_result).order_by(form.cleaned_data['order_by'])
+
+        context = self.get_context_data(**kwargs)
+        context['query_user'] = query_user
+        return self.render_to_response(context)
 
 
 def permission_to_manage_group(group):
