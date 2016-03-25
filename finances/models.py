@@ -225,7 +225,7 @@ class Cash(models.Model):
 
 class Lydia(models.Model):
     # Information sur l'identite du virement lydia
-    date_operation = models.DateField(default=datetime.now())
+    date_operation = models.DateField(default=now)
     amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
     # numero unique du virement lydia (communiqué par lydia: comment?)
     id_from_lydia = models.CharField(max_length=255)
