@@ -122,7 +122,7 @@ class ProductBase(models.Model):
             # Il faut round la fraction (sinon 2/3 = ...)
             # Il faut en plus round  à 2 chiffres Decimal * Decimal
             # Car 1,50 * 2,00 = 3,0000 sinon
-            return round(round((self.product_unit.usual_quantity() / self.quantity), 2) * self.calculated_price, 2)
+            return round((self.calculated_price * self.product_unit.usual_quantity()) / self.quantity, 2)
         else:
             return self.calculated_price
 

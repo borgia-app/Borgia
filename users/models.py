@@ -3,6 +3,8 @@ from django.db import models
 from django.db.models import Q
 from django.contrib.auth.models import AbstractUser
 from datetime import datetime
+from django.core.exceptions import ObjectDoesNotExist
+import re
 
 from finances.models import Sale, BankAccount
 
@@ -92,3 +94,14 @@ def list_year():
             if u.year is not None:
                 list_year.append(u.year)
     return sorted(list_year, reverse=True)
+
+
+def user_from_token_tap(initial_token_tap):
+    try:
+        token_end = ''
+        for dual in re.findall(r"[0-9]{2}", initial_token_tap[1:len(initial_token_tap) - 5]):
+            token_end += chr(int(dual))
+        token_end = token_end[4:]
+        return User.objects.get(token_id=token_end)
+    except ObjectDoesNotExist:
+        return None

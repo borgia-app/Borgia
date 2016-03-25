@@ -12,6 +12,7 @@ import json, time, re
 from finances.forms import *
 from finances.models import *
 from shops.models import Container
+from users.models import user_from_token_tap
 
 
 def electrovanne_request1(request):
@@ -20,15 +21,7 @@ def electrovanne_request1(request):
         # Variables
         container = Container.objects.get(place='tireuse %s' % request.GET.get('tireuse_pk'))
         id = request.GET.get('id')
-
-        # Liaison entre le token et un user
-        # Manipulation du token pour extraire le code final
-        token_end = ''
-        for dual in re.findall(r"[0-9]{2}", request.GET.get('token_pk')[1:len(request.GET.get('token_pk'))-5]):
-            token_end += chr(int(dual))
-        token_end = token_end[4:]
-        # User lié
-        user = User.objects.get(token_id=token_end)
+        user = user_from_token_tap(request.GET.get('token_pk'))
 
         # Quantité max possible
         if user.balance <= 0:
@@ -49,7 +42,47 @@ def electrovanne_request1(request):
 
 
 def electrovanne_request2(request):
-    return
+
+    try:
+        # Variables (id inutile pour nous)
+        container = Container.objects.get(place='tireuse %s' % request.GET.get('tireuse_pk'))
+        user = user_from_token_tap(request.GET.get('token_pk'))
+        quantity = request.GET.get('quantity')
+
+        # Création Sale
+        sale = Sale.objects.create(date=datetime.now(),
+                                   sender=user,
+                                   recipient=User.objects.get(username="AE_ENSAM"),
+                                   operator=user)
+
+        # Création Single product from container
+        spfc = SingleProductFromContainer.objects.create(container=container,
+                                                         sale=sale,
+                                                         quantity=quantity,
+                                                         sale_price=(container.product_base.calculated_price /
+                                                                     container.product_base.quantity) * int(quantity))
+        sale.maj_amount()
+
+        # Création paiement par compte foyer
+        d_b = DebitBalance.objects.create(amount=sale.amount,
+                           date=datetime.now(),
+                           sender=sale.sender,
+                           recipient=sale.recipient)
+        payment = Payment.objects.create()
+        payment.debit_balance.add(d_b)
+        payment.save()
+        payment.maj_amount()
+
+        sale.payment = payment
+        sale.save()
+
+        # Paiement par le client
+        sale.payment.debit_balance.all()[0].set_movement()
+
+        return HttpResponse('200')
+
+    except ObjectDoesNotExist:
+        return HttpResponse('0')
 
 
 def electrovanne_date(request):
