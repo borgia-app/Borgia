@@ -132,6 +132,8 @@
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
         ["add_product", "users", "user"],
+        ["supply_account", "users", "user"],
+        ["add_bankaccount", "finances", "bankaccount"],
         ["gestionnaires_de_l_auberge_group_manage", "users", "user"],
         ["sell_auberge", "shops", "shop"],
         ["reach_workboard_auberge", "shops", "shop"]
@@ -156,6 +158,8 @@
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
         ["add_product", "users", "user"],
+        ["supply_account", "users", "user"],
+        ["add_bankaccount", "finances", "bankaccount"],
         ["sell_auberge", "shops", "shop"],
         ["reach_workboard_auberge", "shops", "shop"]
       ]

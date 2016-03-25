@@ -184,7 +184,7 @@ class PurchaseAuberge(FormView):
 
 
 def workboard_auberge(request):
-    group_gestionnaire_de_l_auberge_pk = Group.objects.get(name='Gestionnaires de l\'auberge').pk
+    group_gestionnaires_de_l_auberge_pk = Group.objects.get(name='Gestionnaires de l\'auberge').pk
     return render(request, 'shops/workboard_auberge.html', locals())
 
 
