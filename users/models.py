@@ -54,7 +54,7 @@ class User(AbstractUser):
         self.save()
 
     def list_sale(self):
-        return Sale.objects.filter(Q(sender=self) | Q(recipient=self))
+        return Sale.objects.filter(Q(sender=self) | Q(recipient=self)).order_by('-date')
 
     def list_bank_account(self):
         return BankAccount.objects.filter(owner=self)
