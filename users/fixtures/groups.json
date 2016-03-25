@@ -11,6 +11,7 @@
         ["vices_presidents_delegues_a_la_vie_interne_group_manage", "users", "user"],
         ["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
         ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"],
+        ["presidents_group_manage", "users", "user"],
         ["reach_workboard_presidents", "users", "user"]
       ]
     }
