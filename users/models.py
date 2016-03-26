@@ -6,7 +6,7 @@ from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 import re
 
-from finances.models import Sale, BankAccount
+from finances.models import Sale, BankAccount, SharedEvent
 
 
 class User(AbstractUser):
@@ -54,8 +54,22 @@ class User(AbstractUser):
         self.save()
 
     def list_sale(self):
+
+        # Liste des ventes dont on est sender ou recipient
         list_sale = Sale.objects.filter(Q(sender=self) | Q(recipient=self))\
                     | Sale.objects.filter(sharedevent__participants=self)
+
+        # Exclusion des sales dont l'user est sender car il est trésorier
+        for s in list_sale:
+            # S'il n'y a pas d'évent lié, pas la peine de traiter
+            try:
+                se = SharedEvent.objects.get(sale=s)
+                # Si l'user n'est pas participant de l'event, alors il a agit en tant que boulsé (trésorier, ...)
+                if self not in se.participants.all():
+                    list_sale = list_sale.exclude(pk=s.pk)
+            except ObjectDoesNotExist:
+                pass
+
         return list_sale.order_by('-date')
 
     def list_bank_account(self):

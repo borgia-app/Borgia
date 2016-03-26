@@ -309,7 +309,7 @@ class SharedEvent(models.Model):
 
         # Création Sale
         sale = Sale.objects.create(date=datetime.now(),
-                                   sender=self.manager,
+                                   sender=operator,
                                    recipient=recipient,
                                    operator=operator)
 
