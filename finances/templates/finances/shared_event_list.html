@@ -34,7 +34,7 @@
                 <tr>
                     <th>Date</th>
                     <th>Description</th>
-                    <th>Opérateur</th>
+                    <th>Gestionnaire</th>
                     <th>Inscrits / Participants</th>
                     <th>Terminé</th>
                     <th>Mettre à jour</th>
@@ -43,7 +43,7 @@
                     <tr>
                         <td>{{ e.date }}</td>
                         <td>{{ e.description }}</td>
-                        <td>{{ e.operator }}</td>
+                        <td>{{ e.manager }}</td>
                         <td>{{ e.registered.all.count }} / {{ e.participants.all.count }}</td>
                         <td>{{ e.done }}</td>
                         <td>
