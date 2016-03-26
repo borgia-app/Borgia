@@ -3,6 +3,7 @@ from django.db import models
 from shops.models import SingleProduct, SingleProductFromContainer
 from django.utils.timezone import now
 from datetime import datetime
+import json
 
 
 class Sale(models.Model):
@@ -45,9 +46,33 @@ class Sale(models.Model):
             total_sale_price += e.sale_price
         return list_single_product_from_container, total_sale_price
 
+    def list_shared_events(self):
+        list_shared_event = SharedEvent.objects.filter(sale=self)
+        total_sale_price = 0
+        for e in list_shared_event:
+            total_sale_price += e.price
+        return list_shared_event, total_sale_price
+
     def maj_amount(self):
-        self.amount = self.list_single_products()[1] + self.list_single_products_from_container()[1]
+        self.amount = self.list_single_products()[1] + self.list_single_products_from_container()[1]\
+                      + self.list_shared_events()[1]
         self.save()
+
+    def price_for(self, user):
+        payments = 0
+        for e in self.payment.list_lydia()[0]:
+            if e.sender == user:
+                payments += e.amount
+        for e in self.payment.list_cash()[0]:
+            if e.sender == user:
+                payments += e.amount
+        for e in self.payment.list_cheque()[0]:
+            if e.sender == user:
+                payments += e.amount
+        for e in self.payment.list_debit_balance()[0]:
+            if e.sender == user:
+                payments += e.amount
+        return payments
 
     class Meta:
         permissions = (
@@ -103,7 +128,7 @@ class Payment(models.Model):
         return list_debit_balance, total_debit_balance
 
     def maj_amount(self):
-        self.amount = self.list_cheque()[1] + self.list_lydia()[1]\
+        self.amount = self.list_cheque()[1] + self.list_lydia()[1] \
                       + self.list_cash()[1] + self.list_debit_balance()[1]
         self.save()
 
@@ -229,8 +254,8 @@ class Lydia(models.Model):
     amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
     # numero unique du virement lydia (communiqué par lydia: comment?)
     id_from_lydia = models.CharField(max_length=255)
-    sender_user_id = models.ForeignKey('users.User', related_name='lydia_sender')
-    recipient_user_id = models.ForeignKey('users.User', related_name='lydia_recipient')
+    sender = models.ForeignKey('users.User', related_name='lydia_sender')
+    recipient = models.ForeignKey('users.User', related_name='lydia_recipient')
 
     # Information de comptabilite
     banked = models.BooleanField(default=False)
@@ -248,3 +273,85 @@ class Lydia(models.Model):
             ('list_lydia', 'Lister les virements Lydias'),
         )
 
+
+class SharedEvent(models.Model):
+    """
+    Une évènement partagé et payé par plusieurs personnes
+    ex: un repas
+    """
+
+    # Attributs
+    description = models.CharField(max_length=254)
+    date = models.DateField(default=now)
+    price = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)
+    bills = models.CharField(max_length=254, null=True, blank=True)
+    done = models.BooleanField(default=False)
+
+    # Relations
+    manager = models.ForeignKey('users.User', related_name='manager')
+    sale = models.ForeignKey('finances.Sale', null=True, blank=True)
+    participants = models.ManyToManyField('users.User', blank=True, related_name='participants')
+    registered = models.ManyToManyField('users.User', blank=True, related_name='registered')
+    ponderation = models.CharField(max_length=10000)
+
+    # Méthodes
+    def __str__(self):
+        return self.description + ' ' + str(self.date)
+
+    def set_ponderation(self, x):
+        self.ponderation = json.dumps(x)
+        self.save()
+
+    def get_ponderation(self):
+        return json.loads(self.ponderation)
+
+    def pay(self, operator, recipient, managing_errors, errors):
+
+        # Création Sale
+        sale = Sale.objects.create(date=datetime.now(),
+                                   sender=self.manager,
+                                   recipient=recipient,
+                                   operator=operator)
+
+        # Liaison de l'événement commun
+        self.sale = sale
+
+        # Calcul du prix par participant
+        total_participants = 0
+        if managing_errors == 'other_pay_all':
+            total_participants = self.participants.count()
+        elif managing_errors == 'nothing':
+            total_participants = self.participants.count() + len(errors)
+
+        price_per_participant = round(self.price / total_participants, 2)
+
+        # Créations paiements par compte foyer
+        # Un seul paiement, mais plusieurs personnes et plusieurs débits sur compte foyer
+        # TODO: pondérations
+
+        payment = Payment.objects.create()
+
+        for u in self.participants.all():
+            d_b = DebitBalance.objects.create(amount=price_per_participant,
+                                              date=datetime.now(),
+                                              sender=u,
+                                              recipient=sale.recipient)
+            # Paiement
+            d_b.set_movement()
+            payment.debit_balance.add(d_b)
+
+        payment.save()
+        payment.maj_amount()
+
+        sale.payment = payment
+        sale.maj_amount()
+        sale.save()
+
+        self.done = True
+        self.save()
+
+    class Meta:
+        permissions = (
+            ('register_sharedevent', 'S\'inscrire à un événement commun'),
+            ('list_sharedevent', 'Lister les événements communs'),
+        )

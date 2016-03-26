@@ -4,6 +4,9 @@
 
     <div class="container">
         <div class="row">
+            <p><a href="{% url 'url_workboard_treasury' %}">Retour au workboard trésoriers</a></p>
+        </div>
+        <div class="row">
             <form action= "{% url 'url_treasury_retrieve_money' %}" method="post">
                 {% csrf_token %}
 

@@ -4,9 +4,10 @@ from django.contrib.auth import authenticate
 from django.forms import ModelForm
 from django.forms.widgets import PasswordInput
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.timezone import now
 
 from users.models import User
-from finances.models import Cheque, Cash, Lydia, BankAccount
+from finances.models import Cheque, Cash, Lydia, BankAccount, SharedEvent
 
 
 class TransfertCreateForm(forms.Form):
@@ -184,3 +185,42 @@ class RetrieveMoneyForm(forms.Form):
         for name, value in self.cleaned_data.items():
             if name.startwith('field_user_'):
                 yield (self.fields[name].label, value)
+
+
+class SharedEventCreateForm(forms.Form):
+    description = forms.CharField(label='Description')
+    date = forms.DateField(label='Date de l\'événement')
+    price = forms.DecimalField(label='Prix total (vide si pas encore connu)', decimal_places=2, max_digits=9,
+                               required=False)
+    bills = forms.CharField(label='Factures liées (vide si pas encore connu)', required=False)
+
+
+class SharedEventRegistrationForm(forms.Form):
+    shared_event = forms.ModelChoiceField(label='S\'inscrire à l\'événement :',
+                                          queryset=SharedEvent.objects.filter(done=False, date__gte=now()))
+
+    def __init__(self, **kwargs):
+        self.request = kwargs.pop('request')
+        super(SharedEventRegistrationForm, self).__init__(**kwargs)
+
+    def clean(self):
+        se = self.cleaned_data['shared_event']
+        if self.request.user in se.registered.all():
+            raise forms.ValidationError('Vous êtes déjà inscrit à cet événement')
+
+
+class SharedEventUpdateForm(forms.Form):
+    file = forms.FileField(label='Fichier de données')
+    price = forms.DecimalField(label='Prix total', decimal_places=2, max_digits=9)
+    bills = forms.CharField(label='Factures liées')
+    managing_errors = forms.ChoiceField(label='Que faire en cas d\' erreurs de jeton ?',
+                                          choices=(('other_pay_all', 'Répercuter le prix sur les autres participants'),
+                                                   ('nothing', 'Ne rien faire (risque de perte sur l\'événement)')))
+
+
+class SharedEventListForm(forms.Form):
+    date_begin = forms.DateField(required=False)
+    date_end = forms.DateField(required=False)
+    all = forms.BooleanField(required=False, label='Depuis toujours')
+    done = forms.ChoiceField(choices=((True, 'Terminé'), (False, 'En cours'), ('both', 'Les deux')))
+    order_by = forms.ChoiceField(label='Trier par', choices=(('date', 'Date'), ('operator', 'Opérateur')))

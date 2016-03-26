@@ -8,7 +8,9 @@
             <div>
                 <ul class="listing-apps">
                     <li><a href=""><img src="{% static 'img/lydia.png' %}" alt="Crédit lydia"><span class="name">Crédit Lydia</span></a></li>
-                    <li><a href="{% url 'url_create_transfert' %}"><img src="{% static 'img/transfer.png' %}" alt="Transfer"><span class="name">Transfert</span></a></li>
+                    <li><a href="{% url 'url_create_transfert' %}?next=/users/profile"><img src="{% static 'img/transfer.png' %}" alt="Transfer"><span class="name">Transfert</span></a></li>
+                    <li><a href="{% url 'url_create_event_shared' %}?next=/users/profile"><img src="{% static 'img/lydia.png' %}" alt="Evénement commun"><span class="name">Evénement commun</span></a></li>
+                    <li><a href="{% url 'url_registration_event_shared' %}?next=/users/profile"><img src="{% static 'img/lydia.png' %}" alt="Evénement commun"><span class="name">Evénement commun regi</span></a></li>
                     {% if perms.shops.reach_workboard_foyer %}
                         <li><a href="{% url 'url_workboard_foyer' %}"><img src="{% static 'img/food.png' %}"><span class="name">Foyer workboard</span></a></li>
                     {% endif %}

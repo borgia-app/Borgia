@@ -65,9 +65,9 @@ def electrovanne_request2(request):
 
         # Création paiement par compte foyer
         d_b = DebitBalance.objects.create(amount=sale.amount,
-                           date=datetime.now(),
-                           sender=sale.sender,
-                           recipient=sale.recipient)
+                                          date=datetime.now(),
+                                          sender=sale.sender,
+                                          recipient=sale.recipient)
         payment = Payment.objects.create()
         payment.debit_balance.add(d_b)
         payment.save()
@@ -368,3 +368,195 @@ class SaleListLightView(ListView):
     model = Sale
     template_name = "finances/sale_list_light.html"
     queryset = Sale.objects.all()
+
+
+class SharedEventCreateView(FormView):
+    form_class = SharedEventCreateForm
+    template_name = 'finances/shared_event_create.html'
+    success_url = '/auth/login'
+
+    def form_valid(self, form):
+
+        se = SharedEvent.objects.create(description=form.cleaned_data['description'],
+                                        date=form.cleaned_data['date'],
+                                        manager=self.request.user)
+        if form.cleaned_data['price']:
+            se.price = form.cleaned_data['price']
+        if form.cleaned_data['bills']:
+            se.bills = form.cleaned_data['bills']
+        se.save()
+
+        return super(SharedEventCreateView, self).form_valid(form)
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(SharedEventCreateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
+
+class SharedEventRegistrationView(FormView):
+    form_class = SharedEventRegistrationForm
+    template_name = 'finances/shared_event_registration.html'
+    success_url = '/auth/login'
+
+    def form_valid(self, form):
+
+        se = form.cleaned_data['shared_event']
+        se.registered.add(self.request.user)
+        se.save()
+
+        context = self.get_context_data()
+
+        return self.render_to_response(context)
+
+    def get_form_kwargs(self):
+        kwargs = super(SharedEventRegistrationView, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, **kwargs):
+        context = super(SharedEventRegistrationView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.success_url)
+        context['query_registered_shared_event'] = SharedEvent.objects.filter(done=False,
+                                                                              registered=self.request.user)
+        return context
+
+
+class SharedEventUpdateView(FormView):
+    form_class = SharedEventUpdateForm
+    template_name = 'finances/shared_event_update.html'
+    success_url = '/auth/login'
+
+    def form_valid(self, form):
+
+        se = SharedEvent.objects.get(pk=self.request.POST.get('pk'))
+
+        lists = list_user_ponderation_errors_from_list(self.request.FILES['file'])
+
+        # Ajout des participants avec leur pondération
+        for u in lists[0]:
+            se.participants.add(u)
+        se.set_ponderation(lists[1])
+        se.save()
+
+        # Ajout des informations prix et factures
+        se.price = form.cleaned_data['price']
+        se.bills = form.cleaned_data['bills']
+        se.save()
+
+        # Paiement par les participants (et erreurs ou non)
+        se.pay(self.request.user, User.objects.get(username='AE_ENSAM'), form.cleaned_data['managing_errors'], lists[2])
+
+        return super(SharedEventUpdateView, self).form_valid(form)
+
+    def get_initial(self):
+        initial = super(SharedEventUpdateView, self).get_initial()
+        se = SharedEvent.objects.get(pk=self.request.GET.get('pk', self.request.POST.get('pk')))
+        if se.price is not None:
+            initial['price'] = se.price
+        if se.bills is not None:
+            initial['bills'] = se.bills
+        return initial
+
+    def get_success_url(self):
+        return force_text(self.request.POST.get('next', self.success_url))
+
+    def get_context_data(self, *args, **kwargs):
+        context = super(SharedEventUpdateView, self).get_context_data(**kwargs)
+        context['pk'] = self.request.GET.get('pk')
+        context['next'] = self.request.GET.get('next', self.success_url)
+        return context
+
+
+class SharedEventListView(FormView):
+    form_class = SharedEventListForm
+    template_name = 'finances/shared_event_list.html'
+    success_url = '/auth/login'
+
+    def form_valid(self, form, **kwargs):
+
+        date_begin = form.cleaned_data['date_begin']
+        date_end = form.cleaned_data['date_end']
+        all = form.cleaned_data['all']
+        order_by = form.cleaned_data['order_by']
+        done = form.cleaned_data['done']
+        if done != 'both':
+
+            if done == 'False':
+                done = False
+            elif done == 'True':
+                done = True
+
+            if all is True:
+                query_shared_event = SharedEvent.objects.filter(done=done)
+            else:
+                if date_end is None:
+                    query_shared_event = SharedEvent.objects.filter(date__gte=date_begin, done=done)
+                else:
+                    query_shared_event = SharedEvent.objects.filter(date__range=[date_begin, date_end], done=done)
+        else:
+            if all is True:
+                query_shared_event = SharedEvent.objects.all()
+            else:
+                if date_end is None:
+                    query_shared_event = SharedEvent.objects.filter(date__gte=date_begin)
+                else:
+                    query_shared_event = SharedEvent.objects.filter(date__range=[date_begin, date_end])
+        context = self.get_context_data(**kwargs)
+        context['query_shared_event'] = query_shared_event.order_by(order_by)
+
+        return self.render_to_response(context)
+
+    def get_initial(self):
+        initial = super(SharedEventListView, self).get_initial()
+        initial['date_begin'] = now()
+        initial['done'] = False
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(SharedEventListView, self).get_context_data(**kwargs)
+        context['query_shared_event'] = SharedEvent.objects.filter(date__gte=now(), done=False)
+        return context
+
+
+def list_token_ponderation_from_file(f):
+
+    # Traitement sur le string pour le convertir en liste identifiable json
+    initial = str(f.read())
+    data_string = initial[2:len(initial)]
+    data_string = data_string[0:len(data_string)-3]
+    data_string = data_string.replace('\\n', '')
+
+    # Conversion json
+    data = json.loads(data_string)
+
+    # Lecture json
+    list_token = []
+    list_ponderation = []
+    for dual in data:
+        list_token.append(dual[0])
+        list_ponderation.append(dual[1])
+    return list_token, list_ponderation
+
+
+def list_user_ponderation_errors_from_list(f):
+    list_token_ponderation = list_token_ponderation_from_file(f)
+
+    list_user = []
+    list_ponderation = []
+    list_error = []
+
+    for i, t in enumerate(list_token_ponderation[0]):
+        try:
+            list_user.append(User.objects.get(token_id=t))
+            list_ponderation.append(list_token_ponderation[1][i])
+        except ObjectDoesNotExist:
+            list_error.append([t, list_token_ponderation[1][i]])
+
+    return list_user, list_ponderation, list_error, list_token_ponderation
