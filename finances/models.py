@@ -315,6 +315,7 @@ class SharedEvent(models.Model):
 
         # Liaison de l'événement commun
         self.sale = sale
+        self.save()
 
         # Calcul du prix par participant
         total_participants = 0
