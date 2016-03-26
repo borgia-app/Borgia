@@ -1,0 +1,62 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <p><a href="{% url 'url_workboard_treasury' %}">Retour au workboard trésoriers</a></p>
+        </div>
+        <div class="row">
+            <form action= "{% url 'url_manage_list_shared_event' %}" method="post">
+                {% csrf_token %}
+                <div class="fieldWrapper">
+                    {{ form.date_begin.errors }}
+                    {{ form.date_end.errors }}
+                    <label for="{{ form.date_begin.id_for_label }}">De : </label> {{ form.date_begin }} <label for="{{ form.date_end.id_for_label }}"> à : </label> {{ form.date_end }}
+                </div>
+                <div class="fieldWrapper">
+                    {{ form.all.errors }}
+                    <label for="{{ form.all.id_for_label }}">Depuis toujours</label> {{ form.all }}
+                </div>
+                <div class="fieldWrapper">
+                    {{ form.done.errors }}
+                    <label for="{{ form.done.id_for_label }}">Etat</label> {{ form.done }}
+                </div>
+                <div class="fieldWrapper">
+                    {{ form.order_by.errors }}
+                    <label for="{{ form.order_by.id_for_label }}">Trier par : </label> {{ form.order_by }}
+                </div>
+                <p><input type="submit" value="Trier"/></p>
+            </form>
+        </div>
+        <div class="row">
+            <table>
+                <tr>
+                    <th>Date</th>
+                    <th>Description</th>
+                    <th>Gestionnaire</th>
+                    <th>Inscrits / Participants</th>
+                    <th>Terminé</th>
+                    <th>Mettre à jour</th>
+                </tr>
+                {% for e in query_shared_event %}
+                    <tr>
+                        <td>{{ e.date }}</td>
+                        <td>{{ e.description }}</td>
+                        <td>{{ e.manager }}</td>
+                        <td>{{ e.registered.all.count }} / {{ e.participants.all.count }}</td>
+                        <td>{{ e.done }}</td>
+                        <td>
+                            {% if e.done == False %}
+                                <a href="{% url 'url_update_shared_event' %}?pk={{ e.pk }}&next=/finances/shared_event/manage_list/">Mettre à jour</a>
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

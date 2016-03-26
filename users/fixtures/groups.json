@@ -61,7 +61,7 @@
         ["link_token_user", "users", "user"],
         ["reach_workboard_treasury", "users", "user"],
 
-        ["list_sharedevent", "finances", "sharedevent"],
+        ["manage_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"]
       ]
     }
@@ -176,7 +176,8 @@
       "permissions": [
         ["add_transfert", "finances", "sale"],
         ["add_sharedevent", "finances", "sharedevent"],
-        ["register_sharedevent", "finances", "sharedevent"]
+        ["register_sharedevent", "finances", "sharedevent"],
+        ["list_sharedevent", "finances", "sharedevent"]
       ]
     }
   },

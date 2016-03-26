@@ -3,7 +3,7 @@
 {% block content %}
 
     <div class="container50">
-        <form action= "{% url 'url_create_event_shared' %}" method="post">
+        <form action= "{% url 'url_create_shared_event' %}" method="post">
             {% csrf_token %}
             {{ form.as_p }}
             <input type=hidden name="next" value="{{ next }}" />

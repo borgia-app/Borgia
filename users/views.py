@@ -160,14 +160,11 @@ class UserCreateView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(UserCreateView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
+        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
         return context
 
     def get_success_url(self):
-        if self.request.POST.get('next') != 'None':
-            return force_text(self.request.POST.get('next', self.success_url))
-        else:
-            return force_text(self.success_url)
+        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
 
 class UserRetrieveView(DetailView):

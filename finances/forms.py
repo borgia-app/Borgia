@@ -218,9 +218,9 @@ class SharedEventUpdateForm(forms.Form):
                                                    ('nothing', 'Ne rien faire (risque de perte sur l\'événement)')))
 
 
-class SharedEventListForm(forms.Form):
+class SharedEventManageListForm(forms.Form):
     date_begin = forms.DateField(required=False)
     date_end = forms.DateField(required=False)
     all = forms.BooleanField(required=False, label='Depuis toujours')
     done = forms.ChoiceField(choices=((True, 'Terminé'), (False, 'En cours'), ('both', 'Les deux')))
-    order_by = forms.ChoiceField(label='Trier par', choices=(('date', 'Date'), ('operator', 'Opérateur')))
+    order_by = forms.ChoiceField(label='Trier par', choices=(('-date', 'Date'), ('manager', 'Opérateur')))

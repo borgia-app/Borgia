@@ -3,7 +3,7 @@
 {% block content %}
 
     <div class="container50">
-        <form enctype="multipart/form-data" action= "{% url 'url_update_event_shared' %}" method="post">
+        <form enctype="multipart/form-data" action= "{% url 'url_update_shared_event' %}" method="post">
             {% csrf_token %}
             {{ form.as_p }}
             <input type=hidden name="next" value="{{ next }}" />

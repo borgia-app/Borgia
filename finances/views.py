@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, HttpResponse, force_text
+from django.shortcuts import render, HttpResponse, force_text, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView
 from django.core import serializers
@@ -397,35 +397,15 @@ class SharedEventCreateView(FormView):
         return context
 
 
-class SharedEventRegistrationView(FormView):
-    form_class = SharedEventRegistrationForm
-    template_name = 'finances/shared_event_registration.html'
-    success_url = '/auth/login'
-
-    def form_valid(self, form):
-
-        se = form.cleaned_data['shared_event']
-        se.registered.add(self.request.user)
+def shared_event_registration(request):
+    try:
+        se = SharedEvent.objects.get(pk=request.GET.get('se_pk'))
+        user = User.objects.get(pk=request.GET.get('user_pk'))
+        se.registered.add(user)
         se.save()
-
-        context = self.get_context_data()
-
-        return self.render_to_response(context)
-
-    def get_form_kwargs(self):
-        kwargs = super(SharedEventRegistrationView, self).get_form_kwargs()
-        kwargs['request'] = self.request
-        return kwargs
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(SharedEventRegistrationView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        context['query_registered_shared_event'] = SharedEvent.objects.filter(done=False,
-                                                                              registered=self.request.user)
-        return context
+    except ObjectDoesNotExist:
+        pass
+    return redirect('/finances/shared_event/list')
 
 
 class SharedEventUpdateView(FormView):
@@ -474,9 +454,9 @@ class SharedEventUpdateView(FormView):
         return context
 
 
-class SharedEventListView(FormView):
-    form_class = SharedEventListForm
-    template_name = 'finances/shared_event_list.html'
+class SharedEventManageListView(FormView):
+    form_class = SharedEventManageListForm
+    template_name = 'finances/shared_event_manage_list.html'
     success_url = '/auth/login'
 
     def form_valid(self, form, **kwargs):
@@ -514,15 +494,20 @@ class SharedEventListView(FormView):
         return self.render_to_response(context)
 
     def get_initial(self):
-        initial = super(SharedEventListView, self).get_initial()
+        initial = super(SharedEventManageListView, self).get_initial()
         initial['date_begin'] = now()
         initial['done'] = False
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(SharedEventListView, self).get_context_data(**kwargs)
+        context = super(SharedEventManageListView, self).get_context_data(**kwargs)
         context['query_shared_event'] = SharedEvent.objects.filter(date__gte=now(), done=False)
         return context
+
+
+def shared_event_list(request):
+    query_shared_event = SharedEvent.objects.filter(done=False).order_by('-date')
+    return render(request, 'finances/shared_event_list.html', locals())
 
 
 def list_token_ponderation_from_file(f):

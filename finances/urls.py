@@ -32,13 +32,15 @@ urlpatterns = [
     url(r'^sale/$', permission_required('finances.list_sale', raise_exception=True)
     (SaleListView.as_view()), name='url_list_sale'),  # Liste
     url(r'^shared_event/create/$', permission_required('finances.add_sharedevent', raise_exception=True)
-    (SharedEventCreateView.as_view()), name='url_create_event_shared'),
-    url(r'^shared_event/registration/$', permission_required('finances.register_sharedevent', raise_exception=True)
-    (SharedEventRegistrationView.as_view()), name='url_registration_event_shared'),
+    (SharedEventCreateView.as_view()), name='url_create_shared_event'),
     url(r'^shared_event/update/$', permission_required('finances.change_sharedevent', raise_exception=True)
-    (SharedEventUpdateView.as_view()), name='url_update_event_shared'),
+    (SharedEventUpdateView.as_view()), name='url_update_shared_event'),
+    url(r'^shared_event/manage_list/$', permission_required('finances.manage_sharedevent', raise_exception=True)
+    (SharedEventManageListView.as_view()), name='url_manage_list_shared_event'),
     url(r'^shared_event/list/$', permission_required('finances.list_sharedevent', raise_exception=True)
-    (SharedEventListView.as_view()), name='url_list_event_shared'),
+    (shared_event_list), name='url_list_shared_event'),
+    url(r'^shared_event/registration/$', permission_required('finances.register_sharedevent', raise_exception=True)
+    (shared_event_registration), name='url_registration_shared_event'),
 
     # Supply
     url(r'^supply/united/$', permission_required('users.supply_account', raise_exception=True)

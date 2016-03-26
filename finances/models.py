@@ -355,4 +355,5 @@ class SharedEvent(models.Model):
         permissions = (
             ('register_sharedevent', 'S\'inscrire à un événement commun'),
             ('list_sharedevent', 'Lister les événements communs'),
+            ('manage_sharedevent', 'Gérer les événements communs'),
         )
