@@ -8,13 +8,15 @@ from django.contrib import messages
 from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
+from django.contrib.contenttypes.models import ContentType
 
 from shops.models import *
 from shops.forms import *
 from users.models import User
 from finances.models import Sale, DebitBalance, Payment
 from notifications.models import *
-from django.contrib.contenttypes.models import ContentType
+from borgia.models import FormNextView
+
 
 
 # AUBERGE
@@ -210,9 +212,6 @@ class ReplacementActiveKeyView(FormView):
         new_keg.save()
 
         return super(ReplacementActiveKeyView, self).form_valid(form)
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.success_url))
 
     def get_context_data(self, **kwargs):
         context = super(ReplacementActiveKeyView, self).get_context_data(**kwargs)
@@ -457,13 +456,10 @@ def list_active_keg(request):
 
 
 # Models
-class SingleProductCreateMultipleView(FormView):
+class SingleProductCreateMultipleView(FormNextView):
     template_name = 'shops/singleproduct_create_multiple.html'
     form_class = SingleProductCreateMultipleForm
     success_url = '/shops/singleproduct/'
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
 
     def form_valid(self, form):
 
@@ -494,7 +490,6 @@ class SingleProductCreateMultipleView(FormView):
     def get_context_data(self, **kwargs):
         context = super(SingleProductCreateMultipleView, self).get_context_data(**kwargs)
         context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
-        context['next'] = self.request.GET.get('next', self.success_url)
         return context
 
     def get_form_kwargs(self):
@@ -514,13 +509,10 @@ class SingleProductListView(ListView):
     queryset = SingleProduct.objects.all()
 
 
-class ContainerCreateMultipleView(FormView):
+class ContainerCreateMultipleView(FormNextView):
     template_name = 'shops/container_create_multiple.html'
     form_class = ContainerCreateMultipleForm
     success_url = '/shops/container/'
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
 
     def form_valid(self, form):
 
@@ -551,7 +543,6 @@ class ContainerCreateMultipleView(FormView):
     def get_context_data(self, **kwargs):
         context = super(ContainerCreateMultipleView, self).get_context_data(**kwargs)
         context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
-        context['next'] = self.request.GET.get('next', self.success_url)
         return context
 
     def get_form_kwargs(self):
@@ -677,13 +668,10 @@ class ProductBaseListView(ListView):
     queryset = ProductBase.objects.all()
 
 
-class ProductCreateMultipleView(FormView):
+class ProductCreateMultipleView(FormNextView):
     template_name = 'shops/product_create_multiple.html'
     form_class = ProductCreateMultipleForm
     success_url = '/auth/login'
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
 
     def form_valid(self, form):
 
@@ -720,7 +708,6 @@ class ProductCreateMultipleView(FormView):
     def get_context_data(self, **kwargs):
         context = super(ProductCreateMultipleView, self).get_context_data(**kwargs)
         context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
-        context['next'] = self.request.GET.get('next', self.success_url)
         return context
 
     def get_form_kwargs(self):

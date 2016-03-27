@@ -9,9 +9,10 @@ from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
 
 from users.models import User, list_year
+from borgia.models import FormNextView
 
 
-class LinkTokenUserView(FormView):
+class LinkTokenUserView(FormNextView):
     form_class = LinkTokenUserForm
     template_name = 'users/link_token_user.html'
     success_url = '/auth/login'
@@ -22,32 +23,15 @@ class LinkTokenUserView(FormView):
         user.save()
         return super(LinkTokenUserView, self).form_valid(form)
 
-    def get_context_data(self, **kwargs):
-        context = super(LinkTokenUserView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        return context
-
-    def get_success_url(self):
-        if self.request.POST.get('next') != 'None':
-            return force_text(self.request.POST.get('next', self.success_url))
-        else:
-            return force_text(self.success_url)
-
 
 def balance_from_username(request):
     return HttpResponse(User.objects.get(username=request.GET.get('username')).balance)
 
 
-class ManageGroupView(FormView):
+class ManageGroupView(FormNextView):
     template_name = 'users/manage_group.html'
     success_url = '/auth/login'
     form_class = ManageGroupForm
-
-    def get_success_url(self):
-        if self.request.POST.get('next') != 'None':
-            return force_text(self.request.POST.get('next', self.success_url))
-        else:
-            return force_text(self.success_url)
 
     def get(self, request, *args, **kwargs):
 
@@ -91,7 +75,6 @@ class ManageGroupView(FormView):
         context = super(ManageGroupView, self).get_context_data(**kwargs)
         context['group_name'] = Group.objects.get(pk=self.request.GET.get('group_pk')).name
         context['group_pk'] = self.request.GET.get('group_pk')
-        context['next'] = self.request.GET.get('next')
         return context
 
     def form_valid(self, form):
@@ -137,7 +120,7 @@ def profile_view(request):
     return render(request, 'users/profile.html', locals())
 
 
-class UserCreateView(FormView):
+class UserCreateView(FormNextView):
     form_class = UserCreationCustomForm
     template_name = 'users/create.html'
     success_url = '/users/'  # Redirection a la fin
@@ -157,14 +140,6 @@ class UserCreateView(FormView):
 
     def get_initial(self):
         return {'campus': 'Me', 'year': 2014}
-
-    def get_context_data(self, **kwargs):
-        context = super(UserCreateView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
-        return context
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
 
 class UserRetrieveView(DetailView):

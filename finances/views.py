@@ -6,6 +6,7 @@ from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Permission
 from django.db.models import Q
+from django.contrib.auth.models import Group
 from datetime import datetime
 import json, time, re, csv, xlsxwriter
 
@@ -13,7 +14,7 @@ from finances.forms import *
 from finances.models import *
 from shops.models import Container
 from users.models import user_from_token_tap, list_year
-from django.contrib.auth.models import Group
+from borgia.models import FormNextView
 
 
 def electrovanne_request1(request):
@@ -371,7 +372,7 @@ class SaleListLightView(ListView):
     queryset = Sale.objects.all()
 
 
-class SharedEventCreateView(FormView):
+class SharedEventCreateView(FormNextView):
     form_class = SharedEventCreateForm
     template_name = 'finances/shared_event_create.html'
     success_url = '/auth/login'
@@ -389,14 +390,6 @@ class SharedEventCreateView(FormView):
 
         return super(SharedEventCreateView, self).form_valid(form)
 
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(SharedEventCreateView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        return context
-
 
 def shared_event_registration(request):
     try:
@@ -409,7 +402,7 @@ def shared_event_registration(request):
     return redirect('/finances/shared_event/list')
 
 
-class SharedEventUpdateView(FormView):
+class SharedEventUpdateView(FormNextView):
     form_class = SharedEventUpdateForm
     template_name = 'finances/shared_event_update.html'
     success_url = '/auth/login'
@@ -445,13 +438,9 @@ class SharedEventUpdateView(FormView):
             initial['bills'] = se.bills
         return initial
 
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
     def get_context_data(self, *args, **kwargs):
         context = super(SharedEventUpdateView, self).get_context_data(**kwargs)
         context['pk'] = self.request.GET.get('pk')
-        context['next'] = self.request.GET.get('next', self.success_url)
         return context
 
 
@@ -616,9 +605,5 @@ class DownloadCsvUserView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(DownloadCsvUserView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
         context['se'] = SharedEvent.objects.get(pk=self.request.GET.get('se_pk', self.request.POST.get('se_pk')))
         return context
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
