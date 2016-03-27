@@ -14,7 +14,7 @@ from finances.forms import *
 from finances.models import *
 from shops.models import Container
 from users.models import user_from_token_tap, list_year
-from borgia.models import FormNextView
+from borgia.models import FormNextView, CreateNextView, UpdateNextView
 
 
 def electrovanne_request1(request):
@@ -275,19 +275,11 @@ def bank_account_from_user(request):
 
 
 # Models
-class BankAccountCreateView(CreateView):
+class BankAccountCreateView(CreateNextView):
     model = BankAccount
     fields = ['bank', 'account', 'owner']
     template_name = 'finances/bank_account_create.html'
     success_url = '/finances/bank_account'
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(BankAccountCreateView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        return context
 
 
 class BankAccountUpdateView(UpdateView):

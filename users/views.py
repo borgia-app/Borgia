@@ -9,7 +9,7 @@ from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
 
 from users.models import User, list_year
-from borgia.models import FormNextView
+from borgia.models import FormNextView, CreateNextView, UpdateNextView
 
 
 class LinkTokenUserView(FormNextView):

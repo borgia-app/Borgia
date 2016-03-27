@@ -15,8 +15,7 @@ from shops.forms import *
 from users.models import User
 from finances.models import Sale, DebitBalance, Payment
 from notifications.models import *
-from borgia.models import FormNextView
-
+from borgia.models import FormNextView, CreateNextView, UpdateNextView
 
 
 # AUBERGE
@@ -562,20 +561,12 @@ class ContainerListView(ListView):
     queryset = Container.objects.all()
 
 
-class ProductUnitCreateView(SuccessMessageMixin, CreateView):
+class ProductUnitCreateView(SuccessMessageMixin, CreateNextView):
     model = ProductUnit
     fields = ['name', 'description', 'unit', 'type']
     template_name = 'shops/productunit_create.html'
     success_url = '/shops/productunit/'
     success_message = "%(name)s was created successfully"
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(ProductUnitCreateView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        return context
 
 
 class ProductUnitRetrieveView(DetailView):
@@ -583,15 +574,12 @@ class ProductUnitRetrieveView(DetailView):
     template_name = 'shops/productunit_retrieve.html'
 
 
-class ProductUnitUpdateView(SuccessMessageMixin, UpdateView):
+class ProductUnitUpdateView(SuccessMessageMixin, UpdateNextView):
     model = ProductUnit
     fields = ['name', 'description', 'unit', 'type']
     template_name = 'shops/productunit_update.html'
     success_url = '/shops/productunit/'
     success_message = "%(name)s was updated successfully"
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.success_url))
 
 
 class ProductUnitDeleteView(SuccessMessageMixin, DeleteView):
@@ -613,19 +601,11 @@ class ProductUnitListView(ListView):
     queryset = ProductUnit.objects.all()
 
 
-class ProductBaseCreateView(CreateView):
+class ProductBaseCreateView(CreateNextView):
     fields = ['name', 'description', 'shop', 'brand', 'type', 'product_unit', 'quantity']
     model = ProductBase
     template_name = 'shops/productbase_create.html'
     success_url = '/shops/productbase/'
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
-
-    def get_context_data(self, **kwargs):
-        context = super(ProductBaseCreateView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
-        return context
 
     def get_initial(self):
         initial = super(ProductBaseCreateView, self).get_initial()
@@ -638,15 +618,12 @@ class ProductBaseRetrieveView(DetailView):
     template_name = 'shops/productbase_retrieve.html'
 
 
-class ProductBaseUpdateView(SuccessMessageMixin, UpdateView):
+class ProductBaseUpdateView(SuccessMessageMixin, UpdateNextView):
     model = ProductBase
     fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price', 'quantity', 'product_unit']
     template_name = 'shops/productbase_update.html'
     success_url = '/shops/productbase/'
     success_message = "%(name)s was updated successfully"
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.success_url))
 
 
 class ProductBaseDeleteView(SuccessMessageMixin, DeleteView):
