@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, force_text, HttpResponseRedirect
+from django.shortcuts import render, force_text, HttpResponseRedirect, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView
 from django.contrib.auth import logout
@@ -682,12 +682,12 @@ class ProductCreateMultipleView(FormNextView):
         initial['purchase_date'] = now
         return initial
 
-    def get_context_data(self, **kwargs):
-        context = super(ProductCreateMultipleView, self).get_context_data(**kwargs)
-        context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
+    def get_context_data(self):
+        context = super(ProductCreateMultipleView, self).get_context_data()
+        context['shop'] = self.kwargs['shop']
         return context
 
     def get_form_kwargs(self):
-        kwargs = super(ProductCreateMultipleView, self).get_form_kwargs()
-        kwargs['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
-        return kwargs
+        kwargs_form = super(ProductCreateMultipleView, self).get_form_kwargs()
+        kwargs_form['shop'] = Shop.objects.get(name=self.kwargs['shop'])
+        return kwargs_form

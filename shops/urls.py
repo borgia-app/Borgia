@@ -7,7 +7,7 @@ from shops.views import *
 
 urlpatterns = [
     # Models
-    url(r'^product/create/multiple/$', permission_required('users.add_product', raise_exception=True)
+    url(r'^product/create/multiple/(?P<shop>\w+)/$', permission_required('users.add_product', raise_exception=True)
     (ProductCreateMultipleView.as_view()), name='url_create_product_multiple'),
     url(r'^singleproduct/create/multiple/$', permission_required('shops.add_singleproduct', raise_exception=True)
     (SingleProductCreateMultipleView.as_view()), name='url_create_singleproduct_multiple'),  # C multiple

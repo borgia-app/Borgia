@@ -7,7 +7,7 @@
         <form action= "{% url 'url_supply_united' %}" method="post">
             {% csrf_token %}
             {{ form.as_p }}
-            <p id="id_link_create_bank_account">Le compte en banque n'est pas dans la liste ? <a href="{% url 'url_create_bank_account' %}?next=/finances/supply/united">Ajout !</a></p>
+            <p id="id_link_create_bank_account">Le compte en banque n'est pas dans la liste ? <a href="{% url 'url_create_bank_account' %}?next=/finances/supply/united?next={{ next }}">Ajout !</a></p>
             <input type=hidden name="next" value="{{ next }}" />
             <input type="submit" value="Submit" id="id_submit"/>
         </form>
