@@ -1,0 +1,75 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="container50">
+        <div class="row">
+            <h3>Création fichier CSV pour l'événement "{{ se }}"</h3>
+        </div>
+        <div class="row">
+            <form action= "{% url 'url_shared_event_download_csv_user' %}" method="post">
+                {% csrf_token %}
+                <div id="list_year">
+                    <p>Selectionner les années à inclure :</p>
+                    {% for f in form %}
+                        <span class="fieldWrapper">
+                                {{ f.errors }}
+                                {{ f.label }} : {{ f }}
+                            </span>
+                    {% endfor %}
+                </div>
+                <input type=hidden name="next" value="{{ next }}" />
+                <input type=hidden name="se_pk" value="{{ se.pk }}" />
+                <p><input type="submit" value="Télécharger le fichier"/></p>
+            </form>
+        </div>
+    <div class="row">
+        <a href="{% url 'url_list_shared_event' %}">Retour à la liste</a>
+    </div>
+    </div>
+    <script>
+        list_year_fields = document.getElementById("list_year").getElementsByTagName("span");
+        bouton_plus = document.createElement("input");
+        bouton_plus.setAttribute("type", "button");
+        bouton_plus.setAttribute("value", "afficher plus");
+        affichage_plus = false;
+
+        // Si plus de 5 promos, on ajoute un bouton "plus" qui affiche le reste
+        if (list_year_fields.length > 5) {
+            insertAfter(bouton_plus, list_year_fields[5]);
+        }
+
+        // Masquage de tous les éléments supérieurs à 5
+        afficher_span(list_year_fields, 4, 'None');
+
+        // Affichage du reste des éléments
+        bouton_plus.addEventListener("click", function() {
+            if (affichage_plus == true) {
+                afficher_span(list_year_fields, 4, 'None');
+                affichage_plus = false;
+                bouton_plus.value = "Afficher plus";
+            }
+            else {
+                afficher_span(list_year_fields, 4, '');
+                affichage_plus = true;
+                bouton_plus.value = "Afficher moins";
+            }
+        }, false);
+
+        function afficher_span(liste, debut, afficher) {
+            for (i=0; i<liste.length; i++) {
+                if (i>debut) {
+                    liste[i].style.display = afficher;
+                }
+            }
+        }
+        function insertAfter(newElement, afterElement) {
+            var parent = afterElement.parentNode;
+            if (parent.lastChild === afterElement) { // Si le dernier élément est le même que l'élément après lequel on veut insérer, il suffit de faire appendChild()
+                parent.appendChild(newElement);
+            } else { // Dans le cas contraire, on fait un insertBefore() sur l'élément suivant
+                parent.insertBefore(newElement, afterElement.nextSibling);
+            }
+        }
+    </script>
+{% endblock %}

@@ -15,6 +15,7 @@
                     <th>Gestionnaire</th>
                     <th>Inscrits / Participants</th>
                     <th>Inscrit</th>
+                    <th>Téléchargement</th>
                 </tr>
                 {% for e in query_shared_event %}
                     <tr>
@@ -27,6 +28,11 @@
                                 Oui
                             {% else %}
                                 Non, <a href="{% url 'url_registration_shared_event' %}?se_pk={{ e.pk }}&user_pk={{ user.pk }}">s'inscrire</a>
+                            {% endif %}
+                        </td>
+                        <td>
+                            {% if user == e.manager %}
+                                <a href="{% url 'url_shared_event_download_csv_user' %}?se_pk={{ e.pk }}">Procéder</a>
                             {% endif %}
                         </td>
                     </tr>

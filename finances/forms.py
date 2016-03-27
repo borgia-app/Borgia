@@ -224,3 +224,18 @@ class SharedEventManageListForm(forms.Form):
     all = forms.BooleanField(required=False, label='Depuis toujours')
     done = forms.ChoiceField(choices=((True, 'Terminé'), (False, 'En cours'), ('both', 'Les deux')))
     order_by = forms.ChoiceField(label='Trier par', choices=(('-date', 'Date'), ('manager', 'Opérateur')))
+
+
+class DownloadCsvUserForm(forms.Form):
+
+    def __init__(self, **kwargs):
+        list_year = kwargs.pop('list_year')
+        super(DownloadCsvUserForm, self).__init__(**kwargs)
+
+        for (i, y) in enumerate(list_year):
+            self.fields['field_year_%s' % i] = forms.BooleanField(label=y, required=False)
+
+    def year_pg_list_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_year_pg_'):
+                yield (self.fields[name].label, value)

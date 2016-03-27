@@ -7,12 +7,13 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Permission
 from django.db.models import Q
 from datetime import datetime
-import json, time, re
+import json, time, re, csv, xlsxwriter
 
 from finances.forms import *
 from finances.models import *
 from shops.models import Container
-from users.models import user_from_token_tap
+from users.models import user_from_token_tap, list_year
+from django.contrib.auth.models import Group
 
 
 def electrovanne_request1(request):
@@ -545,3 +546,79 @@ def list_user_ponderation_errors_from_list(f):
             list_error.append([t, list_token_ponderation[1][i]])
 
     return list_user, list_ponderation, list_error, list_token_ponderation
+
+
+class DownloadCsvUserView(FormView):
+    form_class = DownloadCsvUserForm
+    template_name = 'finances/shared_event_download_csv_user.html'
+    success_url = '/auth/login'
+
+    def form_valid(self, form):
+        # Variables
+        se = SharedEvent.objects.get(pk=self.request.GET.get('se_pk', self.request.POST.get('se_pk')))
+        list_year_result = []
+        for i in range(0, len(list_year())):
+            if form.cleaned_data["field_year_%s" % i] is True:
+                list_year_result.append(list_year()[i])
+        max_width = [0, 0, 0]  # Taille maximale des colonnes, pour simuler l'AutoFit des colonnes
+
+        # Création d'un fichier XLS
+        response = HttpResponse(content_type='text/xlsm')
+        response['Content-Disposition'] = 'attachment; filename="' + se.__str__() + '.xlsm"'
+
+        workbook = xlsxwriter.Workbook(response, {'in_memory': True})  # Stocké dans la RAM
+        workbook.add_vba_project('vbaProject.bin')  # Ajout de macros
+        worksheet = workbook.add_worksheet()
+
+        # Création des noms relié aux feuilles (pour éviter les conflits en cas de différentes versions d'Excel)
+        workbook.set_vba_name('ThisWorkbook')
+        worksheet.set_vba_name('Feuil1')
+
+        # Insertion du bouton de macro
+        worksheet.insert_button('E3', {'macro': 'Feuil1.XLSM_to_JSON',
+                                       'caption': 'Press Me',
+                                       'width': 80,
+                                       'height': 30})
+
+        bold_format = workbook.add_format({'bold': True})
+        worksheet.write_row('A1', ['Nom prénom', 'Bucque', 'Fam\'ss', 'Participation'], bold_format)
+
+        row = 1
+        col = 0
+        for u in User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=9)).order_by(
+                'last_name'):
+            worksheet.write_row(row, col,
+                [u.last_name + ' ' + u.first_name, u.surname, u.username])
+            row += 1
+
+            # Recherche de la taille maximale des colonnes 0 et 1
+            if len(u.last_name + ' ' + u.first_name) > max_width[0]:
+                max_width[0] = len(u.last_name + ' ' + u.first_name)
+            if len(u.surname) > max_width[1]:
+                max_width[1] = len(u.surname)
+            if len(u.username) > max_width[2]:
+                max_width[2] = len(u.username)
+
+        # Simulation d'AutoFit, ajustement des colonnes 0 et 1 à la taille la plus grande
+        worksheet.set_column(0, 0, max_width[0])
+        worksheet.set_column(1, 1, max_width[1])
+        worksheet.set_column(2, 2, max_width[2])
+        worksheet.set_column(3, 3, len('Participations'))
+
+        workbook.close()
+
+        return response
+
+    def get_form_kwargs(self):
+        kwargs = super(DownloadCsvUserView, self).get_form_kwargs()
+        kwargs['list_year'] = list_year()
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(DownloadCsvUserView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
+        context['se'] = SharedEvent.objects.get(pk=self.request.GET.get('se_pk', self.request.POST.get('se_pk')))
+        return context
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))

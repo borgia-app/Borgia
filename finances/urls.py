@@ -41,6 +41,7 @@ urlpatterns = [
     (shared_event_list), name='url_list_shared_event'),
     url(r'^shared_event/registration/$', permission_required('finances.register_sharedevent', raise_exception=True)
     (shared_event_registration), name='url_registration_shared_event'),
+    url(r'^shared_event/download_csv_user', DownloadCsvUserView.as_view(), name='url_shared_event_download_csv_user'),
 
     # Supply
     url(r'^supply/united/$', permission_required('users.supply_account', raise_exception=True)
