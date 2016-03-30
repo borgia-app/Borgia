@@ -3,7 +3,16 @@
 {% extends 'base.html' %}
 
 {% block content %}
-        <div class="container50">
-    {% include "users/retrieve_module.html" %}
+    <div class="container50">
+        {% include "users/retrieve_module.html" %}
+
+        {% if perms.users.change_user %}
+            <div class="row">
+                <p><a class="s" href="{% url 'url_update_user' pk=object.pk %}?next=/users/retrieve/{{ object.pk }}?next={{ next }}">Modifier les informations</a></p>
+                <p><a class="s" href="{% url 'url_delete_user' pk=object.pk %}?next={{ next }}">Supprimer l'utilisateur</a></p>
+                <p><a class="s" href="{% url 'url_list_user_complete' %}?next={{ next }}">Retour</a></p>
+                <input type=hidden name="next" value="{{ next }}" />
+            </div>
+        {% endif %}
     </div>
 {% endblock %}

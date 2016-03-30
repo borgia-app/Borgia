@@ -4,7 +4,7 @@
 
     <div class="container">
         <div class="row">
-            <p><a href="{% url 'url_workboard_treasury' %}">Retour au workboard trésoriers</a></p>
+            <p><a href="{{ next }}">Retour</a></p>
         </div>
         <div class="row">
             <form action= "{% url 'url_list_user_complete' %}" method="post">
@@ -54,7 +54,7 @@
                         <td>{{ e.campus }}</td>
                         <td>{{ e.year_pg }}</td>
                         <td>{{ e.balance }}</td>
-                        <td><a href="{% url 'url_retrieve_user' pk=e.pk %}">Détail</a></td>
+                        <td><a href="{% url 'url_retrieve_user' pk=e.pk %}?next={{ next }}">Détail</a></td>
                     </tr>
                 {% endfor %}
             </table>

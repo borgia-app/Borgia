@@ -12,6 +12,8 @@
                 <ul class="listing-apps">
                     <li><a href="{% url 'url_manage_group' %}?group_pk={{ group_chefs_gestionnaires_foyer_pk }}&next=/users/vices_presidents_vie_interne/workboard"><img src="{% static 'img/group.png' %}" alt="Gestion groupe"><span class="name">Chefs gestio. du foyer</span></a></li>
                     <li><a href="{% url 'url_manage_group' %}?group_pk={{ group_chefs_gestionnaires_auberge_pk }}&next=/users/vices_presidents_vie_interne/workboard"><img src="{% static 'img/group.png' %}" alt="Gestion groupe"><span class="name">Chefs gestio. de l'auberge</span></a></li>
+                    <li><a href="{% url 'url_create_user' %}?next=/users/vices_presidents_vie_interne/workboard"><img src="{% static 'img/user.png' %}" alt="Ajout user"><span class="name">Ajout membre</span></a></li>
+                    <li><a href="{% url 'url_list_user_complete' %}?next=/users/vices_presidents_vie_interne/workboard"><img src="{% static 'img/group.png' %}" alt="Lister users"><span class="name">Liste users</span></a></li>
                 </ul>
             </div>
         </div>

@@ -162,6 +162,11 @@ class UserRetrieveView(DetailView):
 
         return super(UserRetrieveView, self).get(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(UserRetrieveView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next')
+        return context
+
 
 class UserUpdateView(UpdateView):
     model = User
@@ -176,12 +181,28 @@ class UserUpdateView(UpdateView):
 
         return super(UserUpdateView, self).get(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(UserUpdateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
+        return context
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
+
 
 class UserDeleteView(SuccessMessageMixin, DeleteView):
     model = User
     template_name = 'users/delete.html'
     success_url = '/users/'
     success_message = "Supression"
+
+    def get_context_data(self, **kwargs):
+        context = super(UserDeleteView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
+        return context
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
 
 class UserListView(ListView):
@@ -214,6 +235,19 @@ class UserListCompleteView(FormView):
         context = self.get_context_data(**kwargs)
         context['query_user'] = query_user
         return self.render_to_response(context)
+
+    def get_context_data(self, **kwargs):
+        context = super(UserListCompleteView, self).get_context_data(**kwargs)
+        context['query_user'] = User.objects.all().exclude(
+            groups=Group.objects.get(name='Membres spéciaux')).order_by('last_name')
+        context['next'] = self.request.GET.get('next')
+        return context
+
+    def get_initial(self):
+        initial = super(UserListCompleteView, self).get_initial()
+        initial['all'] = True
+        initial['order_by'] = 'last_name'
+        return initial
 
 
 def permission_to_manage_group(group):

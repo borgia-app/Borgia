@@ -12,7 +12,12 @@
         ["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
         ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"],
         ["presidents_group_manage", "users", "user"],
-        ["reach_workboard_presidents", "users", "user"]
+        ["reach_workboard_presidents", "users", "user"],
+        ["add_user", "users", "user"],
+        ["change_user", "users", "user"],
+        ["delete_user", "users", "user"],
+        ["retrieve_user", "users", "user"],
+        ["list_user", "users", "user"]
       ]
     }
   },
@@ -207,7 +212,12 @@
       "name": "Vices présidents délégués à la vie interne",
       "permissions": [["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
         ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"],
-        ["reach_workboard_vices_presidents_vie_interne", "users", "user"]]
+        ["reach_workboard_vices_presidents_vie_interne", "users", "user"],
+        ["add_user", "users", "user"],
+        ["change_user", "users", "user"],
+        ["delete_user", "users", "user"],
+        ["retrieve_user", "users", "user"],
+        ["list_user", "users", "user"]]
     }
   }
 ]
