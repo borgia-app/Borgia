@@ -136,6 +136,15 @@ class UserCreateView(FormNextView):
                                    year=form.cleaned_data['year'])
         user.set_password(form.cleaned_data['password'])
         user.save()
+
+        # Cas d'un membre d'honneur
+        if form.cleaned_data['honnor_member'] is True:
+            user.groups.add(Group.objects.get(name='Membres d\'honneurs'))
+        # Sinon, c'est un Gadz'Arts
+        else:
+            user.groups.add(Group.objects.get(name='Gadz\'Arts'))
+        user.save()
+
         return super(UserCreateView, self).form_valid(form)
 
     def get_initial(self):
@@ -234,7 +243,6 @@ def group_name_clean_for_perm(group_name):
         group_name = group_name.replace(dirty[i], clean[i])
 
     group_name = group_name.lower()
-    print(group_name)
     return group_name
 
 
@@ -243,6 +251,8 @@ def workboard_presidents(request):
     group_vices_presidents_vie_interne_pk = Group.objects.get(name='Vices présidents délégués à la vie interne').pk
     group_tresoriers_pk = Group.objects.get(name='Trésoriers').pk
     group_presidents_pk = Group.objects.get(name='Présidents').pk
+    group_gadzarts_pk = Group.objects.get(name='Gadz\'Arts').pk
+    group_membres_honneurs_pk = Group.objects.get(name='Membres d\'honneurs').pk
 
     return render(request, 'users/workboard_presidents.html', locals())
 
