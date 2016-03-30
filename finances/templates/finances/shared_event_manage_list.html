@@ -1,5 +1,7 @@
 {% extends 'base.html' %}
 
+{% load finances_extra %}
+
 {% block content %}
 
     <div class="container">
@@ -36,7 +38,7 @@
                     <th>Description</th>
                     <th>Gestionnaire</th>
                     <th>Inscrits / Participants</th>
-                    <th>Terminé</th>
+                    <th>Paiement</th>
                     <th>Mettre à jour</th>
                 </tr>
                 {% for e in query_shared_event %}
@@ -45,7 +47,7 @@
                         <td>{{ e.description }}</td>
                         <td>{{ e.manager }}</td>
                         <td>{{ e.registered.all.count }} / {{ e.participants.all.count }}</td>
-                        <td>{{ e.done }}</td>
+                        <td>{% human_reading e.done 'shared_event_done' %}</td>
                         <td>
                             <a href="{% url 'url_manage_shared_event' pk=e.pk %}?next=/finances/shared_event/manage_list/">Gérer</a>
                         </td>

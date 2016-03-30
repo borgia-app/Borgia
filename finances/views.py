@@ -475,7 +475,13 @@ class SharedEventManageView(View):
         initial_list_user_form = {}
         payment_error = ''
 
-        # Vérification de la permission
+        # Vérification des permissions
+        # Cas où on est le manager de l'event
+        if request.user == se.manager:
+            # Si l'événement est terminé, on ne peux plus y accéder
+            if se.done is True:
+                raise PermissionDenied
+        # Cas où on est pas manager ni quelqu'un qui a la permission de gérer les events
         if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
             raise PermissionDenied
 
@@ -689,8 +695,13 @@ class SharedEventManageView(View):
 # Autres
 def remove_participant_se(request, pk):
     se = SharedEvent.objects.get(pk=pk)
+
+    # Même en ayant la permission, on ne modifie plus une event terminé
     if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
         raise PermissionDenied
+    elif se.done is True:
+        raise PermissionDenied
+
     try:
         user_pk = request.GET.get('user_pk')
         if user_pk == 'ALL':
@@ -705,8 +716,16 @@ def remove_participant_se(request, pk):
 
 def remove_registered_se(request, pk):
     se = SharedEvent.objects.get(pk=pk)
+
     if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
         raise PermissionDenied
+    # Même en ayant la permission, on ne modifie plus une event terminé
+    elif se.done is True:
+        raise PermissionDenied
+    # Si la date est passé et que le payment n'est pas fait, on ne modifie plus les inscrits
+    elif datetime.date(now()) > se.date:
+        raise PermissionDenied
+
     try:
         user_pk = request.GET.get('user_pk')
         if user_pk == 'ALL':
