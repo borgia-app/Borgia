@@ -214,8 +214,8 @@ class SharedEventUpdateForm(forms.Form):
     price = forms.DecimalField(label='Prix total', decimal_places=2, max_digits=9)
     bills = forms.CharField(label='Factures liées')
     managing_errors = forms.ChoiceField(label='Que faire en cas d\' erreurs de jeton ?',
-                                          choices=(('other_pay_all', 'Répercuter le prix sur les autres participants'),
-                                                   ('nothing', 'Ne rien faire (risque de perte sur l\'événement)')))
+                                        choices=(('other_pay_all', 'Répercuter le prix sur les autres participants'),
+                                                 ('nothing', 'Ne rien faire (risque de perte sur l\'événement)')))
 
 
 class SharedEventManageListForm(forms.Form):
@@ -226,11 +226,37 @@ class SharedEventManageListForm(forms.Form):
     order_by = forms.ChoiceField(label='Trier par', choices=(('-date', 'Date'), ('manager', 'Opérateur')))
 
 
-class DownloadCsvUserForm(forms.Form):
+class SharedEventManageUserListForm(forms.Form):
+    order_by = forms.ChoiceField(label='Trier par', choices=(('last_name', 'Nom'), ('surname', 'Bucque')))
+    state = forms.ChoiceField(label='Lister les', choices=(('registered', 'Inscrits'), ('participants', 'Participants')))
 
-    def __init__(self, **kwargs):
+
+class SharedEventManageUploadJSONForm(forms.Form):
+    file = forms.FileField(label='Fichier de données')
+    token = forms.ChoiceField(label='Le fichier contient des :', choices=((True, 'Numéros de jetons'),
+                                                                          (False, 'Noms d\'utilisateurs')))
+    state = forms.ChoiceField(choices=(('registered', 'Inscrit'), ('participants', 'Participant')))
+
+
+class SharedEventManageUpdateForm(forms.Form):
+    price = forms.DecimalField(label='Prix total (€)', decimal_places=2, max_digits=9, required=False)
+    bills = forms.CharField(label='Factures liées', required=False)
+
+
+class SharedEventManageAddForm(forms.Form):
+    username = forms.CharField(label='Username')
+    state = forms.ChoiceField(choices=(('registered', 'Inscrit'), ('participant', 'Participant')))
+    ponderation = forms.IntegerField(label='Pondération', min_value=0, required=False)
+
+
+class SharedEventManageDownloadXlsxForm(forms.Form):
+    state = forms.ChoiceField(label='Selection',
+                              choices=(('year', 'Listes de promotions'), ('registered', 'Inscrits'),
+                                       ('participants', 'Participants')))
+
+    def __init__(self, *args, **kwargs):
         list_year = kwargs.pop('list_year')
-        super(DownloadCsvUserForm, self).__init__(**kwargs)
+        super(SharedEventManageDownloadXlsxForm, self).__init__(*args, **kwargs)
 
         for (i, y) in enumerate(list_year):
             self.fields['field_year_%s' % i] = forms.BooleanField(label=y, required=False)

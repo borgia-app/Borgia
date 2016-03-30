@@ -15,7 +15,7 @@
                     <th>Gestionnaire</th>
                     <th>Inscrits / Participants</th>
                     <th>Inscrit</th>
-                    <th>Téléchargement</th>
+                    <th>Gestion</th>
                 </tr>
                 {% for e in query_shared_event %}
                     <tr>
@@ -32,7 +32,7 @@
                         </td>
                         <td>
                             {% if user == e.manager %}
-                                <a href="{% url 'url_shared_event_download_csv_user' %}?se_pk={{ e.pk }}">Procéder</a>
+                                <a href="{% url 'url_manage_shared_event' pk=e.pk %}">Gérer</a>
                             {% endif %}
                         </td>
                     </tr>

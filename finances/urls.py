@@ -41,7 +41,11 @@ urlpatterns = [
     (shared_event_list), name='url_list_shared_event'),
     url(r'^shared_event/registration/$', permission_required('finances.register_sharedevent', raise_exception=True)
     (shared_event_registration), name='url_registration_shared_event'),
-    url(r'^shared_event/download_csv_user', DownloadCsvUserView.as_view(), name='url_shared_event_download_csv_user'),
+    url(r'^shared_event/manage/(?P<pk>\d+)/$', SharedEventManageView.as_view(), name='url_manage_shared_event'),
+    url(r'^shared_event/remove_participant/(?P<pk>\d+)/$', remove_participant_se, name='url_rm_participant_shared_event'),
+    url(r'^shared_event/remvove_registered/(?P<pk>\d+)/$', remove_registered_se, name='url_rm_registered_shared_event'),
+    url(r'^shared_event/proceed_payment/(?P<pk>\d+)/$', permission_required('finances.proceed_payment_sharedevent', raise_exception=True)
+    (proceed_payment_se), name='url_proceed_payment_shared_event'),
 
     # Supply
     url(r'^supply/united/$', permission_required('users.supply_account', raise_exception=True)

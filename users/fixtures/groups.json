@@ -62,7 +62,8 @@
         ["reach_workboard_treasury", "users", "user"],
 
         ["manage_sharedevent", "finances", "sharedevent"],
-        ["change_sharedevent", "finances", "sharedevent"]
+        ["change_sharedevent", "finances", "sharedevent"],
+        ["proceed_payment_sharedevent", "finances", "sharedevent"]
       ]
     }
   },

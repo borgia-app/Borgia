@@ -1,7 +1,7 @@
 #-*- coding: utf-8 -*-
 from django.shortcuts import render, HttpResponse, force_text, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import ListView, DetailView, FormView
+from django.views.generic import ListView, DetailView, FormView, View
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Permission
@@ -9,6 +9,7 @@ from django.db.models import Q
 from django.contrib.auth.models import Group
 from datetime import datetime
 import json, time, re, csv, xlsxwriter
+from operator import itemgetter
 
 from finances.forms import *
 from finances.models import *
@@ -402,8 +403,8 @@ class SharedEventUpdateView(FormNextView):
     def form_valid(self, form):
 
         se = SharedEvent.objects.get(pk=self.request.POST.get('pk'))
-
-        lists = list_user_ponderation_errors_from_list(self.request.FILES['file'])
+        # TODO: ajouter un champ de selection de ce que contient le fichier (token ou username)
+        lists = list_user_ponderation_errors_from_list(self.request.FILES['file'], True)
 
         # Ajout des participants avec leur pondération
         for u in lists[0]:
@@ -492,110 +493,392 @@ def shared_event_list(request):
     return render(request, 'finances/shared_event_list.html', locals())
 
 
-def list_token_ponderation_from_file(f):
+class SharedEventManageView(View):
+    template_name = 'finances/shared_event_manage.html'
+    # TODO: autocompletion pour add user, bouton pour supprimer l'event
+
+    def get_query_user(self, state):
+        se = SharedEvent.objects.get(pk=self.kwargs['pk'])
+        if state == 'participants':
+            return se.list_of_participants_ponderation()
+        elif state == 'registered':
+            return se.list_of_registered_ponderation()
+
+    @staticmethod
+    def get_key(item, order_by):
+        return getattr(item, order_by)
+
+    def get(self, request, *args, **kwargs):
+
+        # Variables
+        se = SharedEvent.objects.get(pk=self.kwargs['pk'])
+        state = ''
+        query_user = []
+        initial_list_user_form = {}
+
+        # Si on impose un state directement en GET (en venant d'un lien remove par exemple)
+        if self.request.GET.get('state') is not None:
+            if self.request.GET.get('state') == 'participants':
+                initial_list_user_form = {
+                    'state': 'participants',
+                    'order_by': 'last_name',
+                }
+                query_user = sorted(self.get_query_user('participants'), key=lambda item: getattr(item[0], 'last_name'))
+                state = 'participants'
+            elif self.request.GET.get('state') == 'registered':
+                initial_list_user_form = {
+                    'state': 'registered',
+                    'order_by': 'last_name',
+                }
+                query_user = sorted(self.get_query_user('registered'), key=lambda item: getattr(item[0], 'last_name'))
+                state = 'registered'
+
+        # Sinon on choisit en fonction de la date de l'event
+        # S'il est passé, on liste les participants par défaut, sinon on liste les inscrits
+        else:
+            if se.date > datetime.date(now()):
+                initial_list_user_form = {
+                    'state': 'participants',
+                    'order_by': 'last_name',
+                }
+                query_user = sorted(self.get_query_user('participants'), key=lambda item: getattr(item[0], 'last_name'))
+                state = 'participants'
+            else:
+                initial_list_user_form = {
+                    'state': 'registered',
+                    'order_by': 'last_name',
+                }
+                query_user = sorted(self.get_query_user('registered'), key=lambda item: getattr(item[0], 'last_name'))
+                state = 'registered'
+
+        initial_update_form = {
+            'price': se.price,
+            'bills': se.bills,
+        }
+
+        # Création des forms
+        list_user_form = SharedEventManageUserListForm(prefix='list_user_form', initial=initial_list_user_form)
+        update_form = SharedEventManageUpdateForm(prefix='update_form', initial=initial_update_form)
+        upload_json_form = SharedEventManageUploadJSONForm(prefix='upload_json_form')
+        add_user_form = SharedEventManageAddForm(prefix='add_user_form')
+        download_xlsx_form = SharedEventManageDownloadXlsxForm(prefix='download_xlsx_form',
+                                                               list_year=list_year())
+
+        context = {
+            'pk': self.kwargs['pk'],
+            'list_user_form':    list_user_form,
+            'upload_json_form': upload_json_form,
+            'update_form': update_form,
+            'add_user_form': add_user_form,
+            'download_xlsx_form': download_xlsx_form,
+            'query_user': query_user,
+            'errors': 0,
+            'state': state,
+            'order_by': 'last_name',
+            'done': se.done,
+        }
+
+        return render(request, self.template_name, context)
+
+    def post(self, request, *args, **kwargs):
+
+        # Variables
+        se = SharedEvent.objects.get(pk=self.kwargs['pk'])
+        errors = 0
+        state = request.POST.get('state')
+        order_by = request.POST.get('order_by')
+        query_user = sorted(self.get_query_user(state), key=lambda item: getattr(item[0], order_by))
+
+        # Liaison des forms et détermination du form qui a été submited
+        initial_update_form = {
+            'price': se.price,
+            'bills': se.bills,
+        }
+        initial_list_user_form = {
+            'state': state,
+            'order_by': order_by
+        }
+        list_user_form = SharedEventManageUserListForm(prefix='list_user_form', initial=initial_list_user_form)
+        update_form = SharedEventManageUpdateForm(prefix='update_form', initial=initial_update_form)
+        upload_json_form = SharedEventManageUploadJSONForm(prefix='upload_json_form')
+        add_user_form = SharedEventManageAddForm(prefix='add_user_form')
+        download_xlsx_form = SharedEventManageDownloadXlsxForm(prefix='download_xlsx_form',
+                                                               list_year=list_year())
+        action = self.request.POST['action']
+
+        # Si form list_user_form
+        if action == 'list_user':
+            list_user_form = SharedEventManageUserListForm(request.POST, prefix='list_user_form')
+            if list_user_form.is_valid():
+                if list_user_form.cleaned_data['state'] == 'participants':
+                    query_user = self.get_query_user('participants')
+                    state = 'participants'
+                if list_user_form.cleaned_data['state'] == 'registered':
+                    query_user = self.get_query_user('registered')
+                    state = 'registered'
+                order_by = list_user_form.cleaned_data['order_by']
+                query_user = sorted(query_user, key=lambda item: getattr(item[0], order_by))
+
+        # Si form update
+        if action == 'update':
+            update_form = SharedEventManageUpdateForm(request.POST, prefix='update_form')
+            if update_form.is_valid():
+                se.price = update_form.cleaned_data['price']
+                se.bills = update_form.cleaned_data['bills']
+                se.save()
+
+        # Si form upload_json
+        elif action == 'upload_json':
+            upload_json_form = SharedEventManageUploadJSONForm(request.POST, request.FILES,  prefix='upload_json_form')
+            if upload_json_form.is_valid():
+                lists = list_user_ponderation_errors_from_list(request.FILES['upload_json_form-file'],
+                                                               upload_json_form.cleaned_data['token'])
+                # Enregistrement des participants/inscrits et des pondérations
+                if upload_json_form.cleaned_data['state'] == 'participants':
+                    for i, u in enumerate(lists[0]):
+                        se.add_participant(u, lists[1][i])
+                else:
+                    for u in lists[0]:
+                        se.registered.add(u)
+                se.save()
+
+                errors = len(lists[2])
+                query_user = self.get_query_user(state)
+
+        elif action == 'add_user':
+            add_user_form = SharedEventManageAddForm(request.POST, prefix='add_user_form')
+            if add_user_form.is_valid():
+                if add_user_form.cleaned_data['state'] == 'registered':
+                    se.registered.add(User.objects.get(username=add_user_form.cleaned_data['username']))
+                    se.save()
+                elif add_user_form.cleaned_data['state'] == 'participant':
+                    se.add_participant(User.objects.get(username=add_user_form.cleaned_data['username']),
+                                       add_user_form.cleaned_data['ponderation'])
+                query_user = self.get_query_user(state)
+
+        elif action == 'download_xlsx':
+            download_xlsx_form = SharedEventManageDownloadXlsxForm(request.POST, prefix='download_xlsx_form', list_year=list_year())
+            if download_xlsx_form.is_valid():
+
+                # Initialisation du fichier excel
+                workbook, worksheet, response = workboot_init(se.__str__(), 'Feuil1.XLSM_to_JSON',
+                                                              'Générer le fichier JSON')
+
+                # Ajout de l'entête de la table
+                worksheet_write_line(workbook=workbook, worksheet=worksheet,
+                                     data=[['Nom prénom', 'Bucque', 'Username', 'Pondération']],
+                                     bold=True)
+
+                if download_xlsx_form.cleaned_data['state'] == 'year':
+                    # Ajout des valeurs
+                    list_year_result = []
+                    data = []
+                    for i in range(0, len(list_year())):
+                        if download_xlsx_form.cleaned_data["field_year_%s" % i] is True:
+                            list_year_result.append(list_year()[i])
+                    for u in User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=9)).order_by('last_name'):
+                        data.append([u.last_name + ' ' + u.first_name, u.surname, u.username])
+                    worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
+                    workbook.close()
+                    return response
+
+                elif download_xlsx_form.cleaned_data['state'] == 'participants':
+                    data = []
+                    for e in se.list_of_participants_ponderation():
+                        u = e[0]
+                        data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
+                    worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
+                    workbook.close()
+                    return response
+
+                elif download_xlsx_form.cleaned_data['state'] == 'registered':
+                    data = []
+                    for e in se.list_of_registered_ponderation():
+                        u = e[0]
+                        data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
+                    worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
+                    workbook.close()
+                    return response
+
+        context = {
+            'pk': self.kwargs['pk'],
+            'list_user_form': list_user_form,
+            'upload_json_form': upload_json_form,
+            'update_form': update_form,
+            'add_user_form': add_user_form,
+            'download_xlsx_form': download_xlsx_form,
+            'query_user': query_user,
+            'errors': errors,
+            'state': state,
+            'order_by': order_by,
+            'done': se.done,
+        }
+
+        return render(request, 'finances/shared_event_manage.html', context)
+
+
+# Autres
+def remove_participant_se(request, pk):
+    se = SharedEvent.objects.get(pk=pk)
+    try:
+        user_pk = request.GET.get('user_pk')
+        if user_pk == 'ALL':
+            for u in se.participants.all():
+                se.remove_participant(u)
+        else:
+            se.remove_participant(User.objects.get(pk=user_pk))
+    except ObjectDoesNotExist:
+        pass
+    return redirect('/finances/shared_event/manage/' + str(se.pk) + '/?state=participants#table_users')
+
+
+def remove_registered_se(request, pk):
+    se = SharedEvent.objects.get(pk=pk)
+    try:
+        user_pk = request.GET.get('user_pk')
+        if user_pk == 'ALL':
+            for u in se.registered.all():
+                se.registered.remove(u)
+            se.save()
+        else:
+            se.registered.remove(User.objects.get(pk=user_pk))
+            se.save()
+    except ObjectDoesNotExist:
+        pass
+    return redirect('/finances/shared_event/manage/' + str(se.pk) + '/?state=registered#table_users')
+
+
+def proceed_payment_se(request, pk):
+    se = SharedEvent.objects.get(pk=pk)
+    se.pay(request.user, User.objects.get(username='AE_ENSAM'))
+    return redirect('/finances/shared_event/manage/' + str(se.pk))
+
+
+def list_base_ponderation_from_file(f):
 
     # Traitement sur le string pour le convertir en liste identifiable json
     initial = str(f.read())
     data_string = initial[2:len(initial)]
-    data_string = data_string[0:len(data_string)-3]
+    data_string = data_string[0:len(data_string)-1]
     data_string = data_string.replace('\\n', '')
+
+    # Gestion des erreurs si le fichier contient du blanc après les données
+    data_string = data_string[0:data_string.rfind(']')+1]
 
     # Conversion json
     data = json.loads(data_string)
 
     # Lecture json
-    list_token = []
+    list_base = []
     list_ponderation = []
     for dual in data:
-        list_token.append(dual[0])
+        list_base.append(dual[0])
         list_ponderation.append(dual[1])
-    return list_token, list_ponderation
+    return list_base, list_ponderation
 
 
-def list_user_ponderation_errors_from_list(f):
-    list_token_ponderation = list_token_ponderation_from_file(f)
+def list_user_ponderation_errors_from_list(f, token):
+
+    if token == 'True':
+        token = True
+    else:
+        token = False
+
+    list_base_ponderation = list_base_ponderation_from_file(f)
 
     list_user = []
     list_ponderation = []
     list_error = []
 
-    for i, t in enumerate(list_token_ponderation[0]):
-        try:
-            list_user.append(User.objects.get(token_id=t))
-            list_ponderation.append(list_token_ponderation[1][i])
-        except ObjectDoesNotExist:
-            list_error.append([t, list_token_ponderation[1][i]])
+    for i, b in enumerate(list_base_ponderation[0]):
 
-    return list_user, list_ponderation, list_error, list_token_ponderation
+        # Si le fichier contient des numéros de jetons
+        if token is True:
+            try:
+                list_user.append(User.objects.get(token_id=b))
+                list_ponderation.append(list_base_ponderation[1][i])
+            except ObjectDoesNotExist:
+                list_error.append([b, list_base_ponderation[1][i]])
+
+        # Si le fichier contient des usernames
+        else:
+            try:
+                list_user.append(User.objects.get(username=b))
+                list_ponderation.append(list_base_ponderation[1][i])
+            except ObjectDoesNotExist:
+                list_error.append([b, list_base_ponderation[1][i]])
+
+    return list_user, list_ponderation, list_error, list_base_ponderation
 
 
-class DownloadCsvUserView(FormView):
-    form_class = DownloadCsvUserForm
-    template_name = 'finances/shared_event_download_csv_user.html'
-    success_url = '/auth/login'
+def worksheet_write_line(workbook, worksheet, data, bold=False, init_column=0, init_row=0):
+    """
+    Ecrit dans worksheet une ligne par i dans data.
+    Par exemple :
+    data = [[user1, 1], [user2, 2]]
+    Ecrit deux lignes [user1, 1] et [user2, 2] dans deux colonnes.
+    Procède à l'autofit
+    :param workbook: class workboot de xlsxwriter
+    :param data: liste de lignes
+    :param worksheet: class worksheet de xlsxwriter
+    :param bold: Si vrai, les lignes sont en gras
+    :param init_column: index où commencer à écrire
+    :param init_row: index où commencer à écrire
+    """
 
-    def form_valid(self, form):
-        # Variables
-        se = SharedEvent.objects.get(pk=self.request.GET.get('se_pk', self.request.POST.get('se_pk')))
-        list_year_result = []
-        for i in range(0, len(list_year())):
-            if form.cleaned_data["field_year_%s" % i] is True:
-                list_year_result.append(list_year()[i])
-        max_width = [0, 0, 0]  # Taille maximale des colonnes, pour simuler l'AutoFit des colonnes
+    col = init_column
+    row = init_row
+    max_width = [len('Nom Prénom'), len('Bucque'), len('Username'), len('Pondération')]
 
-        # Création d'un fichier XLS
+    for line in data:
+        # Ecriture de la ligne
+        worksheet.write_row(row, col, line, workbook.add_format({'bold': bold}))
+        row += 1
+        # Recherche de la taille max pour autofit
+        for i, c in enumerate(line):
+            try:
+                if len(str(c)) > max_width[i]:
+                    max_width[i] = len(str(c))
+            except TypeError:  # Cas où ce n'est pas un élément convertissable en string
+                pass
+
+    # Application de l'autofit
+    for i in range(0, len(max_width)):
+        worksheet.set_column(i, i, max_width[i]+2)
+
+
+def workboot_init(workbook_name, macro=None, button_caption=None):
+    """
+    Initialise le fichier Excel, avec ou sans macro (une macro max)
+    :param workbook_name: string, nom à appliquer au fichier xl
+    :param macro: string, nom de la macro à appliquer
+    :param button_caption, string, valeur du bouton à lier à la macro
+    :return workbook, worksheet
+    """
+
+    # Cas où une macro est ajouté, fichier xlxm
+    if macro is not None:
         response = HttpResponse(content_type='text/xlsm')
-        response['Content-Disposition'] = 'attachment; filename="' + se.__str__() + '.xlsm"'
-
+        response['Content-Disposition'] = 'attachment; filename="' + workbook_name + '.xlsm"'
         workbook = xlsxwriter.Workbook(response, {'in_memory': True})  # Stocké dans la RAM
-        workbook.add_vba_project('vbaProject.bin')  # Ajout de macros
+        workbook.add_vba_project('vbaProject.bin')  # Ajout de la macro
+        worksheet = workbook.add_worksheet()
+        print(len(button_caption))
+        worksheet.insert_button('F3', {'macro': macro,  # Ajout d'un bouton pour la macro
+                                       'caption': button_caption,
+                                       'width': len(button_caption)*10,
+                                       'height': 30})
+    # Cas où pas de macro, fichier xlsx
+    else:
+        response = HttpResponse(content_type='text/xlsx')
+        response['Content-Disposition'] = 'attachment; filename="' + workbook_name + '.xlsx"'
+        workbook = xlsxwriter.Workbook(response, {'in_memory': True})  # Stocké dans la RAM
         worksheet = workbook.add_worksheet()
 
-        # Création des noms relié aux feuilles (pour éviter les conflits en cas de différentes versions d'Excel)
-        workbook.set_vba_name('ThisWorkbook')
-        worksheet.set_vba_name('Feuil1')
+    # Set des noms du workbook et de la sheet
+    # Doit être les mêmes que sur la macro, s'il y en a une. Permet d'éviter les problèmes des différentes versions.
+    workbook.set_vba_name('ThisWorkbook')
+    worksheet.set_vba_name('Feuil1')
 
-        # Insertion du bouton de macro
-        worksheet.insert_button('E3', {'macro': 'Feuil1.XLSM_to_JSON',
-                                       'caption': 'Press Me',
-                                       'width': 80,
-                                       'height': 30})
+    return workbook, worksheet, response
 
-        bold_format = workbook.add_format({'bold': True})
-        worksheet.write_row('A1', ['Nom prénom', 'Bucque', 'Fam\'ss', 'Participation'], bold_format)
-
-        row = 1
-        col = 0
-        for u in User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=9)).order_by(
-                'last_name'):
-            worksheet.write_row(row, col,
-                [u.last_name + ' ' + u.first_name, u.surname, u.username])
-            row += 1
-
-            # Recherche de la taille maximale des colonnes 0 et 1
-            if len(u.last_name + ' ' + u.first_name) > max_width[0]:
-                max_width[0] = len(u.last_name + ' ' + u.first_name)
-            if len(u.surname) > max_width[1]:
-                max_width[1] = len(u.surname)
-            if len(u.username) > max_width[2]:
-                max_width[2] = len(u.username)
-
-        # Simulation d'AutoFit, ajustement des colonnes 0 et 1 à la taille la plus grande
-        worksheet.set_column(0, 0, max_width[0])
-        worksheet.set_column(1, 1, max_width[1])
-        worksheet.set_column(2, 2, max_width[2])
-        worksheet.set_column(3, 3, len('Participations'))
-
-        workbook.close()
-
-        return response
-
-    def get_form_kwargs(self):
-        kwargs = super(DownloadCsvUserView, self).get_form_kwargs()
-        kwargs['list_year'] = list_year()
-        return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super(DownloadCsvUserView, self).get_context_data(**kwargs)
-        context['se'] = SharedEvent.objects.get(pk=self.request.GET.get('se_pk', self.request.POST.get('se_pk')))
-        return context

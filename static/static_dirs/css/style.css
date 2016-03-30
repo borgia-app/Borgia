@@ -241,6 +241,10 @@ img {
 
 a { text-decoration: none; }
 
+.s {
+    text-decoration: underline;
+}
+
 h1,
 h2,
 h3,
