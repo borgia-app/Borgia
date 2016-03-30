@@ -395,48 +395,6 @@ def shared_event_registration(request):
     return redirect('/finances/shared_event/list')
 
 
-class SharedEventUpdateView(FormNextView):
-    form_class = SharedEventUpdateForm
-    template_name = 'finances/shared_event_update.html'
-    success_url = '/auth/login'
-
-    def form_valid(self, form):
-
-        se = SharedEvent.objects.get(pk=self.request.POST.get('pk'))
-        # TODO: ajouter un champ de selection de ce que contient le fichier (token ou username)
-        lists = list_user_ponderation_errors_from_list(self.request.FILES['file'], True)
-
-        # Ajout des participants avec leur pondération
-        for u in lists[0]:
-            se.participants.add(u)
-        se.set_ponderation(lists[1])
-        se.save()
-
-        # Ajout des informations prix et factures
-        se.price = form.cleaned_data['price']
-        se.bills = form.cleaned_data['bills']
-        se.save()
-
-        # Paiement par les participants (et erreurs ou non)
-        se.pay(self.request.user, User.objects.get(username='AE_ENSAM'), form.cleaned_data['managing_errors'], lists[2])
-
-        return super(SharedEventUpdateView, self).form_valid(form)
-
-    def get_initial(self):
-        initial = super(SharedEventUpdateView, self).get_initial()
-        se = SharedEvent.objects.get(pk=self.request.GET.get('pk', self.request.POST.get('pk')))
-        if se.price is not None:
-            initial['price'] = se.price
-        if se.bills is not None:
-            initial['bills'] = se.bills
-        return initial
-
-    def get_context_data(self, *args, **kwargs):
-        context = super(SharedEventUpdateView, self).get_context_data(**kwargs)
-        context['pk'] = self.request.GET.get('pk')
-        return context
-
-
 class SharedEventManageListView(FormView):
     form_class = SharedEventManageListForm
     template_name = 'finances/shared_event_manage_list.html'
@@ -585,6 +543,7 @@ class SharedEventManageView(View):
             'order_by': 'last_name',
             'done': se.done,
             'payment_error': payment_error,
+            'next': request.GET.get('next')
         }
 
         return render(request, self.template_name, context)
@@ -721,6 +680,7 @@ class SharedEventManageView(View):
             'state': state,
             'order_by': order_by,
             'done': se.done,
+            'next': request.POST.get('next'),
         }
 
         return render(request, 'finances/shared_event_manage.html', context)

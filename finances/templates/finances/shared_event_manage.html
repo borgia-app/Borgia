@@ -10,6 +10,7 @@
                 <input type='hidden' name='action' value='update'>
                 <input type=hidden name="state" value="{{ state }}" />
                 <input type=hidden name="order_by" value="{{ order_by }}" />
+                <input type=hidden name="next" value="{{ next }}" />
                 {{ update_form }}
                 <input type='submit' value='Mettre à jour'>
             </form>
@@ -22,6 +23,7 @@
                 <input type='hidden' name='action' value='upload_json'>
                 <input type=hidden name="state" value="{{ state }}" />
                 <input type=hidden name="order_by" value="{{ order_by }}" />
+                <input type=hidden name="next" value="{{ next }}" />
                 {{ upload_json_form }}
                 <input type='submit' value='Upload'>
             </form>
@@ -46,16 +48,17 @@
                 <input type='hidden' name='action' value='download_xlsx'>
                 <input type=hidden name="state" value="{{ state }}" />
                 <input type=hidden name="order_by" value="{{ order_by }}" />
+                <input type=hidden name="next" value="{{ next }}" />
                 <input type="submit" value="Télécharger le fichier"/>
             </form>
             <hr/>
         </div>
         {% if perms.finances.proceed_payment_sharedevent %}
             <div class="row">
-            <h3 class="s">Paiement</h3>
-            {{ payment_error }}
-            Etat : {{ done }}    {% if done == False %}<a href="{% url 'url_proceed_payment_shared_event' pk=pk %}"><input type="button" value="Procéder au paiement"></a>{% endif %}
-            <hr/>
+                <h3 class="s">Paiement</h3>
+                {{ payment_error }}
+                Etat : {{ done }}    {% if done == False %}<a href="{% url 'url_proceed_payment_shared_event' pk=pk %}"><input type="button" value="Procéder au paiement"></a>{% endif %}
+                <hr/>
             </div>
         {% endif %}
         <div class="row">
@@ -65,6 +68,7 @@
                 <input type='hidden' name='action' value='list_user'>
                 <input type=hidden name="state" value="{{ state }}" />
                 <input type=hidden name="order_by" value="{{ order_by }}" />
+                <input type=hidden name="next" value="{{ next }}" />
                 <p>{{ list_user_form.state.label }} : {{ list_user_form.state }}  {{ list_user_form.order_by.label }} : {{ list_user_form.order_by }} <input type='submit' value='Lister'></p>
             </form>
             <form action='{% url 'url_manage_shared_event' pk=pk %}#table_users' method='post'>
@@ -72,6 +76,7 @@
                 <input type='hidden' name='action' value='add_user'>
                 <input type=hidden name="state" value="{{ state }}" />
                 <input type=hidden name="order_by" value="{{ order_by }}" />
+                <input type=hidden name="next" value="{{ next }}" />
                 {{ add_user_form.username.error_messages }} {{ add_user_form.state.error_messages }} {{ add_user_form.ponderation.error_messages }}
                 <p>{{ add_user_form.username.label }} : {{ add_user_form.username }} {{ add_user_form.state }} <span id="ponderation">{{ add_user_form.ponderation.label }} : {{ add_user_form.ponderation }}</span> <input type='submit' value='Ajouter'></p>
             </form>
@@ -117,7 +122,7 @@
             </table>
         </div>
         <div class="row">
-            <p><a class="s" href="{% url 'url_list_shared_event' %}">Retour à la liste</a></p>
+            <p><a class="s" href="{{ next }}">Retour à la liste</a></p>
         </div>
     </div>
 

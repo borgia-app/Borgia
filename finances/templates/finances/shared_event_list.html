@@ -32,7 +32,7 @@
                         </td>
                         <td>
                             {% if user == e.manager %}
-                                <a href="{% url 'url_manage_shared_event' pk=e.pk %}">Gérer</a>
+                                <a href="{% url 'url_manage_shared_event' pk=e.pk %}?next=/finances/shared_event/list/">Gérer</a>
                             {% endif %}
                         </td>
                     </tr>
