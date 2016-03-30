@@ -515,6 +515,11 @@ class SharedEventManageView(View):
         state = ''
         query_user = []
         initial_list_user_form = {}
+        payment_error = ''
+
+        # Vérification de la permission
+        if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
+            raise PermissionDenied
 
         # Si on impose un state directement en GET (en venant d'un lien remove par exemple)
         if self.request.GET.get('state') is not None:
@@ -556,6 +561,9 @@ class SharedEventManageView(View):
             'bills': se.bills,
         }
 
+        if request.GET.get('payment_error') == 'True':
+            payment_error = 'Veuillez renseigner le prix de l\'événement ! '
+
         # Création des forms
         list_user_form = SharedEventManageUserListForm(prefix='list_user_form', initial=initial_list_user_form)
         update_form = SharedEventManageUpdateForm(prefix='update_form', initial=initial_update_form)
@@ -576,6 +584,7 @@ class SharedEventManageView(View):
             'state': state,
             'order_by': 'last_name',
             'done': se.done,
+            'payment_error': payment_error,
         }
 
         return render(request, self.template_name, context)
@@ -720,6 +729,8 @@ class SharedEventManageView(View):
 # Autres
 def remove_participant_se(request, pk):
     se = SharedEvent.objects.get(pk=pk)
+    if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
+        raise PermissionDenied
     try:
         user_pk = request.GET.get('user_pk')
         if user_pk == 'ALL':
@@ -734,6 +745,8 @@ def remove_participant_se(request, pk):
 
 def remove_registered_se(request, pk):
     se = SharedEvent.objects.get(pk=pk)
+    if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
+        raise PermissionDenied
     try:
         user_pk = request.GET.get('user_pk')
         if user_pk == 'ALL':
@@ -750,8 +763,13 @@ def remove_registered_se(request, pk):
 
 def proceed_payment_se(request, pk):
     se = SharedEvent.objects.get(pk=pk)
-    se.pay(request.user, User.objects.get(username='AE_ENSAM'))
-    return redirect('/finances/shared_event/manage/' + str(se.pk))
+    if se.done is True:
+        raise PermissionDenied
+    if se.price is not None:
+        se.pay(request.user, User.objects.get(username='AE_ENSAM'))
+        return redirect('/finances/shared_event/manage/' + str(se.pk))
+    else:
+        return redirect('/finances/shared_event/manage/' + str(se.pk) + '/?payment_error=True')
 
 
 def list_base_ponderation_from_file(f):

@@ -53,6 +53,7 @@
         {% if perms.finances.proceed_payment_sharedevent %}
             <div class="row">
             <h3 class="s">Paiement</h3>
+            {{ payment_error }}
             Etat : {{ done }}    {% if done == False %}<a href="{% url 'url_proceed_payment_shared_event' pk=pk %}"><input type="button" value="Procéder au paiement"></a>{% endif %}
             <hr/>
             </div>
