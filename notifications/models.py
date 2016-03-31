@@ -7,7 +7,9 @@ from django.utils.timezone import now
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib import messages
+from django.core.exceptions import ObjectDoesNotExist
 
+from users.models import User
 
 # Table d'archivage des notifications?
 
@@ -29,6 +31,18 @@ class Notification(models.Model):
 
     # Attributs
 
+    # Catégorie : catégorie de la notification (admin, argent, etc)
+
+    CATEGORY_CHOICES = (
+        ('ADMIN', 'admin'),
+        ('FUNDS', 'funds'),
+        ('FOYER', 'foyer'),
+        ('AUBERGE', 'auberge'),
+        ('OTHER', 'other'),
+    )
+
+    category = models.CharField(choices=CATEGORY_CHOICES, max_length=10, default='OTHER')
+
     # type : correspond aux types de messages (par défaut, ceux proposés par middleware message)
 
     TYPE_CHOICES = (
@@ -39,7 +53,7 @@ class Notification(models.Model):
         ('ERROR', 'error'),
     )
 
-    type = models.CharField(choices=TYPE_CHOICES, max_length=10, default="INFO")
+    type = models.CharField(choices=TYPE_CHOICES, max_length=10, default='INFO')
 
     # actor : l'objet qui réalise l'action.
     actor_type = models.ForeignKey(ContentType, related_name='notification_actor', on_delete=models.CASCADE) # la notification est supprimée si l'actor est supprimé
@@ -108,8 +122,7 @@ def get_undisplayed_notifications_for_user(request):
         else:
             messages.add_message(request, messages.INFO, "Il n'y a pas de nouvelles notifications pour toi " + request.user.first_name)
 
-
-    except:
+    except ObjectDoesNotExist:
         messages.add_message(request, messages.INFO, "Il y a un problème avec les notifications! Signale le à un admin! ")
 
     return ""  # Nécessaire sinon retourne un beau none dans le html
@@ -118,17 +131,30 @@ def get_undisplayed_notifications_for_user(request):
 
 # Application Shops
 
+
+def determine_notification_category(product):
+
+    if product.product_base.shop.name == 'Foyer':
+        category = 'FOYER'
+    elif product.product_base.shop.name == 'Auberge':
+        category = 'AUBERGE'
+    else:
+        category = 'OTHER'
+
+    return category
+
 # CRUD shop
 
 
-def shop_creation_notify_success_to_user(request, shop):
     """
+    def shop_creation_notify_success_to_user(request, shop):
+    """"""
     Crée une notification de succès à destination de l'user qui a créé le shop
 
     :param request:
     :param shop:
     :return: nothing
-    """
+    """"""
     Notification.objects.create(type="SUCCESS",
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
@@ -140,13 +166,13 @@ def shop_creation_notify_success_to_user(request, shop):
 
 
 def shop_updating_notify_success_to_user(request, shop):
-    """
+    """"""
     Crée une notification de succès à destination de l'user qui a modifié le shop
 
     :param request:
     :param shop:
     :return: nothing
-    """
+    """"""
     Notification.objects.create(type="SUCCESS",
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
@@ -158,14 +184,14 @@ def shop_updating_notify_success_to_user(request, shop):
 
 
 def shop_deletion_notify_success_to_user(request, shop, shop_name):
-    """
+    """"""
     Crée une notification de succès à destination de l'user qui a supprimé le shop
 
     :param request:
     :param shop:
     :param shop_name:
     :return:
-    """
+    """"""
     Notification.objects.create(type="SUCCESS",
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
@@ -174,11 +200,11 @@ def shop_deletion_notify_success_to_user(request, shop, shop_name):
                                 action_medium_id=shop.pk,
                                 action_medium_type=ContentType.objects.get(app_label='shops', model='shop')
                                 )
-
+"""
 # CRUD SingleProduct
 
 
-def single_product_creation_notify_success_to_user(request, single_product):
+def single_product_creation_notify_success_to_user_and_admins(request, single_product):
     """
     Crée une notification de succès à destination de l'user qui a créé le produit unitaire
 
@@ -186,7 +212,9 @@ def single_product_creation_notify_success_to_user(request, single_product):
     :param single_product:
     :return: nothing
     """
-    Notification.objects.create(type="SUCCESS",
+
+    Notification.objects.create(category=determine_notification_category(single_product),
+                                type="SUCCESS",
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
                                 verb="a créé le produit unitaire",
@@ -195,15 +223,26 @@ def single_product_creation_notify_success_to_user(request, single_product):
                                 action_medium_type=ContentType.objects.get(app_label='shops', model='singleproduct')
                                 )
 
+    for user in User.objects.filter(groups__in={1, 2}):
 
-def single_product_updating_notify_success_to_user(request, single_product):
-    """
+        Notification.objects.create(category='ADMIN',
+                                    type="SUCCESS",
+                                    actor_id=request.user.pk,
+                                    actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                    verb="a créé le produit unitaire",
+                                    target_user=user,
+                                    action_medium_id=single_product.pk,
+                                    action_medium_type=ContentType.objects.get(app_label='shops', model='singleproduct')
+                                    )
+
+"""def single_product_updating_notify_success_to_user(request, single_product):
+    """"""
     Crée une notification de succès à destination de l'user qui a modifié le produit unitaire
 
     :param request:
     :param single_product
     :return: nothing
-    """
+    """"""
     Notification.objects.create(type="SUCCESS",
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
@@ -215,14 +254,14 @@ def single_product_updating_notify_success_to_user(request, single_product):
 
 
 def single_product_deletion_notify_success_to_user(request, single_product, single_product_name):
-    """
+    """"""
     Crée une notification de succès à destination de l'user qui a supprimé le produit unitaire
 
     :param request:
     :param single_product
     :param single_product_name
     :return: nothing
-    """
+    """"""
     Notification.objects.create(type="SUCCESS",
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
@@ -231,11 +270,11 @@ def single_product_deletion_notify_success_to_user(request, single_product, sing
                                 action_medium_id=single_product.pk,
                                 action_medium_type=ContentType.objects.get(app_label='shops', model='singleproduct')
                                 )
-
+"""
 # CRUD Container
 
 
-def container_creation_notify_success_to_user(request, container):
+def container_creation_notify_success_to_user_and_admins(request, container):
     """
     Crée une notification de succès à destination de l'user qui a créé le container
 
@@ -243,7 +282,9 @@ def container_creation_notify_success_to_user(request, container):
     :param container
     :return: nothing
     """
-    Notification.objects.create(type="SUCCESS",
+
+    Notification.objects.create(category=determine_notification_category(container),  # Permet de déterminer si notification foyer, auberge, ... CF. fonction
+                                type="SUCCESS",
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
                                 verb="a créé le container",
@@ -252,15 +293,27 @@ def container_creation_notify_success_to_user(request, container):
                                 action_medium_type=ContentType.objects.get(app_label='shops', model='container')
                                 )
 
+    for user in User.objects.filter(groups__in={1, 2}):
 
-def container_updating_notify_success_to_user(request, container):
-    """
+        Notification.objects.create(category='ADMIN',
+                                    type="SUCCESS",
+                                    actor_id=request.user.pk,
+                                    actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                    verb="a créé le container",
+                                    target_user=user,
+                                    action_medium_id=container.pk,
+                                    action_medium_type=ContentType.objects.get(app_label='shops', model='container')
+                                    )
+
+
+"""def container_updating_notify_success_to_user(request, container):
+    """"""
     Crée une notification de succès à destination de l'user qui a modifié le container
 
     :param request:
     :param container
     :return: nothing
-    """
+    """"""
     Notification.objects.create(type="SUCCESS",
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
@@ -272,14 +325,14 @@ def container_updating_notify_success_to_user(request, container):
 
 
 def container_deletion_notify_success_to_user(request, container, container_name):
-    """
+    """"""
     Crée une notification de succès à destination de l'user qui a supprimé le container
 
     :param request:
     :param container
     :param container_name
     :return: nothing
-    """
+    """"""
     Notification.objects.create(type="SUCCESS",
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
@@ -288,4 +341,195 @@ def container_deletion_notify_success_to_user(request, container, container_name
                                 action_medium_id=container.pk,
                                 action_medium_type=ContentType.objects.get(app_label='shops', model='singleproduct')
                                 )
+    """
 
+# CRUD Product Unit
+
+
+def product_unit_creation_notify_success_to_user_and_admins(request, product_unit):
+    """
+
+    :param request:
+    :param product_unit:
+    :return: nothing
+    """
+
+    Notification.objects.create(category='OTHER',
+                                type="SUCCESS",
+                                actor_id=request.user.pk,
+                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                verb="a créé l'unité de produit",
+                                target_user=request.user,
+                                action_medium_id=product_unit.pk,
+                                action_medium_type=ContentType.objects.get(app_label='shops', model='productunit')
+                                )
+
+    for user in User.objects.filter(groups__in={1, 2}):
+
+        Notification.objects.create(category='ADMIN',
+                                    type="SUCCESS",
+                                    actor_id=request.user.pk,
+                                    actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                    verb="a créé l'unité de produit",
+                                    target_user=user,
+                                    action_medium_id=product_unit.pk,
+                                    action_medium_type=ContentType.objects.get(app_label='shops', model='productunit')
+                                    )
+
+
+def product_unit_updating_notify_success_to_user_and_admins(request, product_unit):
+    """
+
+    :param request:
+    :param product_unit:
+    :return: nothing
+    """
+
+    Notification.objects.create(category='OTHER',
+                                type="SUCCESS",
+                                actor_id=request.user.pk,
+                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                verb="a mis à jour l'unité de produit",
+                                target_user=request.user,
+                                action_medium_id=product_unit.pk,
+                                action_medium_type=ContentType.objects.get(app_label='shops', model='productunit')
+                                )
+
+    for user in User.objects.filter(groups__in={1, 2}):
+
+        Notification.objects.create(category='ADMIN',
+                                    type="SUCCESS",
+                                    actor_id=request.user.pk,
+                                    actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                    verb="a mis à jour l'unité de produit",
+                                    target_user=user,
+                                    action_medium_id=product_unit.pk,
+                                    action_medium_type=ContentType.objects.get(app_label='shops', model='productunit')
+                                    )
+
+
+def product_unit_deletion_notify_success_to_user_and_admins(request, product_unit):
+    """
+
+    :param request:
+    :param product_unit:
+    :return: nothing
+    """
+
+    Notification.objects.create(category='OTHER',
+                                type="SUCCESS",
+                                actor_id=request.user.pk,
+                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                verb="a supprimé l'unité de produit " + product_unit.name,
+                                target_user=request.user,
+                                action_medium_id=product_unit.pk,
+                                action_medium_type=ContentType.objects.get(app_label='shops', model='productunit')
+                                )
+
+    for user in User.objects.filter(groups__in={1, 2}):
+
+        Notification.objects.create(category='ADMIN',
+                                    type="SUCCESS",
+                                    actor_id=request.user.pk,
+                                    actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                    verb="a supprimé l'unité de produit " + product_unit.name,
+                                    target_user=user,
+                                    action_medium_id=product_unit.pk,
+                                    action_medium_type=ContentType.objects.get(app_label='shops', model='productunit')
+                                    )
+
+
+# CRUD Product Base
+
+
+def product_base_creation_notify_success_to_user_and_admins(request, product_base):
+    """
+
+    :param request:
+    :param product_base:
+    :return: nothing
+    """
+
+    Notification.objects.create(category='OTHER',
+                                type="SUCCESS",
+                                actor_id=request.user.pk,
+                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                verb="a créé la base produit",
+                                target_user=request.user,
+                                action_medium_id=product_base.pk,
+                                action_medium_type=ContentType.objects.get(app_label='shops', model='productbase')
+                                )
+
+    for user in User.objects.filter(groups__in={1, 2}):
+
+        Notification.objects.create(category='ADMIN',
+                                    type="SUCCESS",
+                                    actor_id=request.user.pk,
+                                    actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                    verb="a créé la base produit",
+                                    target_user=user,
+                                    action_medium_id=product_base.pk,
+                                    action_medium_type=ContentType.objects.get(app_label='shops', model='productbase')
+                                    )
+
+
+def product_base_updating_notify_success_to_user_and_admins(request, product_base):
+    """
+
+    :param request:
+    :param product_base:
+    :return: nothing
+    """
+
+    Notification.objects.create(category='OTHER',
+                                type="SUCCESS",
+                                actor_id=request.user.pk,
+                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                verb="a mis à jour la base produit",
+                                target_user=request.user,
+                                action_medium_id=product_base.pk,
+                                action_medium_type=ContentType.objects.get(app_label='shops', model='productbase')
+                                )
+
+    for user in User.objects.filter(groups__in={1, 2}):
+
+        Notification.objects.create(category='ADMIN',
+                                    type="SUCCESS",
+                                    actor_id=request.user.pk,
+                                    actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                    verb="a mis à jour la base produit",
+                                    target_user=user,
+                                    action_medium_id=product_base.pk,
+                                    action_medium_type=ContentType.objects.get(app_label='shops', model='productbase')
+                                    )
+
+
+def product_base_deletion_notify_success_to_user_and_admins(request, product_base):
+    """
+
+    :param request:
+    :param product_base:
+    :return: nothing
+    """
+
+    Notification.objects.create(category='OTHER',
+                                type="SUCCESS",
+                                actor_id=request.user.pk,
+                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                verb="a supprimé la base produit " + product_base.name,
+                                target_user=request.user,
+                                action_medium_id=product_base.pk,
+                                action_medium_type=ContentType.objects.get(app_label='shops', model='productbase')
+                                )
+
+    for user in User.objects.filter(groups__in={1, 2}):
+
+        Notification.objects.create(category='ADMIN',
+                                    type="SUCCESS",
+                                    actor_id=request.user.pk,
+                                    actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                    verb="a supprimé la base produit " + product_base.name,
+                                    target_user=user,
+                                    action_medium_id=product_base.pk,
+                                    action_medium_type=ContentType.objects.get(app_label='shops', model='productbase')
+                                    )

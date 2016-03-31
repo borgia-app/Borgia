@@ -6,20 +6,22 @@
     <table>
         <tr>
             <th>Id</th>
+            <th>Catégorie</th>
+            <th>Type</th>
             <th>Acteur</th>
             <th>Verbe</th>
             <th>Utilisateur cible</th>
-            <th>Mettre à jour</th>
-            <th>Supprimer</th>
+            <th>Date</th>
         </tr>
         {% for e in object_list %}
             <tr>
-                <td><a href="/notifications/retrieve/{{ e.pk }}" >{{ e.pk }}</a></td>
+                <td>{{ e.pk }}</td>
+                <td>{{ e.category }}</td>
+                <td>{{ e.type }}</td>
                 <td>{{ e.actor_object }}</td>
                 <td>{{ e.verb }}</td>
                 <td>{{ e.target_user }}</td>
-                <td><a href="/notifications/update/{{ e.pk }}" >Mettre à jour</a></td>
-                <td><a href="/notifications/delete/{{ e.pk }}" >Supprimer</a></td>
+                <td>{{ e.creation_datetime }}</td>
             </tr>
         {% endfor %}
     </table>

@@ -1,8 +1,6 @@
 {% load staticfiles %}
 {% load notifications_extra %}
 
-{{ request|filter_get_undisplayed_notifications_for_user }}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,7 +21,7 @@
                 <li><a class="icon icon-home" href="{% url 'url_profile' %}"></a></li>
                 {% if user.is_authenticated %}
                     <li><a class="icon icon-people" href=""></a></li>
-                    <li><a class="icon icon-notification" href=""></a></li>
+                    <li><a class="icon icon-notification" href="{% url 'url_list_notification' %}"></a></li>
                     <li><a class="icon icon-settings" href=""></a></li>
                     <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
                     <li><a class="icon icon-admin" href=""></a></li>
@@ -43,6 +41,7 @@
 </nav>
 
 {% if user.is_authenticated %}
+    {{ request|filter_get_undisplayed_notifications_for_user }}
     {% if messages %}
         <br />
         <div class="container">

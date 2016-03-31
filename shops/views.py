@@ -472,9 +472,7 @@ class SingleProductCreateMultipleView(FormNextView):
             # Notifications
 
             # Notification success de la création du produit unitaire
-            single_product_creation_notify_success_to_user(self.request, sp)
-
-            # TODO : Notification warning de la création aux admins
+            single_product_creation_notify_success_to_user_and_admins(self.request, sp)
 
         # Mise à jour du prix du product base
         form.cleaned_data['product_base'].set_calculated_price_mean()
@@ -526,8 +524,8 @@ class ContainerCreateMultipleView(FormNextView):
             # Notifications
 
             # Notification success de la création
-            container_creation_notify_success_to_user(self.request, c)
-            # TODO : Notification warning de la création aux admins
+            container_creation_notify_success_to_user_and_admins(self.request, c)
+
 
         # Mise à jour du prix du product base
         form.cleaned_data['product_base'].set_calculated_price_mean()
@@ -561,38 +559,43 @@ class ContainerListView(ListView):
     queryset = Container.objects.all()
 
 
-class ProductUnitCreateView(SuccessMessageMixin, CreateNextView):
+class ProductUnitCreateView(CreateNextView):
     model = ProductUnit
     fields = ['name', 'description', 'unit', 'type']
     template_name = 'shops/productunit_create.html'
     success_url = '/shops/productunit/'
-    success_message = "%(name)s was created successfully"
 
+    def get_success_url(self):
+        # Notifications
+        product_unit_creation_notify_success_to_user_and_admins(self.request, self.object)  # Notification
+        return force_text(self.request.POST.get('next', self.success_url))
 
 class ProductUnitRetrieveView(DetailView):
     model = ProductUnit
     template_name = 'shops/productunit_retrieve.html'
 
 
-class ProductUnitUpdateView(SuccessMessageMixin, UpdateNextView):
+class ProductUnitUpdateView(UpdateNextView):
     model = ProductUnit
     fields = ['name', 'description', 'unit', 'type']
     template_name = 'shops/productunit_update.html'
     success_url = '/shops/productunit/'
-    success_message = "%(name)s was updated successfully"
+
+    def get_success_url(self):
+        # Notifications
+        product_unit_updating_notify_success_to_user_and_admins(self.request, self.object)
+        return force_text(self.request.GET.get('next', self.success_url))
 
 
-class ProductUnitDeleteView(SuccessMessageMixin, DeleteView):
+class ProductUnitDeleteView(DeleteView):
     model = ProductUnit
     template_name = 'shops/productunit_delete.html'
     success_url = '/shops/productunit/'
-    success_message = "Product unit was delated successfully"
 
-    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
-    # https://code.djangoproject.com/ticket/21926
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super(ProductUnitDeleteView, self).delete(request, *args, **kwargs)
+    def get_success_url(self):
+        # Notifications
+        product_unit_deletion_notify_success_to_user_and_admins(self.request, self.get_object())
+        return force_text(self.request.GET.get('next', self.success_url))
 
 
 class ProductUnitListView(ListView):
@@ -607,6 +610,11 @@ class ProductBaseCreateView(CreateNextView):
     template_name = 'shops/productbase_create.html'
     success_url = '/shops/productbase/'
 
+    def get_success_url(self):
+        # Notifications
+        product_base_creation_notify_success_to_user_and_admins(self.request, self.object)
+        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
+
     def get_initial(self):
         initial = super(ProductBaseCreateView, self).get_initial()
         initial['type'] = 'container'
@@ -618,25 +626,28 @@ class ProductBaseRetrieveView(DetailView):
     template_name = 'shops/productbase_retrieve.html'
 
 
-class ProductBaseUpdateView(SuccessMessageMixin, UpdateNextView):
+class ProductBaseUpdateView(UpdateNextView):
     model = ProductBase
     fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price', 'quantity', 'product_unit']
     template_name = 'shops/productbase_update.html'
     success_url = '/shops/productbase/'
-    success_message = "%(name)s was updated successfully"
+
+    def get_success_url(self):
+        # Notifications
+        product_base_updating_notify_success_to_user_and_admins(self.request, self.object)
+        return force_text(self.request.GET.get('next', self.success_url))
 
 
-class ProductBaseDeleteView(SuccessMessageMixin, DeleteView):
-    model = ProductUnit
+class ProductBaseDeleteView(DeleteView):
+    model = ProductBase
     template_name = 'shops/productbase_delete.html'
     success_url = '/shops/productbase/'
     success_message = "Product base was delated successfully"
 
-    # Nécessaire en attendant que SuccessMessageMixin fonctionne avec DeleteView
-    # https://code.djangoproject.com/ticket/21926
-    def delete(self, request, *args, **kwargs):
-        messages.success(self.request, self.success_message)
-        return super(ProductBaseDeleteView, self).delete(request, *args, **kwargs)
+    def get_success_url(self):
+        # Notifications
+        product_base_deletion_notify_success_to_user_and_admins(self.request, self.get_object())
+        return force_text(self.request.GET.get('next', self.success_url))
 
 
 class ProductBaseListView(ListView):
@@ -660,7 +671,7 @@ class ProductCreateMultipleView(FormNextView):
                                                    place=form.cleaned_data['place'],
                                                    product_base=form.cleaned_data['product_base'])
                 # Notifications
-                container_creation_notify_success_to_user(self.request, product)
+                container_creation_notify_success_to_user_and_admins(self.request, product)
 
         elif form.cleaned_data['product_base'].type == 'single_product':
             for i in range(0, form.cleaned_data['quantity']):
@@ -670,7 +681,7 @@ class ProductCreateMultipleView(FormNextView):
                                                        place=form.cleaned_data['place'],
                                                        product_base=form.cleaned_data['product_base'])
                 # Notifications
-                container_creation_notify_success_to_user(self.request, product)
+                single_product_creation_notify_success_to_user_and_admins(self.request, product)
 
         # Mise à jour du prix du product base
         form.cleaned_data['product_base'].set_calculated_price_mean()
