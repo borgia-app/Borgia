@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.forms import ModelForm
-from django.forms.widgets import PasswordInput
+from django.forms.widgets import PasswordInput, DateInput
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now
 
@@ -30,33 +30,6 @@ class TransfertCreateForm(forms.Form):
             raise forms.ValidationError('Transfert vers soi-même impossible')
 
 
-class ChequeCreateForm(ModelForm):
-    class Meta:
-        model = Cheque
-        fields = ['amount', 'is_cashed', 'signature_date', 'cheque_number', 'sender', 'bank_account', 'recipient']
-
-    bank_account = forms.ModelChoiceField(label='Compte en banque', queryset=BankAccount.objects.all())
-
-
-class CreationLydiaForm(ModelForm):
-    class Meta:
-        model = Lydia
-        fields = ['sender_user_id', 'recipient_user_id', 'date_operation', 'id_from_lydia', 'amount',
-                  'banked', 'date_banked']
-
-    sender_user_id = forms.ModelChoiceField(label='Impulseur', queryset=User.objects.all().order_by('last_name'))
-    recipient_user_id = forms.ModelChoiceField(label='Destinataire', queryset=User.objects.all().order_by('last_name'))
-
-
-class CreationCashForm(ModelForm):
-    class Meta:
-        model = Cash
-        fields = ['sender', 'recipient', 'amount']
-
-    giver = forms.ModelChoiceField(label='Donnateur', queryset=User.objects.all().order_by('last_name'))
-    recipient = forms.ModelChoiceField(label='Receveur', queryset=User.objects.all().order_by('last_name'))
-
-
 class SupplyUnitedForm(forms.Form):
 
     # Général
@@ -66,7 +39,7 @@ class SupplyUnitedForm(forms.Form):
     amount = forms.FloatField(label='Montant (€)')
     sender = forms.CharField(label='Payeur')
     unique_number = forms.CharField(label='Numéro unique', required=False)  # Inutile pour Cash
-    signature_date = forms.DateField(label='Date de signature', required=False)  # Inutile pour Cash
+    signature_date = forms.DateField(label='Date de signature', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))  # Inutile pour Cash
     bank_account = forms.ModelChoiceField(label='Compte bancaire', queryset=BankAccount.objects.all(),
                                           required=False)  # Inutile pour Cash et Lydia
 
@@ -97,7 +70,7 @@ class SupplyChequeForm(forms.Form):
     sender = forms.ModelChoiceField(label='Payeur', queryset=User.objects.all())
     bank_account = forms.ModelChoiceField(label='Compte bancaire', queryset=BankAccount.objects.all())
     cheque_number = forms.CharField(label='Numéro unique', max_length=7)
-    signature_date = forms.DateField(label='Date de signature')
+    signature_date = forms.DateField(label='Date de signature', widget=forms.DateInput(attrs={'class': 'datepicker'}))
 
     # Gestionnaire - opérateur
     operator_username = forms.CharField(label='Gestionnaire')
@@ -147,7 +120,7 @@ class SupplyLydiaForm(forms.Form):
     amount = forms.FloatField(label='Montant')
     sender = forms.ModelChoiceField(label='Payeur', queryset=User.objects.all())
     id_from_lydia = forms.CharField(label='Numéro unique Lydia')
-    date_operation = forms.DateField(label='Date d\'opération')
+    date_operation = forms.DateField(label='Date d\'opération', widget=forms.DateInput(attrs={'class': 'datepicker'}))
 
     # Gestionnaire - opérateur
     operator_username = forms.CharField(label='Gestionnaire')
@@ -169,8 +142,8 @@ class SupplyLydiaForm(forms.Form):
 
 class RetrieveMoneyForm(forms.Form):
 
-    date_begin = forms.DateField(label='Date de début')
-    date_end = forms.DateField(label='Date de fin')
+    date_begin = forms.DateField(label='Date de début', widget=forms.DateInput(attrs={'class': 'datepicker'}))
+    date_end = forms.DateField(label='Date de fin', widget=forms.DateInput(attrs={'class': 'datepicker'}))
     order_by = forms.ChoiceField(label='Tri par',
                                  choices=(('operator', 'Opérateur'), ('date', 'Date'), ('amount', 'Montant')))
 
@@ -189,7 +162,7 @@ class RetrieveMoneyForm(forms.Form):
 
 class SharedEventCreateForm(forms.Form):
     description = forms.CharField(label='Description')
-    date = forms.DateField(label='Date de l\'événement')
+    date = forms.DateField(label='Date de l\'événement', widget=forms.DateInput(attrs={'class': 'datepicker'}))
     price = forms.DecimalField(label='Prix total (vide si pas encore connu)', decimal_places=2, max_digits=9,
                                required=False)
     bills = forms.CharField(label='Factures liées (vide si pas encore connu)', required=False)
@@ -219,8 +192,8 @@ class SharedEventUpdateForm(forms.Form):
 
 
 class SharedEventManageListForm(forms.Form):
-    date_begin = forms.DateField(required=False)
-    date_end = forms.DateField(required=False)
+    date_begin = forms.DateField(required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
+    date_end = forms.DateField(required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
     all = forms.BooleanField(required=False, label='Depuis toujours')
     done = forms.ChoiceField(choices=((True, 'Terminé'), (False, 'En cours'), ('both', 'Les deux')))
     order_by = forms.ChoiceField(label='Trier par', choices=(('-date', 'Date'), ('manager', 'Opérateur')))

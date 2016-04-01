@@ -171,8 +171,8 @@ class SingleProductCreateMultipleForm(forms.Form):
                                                                                                  shop=shop))
         self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter')
         self.fields['price'] = forms.FloatField(label='Prix d\'achat unitaire')
-        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat')
-        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False)
+        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat', widget=forms.DateInput(attrs={'class': 'datepicker'}))
+        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
         self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
 
 
@@ -187,8 +187,8 @@ class ContainerCreateMultipleForm(forms.Form):
                                                                  product_unit__type='fictional_money'))
         self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter')
         self.fields['price'] = forms.FloatField(label='Prix d\'achat unitaire')
-        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat')
-        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False)
+        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat', widget=forms.DateInput(attrs={'class': 'datepicker'}))
+        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
         self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
 
 
@@ -202,6 +202,6 @@ class ProductCreateMultipleForm(forms.Form):
                                                                  product_unit__type='fictional_money'))
         self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter')
         self.fields['price'] = forms.FloatField(label='Prix d\'achat unitaire')
-        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat')
-        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False)
+        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat', widget=forms.DateInput(attrs={'class': 'datepicker'}))
+        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
         self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
