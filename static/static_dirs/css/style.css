@@ -790,13 +790,19 @@ input.btn {
     width: 100%;
     background: #fff;
     color: #41444f;
+
 }
 .login-form .form-test:-moz-placeholder{color:#999;}
 .login-form .form-text::-moz-placeholder{color:#999;}
 .login-form .form-text:-ms-input-placeholder{color:#999;}
 .login-form .form-text::-webkit-input-placeholder{color:#999;}
 
-
+.login-form.large {
+    max-width: 75%;
+}
+.login-form.large .form-text {
+    font-size: 30px;
+}
 /* Edit form*/
 
 .form-edit .form-group .btn:before {
@@ -1089,4 +1095,9 @@ body{
 #wrap{
     min-height:100%;
     position: relative;
+}
+
+.centre {
+    margin-top: 50vh;
+    transform: translateY(-50%);
 }

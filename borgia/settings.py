@@ -137,6 +137,8 @@ LOGIN_EXEMPT_URLS = [
     '/finances/electrovanne/request1',
     '/finances/electrovanne/request2',
     '/finances/electrovanne/date',
+    '/foyer',
+    '/auberge',
 ]
 
 STATIC_URL = '/static/'
