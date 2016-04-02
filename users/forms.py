@@ -4,6 +4,8 @@ from users.models import User
 from django.forms.widgets import PasswordInput
 from django.core.exceptions import ObjectDoesNotExist
 
+from django.contrib.admin.widgets import FilteredSelectMultiple
+
 
 # Formulaire de creation d'un user
 class UserCreationCustomForm(forms.Form):
@@ -31,16 +33,20 @@ class UserCreationCustomForm(forms.Form):
 # Formulaire de modification d'un groupe
 class ManageGroupForm(forms.Form):
 
+    class Media:
+        js = ('/admin/jsi18n/',)
+
     def __init__(self, *args, **kwargs):
 
         possible_members = kwargs.pop('possible_members')
         possible_permissions = kwargs.pop('possible_permissions')
         super(ManageGroupForm, self).__init__(*args, **kwargs)
-
-        self.fields['members'] = forms.ModelMultipleChoiceField(label='Membres', queryset=possible_members,
+        self.fields['members'] = forms.ModelMultipleChoiceField(queryset=possible_members,
+                                                                widget=FilteredSelectMultiple('Membres', False),
                                                                 required=False)
         # Utilisation d'un custom field pour pouvoir changer l'affichage des permissions
-        self.fields['permissions'] = ModelMultipleChoiceCustomField(label='Permissions', queryset=possible_permissions,
+        self.fields['permissions'] = forms.ModelMultipleChoiceField(queryset=possible_permissions,
+                                                                    widget=FilteredSelectMultiple('Permissions', False),
                                                                     required=False)
 
 

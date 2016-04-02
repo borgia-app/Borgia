@@ -1,15 +1,25 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container50">
+
+    {% load static %}
+    <script type="text/javascript" src="{% static 'admin/js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'admin/css/widgets.css' %}" />
+    {{ form.media }}
+
+    <div class="container">
         <div class="row"><h2>Gestion du groupe {{ group_name }}</h2></div>
         <div class="row">
             <form action= "{% url 'url_manage_group' %}" method="post">
                 {% csrf_token %}
-                {{ form.as_p }}
+                <div class="container">
+                    {{ form.members }}
+                    {{ form.permissions }}
+                </div>
                 <input type=hidden name="group_pk" value="{{ group_pk }}" />
                 <input type=hidden name="next" value="{{ next }}" />
-                <input type="submit" value="Submit"/>
+                <input type="submit" value="Valider"/>
             </form>
         </div>
     </div>

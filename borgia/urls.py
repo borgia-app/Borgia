@@ -13,6 +13,7 @@ urlpatterns = [
     url(r'^finances/', include('finances.urls')),
     url(r'^shops/', include('shops.urls')),
     url(r'notifications/', include('notifications.urls')),
+    url(r'^admin/jsi18n/$', 'django.views.i18n.javascript_catalog', name='jsi18n_catalog'),
 
     # Authentification
     url(r'^$', login, {'template_name': 'login.html'}, name='url_login'),  # A rediriger vers /auth/login

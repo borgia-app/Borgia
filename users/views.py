@@ -60,7 +60,7 @@ class ManageGroupView(FormNextView):
             kwgars['possible_permissions'] = Permission.objects.all()
 
         # Dans tous les cas, les membres possibles sont tous les membres de l'association
-        kwgars['possible_members'] = User.objects.all()
+        kwgars['possible_members'] = User.objects.all().exclude(groups=Group.objects.get(name='Membres spéciaux'))
         return kwgars
 
     def get_initial(self):
