@@ -51,6 +51,7 @@ def electrovanne_request2(request):
         container = Container.objects.get(place='tireuse %s' % request.GET.get('tireuse_pk'))
         user = user_from_token_tap(request.GET.get('token_pk'))
         quantity = request.GET.get('quantity')
+        data = []
 
         # Création Sale
         sale = Sale.objects.create(date=datetime.now(),
@@ -81,11 +82,12 @@ def electrovanne_request2(request):
 
         # Paiement par le client
         sale.payment.debit_balance.all()[0].set_movement()
-
-        return HttpResponse('200')
+        data.append(200)
+        return HttpResponse(json.dumps(data))
 
     except ObjectDoesNotExist:
-        return HttpResponse('0')
+        data.append(0)
+        return HttpResponse(json.dumps(data))
 
 
 def electrovanne_date(request):
