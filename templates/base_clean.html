@@ -1,8 +1,6 @@
 {% load staticfiles %}
 {% load notifications_extra %}
 
-{{ request|filter_get_undisplayed_notifications_for_user }}
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -17,6 +15,7 @@
 <body>
 
 {% if user.is_authenticated %}
+    {{ request|filter_get_undisplayed_notifications_for_user }}
     {% if messages %}
         <br />
         <div class="container">

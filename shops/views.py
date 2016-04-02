@@ -133,7 +133,7 @@ class PurchaseAuberge(FormView):
                 # On les prends dans l'ordre du queryset (on s'en fiche) des objets non vendus bien sûr
                 # Le prix de vente est le prix du base product à l'instant de la vente
                 for i in range(0, e[0]):
-                    sp = SingleProduct.objects.filter(product_base=e[1])[0]
+                    sp = SingleProduct.objects.filter(product_base=e[1], is_sold=False)[i]
                     sp.save()
                     sp.is_sold = True
                     sp.sale = sale
@@ -365,7 +365,7 @@ class PurchaseFoyer(FormView):
                 # On les prends dans l'ordre du queryset (on s'en fiche) des objets non vendus bien sûr
                 # Le prix de vente est le prix du base product à l'instant de la vente
                 for i in range(0, e[0]):
-                    sp = SingleProduct.objects.filter(product_base=e[1])[0]
+                    sp = SingleProduct.objects.filter(product_base=e[1], is_sold=False)[i]
                     sp.save()
                     sp.is_sold = True
                     sp.sale = sale
