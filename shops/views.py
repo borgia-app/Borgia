@@ -181,7 +181,7 @@ class PurchaseAuberge(FormView):
         sale.payment.debit_balance.all()[0].set_movement()
 
         return render(self.request, 'shops/sale_validation.html', {'sale': sale,
-                                                                   'next': '/shops/auberge/consumption/'})
+                                                                   'next': '/auberge'})
 
 
 def workboard_auberge(request):
@@ -190,7 +190,7 @@ def workboard_auberge(request):
 
 
 # FOYER
-class ReplacementActiveKeyView(FormView):
+class ReplacementActiveKeyView(FormNextView):
     template_name = 'shops/replacement_active_keg.html'
     form_class = ReplacementActiveKegForm
     success_url = '/auth/login'
@@ -431,7 +431,7 @@ class PurchaseFoyer(FormView):
 
         # Affichage de la purchase au client
         return render(self.request, 'shops/sale_validation.html', {'sale': sale,
-                                                                   'next': '/auth/login?next=/shops/foyer/consumption'})
+                                                                   'next': '/foyer'})
 
 
 def workboard_foyer(request):
