@@ -45,13 +45,12 @@ def electrovanne_request1(request):
 
 
 def electrovanne_request2(request):
-
+    data = []
     try:
         # Variables (id inutile pour nous)
         container = Container.objects.get(place='tireuse %s' % request.GET.get('tireuse_pk'))
         user = user_from_token_tap(request.GET.get('token_pk'))
         quantity = request.GET.get('quantity')
-        data = []
 
         # Création Sale
         sale = Sale.objects.create(date=datetime.now(),
