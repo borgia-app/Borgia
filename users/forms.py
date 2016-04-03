@@ -56,7 +56,7 @@ class ModelMultipleChoiceCustomField(forms.ModelMultipleChoiceField):
 
 
 class LinkTokenUserForm(forms.Form):
-    username = forms.CharField(label='User à lié')
+    username = forms.CharField(label='User à lier', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
     token_id = forms.CharField(label='Numéro unique du jeton')
 
     def clean(self):

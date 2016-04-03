@@ -2,7 +2,7 @@
 from django import forms
 from django.contrib.auth import authenticate
 from django.forms import ModelForm
-from django.forms.widgets import PasswordInput, DateInput
+from django.forms.widgets import PasswordInput, DateInput, TextInput
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now
 
@@ -11,7 +11,8 @@ from finances.models import Cheque, Cash, Lydia, BankAccount, SharedEvent
 
 
 class TransfertCreateForm(forms.Form):
-    recipient = forms.CharField(label='Receveur', max_length=255)
+    recipient = forms.CharField(label='Receveur', max_length=255,
+                                widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
     amount = forms.IntegerField(label='Montant')
 
     def __init__(self, **kwargs):
@@ -37,14 +38,14 @@ class SupplyUnitedForm(forms.Form):
     type = forms.ChoiceField(label='Type', choices=(('cash', 'Espèces'), ('cheque', 'Chèque'), ('lydia', 'Lydia')))
     # Informations générales
     amount = forms.FloatField(label='Montant (€)')
-    sender = forms.CharField(label='Payeur')
+    sender = forms.CharField(label='Payeur', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
     unique_number = forms.CharField(label='Numéro unique', required=False)  # Inutile pour Cash
     signature_date = forms.DateField(label='Date de signature', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))  # Inutile pour Cash
     bank_account = forms.ModelChoiceField(label='Compte bancaire', queryset=BankAccount.objects.all(),
                                           required=False)  # Inutile pour Cash et Lydia
 
     # Gestionnaire - opérateur
-    operator_username = forms.CharField(label='Gestionnaire')
+    operator_username = forms.CharField(label='Gestionnaire', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
     operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
 
     def clean(self):
@@ -61,83 +62,6 @@ class SupplyUnitedForm(forms.Form):
             elif authenticate(username=operator_username, password=operator_password).has_perm('users.supply_account') is False:
                 raise forms.ValidationError('Erreur de permission')
         return super(SupplyUnitedForm, self).clean()
-
-
-class SupplyChequeForm(forms.Form):
-
-    # Chèque
-    amount = forms.FloatField(label='Montant')
-    sender = forms.ModelChoiceField(label='Payeur', queryset=User.objects.all())
-    bank_account = forms.ModelChoiceField(label='Compte bancaire', queryset=BankAccount.objects.all())
-    cheque_number = forms.CharField(label='Numéro unique', max_length=7)
-    signature_date = forms.DateField(label='Date de signature', widget=forms.DateInput(attrs={'class': 'datepicker'}))
-
-    # Gestionnaire - opérateur
-    operator_username = forms.CharField(label='Gestionnaire')
-    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
-
-    def clean(self):
-
-        cleaned_data = super(SupplyChequeForm, self).clean()
-        operator_username = cleaned_data['operator_username']
-        operator_password = cleaned_data['operator_password']
-
-        # Essaye d'authentification seulement si les deux champs sont valides
-        if operator_password and operator_password:
-            # Cas d'échec d'authentification
-            if authenticate(username=operator_username, password=operator_password) is None:
-                raise forms.ValidationError('Echec d\'authentification')
-        return super(SupplyChequeForm, self).clean()
-
-
-class SupplyCashForm(forms.Form):
-
-    # Cash
-    amount = forms.FloatField(label='Montant')
-    sender = forms.ModelChoiceField(label='Payeur', queryset=User.objects.all())
-
-    # Gestionnaire - opérateur
-    operator_username = forms.CharField(label='Gestionnaire')
-    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
-
-    def clean(self):
-
-        cleaned_data = super(SupplyCashForm, self).clean()
-        operator_username = cleaned_data['operator_username']
-        operator_password = cleaned_data['operator_password']
-
-        # Essaye d'authentification seulement si les deux champs sont valides
-        if operator_password and operator_password:
-            # Cas d'échec d'authentification
-            if authenticate(username=operator_username, password=operator_password) is None:
-                raise forms.ValidationError('Echec d\'authentification')
-        return super(SupplyCashForm, self).clean()
-
-
-class SupplyLydiaForm(forms.Form):
-
-    # Lydia
-    amount = forms.FloatField(label='Montant')
-    sender = forms.ModelChoiceField(label='Payeur', queryset=User.objects.all())
-    id_from_lydia = forms.CharField(label='Numéro unique Lydia')
-    date_operation = forms.DateField(label='Date d\'opération', widget=forms.DateInput(attrs={'class': 'datepicker'}))
-
-    # Gestionnaire - opérateur
-    operator_username = forms.CharField(label='Gestionnaire')
-    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
-
-    def clean(self):
-
-        cleaned_data = super(SupplyLydiaForm, self).clean()
-        operator_username = cleaned_data['operator_username']
-        operator_password = cleaned_data['operator_password']
-
-        # Essaye d'authentification seulement si les deux champs sont valides
-        if operator_password and operator_password:
-            # Cas d'échec d'authentification
-            if authenticate(username=operator_username, password=operator_password) is None:
-                raise forms.ValidationError('Echec d\'authentification')
-        return super(SupplyLydiaForm, self).clean()
 
 
 class RetrieveMoneyForm(forms.Form):
@@ -217,7 +141,7 @@ class SharedEventManageUpdateForm(forms.Form):
 
 
 class SharedEventManageAddForm(forms.Form):
-    username = forms.CharField(label='Username')
+    username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
     state = forms.ChoiceField(choices=(('registered', 'Inscrit'), ('participant', 'Participant')))
     ponderation = forms.IntegerField(label='Pondération', min_value=0, required=False)
 

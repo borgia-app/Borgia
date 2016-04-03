@@ -21,11 +21,11 @@ class ReplacementActiveKegForm(forms.Form):
 class PurchaseAubergeForm(forms.Form):
 
     # Gestionnaire - opérateur
-    operator_username = forms.CharField(label='Gestionnaire')
+    operator_username = forms.CharField(label='Gestionnaire', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
     operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
 
     # Client
-    client_username = forms.CharField(label='Client')
+    client_username = forms.CharField(label='Client', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
 
     def __init__(self, *args, **kwargs):
 

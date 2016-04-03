@@ -7,6 +7,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core import serializers
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
+import json
 
 from users.models import User, list_year
 from borgia.models import FormNextView, CreateNextView, UpdateNextView
@@ -108,11 +109,10 @@ class ManageGroupView(FormNextView):
 
 
 def username_from_username_part(request):
-    data = ''
-    if len(request.GET.get('keywords')) >= 3:
-        for e in User.objects.filter(username__startswith=request.GET.get('keywords')):
-            data += e.username + '|'
-    return HttpResponse(data)
+    data = []
+    for e in User.objects.filter(family=request.GET.get('keywords')):
+        data.append(e.username)
+    return HttpResponse(json.dumps(data))
 
 
 def profile_view(request):
