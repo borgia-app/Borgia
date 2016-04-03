@@ -48,6 +48,9 @@ urlpatterns = [
     # Supply
     url(r'^supply/united/$', permission_required('users.supply_account', raise_exception=True)
     (SupplyUnitedView.as_view()), name='url_supply_united'),
+    url(r'^supply/lydia/self/$', SupplyLydiaSelfView.as_view(), name='url_supply_lydia_self'),
+    url(r'^supply/lydia/self/confirm$', SupplyLydiaSelfConfirmView.as_view(), name='url_supply_lydia_self_confirm'),
+    url(r'^supply/lydia/self/callback$', supply_lydia_self_callback, name='url_supply_lydia_self_callback'),
 
     # Transfert
     url(r'^transfert/create/$', permission_required('finances.add_transfert', raise_exception=True)

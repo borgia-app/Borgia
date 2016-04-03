@@ -269,6 +269,51 @@ class SupplyUnitedView(FormView):
         return context
 
 
+class SupplyLydiaSelfView(View):
+    template_name = 'finances/lydia_self.html'
+
+    def get(self, request, *args, **kwargs):
+
+        # Variables
+        vendor_token = '56eaf745bd592622063936'
+        vendor_api = '56eaf745be1eb116231751'
+        order_ref = 123
+        confirm_url = 'borgia.iresam.org/finances/supply/lydia/self/confirm'
+        callback_url = 'borgia.iresam.org/finances/supply/lydia/self/callback'
+        message = 'Rechargement compte Borgia'
+
+        # Carte bancaire de test
+        # 8000580000005599
+        # CVV: 123
+        # 'expiration : 09/15
+        # banque(3DS): FRATEST5
+        return render(request, self.template_name, locals())
+
+
+class SupplyLydiaSelfConfirmView(View):
+    def get(self, request, *args, **kwargs):
+        transaction = self.request.GET.get('transaction')
+        order = self.request.GET.get('order_ref')
+        return render(request, 'finances/lydia_self_confirm.html', locals())
+
+
+def supply_lydia_self_callback(request):
+    # tests de lecture
+    # pour déterminer comment sont envoyés les informations
+    file = open("log_lydia.txt", "w")
+    file.write('\ndate : \n' + str(now()))
+    file.write('\nrequest - get\n')
+    file.write(request.GET.__str__())
+    file.write('\nrequest - post\n')
+    file.write(request.POST.__str__())
+    file.write('\nrequest - body\n')
+    file.write(str(request.body))
+    file.write('\nrequest\n')
+    file.write(request.__str__())
+    file.write(str(request.read()))
+    file.close()
+
+
 def bank_account_from_user(request):
     data = serializers.serialize('xml',
                                  BankAccount.objects.filter(owner=User.objects.get(
