@@ -8,7 +8,7 @@ from django.contrib.auth.models import Permission
 from django.db.models import Q
 from django.contrib.auth.models import Group
 from datetime import datetime
-import json, time, re, csv, xlsxwriter
+import json, time, re, csv, xlsxwriter, operator, hashlib
 from operator import itemgetter
 
 from finances.forms import *
@@ -16,6 +16,7 @@ from finances.models import *
 from shops.models import Container
 from users.models import user_from_token_tap, list_year
 from borgia.models import FormNextView, CreateNextView, UpdateNextView
+from django.conf import settings
 
 
 def electrovanne_request1(request):
@@ -278,8 +279,8 @@ class SupplyLydiaSelfView(View):
         vendor_token = '56eaf745bd592622063936'
         vendor_api = '56eaf745be1eb116231751'
         order_ref = 123
-        confirm_url = 'borgia.iresam.org/finances/supply/lydia/self/confirm'
-        callback_url = 'borgia.iresam.org/finances/supply/lydia/self/callback'
+        confirm_url = 'http://borgia.iresam.org/finances/supply/lydia/self/confirm'
+        callback_url = 'http://borgia.iresam.org/finances/supply/lydia/self/callback'
         message = 'Rechargement compte Borgia'
 
         # Carte bancaire de test
@@ -300,17 +301,17 @@ class SupplyLydiaSelfConfirmView(View):
 def supply_lydia_self_callback(request):
     # tests de lecture
     # pour déterminer comment sont envoyés les informations
+    params = json.loads(request.body)
+    sig = params['sig']
+    del params['sig']
     file = open("log_lydia.txt", "w")
     file.write('\ndate : \n' + str(now()))
-    file.write('\nrequest - get\n')
-    file.write(request.GET.__str__())
-    file.write('\nrequest - post\n')
-    file.write(request.POST.__str__())
-    file.write('\nrequest - body\n')
-    file.write(str(request.body))
-    file.write('\nrequest\n')
-    file.write(request.__str__())
-    file.write(str(request.read()))
+    file.write('\n')
+    file.write(params.__str__())
+    file.write('\n')
+    file.write(verify_lydia_token(params, sig))
+    file.write('\n')
+    file.write(sig)
     file.close()
 
 
@@ -925,3 +926,22 @@ def workboot_init(workbook_name, macro=None, button_caption=None):
 
     return workbook, worksheet, response
 
+
+def verify_lydia_token(params, sig):
+    """
+    :param params: dictionnaire des paramètres, hors sig
+    """
+    # Génération de l'hypothétique signature
+    h_sig_table = []
+    h_sig = ''
+    # Trie par ordre alphabétique des noms de paramètres
+    sorted_params = sorted(params.items(), key=operator.itemgetter(0))
+    # Concaténation des paramètres et des valeurs
+    for p in sorted_params:
+        h_sig_table += p[0] + '=' + p[1]
+    h_sig = '&'.join(h_sig_table)
+    # Ajout du token api
+    h_sig += '&' + settings.LYDIA_API_TOKEN
+    # Hash md5
+    h_sig = hashlib.md5(bytearray(h_sig, 'utf-8'))
+    return h_sig.hexdigest()

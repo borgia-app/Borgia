@@ -139,6 +139,7 @@ LOGIN_EXEMPT_URLS = [
     '/finances/electrovanne/date',
     '/foyer',
     '/auberge',
+    '/finances/supply/lydia/self/callback',
 ]
 
 STATIC_URL = '/static/'
@@ -152,3 +153,4 @@ STATICFILES_DIRS = (
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'media')
 MEDIA_URL = '/media/'
 
+LYDIA_API_TOKEN = '56eaf745be1eb116231751'
