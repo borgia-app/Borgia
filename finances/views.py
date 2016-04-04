@@ -301,18 +301,17 @@ class SupplyLydiaSelfConfirmView(View):
 def supply_lydia_self_callback(request):
     # tests de lecture
     # pour déterminer comment sont envoyés les informations
-    params = json.loads(request.body)
+
+    params = json.loads(str(request.body))
     sig = params['sig']
     del params['sig']
+    
     file = open("log_lydia.txt", "w")
     file.write('\ndate : \n' + str(now()))
-    file.write('\n')
-    file.write(params.__str__())
-    file.write('\n')
-    file.write(verify_lydia_token(params, sig))
-    file.write('\n')
-    file.write(sig)
     file.close()
+
+    response = '200' + params.__str__()
+    return HttpResponse(response)
 
 
 def bank_account_from_user(request):
@@ -929,19 +928,23 @@ def workboot_init(workbook_name, macro=None, button_caption=None):
 
 def verify_lydia_token(params, sig):
     """
+    Fonction qui renvoie Vrai si la requete est valide:
+    Elle convient bien à l'algorithme de Lydia
+    On peut donc conclure qu'elle provient de l'API Lydia
     :param params: dictionnaire des paramètres, hors sig
+    :param sig: hash (en hex) calculé par l'api lydia avec le token api
     """
+    # FONCTION TESTEE ET VALIDEE AVEC REQUESTBIN
     # Génération de l'hypothétique signature
     h_sig_table = []
-    h_sig = ''
     # Trie par ordre alphabétique des noms de paramètres
     sorted_params = sorted(params.items(), key=operator.itemgetter(0))
     # Concaténation des paramètres et des valeurs
     for p in sorted_params:
-        h_sig_table += p[0] + '=' + p[1]
+        h_sig_table.append(p[0] + '=' + p[1])
     h_sig = '&'.join(h_sig_table)
     # Ajout du token api
-    h_sig += '&' + settings.LYDIA_API_TOKEN
+    h_sig += '&' + settings.LYDIA_API_TOKEN  # Ce token est privé
     # Hash md5
-    h_sig = hashlib.md5(bytearray(h_sig, 'utf-8'))
-    return h_sig.hexdigest()
+    h_sig_hash = hashlib.md5(h_sig.encode())
+    return h_sig_hash.hexdigest() == sig
