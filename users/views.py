@@ -7,6 +7,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core import serializers
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
+from notifications.models import  *
 import json
 
 from users.models import User, list_year
@@ -144,6 +145,9 @@ class UserCreateView(FormNextView):
         else:
             user.groups.add(Group.objects.get(name='Gadz\'Arts'))
         user.save()
+
+        # Notifications
+        user_creation_notify_success_to_user_and_admins(self.request, user)
 
         return super(UserCreateView, self).form_valid(form)
 

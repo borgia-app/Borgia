@@ -533,3 +533,42 @@ def product_base_deletion_notify_success_to_user_and_admins(request, product_bas
                                     action_medium_id=product_base.pk,
                                     action_medium_type=ContentType.objects.get(app_label='shops', model='productbase')
                                     )
+
+# Application Users
+
+# CRUD User
+
+
+def user_creation_notify_success_to_user_and_admins(request, user):
+    """
+    """
+    Notification.objects.create(category='OTHER',
+                                type="SUCCESS",
+                                actor_id=request.user.pk,
+                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                verb="a créé l'utilisateur",
+                                target_user=request.user,
+                                action_medium_id=user.pk,
+                                action_medium_type=ContentType.objects.get(app_label='users', model='user')
+                                )
+
+    Notification.objects.create(category='OTHER',
+                                type="INFO",
+                                actor_id=request.user.pk,
+                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                verb="a créé ton compte. Bienvenue",
+                                target_user=user,
+                                action_medium_id=user.pk,
+                                action_medium_type=ContentType.objects.get(app_label='users', model='user')
+                                )
+
+    for admin in User.objects.filter(groups__in={1, 2}):
+        Notification.objects.create(category='ADMIN',
+                                    type="INFO",
+                                    actor_id=request.user.pk,
+                                    actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                    verb="a créé l'utilisateur",
+                                    target_user=admin,
+                                    action_medium_id=user.pk,
+                                    action_medium_type=ContentType.objects.get(app_label='users', model='user'),
+                                    )
