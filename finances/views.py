@@ -302,15 +302,15 @@ def supply_lydia_self_callback(request):
     # tests de lecture
     # pour déterminer comment sont envoyés les informations
 
-    params = json.loads(str(request.body))
-    sig = params['sig']
-    del params['sig']
+    params = str(request.body)
+    #sig = params['sig']
+    #del params['sig']
     
     file = open("log_lydia.txt", "w")
     file.write('\ndate : \n' + str(now()))
     file.close()
 
-    response = '200' + params.__str__()
+    response = '200' + params
     return HttpResponse(response)
 
 
