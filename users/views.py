@@ -191,6 +191,8 @@ class UserUpdateView(UpdateView):
         return context
 
     def get_success_url(self):
+        # Notifications
+        user_updating_notify_success_to_user_and_admins(self.request, self.object)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
 
@@ -206,6 +208,8 @@ class UserDeleteView(SuccessMessageMixin, DeleteView):
         return context
 
     def get_success_url(self):
+        # Notifications
+        user_deletion_notify_success_to_user_and_admins(self.request, self.get_object())
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
 

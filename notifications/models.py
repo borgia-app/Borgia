@@ -547,7 +547,7 @@ def user_creation_notify_success_to_user_and_admins(request, user):
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
                                 verb="a créé l'utilisateur",
-                                target_user=request.user,
+                                target_user=request.user, # Ici on notifie l'user qui crée
                                 action_medium_id=user.pk,
                                 action_medium_type=ContentType.objects.get(app_label='users', model='user')
                                 )
@@ -557,7 +557,7 @@ def user_creation_notify_success_to_user_and_admins(request, user):
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
                                 verb="a créé ton compte. Bienvenue",
-                                target_user=user,
+                                target_user=user, # Ici on notifie l'user créé
                                 action_medium_id=user.pk,
                                 action_medium_type=ContentType.objects.get(app_label='users', model='user')
                                 )
@@ -568,6 +568,66 @@ def user_creation_notify_success_to_user_and_admins(request, user):
                                     actor_id=request.user.pk,
                                     actor_type=ContentType.objects.get(app_label='users', model='user'),
                                     verb="a créé l'utilisateur",
+                                    target_user=admin,
+                                    action_medium_id=user.pk,
+                                    action_medium_type=ContentType.objects.get(app_label='users', model='user'),
+                                    )
+
+
+def user_updating_notify_success_to_user_and_admins(request, user):
+    """
+    """
+    Notification.objects.create(category='OTHER',
+                                type="SUCCESS",
+                                actor_id=request.user.pk,
+                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                verb="a modifié les informations de l'utilisateur",
+                                target_user=request.user,  # Ici on notifie l'user qui modifie
+                                action_medium_id=user.pk,
+                                action_medium_type=ContentType.objects.get(app_label='users', model='user')
+                                )
+
+    Notification.objects.create(category='OTHER',
+                                type="INFO",
+                                actor_id=request.user.pk,
+                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                verb="a modifié les informations de ton compte",
+                                target_user=user,  # Ici on notifie l'user modifié
+                                action_medium_id=user.pk,
+                                action_medium_type=ContentType.objects.get(app_label='users', model='user')
+                                )
+
+    for admin in User.objects.filter(groups__in={1, 2}):
+        Notification.objects.create(category='ADMIN',
+                                    type="INFO",
+                                    actor_id=request.user.pk,
+                                    actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                    verb="a modifié les informations de l'utilisateur",
+                                    target_user=admin,
+                                    action_medium_id=user.pk,
+                                    action_medium_type=ContentType.objects.get(app_label='users', model='user'),
+                                    )
+
+
+def user_deletion_notify_success_to_user_and_admins(request, user):
+    """
+    """
+    Notification.objects.create(category='OTHER',
+                                type="SUCCESS",
+                                actor_id=request.user.pk,
+                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                verb="a supprimé l'utilisateur",
+                                target_user=request.user,  # Ici on notifie l'user qui modifie
+                                action_medium_id=user.pk,
+                                action_medium_type=ContentType.objects.get(app_label='users', model='user')
+                                )
+
+    for admin in User.objects.filter(groups__in={1, 2}):
+        Notification.objects.create(category='ADMIN',
+                                    type="INFO",
+                                    actor_id=request.user.pk,
+                                    actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                    verb="a supprimé l'utilisateur",
                                     target_user=admin,
                                     action_medium_id=user.pk,
                                     action_medium_type=ContentType.objects.get(app_label='users', model='user'),

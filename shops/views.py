@@ -646,7 +646,7 @@ class ProductBaseDeleteView(DeleteView):
 
     def get_success_url(self):
         # Notifications
-        product_base_deletion_notify_success_to_user_and_admins(self.request, self.get_object())
+        product_base_deletion_notify_success_to_user_and_admins(self.request, self.get_object()) # self.get_object nécessaire pour obtenir l'objet manipulé
         return force_text(self.request.GET.get('next', self.success_url))
 
 
