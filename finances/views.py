@@ -9,7 +9,8 @@ from django.db.models import Q
 from django.contrib.auth.models import Group
 from datetime import datetime
 import json, time, re, csv, xlsxwriter, operator, hashlib
-from operator import itemgetter
+from django.views.decorators.csrf import csrf_exempt
+
 
 from finances.forms import *
 from finances.models import *
@@ -298,19 +299,14 @@ class SupplyLydiaSelfConfirmView(View):
         return render(request, 'finances/lydia_self_confirm.html', locals())
 
 
+@csrf_exempt
 def supply_lydia_self_callback(request):
     # tests de lecture
-    # pour déterminer comment sont envoyés les informations
-
-    params = str(request.body)
-    #sig = params['sig']
-    #del params['sig']
-    
+    # pour d  terminer comment sont envoy  s les informations
     file = open("log_lydia.txt", "w")
-    file.write('\ndate : \n' + str(now()))
+    response = '200' + str(request.body)
+    file.write(response)
     file.close()
-
-    response = '200' + params
     return HttpResponse(response)
 
 

@@ -5,9 +5,9 @@
     <script type="text/javascript" src="{% static 'SDK_JS_JQUERY/LYDIASDK.js' %}"></script>
     {% url 'url_supply_lydia_self_confirm' %}
     <div class="container50">
-        <p><label for="amount">Montant à recharger</label>
+        <p><label for="amount">Montant    recharger</label>
             <input id="amount" type="number"/></p>
-        <p><label for="tel_number">Numéro de téléphone</label>
+        <p><label for="tel_number">Num  ro de t  l  phone</label>
             <input id="tel_number" type="text"/></p>
         <div id="lydiaButton">Pay with Lydia</div>
     </div>
@@ -16,32 +16,16 @@
         // initialisation
         $(document).ready(function() {
             $('#lydiaButton').payWithLYDIA({
-                amount: '0', // amount in €
+                amount: '10.5', // amount in  ^
                 vendor_token: '{{ vendor_token }}',
                 recipient: '0711223344', //cellphone or email of your client. Leave it like this for your test
                 message : '{{ message }}', //object of the payment
-                env: 'test', // palo: prod ?
+                env: 'test',
                 render : '<img src="https://lydia-app.com/assets/img/paymentbutton.png" />', //button image
                 // The client will be redirect to this URL after the payment
-                browser_success_url : "{{ confirm_url }}?order_ref={{ order_ref }}",
+                browser_success_url : "http://borgia.iresam.org/finances/supply/lydia/self/confirm",
                 // This URL will be called by our server after the payment so you can update the order on your database
-                confirm_url : "{{ callback_url }}?order_ref={{ order_ref }}"
-            });
-        });
-
-        // Mise à jour
-        $('#amount').change(function() {
-            $('#lydiaButton').payWithLYDIA({
-                amount: document.getElementById("amount").value, // amount in €
-                vendor_token: '{{ vendor_token }}',
-                recipient: '0711223344', //cellphone or email of your client. Leave it like this for your test
-                message : '{{ message }}', //object of the payment
-                env: 'test', // palo: prod ?
-                render : '<img src="https://lydia-app.com/assets/img/paymentbutton.png" />', //button image
-                // The client will be redirect to this URL after the payment
-                browser_success_url : "{{ confirm_url }}?order_ref={{ order_ref }}",
-                // This URL will be called by our server after the payment so you can update the order on your database
-                confirm_url : "{{ callback_url }}?order_ref={{ order_ref }}"
+                confirm_url : "http://borgia.iresam.org/finances/supply/lydia/self/callback"
             });
         });
     </script>
