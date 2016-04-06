@@ -18,7 +18,7 @@ urlpatterns = [
     # Authentification
     url(r'^$', login, {'template_name': 'login.html'}, name='url_login'),  # A rediriger vers /auth/login
     url(r'^auth/login', login, {'template_name': 'login.html'}, name='url_login'),
-    url(r'^auth/logout', logout, {'template_name': 'logout.html', 'next_page': login}),
+    url(r'^auth/logout', logout, {'template_name': 'logout.html', 'next_page': login}, name='url_logout'),
 
     # Alias url pour PGs
     url('^(?P<organe>\w+)$', LoginPG.as_view(), name='url_login_pg')

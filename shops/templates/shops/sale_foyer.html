@@ -17,6 +17,7 @@
                         <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0</span> € = <span id="balance_after">0</span> €</span>
                     </span>
                     <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
+                    <a href="{% url 'url_logout' %}?next=/foyer">Logout</a>
                 </div>
                 <div class="two columns offset-by-ten">
                     <input type=submit value="Valider" style="display: none;">
@@ -39,6 +40,7 @@
                 <div class="row" id="div_active_keg_container">
                     <span id="div_active_keg_container_txt"></span>
                     <table>
+                        <th>Raccourci</th>
                         <th>Bière</th>
                         <th>Prix 25 cl</th>
                         <th>Nombre</th>
@@ -47,6 +49,9 @@
                         {% for e in dict_field_active_keg_container %}
                             <tr>
                                 <div class="fieldWrapper">
+                                    <td>{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                        {% endif %}</td>
                                     <td>{{ e.1.product_base.product_unit }}</td>
                                     <td><span id="selected_initial_price_active_keg_{{ e.2 }}">{{ e.1.product_base.calculated_price_usual }}</span> €</td>
                                     <td>{{ e.0 }}</td>
@@ -59,6 +64,7 @@
                 </div>
                 <div class="row" id="div_container_liquor">
                     <table>
+                        <th>Raccourci</th>
                         <th>Produit</th>
                         <th>Prix 4 cl</th>
                         <th>Nombre</th>
@@ -67,6 +73,9 @@
                         {% for e in dict_field_container_liquor %}
                             <tr>
                                 <div class="fieldWrapper">
+                                    <td>{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                        {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_liquor_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
                                     <td>{{ e.0 }}</td>
@@ -78,6 +87,7 @@
                 </div>
                 <div class="row" id="div_container_syrup">
                     <table>
+                        <th>Raccourci</th>
                         <th>Produit</th>
                         <th>Prix 4 cl</th>
                         <th>Nombre</th>
@@ -85,6 +95,9 @@
                         {% for e in dict_field_container_syrup %}
                             <tr>
                                 <div class="fieldWrapper">
+                                    <td>{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                        {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_syrup_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
                                     <td>{{ e.0 }}</td>
@@ -96,6 +109,7 @@
                 </div>
                 <div class="row" id="div_single_product">
                     <table>
+                        <th>Raccourci</th>
                         <th>Produit</th>
                         <th>Prix</th>
                         <th>Nombre</th>
@@ -104,6 +118,9 @@
                         {% for e in dict_field_single_product %}
                             <tr>
                                 <div class="fieldWrapper">
+                                    <td>{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                        {% endif %}</td>
                                     <td>{{ e.1 }}</td>
                                     <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.calculated_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
@@ -116,6 +133,7 @@
                 </div>
                 <div class="row" id="div_soft">
                     <table>
+                        <th>Raccourci</th>
                         <th>Produit</th>
                         <th>Prix 25 cl</th>
                         <th>Nombre</th>
@@ -124,6 +142,9 @@
                         {% for e in dict_field_container_soft %}
                             <tr>
                                 <div class="fieldWrapper">
+                                    <td>{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                        {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_soft_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
                                     <td>{{ e.0 }}</td>
@@ -296,32 +317,32 @@
                 fields_list[active_li][2].dispatchEvent(new Event('change'));
             }
             if (e.keyCode == 115) {
-                fields_list[active_li][2].value = Number(fields_list[active_li][2].value) + 1;
-                // erreur dans PyCharm mais fonctionnel
-                fields_list[active_li][2].dispatchEvent(new Event('change'));
-            }
-            if (e.keyCode == 116) {
                 fields_list[active_li][3].value = Number(fields_list[active_li][3].value) + 1;
                 // erreur dans PyCharm mais fonctionnel
                 fields_list[active_li][3].dispatchEvent(new Event('change'));
             }
-            if (e.keyCode == 117) {
+            if (e.keyCode == 116) {
                 fields_list[active_li][4].value = Number(fields_list[active_li][4].value) + 1;
                 // erreur dans PyCharm mais fonctionnel
                 fields_list[active_li][4].dispatchEvent(new Event('change'));
             }
-            if (e.keyCode == 118) {
+            if (e.keyCode == 117) {
                 fields_list[active_li][5].value = Number(fields_list[active_li][5].value) + 1;
                 // erreur dans PyCharm mais fonctionnel
                 fields_list[active_li][5].dispatchEvent(new Event('change'));
             }
-            if (e.keyCode == 119) {
+            if (e.keyCode == 118) {
                 fields_list[active_li][6].value = Number(fields_list[active_li][6].value) + 1;
                 // erreur dans PyCharm mais fonctionnel
                 fields_list[active_li][6].dispatchEvent(new Event('change'));
             }
-            if (e.keyCode == 120) {
+            if (e.keyCode == 119) {
                 fields_list[active_li][7].value = Number(fields_list[active_li][7].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][7].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 120) {
+                fields_list[active_li][8].value = Number(fields_list[active_li][8].value) + 1;
                 // erreur dans PyCharm mais fonctionnel
                 fields_list[active_li][8].dispatchEvent(new Event('change'));
             }
