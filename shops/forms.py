@@ -154,7 +154,6 @@ class PurchaseFoyerForm(forms.Form):
     def clean(self):
 
         # Vérification de la commande sans provision
-        print(self.request.POST.get('hidden_balance_after'))
         if float(self.request.POST.get('hidden_balance_after')) < 0:
             raise forms.ValidationError('Commande sans provision')
 

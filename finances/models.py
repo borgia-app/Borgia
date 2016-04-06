@@ -5,7 +5,7 @@ from datetime import datetime
 from django.contrib.auth import get_user_model
 import json
 
-from shops.models import SingleProduct, SingleProductFromContainer
+from shops.models import SingleProduct, SingleProductFromContainer, Container
 
 
 class Sale(models.Model):
@@ -452,3 +452,38 @@ class SharedEvent(models.Model):
             ('manage_sharedevent', 'Gérer les événements communs'),
             ('proceed_payment_sharedevent', 'Procéder au paiement des événements communs'),
         )
+
+
+def supply_self_lydia(user, recipient, amount, transaction_identifier):
+
+    container = Container.objects.get(pk=17)
+
+    # Sale
+    sale = Sale.objects.create(date=datetime.now(),
+                               sender=user,
+                               recipient=recipient,
+                               operator=user)
+    # Spfc
+    SingleProductFromContainer.objects.create(container=container,
+                                              sale=sale,
+                                              quantity=amount*100,
+                                              sale_price=amount)
+    sale.maj_amount()
+
+    # Lydia
+    lydia = Lydia.objects.create(date_operation=datetime.now(),
+                                 amount=amount,
+                                 id_from_lydia=transaction_identifier,
+                                 sender=user,
+                                 recipient=recipient)
+    # Payement
+    payment = Payment.objects.create()
+    payment.lydias.add(lydia)
+    payment.save()
+    payment.maj_amount()
+
+    sale.payment = payment
+    sale.save()
+
+    # Cr  dit
+    user.credit(amount)

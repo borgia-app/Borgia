@@ -155,3 +155,5 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'media')
 MEDIA_URL = '/media/'
 
 LYDIA_API_TOKEN = '56eaf745be1eb116231751'
+LYDIA_MIN_PRICE = 5
+LYDIA_MAX_PRICE = 500

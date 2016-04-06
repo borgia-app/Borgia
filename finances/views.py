@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, HttpResponse, force_text, redirect
+from django.shortcuts import render, HttpResponse, force_text, redirect, resolve_url
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView, View
 from django.core import serializers
@@ -8,7 +8,7 @@ from django.contrib.auth.models import Permission
 from django.db.models import Q
 from django.contrib.auth.models import Group
 from datetime import datetime
-import json, time, re, csv, xlsxwriter, operator, hashlib
+import json, time, re, csv, xlsxwriter, operator, hashlib, decimal
 from django.views.decorators.csrf import csrf_exempt
 
 
@@ -271,25 +271,28 @@ class SupplyUnitedView(FormView):
         return context
 
 
-class SupplyLydiaSelfView(View):
+class SupplyLydiaSelfView(FormView):
+    form_class = SupplyLydiaSelfForm
     template_name = 'finances/lydia_self.html'
 
-    def get(self, request, *args, **kwargs):
+    def get_form_kwargs(self):
+        kwargs = super(SupplyLydiaSelfView, self).get_form_kwargs()
+        kwargs['min_value'] = settings.LYDIA_MIN_PRICE
+        kwargs['max_value'] = settings.LYDIA_MAX_PRICE
+        return kwargs
 
-        # Variables
+    def form_valid(self, form):
+        return get_button_lydia(self.request, form.cleaned_data['amount'], form.cleaned_data['tel_number'])
+
+
+def get_button_lydia(request, amount, tel_number):
         vendor_token = '56eaf745bd592622063936'
-        vendor_api = '56eaf745be1eb116231751'
-        order_ref = 123
         confirm_url = 'http://borgia.iresam.org/finances/supply/lydia/self/confirm'
         callback_url = 'http://borgia.iresam.org/finances/supply/lydia/self/callback'
-        message = 'Rechargement compte Borgia'
-
-        # Carte bancaire de test
-        # 8000580000005599
-        # CVV: 123
-        # 'expiration : 09/15
-        # banque(3DS): FRATEST5
-        return render(request, self.template_name, locals())
+        amount = amount
+        tel_number = tel_number
+        message = "Ajout d'argent compte de" + request.user.__str__() + "Borgia AE ENSAM"
+        return render(request, 'finances/lydia_self_button.html', locals())
 
 
 class SupplyLydiaSelfConfirmView(View):
@@ -301,13 +304,43 @@ class SupplyLydiaSelfConfirmView(View):
 
 @csrf_exempt
 def supply_lydia_self_callback(request):
+
     # tests de lecture
     # pour d  terminer comment sont envoy  s les informations
-    file = open("log_lydia.txt", "w")
-    response = '200' + str(request.body)
-    file.write(response)
-    file.close()
-    return HttpResponse(response)
+
+    params_dict = raw_body_lydia_to_dict(str(request.body))
+
+    # Verification du token
+    if verify_lydia_token(params_dict) is True:
+
+        response = '200' + ' ' + params_dict.__str__()
+        file = open("log_lydia.txt", "w")
+        file.write(User.objects.get(pk=request.GET.get('user_pk')).__str__())
+        file.write(User.objects.get(username='AE_ENSAM').__str__())
+        file.write(decimal.Decimal(params_dict['amount']).__str__())
+        file.write(params_dict['transaction_identifier'])
+
+        try:
+            supply_self_lydia(user=User.objects.get(pk=request.GET.get('user_pk')),
+                              recipient=User.objects.get(username='AE_ENSAM'),
+                              amount=decimal.Decimal(params_dict['amount']),
+                              transaction_identifier=params_dict['transaction_identifier'])
+            file.write('supply')
+
+        except KeyError or ObjectDoesNotExist:
+            file.write("error")
+            file.close()
+            return HttpResponse('300')
+
+        file.close()
+        return HttpResponse('200')
+
+    else:
+        response = '403' + ' ' + params_dict.__str__()
+        file = open("log_lydia.txt", "w")
+        file.write(response)
+        file.close()
+        raise PermissionDenied
 
 
 def bank_account_from_user(request):
@@ -922,25 +955,70 @@ def workboot_init(workbook_name, macro=None, button_caption=None):
     return workbook, worksheet, response
 
 
-def verify_lydia_token(params, sig):
+def verify_lydia_token(params):
     """
     Fonction qui renvoie Vrai si la requete est valide:
-    Elle convient bien à l'algorithme de Lydia
+    Elle convient bien    l'algorithme de Lydia
     On peut donc conclure qu'elle provient de l'API Lydia
-    :param params: dictionnaire des paramètres, hors sig
-    :param sig: hash (en hex) calculé par l'api lydia avec le token api
+    :param params: dictionnaire des param  tres avec sig dedans
+    :param sig: hash (en hex) calcul   par l'api lydia avec le token api
     """
     # FONCTION TESTEE ET VALIDEE AVEC REQUESTBIN
-    # Génération de l'hypothétique signature
-    h_sig_table = []
-    # Trie par ordre alphabétique des noms de paramètres
-    sorted_params = sorted(params.items(), key=operator.itemgetter(0))
-    # Concaténation des paramètres et des valeurs
-    for p in sorted_params:
-        h_sig_table.append(p[0] + '=' + p[1])
-    h_sig = '&'.join(h_sig_table)
-    # Ajout du token api
-    h_sig += '&' + settings.LYDIA_API_TOKEN  # Ce token est privé
-    # Hash md5
-    h_sig_hash = hashlib.md5(h_sig.encode())
-    return h_sig_hash.hexdigest() == sig
+    try:
+        # G  n  ration de l'hypoth  tique signature
+        sig = params['sig']
+        del params['sig']
+        h_sig_table = []
+        # Trie par ordre alphab  tique des noms de param  tres
+        sorted_params = sorted(params.items(), key=operator.itemgetter(0))
+        # Concat  nation des param  tres et des valeurs
+        for p in sorted_params:
+            h_sig_table.append(p[0] + '=' + p[1])
+        h_sig = '&'.join(h_sig_table)
+        # Ajout du token api
+        h_sig += '&' + settings.LYDIA_API_TOKEN  # Ce token est priv
+        # Hash md5
+        h_sig_hash = hashlib.md5(h_sig.encode())
+        return h_sig_hash.hexdigest() == sig
+
+    except KeyError:
+        return False
+
+
+def raw_body_lydia_to_dict(s):
+    # Suppression des caract  res issus de la conversion bytes -> string
+    s = s[3: len(s) - 1]
+    s = s.replace('\\n', '')
+    s = s.replace('\\r', '')
+
+    # Identification token csrf et suppression des occurences
+    token_csrf = s[0: s.find('Content-Disposition: form-data;')]
+    s = s.replace(token_csrf, '')
+
+    # Identification des param  tres et des valeurs
+    # du type string : "nom_param  tres"valeur
+    params_string = []
+    sep = "Content-Disposition: form-data; name="
+    l = len(sep)
+
+    for p in range(0, s.count(sep)):
+        s = s[l: len(s)]
+        if s.find(sep):
+            params_string.append(s[0: s.find(sep) - 1])
+            s = s[s.find(sep): len(s)]
+        else:
+            params_string.append(s[0, len(s)])
+
+    # Cr  ation du dictionnaire de param  tres
+    params_dict = {}
+    for p in params_string:
+        params_dict[p[1:p.find('"', 1)]] = p[p.find('"', 1) + 1:len(p)]
+
+    # Correction pour sig
+    try:
+        params_dict['sig'] = params_dict['sig'][0: len(params_dict['sig']) - 1]
+    except KeyError:
+        pass
+
+    return params_dict
+

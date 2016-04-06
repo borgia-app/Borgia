@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+    <script type="text/javascript" src="{% static 'SDK_JS_JQUERY/LYDIASDK.js' %}"></script>
+    {{ confirm_url }}
+    {{ callback_url }}
+    {{ amount }}
+    {{ tel_number }}
+    {{ message }}
+    {{ vendor_token }}
+    <div class="container50">
+        <p><label>Montant (€) :</label> <input type="number" disabled="disabled" value="{{ amount }}"/></p>
+        <p><label>Numéro de téléphone :</label> <input type="text" disabled="disabled" value="{{ tel_number }}"/></p>
+        <p><a class="s" href="{% url 'url_supply_lydia_self' %}">Modifier</a></p>
+        <div id="lydiaButton"></div>
+    </div>
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $('#lydiaButton').payWithLYDIA({
+                amount: {{ amount }},
+                vendor_token: '{{ vendor_token }}',
+                recipient: '0711223344', //cellphone or email of your client. Leave it like this for your test
+                message : '{{ message }}', //object of the payment
+                env: 'test',
+                render : '<img src="https://lydia-app.com/assets/img/paymentbutton.png" />', //button image
+                // The client will be redirect to this URL after the payment
+                browser_success_url : "{{ confirm_url}}",
+                // This URL will be called by our server after the payment so you can update the order on your database
+                confirm_url : "{{ callback_url }}?user_pk={{ user.pk }}"
+            });
+        });
+    </script>
+{% endblock %}

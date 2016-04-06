@@ -2,31 +2,30 @@
 {% load static %}
 
 {% block content %}
-    <script type="text/javascript" src="{% static 'SDK_JS_JQUERY/LYDIASDK.js' %}"></script>
-    {% url 'url_supply_lydia_self_confirm' %}
     <div class="container50">
-        <p><label for="amount">Montant    recharger</label>
-            <input id="amount" type="number"/></p>
-        <p><label for="tel_number">Num  ro de t  l  phone</label>
-            <input id="tel_number" type="text"/></p>
-        <div id="lydiaButton">Pay with Lydia</div>
+        <form action= "{% url 'url_supply_lydia_self' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <div class="row">
+                <div class="one-third column"><input type="submit" value="Submit"/></div>
+                <div class="one-third column"><a class="s" href="{% url 'url_profile' %}">Retour au profil</a></div>
+            </div>
+        </form>
     </div>
 
     <script>
-        // initialisation
-        $(document).ready(function() {
-            $('#lydiaButton').payWithLYDIA({
-                amount: '10.5', // amount in  ^
-                vendor_token: '{{ vendor_token }}',
-                recipient: '0711223344', //cellphone or email of your client. Leave it like this for your test
-                message : '{{ message }}', //object of the payment
-                env: 'test',
-                render : '<img src="https://lydia-app.com/assets/img/paymentbutton.png" />', //button image
-                // The client will be redirect to this URL after the payment
-                browser_success_url : "http://borgia.iresam.org/finances/supply/lydia/self/confirm",
-                // This URL will be called by our server after the payment so you can update the order on your database
-                confirm_url : "http://borgia.iresam.org/finances/supply/lydia/self/callback"
-            });
+        String.prototype.replaceAll = function(target, replacement) {
+            return this.split(target).join(replacement);
+        };
+
+        $("#id_tel_number").change(function() {
+            var tel_number = this.value;
+            tel_number = tel_number.replaceAll('-', '');
+            tel_number = tel_number.replaceAll(' ', '');
+            tel_number = tel_number.replaceAll('.', '');
+            tel_number = tel_number.replaceAll('+33', '0');
+            this.value = tel_number;
         });
+
     </script>
 {% endblock %}

@@ -5,6 +5,7 @@ from django.forms import ModelForm
 from django.forms.widgets import PasswordInput, DateInput, TextInput
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now
+import re
 
 from users.models import User
 from finances.models import Cheque, Cash, Lydia, BankAccount, SharedEvent
@@ -62,6 +63,29 @@ class SupplyUnitedForm(forms.Form):
             elif authenticate(username=operator_username, password=operator_password).has_perm('users.supply_account') is False:
                 raise forms.ValidationError('Erreur de permission')
         return super(SupplyUnitedForm, self).clean()
+
+
+class SupplyLydiaSelfForm(forms.Form):
+
+    def __init__(self, **kwargs):
+        min_value = kwargs.pop('min_value')
+        max_value = kwargs.pop('max_value')
+        super(SupplyLydiaSelfForm, self).__init__(**kwargs)
+        self.fields['amount'] = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9,
+                                                   min_value=min_value,
+                                                   max_value=max_value)
+        self.fields['tel_number'] = forms.CharField(label='Numéro de téléphone')
+
+    def clean(self):
+        cleaned_data = super(SupplyLydiaSelfForm, self).clean()
+        try:
+            tel_number = cleaned_data['tel_number']
+            filter_tel_number = re.compile('^0[0-9]{9}$')
+            if filter_tel_number.match(tel_number) is None:
+                raise forms.ValidationError('Numéro de téléphone incorrect, il doit être du type "0123456789')
+        except KeyError:
+            pass
+        return super(SupplyLydiaSelfForm, self).clean()
 
 
 class RetrieveMoneyForm(forms.Form):
