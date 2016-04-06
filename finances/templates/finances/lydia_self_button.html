@@ -3,12 +3,6 @@
 
 {% block content %}
     <script type="text/javascript" src="{% static 'SDK_JS_JQUERY/LYDIASDK.js' %}"></script>
-    {{ confirm_url }}
-    {{ callback_url }}
-    {{ amount }}
-    {{ tel_number }}
-    {{ message }}
-    {{ vendor_token }}
     <div class="container50">
         <p><label>Montant (€) :</label> <input type="number" disabled="disabled" value="{{ amount }}"/></p>
         <p><label>Numéro de téléphone :</label> <input type="text" disabled="disabled" value="{{ tel_number }}"/></p>
