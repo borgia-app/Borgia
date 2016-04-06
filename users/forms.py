@@ -34,7 +34,7 @@ class UserCreationCustomForm(forms.Form):
 class ManageGroupForm(forms.Form):
 
     class Media:
-        js = ('/admin/jsi18n/',)
+        js = ('/local/jsi18n',)
 
     def __init__(self, *args, **kwargs):
 

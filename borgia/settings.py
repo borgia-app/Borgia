@@ -140,6 +140,7 @@ LOGIN_EXEMPT_URLS = [
     '/foyer',
     '/auberge',
     '/finances/supply/lydia/self/callback',
+    '/local/jsi18n'
 ]
 
 STATIC_URL = '/static/'

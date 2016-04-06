@@ -3,7 +3,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import logout, login
 
-from borgia.views import LoginPG
+from borgia.views import LoginPG, jsi18n_catalog
 
 
 urlpatterns = [
@@ -13,7 +13,7 @@ urlpatterns = [
     url(r'^finances/', include('finances.urls')),
     url(r'^shops/', include('shops.urls')),
     url(r'notifications/', include('notifications.urls')),
-    url(r'^admin/jsi18n/$', 'django.views.i18n.javascript_catalog', name='jsi18n_catalog'),
+    url(r'^local/jsi18n$', jsi18n_catalog),
 
     # Authentification
     url(r'^$', login, {'template_name': 'login.html'}, name='url_login'),  # A rediriger vers /auth/login

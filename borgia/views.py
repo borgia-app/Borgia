@@ -17,3 +17,11 @@ class LoginPG(FormView):
         context = super(LoginPG, self).get_context_data(**kwargs)
         context['organe_name'] = self.kwargs['organe']
         return context
+
+
+def jsi18n_catalog(request):
+    """
+    Render le js nécessaire à la jsi18n utilisé dans certains widgets venant de l'app admin
+    Par exemple: FilteredSelectMultiple
+    """
+    return render(request, 'jsi18n.html')
