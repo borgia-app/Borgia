@@ -131,6 +131,7 @@ class UserCreateView(FormNextView):
         user = User.objects.create(username=form.cleaned_data['username'],
                                    first_name=form.cleaned_data['first_name'],
                                    last_name=form.cleaned_data['last_name'],
+                                   email=form.cleaned_data['email'],
                                    surname=form.cleaned_data['surname'],
                                    family=form.cleaned_data['family'],
                                    campus=form.cleaned_data['campus'],
@@ -174,7 +175,7 @@ class UserRetrieveView(DetailView):
 
 class UserUpdateView(UpdateView):
     model = User
-    fields = ['first_name', 'last_name', 'surname', 'family', 'year', 'campus']
+    fields = ['first_name', 'last_name', 'surname', 'email', 'family', 'year', 'campus']
     template_name = 'users/update.html'
     success_url = '/users/profile/'
 

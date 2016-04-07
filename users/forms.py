@@ -13,6 +13,7 @@ class UserCreationCustomForm(forms.Form):
     username = forms.CharField(label='Username', max_length=255)
     first_name = forms.CharField(label='Prenom', max_length=255)
     last_name = forms.CharField(label='Nom', max_length=255)
+    email = forms.EmailField(label='Email')
     surname = forms.CharField(label='Buque', max_length=255, required=False)
     family = forms.CharField(label='Fam\'ss', max_length=255, required=False)
     campus = forms.ChoiceField(label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)

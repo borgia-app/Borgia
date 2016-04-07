@@ -133,6 +133,10 @@ LOGIN_URL = '/auth/login'
 
 LOGIN_EXEMPT_URLS = [
     '/auth/login',
+    '/auth/password_reset',
+    '/auth/password_reset/complete',
+    '/auth/password_reset/confirm',
+    '/auth/password_reset/done',
     '/users/username_from_username_part',
     '/finances/electrovanne/request1',
     '/finances/electrovanne/request2',
@@ -140,7 +144,7 @@ LOGIN_EXEMPT_URLS = [
     '/foyer',
     '/auberge',
     '/finances/supply/lydia/self/callback',
-    '/local/jsi18n'
+    '/local/jsi18n',
 ]
 
 STATIC_URL = '/static/'

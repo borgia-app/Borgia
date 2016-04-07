@@ -25,3 +25,5 @@ def jsi18n_catalog(request):
     Par exemple: FilteredSelectMultiple
     """
     return render(request, 'jsi18n.html')
+
+
