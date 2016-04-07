@@ -19,16 +19,12 @@ urlpatterns = [
     url(r'^$', login, {'template_name': 'login.html'}, name='url_login'),  # A rediriger vers /auth/login
     url(r'^auth/login', login, {'template_name': 'login.html'}, name='url_login'),
     url(r'^auth/logout', logout, {'template_name': 'logout.html', 'next_page': login}, name='url_logout'),
-    url(r'^auth/password_reset$', password_reset, {'template_name': 'password_reset_form.html',
-                                                   'email_template_name': 'password_reset_email.html',
-                                                   'subject_template_name': 'password_reset_subject.html',
-                                                   'post_reset_redirect': '/auth/login'},
-        name='url_password_reset'),
-    url(r'^auth/password_reset/confirm$', password_reset_confirm, {'template_name': 'password_reset_confirm.html'},
-        name='url_password_reset_confirm'),
-    # url(r'^auth/password_reset/done$', password_reset_done, name='url_password_reset_done'),
-    url(r'^auth/password_reset/complete$', password_reset_complete, {'template_name': 'password_reset_complete.html'},
-        name='url_password_reset_complete'),
+
+    url(r'^auth/password_reset/$', 'django.contrib.auth.views.password_reset', name='reset_password_reset1'),
+    url(r'^auth/password_reset/done/$', 'django.contrib.auth.views.password_reset_done', name='password_reset_done'),
+    url(r'^auth/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$', 'django.contrib.auth.views.password_reset_confirm',
+        name='password_reset_confirm'),
+    url(r'^auth/done/$', 'django.contrib.auth.views.password_reset_complete', name='password_reset_complete'),
 
     # Alias url pour PGs
     url('^(?P<organe>\w+)$', LoginPG.as_view(), name='url_login_pg')

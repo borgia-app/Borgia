@@ -11,7 +11,7 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 """
 #-*- coding: utf-8 -*-
 
-import os
+import os, re
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -133,10 +133,9 @@ LOGIN_URL = '/auth/login'
 
 LOGIN_EXEMPT_URLS = [
     '/auth/login',
-    '/auth/password_reset',
-    '/auth/password_reset/complete',
-    '/auth/password_reset/confirm',
-    '/auth/password_reset/done',
+    '/auth/password_reset/',
+    '/auth/password_reset/done/',
+    '/auth/done/',
     '/users/username_from_username_part',
     '/finances/electrovanne/request1',
     '/finances/electrovanne/request2',
@@ -145,6 +144,10 @@ LOGIN_EXEMPT_URLS = [
     '/auberge',
     '/finances/supply/lydia/self/callback',
     '/local/jsi18n',
+]
+
+LOGIN_EXEMPT_URL_PATTERNS = [
+    re.compile('%s[0-9A-Z-a-z_\-]+%s.+%s' % ('/auth/', '/', '/')),
 ]
 
 STATIC_URL = '/static/'
@@ -161,3 +164,13 @@ MEDIA_URL = '/media/'
 LYDIA_API_TOKEN = '56eaf745be1eb116231751'
 LYDIA_MIN_PRICE = 5
 LYDIA_MAX_PRICE = 500
+
+# Penser à activer 'autoriser l'acces par les applications moins sécurisées' dans Gmail
+EMAIL_USE_TLS = True
+DEFAULT_FROM_EMAIL = 'ae.ensam.assoc@gmail.com'
+SERVER_EMAIL = 'ae.ensam.assoc@gmail.com'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'ae.ensam.assoc@gmail.com'
+EMAIL_HOST_PASSWORD = 'Alexandre57'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'

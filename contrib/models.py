@@ -3,7 +3,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django.conf import settings
-from re import compile
+from re import compile, match
 
 
 class TimeStampedDescription(models.Model):
@@ -33,6 +33,7 @@ class LoginRequiredMiddleware:
     you can copy from your urls.py).
     Requires authentication middleware and template context processors to be
     loaded. You'll get an error if they aren't.
+    Note : ajout de LOGIN_EXEMPT_URL_PATTERNS qui contient des patterns de re plus complexes
     """
     def process_request(self, request):
         assert hasattr(request, 'user'), "The Login Required middleware\
@@ -44,4 +45,10 @@ class LoginRequiredMiddleware:
         if not request.user.is_authenticated():
             path = request.path_info
             if path not in settings.LOGIN_EXEMPT_URLS:
-                return HttpResponseRedirect(settings.LOGIN_URL)
+                denied = True
+                for pattern in settings.LOGIN_EXEMPT_URL_PATTERNS:
+                    if pattern.match(path) is not None:
+                        denied = False
+                        break
+                if denied is True:
+                    return HttpResponseRedirect(settings.LOGIN_URL)
