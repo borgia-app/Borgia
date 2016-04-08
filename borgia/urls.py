@@ -1,8 +1,8 @@
 #-*- coding: utf-8 -*-
 from django.conf.urls import url, include
 from django.contrib import admin
-from django.contrib.auth.views import logout, login, password_reset, password_reset_complete, password_reset_confirm
-
+from django.contrib.auth.views import logout, login, password_reset, password_reset_complete, password_reset_confirm,\
+    password_change, password_change_done
 from borgia.views import LoginPG, jsi18n_catalog
 
 
@@ -25,6 +25,9 @@ urlpatterns = [
     url(r'^auth/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$', 'django.contrib.auth.views.password_reset_confirm',
         name='password_reset_confirm'),
     url(r'^auth/done/$', 'django.contrib.auth.views.password_reset_complete', name='password_reset_complete'),
+
+    url(r'^auth/password_change$', password_change, {'post_change_redirect': password_change_done}, name='password_change'),
+    url(r'^auth/password_change_done$', password_change_done),
 
     # Alias url pour PGs
     url('^(?P<organe>\w+)$', LoginPG.as_view(), name='url_login_pg')

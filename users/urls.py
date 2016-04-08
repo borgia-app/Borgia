@@ -8,9 +8,6 @@ from django.contrib.auth.decorators import permission_required
 urlpatterns = [
     # Permission dans la vue
     url(r'^manage_group$', ManageGroupView.as_view(), name='url_manage_group'),
-    url(r'^password_change$', password_change, {'template_name': 'users/password_change.html',
-                                                'post_change_redirect': password_change_done}, name='password_change'),
-    url(r'^password_change_done$', password_change_done, {'template_name': 'users/password_change_done.html'}),
     url(r'^profile/$', profile_view, name='url_profile'),
     url(r'^create/', permission_required('users.add_user', raise_exception=True)
     (UserCreateView.as_view()), name='url_create_user'),
