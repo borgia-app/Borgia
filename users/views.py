@@ -1,8 +1,8 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, HttpResponse, force_text
+from django.shortcuts import render, HttpResponse, force_text, redirect
 from users.forms import UserCreationCustomForm, ManageGroupForm, LinkTokenUserForm, UserListCompleteForm
 from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin, DeleteView
-from django.views.generic import ListView, DetailView, FormView
+from django.views.generic import ListView, DetailView, FormView, View
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core import serializers
 from django.contrib.auth.models import Group, Permission
@@ -197,21 +197,28 @@ class UserUpdateView(UpdateView):
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
 
-class UserDeleteView(SuccessMessageMixin, DeleteView):
-    model = User
-    template_name = 'users/delete.html'
+class UserDesactivateView(SuccessMessageMixin, View):
+    template_name = 'users/desactivate.html'
+
     success_url = '/users/'
-    success_message = "Supression"
+    success_message = "Mise à jour"
 
-    def get_context_data(self, **kwargs):
-        context = super(UserDeleteView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
-        return context
+    def get(self, request, *args, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+        return render(request, 'users/desactivate.html',
+                      {'object': user,
+                       'next': self.request.GET.get('next', self.request.POST.get('next', self.success_url))})
 
-    def get_success_url(self):
-        # Notifications
-        user_deletion_notify_success_to_user_and_admins(self.request, self.get_object())
-        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
+    def post(self, request, *args, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+        user_updating_notify_success_to_user_and_admins(self.request, user)
+        if user.is_active is True:
+            user.is_active = False
+        else:
+            user.is_active = True
+
+        user.save()
+        return redirect(force_text(self.request.POST.get('next')))
 
 
 class UserListView(ListView):
@@ -239,7 +246,13 @@ class UserListCompleteView(FormView):
                 if form.cleaned_data["field_year_%s" % i] is True:
                     list_year_result.append(list_year()[i])
 
-        query_user = User.objects.filter(year__in=list_year_result).order_by(form.cleaned_data['order_by'])
+        if form.cleaned_data['unactive'] is True:
+            active = False
+        else:
+            active = True
+
+        query_user = User.objects.filter(year__in=list_year_result, is_active=active).order_by(
+            form.cleaned_data['order_by'])
 
         context = self.get_context_data(**kwargs)
         context['query_user'] = query_user
@@ -247,9 +260,9 @@ class UserListCompleteView(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(UserListCompleteView, self).get_context_data(**kwargs)
-        context['query_user'] = User.objects.all().exclude(
+        context['query_user'] = User.objects.filter(is_active=True).exclude(
             groups=Group.objects.get(name='Membres spéciaux')).order_by('last_name')
-        context['next'] = self.request.GET.get('next')
+        context['next'] = self.request.GET.get('next', self.request.POST.get('next'))
         return context
 
     def get_initial(self):

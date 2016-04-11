@@ -79,7 +79,8 @@ class UserListCompleteForm(forms.Form):
     order_by = forms.ChoiceField(label='Trier par',
                                  choices=(('surname', 'Bucque'), ('balance', 'Solde'),
                                           ('last_name', 'Nom de famille'), ('first_name', 'Prénom')))
-    all = forms.BooleanField(label='Selectionner tout les users', required=False)
+    all = forms.BooleanField(label='Selectionner toutes les promotions', required=False)
+    unactive = forms.BooleanField(label='Utilisateurs désactivés', required=False)
 
     def __init__(self, **kwargs):
         list_year = kwargs.pop('list_year')

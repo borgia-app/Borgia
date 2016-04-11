@@ -9,7 +9,12 @@
         {% if perms.users.change_user %}
             <div class="row">
                 <p><a class="s" href="{% url 'url_update_user' pk=object.pk %}?next=/users/retrieve/{{ object.pk }}?next={{ next }}">Modifier les informations</a></p>
-                <p><a class="s" href="{% url 'url_delete_user' pk=object.pk %}?next={{ next }}">Supprimer l'utilisateur</a></p>
+                <p><a class="s" href="{% url 'url_desactivate_user' pk=object.pk %}?next={{ next }}">
+                    {% if object.is_active == True %}
+                        Désactiver l'utilisateur
+                    {% else %}
+                        Activer l'utilisateur
+                    {% endif %}</a></p>
                 <p><a class="s" href="{% url 'url_list_user_complete' %}?next={{ next }}">Retour</a></p>
                 <input type=hidden name="next" value="{{ next }}" />
             </div>

@@ -7,6 +7,7 @@
         <li>Num'ss : {{ object.family }}</li>
         <li>Prom'ss : {{ object.campus }}{{ user.year_pg }}</li>
         <li>Solde : {{ object.balance }} €</li>
+        <li>Est actif : {{ object.is_active }}</li>
         <li>Groupes :
             <ul>
                 {% for g in user.groups.all %}

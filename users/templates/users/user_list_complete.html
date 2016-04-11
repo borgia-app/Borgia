@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load finances_extra %}
 
 {% block content %}
 
@@ -9,6 +10,7 @@
         <div class="row">
             <form action= "{% url 'url_list_user_complete' %}" method="post">
                 {% csrf_token %}
+                <input type=hidden name="next" value="{{ next }}" />
 
                 <div class="fieldWrapper">
                     {{ form.order_by.errors }}
@@ -18,10 +20,14 @@
                     {{ form.all.errors }}
                     {{ form.all.label }} : {{ form.all }}
                 </div>
+                <div class="fieldWrapper">
+                    {{ form.unactive.errors }}
+                    {{ form.unactive.label }} : {{ form.unactive }}
+                </div>
 
                 <div id="list_year">
                     {% for f in form %}
-                        {% if f != form.order_by and f != form.all %}
+                        {% if f != form.order_by and f != form.all and f != form.unactive %}
                             <span class="fieldWrapper">
                                 {{ f.errors }}
                                 {{ f.label }} : {{ f }}
@@ -43,6 +49,7 @@
                     <th>Tabagn's</th>
                     <th>Prom's</th>
                     <th>Solde</th>
+                    <th>Est actif</th>
                     <th>Détail</th>
                 </tr>
                 {% for e in query_user %}
@@ -54,6 +61,7 @@
                         <td>{{ e.campus }}</td>
                         <td>{{ e.year_pg }}</td>
                         <td>{{ e.balance }}</td>
+                        <td>{% human_reading e.is_active 'true_false' %}</td>
                         <td><a href="{% url 'url_retrieve_user' pk=e.pk %}?next={{ next }}">Détail</a></td>
                     </tr>
                 {% endfor %}

@@ -10,6 +10,7 @@ def price_for(sale, user):
     except AttributeError:
         return 'erreur'
 
+
 @register.simple_tag
 def human_reading(value, syst):
 
@@ -19,3 +20,10 @@ def human_reading(value, syst):
             return 'Terminé'
         else:
             return 'Non effectué'
+
+    # True -> Oui et False -> Non
+    elif syst == 'true_false':
+        if value is True:
+            return 'Oui'
+        else:
+            return 'Non'
