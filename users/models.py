@@ -113,11 +113,12 @@ def list_year():
 
 
 def user_from_token_tap(initial_token_tap):
-    try:
-        token_end = ''
-        for dual in re.findall(r"[0-9]{2}", initial_token_tap[1:len(initial_token_tap) - 5]):
-            token_end += chr(int(dual))
-        token_end = token_end[4:]
-        return User.objects.get(token_id=token_end)
-    except ObjectDoesNotExist:
-        return None
+    """
+    Renvoi l'user correspondant à un code de jeton lu avec le système d'électrovanne
+    Remarque : A utiliser à travers un try pour gérer ObjectDoesNotExist
+    """
+    token_end = ''
+    for dual in re.findall(r"[0-9]{2}", initial_token_tap[1:len(initial_token_tap) - 5]):
+        token_end += chr(int(dual))
+    token_end = token_end[4:]
+    return User.objects.get(token_id=token_end)
