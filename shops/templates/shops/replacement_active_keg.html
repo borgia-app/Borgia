@@ -3,15 +3,12 @@
 {% block content %}
 
     <div class="container50">
-        <h1>Remplacement d'un conteneur</h1>
-        <p>Remplacer le conteneur <strong>{{ old_active_keg }}</strong> sous une tireuse par :</p>
-
-        <form action="" method="post">{% csrf_token %}
-
-            {{ form.as_p }}
-
+        <h2 class="align-center">Remplacement d'un conteneur</h2>
+        <form class="form-style-1" action="" method="post">{% csrf_token %}
+            <li><label>Remplacer le conteneur <strong>{{ old_active_keg }}</strong> sous une tireuse par :</label></li>
+            {{ form.as_ul }}
             <input type=hidden name="next" value="{{ next }}" />
-            <input type="submit" value="Remplacer" />
+            <li><input type="submit" value="Remplacer" /></li>
         </form>
     </div>
 

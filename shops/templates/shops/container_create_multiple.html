@@ -2,15 +2,15 @@
 
 {% block content %}
 
-    <div class="container30">
-        <h1>Ajout de container</h1>
+    <div class="container50">
+        <h2 class="align-center">Ajout de container</h2>
         <h3>Magasin: {{ shop.name }}</h3>
-        <form action= "{% url 'url_create_container_multiple' %}" method="post">
+        <form class="form-style-1" action= "{% url 'url_create_container_multiple' %}" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form.as_ul }}
             <input type=hidden name="next" value="{{ next }}" />
             <input type=hidden name="shop" value="{{ shop }}" />
-            <input type="submit" value="Submit"/>
+            <input type="submit" value="Valider"/>
         </form>
     </div>
 {% endblock %}

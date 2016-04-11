@@ -2,11 +2,12 @@
 
 {% block content %}
     <div class="container50">
-        <form action= "{% url 'url_create_user' %}" method="post">
+        <h2 class="align-center">Création d'un utilisateur</h2>
+        <form class="form-style-1" action="{% url 'url_create_user' %}" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form.as_ul }}
             <input type=hidden name="next" value="{{ next }}" />
-            <input type="submit" value="Submit"/>
+            <li><input type="submit" value="Valider"/></li>
         </form>
     </div>
 {% endblock %}

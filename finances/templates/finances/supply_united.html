@@ -3,13 +3,13 @@
 {% block content %}
 
     <div class="container50">
-
-        <form action= "{% url 'url_supply_united' %}" method="post">
+        <h2 class="align-center">Rechargement de compte</h2>
+        <form class="form-style-1" action= "{% url 'url_supply_united' %}" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <p id="id_link_create_bank_account">Le compte en banque n'est pas dans la liste ? <a href="{% url 'url_create_bank_account' %}?next=/finances/supply/united?next={{ next }}">Ajout !</a></p>
+            {{ form.as_ul }}
+            <li id="id_link_create_bank_account"><label>Le compte en banque n'est pas dans la liste ? <a class="s" href="{% url 'url_create_bank_account' %}?next=/finances/supply/united?next={{ next }}">Ajout !</a></label></li>
             <input type=hidden name="next" value="{{ next }}" />
-            <input type="submit" value="Submit" id="id_submit"/>
+            <li><input type="submit" value="Submit" id="id_submit"/></li>
         </form>
 
     </div>

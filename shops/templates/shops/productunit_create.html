@@ -1,12 +1,13 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container30">
-        <form action= "{% url 'url_create_productunit' %}" method="post">
+    <div class="container50">
+        <h2 class="align-center">Ajout d'une unité de produit</h2>
+        <form class="form-style-1" action= "{% url 'url_create_productunit' %}" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
+            {{ form.as_ul }}
             <input type=hidden name="next" value="{{ next }}" />
-            <input type="submit" value="Submit"/>
+            <li><input type="submit" value="Valider"/></li>
         </form>
     </div>
 {% endblock %}

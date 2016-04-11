@@ -4,6 +4,7 @@
 {% block content %}
     <script type="text/javascript" src="{% static 'SDK_JS_JQUERY/LYDIASDK.js' %}"></script>
     <div class="container50">
+        <h2 class="align-center">Crédit par Lydia</h2>
         <p><label>Montant (€) :</label> <input type="number" disabled="disabled" value="{{ amount }}"/></p>
         <p><label>Numéro de téléphone :</label> <input type="text" disabled="disabled" value="{{ tel_number }}"/></p>
         <p><a class="s" href="{% url 'url_supply_lydia_self' %}">Modifier</a></p>

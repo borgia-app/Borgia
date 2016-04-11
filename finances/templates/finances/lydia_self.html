@@ -3,13 +3,12 @@
 
 {% block content %}
     <div class="container50">
-        <form action= "{% url 'url_supply_lydia_self' %}" method="post">
+        <h2 class="align-center">Crédit par Lydia</h2>
+        <form class="form-style-1" action= "{% url 'url_supply_lydia_self' %}" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <div class="row">
-                <div class="one-third column"><input type="submit" value="Submit"/></div>
-                <div class="one-third column"><a class="s" href="{% url 'url_profile' %}">Retour au profil</a></div>
-            </div>
+            {{ form.as_ul }}
+            <li><input type="submit" value="Valider"/></li>
+            <li><label><a class="s" href="{% url 'url_profile' %}">Retour au profil</a></label></li>
         </form>
     </div>
 

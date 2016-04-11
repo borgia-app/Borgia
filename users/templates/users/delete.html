@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container30">
-        <form action="" method="post">{% csrf_token %}
-            <p>Supprimer l'utilisateur {{ object.username }} ({{ object.first_name }} {{ object.last_name }}) ?</p>
+    <div class="container50">
+        <h2 class="align-center">Désactivation d'un utilisateur</h2>
+        <form class="form-style-1" action="" method="post">{% csrf_token %}
+            <li>Supprimer l'utilisateur {{ object.username }} ({{ object.first_name }} {{ object.last_name }}) ?</li>
             <input type=hidden name="next" value="{{ next }}" />
-            <input type="submit" value="Confirm" />
+            <li><input type="submit" value="Désactiver" /></li>
         </form>
     </div>
 {% endblock %}

@@ -2,14 +2,13 @@
 
 {% block content %}
 
-    <div class="container30">
-        <div class="row">
-            <form action= "{% url 'url_create_transfert' %}" method="post">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <input type="submit" value="Submit" id="id_submit"/>
-            </form>
-        </div>
+    <div class="container50">
+        <h2 class="align-center">Transfert inter-comptes</h2>
+        <form class="form-style-1" action= "{% url 'url_create_transfert' %}" method="post">
+            {% csrf_token %}
+            {{ form.as_ul }}
+            <li><input type="submit" value="Submit" id="id_submit"/></li>
+        </form>
     </div>
 
 {% endblock %}

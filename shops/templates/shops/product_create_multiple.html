@@ -3,15 +3,15 @@
 {% block content %}
 
     <div class="container50">
-        <h1>Ajout de produits</h1>
-        <h3>Magasin: {{ shop }}</h3>
-        <form action= "{% url 'url_create_product_multiple' shop=shop %}" method="post">
+        <h2 class="align-center">Ajout de produits</h2>
+        <h3 class="align-center">Magasin: {{ shop }}</h3>
+        <form class="form-style-1" action= "{% url 'url_create_product_multiple' shop=shop %}" method="post">
             {% csrf_token %}
-            {{ form.as_p }}
-            <p id="id_link_create_productbase">Le produit n'est pas dans la liste ? <a href="{% url 'url_create_productbase' %}?next=/shops/product/create/multiple/{{ shop }}/?next={{ next }}">Ajout !</a></p>
+            {{ form.as_ul }}
+            <li id="id_link_create_productbase"><label>Le produit n'est pas dans la liste ? <a href="{% url 'url_create_productbase' %}?next=/shops/product/create/multiple/{{ shop }}/?next={{ next }}">Ajout !</a></label></li>
             <input type=hidden name="next" value="{{ next }}" />
             <input type=hidden name="shop" id='hidden_shop' value="{{ shop }}" />
-            <input type="submit" value="Submit"/>
+            <li><input type="submit" value="Valider"/></li>
         </form>
     </div>
     <script>

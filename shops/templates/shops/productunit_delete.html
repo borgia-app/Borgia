@@ -1,10 +1,11 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container30">
-        <form action="" method="post">{% csrf_token %}
-            <p>Supprimer le produit unitaire {{ object }} ?</p>
-            <input type="submit" value="Confirm" />
+    <div class="container50">
+        <h2 class="align-center">Suppression d'une unité de produit</h2>
+        <form class="form-style-1" action="" method="post">{% csrf_token %}
+            <li><label>le produit unitaire {{ object }} ?</label></li>
+            <li><input type="submit" value="Supprimer" /></li>
         </form>
     </div>
 {% endblock %}

@@ -2,13 +2,12 @@
 
 {% block content %}
     <div class="container50">
-            <h2>Modification des informations</h2>
-            <form action="" method="post">{% csrf_token %}
-
-                {{ form.as_p }}
-                <input type=hidden name="next" value="{{ next }}" />
-                <input type="submit" value="Update" />
-            </form>
-            <p><a class="s" href="{% url 'password_change' %}">Modifier mon mot de passe</a></p>
+        <h2 class="align-center">Modification des informations</h2>
+        <form class="form-style-1" action="" method="post">{% csrf_token %}
+            {{ form.as_ul }}
+            <input type=hidden name="next" value="{{ next }}" />
+            <li><input type="submit" value="Modifier" /></li>
+            <li><label><a class="s" href="{% url 'password_change' %}">Modifier mon mot de passe</a></label></li>
+        </form>
     </div>
 {% endblock %}
