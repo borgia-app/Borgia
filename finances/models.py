@@ -61,20 +61,26 @@ class Sale(models.Model):
         self.save()
 
     def price_for(self, user):
-        payments = 0
-        for e in self.payment.list_lydia()[0]:
-            if e.sender == user:
-                payments += e.amount
-        for e in self.payment.list_cash()[0]:
-            if e.sender == user:
-                payments += e.amount
-        for e in self.payment.list_cheque()[0]:
-            if e.sender == user:
-                payments += e.amount
-        for e in self.payment.list_debit_balance()[0]:
-            if e.sender == user:
-                payments += e.amount
-        return payments
+        price_for = 0
+        # Cas des crédits
+        if self.recipient == user:
+            price_for = self.amount
+        # Cas des débits
+        else:
+            for e in self.payment.list_lydia()[0]:
+                if e.sender == user:
+                    price_for += e.amount
+            for e in self.payment.list_cash()[0]:
+                if e.sender == user:
+                    price_for += e.amount
+            for e in self.payment.list_cheque()[0]:
+                if e.sender == user:
+                    price_for += e.amount
+            for e in self.payment.list_debit_balance()[0]:
+                if e.sender == user:
+                    price_for += e.amount
+            price_for = -price_for
+        return price_for
 
     class Meta:
         permissions = (
