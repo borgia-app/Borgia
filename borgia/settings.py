@@ -144,6 +144,7 @@ LOGIN_EXEMPT_URLS = [
     '/auberge',
     '/finances/supply/lydia/self/callback',
     '/local/jsi18n',
+    '/admin/'
 ]
 
 LOGIN_EXEMPT_URL_PATTERNS = [

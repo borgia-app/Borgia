@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load finances_extra %}
+{% load extra %}
 
 {% block content %}
 
@@ -11,11 +12,9 @@
             <form action= "{% url 'url_list_user_complete' %}" method="post">
                 {% csrf_token %}
                 <input type=hidden name="next" value="{{ next }}" />
-
-                <div class="fieldWrapper">
-                    {{ form.order_by.errors }}
-                    {{ form.order_by.label }} : {{ form.order_by }}
-                </div>
+                <input type=hidden name="order_by" value="{{ order_by }}" />
+                <input type=hidden name="active" value="{{ active }}" />
+                <input type=hidden name="years" value="{{ years }}" />
                 <div class="fieldWrapper">
                     {{ form.all.errors }}
                     {{ form.all.label }} : {{ form.all }}
@@ -42,14 +41,14 @@
         <div class="row">
             <table>
                 <tr>
-                    <th>Nom</th>
-                    <th>Prénom</th>
-                    <th>Bucque</th>
-                    <th>Num's</th>
-                    <th>Tabagn's</th>
-                    <th>Prom's</th>
-                    <th>Solde</th>
-                    <th>Est actif</th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'last_name'|order_by:request }}&years={{ years }}&active={{ active }}">Nom</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'first_name'|order_by:request }}&years={{ years }}&active={{ active }}">Prénom</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'surname'|order_by:request }}&years={{ years }}&active={{ active }}">Bucque</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'family'|order_by:request }}&years={{ years }}&active={{ active }}">Num's</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'campus'|order_by:request }}&years={{ years }}&active={{ active }}">Tabagn's</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'year'|order_by:request }}&years={{ years }}&active={{ active }}">Prom's</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'balance'|order_by:request }}&years={{ years }}&active={{ active }}">Solde</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'is_active'|order_by:request }}&years={{ years }}&active={{ active }}">Est actif</a></th>
                     <th>Détail</th>
                 </tr>
                 {% for e in query_user %}
