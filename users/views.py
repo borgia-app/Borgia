@@ -227,125 +227,117 @@ class UserListView(ListView):
     queryset = User.objects.all()
 
 
-class UserListCompleteView(FormView):
+class ListCompleteView(FormView):
     """
-    Vue qui affiche une liste triable et ordonnable
+    A faire par l'utilisateur de cette classe:
+    renseigner form_class, template_name, success_url, attr (avec les valeurs initiales)
+    get_form_kwargs
+    form_valid -> mettre à jour les valeurs dans attr en fonction des réponses
+    """
+    form_class = None
+    template_name = None
+    success_url = None
+    attr = {}
 
-    Fonctionnement :
-    les paramètres de tri sont enregistrés dans [order_by, years, active]
-    * Si la requete est GET (clic sur une entête de colonne par exemple), on récupère les anciens paramètres de tri qui
-    sont dans les paramètres GET et on les enregistre, via la fonction get.
-    * Si la requete est POST (envoi du formulaire) on récupère de la même façon mais via les paramètres POST.
-    On crée ensuite le formulaire et ses valeurs initiales à partir des paramètres enregistrés.
-    Au final, on envoi tous les paramètres en POST sur le template via get_context_data dans le cas où la prochaine
-    requete est POST.
-    Attention : active = True -> selection des users non désactivés
-    """
+    def get(self, request, *args, **kwargs):
+        # Récupération des paramètres GET
+        for name in self.attr.keys():
+            if request.GET.get(name) is not None:
+                if request.GET.get(name) == 'False':
+                    self.attr[name] = False
+                elif request.GET.get(name) == 'True':
+                    self.attr[name] = True
+                else:
+                    self.attr[name] = request.GET.get(name)
+        return super(ListCompleteView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        # Récupération des paramètres POST
+        for name in self.attr.keys():
+            if request.POST.get(name) is not None:
+                if request.POST.get(name) == 'False':
+                    self.attr[name] = False
+                elif request.POST.get(name) == 'True':
+                    self.attr[name] = True
+                else:
+                    self.attr[name] = request.POST.get(name)
+        return super(ListCompleteView, self).post(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(ListCompleteView, self).get_initial()
+        for name in self.attr.keys():
+            initial[name] = self.attr[name]
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(ListCompleteView, self).get_context_data(**kwargs)
+        for name in self.attr.keys():
+            context[name] = self.attr[name]
+        return context
+
+
+class UserListCompleteView(ListCompleteView):
     form_class = UserListCompleteForm
     template_name = 'users/user_list_complete.html'
     success_url = '/auth/login'
-
-    order_by = 'last_name'
-    years = 'all'
-    active = True
-
-    def get(self, request, *args, **kwargs):
-        if request.GET.get('order_by') is not None:
-            self.order_by = request.GET.get('order_by')
-        if request.GET.get('years') is not None:
-            self.years = request.GET.get('years')
-        if request.GET.get('active') is not None:
-            if request.GET.get('active') == 'False':
-                self.active = False
-        return super(UserListCompleteView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        if request.POST.get('order_by') != 'None':
-            self.order_by = request.POST.get('order_by')
-        if request.POST.get('years') != 'None':
-            self.years = request.POST.get('years')
-        if request.POST.get('active') != 'None':
-            if request.POST.get('active') == 'False':
-                self.active = False
-        return super(UserListCompleteView, self).post(request, *args, **kwargs)
+    attr = {
+        'order_by': 'last_name',
+        'years': 'all',
+        'active': True,
+    }
 
     def get_form_kwargs(self):
-        """
-        Création du formulaire à partir des années existantes
-        """
         kwargs = super(UserListCompleteView, self).get_form_kwargs()
         kwargs['list_year'] = list_year()
         return kwargs
 
+    def get_initial(self):
+        initial = {}
+        if self.attr['years'] == 'all':
+            initial['all'] = True
+        else:
+            list_years = list_year()
+            for y in json.loads(self.attr['years']):
+                initial['field_year_%s' % list_years.index(y)] = True
+        if self.attr['active'] is False:
+            initial['unactive'] = True
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(UserListCompleteView, self).get_context_data(**kwargs)
+        if self.attr['years'] != 'all':
+            context['query_user'] = User.objects.filter(is_active=self.attr['active'], year__in=json.loads(self.attr['years'])).exclude(
+                groups=Group.objects.get(name='Membres spéciaux')).order_by(self.attr['order_by'])
+        else:
+            context['query_user'] = User.objects.filter(is_active=self.attr['active']).exclude(
+                groups=Group.objects.get(name='Membres spéciaux')).order_by(self.attr['order_by'])
+
+        context['next'] = self.request.GET.get('next', self.request.POST.get('next'))
+        return context
+
     def form_valid(self, form, **kwargs):
         """
         Se charge de vérifier que si un choix sur le formulaire est fait, il met à jour les paramètres enregistrés.
-        On fait le context à la main, car get_context_data est appelé avant form_valid
         """
-        context = self.get_context_data(**kwargs)
         list_year_result = []
 
         # Cas où "toutes les promotions" est coché
         if form.cleaned_data['all'] is True:
-            list_year_result = list_year()
-            self.years = 'all'
+            self.attr['years'] = 'all'
         # Sinon on choisi seulement les promotions sélectionnées
         else:
             for i in range(0, len(list_year())):
                 if form.cleaned_data["field_year_%s" % i] is True:
                     list_year_result.append(list_year()[i])
-                    self.years = json.dumps(list_year_result)
+                    self.attr['years'] = json.dumps(list_year_result)
 
         # Si "utilisateurs désactivés" est coché
         if form.cleaned_data['unactive'] is True:
-            self.active = False
+            self.attr['active'] = False
         else:
-            self.active = True
+            self.attr['active'] = True
 
-        # Créer de la liste des users à afficher, à partir des paramètres (qui ont pu changer dans form_valid)
-        query_user = User.objects.filter(year__in=list_year_result, is_active=self.active).order_by(self.order_by)
-
-        # Envoi des paramètres en POST
-        context['query_user'] = query_user
-        context['active'] = self.active
-        context['years'] = self.years
-
-        return self.render_to_response(context)
-
-    def get_context_data(self, **kwargs):
-        """
-        Création du context, notammement dans le cas d'une requete GET
-        Envoi des paramètres à enregistrer en POST
-        """
-        context = super(UserListCompleteView, self).get_context_data(**kwargs)
-        if self.years != 'all':
-            context['query_user'] = User.objects.filter(is_active=self.active, year__in=json.loads(self.years)).exclude(
-                groups=Group.objects.get(name='Membres spéciaux')).order_by(self.order_by)
-        else:
-            context['query_user'] = User.objects.filter(is_active=self.active).exclude(
-                groups=Group.objects.get(name='Membres spéciaux')).order_by(self.order_by)
-
-        context['next'] = self.request.GET.get('next', self.request.POST.get('next'))
-        context['order_by'] = self.order_by
-        context['years'] = self.years
-        context['active'] = self.active
-
-        return context
-
-    def get_initial(self):
-        """
-        Valeurs initiales du formulaire, basées sur les paramètres enregistrés
-        """
-        initial = super(UserListCompleteView, self).get_initial()
-        if self.years == 'all':
-            initial['all'] = True
-        else:
-            list_years = list_year()
-            for y in json.loads(self.years):
-                initial['field_year_%s' % list_years.index(y)] = True
-        if self.active is False:
-            initial['unactive'] = True
-        return initial
+        return self.render_to_response(self.get_context_data(**kwargs))
 
 
 def permission_to_manage_group(group):
