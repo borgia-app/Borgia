@@ -132,7 +132,6 @@ class Payment(models.Model):
         list_debit_balance = DebitBalance.objects.filter(payment__debit_balance__payment=self).distinct()
         total_debit_balance = 0
         for e in list_debit_balance:
-            print(e)
             total_debit_balance += e.amount
         return list_debit_balance, total_debit_balance
 

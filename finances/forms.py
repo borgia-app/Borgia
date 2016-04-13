@@ -92,8 +92,7 @@ class RetrieveMoneyForm(forms.Form):
 
     date_begin = forms.DateField(label='Date de début', widget=forms.DateInput(attrs={'class': 'datepicker'}))
     date_end = forms.DateField(label='Date de fin', widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    order_by = forms.ChoiceField(label='Tri par',
-                                 choices=(('operator', 'Opérateur'), ('date', 'Date'), ('amount', 'Montant')))
+    all = forms.BooleanField(label='Selectionner tous les opérateurs', required=False)
 
     def __init__(self, *args, **kwargs):
         user_list = kwargs.pop('user_list')

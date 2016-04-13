@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load extra %}
 
 {% block content %}
 
@@ -9,19 +10,21 @@
         <div class="row">
             <form action= "{% url 'url_treasury_retrieve_money' %}" method="post">
                 {% csrf_token %}
-
+                <input type=hidden name="order_by" value="{{ order_by }}" />
+                <input type=hidden name="date_begin" value="{{ date_begin }}" />
+                <input type=hidden name="date_end" value="{{ date_end }}" />
+                <input type=hidden name="operators" value="{{ operators }}" />
                 <div class="fieldWrapper">
                     {{ form.date_begin.errors }}
                     {{ form.date_end.errors }}
                     <label for="{{ form.date_begin.id_for_label }}">De : </label> {{ form.date_begin }} <label for="{{ form.date_end.id_for_label }}"> à : </label> {{ form.date_end }}
                 </div>
                 <div class="fieldWrapper">
-                    {{ form.order_by.errors }}
-                    <label for="{{ form.order_by.id_for_label }}">Trier par : </label> {{ form.order_by }}
+                    {{ form.all.errors }}
+                    {{ form.all.label }} : {{ form.all }}
                 </div>
-
                 {% for f in form %}
-                    {% if f != form.date_begin and f != form.date_end and f != form.order_by %}
+                    {% if f != form.date_begin and f != form.date_end and f != form.all %}
                         <span class="fieldWrapper">
                                 {{ f.errors }}
                                 {{ f.label }} : {{ f }}
@@ -36,14 +39,16 @@
     <div class="row">
         <table>
             <tr>
-                <th>Date</th>
-                <th>Opérateur</th>
+                <th><a href="{% url 'url_treasury_retrieve_money' %}?order_by={{ 'date'|order_by:request }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}">Date</a></th>
+                <th><a href="{% url 'url_treasury_retrieve_money' %}?order_by={{ 'operator'|order_by:request }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}">Opérateur</a></th>
+                <th><a href="{% url 'url_treasury_retrieve_money' %}?order_by={{ 'sender'|order_by:request }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}">Emetteur</a></th>
                 <th>Argent</th>
             </tr>
             {% for e in query_supply %}
                 <tr>
                     <td>{{ e.date }}</td>
                     <td>{{ e.operator }}</td>
+                    <td>{{ e.sender }}</td>
                     <td>
                         {% for ca in e.payment.list_cash.0 %}
                             Espèces {{ ca }}

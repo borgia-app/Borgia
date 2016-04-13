@@ -26,7 +26,7 @@
 
                 <div id="list_year">
                     {% for f in form %}
-                        {% if f != form.order_by and f != form.all and f != form.unactive %}
+                        {% if f != form.all and f != form.unactive %}
                             <span class="fieldWrapper">
                                 {{ f.errors }}
                                 {{ f.label }} : {{ f }}

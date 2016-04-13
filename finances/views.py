@@ -7,7 +7,8 @@ from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Permission
 from django.db.models import Q
 from django.contrib.auth.models import Group
-from datetime import datetime
+from datetime import timedelta
+from django.utils.timezone import now
 import json, time, re, csv, xlsxwriter, operator, hashlib, decimal
 from django.views.decorators.csrf import csrf_exempt
 
@@ -18,6 +19,8 @@ from shops.models import Container
 from users.models import user_from_token_tap, list_year
 from borgia.models import FormNextView, CreateNextView, UpdateNextView
 from django.conf import settings
+from users.views import ListCompleteView
+from users.templatetags import extra
 
 
 def electrovanne_request1(request):
@@ -101,10 +104,16 @@ def workboard_treasury(request):
     return render(request, 'finances/workboard_tresury.html', locals())
 
 
-class RetrieveMoneyView(FormView):
+class RetrieveMoneyView(ListCompleteView):
     form_class = RetrieveMoneyForm
     template_name = 'finances/retrieve_money.html'
     success_url = '/auth/login'
+    attr = {
+        'date_begin': now()-timedelta(days=7),
+        'date_end': now()+timedelta(days=1),
+        'operators': 'all',
+        'order_by': 'date',
+    }
 
     def get_form_kwargs(self):
         kwargs = super(RetrieveMoneyView, self).get_form_kwargs()
@@ -113,33 +122,66 @@ class RetrieveMoneyView(FormView):
             | Q(user_permissions=Permission.objects.get(codename='supply_account'))).distinct()
         return kwargs
 
-    def form_valid(self, form, **kwargs):
+    def get_initial(self):
+        initial = super(RetrieveMoneyView, self).get_initial()
+        if self.attr['operators'] == 'all':
+            initial['all'] = True
+        else:
+            user_list = list(User.objects.filter(
+                Q(groups__permissions=Permission.objects.get(codename='supply_account'))
+                | Q(user_permissions=Permission.objects.get(codename='supply_account'))).distinct())
+            for u in json.loads(self.attr['operators']):
+                initial['field_user_%s' % user_list.index(User.objects.get(pk=u))] = True
+        return initial
 
-        user_list = User.objects.filter(
-            Q(groups__permissions=Permission.objects.get(codename='supply_account'))
-            | Q(user_permissions=Permission.objects.get(codename='supply_account'))).distinct()
-        list_user_result = []
-        for i in range(0, len(user_list)):
-            list_user_result.append((form.cleaned_data["field_user_%s" % i], user_list[i]))
-
-        date_begin = form.cleaned_data['date_begin']
-        date_end = form.cleaned_data['date_end']
-
-        query_supply = Sale.objects.none()
-        for e in list_user_result:
-            if e[0] != 0:
-                query_supply = query_supply | Sale.objects.filter(singleproductfromcontainer__container=Container.objects.get(
-                    product_base__product_unit__name='Argent fictif'), operator=e[1],
-                    date__range=[date_begin, date_end])
+    def get_context_data(self, **kwargs):
+        context = super(RetrieveMoneyView, self).get_context_data(**kwargs)
+        if self.attr['operators'] != 'all':
+            operators = []
+            for u in json.loads(self.attr['operators']):
+                operators.append(User.objects.get(pk=u))
+            query_supply = Sale.objects.filter(
+                singleproductfromcontainer__container=Container.objects.get(
+                    product_base__product_unit__name='Argent fictif'),
+                date__range=[self.attr['date_begin'], self.attr['date_end']],
+                operator__in=operators).order_by(self.attr['order_by'])
+        else:
+            query_supply = Sale.objects.filter(
+                singleproductfromcontainer__container=Container.objects.get(
+                    product_base__product_unit__name='Argent fictif'),
+                date__range=[self.attr['date_begin'], self.attr['date_end']]).order_by(self.attr['order_by'])
 
         # Enlever les transferts
         for e in query_supply:
             if e.payment.list_debit_balance()[1] != 0:
                 query_supply = query_supply.exclude(pk=e.pk)
+        context['query_supply'] = query_supply
+        return context
 
-        context = self.get_context_data(**kwargs)
-        context['query_supply'] = query_supply.order_by(form.cleaned_data['order_by'])
-        return self.render_to_response(context)
+    def form_valid(self, form, **kwargs):
+
+        list_operators_result = []
+        operators_list = list(User.objects.filter(
+            Q(groups__permissions=Permission.objects.get(codename='supply_account'))
+            | Q(user_permissions=Permission.objects.get(codename='supply_account'))).distinct())
+
+        # Cas où "toutes les opérateurs" est coché
+        if form.cleaned_data['all'] is True:
+            self.attr['operators'] = 'all'
+        # Sinon on choisi seulement les opérateurs sélectionnées
+        else:
+            for i in range(0, len(operators_list)):
+                if form.cleaned_data["field_user_%s" % i] is True:
+                    list_operators_result.append(operators_list[i])
+            list_operators_results_pk = []
+            for u in list_operators_result:
+                list_operators_results_pk.append(u.pk)
+            self.attr['operators'] = json.dumps(list_operators_results_pk)
+
+        self.attr['date_begin'] = form.cleaned_data['date_begin']
+        self.attr['date_end'] = form.cleaned_data['date_end']
+
+        return self.render_to_response(self.get_context_data(**kwargs))
 
 
 class TransfertCreateView(FormView):
@@ -286,13 +328,13 @@ class SupplyLydiaSelfView(FormView):
 
 
 def get_button_lydia(request, amount, tel_number):
-        vendor_token = '56eaf745bd592622063936'
-        confirm_url = 'http://borgia.iresam.org/finances/supply/lydia/self/confirm'
-        callback_url = 'http://borgia.iresam.org/finances/supply/lydia/self/callback'
-        amount = amount
-        tel_number = tel_number
-        message = "Ajout d'argent compte de" + request.user.__str__() + "Borgia AE ENSAM"
-        return render(request, 'finances/lydia_self_button.html', locals())
+    vendor_token = '56eaf745bd592622063936'
+    confirm_url = 'http://borgia.iresam.org/finances/supply/lydia/self/confirm'
+    callback_url = 'http://borgia.iresam.org/finances/supply/lydia/self/callback'
+    amount = amount
+    tel_number = tel_number
+    message = "Ajout d'argent compte de" + request.user.__str__() + "Borgia AE ENSAM"
+    return render(request, 'finances/lydia_self_button.html', locals())
 
 
 class SupplyLydiaSelfConfirmView(View):
