@@ -20,6 +20,7 @@ class Sale(models.Model):
     amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
     date = models.DateTimeField(default=now)
     done = models.BooleanField(default=False)
+    is_credit = models.BooleanField(default=False)
 
     # Relations
     # Avec users
@@ -63,9 +64,9 @@ class Sale(models.Model):
     def price_for(self, user):
         price_for = 0
         # Cas des crédits
-        if self.recipient == user:
+        if self.is_credit is True or self.recipient == user:
             price_for = self.amount
-        # Cas des débits
+        # Cas des débit
         else:
             for e in self.payment.list_lydia()[0]:
                 if e.sender == user:
@@ -467,7 +468,8 @@ def supply_self_lydia(user, recipient, amount, transaction_identifier):
     sale = Sale.objects.create(date=datetime.now(),
                                sender=user,
                                recipient=recipient,
-                               operator=user)
+                               operator=user,
+                               is_credit=True)
     # Spfc
     SingleProductFromContainer.objects.create(container=container,
                                               sale=sale,

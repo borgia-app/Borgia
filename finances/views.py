@@ -285,7 +285,8 @@ class SupplyUnitedView(FormView):
                                    sender=sender,
                                    operator=operator,
                                    recipient=User.objects.get(username='AE_ENSAM'),
-                                   payment=payment)
+                                   payment=payment,
+                                   is_credit=True)
 
         # Création d'un spfc d'argent fictif
         spfc = SingleProductFromContainer.objects.create(container=Container.objects.get(
