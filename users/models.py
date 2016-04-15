@@ -28,13 +28,13 @@ class User(AbstractUser):
 
     # Attributs
     # ID, last_name, first_name, email sont dans AbstractUser
-    surname = models.CharField(max_length=255, blank=True, null=True)
-    family = models.CharField(max_length=255, blank=True, null=True)
-    balance = models.DecimalField(default=0, max_digits=9, decimal_places=2)
-    year = models.IntegerField(choices=YEAR_CHOICES, blank=True, null=True)
-    campus = models.CharField(choices=CAMPUS_CHOICES, max_length=2, blank=True, null=True)
-    phone = models.CharField(max_length=255, blank=True, null=True)
-    token_id = models.CharField(max_length=6, blank=True, null=True)
+    surname = models.CharField('Bucque', max_length=255, blank=True, null=True)
+    family = models.CharField('Fam\'ss', max_length=255, blank=True, null=True)
+    balance = models.DecimalField('Solde', default=0, max_digits=9, decimal_places=2)
+    year = models.IntegerField('Prom\'ss', choices=YEAR_CHOICES, blank=True, null=True)
+    campus = models.CharField('Tabagn\'ss', choices=CAMPUS_CHOICES, max_length=2, blank=True, null=True)
+    phone = models.CharField('Numéro de téléphone', max_length=255, blank=True, null=True)
+    token_id = models.CharField('Numéro de jeton lié', max_length=6, blank=True, null=True)
 
     def __str__(self):
         return self.first_name+' '+self.last_name

@@ -17,10 +17,10 @@ class Sale(models.Model):
     """
 
     # Attributs
-    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
-    date = models.DateTimeField(default=now)
-    done = models.BooleanField(default=False)
-    is_credit = models.BooleanField(default=False)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
+    date = models.DateTimeField('Date', default=now)
+    done = models.BooleanField('Terminée', default=False)
+    is_credit = models.BooleanField('Est un crédit', default=False)
 
     # Relations
     # Avec users
@@ -99,7 +99,7 @@ class Payment(models.Model):
     """
 
     # Attributs
-    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
 
     # Relations
     cheques = models.ManyToManyField('Cheque', blank=True)
@@ -157,8 +157,8 @@ class Payment(models.Model):
 class DebitBalance(models.Model):
 
     # Attributs
-    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
-    date = models.DateTimeField(default=now)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
+    date = models.DateTimeField('Date', default=now)
     # Relations
     sender = models.ForeignKey('users.User', related_name='sender_debit_balance')
     recipient = models.ForeignKey('users.User', related_name='recipient_debit_balance')
@@ -184,10 +184,10 @@ class DebitBalance(models.Model):
 class Cheque(models.Model):
 
     # Attributs
-    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
-    is_cashed = models.BooleanField(default=False)
-    signature_date = models.DateField(default=now)
-    cheque_number = models.CharField(max_length=7)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
+    is_cashed = models.BooleanField('Est encaissé', default=False)
+    signature_date = models.DateField('Date de signature', default=now)
+    cheque_number = models.CharField('Numéro de chèque', max_length=7)
 
     # Relations
     sender = models.ForeignKey('users.User', related_name='cheque_sender')
@@ -214,8 +214,8 @@ class Cheque(models.Model):
 class BankAccount(models.Model):
 
     # Attributs
-    bank = models.CharField(max_length=255)
-    account = models.CharField(max_length=255)
+    bank = models.CharField('Banque', max_length=255)
+    account = models.CharField('Numéro de compte', max_length=255)
 
     # Relations
     owner = models.ForeignKey('users.User', related_name='owner_bank_account')
@@ -234,7 +234,7 @@ class BankAccount(models.Model):
 class Cash(models.Model):
 
     # Attributs
-    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
 
     # Relations
     sender = models.ForeignKey('users.User', related_name='cash_sender')
@@ -259,16 +259,16 @@ class Cash(models.Model):
 
 class Lydia(models.Model):
     # Information sur l'identite du virement lydia
-    date_operation = models.DateField(default=now)
-    amount = models.DecimalField(default=0, decimal_places=2, max_digits=9)
+    date_operation = models.DateField('Date', default=now)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
     # numero unique du virement lydia (communiqué par lydia: comment?)
-    id_from_lydia = models.CharField(max_length=255)
+    id_from_lydia = models.CharField('Numéro unique', max_length=255)
     sender = models.ForeignKey('users.User', related_name='lydia_sender')
     recipient = models.ForeignKey('users.User', related_name='lydia_recipient')
 
     # Information de comptabilite
-    banked = models.BooleanField(default=False)
-    date_banked = models.DateField(blank=True, null=True)
+    banked = models.BooleanField('Est encaissé', default=False)
+    date_banked = models.DateField('Date encaissement', blank=True, null=True)
 
     def __str__(self):
         return self.giver.last_name+' '+self.giver.first_name+' '+str(self.amount)+'€'
@@ -298,18 +298,18 @@ class SharedEvent(models.Model):
     """
 
     # Attributs
-    description = models.CharField(max_length=254)
-    date = models.DateField(default=now)
-    price = models.DecimalField(decimal_places=2, max_digits=9, null=True, blank=True)
-    bills = models.CharField(max_length=254, null=True, blank=True)
-    done = models.BooleanField(default=False)
+    description = models.CharField('Description', max_length=254)
+    date = models.DateField('Date', default=now)
+    price = models.DecimalField('Prix', decimal_places=2, max_digits=9, null=True, blank=True)
+    bills = models.CharField('Facture(s)', max_length=254, null=True, blank=True)
+    done = models.BooleanField('Terminé', default=False)
 
     # Relations
     manager = models.ForeignKey('users.User', related_name='manager')
     sale = models.ForeignKey('Sale', null=True, blank=True)
     participants = models.ManyToManyField('users.User', blank=True, related_name='participants')
     registered = models.ManyToManyField('users.User', blank=True, related_name='registered')
-    ponderation = models.CharField(max_length=10000, default='[]')
+    ponderation = models.CharField('Liste ordonnée participants - pondérations', max_length=10000, default='[]')
 
     # Méthodes
     def __str__(self):

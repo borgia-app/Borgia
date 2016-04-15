@@ -17,8 +17,8 @@ class Shop(models.Model):
     """
 
     # Atttributs
-    name = models.CharField(max_length=255, default="Shop name")
-    description = models.TextField()
+    name = models.CharField('Nom', max_length=255, default="Shop name")
+    description = models.TextField('Description', default="Description")
 
     # Méthodes
     def __str__(self):
@@ -97,13 +97,13 @@ class ProductBase(models.Model):
     TYPE_CHOICES = (('single_product', 'Produit unitaire'), ('container', 'Conteneur'))
 
     # Attributs
-    name = models.CharField(max_length=255, default="Product base name")
-    description = models.TextField()
-    calculated_price = models.DecimalField(default=0, decimal_places=2, max_digits=9)
-    brand = models.CharField(max_length=255)
-    type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
+    name = models.CharField('Nom', max_length=255, default="Product base name")
+    description = models.TextField('Description', default="Description")
+    calculated_price = models.DecimalField('Prix calculé', default=0, decimal_places=2, max_digits=9)
+    brand = models.CharField('Marque', max_length=255)
+    type = models.CharField('Type', max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
 
-    quantity = models.DecimalField(default=0, null=True, blank=True, decimal_places=2, max_digits=9)
+    quantity = models.DecimalField('Quantité d\'unité de produit', default=0, null=True, blank=True, decimal_places=2, max_digits=9)
 
     # Relations
     # Avec shops.models
@@ -162,12 +162,12 @@ class SingleProduct(models.Model):
     """
 
     # Attributs
-    price = models.DecimalField(default=0, decimal_places=2, max_digits=9)
-    sale_price = models.DecimalField(default=0, decimal_places=2, max_digits=9, null=True, blank=True)
-    purchase_date = models.DateField(default=now)
-    expiry_date = models.DateField(blank=True, null=True)
-    place = models.CharField(max_length=255)
-    is_sold = models.BooleanField(default=False)
+    price = models.DecimalField('Prix d\'achat', default=0, decimal_places=2, max_digits=9)
+    sale_price = models.DecimalField('Prix de vente', default=0, decimal_places=2, max_digits=9, null=True, blank=True)
+    purchase_date = models.DateField('Date d\'achat', default=now)
+    expiry_date = models.DateField('Date d\'expiration', blank=True, null=True)
+    place = models.CharField('Lieu de stockage', max_length=255)
+    is_sold = models.BooleanField('Est vendu', default=False)
 
     # Relations
     # Avec shops.models
@@ -198,12 +198,12 @@ class Container(models.Model):
     """
 
     # Attributs
-    price = models.DecimalField(default=0, decimal_places=2, max_digits=9)
-    purchase_date = models.DateField(default=now)
-    expiry_date = models.DateField(blank=True, null=True)
-    place = models.CharField(max_length=255)
-    quantity_remaining = models.DecimalField(default=0, decimal_places=2, max_digits=9)
-    is_sold = models.BooleanField(default=False)
+    price = models.DecimalField('Prix d\'achat', default=0, decimal_places=2, max_digits=9)
+    purchase_date = models.DateField('Date d\'achat', default=now)
+    expiry_date = models.DateField('Date d\'expiration', blank=True, null=True)
+    place = models.CharField('Lieu de stockage', max_length=255)
+    quantity_remaining = models.DecimalField('Quantité d\'unité produit restante', default=0, decimal_places=2, max_digits=9)
+    is_sold = models.BooleanField('Est vendu', default=False)
     # TODO: gestion des consignes
 
     # Relations
@@ -247,10 +247,10 @@ class ProductUnit(models.Model):
                     ('fictional_money', 'argent fictif'))
 
     # Attributs
-    name = models.CharField(max_length=255, default="Product unit name")
-    description = models.TextField(max_length=255, null=True, blank=True)
-    unit = models.CharField(max_length=255, choices=UNIT_CHOICES, default=UNIT_CHOICES[0][0])
-    type = models.CharField(max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
+    name = models.CharField('Nom', max_length=255, default="Product unit name")
+    description = models.TextField('Description', max_length=255, null=True, blank=True)
+    unit = models.CharField('Unité', max_length=255, choices=UNIT_CHOICES, default=UNIT_CHOICES[0][0])
+    type = models.CharField('Type', max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
 
     # Méthodes
     def usual_quantity(self):
@@ -278,8 +278,8 @@ class SingleProductFromContainer(models.Model):
     """
 
     # Attributs
-    quantity = models.IntegerField(default=0)
-    sale_price = models.DecimalField(default=0, decimal_places=2, max_digits=9)
+    quantity = models.IntegerField('Quantité d\'unité de produit', default=0)
+    sale_price = models.DecimalField('Prix de vente', default=0, decimal_places=2, max_digits=9)
 
     # Relations
     container = models.ForeignKey('Container')
