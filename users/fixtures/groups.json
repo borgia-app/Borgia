@@ -39,6 +39,7 @@
         ["list_debitbalance", "finances", "debitbalance"],
 
         ["supply_account", "users", "user"],
+        ["exceptionnal_movement", "users", "user"],
         ["add_bankaccount", "finances", "bankaccount"],
 
         ["add_user", "users", "user"],

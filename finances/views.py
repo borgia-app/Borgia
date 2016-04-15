@@ -327,6 +327,63 @@ class SupplyUnitedView(FormView):
         return context
 
 
+class ExceptionnalMovementView(FormNextView):
+    form_class = ExceptionnalMovementForm
+    template_name = 'finances/exceptionnal_movement.html'
+    success_url = '/auth/login'
+
+    def form_valid(self, form):
+
+        # Identification du gestionnaire
+        # Le cas d'échec d'authentification est géré dans le form.clean()
+        operator = authenticate(username=form.cleaned_data['operator_username'],
+                                password=form.cleaned_data['operator_password'])
+
+        if form.cleaned_data['type_movement'] == 'debit':
+            sender = User.objects.get(username=form.cleaned_data['affected'])
+            recipient = User.objects.get(username='AE_ENSAM')
+        else:
+            recipient = User.objects.get(username=form.cleaned_data['affected'])
+            sender = User.objects.get(username='AE_ENSAM')
+
+        # Création du paiement
+        payment = Payment.objects.create()
+
+        # Création de la vente
+        sale = Sale.objects.create(date=datetime.now(),
+                                   sender=sender,
+                                   operator=operator,
+                                   recipient=recipient,
+                                   payment=payment)
+
+        # Débit sur compte foyer
+        d_b = DebitBalance.objects.create(sender=sender,
+                                          recipient=recipient,
+                                          amount=form.cleaned_data['amount'])
+        payment.debit_balance.add(d_b)
+        payment.maj_amount()
+        payment.save()
+
+        # Création d'un spfc d'argent fictif
+        spfc = SingleProductFromContainer.objects.create(container=Container.objects.get(
+            product_base__product_unit__name='Argent fictif'), quantity=payment.amount * 100,
+            sale_price=payment.amount, sale=sale)
+
+        # Mise à jour sale
+        if form.cleaned_data['type_movement'] == 'credit':
+            sale.is_credit = True
+        sale.maj_amount()
+        sale.save()
+
+        # Débit / crédit du client
+        if form.cleaned_data['type_movement'] == 'debit':
+            sender.debit(sale.amount)
+        else:
+            recipient.credit(sale.amount)
+
+        return super(ExceptionnalMovementView, self).form_valid(form)
+
+
 class SupplyLydiaSelfView(FormView):
     form_class = SupplyLydiaSelfForm
     template_name = 'finances/lydia_self.html'

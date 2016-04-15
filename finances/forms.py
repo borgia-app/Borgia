@@ -38,7 +38,7 @@ class SupplyUnitedForm(forms.Form):
     # Type
     type = forms.ChoiceField(label='Type', choices=(('cash', 'Espèces'), ('cheque', 'Chèque'), ('lydia', 'Lydia')))
     # Informations générales
-    amount = forms.FloatField(label='Montant (€)')
+    amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
     sender = forms.CharField(label='Payeur', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
     unique_number = forms.CharField(label='Numéro unique', required=False)  # Inutile pour Cash
     signature_date = forms.DateField(label='Date de signature', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))  # Inutile pour Cash
@@ -106,6 +106,33 @@ class RetrieveMoneyForm(forms.Form):
             if name.startwith('field_user_'):
                 yield (self.fields[name].label, value)
 
+
+class ExceptionnalMovementForm(forms.Form):
+    type_movement = forms.ChoiceField(choices=(('debit', 'Débit'), ('credit', 'Crédit')), label='Type')
+    amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
+    affected = forms.CharField(label='Concerné', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
+    operator_username = forms.CharField(label='Gestionnaire', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
+    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
+
+    def clean(self):
+
+        cleaned_data = super(ExceptionnalMovementForm, self).clean()
+        try:
+            operator_username = cleaned_data['operator_username']
+            operator_password = cleaned_data['operator_password']
+
+            # Essaye d'authentification seulement si les deux champs sont valides
+            if operator_password and operator_password:
+                # Cas d'échec d'authentification
+                if authenticate(username=operator_username, password=operator_password) is None:
+                    raise forms.ValidationError('Echec d\'authentification')
+                #elif authenticate(username=operator_username, password=operator_password).has_perm(
+                #        'users.supply_account') is False:
+                #    raise forms.ValidationError('Erreur de permission')
+        except KeyError:
+            pass
+
+        return super(ExceptionnalMovementForm, self).clean()
 
 class SharedEventCreateForm(forms.Form):
     description = forms.CharField(label='Description')

@@ -51,6 +51,8 @@ urlpatterns = [
     url(r'^supply/lydia/self/$', SupplyLydiaSelfView.as_view(), name='url_supply_lydia_self'),
     url(r'^supply/lydia/self/confirm$', SupplyLydiaSelfConfirmView.as_view(), name='url_supply_lydia_self_confirm'),
     url(r'^supply/lydia/self/callback$', supply_lydia_self_callback, name='url_supply_lydia_self_callback'),
+    url(r'^supply/exceptionnal$', permission_required('users.exceptionnal_movement', raise_exception=True)
+    (ExceptionnalMovementView.as_view()), name='url_supply_exceptionnal'),
 
     # Transfert
     url(r'^transfert/create/$', permission_required('finances.add_transfert', raise_exception=True)
