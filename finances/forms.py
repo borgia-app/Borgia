@@ -52,16 +52,21 @@ class SupplyUnitedForm(forms.Form):
     def clean(self):
 
         cleaned_data = super(SupplyUnitedForm, self).clean()
-        operator_username = cleaned_data['operator_username']
-        operator_password = cleaned_data['operator_password']
 
-        # Essaye d'authentification seulement si les deux champs sont valides
-        if operator_password and operator_password:
-            # Cas d'échec d'authentification
-            if authenticate(username=operator_username, password=operator_password) is None:
-                raise forms.ValidationError('Echec d\'authentification')
-            elif authenticate(username=operator_username, password=operator_password).has_perm('users.supply_account') is False:
-                raise forms.ValidationError('Erreur de permission')
+        try:
+            operator_username = cleaned_data['operator_username']
+            operator_password = cleaned_data['operator_password']
+    
+            # Essaye d'authentification seulement si les deux champs sont valides
+            if operator_password and operator_password:
+                # Cas d'échec d'authentification
+                if authenticate(username=operator_username, password=operator_password) is None:
+                    raise forms.ValidationError('Echec d\'authentification')
+                elif authenticate(username=operator_username, password=operator_password).has_perm('users.supply_account') is False:
+                    raise forms.ValidationError('Erreur de permission')
+        except KeyError:
+            pass
+
         return super(SupplyUnitedForm, self).clean()
 
 
@@ -126,13 +131,14 @@ class ExceptionnalMovementForm(forms.Form):
                 # Cas d'échec d'authentification
                 if authenticate(username=operator_username, password=operator_password) is None:
                     raise forms.ValidationError('Echec d\'authentification')
-                #elif authenticate(username=operator_username, password=operator_password).has_perm(
-                #        'users.supply_account') is False:
-                #    raise forms.ValidationError('Erreur de permission')
+                elif authenticate(username=operator_username, password=operator_password).has_perm(
+                        'users.exceptionnal_movement') is False:
+                    raise forms.ValidationError('Erreur de permission')
         except KeyError:
             pass
 
         return super(ExceptionnalMovementForm, self).clean()
+
 
 class SharedEventCreateForm(forms.Form):
     description = forms.CharField(label='Description')
