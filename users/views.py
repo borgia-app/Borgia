@@ -14,12 +14,17 @@ import re, datetime
 
 from users.models import User, list_year
 from borgia.models import FormNextView, CreateNextView, UpdateNextView
+from contrib.models import add_to_breadcrumbs
 
 
 class LinkTokenUserView(FormNextView):
     form_class = LinkTokenUserForm
     template_name = 'users/link_token_user.html'
     success_url = '/auth/login'
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liaison jeton')
+        return super(LinkTokenUserView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
         user = User.objects.get(username=form.cleaned_data['username'])
@@ -44,6 +49,8 @@ class ManageGroupView(FormNextView):
         manage_perm_linked = permission_to_manage_group(group=group)[1]
         if request.user.has_perm(manage_perm_linked) is False:
             raise PermissionDenied
+
+        add_to_breadcrumbs(request, 'Groupe ' + group.name)
         return super(ManageGroupView, self).get(request, *args, **kwargs)
 
     def get_form_kwargs(self):
@@ -119,7 +126,7 @@ def username_from_username_part(request):
 
 
 def profile_view(request):
-
+    add_to_breadcrumbs(request, 'Profil')
     return render(request, 'users/profile.html', locals())
 
 
@@ -127,6 +134,10 @@ class UserCreateView(FormNextView):
     form_class = UserCreationCustomForm
     template_name = 'users/create.html'
     success_url = '/users/'  # Redirection a la fin
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Création user')
+        return super(UserCreateView, self).get(request, *args, **kwargs)
 
     # Override form_valid pour enregistrer les attributs issues d'autres classes (m2m ou autres)
     def form_valid(self, form):
@@ -167,6 +178,7 @@ class UserRetrieveView(DetailView):
         if request.user.has_perm('users.retrieve_user') is False and int(kwargs['pk']) != request.user.pk:
             raise PermissionDenied
 
+        add_to_breadcrumbs(request, 'Détail user')
         return super(UserRetrieveView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -186,6 +198,7 @@ class UserUpdateView(UpdateView):
         if request.user.has_perm('users.change_user') is False and int(kwargs['pk']) != request.user.pk:
             raise PermissionDenied
 
+        add_to_breadcrumbs(request, 'Modification user')
         return super(UserUpdateView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
@@ -207,6 +220,7 @@ class UserDesactivateView(SuccessMessageMixin, View):
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
+        add_to_breadcrumbs(request, 'Désactivation user')
         return render(request, 'users/desactivate.html',
                       {'object': user,
                        'next': self.request.GET.get('next', self.request.POST.get('next', self.success_url))})
@@ -227,6 +241,10 @@ class UserListView(ListView):
     model = User
     template_name = "users/list.html"
     queryset = User.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, "Liste users")
+        return super(UserListView, self).get(request, *args, **kwargs)
 
 
 class ListCompleteView(FormView):
@@ -261,6 +279,7 @@ class ListCompleteView(FormView):
                 # Autres
                 else:
                     self.attr[name] = request.GET.get(name)
+
         return super(ListCompleteView, self).get(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
@@ -303,6 +322,10 @@ class UserListCompleteView(ListCompleteView):
         'years': 'all',
         'active': True,
     }
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste users')
+        return super(UserListCompleteView, self).get(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(UserListCompleteView, self).get_form_kwargs()
@@ -396,6 +419,7 @@ def workboard_presidents(request):
     group_gadzarts_pk = Group.objects.get(name='Gadz\'Arts').pk
     group_membres_honneurs_pk = Group.objects.get(name='Membres d\'honneurs').pk
 
+    add_to_breadcrumbs(request, 'Workboard présidents')
     return render(request, 'users/workboard_presidents.html', locals())
 
 
@@ -404,4 +428,5 @@ def workboard_vices_presidents_vie_interne(request):
     group_chefs_gestionnaires_foyer_pk = Group.objects.get(name='Chefs gestionnaires du foyer').pk
     group_chefs_gestionnaires_auberge_pk = Group.objects.get(name='Chefs gestionnaires de l\'auberge').pk
 
+    add_to_breadcrumbs(request, 'Workboard vices présidents')
     return render(request, 'users/workboard_vices_presidents_vie_interne.html', locals())

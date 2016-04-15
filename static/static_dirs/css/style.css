@@ -1197,3 +1197,13 @@ body{
     transform: translateY(-50%);
 }
 
+/* Breadcrumbs */
+
+#breadcrumbs {
+    list-style-type: none;
+}
+
+#breadcrumbs li {
+    display: inline-block;
+}
+

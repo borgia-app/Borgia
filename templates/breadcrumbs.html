@@ -1,0 +1,11 @@
+<div id="breadcrumbs" class="row">
+<ul>
+    {% for b in breadcrumbs %}
+        {% if b.1 != 'last' %}
+        <li><a class="s" href="{{ b.1 }}">{{ b.0 }}</a></li> <i class="fa fa-long-arrow-right"></i>
+        {% else %}
+        <li>{{ b.0 }}</li>
+        {% endif %}
+    {% endfor %}
+</ul>
+</div>

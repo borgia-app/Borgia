@@ -6,9 +6,6 @@
 
     <div class="container">
         <div class="row">
-            <p><a href="{% url 'url_workboard_treasury' %}">Retour au workboard trésoriers</a></p>
-        </div>
-        <div class="row">
             <form action= "{% url 'url_manage_list_shared_event' %}" method="post">
                 {% csrf_token %}
                 <div class="fieldWrapper">

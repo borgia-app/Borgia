@@ -21,6 +21,7 @@ from borgia.models import FormNextView, CreateNextView, UpdateNextView
 from django.conf import settings
 from users.views import ListCompleteView
 from users.templatetags import extra
+from contrib.models import add_to_breadcrumbs
 
 
 def electrovanne_request1(request):
@@ -100,7 +101,7 @@ def electrovanne_date(request):
 
 
 def workboard_treasury(request):
-
+    add_to_breadcrumbs(request, 'Workboard trésoriers')
     return render(request, 'finances/workboard_tresury.html', locals())
 
 
@@ -114,6 +115,10 @@ class RetrieveMoneyView(ListCompleteView):
         'operators': 'all',
         'order_by': 'date',
     }
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste rechargements')
+        return super(RetrieveMoneyView, self).get(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(RetrieveMoneyView, self).get_form_kwargs()
@@ -189,6 +194,10 @@ class TransfertCreateView(FormView):
     template_name = 'finances/transfert_create.html'
     success_url = '/users/profile'
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Création transfert')
+        return super(TransfertCreateView, self).get(request, *args, **kwargs)
+
     def form_valid(self, form):
 
         # Création du virement par compte foyer
@@ -239,6 +248,10 @@ class SupplyUnitedView(FormView):
     form_class = SupplyUnitedForm
     template_name = 'finances/supply_united.html'
     success_url = '/auth/login'
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Rechargement compte')
+        return super(SupplyUnitedView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
 
@@ -317,6 +330,10 @@ class SupplyUnitedView(FormView):
 class SupplyLydiaSelfView(FormView):
     form_class = SupplyLydiaSelfForm
     template_name = 'finances/lydia_self.html'
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Rechargement Lydia auto')
+        return super(SupplyLydiaSelfView, self).get(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(SupplyLydiaSelfView, self).get_form_kwargs()
@@ -400,6 +417,10 @@ class BankAccountCreateView(CreateNextView):
     template_name = 'finances/bank_account_create.html'
     success_url = '/finances/bank_account'
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Création compte en banque')
+        return super(BankAccountCreateView, self).get(request, *args, **kwargs)
+
 
 class BankAccountUpdateView(UpdateView):
     model = BankAccount
@@ -407,11 +428,19 @@ class BankAccountUpdateView(UpdateView):
     template_name = 'finances/bank_account_update.html'
     success_url = '/finances/bank_account/'
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Modification compte en banque')
+        return super(BankAccountUpdateView, self).get(request, *args, **kwargs)
+
 
 class BankAccountDeleteView(DeleteView):
     model = BankAccount
     template_name = 'finances/bank_account_delete.html'
     success_url = '/finances/bank_account'
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Suppression compte en banque')
+        return super(BankAccountDeleteView, self).get(request, *args, **kwargs)
 
 
 class BankAccountListView(ListView):
@@ -419,10 +448,18 @@ class BankAccountListView(ListView):
     template_name = "finances/bank_account_list.html"
     queryset = BankAccount.objects.all()
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste comptes en banque')
+        return super(BankAccountListView, self).get(request, *args, **kwargs)
+
 
 class ChequeRetrieveView(DetailView):
     model = Cheque
     template_name = "finances/cheque_retrieve.html"
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Détail chèque')
+        return super(ChequeRetrieveView, self).get(request, *args, **kwargs)
 
 
 class ChequeListView(ListView):
@@ -430,10 +467,18 @@ class ChequeListView(ListView):
     template_name = "finances/cheque_list.html"
     queryset = Cheque.objects.all()
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste chèques')
+        return super(ChequeListView, self).get(request, *args, **kwargs)
+
 
 class CashRetrieveView(DetailView):
     model = Cash
     template_name = "finances/cash_retrieve.html"
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Détail espèces')
+        return super(CashRetrieveView, self).get(request, *args, **kwargs)
 
 
 class CashListView(ListView):
@@ -441,16 +486,28 @@ class CashListView(ListView):
     template_name = "finances/cash_list.html"
     queryset = Cash.objects.all()
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste espèces')
+        return super(CashListView, self).get(request, *args, **kwargs)
+
 
 class LydiaRetrieveView(DetailView):
     model = Lydia
     template_name = "finances/lydia_retrieve.html"
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Détail virement Lydia')
+        return super(LydiaRetrieveView, self).get(request, *args, **kwargs)
 
 
 class LydiaListView(ListView):
     model = Lydia
     template_name = "finances/lydia_list.html"
     queryset = Lydia.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste virements Lydia')
+        return super(LydiaListView, self).get(request, *args, **kwargs)
 
 
 class SaleRetrieveView(DetailView):
@@ -468,6 +525,7 @@ class SaleRetrieveView(DetailView):
         if request.user.has_perm('finances.retrieve_sale') is False and is_linked is False:
             raise PermissionDenied
 
+        add_to_breadcrumbs(request, 'Détail transaction')
         return super(SaleRetrieveView, self).get(request, *args, **kwargs)
 
 
@@ -476,11 +534,19 @@ class SaleListView(ListView):
     template_name = "finances/sale_list.html"
     queryset = Sale.objects.all()
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste transactions')
+        return super(SaleListView, self).get(request, *args, **kwargs)
+
 
 class SaleListLightView(ListView):
     model = Sale
     template_name = "finances/sale_list_light.html"
     queryset = Sale.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Détail transaction light')
+        return super(SaleListLightView, self).get(request, *args, **kwargs)
 
 
 class SharedEventCreateView(FormNextView):
@@ -500,6 +566,10 @@ class SharedEventCreateView(FormNextView):
         se.save()
 
         return super(SharedEventCreateView, self).form_valid(form)
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Création événement')
+        return super(SharedEventCreateView, self).get(request, *args, **kwargs)
 
 
 def shared_event_registration(request):
@@ -563,15 +633,21 @@ class SharedEventManageListView(FormView):
         context['query_shared_event'] = SharedEvent.objects.filter(date__gte=now(), done=False)
         return context
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste événements pro')
+        return super(SharedEventManageListView, self).get(request, *args, **kwargs)
+
 
 def shared_event_list(request):
     query_shared_event = SharedEvent.objects.filter(done=False).order_by('-date')
+
+    add_to_breadcrumbs(request, 'Liste événements')
     return render(request, 'finances/shared_event_list.html', locals())
 
 
 class SharedEventManageView(View):
     template_name = 'finances/shared_event_manage.html'
-    # TODO: autocompletion pour add user, bouton pour supprimer l'event
+    # TODO: bouton pour supprimer l'event
 
     def get_query_user(self, state):
         se = SharedEvent.objects.get(pk=self.kwargs['pk'])
@@ -670,6 +746,7 @@ class SharedEventManageView(View):
             'next': request.GET.get('next')
         }
 
+        add_to_breadcrumbs(request, 'Gestion événement')
         return render(request, self.template_name, context)
 
     def post(self, request, *args, **kwargs):

@@ -4,6 +4,8 @@ from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django.conf import settings
 from re import compile, match
+from django.contrib.sessions.models import Session
+from django.contrib.auth.signals import user_logged_in, user_logged_out
 
 
 class TimeStampedDescription(models.Model):
@@ -52,3 +54,60 @@ class LoginRequiredMiddleware:
                         break
                 if denied is True:
                     return HttpResponseRedirect(settings.LOGIN_URL)
+
+
+def user_logged_in_handler(sender, request, user, **kwargs):
+    """
+    Initialisation du breadcrumbs à la connexion
+    """
+    request.session['breadcrumbs'] = []
+
+
+def user_logged_out_handler(sender, request, user, **kwargs):
+    """
+     Effacement du breadcrumbs à la deconnexion, même si on garde la session
+    """
+    request.session['breadcrumbs'] = []
+
+
+# Connection des signaux aux fonctions initialisation et suppression breadcrumbs
+user_logged_in.connect(user_logged_in_handler)
+user_logged_out.connect(user_logged_out_handler)
+
+
+def add_to_breadcrumbs(request, label):
+    """
+    Ajoute un couple (label, url) au breadcrumb.
+
+    Si on détecte que le label est déjà dans le breadcrumb, alors on ne l'ajoute pas et on se positionne sur cet url.
+    On supprime alors les breadcrumbs qui sont après.
+    Ex: Profil -> workboard X -> Profil devient Profil
+
+    Dans le cas où on boucle sur un même url, le premier est sauvegardé, pas les autres.
+    On garde de cette façon les paramètres GET utiles.
+    Ex: listx?next=blabla est sauvegardé, même si on revient sur listx sans next
+
+    La fonction ne garde que 5 breadcrumbs dans la liste
+    """
+    breadcrumbs = request.session['breadcrumbs'][:]
+
+    # Si le lien est déjà dans le breadcrumbs, on ne l'ajoute pas mais on fait comme s'il était celui actif
+
+    in_breadcrumbs = False
+
+    for d in breadcrumbs:
+        if d[0] == label:
+            in_breadcrumbs = breadcrumbs.index(d)
+            break
+
+    if in_breadcrumbs is not False:
+        breadcrumbs = breadcrumbs[0:in_breadcrumbs+1]
+    else:
+        breadcrumbs.append([label, request.get_full_path()])
+
+    # Seulement 5 breadcrumbs
+    # Effacement par le début
+    while len(breadcrumbs) > 5:
+        del breadcrumbs[0]
+
+    request.session['breadcrumbs'] = breadcrumbs

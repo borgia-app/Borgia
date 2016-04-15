@@ -15,7 +15,6 @@
                     {% else %}
                         Activer l'utilisateur
                     {% endif %}</a></p>
-                <p><a class="s" href="{% url 'url_list_user_complete' %}?next={{ next }}">Retour</a></p>
                 <input type=hidden name="next" value="{{ next }}" />
             </div>
         {% endif %}

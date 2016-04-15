@@ -1,5 +1,6 @@
 {% load staticfiles %}
 {% load notifications_extra %}
+{% load extra %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -45,16 +46,21 @@
 </nav>
 
 {% if user.is_authenticated %}
-    {{ request|filter_get_undisplayed_notifications_for_user }}
-    {% if messages %}
-        <br />
-        <div class="container">
-            {% for message in messages %}
-                <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
-            {% endfor %}
+    <div class="container">
+        <div class="row">
+            {{ request|filter_get_undisplayed_notifications_for_user }}
+            {% if messages %}
+                <br />
+
+                {% for message in messages %}
+                    <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+
+                <br />
+            {% endif %}
         </div>
-        <br />
-    {% endif %}
+        {% breadcrumbs %}
+    </div>
 {%  endif %}
 
 <div class="container">
