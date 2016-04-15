@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, HttpResponse, force_text, redirect
+from django.shortcuts import render, HttpResponse, force_text, redirect, HttpResponseRedirect
 from users.forms import UserCreationCustomForm, ManageGroupForm, LinkTokenUserForm, UserListCompleteForm
 from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin, DeleteView
 from django.views.generic import ListView, DetailView, FormView, View
@@ -189,7 +189,7 @@ class UserRetrieveView(DetailView):
 
 class UserUpdateView(UpdateView):
     model = User
-    fields = ['first_name', 'last_name', 'surname', 'email', 'family', 'year', 'campus']
+    fields = ['first_name', 'last_name', 'surname', 'email', 'family', 'year', 'campus', 'avatar']
     template_name = 'users/update.html'
     success_url = '/users/profile/'
 
@@ -210,6 +210,17 @@ class UserUpdateView(UpdateView):
         # Notifications
         user_updating_notify_success_to_user_and_admins(self.request, self.object)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
+
+    def form_valid(self, form):
+
+        # Si on modifie l'avatar (changement ou suppression)
+        # Si l'avatar a changé, et qu'initialement il n'était pas vide
+        # Alors on supprime l'ancien avatar des fichiers
+        old_object = User.objects.get(pk=self.kwargs['pk'])
+        if old_object.avatar != self.object.avatar and old_object.avatar:
+            old_object.avatar.delete(True)
+
+        return super(UserUpdateView, self).form_valid(form)
 
 
 class UserDesactivateView(SuccessMessageMixin, View):

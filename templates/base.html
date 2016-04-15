@@ -94,4 +94,15 @@
     </script>
 </footer>
 
+{% if user.is_authenticated %}
+    {% if user.avatar %}
+        <style>
+            .user-container:before {
+                background: url('{% static user.avatar.url %}') no-repeat 0 0;
+                background-size: 100%;
+                content: "";
+            }
+        </style>
+    {% endif %}
+{% endif %}
 </html>

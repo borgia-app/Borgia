@@ -35,6 +35,7 @@ class User(AbstractUser):
     campus = models.CharField('Tabagn\'ss', choices=CAMPUS_CHOICES, max_length=2, blank=True, null=True)
     phone = models.CharField('Numéro de téléphone', max_length=255, blank=True, null=True)
     token_id = models.CharField('Numéro de jeton lié', max_length=6, blank=True, null=True)
+    avatar = models.ImageField('Avatar', upload_to='img/avatars/', default=None, blank=True, null=True)
 
     def __str__(self):
         return self.first_name+' '+self.last_name

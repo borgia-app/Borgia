@@ -4,7 +4,8 @@ from django.contrib import admin
 from django.contrib.auth.views import logout, login, password_reset, password_reset_complete, password_reset_confirm,\
     password_change, password_change_done
 from borgia.views import LoginPG, jsi18n_catalog
-
+from django.conf import settings
+from django.conf.urls.static import static
 
 urlpatterns = [
     # Applications
@@ -31,4 +32,9 @@ urlpatterns = [
 
     # Alias url pour PGs
     url('^(?P<organe>\w+)$', LoginPG.as_view(), name='url_login_pg')
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Cette ligne permet d'utiliser le dossier MEDIA en
+# dev (en prod c'est automatique)
+
+
+
+
