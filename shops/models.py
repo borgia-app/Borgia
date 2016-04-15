@@ -163,7 +163,7 @@ class SingleProduct(models.Model):
 
     # Attributs
     price = models.DecimalField(default=0, decimal_places=2, max_digits=9)
-    sale_price = models.FloatField(null=True, blank=True)
+    sale_price = models.DecimalField(default=0, decimal_places=2, max_digits=9, null=True, blank=True)
     purchase_date = models.DateField(default=now)
     expiry_date = models.DateField(blank=True, null=True)
     place = models.CharField(max_length=255)
