@@ -16,6 +16,7 @@ from users.models import User
 from finances.models import Sale, DebitBalance, Payment
 from notifications.models import *
 from borgia.models import FormNextView, CreateNextView, UpdateNextView
+from contrib.models import add_to_breadcrumbs
 
 
 # AUBERGE
@@ -186,6 +187,7 @@ class PurchaseAuberge(FormView):
 
 def workboard_auberge(request):
     group_gestionnaires_de_l_auberge_pk = Group.objects.get(name='Gestionnaires de l\'auberge').pk
+    add_to_breadcrumbs(request, 'Workboard foyer')
     return render(request, 'shops/workboard_auberge.html', locals())
 
 
@@ -194,6 +196,10 @@ class ReplacementActiveKeyView(FormNextView):
     template_name = 'shops/replacement_active_keg.html'
     form_class = ReplacementActiveKegForm
     success_url = '/auth/login'
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Remplacement fût')
+        return super(ReplacementActiveKeyView, self).get(request, *args, **kwargs)
 
     def form_valid(self, form):
 
@@ -435,9 +441,8 @@ class PurchaseFoyer(FormView):
 
 
 def workboard_foyer(request):
-
     group_gestionnaires_du_foyer_pk = Group.objects.get(name='Gestionnaires du foyer').pk
-
+    add_to_breadcrumbs(request, 'Workboard foyer')
     return render(request, 'shops/workboard_foyer.html', locals())
 
 
@@ -451,6 +456,7 @@ def list_active_keg(request):
         except ObjectDoesNotExist:  # Cas où la tireuse est vide
             active_keg_container_list.append(('tireuse %s' % i, None))
 
+    add_to_breadcrumbs(request, 'Liste fûts en cours')
     return render(request, 'shops/list_active_keg.html', locals())
 
 
@@ -494,16 +500,28 @@ class SingleProductCreateMultipleView(FormNextView):
         kwargs['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
         return kwargs
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Création produits unitaires')
+        return super(SingleProductCreateMultipleView, self).get(request, *args, **kwargs)
+
 
 class SingleProductRetrieveView(DetailView):
     model = SingleProduct
     template_name = 'shops/singleproduct_retrieve.html'
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Détail produit unitaire')
+        return super(SingleProductRetrieveView, self).get(request, *args, **kwargs)
 
 
 class SingleProductListView(ListView):
     model = SingleProduct
     template_name = 'shops/singleproduct_list.html'
     queryset = SingleProduct.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste produits unitaires')
+        return super(SingleProductListView, self).get(request, *args, **kwargs)
 
 
 class ContainerCreateMultipleView(FormNextView):
@@ -547,16 +565,28 @@ class ContainerCreateMultipleView(FormNextView):
         kwargs['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
         return kwargs
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Créations conteneurs')
+        return super(ContainerCreateMultipleView, self).get(request, *args, **kwargs)
+
 
 class ContainerRetrieveView(DetailView):
     model = Container
     template_name = 'shops/container_retrieve.html'
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Détail conteneur')
+        return super(ContainerRetrieveView, self).get(request, *args, **kwargs)
 
 
 class ContainerListView(ListView):
     model = Container
     template_name = 'shops/container_list.html'
     queryset = Container.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste conteneurs')
+        return super(ContainerListView, self).get(request, *args, **kwargs)
 
 
 class ProductUnitCreateView(CreateNextView):
@@ -570,9 +600,18 @@ class ProductUnitCreateView(CreateNextView):
         product_unit_creation_notify_success_to_user_and_admins(self.request, self.object)  # Notification
         return force_text(self.request.POST.get('next', self.success_url))
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Création unité de produit')
+        return super(ProductUnitCreateView, self).get(request, *args, **kwargs)
+
+
 class ProductUnitRetrieveView(DetailView):
     model = ProductUnit
     template_name = 'shops/productunit_retrieve.html'
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Détail unité de produit')
+        return super(ProductUnitRetrieveView, self).get(request, *args, **kwargs)
 
 
 class ProductUnitUpdateView(UpdateNextView):
@@ -586,6 +625,10 @@ class ProductUnitUpdateView(UpdateNextView):
         product_unit_updating_notify_success_to_user_and_admins(self.request, self.object)
         return force_text(self.request.GET.get('next', self.success_url))
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Modification unité de produit')
+        return super(ProductUnitUpdateView, self).get(request, *args, **kwargs)
+
 
 class ProductUnitDeleteView(DeleteView):
     model = ProductUnit
@@ -597,11 +640,19 @@ class ProductUnitDeleteView(DeleteView):
         product_unit_deletion_notify_success_to_user_and_admins(self.request, self.get_object())
         return force_text(self.request.GET.get('next', self.success_url))
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Suppression unité de produit')
+        return super(ProductUnitDeleteView, self).get(request, *args, **kwargs)
+
 
 class ProductUnitListView(ListView):
     model = ProductUnit
     template_name = 'shops/productunit_list.html'
     queryset = ProductUnit.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste unités de produit')
+        return super(ProductUnitListView, self).get(request, *args, **kwargs)
 
 
 class ProductBaseCreateView(CreateNextView):
@@ -620,10 +671,18 @@ class ProductBaseCreateView(CreateNextView):
         initial['type'] = 'container'
         return initial
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Création base de produits')
+        return super(ProductBaseCreateView, self).get(request, *args, **kwargs)
+
 
 class ProductBaseRetrieveView(DetailView):
     model = ProductBase
     template_name = 'shops/productbase_retrieve.html'
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Détail base de produits')
+        return super(ProductBaseRetrieveView, self).get(request, *args, **kwargs)
 
 
 class ProductBaseUpdateView(UpdateNextView):
@@ -637,6 +696,10 @@ class ProductBaseUpdateView(UpdateNextView):
         product_base_updating_notify_success_to_user_and_admins(self.request, self.object)
         return force_text(self.request.GET.get('next', self.success_url))
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Modification base de produits')
+        return super(ProductBaseUpdateView, self).get(request, *args, **kwargs)
+
 
 class ProductBaseDeleteView(DeleteView):
     model = ProductBase
@@ -649,11 +712,19 @@ class ProductBaseDeleteView(DeleteView):
         product_base_deletion_notify_success_to_user_and_admins(self.request, self.get_object()) # self.get_object nécessaire pour obtenir l'objet manipulé
         return force_text(self.request.GET.get('next', self.success_url))
 
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Suppression base de produits')
+        return super(ProductBaseDeleteView, self).get(request, *args, **kwargs)
+
 
 class ProductBaseListView(ListView):
     model = ProductBase
     template_name = 'shops/productbase_list.html'
     queryset = ProductBase.objects.all()
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste bases de produits')
+        return super(ProductBaseListView, self).get(request, *args, **kwargs)
 
 
 class ProductCreateMultipleView(FormNextView):
@@ -702,3 +773,7 @@ class ProductCreateMultipleView(FormNextView):
         kwargs_form = super(ProductCreateMultipleView, self).get_form_kwargs()
         kwargs_form['shop'] = Shop.objects.get(name=self.kwargs['shop'])
         return kwargs_form
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Création produits')
+        return super(ProductCreateMultipleView, self).get(request, *args, **kwargs)

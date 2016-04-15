@@ -7,7 +7,7 @@
         <form class="form-style-1" action= "{% url 'url_create_transfert' %}" method="post">
             {% csrf_token %}
             {{ form.as_ul }}
-            <li><input type="submit" value="Submit" id="id_submit"/></li>
+            <li><input type="submit" value="Valider" id="id_submit"/></li>
         </form>
     </div>
 
