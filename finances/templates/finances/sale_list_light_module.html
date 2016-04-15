@@ -4,6 +4,7 @@
     <tr>
         <th>Date</th>
         <th>Emetteur</th>
+        <th>Opérateur</th>
         <th>Receveur</th>
         <th>Paiement</th>
         <th>Montant</th>
@@ -13,6 +14,7 @@
         <tr>
             <td>{{ e.date|date:"d/m/y" }}</td>
             <td>{{ e.sender }}</td>
+            <td>{{ e.operator }}</td>
             <td>{{ e.recipient }}</td>
             <td>
                 {% for mode_payment in e.payment.payments_used %}
