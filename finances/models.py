@@ -271,7 +271,7 @@ class Lydia(models.Model):
     date_banked = models.DateField('Date encaissement', blank=True, null=True)
 
     def __str__(self):
-        return self.giver.last_name+' '+self.giver.first_name+' '+str(self.amount)+'€'
+        return self.sender.last_name+' '+self.sender.first_name+' '+str(self.amount)+'€'
 
     def list_transaction(self):
         return Sale.objects.filter(payment__lydias=self)
