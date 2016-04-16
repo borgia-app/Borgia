@@ -2,7 +2,7 @@
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import logout, login, password_reset, password_reset_complete, password_reset_confirm,\
-    password_change, password_change_done
+    password_change, password_change_done, password_reset_done
 from borgia.views import LoginPG, jsi18n_catalog
 from django.conf import settings
 from django.conf.urls.static import static
@@ -21,11 +21,11 @@ urlpatterns = [
     url(r'^auth/login', login, {'template_name': 'login.html'}, name='url_login'),
     url(r'^auth/logout', logout, {'template_name': 'logout.html', 'next_page': login}, name='url_logout'),
 
-    url(r'^auth/password_reset/$', 'django.contrib.auth.views.password_reset', name='reset_password_reset1'),
-    url(r'^auth/password_reset/done/$', 'django.contrib.auth.views.password_reset_done', name='password_reset_done'),
-    url(r'^auth/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$', 'django.contrib.auth.views.password_reset_confirm',
+    url(r'^auth/password_reset/$', password_reset, name='reset_password_reset1'),
+    url(r'^auth/password_reset/done/$', password_reset_done, name='password_reset_done'),
+    url(r'^auth/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$', password_reset_confirm,
         name='password_reset_confirm'),
-    url(r'^auth/done/$', 'django.contrib.auth.views.password_reset_complete', name='password_reset_complete'),
+    url(r'^auth/done/$', password_reset_complete, name='password_reset_complete'),
 
     url(r'^auth/password_change$', password_change, {'post_change_redirect': password_change_done}, name='password_change'),
     url(r'^auth/password_change_done$', password_change_done),

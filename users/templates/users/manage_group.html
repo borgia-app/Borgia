@@ -9,19 +9,24 @@
     {{ form.media }}
 
     <div class="container">
-        <div class="row"><h2 class="align-center">Gestion du groupe {{ group_name }}</h2></div>
-        <div class="row">
-            <form class="form-style-1" action= "{% url 'url_manage_group' %}" method="post">
-                {% csrf_token %}
-                <div class="container">
-                    {{ form.members }}
-                    {{ form.permissions }}
-                </div>
-                <input type=hidden name="group_pk" value="{{ group_pk }}" />
-                <input type=hidden name="next" value="{{ next }}" />
-                <input type="submit" value="Valider"/>
-            </form>
-        </div>
+        <h2 class="align-center">Gestion du groupe {{ group_name }}</h2>
+        <form action= "{% url 'url_manage_group' %}" method="post">
+            {% csrf_token %}
+            <div class="container">
+                {{ form.members }}
+                {{ form.permissions }}
+            </div>
+            <input type=hidden name="group_pk" value="{{ group_pk }}" />
+            <input type=hidden name="next" value="{{ next }}" />
+            <input id="self_submit" type="submit" value="Valider"/>
+        </form>
     </div>
-
+    <style>
+        #self_submit {
+            background: #4B99AD;
+            padding: 8px 15px 8px 15px;
+            border: none;
+            color: #fff;
+        }
+    </style>
 {% endblock %}
