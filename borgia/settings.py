@@ -54,6 +54,7 @@ MIDDLEWARE_CLASSES = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'contrib.models.LoginRequiredMiddleware',
+    'contrib.models.RedirectLoginProfile',
 ]
 
 ROOT_URLCONF = 'borgia.urls'

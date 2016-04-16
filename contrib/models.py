@@ -111,3 +111,16 @@ def add_to_breadcrumbs(request, label):
         del breadcrumbs[0]
 
     request.session['breadcrumbs'] = breadcrumbs
+
+
+class RedirectLoginProfile:
+    """
+    Redirection vers le profile si l'user va sur une page de login alors qu'il est déjà connecté
+    """
+    def process_request(self, request):
+        login_pages = [
+            '/auth/login',
+            '/',
+        ]
+        if request.path_info in login_pages and request.user.is_authenticated():
+            return HttpResponseRedirect('/users/profile')
