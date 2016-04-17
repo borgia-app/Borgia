@@ -31,6 +31,7 @@ def electrovanne_request1(request):
         container = Container.objects.get(place='tireuse %s' % request.GET.get('tireuse_pk'))
         id = request.GET.get('id')
         user = user_from_token_tap(request.GET.get('token_pk'))
+        sig = request.GET.get('sig')
 
         # Quantité max possible
         if user.balance <= 0:
@@ -38,11 +39,21 @@ def electrovanne_request1(request):
         else:
             max_quantity = round(float((container.product_base.quantity * user.balance) / container.product_base.calculated_price), 0)
 
-        # Ecriture de la liste
-        data.append(request.GET.get('token_pk'))
-        data.append(request.GET.get('tireuse_pk'))
-        data.append(id)
-        data.append(max_quantity)
+        # Vérification de la signature
+        params = {
+            'tireuse_pk': request.GET.get('tireuse_pk'),
+            'id': id,
+            'token_pk': request.GET.get('token_pk'),
+            'sig': sig
+        }
+        if verify_token_algo_lydia(params, settings.ELECTROVANNE_TOKEN):
+            # Ecriture de la liste
+            data.append(request.GET.get('token_pk'))
+            data.append(request.GET.get('tireuse_pk'))
+            data.append(id)
+            data.append(max_quantity)
+        else:
+            data.append('error0')
 
     except ObjectDoesNotExist:
         data.append('error0')
@@ -57,42 +68,56 @@ def electrovanne_request2(request):
         container = Container.objects.get(place='tireuse %s' % request.GET.get('tireuse_pk'))
         user = user_from_token_tap(request.GET.get('token_pk'))
         quantity = request.GET.get('quantity')
+        id = request.GET.get('id')
+        sig = request.GET.get('sig')
 
-        # Création Sale
-        sale = Sale.objects.create(date=datetime.now(),
-                                   sender=user,
-                                   recipient=User.objects.get(username="AE_ENSAM"),
-                                   operator=user)
+        # Vérification de la signature
+        params = {
+            'tireuse_pk': request.GET.get('tireuse_pk'),
+            'id': id,
+            'quantity': quantity,
+            'token_pk': request.GET.get('token_pk'),
+            'sig': sig
+        }
+        if verify_token_algo_lydia(params, settings.ELECTROVANNE_TOKEN):
+            # Création Sale
+            sale = Sale.objects.create(date=datetime.now(),
+                                       sender=user,
+                                       recipient=User.objects.get(username="AE_ENSAM"),
+                                       operator=user)
 
-        # Création Single product from container
-        spfc = SingleProductFromContainer.objects.create(container=container,
-                                                         sale=sale,
-                                                         quantity=quantity,
-                                                         sale_price=(container.product_base.calculated_price /
-                                                                     container.product_base.quantity) * int(quantity))
-        sale.maj_amount()
+            # Création Single product from container
+            spfc = SingleProductFromContainer.objects.create(container=container,
+                                                             sale=sale,
+                                                             quantity=quantity,
+                                                             sale_price=(container.product_base.calculated_price /
+                                                                         container.product_base.quantity) * int(
+                                                                 quantity))
+            sale.maj_amount()
 
-        # Création paiement par compte foyer
-        d_b = DebitBalance.objects.create(amount=sale.amount,
-                                          date=datetime.now(),
-                                          sender=sale.sender,
-                                          recipient=sale.recipient)
-        payment = Payment.objects.create()
-        payment.debit_balance.add(d_b)
-        payment.save()
-        payment.maj_amount()
+            # Création paiement par compte foyer
+            d_b = DebitBalance.objects.create(amount=sale.amount,
+                                              date=datetime.now(),
+                                              sender=sale.sender,
+                                              recipient=sale.recipient)
+            payment = Payment.objects.create()
+            payment.debit_balance.add(d_b)
+            payment.save()
+            payment.maj_amount()
 
-        sale.payment = payment
-        sale.save()
+            sale.payment = payment
+            sale.save()
 
-        # Paiement par le client
-        sale.payment.debit_balance.all()[0].set_movement()
-        data.append(200)
-        return HttpResponse(json.dumps(data))
+            # Paiement par le client
+            sale.payment.debit_balance.all()[0].set_movement()
+            data.append(200)
+        else:
+            data.append(403)
 
     except ObjectDoesNotExist:
         data.append(0)
-        return HttpResponse(json.dumps(data))
+
+    return HttpResponse(json.dumps(data))
 
 
 def electrovanne_date(request):
@@ -428,7 +453,7 @@ def supply_lydia_self_callback(request):
     params_dict = raw_body_lydia_to_dict(str(request.body))
 
     # Verification du token
-    if verify_lydia_token(params_dict) is True:
+    if verify_token_algo_lydia(params_dict, settings.LYDIA_API_TOKEN) is True:
 
         response = '200' + ' ' + params_dict.__str__()
         file = open("log_lydia.txt", "w")
@@ -1130,13 +1155,12 @@ def workboot_init(workbook_name, macro=None, button_caption=None):
     return workbook, worksheet, response
 
 
-def verify_lydia_token(params):
+def verify_token_algo_lydia(params, token):
     """
-    Fonction qui renvoie Vrai si la requete est valide:
-    Elle convient bien    l'algorithme de Lydia
-    On peut donc conclure qu'elle provient de l'API Lydia
+    Fonction qui renvoie Vrai si la requete est valide, c'est à dire si l'algorithme vérifie que la signature est valide
+    C'est qu'elle est basé sur le bon algorithme, et le bon token
     :param params: dictionnaire des param  tres avec sig dedans
-    :param sig: hash (en hex) calcul   par l'api lydia avec le token api
+    :param token: token à comparer
     """
     # FONCTION TESTEE ET VALIDEE AVEC REQUESTBIN
     try:
@@ -1151,7 +1175,7 @@ def verify_lydia_token(params):
             h_sig_table.append(p[0] + '=' + p[1])
         h_sig = '&'.join(h_sig_table)
         # Ajout du token api
-        h_sig += '&' + settings.LYDIA_API_TOKEN  # Ce token est priv
+        h_sig += '&' + token  # Ce token est priv
         # Hash md5
         h_sig_hash = hashlib.md5(h_sig.encode())
         return h_sig_hash.hexdigest() == sig
