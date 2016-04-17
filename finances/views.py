@@ -727,14 +727,12 @@ class SharedEventManageView(View):
         payment_error = ''
 
         # Vérification des permissions
-        # Cas où on est le manager de l'event
-        if request.user == se.manager:
-            # Si l'événement est terminé, on ne peux plus y accéder
-            if se.done is True:
-                raise PermissionDenied
-        # Cas où on est pas manager ni quelqu'un qui a la permission de gérer les events
-        if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
-            raise PermissionDenied
+        # Si on a la perm on peut voir toujours (mais plus tout faire, cf les autres fonctions)
+        # Si on est juste manager, on ne peux plus voir si done=True
+        if request.user.has_perm('finances.manage_sharedevent') is False:
+            if request.user == se.manager:
+                if se.done:
+                    raise PermissionDenied
 
         # Si on impose un state directement en GET (en venant d'un lien remove par exemple)
         if self.request.GET.get('state') is not None:
@@ -998,7 +996,7 @@ def proceed_payment_se(request, pk):
         raise PermissionDenied
     if se.price is not None:
         se.pay(request.user, User.objects.get(username='AE_ENSAM'))
-        return redirect('/finances/shared_event/manage/' + str(se.pk))
+        return redirect('url_manage_shared_event', pk=se.pk)
     else:
         return redirect('/finances/shared_event/manage/' + str(se.pk) + '/?payment_error=True')
 
