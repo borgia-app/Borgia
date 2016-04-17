@@ -1,0 +1,72 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <div class="container50">
+        <h2 class="align-center">Modification du prix d'une base de produit</h2>
+        <h3 class="align-center">{{ product_base }}</h3>
+        <form class="form-style-1" action= "{% url 'url_set_price_product_base' pk=pk %}" method="post">
+            {% csrf_token %}
+            {{ form.as_ul }}
+            <li><input type="submit" value="Modifier"/></li>
+        </form>
+        <p class="justify">Remarque : il est possible de définir un prix de vente manuel, même lorsqu'on utilise le
+            prix automatique. Il sera alors sauvegardé mais non utilisé.</p>
+        <table>
+            <tr>
+                <th>Mode</th>
+                {% if product_base.type == 'container' %}
+                    <th>{{ product_base.product_unit.usual_quantity }} {{ product_base.product_unit.get_unit_display }}</th>
+                    <th>Conteneur {{ product_base.quantity }} {{ product_base.product_unit.get_unit_display }}</th>
+                {% else %}
+                    <th>Unité</th>
+                {% endif %}
+                <th>Ecart</th>
+            </tr>
+            {% if product_base.is_manual == False %}
+                <tr style="color: green">
+                    {% else %}
+                <tr>
+            {% endif %}
+            <td>Automatique (marge {{ margin_profit }}%)</td>
+            <td>{{ product_base.calculated_price_usual }} €</td>
+            {% if product_base.type == 'container' %}
+                <td>{{ product_base.calculated_price }} €</td>
+            {% endif %}
+            <td>-</td>
+            </tr>
+            {% if product_base.is_manual == True %}
+                <tr style="color: green">
+                    {% else %}
+                <tr>
+            {% endif %}
+            <td>Manuel</td>
+            <td>{{ product_base.manual_price_usual }} €<span class="changed_price"> <i class="fa fa-long-arrow-right"></i> <span id="new_price_usual"></span> €</span></td>
+            {% if product_base.type == 'container' %}
+                <td>{{ product_base.manual_price }} €<span class="changed_price"> <i class="fa fa-long-arrow-right"></i> <span id="new_price_container"></span> €</span></td>
+            {% endif %}
+            <td>{{ product_base.deviating_price_from_auto }} % <span class="changed_price"> <i class="fa fa-long-arrow-right"></i> <span id="new_deviating_price"></span> %</span></td>
+            </tr>
+        </table>
+    </div>
+    <script>
+        $(".changed_price").hide();
+
+        $("#id_manual_price").change(function() {
+
+            $(".changed_price").show();
+
+            {% if product_base.type == 'container' %}
+                $("#new_price_container").text(String(Math.round(this.value*100)/100).replace('.', ','));
+                var new_price_usual = this.value * (Number("{{ product_base.product_unit.usual_quantity }}".replace(',', '.'))) / (Number("{{ product_base.quantity }}".replace(',', '.')));
+                $("#new_price_usual").text(String(Math.round(new_price_usual*100)/100).replace('.', ','));
+            {% else %}
+                $("#new_price_usual").text(String(Math.round(this.value*100)/100).replace('.', ','));
+            {% endif %}
+
+            var new_deviating_price = Math.round((this.value - Number("{{ product_base.calculated_price }}".replace(',', '.'))) / Number("{{ product_base.calculated_price }}".replace(',', '.'))*100);
+            $("#new_deviating_price").text(String(new_deviating_price).replace('.', ','));
+
+        });
+
+    </script>
+{% endblock %}

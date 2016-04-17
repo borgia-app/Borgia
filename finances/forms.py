@@ -218,3 +218,8 @@ class SharedEventManageDownloadXlsxForm(forms.Form):
         for name, value in self.cleaned_data.items():
             if name.startwith('field_year_pg_'):
                 yield (self.fields[name].label, value)
+
+
+class SetPriceProductBaseForm(forms.Form):
+    is_manual = forms.BooleanField(label='Gestion manuelle du prix', required=False)
+    manual_price = forms.DecimalField(label='Prix manuel', decimal_places=2, max_digits=9, required=False)

@@ -28,3 +28,10 @@ def human_reading(value, syst):
             return 'Oui'
         else:
             return 'Non'
+
+    # True -> Manuelle et False -> Automatique
+    elif syst == 'manual_price':
+        if value is True:
+            return 'Manuelle'
+        else:
+            return 'Automatique'

@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+{% load finances_extra %}
+{% load extra %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <form action= "{% url 'url_list_productbase' %}" method="post">
+                {% csrf_token %}
+                <input type=hidden name="next" value="{{ next }}" />
+                <input type=hidden name="order_by" value="{{ order_by }}" />
+                <input type=hidden name="shop" value="{{ shop }}" />
+                <div class="fieldWrapper">
+                    {{ form.shop.errors }}
+                    {{ form.shop.label }} : {{ form.shop }}
+                </div>
+                <p><input type="submit" value="Lister"/></p>
+            </form>
+        </div>
+        <div class="row">
+            <table>
+                <tr>
+                    <th><a href="{% url 'url_list_productbase' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}">Nom</a></th>
+                    <th><a href="{% url 'url_list_productbase' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}">Type</a></th>
+                    <th><a href="{% url 'url_list_productbase' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}">Prix de vente usuel</a></th>
+                    <th>Quantité usuelle</th>
+                    <th><a href="{% url 'url_list_productbase' %}?order_by={{ 'is_manual'|order_by:request }}&shop={{ shop }}">Calcul du prix</a></th>
+                    <th>Modifier</th>
+                    <th>Gestion prix</th>
+                </tr>
+                {% for e in query_product_base %}
+                    <tr>
+                        <td>{{ e.name }}</td>
+                        <td>{{ e.get_type_display }}</td>
+                        <td>{{ e.get_moded_usual_price }} €</td>
+                        <td>
+                            {% if e.product_unit %}
+                                {{ e.product_unit.usual_quantity }} {{ e.product_unit.get_unit_display }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </td>
+                        <td>{% human_reading e.is_manual 'manual_price' %}</td>
+                        <td><a href="{% url 'url_update_productbase' pk=e.id %}">modifier</a></td>
+                        <td><a href="{% url 'url_set_price_product_base' pk=e.id %}">gestion prix</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+    </div>
+
+{% endblock %}

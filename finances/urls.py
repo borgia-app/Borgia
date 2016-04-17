@@ -44,6 +44,8 @@ urlpatterns = [
     url(r'^shared_event/remvove_registered/(?P<pk>\d+)/$', remove_registered_se, name='url_rm_registered_shared_event'),
     url(r'^shared_event/proceed_payment/(?P<pk>\d+)/$', permission_required('finances.proceed_payment_sharedevent', raise_exception=True)
     (proceed_payment_se), name='url_proceed_payment_shared_event'),
+    url(r'^product_base/set_price/(?P<pk>\d+)/$', permission_required('shops.change_price_productbase', raise_exception=True)
+    (SetPriceProductBaseView.as_view()), name='url_set_price_product_base'),
 
     # Supply
     url(r'^supply/united/$', permission_required('users.supply_account', raise_exception=True)

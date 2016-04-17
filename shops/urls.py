@@ -39,8 +39,10 @@ urlpatterns = [
     (ProductBaseUpdateView.as_view()), name='url_update_productbase'),  # C
     url(r'^productbase/delete/(?P<pk>\d+)/$', permission_required('shops.delete_singleproduct', raise_exception=True)
     (ProductBaseDeleteView.as_view()), name='url_delete_productbase'),  # C
-    url(r'^productbase/$', permission_required('shops.list_singleproduct', raise_exception=True)
-    (ProductBaseListView.as_view()), name='url_list_productbase'),  # C
+    url(r'^productbase/$', permission_required('shops.list_productbase', raise_exception=True)
+    (ProductBasePriceListView.as_view()), name='url_list_productbase'),  # C
+    url(r'^productbase/list_price/$', permission_required('shops.change_price_productbase', raise_exception=True)
+    (ProductBasePriceListView.as_view()), name='url_list_price_productbase'),  # C
 
     # Foyer
     url(r'^foyer/consumption/$', PurchaseFoyer.as_view(), name='url_purchase_foyer'),

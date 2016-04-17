@@ -52,6 +52,7 @@
         ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
         ["delete_productbase", "shops", "productbase"],
+        ["change_price_productbase", "shops", "productbase"],
 
         ["change_productunit", "shops", "productunit"],
         ["retrieve_productunit", "shops", "productunit"],

@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, HttpResponse, force_text, redirect, resolve_url
+from django.shortcuts import render, HttpResponse, force_text, redirect, resolve_url, HttpResponseRedirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView, View
 from django.core import serializers
@@ -15,11 +15,10 @@ from django.views.decorators.csrf import csrf_exempt
 
 from finances.forms import *
 from finances.models import *
-from shops.models import Container
+from shops.models import Container, ProductBase
 from users.models import user_from_token_tap, list_year
-from borgia.models import FormNextView, CreateNextView, UpdateNextView
+from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
 from django.conf import settings
-from users.views import ListCompleteView
 from users.templatetags import extra
 from contrib.models import add_to_breadcrumbs
 
@@ -965,6 +964,36 @@ class SharedEventManageView(View):
         }
 
         return render(request, 'finances/shared_event_manage.html', context)
+
+
+class SetPriceProductBaseView(FormView):
+    template_name = 'finances/product_base_price.html'
+    form_class = SetPriceProductBaseForm
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Modification prix produit')
+        return super(SetPriceProductBaseView, self).get(request, *args, **kwargs)
+
+    def get_initial(self):
+        product_base = ProductBase.objects.get(pk=self.kwargs['pk'])
+        initial = super(SetPriceProductBaseView, self).get_initial()
+        initial['is_manual'] = product_base.is_manual
+        initial['manual_price'] = product_base.manual_price
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(SetPriceProductBaseView, self).get_context_data(**kwargs)
+        context['pk'] = self.kwargs['pk']
+        context['product_base'] = ProductBase.objects.get(pk=self.kwargs['pk'])
+        context['margin_profit'] = settings.MARGIN_PROFIT
+        return context
+
+    def form_valid(self, form):
+        product_base = ProductBase.objects.get(pk=self.kwargs['pk'])
+        product_base.is_manual = form.cleaned_data['is_manual']
+        product_base.manual_price = form.cleaned_data['manual_price']
+        product_base.save()
+        return redirect('url_set_price_product_base', pk=self.kwargs['pk'])
 
 
 # Autres

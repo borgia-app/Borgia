@@ -204,3 +204,7 @@ class ProductCreateMultipleForm(forms.Form):
         self.fields['purchase_date'] = forms.DateField(label='Date d\'achat', widget=forms.DateInput(attrs={'class': 'datepicker'}))
         self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
         self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
+
+
+class ProductBaseListPriceForm(forms.Form):
+    shop = forms.ModelChoiceField(label='Magasin', queryset=Shop.objects.all(), empty_label=None)

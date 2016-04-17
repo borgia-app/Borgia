@@ -178,3 +178,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Electrovanne
 ELECTROVANNE_TOKEN = '80eg11TBAiR13UCI3dJKHWa5e7764KA3'
+
+# Produits
+MARGIN_PROFIT = 10  # en %

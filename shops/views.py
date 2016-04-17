@@ -15,7 +15,7 @@ from shops.forms import *
 from users.models import User
 from finances.models import Sale, DebitBalance, Payment
 from notifications.models import *
-from borgia.models import FormNextView, CreateNextView, UpdateNextView
+from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
 from contrib.models import add_to_breadcrumbs
 
 
@@ -138,7 +138,7 @@ class PurchaseAuberge(FormView):
                     sp.save()
                     sp.is_sold = True
                     sp.sale = sale
-                    sp.sale_price = sp.product_base.calculated_price
+                    sp.sale_price = sp.product_base.get_moded_usual_price()
                     sp.save()
 
         # Food
@@ -150,7 +150,7 @@ class PurchaseAuberge(FormView):
                                                   sale=sale)
                 spfc.save()
                 spfc.quantity = e[0] * e[1].product_unit.usual_quantity()
-                spfc.sale_price = e[1].calculated_price_usual() * e[0]
+                spfc.sale_price = e[1].get_moded_usual_price() * e[0]
                 spfc.save()
 
         # Payement total par le foyer ici
@@ -375,7 +375,7 @@ class PurchaseFoyer(FormView):
                     sp.save()
                     sp.is_sold = True
                     sp.sale = sale
-                    sp.sale_price = sp.product_base.calculated_price
+                    sp.sale_price = sp.product_base.get_moded_usual_price()
                     sp.save()
 
         # Issus d'un container
@@ -387,7 +387,7 @@ class PurchaseFoyer(FormView):
                 spfc = SingleProductFromContainer(container=e[1], sale=sale)
                 spfc.save()
                 spfc.quantity = spfc.container.product_base.product_unit.usual_quantity() * e[0]
-                spfc.sale_price = spfc.container.product_base.calculated_price_usual() * e[0]
+                spfc.sale_price = spfc.container.product_base.get_moded_usual_price() * e[0]
                 spfc.save()
 
         # Soft, syrup et liquor
@@ -401,7 +401,7 @@ class PurchaseFoyer(FormView):
                                                   sale=sale)
                 spfc.save()
                 spfc.quantity = e[0] * e[1].product_unit.usual_quantity()
-                spfc.sale_price = e[1].calculated_price_usual() * e[0]
+                spfc.sale_price = e[1].get_moded_usual_price() * e[0]
                 spfc.save()
 
         # Payement total par le foyer ici
@@ -720,11 +720,49 @@ class ProductBaseDeleteView(DeleteView):
 class ProductBaseListView(ListView):
     model = ProductBase
     template_name = 'shops/productbase_list.html'
-    queryset = ProductBase.objects.all()
+    queryset = ProductBase.objects.all().exclude(name='Argent fictif')
 
     def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Liste bases de produits')
+        add_to_breadcrumbs(request, 'Liste bases produits')
         return super(ProductBaseListView, self).get(request, *args, **kwargs)
+
+
+class ProductBasePriceListView(ListCompleteView):
+    form_class = ProductBaseListPriceForm
+    template_name = 'shops/productbase_list_price.html'
+    success_url = '/auth/login'
+    attr = {
+        'order_by': 'name',
+        'shop': '1',
+    }
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Prix produits')
+        return super(ProductBasePriceListView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ProductBasePriceListView, self).get_context_data(**kwargs)
+        if self.attr['order_by'] in ['sell_price', '-sell_price']:
+            if self.attr['order_by'] == '-sell_price':
+                reverse = True
+            else:
+                reverse = False
+            context['query_product_base'] = sorted(ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(name='Argent fictif'),
+                                                   key=lambda pb: pb.get_moded_usual_price(), reverse=reverse)
+        else:
+            context['query_product_base'] = \
+                ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).order_by(self.attr['order_by'])\
+                .exclude(name='Argent fictif')
+        return context
+
+    def form_valid(self, form, **kwargs):
+        self.attr['shop'] = form.cleaned_data['shop'].pk
+        return self.render_to_response(self.get_context_data(**kwargs))
+
+    def get_initial(self):
+        initial = super(ProductBasePriceListView, self).get_initial()
+        initial['shop'] = Shop.objects.get(pk=self.attr['shop'])
+        return initial
 
 
 class ProductCreateMultipleView(FormNextView):

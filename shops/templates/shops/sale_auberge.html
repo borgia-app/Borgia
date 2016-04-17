@@ -59,7 +59,7 @@
                             <tr>
                                 <div class="fieldWrapper">
                                     <td>{{ e.1.product_unit }}</td>
-                                    <td><span id="selected_initial_price_container_meat_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td><span id="selected_initial_price_container_meat_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
                                     <td> <span id="selected_price_container_meat_{{ e.2 }}">0</span> €</td>
                                 </div>
@@ -79,7 +79,7 @@
                             <tr>
                                 <div class="fieldWrapper">
                                     <td>{{ e.1.product_unit }}</td>
-                                    <td><span id="selected_initial_price_container_cheese_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td><span id="selected_initial_price_container_cheese_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
                                     <td> <span id="selected_price_container_cheese_{{ e.2 }}">0</span> €</td>
                                 </div>
@@ -99,7 +99,7 @@
                             <tr>
                                 <div class="fieldWrapper">
                                     <td>{{ e.1.product_unit }}</td>
-                                    <td><span id="selected_initial_price_container_side_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td><span id="selected_initial_price_container_side_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
                                     <td> <span id="selected_price_container_side_{{ e.2 }}">0</span> €</td>
                                 </div>
@@ -119,7 +119,7 @@
                             <tr>
                                 <div class="fieldWrapper">
                                     <td>{{ e.1 }}</td>
-                                    <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.calculated_price }}</span> €</td>
+                                    <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
                                     <td> <span id="selected_price_single_product_{{ e.2 }}">0</span> €</td>
                                 </div>

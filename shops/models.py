@@ -5,6 +5,8 @@ from contrib.models import TimeStampedDescription
 from django.utils.timezone import now
 
 from finances.models import *
+from decimal import Decimal
+from django.conf import settings
 
 
 class Shop(models.Model):
@@ -100,6 +102,8 @@ class ProductBase(models.Model):
     name = models.CharField('Nom', max_length=255, default="Product base name")
     description = models.TextField('Description', default="Description")
     calculated_price = models.DecimalField('Prix calculé', default=0, decimal_places=2, max_digits=9)
+    is_manual = models.BooleanField('Gestion manuelle du prix', default=False)
+    manual_price = models.DecimalField('Prix manuel', default=0, decimal_places=2, max_digits=9)
     brand = models.CharField('Marque', max_length=255)
     type = models.CharField('Type', max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
 
@@ -118,7 +122,7 @@ class ProductBase(models.Model):
             return self.name
 
     def calculated_price_usual(self):
-        if self.quantity is not None:
+        if self.type == 'container':
             # Il faut round la fraction (sinon 2/3 = ...)
             # Il faut en plus round  à 2 chiffres Decimal * Decimal
             # Car 1,50 * 2,00 = 3,0000 sinon
@@ -132,7 +136,7 @@ class ProductBase(models.Model):
         :return:
         """
         sum_prices = 0
-        if self.product_unit is not None:
+        if self.type == 'container':
             instances_products = Container.objects.filter(product_base=self, quantity_remaining__isnull=False)
         else:
             instances_products = SingleProduct.objects.filter(product_base=self, is_sold=False)
@@ -141,12 +145,32 @@ class ProductBase(models.Model):
             sum_prices += i.price
 
         self.calculated_price = round(sum_prices / len(instances_products), 2)
+        self.calculated_price = self.calculated_price * Decimal(settings.MARGIN_PROFIT / 100)
         self.save()
+
+    def manual_price_usual(self):
+        if self.type == 'container':
+            return round((self.manual_price * self.product_unit.usual_quantity()) / self.quantity, 2)
+        else:
+            return self.manual_price
+
+    def get_moded_usual_price(self):
+        if self.is_manual:
+            return self.manual_price_usual()
+        else:
+            return self.calculated_price_usual()
+
+    def deviating_price_from_auto(self):
+        try:
+            return round((abs(self.calculated_price - self.manual_price) / self.calculated_price)*100, 2)
+        except ZeroDivisionError:
+            return None
 
     class Meta:
         permissions = (
             ('list_productbase', 'Lister les produits de base'),
-            ('retrieve_productbase', 'Afficher un produit de base')
+            ('retrieve_productbase', 'Afficher un produit de base'),
+            ('change_price_productbase', 'Changer le prix d\'un produit de base'),
         )
 
 

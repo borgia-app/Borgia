@@ -53,7 +53,7 @@
                                         F{{ e.2|add:1 }}
                                         {% endif %}</td>
                                     <td>{{ e.1.product_base.product_unit }}</td>
-                                    <td><span id="selected_initial_price_active_keg_{{ e.2 }}">{{ e.1.product_base.calculated_price_usual }}</span> €</td>
+                                    <td><span id="selected_initial_price_active_keg_{{ e.2 }}">{{ e.1.product_base.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
                                     <td><span id="selected_price_active_keg_{{ e.2 }}">0</span> €</td>
                                 </div>
@@ -77,7 +77,7 @@
                                         F{{ e.2|add:1 }}
                                         {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
-                                    <td><span id="selected_initial_price_container_liquor_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td><span id="selected_initial_price_container_liquor_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
                                     <td> <span id="selected_price_container_liquor_{{ e.2 }}">0</span> €</td>
                                 </div>
@@ -99,7 +99,7 @@
                                         F{{ e.2|add:1 }}
                                         {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
-                                    <td><span id="selected_initial_price_container_syrup_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td><span id="selected_initial_price_container_syrup_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
                                     <td> <span id="selected_price_container_syrup_{{ e.2 }}">0</span> €</td>
                                 </div>
@@ -122,7 +122,7 @@
                                         F{{ e.2|add:1 }}
                                         {% endif %}</td>
                                     <td>{{ e.1 }}</td>
-                                    <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.calculated_price }}</span> €</td>
+                                    <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
                                     <td> <span id="selected_price_single_product_{{ e.2 }}">0</span> €</td>
                                 </div>
@@ -146,7 +146,7 @@
                                         F{{ e.2|add:1 }}
                                         {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
-                                    <td><span id="selected_initial_price_container_soft_{{ e.2 }}">{{ e.1.calculated_price_usual }}</span> €</td>
+                                    <td><span id="selected_initial_price_container_soft_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
                                     <td> <span id="selected_price_container_soft_{{ e.2 }}">0</span> €</td>
                                 </div>
