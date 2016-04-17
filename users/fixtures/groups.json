@@ -17,7 +17,8 @@
         ["change_user", "users", "user"],
         ["delete_user", "users", "user"],
         ["retrieve_user", "users", "user"],
-        ["list_user", "users", "user"]
+        ["list_user", "users", "user"],
+        ["change_setting", "settings_data", "setting"]
       ]
     }
   },

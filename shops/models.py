@@ -7,6 +7,8 @@ from django.utils.timezone import now
 from finances.models import *
 from decimal import Decimal
 from django.conf import settings
+from django.core.exceptions import ObjectDoesNotExist
+from settings_data.models import Setting
 
 
 class Shop(models.Model):
@@ -145,7 +147,12 @@ class ProductBase(models.Model):
             sum_prices += i.price
 
         self.calculated_price = round(sum_prices / len(instances_products), 2)
-        self.calculated_price = self.calculated_price * Decimal(settings.MARGIN_PROFIT / 100)
+
+        try:
+            margin_profit = Setting.objects.get(name='MARGIN_PROFIT').get_value()
+        except ObjectDoesNotExist:
+            margin_profit = 0
+        self.calculated_price += self.calculated_price * Decimal(margin_profit / 100)
         self.save()
 
     def manual_price_usual(self):

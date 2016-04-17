@@ -14,6 +14,7 @@ urlpatterns = [
     url(r'^finances/', include('finances.urls')),
     url(r'^shops/', include('shops.urls')),
     url(r'notifications/', include('notifications.urls')),
+    url(r'settings_data/', include('settings_data.urls')),
     url(r'^local/jsi18n$', jsi18n_catalog),
 
     # Authentification

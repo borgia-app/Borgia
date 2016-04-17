@@ -21,6 +21,7 @@ from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListComp
 from django.conf import settings
 from users.templatetags import extra
 from contrib.models import add_to_breadcrumbs
+from settings_data.models import Setting
 
 
 def electrovanne_request1(request):
@@ -418,8 +419,14 @@ class SupplyLydiaSelfView(FormView):
 
     def get_form_kwargs(self):
         kwargs = super(SupplyLydiaSelfView, self).get_form_kwargs()
-        kwargs['min_value'] = settings.LYDIA_MIN_PRICE
-        kwargs['max_value'] = settings.LYDIA_MAX_PRICE
+        try:
+            kwargs['min_value'] = Setting.objects.get(name='LYDIA_MIN_PRICE').get_value()
+        except ObjectDoesNotExist:
+            kwargs['min_value'] = 0
+        try:
+            kwargs['max_value'] = Setting.objects.get(name='LYDIA_MAX_PRICE').get_value()
+        except ObjectDoesNotExist:
+            kwargs['max_value'] = 1000
         return kwargs
 
     def form_valid(self, form):
@@ -985,7 +992,10 @@ class SetPriceProductBaseView(FormView):
         context = super(SetPriceProductBaseView, self).get_context_data(**kwargs)
         context['pk'] = self.kwargs['pk']
         context['product_base'] = ProductBase.objects.get(pk=self.kwargs['pk'])
-        context['margin_profit'] = settings.MARGIN_PROFIT
+        try:
+            context['margin_profit'] = Setting.objects.get(name='MARGIN_PROFIT').get_value()
+        except ObjectDoesNotExist:
+            pass
         return context
 
     def form_valid(self, form):

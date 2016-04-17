@@ -27,7 +27,7 @@
                     {% else %}
                 <tr>
             {% endif %}
-            <td>Automatique (marge {{ margin_profit }}%)</td>
+            <td>Automatique (marge {% if margin_profit %}{{ margin_profit }}%{% else %}non définie{% endif %})</td>
             <td>{{ product_base.calculated_price_usual }} €</td>
             {% if product_base.type == 'container' %}
                 <td>{{ product_base.calculated_price }} €</td>

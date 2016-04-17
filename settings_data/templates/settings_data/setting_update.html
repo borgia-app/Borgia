@@ -1,0 +1,17 @@
+{% extends 'base.html' %}
+{% block content %}
+
+    <div class="container50">
+        <h2 class="align-center">Modifier un paramètre système</h2>
+        <form class="form-style-1" action= "" method="post">
+            {% csrf_token %}
+            {{ form.as_ul }}
+            <input type=hidden name="next" value="{{ next }}" />
+            <li><input type="submit" value="Valider"/></li>
+            <p class="justify">Attention ! Modifier ce paramètre d'une manière incorrecte peut être dangereux et causer l'arrêt d'une ou
+            plusieurs fonctionnalités du logiciel. Respectez toujours le type de valeur de ce paramètre pour éviter les problèmes.
+            Integer -> entier, float -> nombre décimal, string -> chaîne de caractères, boolean -> True ou False (avec la majuscule).</p>
+        </form>
+    </div>
+
+{% endblock %}

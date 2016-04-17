@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'shops',
     'notifications',
     'finances',
+    'settings_data',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -162,9 +163,8 @@ STATICFILES_DIRS = (
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'media')
 MEDIA_URL = '/media/'
 
+# Lydia
 LYDIA_API_TOKEN = '56eaf745be1eb116231751'
-LYDIA_MIN_PRICE = 5
-LYDIA_MAX_PRICE = 500
 
 # Penser à activer 'autoriser l'acces par les applications moins sécurisées' dans Gmail
 EMAIL_USE_TLS = True
@@ -179,5 +179,6 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # Electrovanne
 ELECTROVANNE_TOKEN = '80eg11TBAiR13UCI3dJKHWa5e7764KA3'
 
-# Produits
-MARGIN_PROFIT = 10  # en %
+# Les paramètres modifiables sont des objets Settings de l'app settings_data
+# A modifier directement dans l'application
+# [LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, MARGIN_PROFIT]
