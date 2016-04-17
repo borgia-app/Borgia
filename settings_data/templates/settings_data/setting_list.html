@@ -8,10 +8,10 @@
         <div class="row">
             <table>
                 <tr>
-                    <th><a href="{% url 'url_list_setting' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}">Nom</a></th>
-                    <th><a href="{% url 'url_list_setting' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}">Description</a></th>
-                    <th><a href="{% url 'url_list_setting' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}">Valeur</a></th>
-                    <th><a href="{% url 'url_list_setting' %}?order_by={{ 'is_manual'|order_by:request }}&shop={{ shop }}">Type</a></th>
+                    <th><a href="{% url 'url_list_setting' %}?order_by={{ 'name'|order_by:request }}">Nom</a></th>
+                    <th><a href="{% url 'url_list_setting' %}?order_by={{ 'description'|order_by:request }}">Description</a></th>
+                    <th><a href="{% url 'url_list_setting' %}?order_by={{ 'value'|order_by:request }}">Valeur</a></th>
+                    <th><a href="{% url 'url_list_setting' %}?order_by={{ 'value_type'|order_by:request }}">Type</a></th>
                     <th>Modifier</th>
                 </tr>
                 {% for e in query_setting %}
