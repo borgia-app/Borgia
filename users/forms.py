@@ -23,12 +23,16 @@ class UserCreationCustomForm(forms.Form):
     password_bis = forms.CharField(label='Mot de passe (confirmation)', widget=PasswordInput)
 
     def clean(self):
+        cleaned_data = super(UserCreationCustomForm, self).clean()
+        try:
+            if User.objects.filter(username=cleaned_data['username']).exists():
+                raise forms.ValidationError('Un autre user existe avec cet username')
 
-        if User.objects.filter(username=self.cleaned_data['username']).exists():
-            raise forms.ValidationError('Un autre user existe avec cet username')
-
-        if self.cleaned_data['password'] != self.cleaned_data['password_bis']:
-            raise forms.ValidationError('Les deux mots de passe ne correspondent pas')
+            if cleaned_data['password'] != cleaned_data['password_bis']:
+                raise forms.ValidationError('Les deux mots de passe ne correspondent pas')
+        except KeyError:
+            pass
+        return super(UserCreationCustomForm, self).clean()
 
 
 # Formulaire de modification d'un groupe
