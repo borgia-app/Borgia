@@ -83,16 +83,16 @@ class Notification(models.Model):
     is_displayed = models.BooleanField(default=False)
     displayed_date = models.DateTimeField(blank=True, null=True)
 
-    # readed : est ce que la notification a été lue (cad l'user a cliqué dessus)?
-    is_readed = models.BooleanField(default=False)
-    readed_date = models.DateTimeField(blank=True, null=True)
+    # read : est ce que la notification a été lue (cad l'user a cliqué dessus)?
+    is_read = models.BooleanField(default=False)
+    read_date = models.DateTimeField(blank=True, null=True)
 
     # Méthodes
 
 # Méthodes
 
 
-def get_undisplayed_notifications_for_user(request):
+def get_unread_notifications_for_user(request):
     """
     Récupère les notifications non affichées et les passe au middleware message
 
@@ -100,7 +100,7 @@ def get_undisplayed_notifications_for_user(request):
     :return: un str vide pour ne pas altérer le html
     """
     try:
-        notifications_for_user = Notification.objects.filter(target_user=request.user,  is_displayed=False) # Filtre la table de notification à la recherche des notifications qui concernent l'utilisateur et qui n'ont pas été affichées
+        notifications_for_user = Notification.objects.filter(target_user=request.user,  is_read=False) # Filtre la table de notification à la recherche des notifications qui concernent l'utilisateur et qui n'ont pas été affichées
 
         if notifications_for_user:  # Si la liste n'est pas vide...
             for e in notifications_for_user:
@@ -118,6 +118,7 @@ def get_undisplayed_notifications_for_user(request):
                 e.is_displayed = True  # Enregistre l'affichage dans la base de donnée
                 e.displayed_date = now()  # Ainsi que la date d'affichage
                 e.save()
+
 
         else:
             messages.add_message(request, messages.INFO, "Il n'y a pas de nouvelles notifications pour toi " + request.user.first_name)

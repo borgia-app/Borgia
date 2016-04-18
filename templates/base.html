@@ -1,6 +1,9 @@
 {% load staticfiles %}
 {% load notifications_extra %}
 {% load extra %}
+{% if user.is_authenticated %}
+    {{ request|filter_get_unread_notifications_for_user }}
+{% endif %}
 
 <!DOCTYPE html>
 <html lang="en">
@@ -16,24 +19,26 @@
     <script src="{% static 'jquery-ui-1.11.4/jquery-ui.js' %}"></script>
     <script src="{% static 'js/widgets.js' %}"></script>
     <link rel="stylesheet" href="{% static 'jquery-ui-1.11.4/jquery-ui.css' %}">
+    <script type="text/javascript">
+    function show_hide_div(id)
+    {
+        if(document.getElementById(id).style.visibility=="hidden")
+        {
+            document.getElementById(id).style.visibility="visible";
+        }
+        else
+        {
+            document.getElementById(id).style.visibility="hidden";
+        }
+        return true;
+    }
+    </script>
 </head>
 <body>
 
 <nav class="container">
-    <div class="overlay">
-        <div class="wrapper user">
-            <ul class="user-menu">
-                <li><a class="icon icon-home" href="{% url 'url_profile' %}"></a></li>
-                {% if user.is_authenticated %}
-                    <li><a class="icon icon-people" href=""></a></li>
-                    <li><a class="icon icon-notification" href="{% url 'url_list_notification' %}"></a></li>
-                    <li><a class="icon icon-settings" href=""></a></li>
-                    <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
-                    <li><a class="icon icon-admin" href=""></a></li>
-                {% else %}
-                    <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
-                {% endif %}
-            </ul>
+    <div class="wrapper overlay">
+        <div id="wrapper-user">
             {% if user.is_authenticated %}
                 <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
                     <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
@@ -42,34 +47,50 @@
                 </a>
             {% endif %}
         </div>
+        <div id="wrapper-user-menu">
+            <ul class="user-menu">
+                <li><a class="icon icon-home" href="{% url 'url_profile' %}"></a></li>
+                {% if user.is_authenticated %}
+                    <li><a class="icon icon-people" href="{% url 'url_list_user_complete' %}"></a></li>
+                    <li><span class="icon icon-notification" onclick="show_hide_div('container-notifications');"></span>{% if messages %}<span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">{{ messages|length }}</span>{% endif %}</li>
+                    <li><a class="icon icon-settings" href=""></a></li>
+                    <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
+                    <li><a class="icon icon-admin" href=""></a></li>
+                {% else %}
+                    <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
+                {% endif %}
+            </ul>
+        </div>
     </div>
 </nav>
 
 {% if user.is_authenticated %}
-    <div class="container">
-        <div class="row">
-            {{ request|filter_get_undisplayed_notifications_for_user }}
-            {% if messages %}
-                <br />
-
-                {% for message in messages %}
-                    <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
-                {% endfor %}
-
-                <br />
-            {% endif %}
+    {% if messages %}
+        <div class="container" id="container-notifications">
+        <script type="text/javascript">
+        //<!--
+        show_hide_div('container-notifications');
+        //-->
+        </script>
+        <div class="notifications-header">
+             <h1 class="notifications-header">Nouvelles notifications:</h1>
         </div>
-        {% breadcrumbs %}
-    </div>
+            {% for message in messages %}
+                <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+            {% endfor %}
+        <div class="notifications-footer">
+            <a href="{% url 'url_list_notification' %}">Tout afficher ...</a>
+        </div>
+        </div>
+    {% endif %}
 {%  endif %}
-
 <div class="container">
-
+    {% if user.is_authenticated %}
+        {% breadcrumbs %}
+    {%  endif %}
     {%  block content %}
     {%  endblock %}
-
 </div>
-
 </body>
 
 <footer class="container footer">
