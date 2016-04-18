@@ -4,7 +4,7 @@
 
     <form method="POST" action="{% url 'url_purchase_auberge' %}" id="form_purchase">
         {% csrf_token %}
-        <div class="container50">
+        <div class="container">
             <div class="row">
                 {{ form.non_field_errors }}
             </div>
@@ -16,7 +16,7 @@
                             <label for="{{ form.client_username.id_for_label }}">Client:</label>
                             {{ form.client_username }}
                         </div>
-                        <span class="user-balance"><span id="balance_before"></span> € - <span id="total_consumption"></span> € = <span id="balance_after"></span> €</span>
+                        <span class="user-balance"><span id="balance_before">0.00</span> € - <span id="total_consumption">0.00</span> € = <span id="balance_after">0.00</span> €</span>
                         <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
                     </div>
                     <div class="row">
@@ -37,12 +37,12 @@
                 </div>
             </div>
         </div>
-        <div class="container50">
+        <div id="div_purchase" class="container">
             <div class="row">
                 <ul id="onglets">
                     <li id="li_meat">Viandes</li>
                     <li id="li_cheese">Fromages</li>
-                    <li id="li_side">Acoompagnements</li>
+                    <li id="li_side">Acompagnements</li>
                     <li id="li_single_product">Produits unitaires</li>
                 </ul>
             </div>
@@ -61,7 +61,7 @@
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_meat_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_container_meat_{{ e.2 }}">0</span> €</td>
+                                    <td> <span id="selected_price_container_meat_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -81,7 +81,7 @@
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_cheese_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_container_cheese_{{ e.2 }}">0</span> €</td>
+                                    <td> <span id="selected_price_container_cheese_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -101,7 +101,7 @@
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_side_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_container_side_{{ e.2 }}">0</span> €</td>
+                                    <td> <span id="selected_price_container_side_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -121,7 +121,7 @@
                                     <td>{{ e.1 }}</td>
                                     <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_single_product_{{ e.2 }}">0</span> €</td>
+                                    <td> <span id="selected_price_single_product_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -132,6 +132,7 @@
             </div>
         </div>
     </form>
+
     <script>
         onglets = document.getElementById('onglets');
         var li_list = onglets.getElementsByTagName('li');
@@ -242,117 +243,117 @@
             set_active_li(3);
         }, false);
 
-        document.onkeydown = function (e) {
-            if (!e.metaKey) {
-                if (!(document.activeElement == document.getElementById("id_operator_username") || document.activeElement == document.getElementById("id_client_username") || document.activeElement == document.getElementById("id_operator_password"))) {
-                    e.preventDefault();
-                }
-            }
-            if (!(document.activeElement == document.getElementById("id_operator_username") || document.activeElement == document.getElementById("id_client_username") || document.activeElement == document.getElementById("id_operator_password"))) {
+        /*document.onkeydown = function (e) {
+         if (!e.metaKey) {
+         if (!(document.activeElement == document.getElementById("id_operator_username") || document.activeElement == document.getElementById("id_client_username") || document.activeElement == document.getElementById("id_operator_password"))) {
+         e.preventDefault();
+         }
+         }
+         if (!(document.activeElement == document.getElementById("id_operator_username") || document.activeElement == document.getElementById("id_client_username") || document.activeElement == document.getElementById("id_operator_password"))) {
 
-                // Touches F1 à F12
-                if (e.keyCode == 112) {
-                    fields_list[active_li][0].value = Number(fields_list[active_li][0].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][0].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 113) {
-                    fields_list[active_li][1].value = Number(fields_list[active_li][1].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][1].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 114) {
-                    fields_list[active_li][2].value = Number(fields_list[active_li][2].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][2].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 115) {
-                    fields_list[active_li][2].value = Number(fields_list[active_li][2].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][2].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 116) {
-                    fields_list[active_li][3].value = Number(fields_list[active_li][3].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][3].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 117) {
-                    fields_list[active_li][4].value = Number(fields_list[active_li][4].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][4].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 118) {
-                    fields_list[active_li][5].value = Number(fields_list[active_li][5].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][5].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 119) {
-                    fields_list[active_li][6].value = Number(fields_list[active_li][6].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][6].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 120) {
-                    fields_list[active_li][7].value = Number(fields_list[active_li][7].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][8].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 121) {
-                    fields_list[active_li][9].value = Number(fields_list[active_li][9].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][9].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 122) {
-                    fields_list[active_li][10].value = Number(fields_list[active_li][10].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][10].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 123) {
-                    fields_list[active_li][11].value = Number(fields_list[active_li][11].value) + 1;
-                    // erreur dans PyCharm mais fonctionnel
-                    fields_list[active_li][11].dispatchEvent(new Event('change'));
-                }
+         // Touches F1 à F12
+         if (e.keyCode == 112) {
+         fields_list[active_li][0].value = Number(fields_list[active_li][0].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][0].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 113) {
+         fields_list[active_li][1].value = Number(fields_list[active_li][1].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][1].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 114) {
+         fields_list[active_li][2].value = Number(fields_list[active_li][2].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][2].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 115) {
+         fields_list[active_li][2].value = Number(fields_list[active_li][2].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][2].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 116) {
+         fields_list[active_li][3].value = Number(fields_list[active_li][3].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][3].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 117) {
+         fields_list[active_li][4].value = Number(fields_list[active_li][4].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][4].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 118) {
+         fields_list[active_li][5].value = Number(fields_list[active_li][5].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][5].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 119) {
+         fields_list[active_li][6].value = Number(fields_list[active_li][6].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][6].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 120) {
+         fields_list[active_li][7].value = Number(fields_list[active_li][7].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][8].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 121) {
+         fields_list[active_li][9].value = Number(fields_list[active_li][9].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][9].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 122) {
+         fields_list[active_li][10].value = Number(fields_list[active_li][10].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][10].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 123) {
+         fields_list[active_li][11].value = Number(fields_list[active_li][11].value) + 1;
+         // erreur dans PyCharm mais fonctionnel
+         fields_list[active_li][11].dispatchEvent(new Event('change'));
+         }
 
-                // Naviguation avec haut et bas à l'intérieur d'un div
-                if (e.keyCode == 40) {
-                    if (active_field < fields_list[active_li].length - 1) {
-                        set_active_field(active_field + 1);
-                    }
-                }
-                if (e.keyCode == 38) {
-                    if (active_field > 0) {
-                        set_active_field(active_field - 1);
-                    }
-                }
+         // Naviguation avec haut et bas à l'intérieur d'un div
+         if (e.keyCode == 40) {
+         if (active_field < fields_list[active_li].length - 1) {
+         set_active_field(active_field + 1);
+         }
+         }
+         if (e.keyCode == 38) {
+         if (active_field > 0) {
+         set_active_field(active_field - 1);
+         }
+         }
 
-                // Navigation avec gauche et droite
-                if (e.keyCode == 37 && active_li > 0) {
-                    set_active_li(active_li - 1);
-                    active_field = 0;
-                    set_active_field(0);
-                }
-                if (e.keyCode == 39 && active_li < li_list.length - 1) {
-                    set_active_li(active_li + 1);
-                    active_field = 0;
-                    set_active_field(0);
-                }
+         // Navigation avec gauche et droite
+         if (e.keyCode == 37 && active_li > 0) {
+         set_active_li(active_li - 1);
+         active_field = 0;
+         set_active_field(0);
+         }
+         if (e.keyCode == 39 && active_li < li_list.length - 1) {
+         set_active_li(active_li + 1);
+         active_field = 0;
+         set_active_field(0);
+         }
 
-                // + et - pour ajouter ou enlever de la quantité
-                if (e.keyCode == 107) {
-                    fields_list[active_li][active_field].value = Number(fields_list[active_li][active_field].value) + 1;
-                    fields_list[active_li][active_field].dispatchEvent(new Event('change'));
-                }
-                if (e.keyCode == 109) {
-                    if (Number(fields_list[active_li][active_field].value) > 0) {
-                        fields_list[active_li][active_field].value = Number(fields_list[active_li][active_field].value) - 1;
-                        fields_list[active_li][active_field].dispatchEvent(new Event('change'));
-                    }
-                }
-            }
-            // Entrée pour submit le form
-            if (e.keyCode == 13) {
-                document.getElementById('form_purchase').submit();
-            }
-        };
+         // + et - pour ajouter ou enlever de la quantité
+         if (e.keyCode == 107) {
+         fields_list[active_li][active_field].value = Number(fields_list[active_li][active_field].value) + 1;
+         fields_list[active_li][active_field].dispatchEvent(new Event('change'));
+         }
+         if (e.keyCode == 109) {
+         if (Number(fields_list[active_li][active_field].value) > 0) {
+         fields_list[active_li][active_field].value = Number(fields_list[active_li][active_field].value) - 1;
+         fields_list[active_li][active_field].dispatchEvent(new Event('change'));
+         }
+         }
+         }
+         // Entrée pour submit le form
+         if (e.keyCode == 13) {
+         document.getElementById('form_purchase').submit();
+         }
+         };*/
 
         function set_active_li(new_active_li) {
             active_li = new_active_li;
@@ -383,7 +384,6 @@
             var sum_container_cheese = 0;
             var sum_container_side = 0;
 
-
             for (i=0; i<{{ single_product_available_list|length }}; i++) {
                 sum_single_product += Number(document.getElementById("selected_price_single_product_" + i).textContent);
             }
@@ -403,6 +403,47 @@
             document.getElementById("hidden_balance_after").value = (balance_before-sum_single_product-sum_container_meat-sum_container_cheese-sum_container_side).toFixed(2);
         }
 
+
+        // initialisation
+
+        var input_client_username = $("#id_client_username");
+        if (input_client_username.val() != '') {
+            input_client_username.focus();
+            input_client_username.blur();
+        }
+
+        var a = 0;
+        while (a<{{ container_meat_list|length }}) {
+            (function(a) {
+                return selected_quantity_container_meat[a].dispatchEvent(new Event('change'));
+            })(a);
+            a++;
+        }
+        var b = 0;
+        while (b<{{ container_cheese_list|length }}) {
+            (function(b) {
+                return selected_quantity_container_cheese[b].dispatchEvent(new Event('change'));
+            })(b);
+            b++;
+        }
+        var c = 0;
+        while (c<{{ container_side_list|length }}) {
+            (function(c) {
+                return selected_quantity_container_side[c].dispatchEvent(new Event('change'));
+            })(c);
+            c++;
+        }
+        var d = 0;
+        while (d<{{ single_product_available_list|length }}) {
+            (function(d) {
+                return selected_quantity_single_product[d].dispatchEvent(new Event('change'));
+            })(d);
+            d++;
+        }
+
+        setTimeout(function(){
+            update_consumption()
+        }, 1000);
     </script>
 
 {% endblock %}

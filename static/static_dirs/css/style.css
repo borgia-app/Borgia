@@ -16,9 +16,7 @@
     list-style-type: none;
     margin-bottom: 10px;
     padding-bottom : 30px;
-    float: left;
     position: relative;
-    left: 12.5%;
 }
 
 #onglets li
@@ -26,7 +24,6 @@
     float: left;
     background-color: rgba(144, 144, 144, 0.075);
     border: 1px solid rgba(144, 144, 144, 0.25);
-    margin : 2px 2px 0 4px !important;
     height : 30px;
     padding: 3px;
     right: 12.5%;
@@ -41,6 +38,15 @@
 #onglets li:hover
 {
     background: #60637b;
+}
+
+#div_purchase
+{
+    position: relative;
+    min-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
 /* Autocompletion */

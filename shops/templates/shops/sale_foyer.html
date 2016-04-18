@@ -14,7 +14,7 @@
                     <span class="user-container user-container-info">
                         <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
                         <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
-                        <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0</span> € = <span id="balance_after">0</span> €</span>
+                        <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0.00</span> € = <span id="balance_after">0.00</span> €</span>
                     </span>
                     <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
                     <a href="{% url 'url_logout' %}?next=/foyer">Logout</a>
@@ -25,7 +25,7 @@
             </div>
         </div>
 
-        <div class="container50">
+        <div id="div_purchase" class="container">
             <div class="row">
                 <input type=hidden name="hidden_active_div" id="hidden_active_div" value=""/>
                 <ul id="onglets">
@@ -51,11 +51,11 @@
                                 <div class="fieldWrapper">
                                     <td>{% if e.2 < 12 %}
                                         F{{ e.2|add:1 }}
-                                        {% endif %}</td>
+                                    {% endif %}</td>
                                     <td>{{ e.1.product_base.product_unit }}</td>
                                     <td><span id="selected_initial_price_active_keg_{{ e.2 }}">{{ e.1.product_base.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td><span id="selected_price_active_keg_{{ e.2 }}">0</span> €</td>
+                                    <td><span id="selected_price_active_keg_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -75,11 +75,11 @@
                                 <div class="fieldWrapper">
                                     <td>{% if e.2 < 12 %}
                                         F{{ e.2|add:1 }}
-                                        {% endif %}</td>
+                                    {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_liquor_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_container_liquor_{{ e.2 }}">0</span> €</td>
+                                    <td> <span id="selected_price_container_liquor_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -97,11 +97,11 @@
                                 <div class="fieldWrapper">
                                     <td>{% if e.2 < 12 %}
                                         F{{ e.2|add:1 }}
-                                        {% endif %}</td>
+                                    {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_syrup_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_container_syrup_{{ e.2 }}">0</span> €</td>
+                                    <td> <span id="selected_price_container_syrup_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -120,11 +120,11 @@
                                 <div class="fieldWrapper">
                                     <td>{% if e.2 < 12 %}
                                         F{{ e.2|add:1 }}
-                                        {% endif %}</td>
+                                    {% endif %}</td>
                                     <td>{{ e.1 }}</td>
                                     <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_single_product_{{ e.2 }}">0</span> €</td>
+                                    <td> <span id="selected_price_single_product_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -144,11 +144,11 @@
                                 <div class="fieldWrapper">
                                     <td>{% if e.2 < 12 %}
                                         F{{ e.2|add:1 }}
-                                        {% endif %}</td>
+                                    {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_soft_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_container_soft_{{ e.2 }}">0</span> €</td>
+                                    <td> <span id="selected_price_container_soft_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -156,6 +156,15 @@
                     </table>
                 </div>
             </div>
+        </div>
+
+        <div class="container">
+            <p></p>
+            <h3>Comment ça marche ?</h3>
+            <li><i class="fa fa-long-arrow-left" aria-hidden="true"></i> & <i class="fa fa-long-arrow-right" aria-hidden="true"></i> pour naviguer entre les onglets</li>
+            <li><i class="fa fa-long-arrow-up" aria-hidden="true"></i> & <i class="fa fa-long-arrow-down" aria-hidden="true"></i> pour naviguer entre les produits</li>
+            <li>+ & - pour ajouter ou supprimer des produits</li>
+            <li>"Entrée" pour valider la commande</li>
         </div>
     </form>
     <script>
@@ -438,5 +447,12 @@
                 }
             }
         }
+
+        // On load
+        $(document).ready(function() {
+
+        });
+
     </script>
+
 {% endblock %}

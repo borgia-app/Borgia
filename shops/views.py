@@ -187,7 +187,7 @@ class PurchaseAuberge(FormView):
 
 def workboard_auberge(request):
     group_gestionnaires_de_l_auberge_pk = Group.objects.get(name='Gestionnaires de l\'auberge').pk
-    add_to_breadcrumbs(request, 'Workboard foyer')
+    add_to_breadcrumbs(request, 'Workboard auberge')
     return render(request, 'shops/workboard_auberge.html', locals())
 
 
@@ -544,7 +544,6 @@ class ContainerCreateMultipleView(FormNextView):
             # Notification success de la création
             container_creation_notify_success_to_user_and_admins(self.request, c)
 
-
         # Mise à jour du prix du product base
         form.cleaned_data['product_base'].set_calculated_price_mean()
 
@@ -802,8 +801,8 @@ class ProductCreateMultipleView(FormNextView):
         initial['purchase_date'] = now
         return initial
 
-    def get_context_data(self):
-        context = super(ProductCreateMultipleView, self).get_context_data()
+    def get_context_data(self, **kwargs):
+        context = super(ProductCreateMultipleView, self).get_context_data(**kwargs)
         context['shop'] = self.kwargs['shop']
         return context
 

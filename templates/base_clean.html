@@ -5,7 +5,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Borgia - beta V1.35</title>
+    <title>Borgia - V2.5</title>
     <link rel="stylesheet" href="{% static 'css/skeleton.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style-xsmall.css' %}" />
@@ -14,22 +14,9 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script src="{% static 'jquery-ui-1.11.4/jquery-ui.js' %}"></script>
     <script src="{% static 'js/widgets.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'jquery-ui-1.11.4/jquery-ui.css' %}">>
+    <link rel="stylesheet" href="{% static 'jquery-ui-1.11.4/jquery-ui.css' %}">
 </head>
 <body>
-
-{% if user.is_authenticated %}
-    {{ request|filter_get_undisplayed_notifications_for_user }}
-    {% if messages %}
-        <br />
-        <div class="container">
-            {% for message in messages %}
-                <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
-            {% endfor %}
-        </div>
-        <br />
-    {% endif %}
-{%  endif %}
 
 <div class="container">
 
@@ -39,6 +26,7 @@
 </div>
 
 </body>
+
 {% if user.is_authenticated %}
     {% if user.avatar %}
         <style>
