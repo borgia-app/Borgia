@@ -80,11 +80,9 @@ class Notification(models.Model):
     creation_datetime = models.DateTimeField(auto_now_add=True)
 
     # displayed : est ce que la notification a été affichée
-    is_displayed = models.BooleanField(default=False)
     displayed_date = models.DateTimeField(blank=True, null=True)
 
     # read : est ce que la notification a été lue (cad l'user a cliqué dessus)?
-    is_read = models.BooleanField(default=False)
     read_date = models.DateTimeField(blank=True, null=True)
 
     # Méthodes
@@ -100,7 +98,7 @@ def get_unread_notifications_for_user(request):
     :return: un str vide pour ne pas altérer le html
     """
     try:
-        notifications_for_user = Notification.objects.filter(target_user=request.user,  is_read=False) # Filtre la table de notification à la recherche des notifications qui concernent l'utilisateur et qui n'ont pas été affichées
+        notifications_for_user = Notification.objects.filter(target_user=request.user,  read_date=None) # Filtre la table de notification à la recherche des notifications qui concernent l'utilisateur et qui n'ont pas été affichées
 
         if notifications_for_user:  # Si la liste n'est pas vide...
             for e in notifications_for_user:
@@ -115,13 +113,9 @@ def get_unread_notifications_for_user(request):
                 elif e.type == "ERROR":
                     messages.add_message(request, messages.ERROR, str(e.actor_object) + " " + e.verb + " " + str(e.action_medium_object) + ".")
 
-                e.is_displayed = True  # Enregistre l'affichage dans la base de donnée
-                e.displayed_date = now()  # Ainsi que la date d'affichage
-                e.save()
-
-
-        else:
-            messages.add_message(request, messages.INFO, "Il n'y a pas de nouvelles notifications pour toi " + request.user.first_name)
+                if e.displayed_date is None:
+                    e.displayed_date = now()  # Ainsi que la date d'affichage
+                    e.save()
 
     except ObjectDoesNotExist:
         messages.add_message(request, messages.INFO, "Il y a un problème avec les notifications! Signale le à un admin! ")

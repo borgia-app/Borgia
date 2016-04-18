@@ -65,8 +65,7 @@
 </nav>
 
 {% if user.is_authenticated %}
-    {% if messages %}
-        <div class="container" id="container-notifications">
+    <div class="container" id="container-notifications">
         <script type="text/javascript">
         //<!--
         show_hide_div('container-notifications');
@@ -75,14 +74,17 @@
         <div class="notifications-header">
              <h1 class="notifications-header">Nouvelles notifications:</h1>
         </div>
-            {% for message in messages %}
-                <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
-            {% endfor %}
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+                {% endfor %}
+            {% else %}
+                <div class="notifications info">Il n'y a pas de nouvelles notifications pour toi.</div>
+            {% endif %}
         <div class="notifications-footer">
             <a href="{% url 'url_list_notification' %}">Tout afficher ...</a>
         </div>
-        </div>
-    {% endif %}
+    </div>
 {%  endif %}
 <div class="container">
     {% if user.is_authenticated %}
