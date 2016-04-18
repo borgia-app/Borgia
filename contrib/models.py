@@ -115,6 +115,9 @@ def add_to_breadcrumbs(request, label):
 
     except KeyError:
         pass
+    except IndexError:
+        pass
+
 
 class RedirectLoginProfile:
     """
