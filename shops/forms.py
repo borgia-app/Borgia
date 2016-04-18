@@ -71,30 +71,32 @@ class PurchaseAubergeForm(forms.Form):
 
         cleaned_data = super(PurchaseAubergeForm, self).clean()
 
-        # Authentification de l'opérateur
-        operator_username = cleaned_data['operator_username']
-        operator_password = cleaned_data['operator_password']
-        # Essaye d'authentification seulement si les deux champs sont valides
-        if operator_password and operator_password:
-            # Cas d'échec d'authentification
-            operator = authenticate(username=operator_username, password=operator_password)
-            if operator is not None:
-                if operator.has_perm('shops.sell_auberge') is False:
-                    raise forms.ValidationError('Permission refusée !')
-            else:
-                raise forms.ValidationError('Echec d\'authentification')
-
-        # Validation de l'username
-        client_username = cleaned_data['client_username']
         try:
-            User.objects.get(username=client_username)
-        except ObjectDoesNotExist:
-            raise forms.ValidationError('Le client n\'existe pas')
+            # Authentification de l'opérateur
+            operator_username = cleaned_data['operator_username']
+            operator_password = cleaned_data['operator_password']
+            # Essaye d'authentification seulement si les deux champs sont valides
+            if operator_password and operator_password:
+                # Cas d'échec d'authentification
+                operator = authenticate(username=operator_username, password=operator_password)
+                if operator is not None:
+                    if operator.has_perm('shops.sell_auberge') is False:
+                        raise forms.ValidationError('Permission refusée !')
+                else:
+                    raise forms.ValidationError('Echec d\'authentification')
 
-        # Vérification de la commande sans provision
-        if float(self.request.POST.get('hidden_balance_after')) < 0:
-            raise forms.ValidationError('Commande sans provision')
+            # Validation de l'username
+            client_username = cleaned_data['client_username']
+            try:
+                User.objects.get(username=client_username)
+            except ObjectDoesNotExist:
+                raise forms.ValidationError('Le client n\'existe pas')
 
+            # Vérification de la commande sans provision
+            if float(self.request.POST.get('hidden_balance_after')) < 0:
+                raise forms.ValidationError('Commande sans provision')
+        except KeyError:
+            pass
         return super(PurchaseAubergeForm, self).clean()
 
 
