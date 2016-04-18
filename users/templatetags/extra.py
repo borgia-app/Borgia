@@ -21,6 +21,8 @@ def breadcrumbs(context):
         return {'breadcrumbs': display_breadcrumbs}
     except KeyError:
         pass
+    except IndexError:
+        pass
 
 
 @register.filter()
