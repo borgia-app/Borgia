@@ -89,29 +89,32 @@ def add_to_breadcrumbs(request, label):
 
     La fonction ne garde que 5 breadcrumbs dans la liste
     """
-    breadcrumbs = request.session['breadcrumbs'][:]
+    try:
+        breadcrumbs = request.session['breadcrumbs'][:]
 
-    # Si le lien est déjà dans le breadcrumbs, on ne l'ajoute pas mais on fait comme s'il était celui actif
+        # Si le lien est déjà dans le breadcrumbs, on ne l'ajoute pas mais on fait comme s'il était celui actif
 
-    in_breadcrumbs = False
+        in_breadcrumbs = False
 
-    for d in breadcrumbs:
-        if d[0] == label:
-            in_breadcrumbs = breadcrumbs.index(d)
-            break
+        for d in breadcrumbs:
+            if d[0] == label:
+                in_breadcrumbs = breadcrumbs.index(d)
+                break
 
-    if in_breadcrumbs is not False:
-        breadcrumbs = breadcrumbs[0:in_breadcrumbs+1]
-    else:
-        breadcrumbs.append([label, request.get_full_path()])
+        if in_breadcrumbs is not False:
+            breadcrumbs = breadcrumbs[0:in_breadcrumbs+1]
+        else:
+            breadcrumbs.append([label, request.get_full_path()])
 
-    # Seulement 5 breadcrumbs
-    # Effacement par le début
-    while len(breadcrumbs) > 5:
-        del breadcrumbs[0]
+        # Seulement 5 breadcrumbs
+        # Effacement par le début
+        while len(breadcrumbs) > 5:
+            del breadcrumbs[0]
 
-    request.session['breadcrumbs'] = breadcrumbs
+        request.session['breadcrumbs'] = breadcrumbs
 
+    except KeyError:
+        pass
 
 class RedirectLoginProfile:
     """

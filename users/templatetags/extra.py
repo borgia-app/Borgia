@@ -13,11 +13,14 @@ def has_group(user, group_name):
 
 @register.inclusion_tag('breadcrumbs.html', takes_context=True)
 def breadcrumbs(context):
-    display_breadcrumbs = context['request'].session['breadcrumbs'][:]
-    last_one = display_breadcrumbs[len(display_breadcrumbs)-1]
-    del display_breadcrumbs[len(display_breadcrumbs)-1]
-    display_breadcrumbs.append((last_one[0], 'last'))
-    return {'breadcrumbs': display_breadcrumbs}
+    try:
+        display_breadcrumbs = context['request'].session['breadcrumbs'][:]
+        last_one = display_breadcrumbs[len(display_breadcrumbs)-1]
+        del display_breadcrumbs[len(display_breadcrumbs)-1]
+        display_breadcrumbs.append((last_one[0], 'last'))
+        return {'breadcrumbs': display_breadcrumbs}
+    except KeyError:
+        pass
 
 
 @register.filter()
