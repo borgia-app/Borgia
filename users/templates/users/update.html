@@ -4,10 +4,19 @@
     <div class="container50">
         <h2 class="align-center">Modification des informations</h2>
         <form enctype="multipart/form-data" class="form-style-1" action="" method="post">{% csrf_token %}
+            <span id="form">
             {{ form.as_ul }}
+                </span>
             <input type=hidden name="next" value="{{ next }}" />
             <li><input type="submit" value="Modifier" /></li>
             <li><label><a class="s" href="{% url 'password_change' %}">Modifier mon mot de passe</a></label></li>
         </form>
     </div>
+    {% if user.is_superuser == False %}
+        <script>
+            var form = document.getElementById("form");
+            var li = form.getElementsByTagName("li");
+            li[7].style.display = "None";
+        </script>
+    {% endif %}
 {% endblock %}
