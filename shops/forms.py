@@ -7,6 +7,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from shops.models import Shop, Container, ProductBase, ProductUnit
 from users.models import User
+from django.contrib.auth.models import Group
 
 
 class ReplacementActiveKegForm(forms.Form):
@@ -209,4 +210,21 @@ class ProductCreateMultipleForm(forms.Form):
 
 
 class ProductBaseListPriceForm(forms.Form):
-    shop = forms.ModelChoiceField(label='Magasin', queryset=Shop.objects.all(), empty_label=None)
+    def __init__(self, **kwargs):
+        user = kwargs.pop('request').user
+        super(ProductBaseListPriceForm, self).__init__(**kwargs)
+
+        if Group.objects.get(name='Trésoriers') in user.groups.all():
+            self.fields['shop'] = forms.ModelChoiceField(label='Magasin',
+                                                         queryset=Shop.objects.all(),
+                                                         empty_label=None)
+        else:
+            available_shop = []
+            if user.has_perm('shops.list_productbase'):
+                if Group.objects.get(name='Chefs gestionnaires du foyer') in user.groups.all() or Group.objects.get(name='Gestionnaires du foyer') in user.groups.all():
+                    available_shop.append(Shop.objects.get(name='Foyer').pk)
+                if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in user.groups.all() or Group.objects.get(name='Gestionnaires de l\'auberge') in user.groups.all():
+                    available_shop.append(Shop.objects.get(name='Auberge').pk)
+
+            self.fields['shop'] = forms.ModelChoiceField(label='Magasin', queryset=Shop.objects.filter(pk__in=available_shop), empty_label=None)
+

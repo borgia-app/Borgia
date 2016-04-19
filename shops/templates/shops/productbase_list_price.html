@@ -26,8 +26,12 @@
                     <th><a href="{% url 'url_list_productbase' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}">Prix de vente usuel</a></th>
                     <th>Quantité usuelle</th>
                     <th><a href="{% url 'url_list_productbase' %}?order_by={{ 'is_manual'|order_by:request }}&shop={{ shop }}">Calcul du prix</a></th>
-                    <th>Modifier</th>
-                    <th>Gestion prix</th>
+                    {% if perms.shops.change_productbase %}
+                        <th>Modifier</th>
+                    {% endif %}
+                    {% if perms.shops.change_price_productbase %}
+                        <th>Gestion prix</th>
+                    {% endif %}
                 </tr>
                 {% for e in query_product_base %}
                     <tr>
@@ -42,8 +46,12 @@
                             {% endif %}
                         </td>
                         <td>{% human_reading e.is_manual 'manual_price' %}</td>
-                        <td><a href="{% url 'url_update_productbase' pk=e.id %}">modifier</a></td>
-                        <td><a href="{% url 'url_set_price_product_base' pk=e.id %}">gestion prix</a></td>
+                        {% if perms.shops.change_productbase %}
+                            <td><a href="{% url 'url_update_productbase' pk=e.id %}">modifier</a></td>
+                        {% endif %}
+                        {% if perms.shops.change_price_productbase %}
+                            <td><a href="{% url 'url_set_price_product_base' pk=e.id %}">gestion prix</a></td>
+                        {% endif %}
                     </tr>
                 {% endfor %}
             </table>

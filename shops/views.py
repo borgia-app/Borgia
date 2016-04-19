@@ -735,6 +735,11 @@ class ProductBasePriceListView(ListCompleteView):
         'shop': '1',
     }
 
+    def get_form_kwargs(self):
+        kwargs = super(ProductBasePriceListView, self).get_form_kwargs()
+        kwargs['request'] = self.request
+        return kwargs
+
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Prix produits')
         return super(ProductBasePriceListView, self).get(request, *args, **kwargs)
