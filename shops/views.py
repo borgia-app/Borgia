@@ -480,9 +480,6 @@ class SingleProductCreateMultipleView(FormNextView):
             # Notification success de la création du produit unitaire
             single_product_creation_notify_success_to_user_and_admins(self.request, sp)
 
-        # Mise à jour du prix du product base
-        form.cleaned_data['product_base'].set_calculated_price_mean()
-
         return super(SingleProductCreateMultipleView, self).form_valid(form)
 
     def get_initial(self):
@@ -543,9 +540,6 @@ class ContainerCreateMultipleView(FormNextView):
 
             # Notification success de la création
             container_creation_notify_success_to_user_and_admins(self.request, c)
-
-        # Mise à jour du prix du product base
-        form.cleaned_data['product_base'].set_calculated_price_mean()
 
         return super(ContainerCreateMultipleView, self).form_valid(form)
 
@@ -795,9 +789,6 @@ class ProductCreateMultipleView(FormNextView):
                                                        product_base=form.cleaned_data['product_base'])
                 # Notifications
                 single_product_creation_notify_success_to_user_and_admins(self.request, product)
-
-        # Mise à jour du prix du product base
-        form.cleaned_data['product_base'].set_calculated_price_mean()
 
         return super(ProductCreateMultipleView, self).form_valid(form)
 

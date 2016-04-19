@@ -103,7 +103,6 @@ class ProductBase(models.Model):
     # Attributs
     name = models.CharField('Nom', max_length=255, default="Product base name")
     description = models.TextField('Description', default="Description")
-    calculated_price = models.DecimalField('Prix calculé', default=0, decimal_places=2, max_digits=9)
     is_manual = models.BooleanField('Gestion manuelle du prix', default=False)
     manual_price = models.DecimalField('Prix manuel', default=0, decimal_places=2, max_digits=9)
     brand = models.CharField('Marque', max_length=255)
@@ -128,32 +127,36 @@ class ProductBase(models.Model):
             # Il faut round la fraction (sinon 2/3 = ...)
             # Il faut en plus round  à 2 chiffres Decimal * Decimal
             # Car 1,50 * 2,00 = 3,0000 sinon
-            return round((self.calculated_price * self.product_unit.usual_quantity()) / self.quantity, 2)
+            return round((self.set_calculated_price_mean() * self.product_unit.usual_quantity()) / self.quantity, 2)
         else:
-            return self.calculated_price
+            return self.set_calculated_price_mean()
 
     def set_calculated_price_mean(self):
         """
         Calcule le prix de vente du produit de base en faisant une moyenne sur les produits encore en stock, non vendu
         :return:
         """
-        sum_prices = 0
-        if self.type == 'container':
-            instances_products = Container.objects.filter(product_base=self, quantity_remaining__isnull=False)
-        else:
-            instances_products = SingleProduct.objects.filter(product_base=self, is_sold=False)
-
-        for i in instances_products:
-            sum_prices += i.price
-
-        self.calculated_price = round(sum_prices / len(instances_products), 2)
-
         try:
-            margin_profit = Setting.objects.get(name='MARGIN_PROFIT').get_value()
-        except ObjectDoesNotExist:
-            margin_profit = 0
-        self.calculated_price += self.calculated_price * Decimal(margin_profit / 100)
-        self.save()
+            sum_prices = 0
+            if self.type == 'container':
+                instances_products = Container.objects.filter(product_base=self, quantity_remaining__isnull=False)
+            else:
+                instances_products = SingleProduct.objects.filter(product_base=self, is_sold=False)
+
+            for i in instances_products:
+                sum_prices += i.price
+
+            calculated_price = round(sum_prices / len(instances_products), 2)
+
+            try:
+                margin_profit = Setting.objects.get(name='MARGIN_PROFIT').get_value()
+            except ObjectDoesNotExist:
+                margin_profit = 0
+            calculated_price += calculated_price * Decimal(margin_profit / 100)
+
+            return round(calculated_price, 2)
+        except ZeroDivisionError:
+            return 0
 
     def manual_price_usual(self):
         if self.type == 'container':
@@ -169,7 +172,7 @@ class ProductBase(models.Model):
 
     def deviating_price_from_auto(self):
         try:
-            return round((abs(self.calculated_price - self.manual_price) / self.calculated_price)*100, 2)
+            return round((abs(self.set_calculated_price_mean() - self.manual_price) / self.set_calculated_price_mean())*100, 2)
         except ZeroDivisionError:
             return None
 

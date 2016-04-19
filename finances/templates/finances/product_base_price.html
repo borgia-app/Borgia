@@ -11,6 +11,8 @@
         </form>
         <p class="justify">Remarque : il est possible de définir un prix de vente manuel, même lorsqu'on utilise le
             prix automatique. Il sera alors sauvegardé mais non utilisé.</p>
+    </div>
+    <div class="container">
         <table>
             <tr>
                 <th>Mode</th>
@@ -23,19 +25,19 @@
                 <th>Ecart</th>
             </tr>
             {% if product_base.is_manual == False %}
-                <tr style="color: green">
+                <tr class="s">
                     {% else %}
                 <tr>
             {% endif %}
             <td>Automatique (marge {% if margin_profit %}{{ margin_profit }}%{% else %}non définie{% endif %})</td>
             <td>{{ product_base.calculated_price_usual }} €</td>
             {% if product_base.type == 'container' %}
-                <td>{{ product_base.calculated_price }} €</td>
+                <td>{{ product_base.set_calculated_price_mean }} €</td>
             {% endif %}
             <td>-</td>
             </tr>
             {% if product_base.is_manual == True %}
-                <tr style="color: green">
+                <tr class="s">
                     {% else %}
                 <tr>
             {% endif %}
@@ -63,7 +65,7 @@
                 $("#new_price_usual").text(String(Math.round(this.value*100)/100).replace('.', ','));
             {% endif %}
 
-            var new_deviating_price = Math.round((this.value - Number("{{ product_base.calculated_price }}".replace(',', '.'))) / Number("{{ product_base.calculated_price }}".replace(',', '.'))*100);
+            var new_deviating_price = Math.round((this.value - Number("{{ product_base.set_calculated_price_mean }}".replace(',', '.'))) / Number("{{ product_base.set_calculated_price_mean }}".replace(',', '.'))*100);
             $("#new_deviating_price").text(String(new_deviating_price).replace('.', ','));
 
         });
