@@ -734,7 +734,17 @@ class ProductBasePriceListView(ListCompleteView):
         kwargs['request'] = self.request
         return kwargs
 
+    def post(self, request, *args, **kwargs):
+        if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in request.user.groups.all() or \
+                        Group.objects.get(name='Gestionnaires de l\'auberge') in request.user.groups.all():
+            self.attr['shop'] = 2
+        return super(ProductBasePriceListView, self).post(request, *args, **kwargs)
+        
     def get(self, request, *args, **kwargs):
+        if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in request.user.groups.all() or \
+                        Group.objects.get(name='Gestionnaires de l\'auberge') in request.user.groups.all():
+            self.attr['shop'] = 2
+
         add_to_breadcrumbs(request, 'Prix produits')
         return super(ProductBasePriceListView, self).get(request, *args, **kwargs)
 
