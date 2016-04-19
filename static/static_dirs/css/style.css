@@ -1250,7 +1250,7 @@ body{
 #container-notifications{
     position: absolute;
     z-index: 1;
-    background-color: grey;
+    background-color: #353e4f;
     color: white;
     width: 40%;
     margin-left: 55%;
@@ -1261,18 +1261,34 @@ div.notifications{
     border: 1px solid black;
     border-top: none;
 }
+div.notifications:hover{
+    background-color: #60637b;
+    font-weight: bold;
+}
 
 div.notifications-header{
     border: 1px solid black;
 }
+
+div.notifications-header h1{
+    margin: 0px;
+}
+
 
 div.notifications-footer{
     border: 1px solid black;
     border-top: none;
 }
 
-div.notifications-header h1{
-    margin: 0px;
+div.notifications-footer a{
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+div.notifications-footer:hover{
+    background-color: #60637b;
+    font-weight: bold;
 }
 
 /* Breadcrumbs */

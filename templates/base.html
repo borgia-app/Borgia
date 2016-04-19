@@ -76,7 +76,9 @@
         </div>
             {% if messages %}
                 {% for message in messages %}
-                    <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">{{ message }}</div>
+                    <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">
+                        {{ message }}
+                    </div>
                 {% endfor %}
             {% else %}
                 <div class="notifications info">Il n'y a pas de nouvelles notifications pour toi.</div>

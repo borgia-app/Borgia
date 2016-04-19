@@ -103,15 +103,15 @@ def get_unread_notifications_for_user(request):
         if notifications_for_user:  # Si la liste n'est pas vide...
             for e in notifications_for_user:
                 if e.type == "DEBUG":
-                    messages.add_message(request, messages.DEBUG, str(e.actor_object) + " " + e.verb + " " + str(e.action_medium_object) + ".")  # Passe le message au middleware message
+                    messages.add_message(request, messages.DEBUG, str(e.actor_object) + " " + e.verb + " " + str(e.action_medium_object) + " le " + str(e.creation_datetime) + ".")  # Passe le message au middleware message
                 elif e.type == "SUCCESS":
-                    messages.add_message(request, messages.SUCCESS,  str(e.actor_object) + " " + e.verb + " " + str(e.action_medium_object) + ".")
+                    messages.add_message(request, messages.SUCCESS,  str(e.actor_object) + " " + e.verb + " " + str(e.action_medium_object) + " le " + str(e.creation_datetime) + ".")
                 elif e.type == "INFO":
-                    messages.add_message(request, messages.INFO, str(e.actor_object) + " " + e.verb + " " + str(e.action_medium_object) + ".")
+                    messages.add_message(request, messages.INFO, str(e.actor_object) + " " + e.verb + " " + str(e.action_medium_object) + " le " + str(e.creation_datetime) + ".")
                 elif e.type == "WARNING":
-                    messages.add_message(request, messages.WARNING, str(e.actor_object) + " " + e.verb + " " + str(e.action_medium_object) + ".")
+                    messages.add_message(request, messages.WARNING, str(e.actor_object) + " " + e.verb + " " + str(e.action_medium_object) + " le " + str(e.creation_datetime) + ".")
                 elif e.type == "ERROR":
-                    messages.add_message(request, messages.ERROR, str(e.actor_object) + " " + e.verb + " " + str(e.action_medium_object) + ".")
+                    messages.add_message(request, messages.ERROR, str(e.actor_object) + " " + e.verb + " " + str(e.action_medium_object) + " le " + str(e.creation_datetime) + ".")
 
                 if e.displayed_date is None:
                     e.displayed_date = now()  # Ainsi que la date d'affichage
