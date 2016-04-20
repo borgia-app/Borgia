@@ -16,9 +16,7 @@
     list-style-type: none;
     margin-bottom: 10px;
     padding-bottom : 30px;
-    float: left;
     position: relative;
-    left: 12.5%;
 }
 
 #onglets li
@@ -26,7 +24,6 @@
     float: left;
     background-color: rgba(144, 144, 144, 0.075);
     border: 1px solid rgba(144, 144, 144, 0.25);
-    margin : 2px 2px 0 4px !important;
     height : 30px;
     padding: 3px;
     right: 12.5%;
@@ -41,6 +38,15 @@
 #onglets li:hover
 {
     background: #60637b;
+}
+
+#div_purchase
+{
+    position: relative;
+    min-width: 800px;
+    margin: 0 auto;
+    padding: 0 20px;
+    box-sizing: border-box;
 }
 
 /* Autocompletion */
@@ -556,6 +562,7 @@ textarea {
 .user-menu li {
     list-style-type: none;
     display: inline-block;
+    position: relative;
 }
 .user-menu a {
     color: #999;
@@ -571,9 +578,8 @@ textarea {
     color: #fff;
 }
 
-.user-menu span {
+.user-menu span.icon {
     color: #999;
-    display: inline-block;
     padding: 1.25em 1em;
     position: relative;
     z-index: 1;
@@ -585,6 +591,22 @@ textarea {
 .user-menu span:focus {
     color: #fff;
 }
+
+.user-menu .buble-notifications-count{
+    text-align: center;
+    position: absolute;
+    left:50%;
+    top: 0;
+    border-radius: 50%;
+    font-size: 15px;
+    width: 20px;
+    height:20px;
+    background-color: red;
+    color: white;
+    z-index: 1;
+    cursor: pointer;
+}
+
 
 @media screen and (max-width: 480px) {
     .user-menu {
@@ -1229,9 +1251,67 @@ body{
 #container-notifications{
     position: absolute;
     z-index: 1;
-    background-color: whitesmoke;
-    color: black;
+    background-color: #353e4f;
+    color: white;
+    width: 40%;
+    margin-left: 55%;
+    margin-right: 5%;
 }
+
+div.notifications-body{
+    border: 1px solid black;
+    border-top: none;
+}
+
+.icon-check-notification:before{
+    content: '\f058';
+    font-family: FontAwesome;
+    font-size: 10px;
+}
+
+div.notifications-body span{
+    position: absolute;
+    right: 0;
+}
+
+div.notifications-body a{
+    display: block;
+    width: 100%;
+    height:100%;
+    cursor: pointer;
+}
+
+div.notifications-body:hover{
+    background-color: #60637b;
+    font-weight: bold;
+}
+
+div.notifications-header{
+    border: 1px solid black;
+}
+
+div.notifications-header h1{
+    margin: 0px;
+}
+
+
+div.notifications-footer{
+    border: 1px solid black;
+    border-top: none;
+}
+
+div.notifications-footer a{
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+div.notifications-footer:hover{
+    background-color: #60637b;
+    font-weight: bold;
+}
+
+
 
 /* Breadcrumbs */
 

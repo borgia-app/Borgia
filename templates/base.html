@@ -32,6 +32,28 @@
         }
         return true;
     }
+
+    var read_count = 0;
+
+    function make_notification_read_and_undisplay_it(id)
+    {
+        document.getElementById('container-notifications').removeChild(document.getElementById(id));
+
+        var xhr = new XMLHttpRequest();
+            xhr.open('GET', '{% url 'url_read_notification' %}?notification_id=' + id);
+            xhr.send(null);
+
+        read_count = read_count + 1;
+
+        if (read_count < {{ messages|length }})
+        {
+            document.querySelector('span.buble-notifications-count').innerHTML=({{ messages|length }}-read_count).toString();
+        }
+        else
+        {
+            document.querySelector('span.buble-notifications-count').style.visibility="hidden";
+        }
+    }
     </script>
 </head>
 <body>
@@ -52,7 +74,13 @@
                 <li><a class="icon icon-home" href="{% url 'url_profile' %}"></a></li>
                 {% if user.is_authenticated %}
                     <li><a class="icon icon-people" href="{% url 'url_list_user_complete' %}"></a></li>
-                    <li><span class="icon icon-notification" onclick="show_hide_div('container-notifications');"></span>{% if messages %}<span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">{{ messages|length }}</span>{% endif %}</li>
+                    <li>
+                        <span class="icon icon-notification" onclick="show_hide_div('container-notifications');">
+                        </span>
+                        {% if messages %}
+                            <span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">
+                            </span>
+                        {% endif %}</li>
                     <li><a class="icon icon-settings" href=""></a></li>
                     <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
                     <li><a class="icon icon-admin" href=""></a></li>
@@ -76,8 +104,8 @@
         </div>
             {% if messages %}
                 {% for message in messages %}
-                    <div class="notifications {% if message.tags %} {{ message.tags }}{% endif %}">
-                        {{ message }}
+                    <div class="notifications-body{% if message.level_tag %} {{ message.level_tag }}{% endif %}" {% if message.extra_tags %} id="{{ message.extra_tags }}" {% endif %} >
+                        <a onclick="make_notification_read_and_undisplay_it('{% if message.extra_tags %}{{ message.extra_tags }}{% endif %}');">{{ message|linebreaksbr}}<span class="icon icon-check-notification"></span></a>
                     </div>
                 {% endfor %}
             {% else %}
@@ -129,5 +157,11 @@
             }
         </style>
     {% endif %}
+{% endif %}
+
+{% if messages %}
+    <script type="text/javascript">
+        document.querySelector('span.buble-notifications-count').innerHTML=({{ messages|length }}).toString();
+    </script>
 {% endif %}
 </html>

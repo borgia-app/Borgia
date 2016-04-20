@@ -604,6 +604,7 @@ textarea {
     background-color: red;
     color: white;
     z-index: 1;
+    cursor: pointer;
 }
 
 
@@ -1257,11 +1258,30 @@ body{
     margin-right: 5%;
 }
 
-div.notifications{
+div.notifications-body{
     border: 1px solid black;
     border-top: none;
 }
-div.notifications:hover{
+
+.icon-check-notification:before{
+    content: '\f058';
+    font-family: FontAwesome;
+    font-size: 10px;
+}
+
+div.notifications-body span{
+    position: absolute;
+    right: 0;
+}
+
+div.notifications-body a{
+    display: block;
+    width: 100%;
+    height:100%;
+    cursor: pointer;
+}
+
+div.notifications-body:hover{
     background-color: #60637b;
     font-weight: bold;
 }
@@ -1290,6 +1310,8 @@ div.notifications-footer:hover{
     background-color: #60637b;
     font-weight: bold;
 }
+
+
 
 /* Breadcrumbs */
 
