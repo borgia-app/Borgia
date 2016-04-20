@@ -34,7 +34,10 @@ class LinkTokenUserView(FormNextView):
 
 
 def balance_from_username(request):
-    return HttpResponse(User.objects.get(username=request.GET.get('username')).balance)
+    try:
+        return HttpResponse(User.objects.get(username=request.GET.get('username')).balance)
+    except ObjectDoesNotExist:
+        pass
 
 
 class ManageGroupView(FormNextView):

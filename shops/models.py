@@ -5,7 +5,7 @@ from contrib.models import TimeStampedDescription
 from django.utils.timezone import now
 
 from finances.models import *
-from decimal import Decimal
+from decimal import Decimal, InvalidOperation
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from settings_data.models import Setting
@@ -157,6 +157,8 @@ class ProductBase(models.Model):
             return round(calculated_price, 2)
         except ZeroDivisionError:
             return 0
+        except InvalidOperation:
+            return 0
 
     def manual_price_usual(self):
         if self.type == 'container':
@@ -174,6 +176,8 @@ class ProductBase(models.Model):
         try:
             return round((abs(self.set_calculated_price_mean() - self.manual_price) / self.set_calculated_price_mean())*100, 2)
         except ZeroDivisionError:
+            return None
+        except InvalidOperation:
             return None
 
     class Meta:

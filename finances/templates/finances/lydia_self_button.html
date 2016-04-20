@@ -16,9 +16,8 @@
             $('#lydiaButton').payWithLYDIA({
                 amount: {{ amount }},
                 vendor_token: '{{ vendor_token }}',
-                recipient: '0711223344', //cellphone or email of your client. Leave it like this for your test
+                recipient: '{{ tel_number }}', //cellphone or email of your client
                 message : '{{ message }}', //object of the payment
-                env: 'test',
                 render : '<img src="https://lydia-app.com/assets/img/paymentbutton.png" />', //button image
                 // The client will be redirect to this URL after the payment
                 browser_success_url : "{{ confirm_url}}",

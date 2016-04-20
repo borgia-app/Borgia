@@ -332,7 +332,7 @@
   },
   {
     "model": "shops.productunit",
-    "pk": 32,
+    "pk": 33,
     "fields": {
       "name": "Amaretto",
       "description": "Produit unitaire de Amaretto",
@@ -698,7 +698,6 @@
     "fields": {
       "name": "Bouteille de Get 27",
       "description": "Bouteille de Get 27",
-      "calculated_price": 12.25,
       "quantity": 70,
       "product_unit": 27,
       "brand": "Get 27",

@@ -311,8 +311,8 @@ class SupplyUnitedView(FormView):
         elif form.cleaned_data['type'] == 'lydia':
             lydia = Lydia.objects.create(date_operation=form.cleaned_data['signature_date'],
                                          id_from_lydia=form.cleaned_data['unique_number'],
-                                         sender_user_id=sender,
-                                         recipient_user_id=User.objects.get(username='AE_ENSAM'),
+                                         sender=sender,
+                                         recipient=User.objects.get(username='AE_ENSAM'),
                                          amount=form.cleaned_data['amount'])
             payment.lydias.add(lydia)
             payment.maj_amount()
@@ -434,9 +434,9 @@ class SupplyLydiaSelfView(FormView):
 
 
 def get_button_lydia(request, amount, tel_number):
-    vendor_token = '56eaf745bd592622063936'
-    confirm_url = 'http://borgia.iresam.org/finances/supply/lydia/self/confirm'
-    callback_url = 'http://borgia.iresam.org/finances/supply/lydia/self/callback'
+    vendor_token = settings.LYDIA_VENDOR_TOKEN
+    confirm_url = settings.LYDIA_CONFIRM_URL
+    callback_url = settings.LYDIA_CALLBACK_URL
     amount = amount
     tel_number = tel_number
     message = "Ajout d'argent compte de" + request.user.__str__() + "Borgia AE ENSAM"
@@ -492,10 +492,14 @@ def supply_lydia_self_callback(request):
 
 
 def bank_account_from_user(request):
-    data = serializers.serialize('xml',
-                                 BankAccount.objects.filter(owner=User.objects.get(
-                                     username=request.GET.get('user_username'))))
-    return HttpResponse(data)
+    try:
+        data = serializers.serialize('xml',
+                                     BankAccount.objects.filter(owner=User.objects.get(
+                                         username=request.GET.get('user_username'))))
+        return HttpResponse(data)
+
+    except ObjectDoesNotExist:
+        pass
 
 
 # Models
