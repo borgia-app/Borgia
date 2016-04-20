@@ -1,5 +1,4 @@
 [
-
   {
     "model": "shops.shop",
     "pk": 1,
@@ -8,6 +7,7 @@
       "description": "Foyer des élèves de l'AE ENSAM"
     }
   },
+
   {
     "model": "shops.productunit",
     "pk": 1,
@@ -72,6 +72,37 @@
     "model": "shops.productunit",
     "pk": 7,
     "fields": {
+      "name": "Cuvée des trolls",
+      "description": "Produit unitaire de Cuvée des trolls",
+      "unit": "CL",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 8,
+    "fields": {
+      "name": "Triple K",
+      "description": "Produit unitaire de Triple K",
+      "unit": "CL",
+      "type": "keg"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 9,
+    "fields": {
+      "name": "Hofbräu",
+      "description": "Produit unitaire de Hofbräu",
+      "unit": "CL",
+      "type": "keg"
+    }
+  },
+
+  {
+    "model": "shops.productunit",
+    "pk": 10,
+    "fields": {
       "name": "Soda",
       "description": "Produit unitaire de soda",
       "unit": "CL",
@@ -80,7 +111,7 @@
   },
   {
     "model": "shops.productunit",
-    "pk": 8,
+    "pk": 11,
     "fields": {
       "name": "Boisson énergissante",
       "description": "Produit unitaire de Boisson énergissante",
@@ -90,7 +121,7 @@
   },
   {
     "model": "shops.productunit",
-    "pk": 9,
+    "pk": 12,
     "fields": {
       "name": "Jus de fruit",
       "description": "Produit unitaire de Jus de fruit pour fut",
@@ -100,7 +131,7 @@
   },
   {
     "model": "shops.productunit",
-    "pk": 10,
+    "pk": 13,
     "fields": {
       "name": "Sirop",
       "description": "Produit unitaire de Sirop",
@@ -108,9 +139,10 @@
       "type": "syrup"
     }
   },
+
   {
     "model": "shops.productunit",
-    "pk": 11,
+    "pk": 14,
     "fields": {
       "name": "Picon",
       "description": "Produit unitaire de Picon",
@@ -120,7 +152,7 @@
   },
   {
     "model": "shops.productunit",
-    "pk": 12,
+    "pk": 15,
     "fields": {
       "name": "Vodka",
       "description": "Produit unitaire de Vodka",
@@ -130,17 +162,77 @@
   },
   {
     "model": "shops.productunit",
-    "pk": 13,
+    "pk": 16,
     "fields": {
-      "name": "Rhum",
-      "description": "Produit unitaire de Rhum",
+      "name": "Rhum blanc",
+      "description": "Produit unitaire de Rhum blanc",
       "unit": "CL",
       "type": "liquor"
     }
   },
   {
     "model": "shops.productunit",
-    "pk": 14,
+    "pk": 17,
+    "fields": {
+      "name": "Rhum épicé",
+      "description": "Produit unitaire de Rhum épicé",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 18,
+    "fields": {
+      "name": "Rhum ambré",
+      "description": "Produit unitaire de Rhum ambré",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 19,
+    "fields": {
+      "name": "Gin",
+      "description": "Produit unitaire de Gin",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 20,
+    "fields": {
+      "name": "Martini",
+      "description": "Produit unitaire de Martini",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 21,
+    "fields": {
+      "name": "Tequila",
+      "description": "Produit unitaire de Tequila",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 22,
+    "fields": {
+      "name": "Calvados",
+      "description": "Produit unitaire de Calvados",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 23,
     "fields": {
       "name": "Whisky",
       "description": "Produit unitaire de Whisky",
@@ -150,7 +242,7 @@
   },
   {
     "model": "shops.productunit",
-    "pk": 15,
+    "pk": 24,
     "fields": {
       "name": "Jägermeister",
       "description": "Produit unitaire de Jägermeister",
@@ -160,7 +252,7 @@
   },
   {
     "model": "shops.productunit",
-    "pk": 16,
+    "pk": 25,
     "fields": {
       "name": "Pastis",
       "description": "Produit unitaire de Pastis",
@@ -169,12 +261,102 @@
     }
   },
   {
+    "model": "shops.productunit",
+    "pk": 26,
+    "fields": {
+      "name": "Kahlua",
+      "description": "Produit unitaire de Kahlua",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 27,
+    "fields": {
+      "name": "Get27",
+      "description": "Produit unitaire de Get27",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 28,
+    "fields": {
+      "name": "Triple sec",
+      "description": "Produit unitaire de Triple sec",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 29,
+    "fields": {
+      "name": "Cointreau",
+      "description": "Produit unitaire de Cointreau",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 30,
+    "fields": {
+      "name": "Baileys",
+      "description": "Produit unitaire de Baileys",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 31,
+    "fields": {
+      "name": "Gold Strike",
+      "description": "Produit unitaire de Gold Strike",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 32,
+    "fields": {
+      "name": "Suze",
+      "description": "Produit unitaire de Suze",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 32,
+    "fields": {
+      "name": "Amaretto",
+      "description": "Produit unitaire de Amaretto",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 34,
+    "fields": {
+      "name": "Delaitre menthe",
+      "description": "Produit unitaire de Delaitre menthe",
+      "unit": "CL",
+      "type": "liquor"
+    }
+  },
+
+  {
     "model": "shops.productbase",
     "pk": 1,
     "fields": {
       "name": "Fut de Kronembourg",
       "description": "Fut de Kronembourg",
-      "calculated_price": 125.16,
       "quantity": 5000,
       "product_unit": 1,
       "brand": "Kronembourg",
@@ -188,8 +370,7 @@
     "fields": {
       "name": "Fut de 1664 Blanche",
       "description": "Fut de 1664 Blanche",
-      "calculated_price": 78.68,
-      "quantity": 3000,
+      "quantity": 2000,
       "product_unit": 2,
       "brand": "1664",
       "type": "container",
@@ -202,7 +383,6 @@
     "fields": {
       "name": "Fut de Grimbergen réserve",
       "description": "Fut de Grimbergen réserve",
-      "calculated_price": 88.07,
       "quantity": 3000,
       "product_unit": 3,
       "brand": "Grimbergen",
@@ -216,7 +396,6 @@
     "fields": {
       "name": "Fut d'Apple Frost",
       "description": "Fut d'Apple Frost",
-      "calculated_price": 60.01,
       "quantity": 2000,
       "product_unit": 4,
       "brand": "Apple Frost",
@@ -230,8 +409,7 @@
     "fields": {
       "name": "Fut d'El Grande",
       "description": "Fut d'El Grande",
-      "calculated_price": 50.1,
-      "quantity": 2000,
+      "quantity": 1500,
       "product_unit": 5,
       "brand": "El Grande",
       "type": "container",
@@ -244,8 +422,7 @@
     "fields": {
       "name": "Fut de Grimbergen de Noël",
       "description": "Fut de Grimbergen de Noël",
-      "calculated_price": 90,
-      "quantity": 3000,
+      "quantity": 2000,
       "product_unit": 6,
       "brand": "Grimbergen",
       "type": "container",
@@ -256,12 +433,11 @@
     "model": "shops.productbase",
     "pk": 7,
     "fields": {
-      "name": "Bouteille de soda",
-      "description": "Bouteille de soda",
-      "calculated_price": 1.50,
-      "quantity": 75,
+      "name": "Fut de Cuvée des trolls",
+      "description": "Fut de Cuvée des trolls",
+      "quantity": 2000,
       "product_unit": 7,
-      "brand": "Metro",
+      "brand": "Cuvée des trolls",
       "type": "container",
       "shop": 1
     }
@@ -270,12 +446,11 @@
     "model": "shops.productbase",
     "pk": 8,
     "fields": {
-      "name": "Bouteille de boisson énergissante",
-      "description": "Bouteille de boisson énergissante",
-      "calculated_price": 1.49,
-      "quantity": 75,
+      "name": "Fut de Triple K",
+      "description": "Fut de Triple K",
+      "quantity": 3000,
       "product_unit": 8,
-      "brand": "Metro",
+      "brand": "Triple K",
       "type": "container",
       "shop": 1
     }
@@ -284,24 +459,24 @@
     "model": "shops.productbase",
     "pk": 9,
     "fields": {
-      "name": "Bouteille de Jus de fruit",
-      "description": "Bouteille de Jus de fruit",
-      "calculated_price": 0.7,
-      "quantity": 75,
+      "name": "Fut de Hofbräu",
+      "description": "Fut de Hofbräu",
+      "quantity": 2000,
       "product_unit": 9,
-      "brand": "Metro",
+      "brand": "Hofbräu",
       "type": "container",
       "shop": 1
     }
   },
+
+
   {
     "model": "shops.productbase",
     "pk": 10,
     "fields": {
-      "name": "Bouteille de sirop",
-      "description": "Bouteille de sirop",
-      "calculated_price": 3.0,
-      "quantity": 75,
+      "name": "Bouteille de soda",
+      "description": "Bouteille de soda",
+      "quantity": 150,
       "product_unit": 10,
       "brand": "Metro",
       "type": "container",
@@ -312,12 +487,11 @@
     "model": "shops.productbase",
     "pk": 11,
     "fields": {
-      "name": "Bouteille de Picon",
-      "description": "Bouteille de Picon",
-      "calculated_price": 10,
-      "quantity": 75,
+      "name": "Bouteille de boisson énergissante",
+      "description": "Bouteille de boisson énergissante",
+      "quantity": 150,
       "product_unit": 11,
-      "brand": "Picon",
+      "brand": "Metro",
       "type": "container",
       "shop": 1
     }
@@ -326,12 +500,11 @@
     "model": "shops.productbase",
     "pk": 12,
     "fields": {
-      "name": "Bouteille de vodka",
-      "description": "Bouteille de vodka",
-      "calculated_price": 10.6,
-      "quantity": 75,
+      "name": "Bouteille de Jus de fruit",
+      "description": "Bouteille de Jus de fruit",
+      "quantity": 70,
       "product_unit": 12,
-      "brand": "Vodka",
+      "brand": "Metro",
       "type": "container",
       "shop": 1
     }
@@ -340,26 +513,25 @@
     "model": "shops.productbase",
     "pk": 13,
     "fields": {
-      "name": "Bouteille de rhum",
-      "description": "Bouteille de rhum",
-      "calculated_price": 12.6,
-      "quantity": 75,
+      "name": "Bouteille de sirop",
+      "description": "Bouteille de sirop",
+      "quantity": 10,
       "product_unit": 13,
-      "brand": "Rhum",
+      "brand": "Metro",
       "type": "container",
       "shop": 1
     }
   },
+
   {
     "model": "shops.productbase",
     "pk": 14,
     "fields": {
-      "name": "Bouteille de whisky",
-      "description": "Bouteille de whisky",
-      "calculated_price": 12.25,
-      "quantity": 75,
+      "name": "Bouteille de Picon",
+      "description": "Bouteille de Picon",
+      "quantity": 100,
       "product_unit": 14,
-      "brand": "Whisky",
+      "brand": "Picon",
       "type": "container",
       "shop": 1
     }
@@ -368,12 +540,11 @@
     "model": "shops.productbase",
     "pk": 15,
     "fields": {
-      "name": "Bouteille de Jaëgermeister",
-      "description": "Bouteille de Jaëgermeister",
-      "calculated_price": 9.7,
-      "quantity": 75,
+      "name": "Bouteille de vodka",
+      "description": "Bouteille de vodka",
+      "quantity": 70,
       "product_unit": 15,
-      "brand": "Jaëgermeister",
+      "brand": "Vodka",
       "type": "container",
       "shop": 1
     }
@@ -382,12 +553,11 @@
     "model": "shops.productbase",
     "pk": 16,
     "fields": {
-      "name": "Bouteille de Pastis",
-      "description": "Bouteille de Pastis",
-      "calculated_price": 20.15,
-      "quantity": 75,
+      "name": "Bouteille de rhum blanc",
+      "description": "Bouteille de rhum blanc",
+      "quantity": 70,
       "product_unit": 16,
-      "brand": "Pastis",
+      "brand": "Rhum",
       "type": "container",
       "shop": 1
     }
@@ -396,230 +566,247 @@
     "model": "shops.productbase",
     "pk": 17,
     "fields": {
-      "name": "Skoll 33 cl",
-      "description": "Bouteille de Skoll 33 cl",
-      "calculated_price": 1.20,
-      "brand": "Skoll",
-      "type": "single_product",
+      "name": "Bouteille de rhum épicé",
+      "description": "Bouteille de rhum épicé",
+      "quantity": 70,
+      "product_unit": 17,
+      "brand": "Rhum",
+      "type": "container",
       "shop": 1
     }
   },
   {
-    "model": "shops.singleproduct",
-    "pk": 1,
+    "model": "shops.productbase",
+    "pk": 18,
     "fields": {
-      "price": 1.5,
-      "expiry_date": null,
-      "place": "stock foyer",
-      "product_base": 17
+      "name": "Bouteille de rhum ambré",
+      "description": "Bouteille de rhum ambré",
+      "quantity": 70,
+      "product_unit": 18,
+      "brand": "Rhum",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 1,
+    "model": "shops.productbase",
+    "pk": 19,
     "fields": {
-      "price": 125.0,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 5000,
-      "is_sold": false,
-      "product_base": 1
+      "name": "Bouteille de gin",
+      "description": "Bouteille de gin",
+      "quantity": 70,
+      "product_unit": 19,
+      "brand": "Gin",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 2,
+    "model": "shops.productbase",
+    "pk": 20,
     "fields": {
-      "price": 78,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 3000,
-      "is_sold": false,
-      "product_base": 2
+      "name": "Bouteille de Martini",
+      "description": "Bouteille de Martini",
+      "quantity": 150,
+      "product_unit": 20,
+      "brand": "Martini",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 3,
+    "model": "shops.productbase",
+    "pk": 21,
     "fields": {
-      "price": 90,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 3000,
-      "is_sold": false,
-      "product_base": 3
+      "name": "Bouteille de Tequila",
+      "description": "Bouteille de Tequila",
+      "quantity": 70,
+      "product_unit": 21,
+      "brand": "Tequila",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 4,
+    "model": "shops.productbase",
+    "pk": 22,
     "fields": {
-      "price": 60,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 2000,
-      "is_sold": false,
-      "product_base": 4
+      "name": "Bouteille de Calvados",
+      "description": "Bouteille de Calvados",
+      "quantity": 100,
+      "product_unit": 22,
+      "brand": "Calvados",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 5,
+    "model": "shops.productbase",
+    "pk": 23,
     "fields": {
-      "price": 50,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 2000,
-      "is_sold": false,
-      "product_base": 5
+      "name": "Bouteille de Whisky",
+      "description": "Bouteille de Whisky",
+      "quantity": 75,
+      "product_unit": 23,
+      "brand": "Whisky",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 6,
+    "model": "shops.productbase",
+    "pk": 24,
     "fields": {
-      "price": 90,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 3000,
-      "is_sold": false,
-      "product_base": 6
+      "name": "Bouteille de Jaëgermeister",
+      "description": "Bouteille de Jaëgermeister",
+      "quantity": 70,
+      "product_unit": 24,
+      "brand": "Jaëgermeister",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 7,
+    "model": "shops.productbase",
+    "pk": 25,
     "fields": {
-      "price": 1.5,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 75,
-      "is_sold": false,
-      "product_base": 7
+      "name": "Bouteille de Pastis",
+      "description": "Bouteille de Pastis",
+      "quantity": 100,
+      "product_unit": 25,
+      "brand": "Pastis",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 8,
+    "model": "shops.productbase",
+    "pk": 26,
     "fields": {
-      "price": 1.5,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 75,
-      "is_sold": false,
-      "product_base": 8
+      "name": "Bouteille de Kahlua",
+      "description": "Bouteille de Kahlua",
+      "quantity": 70,
+      "product_unit": 26,
+      "brand": "Kahlua",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 9,
+    "model": "shops.productbase",
+    "pk": 27,
     "fields": {
-      "price": 0.8,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 75,
-      "is_sold": false,
-      "product_base": 9
+      "name": "Bouteille de Get 27",
+      "description": "Bouteille de Get 27",
+      "calculated_price": 12.25,
+      "quantity": 70,
+      "product_unit": 27,
+      "brand": "Get 27",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 10,
+    "model": "shops.productbase",
+    "pk": 28,
     "fields": {
-      "price": 3,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 75,
-      "is_sold": false,
-      "product_base": 10
+      "name": "Bouteille de Triple sec",
+      "description": "Bouteille de Triple sec",
+      "quantity": 70,
+      "product_unit": 28,
+      "brand": "Triple sec",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 11,
+    "model": "shops.productbase",
+    "pk": 29,
     "fields": {
-      "price": 10,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 75,
-      "is_sold": false,
-      "product_base": 11
+      "name": "Bouteille de Cointreau",
+      "description": "Bouteille de Cointreau",
+      "quantity": 70,
+      "product_unit": 29,
+      "brand": "Cointreau",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 12,
+    "model": "shops.productbase",
+    "pk": 30,
     "fields": {
-      "price": 10,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 75,
-      "is_sold": false,
-      "product_base": 12
+      "name": "Bouteille de Baileys",
+      "description": "Bouteille de Baileys",
+      "quantity": 70,
+      "product_unit": 30,
+      "brand": "Baileys",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 13,
+    "model": "shops.productbase",
+    "pk": 31,
     "fields": {
-      "price": 10,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 75,
-      "is_sold": false,
-      "product_base": 13
+      "name": "Bouteille de Gold Strike",
+      "description": "Bouteille de Gold Strike",
+      "quantity": 50,
+      "product_unit": 31,
+      "brand": "Gold Strike",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 14,
+    "model": "shops.productbase",
+    "pk": 32,
     "fields": {
-      "price": 10,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 75,
-      "is_sold": false,
-      "product_base": 14
+      "name": "Bouteille de Suze",
+      "description": "Bouteille de Suze",
+      "quantity": 70,
+      "product_unit": 32,
+      "brand": "Suze",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 15,
+    "model": "shops.productbase",
+    "pk": 33,
     "fields": {
-      "price": 1.5,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 75,
-      "is_sold": false,
-      "product_base": 15
+      "name": "Bouteille de Amaretto",
+      "description": "Bouteille de Amaretto",
+      "quantity": 70,
+      "product_unit": 33,
+      "brand": "Amaretto",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.container",
-    "pk": 16,
+    "model": "shops.productbase",
+    "pk": 34,
     "fields": {
-      "price": 20,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "stock foyer",
-      "quantity_remaining": 75,
-      "is_sold": false,
-      "product_base": 16
+      "name": "Bouteille de Delaitre menthe",
+      "description": "Bouteille de Delaitre menthe",
+      "quantity": 70,
+      "product_unit": 34,
+      "brand": "Delaitre menthe",
+      "type": "container",
+      "shop": 1
+    }
+  },
+
+  {
+    "model": "shops.productbase",
+    "pk": 35,
+    "fields": {
+      "name": "Skoll 33 cl",
+      "description": "Bouteille de Skoll 33 cl",
+      "brand": "Skoll",
+      "type": "single_product",
+      "shop": 1
     }
   }
 ]
