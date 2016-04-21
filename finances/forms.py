@@ -36,6 +36,9 @@ class TransfertCreateForm(forms.Form):
         if amount <= 0:
             raise forms.ValidationError('Le montant doit être strictement supérieur à 0.')
 
+        if amount > self.request.user.balance:
+            raise forms.ValidationError('Le montant doit être inférieur ou égal à ton solde.')
+
 
 class SupplyUnitedForm(forms.Form):
 
