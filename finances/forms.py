@@ -23,6 +23,8 @@ class TransfertCreateForm(forms.Form):
     def clean(self):
         cleaned_data = super(TransfertCreateForm, self).clean()
         recipient = cleaned_data['recipient']
+        amount = cleaned_data['amount']
+
         try:
             User.objects.get(username=recipient)
         except ObjectDoesNotExist:
@@ -30,6 +32,9 @@ class TransfertCreateForm(forms.Form):
 
         if User.objects.get(username=recipient) == self.request.user:
             raise forms.ValidationError('Transfert vers soi-même impossible')
+
+        if amount <= 0:
+            raise forms.ValidationError('Le montant doit être strictement supérieur à 0.')
 
 
 class SupplyUnitedForm(forms.Form):
