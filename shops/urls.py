@@ -33,16 +33,16 @@ urlpatterns = [
     (ProductUnitListView.as_view()), name='url_list_productunit'),  # L
     url(r'^productbase/create/$', permission_required('shops.add_productbase', raise_exception=True)
     (ProductBaseCreateView.as_view()), name='url_create_productbase'),  # C
-    url(r'^productbase/retrieve/(?P<pk>\d+)/$', permission_required('shops.retrieve_sproductbase', raise_exception=True)
+    url(r'^productbase/retrieve/(?P<pk>\d+)/$', permission_required('shops.retrieve_productbase', raise_exception=True)
     (ProductBaseRetrieveView.as_view()), name='url_retrieve_productbase'),  # C
     url(r'^productbase/update/(?P<pk>\d+)/$', permission_required('shops.change_productbase', raise_exception=True)
     (ProductBaseUpdateView.as_view()), name='url_update_productbase'),  # C
     url(r'^productbase/delete/(?P<pk>\d+)/$', permission_required('shops.delete_productbase', raise_exception=True)
     (ProductBaseDeleteView.as_view()), name='url_delete_productbase'),  # C
     url(r'^productbase/$', permission_required('shops.list_productbase', raise_exception=True)
-    (ProductBasePriceListView.as_view()), name='url_list_productbase'),  # C
-    url(r'^productbase/list_price/$', permission_required('shops.list_productbase', raise_exception=True)
-    (ProductBasePriceListView.as_view()), name='url_list_price_productbase'),  # C
+    (ProductListView.as_view()), name='url_list_productbase'),  # C
+    url(r'^product/$', permission_required('shops.list_productbase', raise_exception=True)
+    (ProductListView.as_view()), name='url_list_product'),  # C
 
     # Foyer
     url(r'^foyer/consumption/$', PurchaseFoyer.as_view(), name='url_purchase_foyer'),

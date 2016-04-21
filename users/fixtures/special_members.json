@@ -23,7 +23,7 @@
   },
   {
     "model": "shops.productunit",
-    "pk": 1000,
+    "pk": 1,
     "fields": {
       "name": "Argent fictif",
       "description": "Produit unitaire d'argent fictif utilisé pour les comptes de foyer",
@@ -33,11 +33,11 @@
   },
   {
     "model": "shops.productbase",
-    "pk": 1000,
+    "pk": 1,
     "fields": {
       "name": "Argent fictif",
       "description": "Argent fictif utilisé pour les comptes de foyer",
-      "product_unit": 1000,
+      "product_unit": 1,
       "brand": "AE ENSAM",
       "type": "container",
       "shop": 1
@@ -45,14 +45,14 @@
   },
   {
     "model": "shops.container",
-    "pk": 1000,
+    "pk": 1,
     "fields": {
       "price": 0,
       "purchase_date": "2016-02-15",
       "expiry_date": null,
       "place": "les nuages",
       "is_sold": false,
-      "product_base": 1000
+      "product_base": 1
     }
   }
 ]

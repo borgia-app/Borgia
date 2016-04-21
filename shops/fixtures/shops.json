@@ -1,0 +1,18 @@
+[
+  {
+    "model": "shops.shop",
+    "pk": 1,
+    "fields": {
+      "name": "Foyer",
+      "description": "Foyer des élèves de l'AE ENSAM"
+    }
+  },
+  {
+    "model": "shops.shop",
+    "pk": 2,
+    "fields": {
+      "name": "Auberge",
+      "description": "Auberge des élèves de l'AE ENSAM"
+    }
+  }
+]

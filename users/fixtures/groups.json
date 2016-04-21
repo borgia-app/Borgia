@@ -84,18 +84,27 @@
         ["add_container", "shops", "container"],
         ["change_active_keg", "shops", "container"],
         ["list_container", "shops", "container"],
-        ["add_productbase", "shops", "productbase"],
+
         ["change_productbase", "shops", "productbase"],
+        ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
-        ["add_productunit", "shops", "productunit"],
+        ["delete_productbase", "shops", "productbase"],
+
         ["change_productunit", "shops", "productunit"],
+        ["retrieve_productunit", "shops", "productunit"],
         ["list_productunit", "shops", "productunit"],
+        ["delete_productunit", "shops", "productunit"],
+
         ["reach_workboard_foyer", "shops", "shop"],
+
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
+
         ["add_product", "users", "user"],
         ["add_user", "users", "user"],
+
         ["gestionnaires_du_foyer_group_manage", "users", "user"],
+
         ["supply_account", "users", "user"],
         ["add_bankaccount", "finances", "bankaccount"]
       ]
@@ -110,17 +119,25 @@
         ["add_container", "shops", "container"],
         ["change_active_keg", "shops", "container"],
         ["list_container", "shops", "container"],
-        ["add_productbase", "shops", "productbase"],
+
         ["change_productbase", "shops", "productbase"],
+        ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
-        ["add_productunit", "shops", "productunit"],
+        ["delete_productbase", "shops", "productbase"],
+
         ["change_productunit", "shops", "productunit"],
+        ["retrieve_productunit", "shops", "productunit"],
         ["list_productunit", "shops", "productunit"],
+        ["delete_productunit", "shops", "productunit"],
+
         ["reach_workboard_foyer", "shops", "shop"],
+
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
         ["add_product", "users", "user"],
+
         ["add_user", "users", "user"],
+
         ["supply_account", "users", "user"],
         ["add_bankaccount", "finances", "bankaccount"]
       ]
@@ -133,19 +150,25 @@
       "name": "Chefs gestionnaires de l'auberge",
       "permissions": [
         ["add_container", "shops", "container"],
-        ["change_active_keg", "shops", "container"],
         ["list_container", "shops", "container"],
-        ["add_productbase", "shops", "productbase"],
+
         ["change_productbase", "shops", "productbase"],
+        ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
-        ["add_productunit", "shops", "productunit"],
+        ["delete_productbase", "shops", "productbase"],
+
         ["change_productunit", "shops", "productunit"],
+        ["retrieve_productunit", "shops", "productunit"],
         ["list_productunit", "shops", "productunit"],
+        ["delete_productunit", "shops", "productunit"],
+
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
+
         ["add_product", "users", "user"],
         ["supply_account", "users", "user"],
         ["add_bankaccount", "finances", "bankaccount"],
+
         ["gestionnaires_de_l_auberge_group_manage", "users", "user"],
         ["sell_auberge", "shops", "shop"],
         ["reach_workboard_auberge", "shops", "shop"]
@@ -159,19 +182,25 @@
       "name": "Gestionnaires de l'auberge",
       "permissions": [
         ["add_container", "shops", "container"],
-        ["change_active_keg", "shops", "container"],
         ["list_container", "shops", "container"],
-        ["add_productbase", "shops", "productbase"],
+
         ["change_productbase", "shops", "productbase"],
+        ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
-        ["add_productunit", "shops", "productunit"],
+        ["delete_productbase", "shops", "productbase"],
+
         ["change_productunit", "shops", "productunit"],
+        ["retrieve_productunit", "shops", "productunit"],
         ["list_productunit", "shops", "productunit"],
+        ["delete_productunit", "shops", "productunit"],
+
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
+
         ["add_product", "users", "user"],
         ["supply_account", "users", "user"],
         ["add_bankaccount", "finances", "bankaccount"],
+
         ["sell_auberge", "shops", "shop"],
         ["reach_workboard_auberge", "shops", "shop"]
       ]

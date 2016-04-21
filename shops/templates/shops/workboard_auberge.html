@@ -15,7 +15,7 @@
                         <li><a href="{% url 'url_manage_group' %}?group_pk={{ group_gestionnaires_de_l_auberge_pk }}&next=/shops/auberge/workboard"><img src="{% static 'img/group.png' %}" alt="Gestion groupe"><span class="name">Gestionnaires de l'auberge</span></a></li>
                     {% endif %}
                     <li><a href="{% url 'url_create_product_multiple' shop="Auberge" %}?next=/shops/auberge/workboard"><img src="{% static 'img/shopping.png' %}" alt="Gestion produits"><span class="name">Ajout produits</span></a></li>
-                <li><a href="{% url 'url_list_price_productbase' %}"><img src="{% static 'img/shopping.png' %}" alt="Liste produits"><span class="name">Liste produits</span></a></li>
+                <li><a href="{% url 'url_list_product' %}"><img src="{% static 'img/shopping.png' %}" alt="Liste produits"><span class="name">Liste produits</span></a></li>
                 </ul>
             </div>
         </div>

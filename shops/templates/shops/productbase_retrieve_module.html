@@ -3,6 +3,11 @@
     <li>Description : {{ object.description }}</li>
     <li>Prix de vente actuel : {{ object.calculated_price }}</li>
     <li>Marque : {{ object.brand }}</li>
-    <li>Type : {{ object.type }}</li>
-    <li>Magasin : <a href="{% url 'url_retrieve_shop' pk=object.shop.id %}">{{ object.shop }}</a></li>
+    <li>Type : {{ object.get_type_display }}</li>
+    <li>Magasin : {{ object.shop }}</li>
+    {% if object.product_unit %}
+    <li>Unité de produit : <a class="s" href="{% url 'url_retrieve_productunit' pk=object.product_unit.pk %}">{{ object.product_unit }}</a></li>
+    {% endif %}
+    <li><a class="s" href="{% url 'url_update_productbase' pk=object.pk %}?next={% url 'url_list_product' %}?type_product=product_base">Modifier</a></li>
+    <li><a class="s" href="{% url 'url_delete_productbase' pk=object.pk %}?next={% url 'url_list_product' %}?type_product=product_base">Supprimer</a></li>
 </ul>

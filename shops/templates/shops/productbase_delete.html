@@ -7,6 +7,8 @@
         <form class="form-style-1" action="" method="post">{% csrf_token %}
             <li><label>Supprimer le produit de base {{ object }} ?</label></li>
             <li><input type="submit" value="Supprimer" /></li>
+            <p class="justify">Attention : supprimer ce produit de base supprimera automatiquement tous les produits
+                conteneurs ou unitaires qui proviennent de cette unité ! Utilisez cette fonction avec précaution.</p>
         </form>
     </div>
 

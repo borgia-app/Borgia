@@ -607,16 +607,20 @@ class ProductUnitRetrieveView(DetailView):
         return super(ProductUnitRetrieveView, self).get(request, *args, **kwargs)
 
 
-class ProductUnitUpdateView(UpdateNextView):
+class ProductUnitUpdateView(UpdateView):
     model = ProductUnit
     fields = ['name', 'description', 'unit', 'type']
     template_name = 'shops/productunit_update.html'
     success_url = '/shops/productunit/'
 
+    def get_context_data(self, **kwargs):
+        context = super(ProductUnitUpdateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
+        return context
+
     def get_success_url(self):
-        # Notifications
         product_unit_updating_notify_success_to_user_and_admins(self.request, self.object)
-        return force_text(self.request.GET.get('next', self.success_url))
+        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Modification unité de produit')
@@ -678,16 +682,20 @@ class ProductBaseRetrieveView(DetailView):
         return super(ProductBaseRetrieveView, self).get(request, *args, **kwargs)
 
 
-class ProductBaseUpdateView(UpdateNextView):
+class ProductBaseUpdateView(UpdateView):
     model = ProductBase
-    fields = ['name', 'description', 'brand', 'type', 'shop', 'calculated_price', 'quantity', 'product_unit']
+    fields = ['name', 'description', 'brand', 'type', 'quantity', 'product_unit']
     template_name = 'shops/productbase_update.html'
     success_url = '/shops/productbase/'
 
+    def get_context_data(self, **kwargs):
+        context = super(ProductBaseUpdateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
+        return context
+
     def get_success_url(self):
-        # Notifications
         product_base_updating_notify_success_to_user_and_admins(self.request, self.object)
-        return force_text(self.request.GET.get('next', self.success_url))
+        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Modification base de produits')
@@ -710,27 +718,18 @@ class ProductBaseDeleteView(DeleteView):
         return super(ProductBaseDeleteView, self).get(request, *args, **kwargs)
 
 
-class ProductBaseListView(ListView):
-    model = ProductBase
-    template_name = 'shops/productbase_list.html'
-    queryset = ProductBase.objects.all().exclude(name='Argent fictif')
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Liste bases produits')
-        return super(ProductBaseListView, self).get(request, *args, **kwargs)
-
-
-class ProductBasePriceListView(ListCompleteView):
-    form_class = ProductBaseListPriceForm
-    template_name = 'shops/productbase_list_price.html'
+class ProductListView(ListCompleteView):
+    form_class = ProductListForm
+    template_name = 'shops/product_list.html'
     success_url = '/auth/login'
     attr = {
         'order_by': 'name',
         'shop': '1',
+        'type_product' : 'product_base'
     }
 
     def get_form_kwargs(self):
-        kwargs = super(ProductBasePriceListView, self).get_form_kwargs()
+        kwargs = super(ProductListView, self).get_form_kwargs()
         kwargs['request'] = self.request
         return kwargs
 
@@ -738,29 +737,51 @@ class ProductBasePriceListView(ListCompleteView):
         if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in request.user.groups.all() or \
                         Group.objects.get(name='Gestionnaires de l\'auberge') in request.user.groups.all():
             self.attr['shop'] = 2
-        return super(ProductBasePriceListView, self).post(request, *args, **kwargs)
-        
+        return super(ProductListView, self).post(request, *args, **kwargs)
+
     def get(self, request, *args, **kwargs):
         if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in request.user.groups.all() or \
                         Group.objects.get(name='Gestionnaires de l\'auberge') in request.user.groups.all():
             self.attr['shop'] = 2
 
-        add_to_breadcrumbs(request, 'Prix produits')
-        return super(ProductBasePriceListView, self).get(request, *args, **kwargs)
+        add_to_breadcrumbs(request, 'Liste produits')
+        return super(ProductListView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(ProductBasePriceListView, self).get_context_data(**kwargs)
-        if self.attr['order_by'] in ['sell_price', '-sell_price']:
-            if self.attr['order_by'] == '-sell_price':
-                reverse = True
+        context = super(ProductListView, self).get_context_data(**kwargs)
+
+        if self.attr['type_product'] == 'product_base':
+            # En cas de problème avec order_by
+            if self.attr['order_by'] not in ProductBase._meta.get_all_field_names():
+                context['query_products'] = \
+                    ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)
             else:
-                reverse = False
-            context['query_product_base'] = sorted(ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(name='Argent fictif'),
-                                                   key=lambda pb: pb.get_moded_usual_price(), reverse=reverse)
-        else:
-            context['query_product_base'] = \
-                ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).order_by(self.attr['order_by'])\
-                .exclude(name='Argent fictif')
+                # Cas sell price
+                if self.attr['order_by'] in ['sell_price', '-sell_price']:
+                    if self.attr['order_by'] == '-sell_price':
+                        reverse = True
+                    else:
+                        reverse = False
+                    context['query_products'] = sorted(
+                        ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1),
+                        key=lambda pb: pb.get_moded_usual_price(), reverse=reverse)
+                # Cas normal
+                else:
+                    context['query_products'] = \
+                        ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).order_by(
+                            self.attr['order_by']).exclude(pk=1)
+
+        elif self.attr['type_product'] == 'product_unit':
+            # En cas de problème avec order_by
+            if self.attr['order_by'] not in ProductUnit._meta.get_all_field_names():
+                context['query_products'] = \
+                    ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)
+            # Cas normal
+            else:
+                context['query_products'] = \
+                    ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).order_by(
+                        self.attr['order_by']).exclude(pk=1)
+
         return context
 
     def form_valid(self, form, **kwargs):
@@ -768,7 +789,7 @@ class ProductBasePriceListView(ListCompleteView):
         return self.render_to_response(self.get_context_data(**kwargs))
 
     def get_initial(self):
-        initial = super(ProductBasePriceListView, self).get_initial()
+        initial = super(ProductListView, self).get_initial()
         initial['shop'] = Shop.objects.get(pk=self.attr['shop'])
         return initial
 

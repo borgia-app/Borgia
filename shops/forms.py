@@ -209,10 +209,10 @@ class ProductCreateMultipleForm(forms.Form):
         self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
 
 
-class ProductBaseListPriceForm(forms.Form):
+class ProductListForm(forms.Form):
     def __init__(self, **kwargs):
         user = kwargs.pop('request').user
-        super(ProductBaseListPriceForm, self).__init__(**kwargs)
+        super(ProductListForm, self).__init__(**kwargs)
 
         if Group.objects.get(name='Trésoriers') in user.groups.all():
             self.fields['shop'] = forms.ModelChoiceField(label='Magasin',
@@ -228,3 +228,8 @@ class ProductBaseListPriceForm(forms.Form):
 
             self.fields['shop'] = forms.ModelChoiceField(label='Magasin', queryset=Shop.objects.filter(pk__in=available_shop), empty_label=None)
 
+        choices_type_product = []
+        choices_type_product.append(('product_base', 'Bases de produits'))
+        if user.has_perm('shops.list_productunit'):
+            choices_type_product.append(('product_unit', 'Unités de produits'))
+        self.fields['type_product'] = forms.ChoiceField(label='Type de produits', choices=choices_type_product)
