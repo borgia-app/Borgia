@@ -172,6 +172,12 @@ class ProductBase(models.Model):
         else:
             return self.calculated_price_usual()
 
+    def get_moded_price(self):
+        if self.is_manual:
+            return self.is_manual
+        else:
+            return self.set_calculated_price_mean()
+
     def deviating_price_from_auto(self):
         try:
             return round((abs(self.set_calculated_price_mean() - self.manual_price) / self.set_calculated_price_mean())*100, 2)

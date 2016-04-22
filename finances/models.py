@@ -406,10 +406,8 @@ class SharedEvent(models.Model):
         Une seule vente, un seul paiement mais plusieurs débits sur compte (un par participant)
         :param operator: user qui procède au paiement
         :param recipient: user qui recoit les paiements (AE_ENSAM)
-        :param managing_errors: mode de gestion des erreurs ['other_pay_all' ou 'nothing']
         'other_pay_all' signifie que les participants reconnus payent l'ensemble de l'event
         'nothing' signifie que les participants reconnus payent leur part, et pas celle de ceux qui ne sont pas reconnus
-        :param errors: liste des participants non reconnus (tokens ou usernames)
         :return:
         """
 

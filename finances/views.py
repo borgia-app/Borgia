@@ -37,7 +37,7 @@ def electrovanne_request1(request):
         if user.balance <= 0:
             max_quantity = 0
         else:
-            max_quantity = round(float((container.product_base.quantity * user.balance) / container.product_base.calculated_price), 0)
+            max_quantity = round(float((container.product_base.quantity * user.balance) / container.product_base.get_moded_price()), 0)
 
         # Vérification de la signature
         params = {
@@ -90,7 +90,7 @@ def electrovanne_request2(request):
             spfc = SingleProductFromContainer.objects.create(container=container,
                                                              sale=sale,
                                                              quantity=quantity,
-                                                             sale_price=(container.product_base.calculated_price /
+                                                             sale_price=(container.product_base.get_moded_price()  /
                                                                          container.product_base.quantity) * int(
                                                                  quantity))
             sale.maj_amount()

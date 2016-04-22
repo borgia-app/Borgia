@@ -122,6 +122,9 @@ def user_from_token_tap(initial_token_tap):
     """
     Renvoi l'user correspondant à un code de jeton lu avec le système d'électrovanne
     Remarque : A utiliser à travers un try pour gérer ObjectDoesNotExist
+    Exemples :
+    25166484851706966556857503 -> 3FEB7D
+    25166484852565553687068573 -> 4875DF
     """
     token_end = ''
     for dual in re.findall(r"[0-9]{2}", initial_token_tap[1:len(initial_token_tap) - 5]):
