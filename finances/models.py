@@ -460,7 +460,7 @@ class SharedEvent(models.Model):
 
 def supply_self_lydia(user, recipient, amount, transaction_identifier):
 
-    container = Container.objects.get(product_base__name='Argent fictif')
+    container = Container.objects.get(pk=1)
 
     # Sale
     sale = Sale.objects.create(date=datetime.now(),

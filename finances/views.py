@@ -247,8 +247,7 @@ class TransfertCreateView(FormView):
         sale.save()
 
         # Création d'un spfc d'argent fictif
-        spfc = SingleProductFromContainer(container=Container.objects.get(
-            product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
+        spfc = SingleProductFromContainer(container=Container.objects.get(pk=1), quantity=payment.amount*100,
             sale_price=payment.amount, sale=sale)
         spfc.save()
 
@@ -327,8 +326,7 @@ class SupplyUnitedView(FormView):
                                    is_credit=True)
 
         # Création d'un spfc d'argent fictif
-        spfc = SingleProductFromContainer.objects.create(container=Container.objects.get(
-            product_base__product_unit__name='Argent fictif'), quantity=payment.amount*100,
+        spfc = SingleProductFromContainer.objects.create(container=Container.objects.get(pk=1), quantity=payment.amount*100,
             sale_price=payment.amount, sale=sale)
 
         # Mise à jour du compte foyer du client
@@ -390,8 +388,7 @@ class ExceptionnalMovementView(FormNextView):
         payment.save()
 
         # Création d'un spfc d'argent fictif
-        spfc = SingleProductFromContainer.objects.create(container=Container.objects.get(
-            product_base__product_unit__name='Argent fictif'), quantity=payment.amount * 100,
+        spfc = SingleProductFromContainer.objects.create(container=Container.objects.get(pk=1), quantity=payment.amount * 100,
             sale_price=payment.amount, sale=sale)
 
         # Mise à jour sale
