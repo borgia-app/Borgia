@@ -12,11 +12,4 @@
             <li><label><a class="s" href="{% url 'password_change' %}">Modifier mon mot de passe</a></label></li>
         </form>
     </div>
-    {% if user.is_superuser == False %}
-        <script>
-            var form = document.getElementById("form");
-            var li = form.getElementsByTagName("li");
-            li[7].style.display = "None";
-        </script>
-    {% endif %}
 {% endblock %}
