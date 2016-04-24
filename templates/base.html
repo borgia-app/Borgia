@@ -6,7 +6,7 @@
 {% endif %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Borgia - V2.5</title>
@@ -71,9 +71,9 @@
         </div>
         <div id="wrapper-user-menu">
             <ul class="user-menu">
-                <li><a class="icon icon-home" href="{% url 'url_profile' %}"></a></li>
                 {% if user.is_authenticated %}
-                    <li><a class="icon icon-people" href="{% url 'url_list_user_complete' %}"></a></li>
+                    <li><a class="icon icon-home" href="{% url 'url_profile' %}"></a></li>
+                    <!-- <li><a class="icon icon-people" href="{% url 'url_list_user_complete' %}"></a></li> -->
                     <li>
                         <span class="icon icon-notification" onclick="show_hide_div('container-notifications');">
                         </span>
@@ -81,11 +81,13 @@
                             <span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">
                             </span>
                         {% endif %}</li>
-                    <li><a class="icon icon-settings" href=""></a></li>
+                    <!-- <li><a class="icon icon-settings" href=""></a></li> -->
                     <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
-                    <li><a class="icon icon-admin" href=""></a></li>
+                    <!-- <li><a class="icon icon-admin" href=""></a></li> -->
                 {% else %}
                     <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
+                    <li><a class="icon icon-beer" href="{% url 'url_login_pg' organe='foyer' %}">Conso. Foyer</a></li>
+                    <li><a class="icon icon-cutlery" href="{% url 'url_login_pg' organe='auberge' %}">Conso. Auberge</a></li>
                 {% endif %}
             </ul>
         </div>

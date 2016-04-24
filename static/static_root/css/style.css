@@ -343,6 +343,14 @@ textarea {
     content: '\f015';
     font-family: FontAwesome;
 }
+.icon-beer:before{
+    content: '\f0fc';
+    font-family: FontAwesome;
+}
+.icon-cutlery:before{
+    content: '\f0f5';
+    font-family: FontAwesome;
+}
 
 
 /* ==========================================================================

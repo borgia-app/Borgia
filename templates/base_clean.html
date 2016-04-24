@@ -2,7 +2,7 @@
 {% load notifications_extra %}
 
 <!DOCTYPE html>
-<html lang="en">
+<html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Borgia - V2.5</title>
@@ -17,6 +17,18 @@
     <link rel="stylesheet" href="{% static 'jquery-ui-1.11.4/jquery-ui.css' %}">
 </head>
 <body>
+
+    <nav class="container">
+        <div class="wrapper overlay">
+            <div id="wrapper-user-menu">
+                <ul class="user-menu">
+                    <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
+                    <li><a class="icon icon-beer" href="{% url 'url_login_pg' organe='foyer' %}">Conso. Foyer</a></li>
+                    <li><a class="icon icon-cutlery" href="{% url 'url_login_pg' organe='auberge' %}">Conso. Auberge</a></li>
+                </ul>
+            </div>
+        </div>
+    </nav>
 
 <div class="container">
 
