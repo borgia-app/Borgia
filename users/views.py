@@ -8,6 +8,7 @@ from django.core import serializers
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
 from notifications.models import  *
+from django.db.models import Q
 import json
 import datetime
 import re, datetime
@@ -123,8 +124,30 @@ class ManageGroupView(FormNextView):
 
 def username_from_username_part(request):
     data = []
-    for e in User.objects.filter(family=request.GET.get('keywords')):
-        data.append(e.username)
+
+    try:
+        key = request.GET.get('keywords')
+
+        # Fam'ss en entier
+        where_search = User.objects.filter(family=key)
+
+        if len(key) > 2:
+            # Nom de famille, début ou entier à partir de 3 caractères
+            where_search = where_search | User.objects.filter(last_name__startswith=key)
+            # Prénom, début ou entier à partir de 3 caractères
+            where_search = where_search | User.objects.filter(first_name__startswith=key)
+            # Buque, début ou entier à partir de 3 caractères
+            where_search = where_search | User.objects.filter(surname__startswith=key)
+
+        # Suppression des doublons
+        where_search = where_search.distinct()
+
+        for e in where_search:
+            data.append(e.username)
+            
+    except KeyError:
+        pass
+
     return HttpResponse(json.dumps(data))
 
 
