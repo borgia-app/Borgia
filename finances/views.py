@@ -611,6 +611,10 @@ class SaleRetrieveView(DetailView):
         if sale.operator == request.user or sale.sender == request.user or sale.recipient == request.user:
             is_linked = True
 
+        for se in sale.list_shared_events()[0]:
+            if request.user in se.participants.all():
+                is_linked = True
+
         if request.user.has_perm('finances.retrieve_sale') is False and is_linked is False:
             raise PermissionDenied
 
