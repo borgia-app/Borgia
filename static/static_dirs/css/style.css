@@ -1265,6 +1265,16 @@ body{
     margin-right: 5%;
 }
 
+#container-notifications-hidden{
+    position: absolute;
+    z-index: 1;
+    background-color: #353e4f;
+    color: white;
+    width: 40%;
+    margin-left: 55%;
+    margin-right: 5%;
+}
+
 div.notifications-body{
     border: 1px solid black;
     border-top: none;
