@@ -42,9 +42,15 @@ class UpdateSettingView(FormNextView):
     def get_initial(self):
         setting = Setting.objects.get(pk=self.kwargs['pk'])
         initial = super(UpdateSettingView, self).get_initial()
-        for attr in model_to_dict(setting):
-            if attr == 'value_type':
-                initial[attr] = setting.get_value_type_display()
-            else:
-                initial[attr] = model_to_dict(setting)[attr]
+        initial['value'] = setting.value
         return initial
+
+    def get_form_kwargs(self):
+        kwargs = super(UpdateSettingView, self).get_form_kwargs()
+        kwargs['setting'] = Setting.objects.get(pk=self.kwargs['pk'])
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(UpdateSettingView, self).get_context_data(**kwargs)
+        context['setting'] = Setting.objects.get(pk=self.kwargs['pk'])
+        return context

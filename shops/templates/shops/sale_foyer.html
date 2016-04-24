@@ -7,7 +7,7 @@
         {% csrf_token %}
         <div class="container">
             <div class="row">
-                {{ form.non_field_errors }}
+                <h2>{{ form.non_field_errors }}</h2>
             </div>
             <div class="row">
                 <div class="one-half column">
@@ -448,11 +448,45 @@
             }
         }
 
-        // On load
-        $(document).ready(function() {
-
-        });
-
+        // initialisation
+        var a = 0;
+        while (a<{{ active_keg_container_list|length }}) {
+            (function(a) {
+                return selected_quantity_active_keg[a].dispatchEvent(new Event('change'));
+            })(a);
+            a++;
+        }
+        var b = 0;
+        while (b<{{ single_product_available_list|length }}) {
+            (function(b) {
+                return selected_quantity_single_product[b].dispatchEvent(new Event('change'));
+            })(b);
+            b++;
+        }
+        var c = 0;
+        while (c<{{ container_soft_list|length }}) {
+            (function(c) {
+                return selected_quantity_container_soft[c].dispatchEvent(new Event('change'));
+            })(c);
+            c++;
+        }
+        var d = 0;
+        while (d<{{ container_liquor_list|length }}) {
+            (function(d) {
+                return selected_quantity_container_liquor[d].dispatchEvent(new Event('change'));
+            })(d);
+            d++;
+        }
+                var e = 0;
+        while (e<{{ container_syrup_list|length }}) {
+            (function(e) {
+                return selected_quantity_container_syrup[e].dispatchEvent(new Event('change'));
+            })(e);
+            e++;
+        }
+        setTimeout(function(){
+            update_consumption()
+        }, 1000);
     </script>
 
 {% endblock %}

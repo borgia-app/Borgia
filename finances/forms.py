@@ -4,16 +4,19 @@ from django.contrib.auth import authenticate
 from django.forms import ModelForm
 from django.forms.widgets import PasswordInput, DateInput, TextInput
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import RegexValidator
 from django.utils.timezone import now
 import re
 
 from users.models import User
 from finances.models import Cheque, Cash, Lydia, BankAccount, SharedEvent
+from borgia.validators import *
 
 
 class TransfertCreateForm(forms.Form):
     recipient = forms.CharField(label='Receveur', max_length=255,
-                                widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
+                                widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                                validators=[autocomplete_username_validator])
     amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
 
     def __init__(self, **kwargs):
@@ -22,13 +25,9 @@ class TransfertCreateForm(forms.Form):
 
     def clean(self):
         cleaned_data = super(TransfertCreateForm, self).clean()
-        recipient = cleaned_data['recipient']
-        amount = cleaned_data['amount']
         try:
-            try:
-                User.objects.get(username=recipient)
-            except ObjectDoesNotExist:
-                raise forms.ValidationError('Cette personne n\'existe pas')
+            recipient = cleaned_data['recipient']
+            amount = cleaned_data['amount']
 
             if User.objects.get(username=recipient) == self.request.user:
                 raise forms.ValidationError('Transfert vers soi-même impossible')
@@ -37,6 +36,7 @@ class TransfertCreateForm(forms.Form):
                 raise forms.ValidationError('Le montant doit être inférieur ou égal à ton solde.')
         except KeyError:
             pass
+        return cleaned_data
 
 
 class SupplyUnitedForm(forms.Form):
@@ -46,15 +46,54 @@ class SupplyUnitedForm(forms.Form):
     type = forms.ChoiceField(label='Type', choices=(('cash', 'Espèces'), ('cheque', 'Chèque'), ('lydia', 'Lydia')))
     # Informations générales
     amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
-    sender = forms.CharField(label='Payeur', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
+    sender = forms.CharField(label='Payeur', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                             validators=[autocomplete_username_validator])
     unique_number = forms.CharField(label='Numéro unique', required=False)  # Inutile pour Cash
-    signature_date = forms.DateField(label='Date de signature', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))  # Inutile pour Cash
-    bank_account = forms.ModelChoiceField(label='Compte bancaire', queryset=BankAccount.objects.all(),
-                                          required=False)  # Inutile pour Cash et Lydia
+    signature_date = forms.DateField(label='Date de signature', required=False,
+                                     widget=forms.DateInput(attrs={'class': 'datepicker'}))  # Inutile pour Cash
+    bank_account = forms.CharField(label='Compte bancaire', widget=forms.Select,
+                                   required=False)  # Inutile pour Cash et Lydia
 
     # Gestionnaire - opérateur
-    operator_username = forms.CharField(label='Gestionnaire', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
+    operator_username = forms.CharField(label='Gestionnaire',
+                                        widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                                        validators=[autocomplete_username_validator])
     operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
+
+    def clean_unique_number(self):
+        data = self.cleaned_data['unique_number']
+
+        # Cas chèque -> obligatoire et bon format
+        if self.cleaned_data['type'] == 'cheque':
+            if re.match('^[0-9]{7}$', data) is None:
+                raise forms.ValidationError('Numéro de chèque invalide')
+
+        # Cas Lydia -> obligatoire
+        if self.cleaned_data['type'] == 'lydia':
+            if data == '':
+                raise forms.ValidationError('Obligatoire')
+
+        return data
+
+    def clean_signature_date(self):
+        data = self.cleaned_data['signature_date']
+
+        # Cas chèque et lydia -> obligatoire
+        if self.cleaned_data['type'] == 'cheque' or self.cleaned_data['type'] == 'lydia':
+            if data is None:
+                raise forms.ValidationError('Obligatoire')
+
+        return data
+
+    def clean_bank_account(self):
+        data = self.cleaned_data['bank_account']
+
+        # Cas chèque -> obligatoire
+        if self.cleaned_data['type'] == 'cheque':
+            if data == '':
+                raise forms.ValidationError('Obligatoire')
+
+        return data
 
     def clean(self):
 
@@ -63,7 +102,7 @@ class SupplyUnitedForm(forms.Form):
         try:
             operator_username = cleaned_data['operator_username']
             operator_password = cleaned_data['operator_password']
-    
+
             # Essaye d'authentification seulement si les deux champs sont valides
             if operator_password and operator_password:
                 # Cas d'échec d'authentification
@@ -74,7 +113,7 @@ class SupplyUnitedForm(forms.Form):
         except KeyError:
             pass
 
-        return super(SupplyUnitedForm, self).clean()
+        return cleaned_data
 
 
 class SupplyLydiaSelfForm(forms.Form):
@@ -86,18 +125,9 @@ class SupplyLydiaSelfForm(forms.Form):
         self.fields['amount'] = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9,
                                                    min_value=min_value,
                                                    max_value=max_value)
-        self.fields['tel_number'] = forms.CharField(label='Numéro de téléphone')
-
-    def clean(self):
-        cleaned_data = super(SupplyLydiaSelfForm, self).clean()
-        try:
-            tel_number = cleaned_data['tel_number']
-            filter_tel_number = re.compile('^0[0-9]{9}$')
-            if filter_tel_number.match(tel_number) is None:
-                raise forms.ValidationError('Numéro de téléphone incorrect, il doit être du type "0123456789')
-        except KeyError:
-            pass
-        return super(SupplyLydiaSelfForm, self).clean()
+        self.fields['tel_number'] = forms.CharField(label='Numéro de téléphone',
+                                                    validators=RegexValidator('^0[0-9]{9}$',
+                                                                              'Le numéro de téléphone doit être du type 0123456789'))
 
 
 class RetrieveMoneyForm(forms.Form):
@@ -122,8 +152,11 @@ class RetrieveMoneyForm(forms.Form):
 class ExceptionnalMovementForm(forms.Form):
     type_movement = forms.ChoiceField(choices=(('debit', 'Débit'), ('credit', 'Crédit')), label='Type')
     amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
-    affected = forms.CharField(label='Concerné', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
-    operator_username = forms.CharField(label='Gestionnaire', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
+    affected = forms.CharField(label='Concerné', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                               validators=[autocomplete_username_validator])
+    operator_username = forms.CharField(label='Gestionnaire',
+                                        widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                                        validators=[autocomplete_username_validator])
     operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
 
     def clean(self):
@@ -133,14 +166,13 @@ class ExceptionnalMovementForm(forms.Form):
             operator_username = cleaned_data['operator_username']
             operator_password = cleaned_data['operator_password']
 
-            # Essaye d'authentification seulement si les deux champs sont valides
-            if operator_password and operator_password:
-                # Cas d'échec d'authentification
-                if authenticate(username=operator_username, password=operator_password) is None:
-                    raise forms.ValidationError('Echec d\'authentification')
-                elif authenticate(username=operator_username, password=operator_password).has_perm(
-                        'users.exceptionnal_movement') is False:
-                    raise forms.ValidationError('Erreur de permission')
+            # Cas d'échec d'authentification
+            if authenticate(username=operator_username, password=operator_password) is None:
+                raise forms.ValidationError('Echec d\'authentification')
+            elif authenticate(username=operator_username, password=operator_password).has_perm(
+                    'users.exceptionnal_movement') is False:
+                raise forms.ValidationError('Erreur de permission')
+
         except KeyError:
             pass
 
@@ -151,31 +183,8 @@ class SharedEventCreateForm(forms.Form):
     description = forms.CharField(label='Description')
     date = forms.DateField(label='Date de l\'événement', widget=forms.DateInput(attrs={'class': 'datepicker'}))
     price = forms.DecimalField(label='Prix total (vide si pas encore connu)', decimal_places=2, max_digits=9,
-                               required=False)
+                               required=False, min_value=0)
     bills = forms.CharField(label='Factures liées (vide si pas encore connu)', required=False)
-
-
-class SharedEventRegistrationForm(forms.Form):
-    shared_event = forms.ModelChoiceField(label='S\'inscrire à l\'événement :',
-                                          queryset=SharedEvent.objects.filter(done=False, date__gte=now()))
-
-    def __init__(self, **kwargs):
-        self.request = kwargs.pop('request')
-        super(SharedEventRegistrationForm, self).__init__(**kwargs)
-
-    def clean(self):
-        se = self.cleaned_data['shared_event']
-        if self.request.user in se.registered.all():
-            raise forms.ValidationError('Vous êtes déjà inscrit à cet événement')
-
-
-class SharedEventUpdateForm(forms.Form):
-    file = forms.FileField(label='Fichier de données')
-    price = forms.DecimalField(label='Prix total', decimal_places=2, max_digits=9)
-    bills = forms.CharField(label='Factures liées')
-    managing_errors = forms.ChoiceField(label='Que faire en cas d\' erreurs de jeton ?',
-                                        choices=(('other_pay_all', 'Répercuter le prix sur les autres participants'),
-                                                 ('nothing', 'Ne rien faire (risque de perte sur l\'événement)')))
 
 
 class SharedEventManageListForm(forms.Form):
@@ -199,14 +208,24 @@ class SharedEventManageUploadJSONForm(forms.Form):
 
 
 class SharedEventManageUpdateForm(forms.Form):
-    price = forms.DecimalField(label='Prix total (€)', decimal_places=2, max_digits=9, required=False)
+    price = forms.DecimalField(label='Prix total (€)', decimal_places=2, max_digits=9, min_value=0, required=False)
     bills = forms.CharField(label='Factures liées', required=False)
 
 
 class SharedEventManageAddForm(forms.Form):
-    username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
+    username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                               validators=[autocomplete_username_validator])
     state = forms.ChoiceField(choices=(('registered', 'Inscrit'), ('participant', 'Participant')))
     ponderation = forms.IntegerField(label='Pondération', min_value=0, required=False)
+
+    def clean_ponderation(self):
+        data = self.cleaned_data['ponderation']
+
+        if self.cleaned_data['state'] == 'participant':
+            if data == '':
+                raise ValidationError('Obligatoire')
+
+        return data
 
 
 class SharedEventManageDownloadXlsxForm(forms.Form):
@@ -229,4 +248,12 @@ class SharedEventManageDownloadXlsxForm(forms.Form):
 
 class SetPriceProductBaseForm(forms.Form):
     is_manual = forms.BooleanField(label='Gestion manuelle du prix', required=False)
-    manual_price = forms.DecimalField(label='Prix manuel', decimal_places=2, max_digits=9, required=False)
+    manual_price = forms.DecimalField(label='Prix manuel', decimal_places=2, max_digits=9, min_value=0, required=False)
+
+
+class BankAccountCreateForm(forms.Form):
+    owner = forms.CharField(label='Possesseur', max_length=255,
+                            widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                            validators=[autocomplete_username_validator])
+    bank = forms.CharField(label='Banque')
+    account = forms.CharField(label='Numéro de compte')

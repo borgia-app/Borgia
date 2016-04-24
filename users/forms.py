@@ -5,6 +5,7 @@ from django.forms.widgets import PasswordInput
 from django.core.exceptions import ObjectDoesNotExist
 
 from django.contrib.admin.widgets import FilteredSelectMultiple
+from borgia.validators import *
 
 
 # Formulaire de creation d'un user
@@ -25,14 +26,25 @@ class UserCreationCustomForm(forms.Form):
     def clean(self):
         cleaned_data = super(UserCreationCustomForm, self).clean()
         try:
-            if User.objects.filter(username=cleaned_data['username']).exists():
-                raise forms.ValidationError('Un autre user existe avec cet username')
 
             if cleaned_data['password'] != cleaned_data['password_bis']:
                 raise forms.ValidationError('Les deux mots de passe ne correspondent pas')
+
         except KeyError:
             pass
         return super(UserCreationCustomForm, self).clean()
+
+    def clean_username(self):
+        data = self.cleaned_data['username']
+        if User.objects.filter(username=data).exists():
+            raise ValidationError('Un autre user existe avec cet username')
+        return data
+
+    def clean_email(self):
+        data = self.cleaned_data['email']
+        if User.objects.filter(email=data).exists():
+            raise ValidationError('Cet email est déjà utilisé')
+        return data
 
 
 # Formulaire de modification d'un groupe

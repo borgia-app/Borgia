@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from shops.models import Shop, Container, ProductBase, ProductUnit
 from users.models import User
 from django.contrib.auth.models import Group
+from borgia.validators import autocomplete_username_validator
 
 
 class ReplacementActiveKegForm(forms.Form):
@@ -22,11 +23,14 @@ class ReplacementActiveKegForm(forms.Form):
 class PurchaseAubergeForm(forms.Form):
 
     # Gestionnaire - opérateur
-    operator_username = forms.CharField(label='Gestionnaire', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
+    operator_username = forms.CharField(label='Gestionnaire',
+                                        widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                                        validators=[autocomplete_username_validator])
     operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
 
     # Client
-    client_username = forms.CharField(label='Client', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
+    client_username = forms.CharField(label='Client', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                                      validators=[autocomplete_username_validator])
 
     def __init__(self, *args, **kwargs):
 
@@ -77,21 +81,13 @@ class PurchaseAubergeForm(forms.Form):
             operator_username = cleaned_data['operator_username']
             operator_password = cleaned_data['operator_password']
             # Essaye d'authentification seulement si les deux champs sont valides
-            if operator_password and operator_password:
-                # Cas d'échec d'authentification
-                operator = authenticate(username=operator_username, password=operator_password)
-                if operator is not None:
-                    if operator.has_perm('shops.sell_auberge') is False:
-                        raise forms.ValidationError('Permission refusée !')
-                else:
-                    raise forms.ValidationError('Echec d\'authentification')
-
-            # Validation de l'username
-            client_username = cleaned_data['client_username']
-            try:
-                User.objects.get(username=client_username)
-            except ObjectDoesNotExist:
-                raise forms.ValidationError('Le client n\'existe pas')
+            # Cas d'échec d'authentification
+            operator = authenticate(username=operator_username, password=operator_password)
+            if operator is not None:
+                if operator.has_perm('shops.sell_auberge') is False:
+                    raise forms.ValidationError('Permission refusée !')
+            else:
+                raise forms.ValidationError('Echec d\'authentification')
 
             # Vérification de la commande sans provision
             if float(self.request.POST.get('hidden_balance_after')) < 0:
@@ -163,37 +159,6 @@ class PurchaseFoyerForm(forms.Form):
         return super(PurchaseFoyerForm, self).clean()
 
 
-class SingleProductCreateMultipleForm(forms.Form):
-
-    def __init__(self, **kwargs):
-        shop = kwargs.pop('shop')
-        super(SingleProductCreateMultipleForm, self).__init__(**kwargs)
-        self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
-                                                             queryset=ProductBase.objects.filter(type='single_product',
-                                                                                                 shop=shop))
-        self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter')
-        self.fields['price'] = forms.FloatField(label='Prix d\'achat unitaire')
-        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat', widget=forms.DateInput(attrs={'class': 'datepicker'}))
-        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
-        self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
-
-
-class ContainerCreateMultipleForm(forms.Form):
-
-    def __init__(self, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ContainerCreateMultipleForm, self).__init__(**kwargs)
-        self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
-                                                             queryset=ProductBase.objects.filter(type='container',
-                                                                                                 shop=shop).exclude(
-                                                                 product_unit__type='fictional_money'))
-        self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter')
-        self.fields['price'] = forms.FloatField(label='Prix d\'achat unitaire')
-        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat', widget=forms.DateInput(attrs={'class': 'datepicker'}))
-        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
-        self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
-
-
 class ProductCreateMultipleForm(forms.Form):
 
     def __init__(self, **kwargs):
@@ -202,10 +167,13 @@ class ProductCreateMultipleForm(forms.Form):
         self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
                                                              queryset=ProductBase.objects.filter(shop=shop).exclude(
                                                                  product_unit__type='fictional_money'))
-        self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter')
-        self.fields['price'] = forms.FloatField(label='Prix d\'achat unitaire')
-        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat', widget=forms.DateInput(attrs={'class': 'datepicker'}))
-        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
+        self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter', min_value=0)
+        self.fields['price'] = forms.DecimalField(label='Prix d\'achat unitaire', decimal_places=2, max_digits=9,
+                                                  min_value=0)
+        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat',
+                                                       widget=forms.DateInput(attrs={'class': 'datepicker'}))
+        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False,
+                                                     widget=forms.DateInput(attrs={'class': 'datepicker'}))
         self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
 
 

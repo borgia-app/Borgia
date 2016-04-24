@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, HttpResponse, force_text, redirect, resolve_url, HttpResponseRedirect
+from django.shortcuts import render, HttpResponse, force_text, redirect, Http404
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView, View
 from django.core import serializers
@@ -248,7 +248,7 @@ class TransfertCreateView(FormView):
 
         # Création d'un spfc d'argent fictif
         spfc = SingleProductFromContainer(container=Container.objects.get(pk=1), quantity=payment.amount*100,
-            sale_price=payment.amount, sale=sale)
+                                          sale_price=payment.amount, sale=sale)
         spfc.save()
 
         # Mise à jour des comptes foyer
@@ -268,7 +268,7 @@ class TransfertCreateView(FormView):
 
 
 # Supply
-class SupplyUnitedView(FormView):
+class SupplyUnitedView(FormNextView):
     form_class = SupplyUnitedForm
     template_name = 'finances/supply_united.html'
     success_url = '/auth/login'
@@ -288,13 +288,16 @@ class SupplyUnitedView(FormView):
         payment = Payment.objects.create()
 
         if form.cleaned_data['type'] == 'cheque':
+            # Obtention du compte en banque
+            bank_account = BankAccount.objects.get(
+                pk=form.cleaned_data['bank_account'][0:form.cleaned_data['bank_account'].find(' ')])
 
             cheque = Cheque.objects.create(amount=form.cleaned_data['amount'],
                                            signature_date=form.cleaned_data['signature_date'],
                                            cheque_number=form.cleaned_data['unique_number'],
                                            sender=sender,
                                            recipient=User.objects.get(username='AE_ENSAM'),
-                                           bank_account=form.cleaned_data['bank_account'])
+                                           bank_account=bank_account)
             payment.cheques.add(cheque)
             payment.maj_amount()
             payment.save()
@@ -318,7 +321,7 @@ class SupplyUnitedView(FormView):
             payment.save()
 
         # Création de la vente
-        sale = Sale.objects.create(date=datetime.now(),
+        sale = Sale.objects.create(date=now(),
                                    sender=sender,
                                    operator=operator,
                                    recipient=User.objects.get(username='AE_ENSAM'),
@@ -327,7 +330,7 @@ class SupplyUnitedView(FormView):
 
         # Création d'un spfc d'argent fictif
         spfc = SingleProductFromContainer.objects.create(container=Container.objects.get(pk=1), quantity=payment.amount*100,
-            sale_price=payment.amount, sale=sale)
+                                                         sale_price=payment.amount, sale=sale)
 
         # Mise à jour du compte foyer du client
         sale.maj_amount()
@@ -340,14 +343,6 @@ class SupplyUnitedView(FormView):
         initial = super(SupplyUnitedView, self).get_initial()
         initial['signature_date'] = now
         return initial
-
-    def get_success_url(self):
-        return force_text(self.request.POST.get('next', self.success_url))
-
-    def get_context_data(self, **kwargs):
-        context = super(SupplyUnitedView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.success_url)
-        return context
 
 
 class ExceptionnalMovementView(FormNextView):
@@ -389,7 +384,7 @@ class ExceptionnalMovementView(FormNextView):
 
         # Création d'un spfc d'argent fictif
         spfc = SingleProductFromContainer.objects.create(container=Container.objects.get(pk=1), quantity=payment.amount * 100,
-            sale_price=payment.amount, sale=sale)
+                                                         sale_price=payment.amount, sale=sale)
 
         # Mise à jour sale
         if form.cleaned_data['type_movement'] == 'credit':
@@ -490,25 +485,30 @@ def supply_lydia_self_callback(request):
 
 def bank_account_from_user(request):
     try:
-        data = serializers.serialize('xml',
+        data = serializers.serialize('json',
                                      BankAccount.objects.filter(owner=User.objects.get(
                                          username=request.GET.get('user_username'))))
         return HttpResponse(data)
 
     except ObjectDoesNotExist:
-        pass
+        return HttpResponse([])
 
 
 # Models
-class BankAccountCreateView(CreateNextView):
-    model = BankAccount
-    fields = ['bank', 'account', 'owner']
+class BankAccountCreateView(FormNextView):
+    form_class = BankAccountCreateForm
     template_name = 'finances/bank_account_create.html'
     success_url = '/finances/bank_account'
 
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Création compte en banque')
         return super(BankAccountCreateView, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        BankAccount.objects.create(owner=User.objects.get(username=form.cleaned_data['owner']),
+                                   bank=form.cleaned_data['bank'],
+                                   account=form.cleaned_data['account'])
+        return super(BankAccountCreateView, self).form_valid(form)
 
 
 class BankAccountUpdateView(UpdateView):

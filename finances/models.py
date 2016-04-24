@@ -3,6 +3,8 @@ from django.db import models
 from django.utils.timezone import now
 from datetime import datetime
 from django.contrib.auth import get_user_model
+from decimal import Decimal
+from django.core.validators import MinValueValidator, RegexValidator
 import json
 
 from shops.models import SingleProduct, SingleProductFromContainer, Container
@@ -17,7 +19,8 @@ class Sale(models.Model):
     """
 
     # Attributs
-    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9,
+                                 validators=[MinValueValidator(Decimal(0))])
     date = models.DateTimeField('Date', default=now)
     done = models.BooleanField('Terminée', default=False)
     is_credit = models.BooleanField('Est un crédit', default=False)
@@ -99,7 +102,8 @@ class Payment(models.Model):
     """
 
     # Attributs
-    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9,
+                                 validators=[MinValueValidator(Decimal(0))])
 
     # Relations
     cheques = models.ManyToManyField('Cheque', blank=True)
@@ -157,7 +161,8 @@ class Payment(models.Model):
 class DebitBalance(models.Model):
 
     # Attributs
-    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9,
+                                 validators=[MinValueValidator(Decimal(0))])
     date = models.DateTimeField('Date', default=now)
     # Relations
     sender = models.ForeignKey('users.User', related_name='sender_debit_balance')
@@ -184,10 +189,12 @@ class DebitBalance(models.Model):
 class Cheque(models.Model):
 
     # Attributs
-    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9,
+                                 validators=[MinValueValidator(Decimal(0))])
     is_cashed = models.BooleanField('Est encaissé', default=False)
     signature_date = models.DateField('Date de signature', default=now)
-    cheque_number = models.CharField('Numéro de chèque', max_length=7)
+    cheque_number = models.CharField('Numéro de chèque', max_length=7,
+                                     validators=[RegexValidator('^[0-9]{7}$', 'Numéro de chèque invalide')])
 
     # Relations
     sender = models.ForeignKey('users.User', related_name='cheque_sender')
@@ -234,7 +241,8 @@ class BankAccount(models.Model):
 class Cash(models.Model):
 
     # Attributs
-    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9,
+                                 validators=[MinValueValidator(Decimal(0))])
 
     # Relations
     sender = models.ForeignKey('users.User', related_name='cash_sender')
@@ -260,8 +268,9 @@ class Cash(models.Model):
 class Lydia(models.Model):
     # Information sur l'identite du virement lydia
     date_operation = models.DateField('Date', default=now)
-    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9)
-    # numero unique du virement lydia (communiqué par lydia: comment?)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9,
+                                 validators=[MinValueValidator(Decimal(0))])
+    # numero unique du virement lydia
     id_from_lydia = models.CharField('Numéro unique', max_length=255)
     sender = models.ForeignKey('users.User', related_name='lydia_sender')
     recipient = models.ForeignKey('users.User', related_name='lydia_recipient')
@@ -300,7 +309,8 @@ class SharedEvent(models.Model):
     # Attributs
     description = models.CharField('Description', max_length=254)
     date = models.DateField('Date', default=now)
-    price = models.DecimalField('Prix', decimal_places=2, max_digits=9, null=True, blank=True)
+    price = models.DecimalField('Prix', decimal_places=2, max_digits=9, null=True, blank=True,
+                                validators=[MinValueValidator(Decimal(0))])
     bills = models.CharField('Facture(s)', max_length=254, null=True, blank=True)
     done = models.BooleanField('Terminé', default=False)
 
@@ -412,7 +422,7 @@ class SharedEvent(models.Model):
         """
 
         # Création Sale
-        sale = Sale.objects.create(date=datetime.now(),
+        sale = Sale.objects.create(date=datetime.now,
                                    sender=operator,
                                    recipient=recipient,
                                    operator=operator)
@@ -432,7 +442,7 @@ class SharedEvent(models.Model):
 
         for u in self.list_of_participants_ponderation():
             d_b = DebitBalance.objects.create(amount=price_per_participant*u[1],
-                                              date=datetime.now(),
+                                              date=datetime.now,
                                               sender=u[0],
                                               recipient=sale.recipient)
             # Paiement
@@ -463,7 +473,7 @@ def supply_self_lydia(user, recipient, amount, transaction_identifier):
     container = Container.objects.get(pk=1)
 
     # Sale
-    sale = Sale.objects.create(date=datetime.now(),
+    sale = Sale.objects.create(date=datetime.now,
                                sender=user,
                                recipient=recipient,
                                operator=user,
@@ -476,7 +486,7 @@ def supply_self_lydia(user, recipient, amount, transaction_identifier):
     sale.maj_amount()
 
     # Lydia
-    lydia = Lydia.objects.create(date_operation=datetime.now(),
+    lydia = Lydia.objects.create(date_operation=datetime.now,
                                  amount=amount,
                                  id_from_lydia=transaction_identifier,
                                  sender=user,

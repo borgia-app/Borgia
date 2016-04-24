@@ -1,9 +1,28 @@
 from django import forms
 from django.forms.widgets import TextInput, Textarea
+from django.core.exceptions import ValidationError
 
 
 class UpdateSettingForm(forms.Form):
-    name = forms.CharField(label='Nom', widget=TextInput(attrs={'disabled': 'disabled'}), required=False)
-    description = forms.CharField(label='Description', widget=Textarea(attrs={'disabled': 'disabled'}), required=False)
     value = forms.CharField(label='Valeur')
-    value_type = forms.CharField(label='Type', widget=TextInput(attrs={'disabled': 'disabled'}), required=False)
+
+    def __init__(self, *args, **kwargs):
+        self.setting = kwargs.pop('setting')
+        super(UpdateSettingForm, self).__init__(*args, **kwargs)
+
+    def clean_value(self):
+        data = self.cleaned_data['value']
+
+        types = {
+            's': str,
+            'i': int,
+            'f': float,
+            'b': (lambda v: v.lower().startswith('t') or v.startswith('1'))
+        }
+
+        try:
+            types[self.setting.value_type](data)
+        except ValueError:
+            raise ValidationError('Erreur de type')
+
+        return data

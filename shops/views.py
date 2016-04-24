@@ -461,47 +461,6 @@ def list_active_keg(request):
 
 
 # Models
-class SingleProductCreateMultipleView(FormNextView):
-    template_name = 'shops/singleproduct_create_multiple.html'
-    form_class = SingleProductCreateMultipleForm
-    success_url = '/shops/singleproduct/'
-
-    def form_valid(self, form):
-
-        for i in range(0, form.cleaned_data['quantity']):
-            sp = SingleProduct(price=form.cleaned_data['price'],
-                               purchase_date=form.cleaned_data['purchase_date'],
-                               expiry_date=form.cleaned_data['expiry_date'],
-                               place=form.cleaned_data['place'],
-                               product_base=form.cleaned_data['product_base'])
-            sp.save()
-            # Notifications
-
-            # Notification success de la création du produit unitaire
-            single_product_creation_notify_success_to_user_and_admins(self.request, sp)
-
-        return super(SingleProductCreateMultipleView, self).form_valid(form)
-
-    def get_initial(self):
-        initial = super(SingleProductCreateMultipleView, self).get_initial()
-        initial['purchase_date'] = now
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super(SingleProductCreateMultipleView, self).get_context_data(**kwargs)
-        context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
-        return context
-
-    def get_form_kwargs(self):
-        kwargs = super(SingleProductCreateMultipleView, self).get_form_kwargs()
-        kwargs['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
-        return kwargs
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Création produits unitaires')
-        return super(SingleProductCreateMultipleView, self).get(request, *args, **kwargs)
-
-
 class SingleProductRetrieveView(DetailView):
     model = SingleProduct
     template_name = 'shops/singleproduct_retrieve.html'
@@ -519,48 +478,6 @@ class SingleProductListView(ListView):
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Liste produits unitaires')
         return super(SingleProductListView, self).get(request, *args, **kwargs)
-
-
-class ContainerCreateMultipleView(FormNextView):
-    template_name = 'shops/container_create_multiple.html'
-    form_class = ContainerCreateMultipleForm
-    success_url = '/shops/container/'
-
-    def form_valid(self, form):
-
-        for i in range(0, form.cleaned_data['quantity']):
-            c = Container(price=form.cleaned_data['price'],
-                          purchase_date=form.cleaned_data['purchase_date'],
-                          expiry_date=form.cleaned_data['expiry_date'],
-                          place=form.cleaned_data['place'],
-                          product_base=form.cleaned_data['product_base'])
-            c.save()
-
-            # Notifications
-
-            # Notification success de la création
-            container_creation_notify_success_to_user_and_admins(self.request, c)
-
-        return super(ContainerCreateMultipleView, self).form_valid(form)
-
-    def get_initial(self):
-        initial = super(ContainerCreateMultipleView, self).get_initial()
-        initial['purchase_date'] = now
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super(ContainerCreateMultipleView, self).get_context_data(**kwargs)
-        context['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
-        return context
-
-    def get_form_kwargs(self):
-        kwargs = super(ContainerCreateMultipleView, self).get_form_kwargs()
-        kwargs['shop'] = Shop.objects.get(name=self.request.GET.get('shop', self.request.POST.get('shop')))
-        return kwargs
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Créations conteneurs')
-        return super(ContainerCreateMultipleView, self).get(request, *args, **kwargs)
 
 
 class ContainerRetrieveView(DetailView):

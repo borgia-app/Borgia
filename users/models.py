@@ -5,6 +5,7 @@ from django.contrib.auth.models import AbstractUser
 from datetime import datetime
 from django.core.exceptions import ObjectDoesNotExist
 import re
+from django.core.validators import RegexValidator
 
 from finances.models import Sale, BankAccount, SharedEvent
 
@@ -33,8 +34,12 @@ class User(AbstractUser):
     balance = models.DecimalField('Solde', default=0, max_digits=9, decimal_places=2)
     year = models.IntegerField('Prom\'ss', choices=YEAR_CHOICES, blank=True, null=True)
     campus = models.CharField('Tabagn\'ss', choices=CAMPUS_CHOICES, max_length=2, blank=True, null=True)
-    phone = models.CharField('Numéro de téléphone', max_length=255, blank=True, null=True)
-    token_id = models.CharField('Numéro de jeton lié', max_length=6, blank=True, null=True)
+    phone = models.CharField('Numéro de téléphone', max_length=255, blank=True, null=True,
+                             validators=[RegexValidator('^0[0-9]{9}$',
+                                                                     'Le numéro de téléphone doit être du type 0123456789')])
+    token_id = models.CharField('Numéro de jeton lié', max_length=6, blank=True, null=True,
+                                validators=[RegexValidator('^[0-9A-Z]{6}$',
+                                                           'Mauvaise forme de numéro de jeton, il ne doit contenir que six chiffres et/ou lettres majuscules')])
     avatar = models.ImageField('Avatar', upload_to='img/avatars/', default=None, blank=True, null=True)
 
     def __str__(self):

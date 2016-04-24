@@ -35,3 +35,14 @@ def human_reading(value, syst):
             return 'Manuelle'
         else:
             return 'Automatique'
+
+    # Float -> nombre décimal, integer -> entier, boolean -> booleen, string -> chaine de caractères
+    elif syst == 'type':
+        if value == 'integer':
+            return 'nombre entier'
+        elif value == 'float':
+            return 'nombre décimal'
+        elif value == 'string':
+            return 'chaîne de caractères'
+        elif value == 'boolean':
+            return 'booléen (True ou False)'

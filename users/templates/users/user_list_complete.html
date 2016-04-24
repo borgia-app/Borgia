@@ -38,14 +38,14 @@
         <div class="row">
             <table>
                 <tr>
-                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'last_name'|order_by:request }}&years={{ years }}&active={{ active }}">Nom</a></th>
-                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'first_name'|order_by:request }}&years={{ years }}&active={{ active }}">Prénom</a></th>
-                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'surname'|order_by:request }}&years={{ years }}&active={{ active }}">Bucque</a></th>
-                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'family'|order_by:request }}&years={{ years }}&active={{ active }}">Num's</a></th>
-                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'campus'|order_by:request }}&years={{ years }}&active={{ active }}">Tabagn's</a></th>
-                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'year'|order_by:request }}&years={{ years }}&active={{ active }}">Prom's</a></th>
-                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'balance'|order_by:request }}&years={{ years }}&active={{ active }}">Solde</a></th>
-                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'is_active'|order_by:request }}&years={{ years }}&active={{ active }}">Est actif</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'last_name'|order_by:request }}&years={{ years }}&active={{ active }}&next={{ next }}">Nom</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'first_name'|order_by:request }}&years={{ years }}&active={{ active }}&next={{ next }}">Prénom</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'surname'|order_by:request }}&years={{ years }}&active={{ active }}&next={{ next }}">Bucque</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'family'|order_by:request }}&years={{ years }}&active={{ active }}&next={{ next }}">Num's</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'campus'|order_by:request }}&years={{ years }}&active={{ active }}&next={{ next }}">Tabagn's</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'year'|order_by:request }}&years={{ years }}&active={{ active }}&next={{ next }}">Prom's</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'balance'|order_by:request }}&years={{ years }}&active={{ active }}&next={{ next }}">Solde</a></th>
+                    <th><a href="{% url 'url_list_user_complete' %}?order_by={{ 'is_active'|order_by:request }}&years={{ years }}&active={{ active }}&next={{ next }}">Est actif</a></th>
                     <th>Détail</th>
                 </tr>
                 {% for e in query_user %}

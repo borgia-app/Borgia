@@ -292,6 +292,7 @@ class UserListCompleteView(ListCompleteView):
         'order_by': 'last_name',
         'years': 'all',
         'active': True,
+        'next': '/auth/login'
     }
 
     def get(self, request, *args, **kwargs):
@@ -323,8 +324,6 @@ class UserListCompleteView(ListCompleteView):
         else:
             context['query_user'] = User.objects.filter(is_active=self.attr['active']).exclude(
                 groups=Group.objects.get(name='Membres spéciaux')).order_by(self.attr['order_by'])
-
-        context['next'] = self.request.GET.get('next', self.request.POST.get('next'))
         return context
 
     def form_valid(self, form, **kwargs):

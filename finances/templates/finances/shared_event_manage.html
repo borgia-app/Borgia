@@ -73,7 +73,7 @@
                 <input type=hidden name="state" value="{{ state }}" />
                 <input type=hidden name="order_by" value="{{ order_by }}" />
                 <input type=hidden name="next" value="{{ next }}" />
-                <p>{{ list_user_form.state.label }} : {{ list_user_form.state }}  {{ list_user_form.order_by.label }} : {{ list_user_form.order_by }} <input type='submit' value='Lister'></p>
+                <p>{{ list_user_form.state.error }}{{ list_user_form.state.label }} : {{ list_user_form.state }}  {{ list_user_form.order_by.error }}{{ list_user_form.order_by.label }} : {{ list_user_form.order_by }} <input type='submit' value='Lister'></p>
             </form>
             {% if done == False %}
                 <form action='{% url 'url_manage_shared_event' pk=pk %}#table_users' method='post'>
@@ -83,7 +83,7 @@
                     <input type=hidden name="order_by" value="{{ order_by }}" />
                     <input type=hidden name="next" value="{{ next }}" />
                     {{ add_user_form.username.error_messages }} {{ add_user_form.state.error_messages }} {{ add_user_form.ponderation.error_messages }}
-                    <p>{{ add_user_form.username.label }} : {{ add_user_form.username }} {{ add_user_form.state }} <span id="ponderation">{{ add_user_form.ponderation.label }} : {{ add_user_form.ponderation }}</span> <input type='submit' value='Ajouter'></p>
+                    <p>{{ add_user_form.username.error }}{{ add_user_form.username.label }} : {{ add_user_form.username }} {{ add_user_form.state.error }}{{ add_user_form.state }} <span id="ponderation">{{ add_user_form.ponderation.error }}{{ add_user_form.ponderation.label }} : {{ add_user_form.ponderation }}</span> <input type='submit' value='Ajouter'></p>
                 </form>
             {% endif %}
         </div>
