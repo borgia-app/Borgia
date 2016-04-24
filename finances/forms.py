@@ -14,7 +14,7 @@ from finances.models import Cheque, Cash, Lydia, BankAccount, SharedEvent
 class TransfertCreateForm(forms.Form):
     recipient = forms.CharField(label='Receveur', max_length=255,
                                 widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
-    amount = forms.IntegerField(label='Montant')
+    amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
 
     def __init__(self, **kwargs):
         self.request = kwargs.pop('request')
@@ -32,9 +32,6 @@ class TransfertCreateForm(forms.Form):
 
             if User.objects.get(username=recipient) == self.request.user:
                 raise forms.ValidationError('Transfert vers soi-même impossible')
-
-            if amount <= 0:
-                raise forms.ValidationError('Le montant doit être strictement supérieur à 0.')
 
             if amount > self.request.user.balance:
                 raise forms.ValidationError('Le montant doit être inférieur ou égal à ton solde.')
