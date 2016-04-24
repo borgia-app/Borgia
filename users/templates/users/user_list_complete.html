@@ -110,4 +110,18 @@
             }
         }
     </script>
+    <script>
+        // init
+        if($('#id_all').is(':checked'))
+            $('#list_year').hide();
+        else
+            $('#list_year').show();
+        // change
+        $('#id_all').change(function() {
+            if($(this).is(':checked'))
+                $('#list_year').hide();
+            else
+                $('#list_year').show();
+        });
+    </script>
 {% endblock %}

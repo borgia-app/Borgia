@@ -20,14 +20,16 @@
                     {{ form.all.errors }}
                     {{ form.all.label }} : {{ form.all }}
                 </div>
-                {% for f in form %}
-                    {% if f != form.date_begin and f != form.date_end and f != form.all %}
-                        <span class="fieldWrapper">
+                <div id="list_operators">
+                    {% for f in form %}
+                        {% if f != form.date_begin and f != form.date_end and f != form.all %}
+                            <span class="fieldWrapper">
                                 {{ f.errors }}
                                 {{ f.label }} : {{ f }}
                             </span>
-                    {% endif %}
-                {% endfor %}
+                        {% endif %}
+                    {% endfor %}
+                </div>
 
                 <p><input type="submit" value="Submit"/></p>
             </form>
@@ -61,5 +63,18 @@
             {% endfor %}
         </table>
     </div>
-
+    <script>
+        // init
+        if($('#id_all').is(':checked'))
+            $('#list_operators').hide();
+        else
+            $('#list_operators').show();
+        // change
+        $('#id_all').change(function() {
+            if($(this).is(':checked'))
+                $('#list_operators').hide();
+            else
+                $('#list_operators').show();
+        });
+    </script>
 {% endblock %}
