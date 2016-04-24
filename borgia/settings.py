@@ -182,6 +182,10 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # Electrovanne
 ELECTROVANNE_TOKEN = '80eg11TBAiR13UCI3dJKHWa5e7764KA3'
 
+# Durée de validité du token reset password
+PASSWORD_RESET_TIMEOUT_DAYS = 1  # en jours
+
+
 # Les paramètres modifiables sont des objets Settings de l'app settings_data
 # A modifier directement dans l'application
 # [LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, MARGIN_PROFIT]
