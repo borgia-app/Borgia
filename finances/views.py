@@ -892,7 +892,11 @@ class SharedEventManageView(View):
                 # Enregistrement des participants/inscrits et des pondérations
                 if upload_json_form.cleaned_data['state'] == 'participants':
                     for i, u in enumerate(lists[0]):
-                        se.add_participant(u, lists[1][i])
+                        try:
+                            if lists[1][i] > 0:
+                                se.add_participant(u, lists[1][i])
+                        except KeyError:
+                            pass
                 else:
                     for u in lists[0]:
                         se.registered.add(u)
