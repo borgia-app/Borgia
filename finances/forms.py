@@ -126,8 +126,8 @@ class SupplyLydiaSelfForm(forms.Form):
                                                    min_value=min_value,
                                                    max_value=max_value)
         self.fields['tel_number'] = forms.CharField(label='Numéro de téléphone',
-                                                    validators=RegexValidator('^0[0-9]{9}$',
-                                                                              'Le numéro de téléphone doit être du type 0123456789'))
+                                                    validators=[RegexValidator('^0[0-9]{9}$',
+                                                                              'Le numéro de téléphone doit être du type 0123456789')])
 
 
 class RetrieveMoneyForm(forms.Form):
