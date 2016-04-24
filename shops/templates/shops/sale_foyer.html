@@ -164,6 +164,7 @@
             <li><i class="fa fa-long-arrow-left" aria-hidden="true"></i> & <i class="fa fa-long-arrow-right" aria-hidden="true"></i> pour naviguer entre les onglets</li>
             <li><i class="fa fa-long-arrow-up" aria-hidden="true"></i> & <i class="fa fa-long-arrow-down" aria-hidden="true"></i> pour naviguer entre les produits</li>
             <li>+ & - pour ajouter ou supprimer des produits</li>
+            <li>Les numéros du clavier et du pavé numérique fonctionnent</li>
             <li>"Entrée" pour valider la commande</li>
         </div>
     </form>
@@ -306,7 +307,9 @@
 
         document.onkeydown = function (e) {
             if (!e.metaKey) {
-                e.preventDefault();
+                if (!($.inArray(e.keyCode, [8,9,13,46,96,97,98,99,100,101,102,103,104,105,48,49,50,51,52,53,54,55,56,57]) > -1)) {
+                    e.preventDefault();
+                }
             }
 
             // Touches F1 à F12
@@ -407,9 +410,15 @@
                 }
             }
 
-            // Entrée pour submit le form
-            if (e.keyCode == 13) {
-                document.getElementById('form_purchase').submit();
+            // Problème du 0
+            if ($.inArray(e.keyCode, [96,97,98,99,100,101,102,103,104,105,48,49,50,51,52,53,54,55,56,57]) > -1) {
+                var $focused = $(':focus');
+                if ($focused.is('input')) {
+                    if($focused.val() == 0) {
+                        $focused.val('');
+                    }
+
+                }
             }
         };
 

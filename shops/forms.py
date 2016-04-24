@@ -151,10 +151,12 @@ class PurchaseFoyerForm(forms.Form):
                 yield (self.fields[name].label, value)
 
     def clean(self):
-
-        # Vérification de la commande sans provision
-        if float(self.request.POST.get('hidden_balance_after')) < 0:
-            raise forms.ValidationError('Commande sans provision')
+        try:
+            # Vérification de la commande sans provision
+            if float(self.request.POST.get('hidden_balance_after')) < 0:
+                raise forms.ValidationError('Commande sans provision')
+        except ValueError:
+            raise forms.ValidationError('Erreur, veuillez recharger la page (F5 dans la barre d\'url)')
 
         return super(PurchaseFoyerForm, self).clean()
 
