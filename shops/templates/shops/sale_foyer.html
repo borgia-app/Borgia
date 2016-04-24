@@ -417,8 +417,17 @@
                     if($focused.val() == 0) {
                         $focused.val('');
                     }
-
                 }
+            }
+
+            // Problème du champ vide quand on valide
+            if (e.keyCode == 13) {
+                $("#div_purchase :input").each(
+                        function () {
+                            if ($(this).val() == '') {
+                                $(this).val(0);
+                            }
+                        })
             }
         };
 
@@ -486,7 +495,7 @@
             })(d);
             d++;
         }
-                var e = 0;
+        var e = 0;
         while (e<{{ container_syrup_list|length }}) {
             (function(e) {
                 return selected_quantity_container_syrup[e].dispatchEvent(new Event('change'));

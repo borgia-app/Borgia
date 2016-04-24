@@ -444,6 +444,17 @@
         setTimeout(function(){
             update_consumption()
         }, 1000);
+
+        // Problème du champ vide quand on valide
+        if (e.keyCode == 13) {
+            $("#div_purchase :input").each(
+                    function () {
+                        if ($(this).val() == '') {
+                            $(this).val(0);
+                        }
+                    })
+        }
+
     </script>
 
 {% endblock %}
