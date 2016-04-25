@@ -105,12 +105,12 @@ class ProductBase(models.Model):
     description = models.TextField('Description', default="Description")
     is_manual = models.BooleanField('Gestion manuelle du prix', default=False)
     manual_price = models.DecimalField('Prix manuel', default=0, decimal_places=2, max_digits=9,
-                                       validators=MinValueValidator(Decimal(0)))
+                                       validators=[MinValueValidator(Decimal(0))])
     brand = models.CharField('Marque', max_length=255)
     type = models.CharField('Type', max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
 
     quantity = models.DecimalField('Quantité d\'unité de produit', default=0, null=True, blank=True, decimal_places=2,
-                                   max_digits=9, validators=MinValueValidator(Decimal(0)))
+                                   max_digits=9, validators=[MinValueValidator(Decimal(0))])
 
     # Relations
     # Avec shops.models
@@ -209,9 +209,9 @@ class SingleProduct(models.Model):
 
     # Attributs
     price = models.DecimalField('Prix d\'achat', default=0, decimal_places=2, max_digits=9,
-                                validators=MinValueValidator(Decimal(0)))
+                                validators=[MinValueValidator(Decimal(0))])
     sale_price = models.DecimalField('Prix de vente', default=0, decimal_places=2, max_digits=9, null=True, blank=True,
-                                     validators=MinValueValidator(Decimal(0)))
+                                     validators=[MinValueValidator(Decimal(0))])
     purchase_date = models.DateField('Date d\'achat', default=now)
     expiry_date = models.DateField('Date d\'expiration', blank=True, null=True)
     place = models.CharField('Lieu de stockage', max_length=255)
@@ -247,12 +247,12 @@ class Container(models.Model):
 
     # Attributs
     price = models.DecimalField('Prix d\'achat', default=0, decimal_places=2, max_digits=9,
-                                validators=MinValueValidator(Decimal(0)))
+                                validators=[MinValueValidator(Decimal(0))])
     purchase_date = models.DateField('Date d\'achat', default=now)
     expiry_date = models.DateField('Date d\'expiration', blank=True, null=True)
     place = models.CharField('Lieu de stockage', max_length=255)
     quantity_remaining = models.DecimalField('Quantité d\'unité produit restante', default=0, decimal_places=2, max_digits=9,
-                                             validators=MinValueValidator(Decimal(0)))
+                                             validators=[MinValueValidator(Decimal(0))])
     is_sold = models.BooleanField('Est vendu', default=False)
     # TODO: gestion des consignes
 
@@ -328,9 +328,9 @@ class SingleProductFromContainer(models.Model):
     """
 
     # Attributs
-    quantity = models.IntegerField('Quantité d\'unité de produit', default=0, validators=MinValueValidator(Decimal(0)))
+    quantity = models.IntegerField('Quantité d\'unité de produit', default=0, validators=[MinValueValidator(Decimal(0))])
     sale_price = models.DecimalField('Prix de vente', default=0, decimal_places=2, max_digits=9,
-                                     validators=MinValueValidator(Decimal(0)))
+                                     validators=[MinValueValidator(Decimal(0))])
 
     # Relations
     container = models.ForeignKey('Container')
