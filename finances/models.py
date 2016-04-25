@@ -473,7 +473,7 @@ def supply_self_lydia(user, recipient, amount, transaction_identifier):
     container = Container.objects.get(pk=1)
 
     # Sale
-    sale = Sale.objects.create(date=datetime.now,
+    sale = Sale.objects.create(date=datetime.now(),
                                sender=user,
                                recipient=recipient,
                                operator=user,
@@ -486,7 +486,7 @@ def supply_self_lydia(user, recipient, amount, transaction_identifier):
     sale.maj_amount()
 
     # Lydia
-    lydia = Lydia.objects.create(date_operation=datetime.now,
+    lydia = Lydia.objects.create(date_operation=datetime.now(),
                                  amount=amount,
                                  id_from_lydia=transaction_identifier,
                                  sender=user,
