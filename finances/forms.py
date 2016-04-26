@@ -9,7 +9,7 @@ from django.utils.timezone import now
 import re
 
 from users.models import User
-from finances.models import Cheque, Cash, Lydia, BankAccount, SharedEvent
+from finances.models import Cheque, Cash, Lydia, BankAccount, SharedEvent, Sale
 from borgia.validators import *
 
 
@@ -259,3 +259,10 @@ class BankAccountCreateForm(forms.Form):
                             validators=[autocomplete_username_validator])
     bank = forms.CharField(label='Banque')
     account = forms.CharField(label='Numéro de compte')
+
+
+class SaleListAllForm(forms.Form):
+    all_date = forms.BooleanField(label='Depuis toujours', required=False)
+    date_begin = forms.DateField(label='Date de début', widget=forms.DateInput(attrs={'class': 'datepicker'}))
+    date_end = forms.DateField(label='Date de fin', widget=forms.DateInput(attrs={'class': 'datepicker'}))
+    category = forms.ChoiceField(label='Catégories', choices=(Sale.CATEGORY_CHOICES + tuple([('all_categories', 'Toutes')])))

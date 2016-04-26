@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% load extra %}
+{% load finances_extra %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <form action= "{% url 'url_list_sale_all' %}" method="post">
+            {% csrf_token %}
+            <input type=hidden name="order_by" value="{{ order_by }}" />
+            <input type=hidden name="date_begin" value="{{ date_begin }}" />
+            <input type=hidden name="date_end" value="{{ date_end }}" />
+            <input type=hidden name="all_date" value="{{ all_date }}" />
+            <input type=hidden name="category" value="{{ category }}" />
+                    <div class="fieldWrapper">
+                {{ form.all_date.errors }}
+                {{ form.all_date.label }} : {{ form.all_date }}
+            </div>
+            <div class="fieldWrapper">
+                {{ form.date_begin.errors }}
+                {{ form.date_end.errors }}
+                De : {{ form.date_begin }} à : {{ form.date_end }}
+            </div>
+            <div class="fieldWrapper">
+                {{ form.category.errors }}
+                {{ form.category.label }} : {{ form.category }}
+            </div>
+            <p><input type="submit" value="Lister"/></p>
+        </form>
+    </div>
+</div>
+<div class="row">
+
+<table>
+    <tr>
+        <th><a href="?order_by={{ 'date'|order_by:request }}&all_date={{ all_date }}&date_begin={{ date_begin }}&date_end={{ date_end }}&category={{ category }}">Date</a></th>
+        <th><a href="?order_by={{ 'sender'|order_by:request }}&all_date={{ all_date }}&date_begin={{ date_begin }}&date_end={{ date_end }}&category={{ category }}">Emetteur</a></th>
+        <th><a href="?order_by={{ 'recipient'|order_by:request }}&all_date={{ all_date }}&date_begin={{ date_begin }}&date_end={{ date_end }}&category={{ category }}">Receveur</a></th>
+        <th><a href="?order_by={{ 'operator'|order_by:request }}&all_date={{ all_date }}&date_begin={{ date_begin }}&date_end={{ date_end }}&category={{ category }}">Opérateur</a></th>
+        <th><a href="?order_by={{ 'category'|order_by:request }}&all_date={{ all_date }}&date_begin={{ date_begin }}&date_end={{ date_end }}&category={{ category }}">Type</a></th>
+        <th><a href="?order_by={{ 'wording'|order_by:request }}&all_date={{ all_date }}&date_begin={{ date_begin }}&date_end={{ date_end }}&category={{ category }}">Libellé</a></th>
+        <th><a href="?order_by={{ 'amount'|order_by:request }}&all_date={{ all_date }}&date_begin={{ date_begin }}&date_end={{ date_end }}&category={{ category }}">Montant</a></th>
+        <th>Détails</th>
+    </tr>
+    {% for e in query_sale %}
+        <tr>
+            <td>{{ e.date }}</td>
+            <td>{{ e.sender }}</td>
+            <td>{{ e.recipient }}</td>
+        <td>{{ e.operator }}</td>
+            <td>{{ e.get_category_display }}</td>
+            <td>{% if e.category == 'sale' %}
+                {{ e.string_products|truncatechars:30 }}
+            {% elif e.category == 'transfert' or e.category == 'exceptionnal_movement' %}
+                {{ e.justification|truncatechars:30 }}
+            {% else %}
+                {{ e.wording|truncatechars:30 }}
+            {% endif %}</td>
+            <td>{% price_for e user %} €</td>
+            <td><a href="{% url 'url_retrieve_sale' pk=e.id %}">détail</a></td>
+        </tr>
+    {% endfor %}
+</table>
+</div>
+{% endblock %}

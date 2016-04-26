@@ -544,14 +544,71 @@ class SaleRetrieveView(DetailView):
         return super(SaleRetrieveView, self).get(request, *args, **kwargs)
 
 
-class SaleListView(ListView):
-    model = Sale
-    template_name = "finances/sale_list.html"
-    queryset = Sale.objects.all()
+class SaleListOrganeView(View):
+    template_name = 'finances/sale_list_organe.html'
+    attr = {
+        'order_by': '-date',
+    }
 
     def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Liste transactions')
-        return super(SaleListView, self).get(request, *args, **kwargs)
+        if request.GET.get('order_by') is not None:
+            self.attr['order_by'] = request.GET.get('order_by')
+
+        if self.kwargs['organe'] in ['foyer', 'auberge']:
+            context = {
+                'object_list': Sale.objects.filter(
+                    category='sale', wording='Vente ' + self.kwargs['organe']).order_by(self.attr['order_by']),
+                'organe': self.kwargs['organe'],
+            }
+            add_to_breadcrumbs(request, 'Liste ventes ' + self.kwargs['organe'])
+            return render(request, self.template_name, context)
+        else:
+            raise Http404
+
+
+class SaleListAllView(ListCompleteView):
+    form_class = SaleListAllForm
+    template_name = 'finances/sale_list_all.html'
+    success_url = '/auth/login'
+    attr = {
+        'date_begin': now() - timedelta(days=7),
+        'date_end': now() + timedelta(days=1),
+        'all_date': False,
+        'category': 'all_categories',
+        'order_by': '-date',
+    }
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Liste ventes')
+        return super(SaleListAllView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SaleListAllView, self).get_context_data(**kwargs)
+
+        if self.attr['category'] == 'all_categories':
+            if self.attr['all_date']:
+                query_sale = Sale.objects.all()
+            else:
+                query_sale = Sale.objects.filter(date__range=[self.attr['date_begin'], self.attr['date_end']])
+        else:
+            if self.attr['all_date']:
+                query_sale = Sale.objects.filter(category=self.attr['category'])
+            else:
+                query_sale = Sale.objects.filter(date__range=[self.attr['date_begin'], self.attr['date_end']],
+                                                 category=self.attr['category'])
+
+        query_sale = query_sale.order_by(self.attr['order_by'])
+        context['query_sale'] = query_sale
+        return context
+
+    def form_valid(self, form, **kwargs):
+
+        self.attr['all_date'] = form.cleaned_data['all_date']
+        self.attr['date_begin'] = form.cleaned_data['date_begin']
+        self.attr['date_end'] = form.cleaned_data['date_end']
+        self.attr['category'] = form.cleaned_data['category']
+
+        return self.render_to_response(self.get_context_data(**kwargs))
 
 
 class SaleListLightView(ListView):

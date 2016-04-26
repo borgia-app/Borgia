@@ -1,0 +1,19 @@
+{% load extra %}
+<table>
+    <tr>
+        <th><a href="?order_by={{ 'date'|order_by:request }}">Date</a></th>
+        <th><a href="?order_by={{ 'sender'|order_by:request }}">Emetteur</a></th>
+        <th>Produits</th>
+        <th><a href="?order_by={{ 'amount'|order_by:request }}">Montant total</a></th>
+        <th>Détails</th>
+    </tr>
+    {% for e in object_list %}
+        <tr>
+            <td>{{ e.date }}</td>
+            <td>{{ e.sender }}</td>
+            <td>{{ e.string_products|truncatechars:30 }}</td>
+            <td>{{ e.amount }} €</td>
+            <td><a href="{% url 'url_retrieve_sale' pk=e.id %}">détail</a></td>
+        </tr>
+    {% endfor %}
+</table>
