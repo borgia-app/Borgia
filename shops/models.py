@@ -334,9 +334,9 @@ class SingleProductFromContainer(models.Model):
 
     # Relations
     container = models.ForeignKey('Container')
-    sale = models.ForeignKey('finances.Sale')
+    sale = models.ForeignKey('finances.Sale', null=True, blank=True)
 
     def __str__(self):
         return self.container.product_base.product_unit.__str__() + ' ' + \
-               str(self.quantity) + self.container.product_base.product_unit.unit
+               str(self.quantity) + self.container.product_base.product_unit.get_unit_display()
 

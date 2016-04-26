@@ -217,7 +217,7 @@ class RetrieveMoneyView(ListCompleteView):
 class TransfertCreateView(FormView):
     form_class = TransfertCreateForm
     template_name = 'finances/transfert_create.html'
-    success_url = '/users/profile'
+    success_url = '/users/profile/'
 
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Création transfert')
@@ -225,39 +225,8 @@ class TransfertCreateView(FormView):
 
     def form_valid(self, form):
 
-        # Création du virement par compte foyer
-        debit_balance = DebitBalance(amount=form.cleaned_data['amount'],
-                                     sender=self.request.user,
-                                     recipient=User.objects.get(username=form.cleaned_data['recipient']))
-        debit_balance.save()
-
-        # Création du paiement
-        payment = Payment()
-        payment.save()
-        payment.debit_balance.add(debit_balance)
-        payment.maj_amount()
-        payment.save()
-
-        # Création de la vente
-        sale = Sale(date=datetime.now(),
-                    sender=self.request.user,
-                    operator=self.request.user,
-                    recipient=User.objects.get(username=form.cleaned_data['recipient']),
-                    payment=payment)
-        sale.save()
-
-        # Création d'un spfc d'argent fictif
-        spfc = SingleProductFromContainer(container=Container.objects.get(pk=1), quantity=payment.amount*100,
-                                          sale_price=payment.amount, sale=sale)
-        spfc.save()
-
-        # Mise à jour des comptes foyer
-        sale.maj_amount()
-        sale.save()
-        self.request.user.debit(sale.amount)
-        self.request.user.save()
-        User.objects.get(username=form.cleaned_data['recipient']).credit(sale.amount)
-        User.objects.get(username=form.cleaned_data['recipient']).save()
+        sale_transfert(sender=self.request.user, recipient=User.objects.get(username=form.cleaned_data['recipient']),
+                       amount=form.cleaned_data['amount'], date=now(), justification=form.cleaned_data['justification'])
 
         return super(TransfertCreateView, self).form_valid(form)
 
@@ -284,9 +253,7 @@ class SupplyUnitedView(FormNextView):
         operator = authenticate(username=form.cleaned_data['operator_username'],
                                 password=form.cleaned_data['operator_password'])
         sender = User.objects.get(username=form.cleaned_data['sender'])
-        # Création du paiement
-        payment = Payment.objects.create()
-
+        payment = []
         if form.cleaned_data['type'] == 'cheque':
             # Obtention du compte en banque
             bank_account = BankAccount.objects.get(
@@ -298,17 +265,13 @@ class SupplyUnitedView(FormNextView):
                                            sender=sender,
                                            recipient=User.objects.get(username='AE_ENSAM'),
                                            bank_account=bank_account)
-            payment.cheques.add(cheque)
-            payment.maj_amount()
-            payment.save()
+            payment.append(cheque)
 
         elif form.cleaned_data['type'] == 'cash':
             cash = Cash.objects.create(sender=sender,
                                        recipient=User.objects.get(username='AE_ENSAM'),
                                        amount=form.cleaned_data['amount'])
-            payment.cashs.add(cash)
-            payment.maj_amount()
-            payment.save()
+            payment.append(cash)
 
         elif form.cleaned_data['type'] == 'lydia':
             lydia = Lydia.objects.create(date_operation=form.cleaned_data['signature_date'],
@@ -316,26 +279,10 @@ class SupplyUnitedView(FormNextView):
                                          sender=sender,
                                          recipient=User.objects.get(username='AE_ENSAM'),
                                          amount=form.cleaned_data['amount'])
-            payment.lydias.add(lydia)
-            payment.maj_amount()
-            payment.save()
+            payment.append(lydia)
 
-        # Création de la vente
-        sale = Sale.objects.create(date=now(),
-                                   sender=sender,
-                                   operator=operator,
-                                   recipient=User.objects.get(username='AE_ENSAM'),
-                                   payment=payment,
-                                   is_credit=True)
-
-        # Création d'un spfc d'argent fictif
-        spfc = SingleProductFromContainer.objects.create(container=Container.objects.get(pk=1), quantity=payment.amount*100,
-                                                         sale_price=payment.amount, sale=sale)
-
-        # Mise à jour du compte foyer du client
-        sale.maj_amount()
-        sale.save()
-        sender.credit(sale.amount)
+        sale_recharging(sender=sender, operator=operator, payments_list=payment, date=now(),
+                        wording='Rechargement manuel')
 
         return super(SupplyUnitedView, self).form_valid(form)
 
@@ -357,46 +304,16 @@ class ExceptionnalMovementView(FormNextView):
         operator = authenticate(username=form.cleaned_data['operator_username'],
                                 password=form.cleaned_data['operator_password'])
 
-        if form.cleaned_data['type_movement'] == 'debit':
-            sender = User.objects.get(username=form.cleaned_data['affected'])
-            recipient = User.objects.get(username='AE_ENSAM')
-        else:
-            recipient = User.objects.get(username=form.cleaned_data['affected'])
-            sender = User.objects.get(username='AE_ENSAM')
+        affected = User.objects.get(username=form.cleaned_data['affected'])
+        amount = form.cleaned_data['amount']
+        is_credit = False
 
-        # Création du paiement
-        payment = Payment.objects.create()
-
-        # Création de la vente
-        sale = Sale.objects.create(date=datetime.now(),
-                                   sender=sender,
-                                   operator=operator,
-                                   recipient=recipient,
-                                   payment=payment)
-
-        # Débit sur compte foyer
-        d_b = DebitBalance.objects.create(sender=sender,
-                                          recipient=recipient,
-                                          amount=form.cleaned_data['amount'])
-        payment.debit_balance.add(d_b)
-        payment.maj_amount()
-        payment.save()
-
-        # Création d'un spfc d'argent fictif
-        spfc = SingleProductFromContainer.objects.create(container=Container.objects.get(pk=1), quantity=payment.amount * 100,
-                                                         sale_price=payment.amount, sale=sale)
-
-        # Mise à jour sale
         if form.cleaned_data['type_movement'] == 'credit':
-            sale.is_credit = True
-        sale.maj_amount()
-        sale.save()
+            is_credit = True
 
-        # Débit / crédit du client
-        if form.cleaned_data['type_movement'] == 'debit':
-            sender.debit(sale.amount)
-        else:
-            recipient.credit(sale.amount)
+        sale_exceptionnal_movement(operator=operator, affected=affected,
+                                   is_credit=is_credit, amount=amount, date=now(),
+                                   justification=form.cleaned_data['justification'])
 
         return super(ExceptionnalMovementView, self).form_valid(form)
 
@@ -461,10 +378,15 @@ def supply_lydia_self_callback(request):
         file.write(params_dict['transaction_identifier'])
 
         try:
-            supply_self_lydia(user=User.objects.get(pk=request.GET.get('user_pk')),
-                              recipient=User.objects.get(username='AE_ENSAM'),
-                              amount=decimal.Decimal(params_dict['amount']),
-                              transaction_identifier=params_dict['transaction_identifier'])
+            sale_recharging(sender=User.objects.get(pk=request.GET.get('user_pk')),
+                            operator=User.objects.get(pk=request.GET.get('user_pk')),
+                            date=now(),
+                            wording='Rechargement automatique',
+                            payments_list=[Lydia.objects.create(date_operation=now(),
+                                                                amount=decimal.Decimal(params_dict['amount']),
+                                                                id_from_lydia=params_dict['transaction_identifier'],
+                                                                sender=User.objects.get(pk=request.GET.get('user_pk')),
+                                                                recipient=User.objects.get(username='AE_ENSAM'))])
             file.write('supply')
 
         except KeyError or ObjectDoesNotExist:

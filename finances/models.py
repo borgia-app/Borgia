@@ -18,12 +18,19 @@ class Sale(models.Model):
 
     """
 
+    CATEGORY_CHOICES = (('transfert', 'Transfert'), ('recharging', 'Rechargement'), ('sale', 'Vente'),
+                        ('exceptionnal_movement', 'Mouvement exceptionnel'),
+                        ('shared_event', 'Evénement'))
+
     # Attributs
     amount = models.DecimalField('Montant', default=0, decimal_places=2, max_digits=9,
                                  validators=[MinValueValidator(Decimal(0))])
     date = models.DateTimeField('Date', default=now)
     done = models.BooleanField('Terminée', default=False)
     is_credit = models.BooleanField('Est un crédit', default=False)
+    category = models.CharField('Catégorie', choices=CATEGORY_CHOICES, default='sale', max_length=50)
+    wording = models.CharField('Libellé', default='', max_length=254)
+    justification = models.TextField('Justification', null=True, blank=True)
 
     # Relations
     # Avec users
@@ -60,7 +67,7 @@ class Sale(models.Model):
         return list_shared_event, total_sale_price
 
     def maj_amount(self):
-        self.amount = self.list_single_products()[1] + self.list_single_products_from_container()[1]\
+        self.amount = self.list_single_products()[1] + self.list_single_products_from_container()[1] \
                       + self.list_shared_events()[1]
         self.save()
 
@@ -84,7 +91,17 @@ class Sale(models.Model):
                 if e.sender == user:
                     price_for += e.amount
             price_for = -price_for
+        print(price_for)
         return price_for
+
+    def string_products(self):
+        string = ''
+        for p in self.list_single_products()[0]:
+            string += p.__str__() + ', '
+        for p in self.list_single_products_from_container()[0]:
+            string += p.__str__() + ', '
+        string = string[0: len(string)-2]
+        return string
 
     class Meta:
         permissions = (
@@ -416,16 +433,16 @@ class SharedEvent(models.Model):
         Une seule vente, un seul paiement mais plusieurs débits sur compte (un par participant)
         :param operator: user qui procède au paiement
         :param recipient: user qui recoit les paiements (AE_ENSAM)
-        'other_pay_all' signifie que les participants reconnus payent l'ensemble de l'event
-        'nothing' signifie que les participants reconnus payent leur part, et pas celle de ceux qui ne sont pas reconnus
         :return:
         """
 
         # Création Sale
-        sale = Sale.objects.create(date=datetime.now,
+        sale = Sale.objects.create(date=now(),
                                    sender=operator,
                                    recipient=recipient,
-                                   operator=operator)
+                                   operator=operator,
+                                   category='shared_event',
+                                   wording=self.description)
 
         # Liaison de l'événement commun
         self.sale = sale
@@ -442,7 +459,7 @@ class SharedEvent(models.Model):
 
         for u in self.list_of_participants_ponderation():
             d_b = DebitBalance.objects.create(amount=price_per_participant*u[1],
-                                              date=datetime.now,
+                                              date=now(),
                                               sender=u[0],
                                               recipient=sale.recipient)
             # Paiement
@@ -477,7 +494,9 @@ def supply_self_lydia(user, recipient, amount, transaction_identifier):
                                sender=user,
                                recipient=recipient,
                                operator=user,
-                               is_credit=True)
+                               is_credit=True,
+                               category='recharging',
+                               wording='Rechargement automatique')
     # Spfc
     SingleProductFromContainer.objects.create(container=container,
                                               sale=sale,
@@ -502,3 +521,144 @@ def supply_self_lydia(user, recipient, amount, transaction_identifier):
 
     # Cr  dit
     user.credit(amount)
+
+
+def sale_transfert(sender, recipient, amount, date, justification):
+    """
+    Création d'une vente avec ses dérivées basée sur un transfert
+    """
+
+    # Passage par le compte foyer
+    d_b = DebitBalance.objects.create(amount=amount, sender=sender, recipient=recipient)
+
+    # Payement
+    p = Payment.objects.create()
+    p.debit_balance.add(d_b)
+    p.save()
+    p.maj_amount()
+
+    # Sale
+    s = Sale.objects.create(date=date, sender=sender, operator=sender, recipient=recipient, payment=p,
+                            category='transfert', justification=justification)
+
+    # Produit vendu
+    SingleProductFromContainer.objects.create(container=Container.objects.get(pk=1), quantity=amount*100,
+                                              sale_price=amount, sale=s)
+
+    s.maj_amount()
+
+    # Débit / crédit
+    sender.debit(s.amount)
+    recipient.credit(s.amount)
+
+
+def sale_recharging(sender, operator, date, wording, category='recharging', justification=None,
+                    payments_list=None, amount=None):
+    """
+    Création d'une vente avec ses dérivées basée sur un rechargement
+    Si payments_list=None, il faut renseigner amount. C'est le cas d'un rechargement sans produit
+    """
+    from users.models import User
+    # Payement
+    p = Payment.objects.create()
+
+    if payments_list is None:
+        # Pas de payement physique
+        p.amount = amount
+    else:
+        # Passage par les payments listés dans payments_list
+        for payment in payments_list:
+            if isinstance(payment, Cash):
+                p.cashs.add(payment)
+            if isinstance(payment, Cheque):
+                p.cheques.add(payment)
+            if isinstance(payment, Lydia):
+                p.lydias.add(payment)
+        p.save()
+        p.maj_amount()
+
+    # Sale
+    s = Sale.objects.create(date=date, sender=sender, operator=operator,
+                            recipient=User.objects.get(username='AE_ENSAM'), payment=p, is_credit=True,
+                            category=category, wording=wording, justification=justification)
+
+    # Produit vendu
+    SingleProductFromContainer.objects.create(container=Container.objects.get(pk=1), quantity=p.amount * 100,
+                                              sale_price=p.amount, sale=s)
+
+    s.maj_amount()
+
+    # Débit / crédit
+    sender.credit(s.amount)
+
+
+def sale_sale(sender, operator, date, wording, category='sale', justification=None,
+              payments_list=None, products_list=None, amount=None, to_return=None):
+    """
+    Création d'une vente avec ses dérivées basée sur une vente physique
+    Lorsque payments_list=None, c'est que le payement se fait totalement par le compte foyer
+    Si products_list = None, c'est qu'il n'y a pas de produit physique -> débit exceptionnel
+    """
+    from users.models import User
+
+    # Payement
+    p = Payment.objects.create()
+
+    db = None
+    if payments_list is None:
+        # Pas de payement physique, tout est payé par le foyer
+        db = DebitBalance.objects.create(sender=sender, recipient=User.objects.get(username='AE_ENSAM'))
+        p.debit_balance.add(db)
+        p.save()
+    else:
+        # Passage par les payments listés dans payments_list
+        for payment in payments_list:
+            if isinstance(payment, Cash):
+                p.cashs.add(payment)
+            if isinstance(payment, Cheque):
+                p.cheques.add(payment)
+            if isinstance(payment, Lydia):
+                p.lydias.add(payment)
+        p.save()
+        p.maj_amount()
+
+    # Sale
+    s = Sale.objects.create(date=date, sender=sender, operator=operator,
+                            recipient=User.objects.get(username='AE_ENSAM'), payment=p,
+                            category=category, wording=wording, justification=justification)
+
+    # Produits vendus
+    if products_list is None:
+        SingleProductFromContainer.objects.create(container=Container.objects.get(pk=1), quantity=amount * 100,
+                                                  sale_price=amount, sale=s)
+        s.maj_amount()
+    else:
+        for product in products_list:
+            product.sale = s
+            product.save()
+        s.maj_amount()
+
+    # Cas du payement total par compte foyer
+    if payments_list is None:
+        db.amount = s.amount
+        db.save()
+        p.maj_amount()
+
+    # Débit / crédit
+    sender.debit(s.amount)
+
+    # Retour de la vente si besoin
+    if to_return is True:
+        return s
+
+
+def sale_exceptionnal_movement(operator, affected, is_credit, amount, date, justification):
+    """
+    Création d'une vente avec ses dérivées basée sur un crédit / débit exceptionnel
+    """
+    if is_credit is True:
+        sale_recharging(sender=affected, operator=operator, date=date, amount=amount,
+                        category='exceptionnal_movement', wording='Mouvement exceptionnel', justification=justification)
+    else:
+        sale_sale(sender=affected, operator=operator, date=date, amount=amount,
+                  category='exceptionnal_movement', wording='Mouvement exceptionnel', justification=justification)

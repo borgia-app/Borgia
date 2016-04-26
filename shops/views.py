@@ -13,7 +13,7 @@ from django.contrib.contenttypes.models import ContentType
 from shops.models import *
 from shops.forms import *
 from users.models import User
-from finances.models import Sale, DebitBalance, Payment
+from finances.models import *
 from notifications.models import *
 from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
 from contrib.models import add_to_breadcrumbs
@@ -116,16 +116,8 @@ class PurchaseAuberge(FormView):
             list_results_container_side.append((form.cleaned_data["field_container_side_%s" % i],
                                                 container_side_list[i][0]))
 
-        # Creation de la vente entre l'AE ENSAM (représentée par le foyer) et le client
-
-        # Informations generales
-        sale = Sale(date=datetime.now(),
-                    sender=User.objects.get(username=form.cleaned_data['client_username']),
-                    recipient=User.objects.get(username='AE_ENSAM'),
-                    operator=User.objects.get(username=form.cleaned_data['operator_username']))
-        sale.save()
-
-        # Objects
+        # Objects vendus
+        list_products_sold = []
 
         # Objects unitaires - ex: Skolls
         for e in list_results_single_product:
@@ -135,53 +127,24 @@ class PurchaseAuberge(FormView):
                 # Le prix de vente est le prix du base product à l'instant de la vente
                 for i in range(0, e[0]):
                     sp = SingleProduct.objects.filter(product_base=e[1], is_sold=False)[i]
-                    sp.save()
                     sp.is_sold = True
-                    sp.sale = sale
                     sp.sale_price = sp.product_base.get_moded_usual_price()
                     sp.save()
+                    list_products_sold.append(sp)
 
         # Food
         list_results_containers = list_results_container_meat + list_results_container_cheese + list_results_container_side
         for e in list_results_containers:
             if e[0] != 0:
                 # Premier conteneur de la liste dans le queryset du product base
-                spfc = SingleProductFromContainer(container=Container.objects.filter(product_base=e[1])[0],
-                                                  sale=sale)
-                spfc.save()
-                spfc.quantity = e[0] * e[1].product_unit.usual_quantity()
-                spfc.sale_price = e[1].get_moded_usual_price() * e[0]
-                spfc.save()
+                list_products_sold.append(SingleProductFromContainer.objects.create(container=Container.objects.filter(product_base=e[1])[0],
+                                                                                    quantity=e[0] * e[1].product_unit.usual_quantity(),
+                                                                                    sale_price=e[1].get_moded_usual_price() * e[0]))
 
-        # Payement total par le foyer ici
+        s = sale_sale(sender=self.request.user, operator=self.request.user, date=now(),
+                      products_list=list_products_sold, wording='Vente auberge', to_return=True)
 
-        # Total à payer d'après les achats
-        sale.maj_amount()
-
-        # Création d'un débit sur compte foyer
-        d_b = DebitBalance(amount=sale.amount,
-                           date=datetime.now(),
-                           sender=sale.sender,
-                           recipient=sale.recipient)
-        d_b.save()
-
-        # Création d'un paiement
-        payment = Payment()
-        payment.save()
-        # Liaison entre le paiement et le debit sur compte foyer
-        payment.debit_balance.add(d_b)
-        payment.save()
-        payment.maj_amount()
-        payment.save()
-
-        # Liaison entre le paiement et la vente
-        sale.payment = payment
-        sale.save()
-
-        # Paiement par le client
-        sale.payment.debit_balance.all()[0].set_movement()
-
-        return render(self.request, 'shops/sale_validation.html', {'sale': sale,
+        return render(self.request, 'shops/sale_validation.html', {'sale': s,
                                                                    'next': '/auberge'})
 
 
@@ -353,16 +316,8 @@ class PurchaseFoyer(FormView):
             list_results_container_syrup.append((form.cleaned_data["field_container_syrup_%s" % i],
                                                  container_syrup_list[i][0]))
 
-        # Creation de la vente entre l'AE ENSAM (représentée par le foyer) et le client
-
-        # Informations generales
-        sale = Sale(date=datetime.now(),
-                    sender=self.request.user,
-                    recipient=User.objects.get(username="AE_ENSAM"),
-                    operator=self.request.user)
-        sale.save()
-
-        # Objects
+        # Objects vendus
+        list_products_sold = []
 
         # Objects unitaires - ex: Skolls
         for e in list_results_single_product:
@@ -372,11 +327,10 @@ class PurchaseFoyer(FormView):
                 # Le prix de vente est le prix du base product à l'instant de la vente
                 for i in range(0, e[0]):
                     sp = SingleProduct.objects.filter(product_base=e[1], is_sold=False)[i]
-                    sp.save()
                     sp.is_sold = True
-                    sp.sale = sale
                     sp.sale_price = sp.product_base.get_moded_usual_price()
                     sp.save()
+                    list_products_sold.append(sp)
 
         # Issus d'un container
         # Fûts de bières, ce sont ceux qui sont sous les tireuses
@@ -384,11 +338,11 @@ class PurchaseFoyer(FormView):
             if e[0] != 0:  # Le client a pris un objet issu du container e[1]
                 # Création d'un objet fictif qui correspond à un bout du conteneur
                 # Le prix de vente est le prix du base product à l'instant de la vente
-                spfc = SingleProductFromContainer(container=e[1], sale=sale)
-                spfc.save()
-                spfc.quantity = spfc.container.product_base.product_unit.usual_quantity() * e[0]
-                spfc.sale_price = spfc.container.product_base.get_moded_usual_price() * e[0]
-                spfc.save()
+                list_products_sold.append(SingleProductFromContainer.objects.create(
+                    container=e[1],
+                    quantity=e[1].product_base.product_unit.usual_quantity() * e[0],
+                    sale_price=e[1].product_base.get_moded_usual_price() * e[0]
+                ))
 
         # Soft, syrup et liquor
         # Le traitement est le même pour tous, je n'utilise qu'une seule liste
@@ -397,46 +351,18 @@ class PurchaseFoyer(FormView):
         for e in list_results_container_no_keg:
             if e[0] != 0:
                 # Premier conteneur de la liste dans le queryset du product base
-                spfc = SingleProductFromContainer(container=Container.objects.filter(product_base=e[1])[0],
-                                                  sale=sale)
-                spfc.save()
-                spfc.quantity = e[0] * e[1].product_unit.usual_quantity()
-                spfc.sale_price = e[1].get_moded_usual_price() * e[0]
-                spfc.save()
+                list_products_sold.append(SingleProductFromContainer(container=Container.objects.filter(product_base=e[1])[0],
+                                                                     quantity=e[0] * e[1].product_unit.usual_quantity(),
+                                                                     sale_price=e[1].get_moded_usual_price() * e[0]))
 
-        # Payement total par le foyer ici
-
-        # Total à payer d'après les achats
-        sale.maj_amount()
-
-        # Création d'un débit sur compte foyer
-        d_b = DebitBalance(amount=sale.amount,
-                           date=datetime.now(),
-                           sender=sale.sender,
-                           recipient=sale.recipient)
-        d_b.save()
-
-        # Création d'un paiement
-        payment = Payment()
-        payment.save()
-        # Liaison entre le paiement et le debit sur compte foyer
-        payment.debit_balance.add(d_b)
-        payment.save()
-        payment.maj_amount()
-        payment.save()
-
-        # Liaison entre le paiement et la vente
-        sale.payment = payment
-        sale.save()
-
-        # Paiement par le client
-        sale.payment.debit_balance.all()[0].set_movement()
+        s = sale_sale(sender=self.request.user, operator=self.request.user, date=now(),
+                        products_list=list_products_sold, wording='Vente foyer', to_return=True)
 
         # Deconnection
         logout(self.request)
 
         # Affichage de la purchase au client
-        return render(self.request, 'shops/sale_validation.html', {'sale': sale,
+        return render(self.request, 'shops/sale_validation.html', {'sale': s,
                                                                    'next': '/foyer'})
 
 

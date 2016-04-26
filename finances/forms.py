@@ -18,6 +18,7 @@ class TransfertCreateForm(forms.Form):
                                 widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
                                 validators=[autocomplete_username_validator])
     amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
+    justification = forms.CharField(label='Libellé', max_length=255)
 
     def __init__(self, **kwargs):
         self.request = kwargs.pop('request')
@@ -152,6 +153,7 @@ class RetrieveMoneyForm(forms.Form):
 class ExceptionnalMovementForm(forms.Form):
     type_movement = forms.ChoiceField(choices=(('debit', 'Débit'), ('credit', 'Crédit')), label='Type')
     amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
+    justification = forms.CharField(label='Justification')
     affected = forms.CharField(label='Concerné', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
                                validators=[autocomplete_username_validator])
     operator_username = forms.CharField(label='Gestionnaire',
