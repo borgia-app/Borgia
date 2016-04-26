@@ -91,7 +91,6 @@ class Sale(models.Model):
                 if e.sender == user:
                     price_for += e.amount
             price_for = -price_for
-        print(price_for)
         return price_for
 
     def string_products(self):

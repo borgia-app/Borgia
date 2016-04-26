@@ -141,11 +141,22 @@ class PurchaseAuberge(FormView):
                                                                                     quantity=e[0] * e[1].product_unit.usual_quantity(),
                                                                                     sale_price=e[1].get_moded_usual_price() * e[0]))
 
-        s = sale_sale(sender=self.request.user, operator=self.request.user, date=now(),
-                      products_list=list_products_sold, wording='Vente auberge', to_return=True)
+        if list_products_sold:
+            s = sale_sale(sender=self.request.user, operator=self.request.user, date=now(),
+                          products_list=list_products_sold, wording='Vente auberge', to_return=True)
 
-        return render(self.request, 'shops/sale_validation.html', {'sale': s,
-                                                                   'next': '/auberge'})
+            # Deconnection
+            logout(self.request)
+
+            # Affichage de la purchase au client
+            return render(self.request, 'shops/sale_validation.html', {'sale': s,
+                                                                       'next': '/auberge'})
+        else:
+            # Commande nulle
+
+            # Deconnection
+            logout(self.request)
+            return redirect('/auberge')
 
 
 def workboard_auberge(request):
@@ -355,15 +366,22 @@ class PurchaseFoyer(FormView):
                                                                      quantity=e[0] * e[1].product_unit.usual_quantity(),
                                                                      sale_price=e[1].get_moded_usual_price() * e[0]))
 
-        s = sale_sale(sender=self.request.user, operator=self.request.user, date=now(),
-                        products_list=list_products_sold, wording='Vente foyer', to_return=True)
+        if list_products_sold:
+            s = sale_sale(sender=self.request.user, operator=self.request.user, date=now(),
+                            products_list=list_products_sold, wording='Vente foyer', to_return=True)
 
-        # Deconnection
-        logout(self.request)
+            # Deconnection
+            logout(self.request)
 
-        # Affichage de la purchase au client
-        return render(self.request, 'shops/sale_validation.html', {'sale': s,
-                                                                   'next': '/foyer'})
+            # Affichage de la purchase au client
+            return render(self.request, 'shops/sale_validation.html', {'sale': s,
+                                                                       'next': '/foyer'})
+        else:
+            # Commande nulle
+
+            # Deconnection
+            logout(self.request)
+            return redirect('/foyer')
 
 
 def workboard_foyer(request):
