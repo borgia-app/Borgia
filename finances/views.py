@@ -571,9 +571,8 @@ class SaleListAllView(ListCompleteView):
     template_name = 'finances/sale_list_all.html'
     success_url = '/auth/login'
     attr = {
-        'date_begin': now() - timedelta(days=7),
+        'date_begin': now() - timedelta(days=14),
         'date_end': now() + timedelta(days=1),
-        'all_date': False,
         'category': 'all_categories',
         'order_by': '-date',
     }
@@ -586,15 +585,9 @@ class SaleListAllView(ListCompleteView):
         context = super(SaleListAllView, self).get_context_data(**kwargs)
 
         if self.attr['category'] == 'all_categories':
-            if self.attr['all_date']:
-                query_sale = Sale.objects.all()
-            else:
-                query_sale = Sale.objects.filter(date__range=[self.attr['date_begin'], self.attr['date_end']])
+            query_sale = Sale.objects.filter(date__range=[self.attr['date_begin'], self.attr['date_end']])
         else:
-            if self.attr['all_date']:
-                query_sale = Sale.objects.filter(category=self.attr['category'])
-            else:
-                query_sale = Sale.objects.filter(date__range=[self.attr['date_begin'], self.attr['date_end']],
+            query_sale = Sale.objects.filter(date__range=[self.attr['date_begin'], self.attr['date_end']],
                                                  category=self.attr['category'])
 
         query_sale = query_sale.order_by(self.attr['order_by'])
@@ -603,7 +596,6 @@ class SaleListAllView(ListCompleteView):
 
     def form_valid(self, form, **kwargs):
 
-        self.attr['all_date'] = form.cleaned_data['all_date']
         self.attr['date_begin'] = form.cleaned_data['date_begin']
         self.attr['date_end'] = form.cleaned_data['date_end']
         self.attr['category'] = form.cleaned_data['category']

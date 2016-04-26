@@ -10,12 +10,7 @@
             <input type=hidden name="order_by" value="{{ order_by }}" />
             <input type=hidden name="date_begin" value="{{ date_begin }}" />
             <input type=hidden name="date_end" value="{{ date_end }}" />
-            <input type=hidden name="all_date" value="{{ all_date }}" />
             <input type=hidden name="category" value="{{ category }}" />
-                    <div class="fieldWrapper">
-                {{ form.all_date.errors }}
-                {{ form.all_date.label }} : {{ form.all_date }}
-            </div>
             <div class="fieldWrapper">
                 {{ form.date_begin.errors }}
                 {{ form.date_end.errors }}

@@ -262,7 +262,6 @@ class BankAccountCreateForm(forms.Form):
 
 
 class SaleListAllForm(forms.Form):
-    all_date = forms.BooleanField(label='Depuis toujours', required=False)
     date_begin = forms.DateField(label='Date de début', widget=forms.DateInput(attrs={'class': 'datepicker'}))
     date_end = forms.DateField(label='Date de fin', widget=forms.DateInput(attrs={'class': 'datepicker'}))
     category = forms.ChoiceField(label='Catégories', choices=(Sale.CATEGORY_CHOICES + tuple([('all_categories', 'Toutes')])))
