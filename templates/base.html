@@ -40,11 +40,18 @@
     {
         for (display_count; display_count<10; display_count++)
         {
-            var node = document.querySelector('#container-notifications-hidden').firstElementChild;
-            document.querySelector('#container-notifications').insertBefore(node, document.querySelector('.notifications-footer'));
+            $("#container-notifications-hidden>div:first").insertBefore($(".notifications-footer"))
         }
 
-        document.querySelector('.notifications-footer').firstElementChild.innerHTML=({{ messages|length }}-read_count-display_count).toString()+' autres messages. Tout afficher.';
+        if (display_count + read_count < {{ messages|length }})
+        {
+             document.querySelector('.notifications-footer').firstElementChild.innerHTML=({{ messages|length }}-read_count-display_count).toString()+' autres messages. Tout afficher.';
+        }
+        else
+        {
+            document.querySelector('.notifications-footer').firstElementChild.innerHTML='Afficher toutes les notifications.';
+        }
+
 
     }
 

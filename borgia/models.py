@@ -1,5 +1,5 @@
 from django.views.generic.edit import FormView
-from django.views.generic import CreateView, UpdateView
+from django.views.generic import CreateView
 from django.shortcuts import force_text
 import datetime, re
 
@@ -98,3 +98,4 @@ class ListCompleteView(FormView):
             else:
                 context[name] = self.attr[name]
         return context
+
