@@ -88,61 +88,6 @@ class Notification(models.Model):
     # Méthodes
 
 
-class NotificationClass(models.Model):
-    name = models.CharField(max_length=255)
-    description = models.TextField()
-    creation_datetime = models.DateTimeField(auto_now_add=True)
-    last_call_datetime = models.DateTimeField(blank=True, null=True)
-
-
-class NotificationTemplate(models.Model):
-    notification_class = models.ForeignKey('NotificationClass')
-    message_template = models.TextField()
-    target_template = models.CharField(max_length=20)
-
-    CATEGORY_CHOICES = (
-        ('ADMIN', 'admin'),
-        ('FUNDS', 'funds'),
-        ('FOYER', 'foyer'),
-        ('AUBERGE', 'auberge'),
-        ('OTHER', 'other'),
-    )
-
-    category_template = models.CharField(choices=CATEGORY_CHOICES, max_length=10, default='OTHER')
-
-    # type : correspond aux types de messages (par défaut, ceux proposés par middleware message)
-
-    TYPE_CHOICES = (
-        ('DEBUG', 'debug'),
-        ('SUCCESS', 'success'),
-        ('INFO', 'info'),
-        ('WARNING', 'warning'),
-        ('ERROR', 'error'),
-    )
-
-    type_template = models.CharField(choices=TYPE_CHOICES, max_length=10, default='INFO')
-    creation_datetime = models.DateTimeField(auto_now_add=True)
-    update_date = models.DateTimeField(auto_now=True)
-    last_call_datetime = models.DateTimeField(blank=True, null=True)
-    is_activated = models.BooleanField(default=False)
-
-
-# Méthodes
-
-
-def notify(name, target_user_list, action_medium_list, target_list):
-
-    # Vérification du type list des attributs
-    if not isinstance(target_user_list, list):
-        raise TypeError("target_user_list must be a list")
-
-    if not isinstance(action_medium_list, list):
-        raise TypeError("action_medium_list must be a list")
-
-    if not isinstance(target_list, list):
-        raise TypeError("target_list must be a list")
-
-    
 
 
 
