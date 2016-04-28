@@ -317,14 +317,13 @@ class UserListCompleteView(ListCompleteView):
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(UserListCompleteView, self).get_context_data(**kwargs)
         if self.attr['years'] != 'all':
-            context['query_user'] = User.objects.filter(is_active=self.attr['active'], year__in=json.loads(self.attr['years'])).exclude(
-                groups=Group.objects.get(name='Membres spéciaux')).order_by(self.attr['order_by'])
+            self.query = User.objects.filter(is_active=self.attr['active'], year__in=json.loads(self.attr['years']))\
+                .exclude(groups=Group.objects.get(name='Membres spéciaux')).order_by(self.attr['order_by'])
         else:
-            context['query_user'] = User.objects.filter(is_active=self.attr['active']).exclude(
-                groups=Group.objects.get(name='Membres spéciaux')).order_by(self.attr['order_by'])
-        return context
+            self.query = User.objects.filter(is_active=self.attr['active'])\
+                .exclude(groups=Group.objects.get(name='Membres spéciaux')).order_by(self.attr['order_by'])
+        return super(UserListCompleteView, self).get_context_data(**kwargs)
 
     def form_valid(self, form, **kwargs):
         """

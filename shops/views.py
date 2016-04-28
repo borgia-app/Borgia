@@ -609,13 +609,12 @@ class ProductListView(ListCompleteView):
         return super(ProductListView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(ProductListView, self).get_context_data(**kwargs)
 
         if self.attr['type_product'] == 'product_base':
             # En cas de problème avec order_by
             if self.attr['order_by'] not in ProductBase._meta.get_all_field_names():
-                context['query_products'] = \
-                    ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)
+                    self.query = \
+                        ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)
             else:
                 # Cas sell price
                 if self.attr['order_by'] in ['sell_price', '-sell_price']:
@@ -623,27 +622,27 @@ class ProductListView(ListCompleteView):
                         reverse = True
                     else:
                         reverse = False
-                    context['query_products'] = sorted(
+                    self.query = sorted(
                         ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1),
                         key=lambda pb: pb.get_moded_usual_price(), reverse=reverse)
                 # Cas normal
                 else:
-                    context['query_products'] = \
+                    self.query = \
                         ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).order_by(
                             self.attr['order_by']).exclude(pk=1)
 
         elif self.attr['type_product'] == 'product_unit':
             # En cas de problème avec order_by
             if self.attr['order_by'] not in ProductUnit._meta.get_all_field_names():
-                context['query_products'] = \
+                self.query = \
                     ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)
             # Cas normal
             else:
-                context['query_products'] = \
+                self.query = \
                     ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).order_by(
                         self.attr['order_by']).exclude(pk=1)
 
-        return context
+        return super(ProductListView, self).get_context_data(**kwargs)
 
     def form_valid(self, form, **kwargs):
         self.attr['shop'] = form.cleaned_data['shop'].pk

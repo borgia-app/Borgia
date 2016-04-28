@@ -35,14 +35,14 @@
             <ul class="pagination">
                 {% comment %}Affiche un lien vers la première page{% endcomment %}
                 <li>
-                      <a href="?page=first">
+                      <a href="?order_by={{ order_by }}&page=first">
                         <span><<</span>
                       </a>
                   </li>
             {% comment %}Affiche un lien vers la page précédente{% endcomment %}
               {% if page.has_previous %}
                   <li>
-                    <a href="?page={{ page.previous_page_number }}">
+                    <a href="?order_by={{ order_by }}&page={{ page.previous_page_number }}">
                         <span>Previous</span>
                     </a>
                   </li>
@@ -57,13 +57,13 @@
             {% comment %}Affiche un des liens vers les pages encadrant la page courante{% endcomment %}
               {% for p in page_links %}
                   <li {% if p == page.number %}class="active"{% endif %}>
-                      <a href="?page={{ p }}">{{ p }}</a>
+                      <a href="?order_by={{ order_by }}&page={{ p }}">{{ p }}</a>
                   </li>
               {% endfor %}
                 {% comment %}Affiche un lien vers la page suivante{% endcomment %}
               {% if page.has_next %}
                   <li>
-                      <a href="?page={{ page.next_page_number }}">
+                      <a href="?order_by={{ order_by }}&page={{ page.next_page_number }}">
                         <span>Next</span>
                       </a>
                   </li>
@@ -76,7 +76,7 @@
               {% endif %}
                 {% comment %}Affiche un lien vers la dernière page{% endcomment %}
                 <li>
-                      <a href="?page=last">
+                      <a href="?order_by={{ order_by }}&page=last">
                         <span>>></span>
                       </a>
                 </li>

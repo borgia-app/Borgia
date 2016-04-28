@@ -27,11 +27,11 @@
             {% if type_product == 'product_base' %}
                 <table>
                     <tr>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}">Nom</a></th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}">Type</a></th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}">Prix de vente usuel</a></th>
+                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Nom</a></th>
+                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Type</a></th>
+                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Prix de vente usuel</a></th>
                         <th>Quantité usuelle</th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'is_manual'|order_by:request }}&shop={{ shop }}">Calcul du prix</a></th>
+                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'is_manual'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Calcul du prix</a></th>
                         {% if perms.shops.change_productbase %}
                             <th>Détail</th>
                         {% endif %}
@@ -39,7 +39,7 @@
                             <th>Gestion prix</th>
                         {% endif %}
                     </tr>
-                    {% for e in query_products %}
+                    {% for e in page %}
                         <tr>
                             <td>{{ e.name }}</td>
                             <td>{{ e.get_type_display }}</td>
@@ -61,17 +61,71 @@
                         </tr>
                     {% endfor %}
                 </table>
+                {% if page.has_other_pages %}
+                       </div>
+                            <nav class="pagination">
+                                <ul class="pagination">
+                                    {% comment %}Affiche un lien vers la première page{% endcomment %}
+                                    <li>
+                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page=first">
+                                            <span><<</span>
+                                          </a>
+                                      </li>
+                                {% comment %}Affiche un lien vers la page précédente{% endcomment %}
+                                  {% if page.has_previous %}
+                                      <li>
+                                        <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ page.previous_page_number }}">
+                                            <span>Previous</span>
+                                        </a>
+                                      </li>
+                                  {% else %}
+                                      <li class="disabled">
+                                        <a href="#">
+                                            <span>Previous</span>
+                                        </a>
+                                      </li>
+                                  {% endif %}
+
+                                {% comment %}Affiche un des liens vers les pages encadrant la page courante{% endcomment %}
+                                  {% for p in page_links %}
+                                      <li {% if p == page.number %}class="active"{% endif %}>
+                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ p }}">{{ p }}</a>
+                                      </li>
+                                  {% endfor %}
+                                    {% comment %}Affiche un lien vers la page suivante{% endcomment %}
+                                  {% if page.has_next %}
+                                      <li>
+                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ page.next_page_number }}">
+                                            <span>Next</span>
+                                          </a>
+                                      </li>
+                                  {% else %}
+                                      <li {% if not page.has_next %}class="disabled"{% endif %}>
+                                          <a href="#">
+                                              <span>Next</span>
+                                          </a>
+                                      </li>
+                                  {% endif %}
+                                    {% comment %}Affiche un lien vers la dernière page{% endcomment %}
+                                    <li>
+                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page=last">
+                                            <span>>></span>
+                                          </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                        {% endif %}
             {% elif type_product == 'product_unit' %}
                 <table>
                     <tr>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}">Nom</a></th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}">Type</a></th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}">Unité</a></th>
+                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Nom</a></th>
+                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Type</a></th>
+                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Unité</a></th>
                         {% if perms.shops.change_productunit %}
                             <th>Détail</th>
                         {% endif %}
                     </tr>
-                    {% for e in query_products %}
+                    {% for e in page %}
                         <tr>
                             <td>{{ e.name }}</td>
                             <td>{{ e.get_type_display }}</td>
@@ -84,6 +138,60 @@
                         </tr>
                     {% endfor %}
                 </table>
+                {% if page.has_other_pages %}
+                       </div>
+                            <nav class="pagination">
+                                <ul class="pagination">
+                                    {% comment %}Affiche un lien vers la première page{% endcomment %}
+                                    <li>
+                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page=first">
+                                            <span><<</span>
+                                          </a>
+                                      </li>
+                                {% comment %}Affiche un lien vers la page précédente{% endcomment %}
+                                  {% if page.has_previous %}
+                                      <li>
+                                        <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ page.previous_page_number }}">
+                                            <span>Previous</span>
+                                        </a>
+                                      </li>
+                                  {% else %}
+                                      <li class="disabled">
+                                        <a href="#">
+                                            <span>Previous</span>
+                                        </a>
+                                      </li>
+                                  {% endif %}
+
+                                {% comment %}Affiche un des liens vers les pages encadrant la page courante{% endcomment %}
+                                  {% for p in page_links %}
+                                      <li {% if p == page.number %}class="active"{% endif %}>
+                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ p }}">{{ p }}</a>
+                                      </li>
+                                  {% endfor %}
+                                    {% comment %}Affiche un lien vers la page suivante{% endcomment %}
+                                  {% if page.has_next %}
+                                      <li>
+                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ page.next_page_number }}">
+                                            <span>Next</span>
+                                          </a>
+                                      </li>
+                                  {% else %}
+                                      <li {% if not page.has_next %}class="disabled"{% endif %}>
+                                          <a href="#">
+                                              <span>Next</span>
+                                          </a>
+                                      </li>
+                                  {% endif %}
+                                    {% comment %}Affiche un lien vers la dernière page{% endcomment %}
+                                    <li>
+                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page=last">
+                                            <span>>></span>
+                                          </a>
+                                    </li>
+                                </ul>
+                            </nav>
+                    {% endif %}
             {% endif %}
         </div>
     </div>

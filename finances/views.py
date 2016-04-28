@@ -165,28 +165,27 @@ class RetrieveMoneyView(ListCompleteView):
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(RetrieveMoneyView, self).get_context_data(**kwargs)
         if self.attr['operators'] != 'all':
             operators = []
             for u in json.loads(self.attr['operators']):
                 operators.append(User.objects.get(pk=u))
-            query_supply = Sale.objects.filter(
+            self.query = Sale.objects.filter(
                 singleproductfromcontainer__container=Container.objects.get(
                     product_base__product_unit__name='Argent fictif'),
                 date__range=[self.attr['date_begin'], self.attr['date_end']],
                 operator__in=operators).order_by(self.attr['order_by'])
         else:
-            query_supply = Sale.objects.filter(
+            self.query = Sale.objects.filter(
                 singleproductfromcontainer__container=Container.objects.get(
                     product_base__product_unit__name='Argent fictif'),
                 date__range=[self.attr['date_begin'], self.attr['date_end']]).order_by(self.attr['order_by'])
 
         # Enlever les transferts
-        for e in query_supply:
+        for e in self.query:
             if e.payment.list_debit_balance()[1] != 0:
-                query_supply = query_supply.exclude(pk=e.pk)
-        context['query_supply'] = query_supply
-        return context
+                self.query = self.query.exclude(pk=e.pk)
+
+        return super(RetrieveMoneyView, self).get_context_data(**kwargs)
 
     def form_valid(self, form, **kwargs):
 

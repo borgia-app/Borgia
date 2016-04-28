@@ -38,12 +38,12 @@
     <div class="row">
         <table>
             <tr>
-                <th><a href="{% url 'url_treasury_retrieve_money' %}?order_by={{ 'date'|order_by:request }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}">Date</a></th>
-                <th><a href="{% url 'url_treasury_retrieve_money' %}?order_by={{ 'operator'|order_by:request }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}">Opérateur</a></th>
-                <th><a href="{% url 'url_treasury_retrieve_money' %}?order_by={{ 'sender'|order_by:request }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}">Emetteur</a></th>
+                <th><a href="{% url 'url_treasury_retrieve_money' %}?order_by={{ 'date'|order_by:request }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}&page={{ page.number }}">Date</a></th>
+                <th><a href="{% url 'url_treasury_retrieve_money' %}?order_by={{ 'operator'|order_by:request }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}&page={{ page.number }}">Opérateur</a></th>
+                <th><a href="{% url 'url_treasury_retrieve_money' %}?order_by={{ 'sender'|order_by:request }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}&page={{ page.number }}">Emetteur</a></th>
                 <th>Argent</th>
             </tr>
-            {% for e in query_supply %}
+            {% for e in page %}
                 <tr>
                     <td>{{ e.date }}</td>
                     <td>{{ e.operator }}</td>
@@ -63,6 +63,60 @@
             {% endfor %}
         </table>
     </div>
+    {% if page.has_other_pages %}
+   </div>
+        <nav class="pagination">
+            <ul class="pagination">
+                {% comment %}Affiche un lien vers la première page{% endcomment %}
+                <li>
+                      <a href="?order_by={{ order_by }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}&page=first">
+                        <span><<</span>
+                      </a>
+                  </li>
+            {% comment %}Affiche un lien vers la page précédente{% endcomment %}
+              {% if page.has_previous %}
+                  <li>
+                    <a href="?order_by={{ order_by }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}&page={{ page.previous_page_number }}">
+                        <span>Previous</span>
+                    </a>
+                  </li>
+              {% else %}
+                  <li class="disabled">
+                    <a href="#">
+                        <span>Previous</span>
+                    </a>
+                  </li>
+              {% endif %}
+
+            {% comment %}Affiche un des liens vers les pages encadrant la page courante{% endcomment %}
+              {% for p in page_links %}
+                  <li {% if p == page.number %}class="active"{% endif %}>
+                      <a href="?order_by={{ order_by }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}&page={{ p }}">{{ p }}</a>
+                  </li>
+              {% endfor %}
+                {% comment %}Affiche un lien vers la page suivante{% endcomment %}
+              {% if page.has_next %}
+                  <li>
+                      <a href="?order_by={{ order_by }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}&page={{ page.next_page_number }}">
+                        <span>Next</span>
+                      </a>
+                  </li>
+              {% else %}
+                  <li {% if not page.has_next %}class="disabled"{% endif %}>
+                      <a href="#">
+                          <span>Next</span>
+                      </a>
+                  </li>
+              {% endif %}
+                {% comment %}Affiche un lien vers la dernière page{% endcomment %}
+                <li>
+                      <a href="?order_by={{ order_by }}&operators={{ operators }}&date_begin={{ date_begin }}&date_end={{ date_end }}&page=last">
+                        <span>>></span>
+                      </a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
     <script>
         // init
         if($('#id_all').is(':checked'))
