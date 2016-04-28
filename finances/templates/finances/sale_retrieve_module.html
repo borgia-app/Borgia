@@ -53,6 +53,14 @@
             <li>Objet : {{ e }}, à {{ e.sale_price }} €</li>
         {% endfor %}
     {% endif %}
+    {% comment %}
+    Retrocompatibilité avec les ventes qui sont effectuées avant la mise à jour des catégories
+    {% endcomment %}
+    {% if object.list_single_products.0|length != 0 %}
+        {% for e in object.list_single_products.0 %}
+            <li>Objet : {{ e }}, à {{ e.sale_price }} €</li>
+        {% endfor %}
+    {% endif %}
 
     <p><strong>TOTAL : </strong><strong>{{ object.amount }} €</strong></p>
 
