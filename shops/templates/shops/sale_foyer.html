@@ -467,6 +467,13 @@
         }
 
         // initialisation
+        // Focus sur document pour touche "entrée"
+        if (selected_quantity_active_keg[0] !== undefined) {
+            selected_quantity_active_keg[0].focus();
+        }
+
+        selected_quantity_active_keg[0].focus();
+        // Récupération des valeurs et mises à jours
         var a = 0;
         while (a<{{ active_keg_container_list|length }}) {
             (function(a) {
