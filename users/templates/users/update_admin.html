@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container50">
+        <h2 class="align-center">Modification des informations de {{ user_modified }}</h2>
+        <form enctype="multipart/form-data" class="form-style-1" action="" method="post">{% csrf_token %}
+            <span id="form">
+            {{ form.as_ul }}
+                </span>
+            <input type=hidden name="next" value="{{ next }}" />
+            <li><input type="submit" value="Modifier" /></li>
+        </form>
+    </div>
+{% endblock %}

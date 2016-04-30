@@ -47,6 +47,57 @@ class UserCreationCustomForm(forms.Form):
         return data
 
 
+class UserUpdateForm(forms.Form):
+    email = forms.EmailField(label='Email')
+    avatar = forms.ImageField(label='Avatar', required=False)
+
+    def __init__(self, **kwargs):
+        self.user_modified = kwargs.pop('user_modified')
+        super(UserUpdateForm, self).__init__(**kwargs)
+
+    def clean_email(self):
+        data = self.cleaned_data['email']
+        if data == '':
+            raise ValidationError('Ce champ ne peut pas être vide')
+        if User.objects.filter(email=data).exclude(pk=self.user_modified.pk).exists():
+            raise ValidationError('Un autre user existe avec cet email')
+        return data
+
+
+class UserUpdateAdminForm(forms.Form):
+    first_name = forms.CharField(label='Prenom', max_length=255)
+    last_name = forms.CharField(label='Nom', max_length=255)
+    email = forms.EmailField(label='Email')
+    surname = forms.CharField(label='Buque', max_length=255, required=False)
+    family = forms.CharField(label='Fam\'ss', max_length=255, required=False)
+    campus = forms.ChoiceField(label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
+    year = forms.ChoiceField(label='Prom\'ss', choices=User.YEAR_CHOICES, required=False)
+
+    def __init__(self, **kwargs):
+        self.user_modified = kwargs.pop('user_modified')
+        super(UserUpdateAdminForm, self).__init__(**kwargs)
+
+    def clean_first_name(self):
+        data = self.cleaned_data['first_name']
+        if data == '':
+            raise ValidationError('Ce champ ne peut pas être vide')
+        return data
+
+    def clean_last_name(self):
+        data = self.cleaned_data['last_name']
+        if data == '':
+            raise ValidationError('Ce champ ne peut pas être vide')
+        return data
+
+    def clean_email(self):
+        data = self.cleaned_data['email']
+        if data == '':
+            raise ValidationError('Ce champ ne peut pas être vide')
+        if User.objects.filter(email=data).exclude(pk=self.user_modified.pk).exists():
+            raise ValidationError('Un autre user existe avec cet email')
+        return data
+
+
 # Formulaire de modification d'un groupe
 class ManageGroupForm(forms.Form):
 

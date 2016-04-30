@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 from django.shortcuts import render, HttpResponse, force_text, redirect, HttpResponseRedirect
-from users.forms import UserCreationCustomForm, ManageGroupForm, LinkTokenUserForm, UserListCompleteForm
+from users.forms import *
 from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin, DeleteView
 from django.views.generic import ListView, DetailView, FormView, View
 from django.contrib.messages.views import SuccessMessageMixin
@@ -195,8 +195,7 @@ class UserCreateView(FormNextView):
         return {'campus': 'Me', 'year': 2014}
 
 
-class UserRetrieveView(DetailView):
-    model = User
+class UserRetrieveView(View):
     template_name = "users/retrieve.html"
 
     def get(self, request, *args, **kwargs):
@@ -205,27 +204,36 @@ class UserRetrieveView(DetailView):
             raise PermissionDenied
 
         add_to_breadcrumbs(request, 'Détail user')
-        return super(UserRetrieveView, self).get(request, *args, **kwargs)
+        return render(request, self.template_name, context=self.get_context_data())
 
     def get_context_data(self, **kwargs):
-        context = super(UserRetrieveView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next')
+        context = {
+            'next': self.request.GET.get('next'),
+            'object': User.objects.get(pk=self.kwargs['pk']),
+        }
         return context
 
 
-class UserUpdateView(UpdateView):
-    model = User
-    fields = ['first_name', 'last_name', 'surname', 'email', 'family', 'year', 'campus', 'avatar']
+class UserUpdateView(FormView):
+    form_class = UserUpdateForm
     template_name = 'users/update.html'
     success_url = '/users/profile/'
+    modified = False
 
     def get(self, request, *args, **kwargs):
-
-        if request.user.has_perm('users.change_user') is False and int(kwargs['pk']) != request.user.pk:
+        try:
+            if int(self.kwargs['pk']) != request.user.pk:
+                raise PermissionDenied
+        except ValueError:
             raise PermissionDenied
 
         add_to_breadcrumbs(request, 'Modification user')
         return super(UserUpdateView, self).get(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(UserUpdateView, self).get_form_kwargs()
+        kwargs['user_modified'] = self.request.user
+        return kwargs
 
     def get_context_data(self, **kwargs):
         context = super(UserUpdateView, self).get_context_data(**kwargs)
@@ -233,20 +241,78 @@ class UserUpdateView(UpdateView):
         return context
 
     def get_success_url(self):
-        # Notifications
-        user_updating_notify_success_to_user_and_admins(self.request, self.object)
+        if self.modified is True:
+            # Notifications
+            user_updating_notify_success_to_user_and_admins(self.request, self.request.user)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
+
+    def get_initial(self):
+        initial = super(UserUpdateView, self).get_initial()
+        initial['email'] = self.request.user.email
+        initial['avatar'] = self.request.user.avatar
+        return initial
 
     def form_valid(self, form):
 
-        # Si on modifie l'avatar (changement ou suppression)
-        # Si l'avatar a changé, et qu'initialement il n'était pas vide
-        # Alors on supprime l'ancien avatar des fichiers
-        old_object = User.objects.get(pk=self.kwargs['pk'])
-        if old_object.avatar != self.object.avatar and old_object.avatar:
-            old_object.avatar.delete(True)
+        if getattr(self.request.user, 'email') != form.cleaned_data['email']:
+            setattr(self.request.user, 'email', form.cleaned_data['email'])
+            self.modified = True
+        if getattr(self.request.user, 'avatar') != form.cleaned_data['avatar']:
+            if self.request.user.avatar:
+                self.request.user.avatar.delete(True)
+            if form.cleaned_data['avatar'] is not False:
+                setattr(self.request.user, 'avatar', form.cleaned_data['avatar'])
+            self.modified = True
+
+        if self.modified is True:
+            self.request.user.save()
 
         return super(UserUpdateView, self).form_valid(form)
+
+
+class UserUpdateAdminView(FormView):
+    model = User
+    form_class = UserUpdateAdminForm
+    template_name = 'users/update_admin.html'
+    success_url = '/users/profile/'
+    modified = False
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Modification user')
+        return super(UserUpdateAdminView, self).get(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        kwargs = super(UserUpdateAdminView, self).get_form_kwargs()
+        kwargs['user_modified'] = User.objects.get(pk=self.kwargs['pk'])
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(UserUpdateAdminView, self).get_context_data(**kwargs)
+        context['user_modified'] = User.objects.get(pk=self.kwargs['pk'])
+        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
+        return context
+
+    def get_success_url(self):
+        if self.modified is True:
+            # Notifications si changement
+            user_updating_notify_success_to_user_and_admins(self.request, User.objects.get(pk=self.kwargs['pk']))
+        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
+
+    def get_initial(self):
+        initial = super(UserUpdateAdminView, self).get_initial()
+        user_modified = User.objects.get(pk=self.kwargs['pk'])
+        for k in UserUpdateAdminForm(user_modified=user_modified).fields.keys():
+            initial[k] = getattr(user_modified, k)
+        return initial
+
+    def form_valid(self, form):
+        user_modified = User.objects.get(pk=self.kwargs['pk'])
+        for k in form.fields.keys():
+            if form.cleaned_data[k] != getattr(user_modified, k):
+                self.modified = True
+                setattr(user_modified, k, form.cleaned_data[k])
+        user_modified.save()
+        return super(UserUpdateAdminView, self).form_valid(form)
 
 
 class UserDesactivateView(SuccessMessageMixin, View):

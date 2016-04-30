@@ -15,6 +15,8 @@ urlpatterns = [
     url(r'^retrieve/(?P<pk>\d+)/$', UserRetrieveView.as_view(), name='url_retrieve_user'),
     # Permission dans la vue
     url(r'^update/(?P<pk>\d+)/$', UserUpdateView.as_view(), name='url_update_user'),
+    url(r'^update/admin/(?P<pk>\d+)/$', permission_required('users.change_user', raise_exception=True)
+    (UserUpdateAdminView.as_view()), name='url_update_admin_user'),
     url(r'^desactivate/(?P<pk>\d+)/$', permission_required('users.delete_user', raise_exception=True)
     (UserDesactivateView.as_view()), name='url_desactivate_user'),
     url(r'^$', permission_required('users.list_user', raise_exception=True)
