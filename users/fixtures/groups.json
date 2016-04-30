@@ -42,6 +42,9 @@
         ["supply_account", "users", "user"],
         ["exceptionnal_movement", "users", "user"],
         ["add_bankaccount", "finances", "bankaccount"],
+        ["change_bankaccount", "finances", "bankaccount"],
+        ["list_bankaccount", "finances", "bankaccount"],
+        ["delete_bankaccount", "finances", "bankaccount"],
 
         ["add_user", "users", "user"],
         ["change_user", "users", "user"],
@@ -49,12 +52,14 @@
         ["retrieve_user", "users", "user"],
         ["list_user", "users", "user"],
 
+        ["add_productbase", "shops", "productbase"],
         ["change_productbase", "shops", "productbase"],
         ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
         ["delete_productbase", "shops", "productbase"],
         ["change_price_productbase", "shops", "productbase"],
 
+        ["add_productunit", "shops", "productunit"],
         ["change_productunit", "shops", "productunit"],
         ["retrieve_productunit", "shops", "productunit"],
         ["list_productunit", "shops", "productunit"],
@@ -85,11 +90,13 @@
         ["change_active_keg", "shops", "container"],
         ["list_container", "shops", "container"],
 
+        ["add_productbase", "shops", "productbase"],
         ["change_productbase", "shops", "productbase"],
         ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
         ["delete_productbase", "shops", "productbase"],
 
+        ["add_productunit", "shops", "productunit"],
         ["change_productunit", "shops", "productunit"],
         ["retrieve_productunit", "shops", "productunit"],
         ["list_productunit", "shops", "productunit"],
@@ -120,11 +127,13 @@
         ["change_active_keg", "shops", "container"],
         ["list_container", "shops", "container"],
 
+        ["add_productbase", "shops", "productbase"],
         ["change_productbase", "shops", "productbase"],
         ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
         ["delete_productbase", "shops", "productbase"],
 
+        ["add_productunit", "shops", "productunit"],
         ["change_productunit", "shops", "productunit"],
         ["retrieve_productunit", "shops", "productunit"],
         ["list_productunit", "shops", "productunit"],
@@ -152,11 +161,13 @@
         ["add_container", "shops", "container"],
         ["list_container", "shops", "container"],
 
+        ["add_productbase", "shops", "productbase"],
         ["change_productbase", "shops", "productbase"],
         ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
         ["delete_productbase", "shops", "productbase"],
 
+        ["add_productunit", "shops", "productunit"],
         ["change_productunit", "shops", "productunit"],
         ["retrieve_productunit", "shops", "productunit"],
         ["list_productunit", "shops", "productunit"],
@@ -184,11 +195,13 @@
         ["add_container", "shops", "container"],
         ["list_container", "shops", "container"],
 
+        ["add_productbase", "shops", "productbase"],
         ["change_productbase", "shops", "productbase"],
         ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
         ["delete_productbase", "shops", "productbase"],
 
+        ["add_productunit", "shops", "productunit"],
         ["change_productunit", "shops", "productunit"],
         ["retrieve_productunit", "shops", "productunit"],
         ["list_productunit", "shops", "productunit"],
@@ -212,6 +225,7 @@
     "fields": {
       "name": "Gadz'Arts",
       "permissions": [
+        ["add_own_bankaccount", "finances", "bankaccount"],
         ["add_transfert", "finances", "sale"],
         ["add_sharedevent", "finances", "sharedevent"],
         ["register_sharedevent", "finances", "sharedevent"],
@@ -225,6 +239,7 @@
     "fields": {
       "name": "Membres d'honneurs",
       "permissions": [
+        ["add_own_bankaccount", "finances", "bankaccount"],
         ["add_transfert", "finances", "sale"]
       ]
     }
