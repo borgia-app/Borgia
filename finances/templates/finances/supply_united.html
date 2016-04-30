@@ -24,7 +24,7 @@
 
         // Changement de type
         $('#id_type').change(function() {
-            check_type();
+            check_type();        //$('#id_sender').trigger('change');
         });
 
         function check_type() {
@@ -58,7 +58,7 @@
         }
 
         // Gestion des comptes en banque
-        $('#id_sender').change(function() {
+        $('#id_sender').blur(function() {
             set_bank_account();
         });
 
@@ -87,6 +87,9 @@
                 }
             });
         }
+
+
+
 
     </script>
 {% endblock %}

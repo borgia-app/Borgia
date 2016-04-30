@@ -170,11 +170,11 @@ class RetrieveMoneyView(ListCompleteView):
             for u in json.loads(self.attr['operators']):
                 operators.append(User.objects.get(pk=u))
             self.query = Sale.objects.filter(category='recharging',
-                date__range=[self.attr['date_begin'], self.attr['date_end']],
-                operator__in=operators).order_by(self.attr['order_by'])
+                                             date__range=[self.attr['date_begin'], self.attr['date_end']],
+                                             operator__in=operators).order_by(self.attr['order_by'])
         else:
             self.query = Sale.objects.filter(category='recharging',
-                date__range=[self.attr['date_begin'], self.attr['date_end']]).order_by(self.attr['order_by'])
+                                             date__range=[self.attr['date_begin'], self.attr['date_end']]).order_by(self.attr['order_by'])
 
         return super(RetrieveMoneyView, self).get_context_data(**kwargs)
 
