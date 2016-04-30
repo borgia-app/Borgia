@@ -9,7 +9,11 @@
                 </span>
             <input type=hidden name="next" value="{{ next }}" />
             <li><input type="submit" value="Modifier" /></li>
-            <li><label><a class="s" href="{% url 'password_change' %}">Modifier mon mot de passe</a></label></li>
         </form>
+        <p><label><a class="s" href="{% url 'password_change' %}">Modifier mon mot de passe</a></label></p>
+        <p>
+            <a class="s" href="{% url 'url_create_own_bank_account' %}?next={{ request.get_full_path }}">Ajouter un compte en banque</a>
+            {% include 'finances/bank_account_list_module.html' with object_list=user.list_bank_account next=request.get_full_path %}
+        </p>
     </div>
 {% endblock %}

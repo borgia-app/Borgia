@@ -4,7 +4,7 @@
 
     <div class="container50">
     <h2 class="align-center">Création d'un compte en banque</h2>
-        <form class="form-style-1" action= "{% url 'url_create_bank_account' %}" method="post">
+        <form class="form-style-1" action= "" method="post">
             {% csrf_token %}
             {{ form.as_ul }}
             <input type=hidden name="next" value="{{ next }}" />

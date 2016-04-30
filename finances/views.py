@@ -423,15 +423,43 @@ class BankAccountCreateView(FormNextView):
         return super(BankAccountCreateView, self).form_valid(form)
 
 
+class BankAccountCreateOwnView(FormNextView):
+    form_class = BankAccountCreateOwnForm
+    template_name = 'finances/bank_account_create.html'
+    success_url = '/finances/bank_account'
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Création compte en banque')
+        return super(BankAccountCreateOwnView, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        BankAccount.objects.create(owner=self.request.user,
+                                   bank=form.cleaned_data['bank'],
+                                   account=form.cleaned_data['account'])
+        return super(BankAccountCreateOwnView, self).form_valid(form)
+
+
 class BankAccountUpdateView(UpdateView):
     model = BankAccount
-    fields = ['bank', 'account', 'owner']
+    fields = ['bank', 'account']
     template_name = 'finances/bank_account_update.html'
     success_url = '/finances/bank_account/'
 
     def get(self, request, *args, **kwargs):
+        if request.user != BankAccount.objects.get(pk=self.kwargs['pk']).owner:
+            if request.user.has_perm('finances.change_bankaccount') is False:
+                raise PermissionDenied
+
         add_to_breadcrumbs(request, 'Modification compte en banque')
         return super(BankAccountUpdateView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(BankAccountUpdateView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
+        return context
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
 
 class BankAccountDeleteView(DeleteView):
@@ -440,8 +468,19 @@ class BankAccountDeleteView(DeleteView):
     success_url = '/finances/bank_account'
 
     def get(self, request, *args, **kwargs):
+        if request.user != BankAccount.objects.get(pk=self.kwargs['pk']).owner:
+            if request.user.has_perm('finances.delete_bankaccount') is False:
+                raise PermissionDenied
         add_to_breadcrumbs(request, 'Suppression compte en banque')
         return super(BankAccountDeleteView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(BankAccountDeleteView, self).get_context_data(**kwargs)
+        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
+        return context
+
+    def get_success_url(self):
+        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
 
 class BankAccountListView(ListView):

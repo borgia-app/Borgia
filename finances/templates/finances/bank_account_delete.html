@@ -6,6 +6,7 @@
     <h2 class="align-center">Suppression d'un compte en banque</h2>
         <form class="form-style-1" action="" method="post">{% csrf_token %}
             <li>Supprimer le compte en banque {{ object }} ?</li>
+            <input type=hidden name="next" value="{{ next }}" />
             <li><input type="submit" value="Supprimer" /></li>
         </form>
     </div>

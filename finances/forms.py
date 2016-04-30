@@ -261,6 +261,11 @@ class BankAccountCreateForm(forms.Form):
     account = forms.CharField(label='Numéro de compte')
 
 
+class BankAccountCreateOwnForm(forms.Form):
+    bank = forms.CharField(label='Banque')
+    account = forms.CharField(label='Numéro de compte')
+
+
 class SaleListAllForm(forms.Form):
     date_begin = forms.DateField(label='Date de début', widget=forms.DateInput(attrs={'class': 'datepicker'}))
     date_end = forms.DateField(label='Date de fin', widget=forms.DateInput(attrs={'class': 'datepicker'}))

@@ -250,6 +250,7 @@ class BankAccount(models.Model):
     class Meta:
         permissions = (
             ('retrieve_bankaccount', 'Afficher un compte en banque'),
+            ('add_own_bankaccount', 'Ajouter un compte en banque personnel'),
             ('list_bankaccount', 'Lister les comptes en banque'),
         )
 
