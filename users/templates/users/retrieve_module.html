@@ -8,7 +8,7 @@
         <li>Est actif : {{ object.is_active }}</li>
         <li>Groupes :
             <ul>
-                {% for g in user.groups.all %}
+                {% for g in object.groups.all %}
                     <li>{{ g.name }}</li>
                 {% endfor %}
             </ul>
