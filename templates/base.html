@@ -1,6 +1,6 @@
 {% load staticfiles %}
 {% load notifications_extra %}
-{% load extra %}
+{% load users_extra %}
 {% if user.is_authenticated %}
     {{ request|filter_get_unread_notifications_for_user }}
 {% endif %}

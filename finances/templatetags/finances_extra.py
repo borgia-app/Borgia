@@ -12,7 +12,6 @@ def price_for(sale, user):
         return 'erreur'
 
 
-
 @register.simple_tag
 def abs_price_for(sale, user):
     return abs(sale.price_for(user))

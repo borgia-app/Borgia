@@ -74,7 +74,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
             # Permet de rajouter extra à la
-            'builtins': ['users.templatetags.extra']
+            'builtins': ['users.templatetags.users_extra']
         },
     },
 ]

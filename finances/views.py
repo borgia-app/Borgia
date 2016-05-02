@@ -19,7 +19,7 @@ from shops.models import Container, ProductBase
 from users.models import user_from_token_tap, list_year
 from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
 from django.conf import settings
-from users.templatetags import extra
+from users.templatetags import users_extra
 from contrib.models import add_to_breadcrumbs
 from settings_data.models import Setting
 

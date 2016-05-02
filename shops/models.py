@@ -188,6 +188,13 @@ class ProductBase(models.Model):
         except InvalidOperation:
             return None
 
+    def quantity_products_stock(self):
+        """
+        Retourne la quantité de produits non vendus héritants de ce produit de base dans le stock
+        """
+        return SingleProduct.objects.filter(product_base=self, is_sold=False).count() \
+               + Container.objects.filter(product_base=self, is_sold=False).count()
+
     class Meta:
         permissions = (
             ('list_productbase', 'Lister les produits de base'),
@@ -292,7 +299,7 @@ class ProductUnit(models.Model):
 
     # Listes de validations
     UNIT_CHOICES = (('CL', 'cl'), ('G', 'g'), ('CENT', 'cent'))
-    TYPE_CHOICES = (('keg', 'fut'), ('liquor', 'alcool fort'), ('syrup', 'sirop'), ('soft', 'soft'),
+    TYPE_CHOICES = (('keg', 'fût'), ('liquor', 'alcool fort'), ('syrup', 'sirop'), ('soft', 'soft'),
                     ('food', 'alimentaire'), ('meat', 'viande'), ('cheese', 'fromage'), ('side', 'accompagnement'),
                     ('fictional_money', 'argent fictif'))
 

@@ -612,12 +612,14 @@ class ProductListView(ListCompleteView):
 
         if self.attr['type_product'] == 'product_base':
             # En cas de problème avec order_by
-            if self.attr['order_by'] not in ProductBase._meta.get_all_field_names():
+            if self.attr['order_by'] not in ProductBase._meta.get_all_field_names()\
+                    and self.attr['order_by'] not in ['sell_price', '-sell_price', 'quantity_stock', '-quantity_stock']:
                     self.query = \
                         ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)
             else:
                 # Cas sell price
                 if self.attr['order_by'] in ['sell_price', '-sell_price']:
+                    print('in sell_price')
                     if self.attr['order_by'] == '-sell_price':
                         reverse = True
                     else:
@@ -625,6 +627,15 @@ class ProductListView(ListCompleteView):
                     self.query = sorted(
                         ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1),
                         key=lambda pb: pb.get_moded_usual_price(), reverse=reverse)
+                # Cas quantité en stock
+                elif self.attr['order_by'] in ['quantity_stock', '-quantity_stock']:
+                    if self.attr['order_by'] == '-quantity_stock':
+                        reverse = True
+                    else:
+                        reverse = False
+                    self.query = sorted(
+                        ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1),
+                        key=lambda pb: pb.quantity_products_stock(), reverse=reverse)
                 # Cas normal
                 else:
                     self.query = \
@@ -633,14 +644,26 @@ class ProductListView(ListCompleteView):
 
         elif self.attr['type_product'] == 'product_unit':
             # En cas de problème avec order_by
-            if self.attr['order_by'] not in ProductUnit._meta.get_all_field_names():
+            if self.attr['order_by'] not in ProductUnit._meta.get_all_field_names()\
+                    and self.attr['order_by'] not in ['type', '-type']:
                 self.query = \
                     ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)
-            # Cas normal
+
             else:
-                self.query = \
-                    ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).order_by(
-                        self.attr['order_by']).exclude(pk=1)
+                # Cas du type
+                if self.attr['order_by'] in ['type', '-type']:
+                    if self.attr['order_by'] == '-type':
+                        reverse = True
+                    else:
+                        reverse = False
+                    self.query = sorted(
+                        ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1),
+                        key=lambda pb: pb.get_type_display(), reverse=reverse)
+                # Cas normal
+                else:
+                    self.query = \
+                        ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).order_by(
+                            self.attr['order_by']).exclude(pk=1)
 
         return super(ProductListView, self).get_context_data(**kwargs)
 

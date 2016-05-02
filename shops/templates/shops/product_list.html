@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load finances_extra %}
-{% load extra %}
+{% load users_extra %}
+{% load shops_extra %}
 
 {% block content %}
 
@@ -29,6 +30,7 @@
                     <tr>
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Nom</a></th>
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Type</a></th>
+                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'quantity_stock'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Stock</a></th>
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Prix de vente usuel</a></th>
                         <th>Quantité usuelle</th>
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'is_manual'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Calcul du prix</a></th>
@@ -43,6 +45,7 @@
                         <tr>
                             <td>{{ e.name }}</td>
                             <td>{{ e.get_type_display }}</td>
+                            <td>{% quantity_stock_product_base e %}</td>
                             <td>{{ e.get_moded_usual_price }} €</td>
                             <td>
                                 {% if e.product_unit %}
@@ -120,7 +123,7 @@
                     <tr>
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Nom</a></th>
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Type</a></th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Unité</a></th>
+                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'unit'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Unité</a></th>
                         {% if perms.shops.change_productunit %}
                             <th>Détail</th>
                         {% endif %}
