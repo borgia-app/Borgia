@@ -183,8 +183,9 @@ class ReplacementActiveKeyView(FormNextView):
         if self.request.GET.get('pk', None) is not '':
             old_keg = Container.objects.get(pk=self.request.GET.get('pk', None))
             old_keg.place = "stock foyer"
+            if form.cleaned_data['is_sold']:
+                old_keg.is_sold = True
             old_keg.save()
-
         # Le nouveau est envoyé sous la tireuse
         new_keg = form.cleaned_data['new_keg']
         new_keg.place = self.request.GET.get('place', None)
@@ -396,7 +397,7 @@ def list_active_keg(request):
 
     for i in range(1, 6):
         try:  # essai si un conteneur est à la tireuse i
-            active_keg_container_list.append(('tireuse %s' % i, Container.objects.get(place='tireuse %s' % i)))
+            active_keg_container_list.append(('tireuse %s' % i, Container.objects.get(place='tireuse %s' % i), i))
         except ObjectDoesNotExist:  # Cas où la tireuse est vide
             active_keg_container_list.append(('tireuse %s' % i, None))
 

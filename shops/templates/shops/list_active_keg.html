@@ -1,25 +1,42 @@
 {% extends 'base.html' %}
+{% load l10n %}
 
 {% block content %}
-    <div class="container50">
-    <div class="row">
-        <h2 class="align-center">Fût actuellement utilisés</h2>
-    </div>
-    <div class="row">
-        <table>
-            <tr>
-                <th>Tireuse</th>
-                <th>Actuellement</th>
-                <th>Modifier</th>
-            </tr>
-            {% for e in active_keg_container_list %}
+    <div class="container">
+        <div class="row">
+            <h2 class="align-center">Fût actuellement utilisés</h2>
+        </div>
+        <div class="row">
+            <table>
                 <tr>
-                    <td>{{ e.0 }}</td>
-                    <td>{{ e.1 }}</td>
-                    <td><a href="{% url 'url_replacement_active_keg' %}?pk={{ e.1.pk }}&place={{ e.0 }}&next=/shops/foyer/list_active_keg">Changement</a></td>
+                    <th>Tireuse</th>
+                    <th>Actuellement</th>
+                    <th>Quantité restante</th>
+                    <th>Modifier</th>
                 </tr>
-            {% endfor %}
-        </table>
+                {% for e in active_keg_container_list %}
+                    <tr>
+                        <td>{{ e.0 }}</td>
+                        <td>{{ e.1 }}</td>
+                        <td><div class='progress_quantity' id="progress_quantity_tireuse{{ e.2 }}"></div></td>
+                        <td><a href="{% url 'url_replacement_active_keg' %}?pk={{ e.1.pk }}&place={{ e.0 }}&next=/shops/foyer/list_active_keg">Changement</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
     </div>
-    </div>
+    <style>
+    .progress_quantity {
+        width: 200px;
+    }
+    </style>
+    <script>
+        {% for e in active_keg_container_list %}
+        $("#progress_quantity_tireuse{{ e.2 }}").progressbar({
+            value: {{ e.1.estimated_quantity_remaining.1|unlocalize }},
+            max: 100,
+            min: 0
+        });
+        {% endfor %}
+    </script>
 {% endblock %}

@@ -14,10 +14,11 @@ from borgia.validators import autocomplete_username_validator
 class ReplacementActiveKegForm(forms.Form):
 
     new_keg = forms.ModelChoiceField(required=True,
-                                     queryset=Container.objects.filter(quantity_remaining__isnull=False,
+                                     queryset=Container.objects.filter(is_sold=False,
                                                                        product_base__product_unit__type='keg').exclude(
                                          place__contains='tireuse'),
                                      label='Nouveau fut')
+    is_sold = forms.BooleanField(required=False, label='L\'ancien fût est vide')
 
 
 class PurchaseAubergeForm(forms.Form):

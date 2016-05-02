@@ -258,27 +258,32 @@ class Container(models.Model):
     purchase_date = models.DateField('Date d\'achat', default=now)
     expiry_date = models.DateField('Date d\'expiration', blank=True, null=True)
     place = models.CharField('Lieu de stockage', max_length=255)
+
+    # Devenu obsolète
     quantity_remaining = models.DecimalField('Quantité d\'unité produit restante', default=0, decimal_places=2, max_digits=9,
                                              validators=[MinValueValidator(Decimal(0))])
+
     is_sold = models.BooleanField('Est vendu', default=False)
     # TODO: gestion des consignes
 
     # Relations
     # Avec shops.models
     product_base = models.ForeignKey('ProductBase', related_name='product_base_container')
-    # Avec finances.models
 
     # Méthodes
     def __str__(self):
         return self.product_base.__str__() + ' ' + str(self.pk)
 
-    def clean(self):
-        if self.quantity_remaining is None:
-            self.quantity_remaining = self.product_base.quantity
-        return super(Container, self).clean()
+    def quantity_sold(self):
+        quantity_sold = 0
+        for product in SingleProductFromContainer.objects.filter(container=self):
+            quantity_sold += product.quantity
+        return quantity_sold
 
-    def pourcentage_quantity_remaining(self):
-        return (self.quantity_remaining / self.product_base.quantity) * 100
+    def estimated_quantity_remaining(self):
+        quantity = self.product_base.quantity - self.quantity_sold()
+        pourcentage = (quantity / self.product_base.quantity) * 100
+        return quantity, round(pourcentage)
 
     class Meta:
         permissions = (
@@ -346,4 +351,3 @@ class SingleProductFromContainer(models.Model):
     def __str__(self):
         return self.container.product_base.product_unit.__str__() + ' ' + \
                str(self.quantity) + self.container.product_base.product_unit.get_unit_display()
-

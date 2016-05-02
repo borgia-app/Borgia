@@ -1,15 +1,24 @@
 {% extends 'base.html' %}
+{% load l10n %}
 
 {% block content %}
 
     <div class="container50">
-        <h2 class="align-center">Remplacement d'un conteneur</h2>
+        <h2 class="align-center">Remplacement de {{ old_active_keg }}</h2>
         <form class="form-style-1" action="" method="post">{% csrf_token %}
-            <li><label>Remplacer le conteneur <strong>{{ old_active_keg }}</strong> sous une tireuse par :</label></li>
+            <li>Utilisation de ce fût:</li>
+            <li><div id="progress_quantity"></div></li>
+            <li>Remplacer ce fût sous {{ old_active_keg.place }} par:</li>
             {{ form.as_ul }}
             <input type=hidden name="next" value="{{ next }}" />
             <li><input type="submit" value="Remplacer" /></li>
         </form>
     </div>
-
+    <script>
+        $("#progress_quantity").progressbar({
+            value: {{ old_active_keg.estimated_quantity_remaining.1|unlocalize }},
+            max: 100,
+            min: 0
+        });
+    </script>
 {% endblock %}
