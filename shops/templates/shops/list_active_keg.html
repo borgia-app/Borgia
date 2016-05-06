@@ -16,7 +16,7 @@
                 </tr>
                 {% for e in active_keg_container_list %}
                     <tr>
-                        <td>{{ e.0 }}</td>
+                        <td>{{ e.0|capfirst }}</td>
                         <td>{{ e.1 }}</td>
                         <td><div class='progress_quantity' id="progress_quantity_tireuse{{ e.2 }}"></div></td>
                         <td><a href="{% url 'url_replacement_active_keg' %}?pk={{ e.1.pk }}&place={{ e.0 }}&next=/shops/foyer/list_active_keg">Changement</a></td>

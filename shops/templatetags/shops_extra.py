@@ -21,4 +21,4 @@ def quantity_stock_product_base(product_base):
     :param product_base: produit de base considéré, instance de ProductBase
     """
     return SingleProduct.objects.filter(product_base=product_base, is_sold=False).count()\
-           + Container.objects.filter(product_base=product_base).count()
+           + Container.objects.filter(product_base=product_base, is_sold=False).count()

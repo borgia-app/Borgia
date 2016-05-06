@@ -4,6 +4,7 @@ from django.forms.widgets import Textarea, PasswordInput
 from django.db.models import Q
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms.models import ModelChoiceField
 
 from shops.models import Shop, Container, ProductBase, ProductUnit
 from users.models import User
@@ -13,12 +14,55 @@ from borgia.validators import autocomplete_username_validator
 
 class ReplacementActiveKegForm(forms.Form):
 
-    new_keg = forms.ModelChoiceField(required=True,
-                                     queryset=Container.objects.filter(is_sold=False,
-                                                                       product_base__product_unit__type='keg').exclude(
-                                         place__contains='tireuse'),
-                                     label='Nouveau fut')
-    is_sold = forms.BooleanField(required=False, label='L\'ancien fût est vide')
+    """
+    Sont proposés les produits de base seulement (pour ne pas avoir à scroller s'il y a 20 fûts d'un produit ...)
+    Seuls les produits de base dont l'unité concene un fût,
+    pour les produits de base dont un fût est sous une tireuse : au moins 2 fûts dispo (un sous et un autre en stock)
+    pour les autres au moins 1 fût dispo (en stock)
+    """
+
+    def __init__(self, *args, **kwargs):
+        list_active_keg = kwargs.pop('list_active_keg')
+        super(ReplacementActiveKegForm, self).__init__(*args, **kwargs)
+
+        query = ProductBase.objects.filter(product_unit__type='keg')
+        for keg_base in query:
+            list_container_from_keg_base = Container.objects.filter(product_base=keg_base, is_sold=False)
+
+            # Si un seul conteneur existe, on vérifie que ce n'est pas celui sous la tireuse
+            if list_container_from_keg_base.count() == 1:
+                for active_keg in list_active_keg:
+                    if active_keg in list_container_from_keg_base:
+                        query = query.exclude(pk=keg_base.pk)
+            # Si aucun conteneur existe, le produit de base n'est pas proposé
+            elif list_container_from_keg_base.count() == 0:
+                query = query.exclude(pk=keg_base.pk)
+
+        # Ajout du conteneur "vide" via la définition du ModelChoice
+        self.fields['new_keg_product_base'] = ModelChoiceFieldWithQuantity(label='Nouveau fût', queryset=query,
+                                                                           list_active_keg=list_active_keg,
+                                                                           empty_label='Tireuse vide',
+                                                                           required=False)
+        self.fields['is_sold'] = forms.BooleanField(required=False, label='L\'ancien fût est vide')
+
+
+class ModelChoiceFieldWithQuantity(ModelChoiceField):
+    """
+    Override d'un ModelChoiceField en ajoutant la quantité de conteneurs disponibles (sans celui sous la tireuse)
+    dans le nom du produit de base
+    """
+    def __init__(self, **kwargs):
+        self.list_active_keg = kwargs.pop('list_active_keg')
+        super(ModelChoiceFieldWithQuantity, self).__init__(**kwargs)
+
+    def label_from_instance(self, obj):
+        list_container = Container.objects.filter(product_base=obj, is_sold=False)
+        quantity_in_stock = list_container.count()
+        for cont in self.list_active_keg:
+            if cont in list_container:
+                quantity_in_stock -= 1
+                
+        return obj.__str__() + ' (' + str(quantity_in_stock) + ')'
 
 
 class PurchaseAubergeForm(forms.Form):

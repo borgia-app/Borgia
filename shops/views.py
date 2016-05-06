@@ -167,6 +167,13 @@ def workboard_auberge(request):
 
 # FOYER
 class ReplacementActiveKeyView(FormNextView):
+    """
+    Vue de remplacement d'un fût sous une tireuse pas un autre.
+    Ce fût peut être considéré vide, il est alors is_sold=True et ne sera plus proposé comme conteneur à mettre, si ce
+    n'est pas le cas il sera reproposé dans la liste.
+    Le nouveau fût est selectionné dans une liste de produit de base de fût, qui affiche le nombre de fûts restants de
+    ce type, hors le fût utilisé.
+    """
     template_name = 'shops/replacement_active_keg.html'
     form_class = ReplacementActiveKegForm
     success_url = '/auth/login'
@@ -175,8 +182,12 @@ class ReplacementActiveKeyView(FormNextView):
         add_to_breadcrumbs(request, 'Remplacement fût')
         return super(ReplacementActiveKeyView, self).get(request, *args, **kwargs)
 
-    def form_valid(self, form):
+    def get_form_kwargs(self):
+        kwargs = super(ReplacementActiveKeyView, self).get_form_kwargs()
+        kwargs['list_active_keg'] = Container.objects.filter(place__startswith='tireuse')
+        return kwargs
 
+    def form_valid(self, form):
         # Définition des objets de travail
 
         # L'ancien fut, s'il existe, est envoyé vers le stock
@@ -186,10 +197,15 @@ class ReplacementActiveKeyView(FormNextView):
             if form.cleaned_data['is_sold']:
                 old_keg.is_sold = True
             old_keg.save()
-        # Le nouveau est envoyé sous la tireuse
-        new_keg = form.cleaned_data['new_keg']
-        new_keg.place = self.request.GET.get('place', None)
-        new_keg.save()
+
+        # Cas où l'on remet un fût
+        if form.cleaned_data['new_keg_product_base'] is not None:
+            # Le nouveau est envoyé sous la tireuse
+            # Le nouveau fût est pris dans la liste des conteneurs qui viennent du produit de base déterminé, à laquelle
+            # on a enlevé l'ancien fût automatiquement (car on filtre avec is_sold = False)
+            new_keg = Container.objects.filter(product_base=form.cleaned_data['new_keg_product_base'], is_sold=False)[0]
+            new_keg.place = self.request.GET.get('place', None)
+            new_keg.save()
 
         return super(ReplacementActiveKeyView, self).form_valid(form)
 
@@ -392,10 +408,22 @@ def workboard_foyer(request):
 
 
 def list_active_keg(request):
-    # Liste des conteneurs sous une tireuse
+    """
+    Fonction qui liste les conteneurs qui sont sous une tireuse au foyer.
+    Ce sont les conteneurs dont l'attribut place commence par "tireuse", par exemple:
+    place="tireuse 3".
+    Le paramètre objet Setting permet de définir le nombre de tireuse au foyer actuellement.
+    :return liste [("tireuse i", objet conteneur i, i), ("tireuse j", objet conteneur j, j), ...]
+    """
     active_keg_container_list = []
 
-    for i in range(1, 6):
+    # Nombre de tireuses, par défaut = 5
+    try:
+        nb_tireuses = Setting.objects.get(name="NUMBER_TAPS").get_value()
+    except ObjectDoesNotExist:
+        nb_tireuses = 5
+
+    for i in range(1, nb_tireuses+1):
         try:  # essai si un conteneur est à la tireuse i
             active_keg_container_list.append(('tireuse %s' % i, Container.objects.get(place='tireuse %s' % i), i))
         except ObjectDoesNotExist:  # Cas où la tireuse est vide
