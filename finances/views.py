@@ -355,7 +355,15 @@ def supply_lydia_self_callback(request):
     # tests de lecture
     # pour d  terminer comment sont envoy  s les informations
 
-    params_dict = raw_body_lydia_to_dict(request.body.encode('utf-8'))
+    params_dict = {
+        "currency": request.POST.get("currency"),
+        "request_id": request.POST.get("request_id"),
+        "amount": request.POST.get("amount"),
+        "signed": request.POST.get("signed"),
+        "transaction_identifier": request.POST.get("transaction_identifier"),
+        "vendor_token": request.POST.get("vendor_token"),
+        "sig": request.POST.get("sig")
+    }
 
     # Verification du token
     if verify_token_algo_lydia(params_dict, settings.LYDIA_API_TOKEN) is True:
@@ -1280,6 +1288,7 @@ def verify_token_algo_lydia(params, token):
         return False
 
 
+# Obsolète
 def raw_body_lydia_to_dict(s):
     # Suppression des caract  res issus de la conversion bytes -> string
     s = s[3: len(s) - 1]
