@@ -273,7 +273,8 @@ class PurchaseFoyer(FormView):
                                                container_syrup_list[i][0], i))
         for i in range(0, len(container_liquor_list)):
             dict_field_container_liquor.append((form['field_container_liquor_%s' % i],
-                                                container_liquor_list[i][0], i))
+                                                container_liquor_list[i][0], i,
+                                                form['field_container_entire_liquor_%s' % i]))
 
         context['dict_field_active_keg_container'] = dict_field_active_keg_container
         context['dict_field_single_product'] = dict_field_single_product
@@ -308,6 +309,8 @@ class PurchaseFoyer(FormView):
             initial['field_container_syrup_%s' % i] = 0
         for i in range(0, len(container_liquor_list)):
             initial['field_container_liquor_%s' % i] = 0
+        for i in range(0, len(container_liquor_list)):
+            initial['field_container_entire_liquor_%s' % i] = 0
         for i in range(0, len(active_keg_container_list)):
             initial['field_active_keg_container_%s' % i] = 0
         return initial
@@ -327,6 +330,7 @@ class PurchaseFoyer(FormView):
         list_results_container_soft = []
         list_results_container_syrup = []
         list_results_container_liquor = []
+        list_results_container_entire_liquor = []
 
         for i in range(0, len(active_keg_container_list)):
             list_results_active_keg_container.append((form.cleaned_data["field_active_keg_container_%s" % i],
@@ -340,6 +344,9 @@ class PurchaseFoyer(FormView):
         for i in range(0, len(container_liquor_list)):
             list_results_container_liquor.append((form.cleaned_data["field_container_liquor_%s" % i],
                                                   container_liquor_list[i][0]))
+        for i in range(0, len(container_liquor_list)):
+            list_results_container_entire_liquor.append((form.cleaned_data["field_container_entire_liquor_%s" % i],
+                                                         container_liquor_list[i][0]))
         for i in range(0, len(container_syrup_list)):
             list_results_container_syrup.append((form.cleaned_data["field_container_syrup_%s" % i],
                                                  container_syrup_list[i][0]))
@@ -354,11 +361,14 @@ class PurchaseFoyer(FormView):
                 # On les prends dans l'ordre du queryset (on s'en fiche) des objets non vendus bien sûr
                 # Le prix de vente est le prix du base product à l'instant de la vente
                 for i in range(0, e[0]):
-                    sp = SingleProduct.objects.filter(product_base=e[1], is_sold=False)[i]
-                    sp.is_sold = True
-                    sp.sale_price = sp.product_base.get_moded_usual_price()
-                    sp.save()
-                    list_products_sold.append(sp)
+                    try:
+                        sp = SingleProduct.objects.filter(product_base=e[1], is_sold=False)[i]
+                        sp.is_sold = True
+                        sp.sale_price = sp.product_base.get_moded_usual_price()
+                        sp.save()
+                        list_products_sold.append(sp)
+                    except IndexError:
+                        pass
 
         # Issus d'un container
         # Fûts de bières, ce sont ceux qui sont sous les tireuses
@@ -379,13 +389,41 @@ class PurchaseFoyer(FormView):
         for e in list_results_container_no_keg:
             if e[0] != 0:
                 # Premier conteneur de la liste dans le queryset du product base
-                list_products_sold.append(SingleProductFromContainer(container=Container.objects.filter(product_base=e[1])[0],
+                # Order_by par pk pour être sur que le query renvoie toujours le même order (ce qui n'est pas certain
+                # sinon)
+                list_products_sold.append(SingleProductFromContainer(container=Container.objects.filter(product_base=e[1]).order_by('pk')[0],
                                                                      quantity=e[0] * e[1].product_unit.usual_quantity(),
                                                                      sale_price=e[1].get_moded_usual_price() * e[0]))
 
+        for e in list_results_container_entire_liquor:
+            if e[0] != 0:
+                # Deuxième conteneur de la liste dans le queryset du product base
+                # Le premier est celui utilisé pour les verres cf au dessus
+                # Sinon (cas possible si on en a pris 2), on passe
+                # Order_by par pk pour être sur que le query renvoie toujours le même order (ce qui n'est pas certain
+                # sinon)
+                for i in range(0, e[0]):
+                    try:
+                        container = Container.objects.filter(product_base=e[1], is_sold=False).order_by('pk')[1]
+                        list_products_sold.append(SingleProductFromContainer(container=container,
+                                                                             quantity=e[1].quantity,
+                                                                             sale_price=e[1].get_moded_price()))
+                        container.is_sold = True
+                        container.save()
+                    except IndexError:
+                        try:
+                            container = Container.objects.filter(product_base=e[1], is_sold=False).order_by('pk')[0]
+                            list_products_sold.append(SingleProductFromContainer(container=container,
+                                                                                 quantity=e[1].quantity,
+                                                                                 sale_price=e[1].get_moded_price()))
+                            container.is_sold = True
+                            container.save()
+                        except IndexError:
+                            pass
+
         if list_products_sold:
             s = sale_sale(sender=self.request.user, operator=self.request.user, date=now(),
-                            products_list=list_products_sold, wording='Vente foyer', to_return=True)
+                          products_list=list_products_sold, wording='Vente foyer', to_return=True)
 
             # Deconnection
             logout(self.request)
@@ -641,14 +679,13 @@ class ProductListView(ListCompleteView):
 
         if self.attr['type_product'] == 'product_base':
             # En cas de problème avec order_by
-            if self.attr['order_by'] not in ProductBase._meta.get_all_field_names()\
+            if self.attr['order_by'] not in ProductBase._meta.get_all_field_names() \
                     and self.attr['order_by'] not in ['sell_price', '-sell_price', 'quantity_stock', '-quantity_stock']:
-                    self.query = \
-                        ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)
+                self.query = \
+                    ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)
             else:
                 # Cas sell price
                 if self.attr['order_by'] in ['sell_price', '-sell_price']:
-                    print('in sell_price')
                     if self.attr['order_by'] == '-sell_price':
                         reverse = True
                     else:
@@ -673,7 +710,7 @@ class ProductListView(ListCompleteView):
 
         elif self.attr['type_product'] == 'product_unit':
             # En cas de problème avec order_by
-            if self.attr['order_by'] not in ProductUnit._meta.get_all_field_names()\
+            if self.attr['order_by'] not in ProductUnit._meta.get_all_field_names() \
                     and self.attr['order_by'] not in ['type', '-type']:
                 self.query = \
                     ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)

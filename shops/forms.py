@@ -168,6 +168,7 @@ class PurchaseFoyerForm(forms.Form):
             self.fields['field_container_syrup_%s' % i] = forms.IntegerField(required=True, min_value=0)
         for (i, t) in enumerate(container_liquor_list):
             self.fields['field_container_liquor_%s' % i] = forms.IntegerField(required=True, min_value=0)
+            self.fields['field_container_entire_liquor_%s' % i] = forms.IntegerField(required=True, min_value=0)
 
     # Fonctions de récupérations des réponses en POST
     def active_keg_container_answers(self):
@@ -193,6 +194,11 @@ class PurchaseFoyerForm(forms.Form):
     def container_liquor_answers(self):
         for name, value in self.cleaned_data.items():
             if name.startwith('field_container_liquor_'):
+                yield (self.fields[name].label, value)
+
+    def container_entire_liquor_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_container_entire_liquor_'):
                 yield (self.fields[name].label, value)
 
     def clean(self):

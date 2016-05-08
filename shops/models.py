@@ -111,7 +111,6 @@ class ProductBase(models.Model):
 
     quantity = models.DecimalField('Quantité d\'unité de produit', default=0, null=True, blank=True, decimal_places=2,
                                    max_digits=9, validators=[MinValueValidator(Decimal(0))])
-
     # Relations
     # Avec shops.models
     shop = models.ForeignKey('Shop')

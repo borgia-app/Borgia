@@ -72,7 +72,9 @@
                     <table>
                         <th>Raccourci</th>
                         <th>Produit</th>
-                        <th>Prix 4 cl</th>
+                        <th>4 cl</th>
+                        <th>Nombre</th>
+                        <th>Bouteille</th>
                         <th>Nombre</th>
                         <th>Prix correspondant</th>
 
@@ -85,6 +87,8 @@
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_liquor_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
+                                    <td><span id="selected_initial_price_container_entire_liquor_{{ e.2 }}">{{ e.1.get_moded_price }}</span> €</td>
+                                    <td>{{ e.3 }}</td>
                                     <td> <span id="selected_price_container_liquor_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
@@ -230,6 +234,9 @@
         var selected_quantity_container_liquor = [];
         var selected_price_container_liquor = [];
         var selected_initial_price_container_liquor = [];
+        var selected_quantity_container_entire_liquor = [];
+        var selected_price_container_entire_liquor = [];
+        var selected_initial_price_container_entire_liquor = [];
         var selected_quantity_container_syrup = [];
         var selected_price_container_syrup = [];
         var selected_initial_price_container_syrup = [];
@@ -253,6 +260,8 @@
             selected_price_container_liquor.push(document.getElementById("selected_price_container_liquor_"+i));
             selected_quantity_container_liquor.push(document.getElementById("id_field_container_liquor_"+i));
             selected_initial_price_container_liquor.push(document.getElementById("selected_initial_price_container_liquor_"+i));
+            selected_quantity_container_entire_liquor.push(document.getElementById("id_field_container_entire_liquor_"+i));
+            selected_initial_price_container_entire_liquor.push(document.getElementById("selected_initial_price_container_entire_liquor_"+i));
         }
         for (i=0; i<{{ container_syrup_list|length }}; i++) {
             selected_price_container_syrup.push(document.getElementById("selected_price_container_syrup_"+i));
@@ -286,7 +295,13 @@
         for (i=0;i<{{ container_liquor_list|length }};i++){
             (function(x) {
                 selected_quantity_container_liquor[i].addEventListener('change', function(e) {
-                    selected_price_container_liquor[x].textContent = String((e.target.value * Number(selected_initial_price_container_liquor[x].textContent.replace(",", "."))).toFixed(2));
+                    selected_price_container_liquor[x].textContent = String(((e.target.value * Number(selected_initial_price_container_liquor[x].textContent.replace(",", ".")))+(selected_quantity_container_entire_liquor[x].value * Number(selected_initial_price_container_entire_liquor[x].textContent.replace(",", ".")))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+            (function(x) {
+                selected_quantity_container_entire_liquor[i].addEventListener('change', function(e) {
+                    selected_price_container_liquor[x].textContent = String(((e.target.value * Number(selected_initial_price_container_entire_liquor[x].textContent.replace(",", ".")))+(selected_quantity_container_liquor[x].value * Number(selected_initial_price_container_liquor[x].textContent.replace(",", ".")))).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
@@ -511,6 +526,13 @@
         while (d<{{ container_liquor_list|length }}) {
             (function(d) {
                 return selected_quantity_container_liquor[d].dispatchEvent(new Event('change'));
+            })(d);
+            d++;
+        }
+        d = 0;
+        while (d<{{ container_liquor_list|length }}) {
+            (function(d) {
+                return selected_quantity_container_entire_liquor[d].dispatchEvent(new Event('change'));
             })(d);
             d++;
         }
