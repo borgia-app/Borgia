@@ -572,6 +572,17 @@ class SaleRetrieveView(DetailView):
         add_to_breadcrumbs(request, 'Détail transaction')
         return super(SaleRetrieveView, self).get(request, *args, **kwargs)
 
+    def get_context_data(self, **kwargs):
+        context = super(SaleRetrieveView, self).get_context_data(**kwargs)
+        if self.request.GET.get('for_user') is not None:
+            try:
+                context['for_user'] = User.objects.get(pk=self.request.GET.get('for_user'))
+            except ObjectDoesNotExist:
+                pass
+        else:
+            context['for_user'] = self.request.user
+        return context
+
 
 class SaleListOrganeView(ListView):
     template_name = 'finances/sale_list_organe.html'

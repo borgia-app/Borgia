@@ -58,7 +58,7 @@
     {% endcomment %}
     {% if object.list_shared_events.0|length != 0 %}
         {% for e in object.list_shared_events.0 %}
-            <li>Objet : {{ e }}, à {% abs_price_for object user %} €</li>
+            <li>Objet : {{ e }}, à {% abs_price_for object for_user %} €</li>
         {% endfor %}
     {% endif %}
 
@@ -69,7 +69,7 @@
     <p class=justify"><strong>Description : </strong>Paiement d'un événement</p>
     {% if object.list_shared_events.0|length != 0 %}
         {% for e in object.list_shared_events.0 %}
-            <li>Evénement : {{ e }}, à {% abs_price_for object user %} €</li>
+            <li>Evénement : {{ e }}, à {% abs_price_for object for_user %} €</li>
         {% endfor %}
     {% endif %}
 
