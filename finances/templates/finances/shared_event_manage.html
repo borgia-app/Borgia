@@ -94,13 +94,13 @@
                 {% endif %}
             </p>
             <p>
-            {% if done == False %}
-                {% if state == 'participants' %}
-                    <a class="s" href="{% url 'url_rm_participant_shared_event' pk=pk %}?user_pk=ALL">Supprimer tous les participants</a>
-                {% else %}
-                    <a class="s" href="{% url 'url_rm_registered_shared_event' pk=pk %}?user_pk=ALL">Supprimer tous les inscrits</a>
+                {% if done == False %}
+                    {% if state == 'participants' %}
+                        <a class="s" href="{% url 'url_rm_participant_shared_event' pk=pk %}?user_pk=ALL">Supprimer tous les participants</a>
+                    {% else %}
+                        <a class="s" href="{% url 'url_rm_registered_shared_event' pk=pk %}?user_pk=ALL">Supprimer tous les inscrits</a>
+                    {% endif %}
                 {% endif %}
-            {% endif %}
             </p>
             <table>
                 <tr>
@@ -117,7 +117,7 @@
                         <td>{{ u.0.first_name }}</td>
                         <td>{{ u.0.surname }}</td>
                         <td>{{ u.0.username }}</td>
-                        <td>{{ u.1 }}</td>
+                        <td><input id="ponderation_{{ u.0.pk }}" type="number" min="1" value="{{ u.1 }}"/></td>
                         {% if done == False %}<td>
                             {% if state == 'participants' %}
                                 <a class="s" href="{% url 'url_rm_participant_shared_event' pk=pk %}?user_pk={{ u.0.pk }}">supprimer</a>
@@ -132,17 +132,51 @@
     </div>
 
     <script>
+        // Modification à la volée de la pondération
+        // Apres la modification (blur ou enter), requete ajax pour modifier la pondération
+        {% for u in query_user %}
+            var old_ponderation;
+            $('#ponderation_{{ u.0.pk }}').on('focus', function() {
+                old_ponderation = $(this).val();
+            }).change(function() {
+                if ($(this).val() != old_ponderation) {
+                    $.ajax({
+                        method: "GET",
+                        url: "{% url 'url_change_ponderation_shared_event' pk=pk %}",
+                        data: {
+                            user_pk: {{ u.0.pk }},
+                            pond: $(this).val()
+                        },
+                        success: function (response) {
+                            if (response == 0) {
+                                $('#ponderation_{{ u.0.pk }}').val(old_ponderation);
+                            }
+                        },
+                        error: function() {
+                            $('#ponderation_{{ u.0.pk }}').val(old_ponderation);
+                        }
+                    })
+                }
+            });
+        {% endfor %}
+
+    </script>
+    <script>
         // Masquage de pondération dans le cas d'ajout manuel d'un inscrit
-        var select_state = document.getElementById('id_add_user_form-state');
-        document.getElementById('ponderation').style.display = 'None';
-        select_state.addEventListener('change', function(e) {
-            if (e.target.value == 'registered') {
-                document.getElementById('ponderation').style.display = 'None';
+        display_ponderation();
+
+        $('#id_add_user_form-state').change(function(){
+            display_ponderation();
+        });
+
+        function display_ponderation() {
+            if ($('#id_add_user_form-state').val() == 'registered') {
+                $('#ponderation').hide();
             }
             else {
-                document.getElementById('ponderation').style.display = '';
+                $('#ponderation').show();
             }
-        }, false)
+        }
     </script>
     <script>
         // Bouton "plus" pour la liste des promos

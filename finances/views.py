@@ -790,20 +790,12 @@ class SharedEventManageView(View):
         # Sinon on choisit en fonction de la date de l'event
         # S'il est passé, on liste les participants par défaut, sinon on liste les inscrits
         else:
-            if se.date > datetime.date(now()):
-                initial_list_user_form = {
-                    'state': 'participants',
-                    'order_by': 'last_name',
-                }
-                query_user = sorted(self.get_query_user('participants'), key=lambda item: getattr(item[0], 'last_name'))
-                state = 'participants'
-            else:
-                initial_list_user_form = {
-                    'state': 'registered',
-                    'order_by': 'last_name',
-                }
-                query_user = sorted(self.get_query_user('registered'), key=lambda item: getattr(item[0], 'last_name'))
-                state = 'registered'
+            initial_list_user_form = {
+                'state': 'participants',
+                'order_by': 'last_name',
+            }
+            query_user = sorted(self.get_query_user('participants'), key=lambda item: getattr(item[0], 'last_name'))
+            state = 'participants'
 
         initial_update_form = {
             'price': se.price,
@@ -1072,6 +1064,51 @@ def proceed_payment_se(request, pk):
         return redirect('url_manage_shared_event', pk=se.pk)
     else:
         return redirect('/finances/shared_event/manage/' + str(se.pk) + '/?payment_error=True')
+
+
+def change_ponderation_se(request, pk):
+    """
+    Change la valeur de la pondération d'un participant user pour un événement
+    Permissions :   Si événements terminé -> denied,
+                    Si pas manager ou pas la perm 'finances.manage_sharedevent' -> denied
+    :param pk: pk de l'événement
+    :param user_pk: paramètre GET correspondant au pk de l'user
+    :param pond_pk: paramètre GET correspondant à la nouvelle pondération
+    :type pk, user_pk, pond_pk: int
+    """
+
+
+    try:
+        # Variables d'entrées
+        se = SharedEvent.objects.get(pk=pk)
+        user = User.objects.get(pk=request.GET.get('user_pk'))
+        pond = int(request.GET.get('pond'))
+
+        # Permission
+        if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
+            raise PermissionDenied
+        # Même en ayant la permission, on ne modifie plus une event terminé
+        elif se.done is True:
+            raise PermissionDenied
+
+        if pond > 0:
+            # Changement de la pondération
+            se.remove_participant(user)
+            se.add_participant(user, pond)
+
+            # Réponse
+            response = pond
+        else:
+            response = 0
+
+    except KeyError:
+        response = 0
+    except ObjectDoesNotExist:
+        response = 0
+    except ValueError:
+        response = 0
+
+    return HttpResponse(response)
 
 
 def list_base_ponderation_from_file(f):
