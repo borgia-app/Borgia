@@ -1,6 +1,6 @@
 {% load finances_extra %}
 
-<table>
+<table id="table_sales">
     <tr>
         <th>Date</th>
         <th>Emetteur</th>
@@ -37,7 +37,7 @@
 
         // Si plus de 5 sale, on ajoute un bouton "plus" qui affiche le reste
         if (list_sale.length > 5) {
-            var table = document.getElementsByTagName("table")[0];
+            var table = document.getElementById('table_sales');
             var parentDiv = table.parentNode;
             parentDiv.insertBefore(bouton_plus, table);
         }
