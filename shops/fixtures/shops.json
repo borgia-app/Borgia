@@ -14,5 +14,13 @@
       "name": "Auberge",
       "description": "Auberge des élèves de l'AE ENSAM"
     }
+  },
+    {
+    "model": "shops.shop",
+    "pk": 3,
+    "fields": {
+      "name": "C-Vis",
+      "description": "C-Vis des élèves de l'AE ENSAM"
+    }
   }
 ]

@@ -266,5 +266,25 @@
         ["retrieve_user", "users", "user"],
         ["list_user", "users", "user"]]
     }
+  },
+  {
+    "model": "auth.group",
+    "pk": 11,
+    "fields": {
+      "name": "Chefs gestionnaires de la C-Vis",
+      "permissions": [
+
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 12,
+    "fields": {
+      "name": "Gestionnaires de la C-Vis",
+      "permissions": [
+
+      ]
+    }
   }
 ]
