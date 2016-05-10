@@ -9,22 +9,25 @@
         <table id="notifications-list">
             <tr>
                 <th>Id</th>
-                <th><a href="{% url 'url_list_notification' %}?order_by={{ 'category'|order_by:request }}&page={{ page.number }}">Catégorie</a></th>
-                <th><a href="{% url 'url_list_notification' %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
-                <th><a href="{% url 'url_list_notification' %}?order_by={{ 'actor_id'|order_by:request }}&page={{ page.number }}">Acteur</a></th>
-                <th>Verbe</th>
-                <th>Utilisateur cible</th>
-                <th><a href="{% url 'url_list_notification' %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
+                <th>Notification class</th>
+                <th>Notification message</th>
+                <th>Target</th>
+                <th>Type</th>
+                <th>Catégorie</th>
+                <th>Activée</th>
+                <th>Modification</th>
             </tr>
             {% for e in page %}
                 <tr>
                     <td>{{ e.pk }}</td>
-                    <td>{{ e.category }}</td>
-                    <td>{{ e.type }}</td>
-                    <td>{{ e.actor_object }}</td>
-                    <td>{{ e.verb }}</td>
-                    <td>{{ e.target_user }}</td>
-                    <td>{{ e.creation_datetime }}</td>
+                    <td>{{ e.notification_class.name}}</td>
+                    <td>{{ e.message_template}}</td>
+                    <td>{% if e.target_group_template == None %}{{ e.target_user_template }}
+                    {% else %}{{ e.target_group_template }}{% endif %}</td>
+                    <td>{{ e.type_template }}</td>
+                    <td>{{ e.category_template }}</td>
+                    <td>{{ e.is_activated }}</td>
+                    <td><a href="update/{{ e.pk }}">Modifier</a></td>
                 </tr>
             {% endfor %}
         </table>

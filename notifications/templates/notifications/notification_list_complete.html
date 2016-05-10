@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+{% load users_extra %}
+
+{% block content %}
+
+{% if page %}
+   <div class="container">
+        <input type=hidden name="order_by" value="{{ order_by }}" />
+        <table id="notifications-list">
+            <tr>
+                <th>Id</th>
+                <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'category'|order_by:request }}&page={{ page.number }}">Catégorie</a></th>
+                <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
+                <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'actor_id'|order_by:request }}&page={{ page.number }}">Acteur</a></th>
+                <th>Verbe</th>
+                <th>Utilisateur cible</th>
+                <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
+            </tr>
+            {% for e in page %}
+                <tr>
+                    <td>{{ e.pk }}</td>
+                    <td>{{ e.category }}</td>
+                    <td>{{ e.type }}</td>
+                    <td>{{ e.actor_object }}</td>
+                    <td>{{ e.verb }}</td>
+                    <td>{{ e.target_user }}</td>
+                    <td>{{ e.creation_datetime }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+{% endif %}
+{% if page.has_other_pages %}
+   </div>
+        <nav class="pagination">
+            <ul class="pagination">
+                {% comment %}Affiche un lien vers la première page{% endcomment %}
+                <li>
+                      <a href="?order_by={{ order_by }}&page=first">
+                        <span><<</span>
+                      </a>
+                  </li>
+            {% comment %}Affiche un lien vers la page précédente{% endcomment %}
+              {% if page.has_previous %}
+                  <li>
+                    <a href="?order_by={{ order_by }}&page={{ page.previous_page_number }}">
+                        <span>Previous</span>
+                    </a>
+                  </li>
+              {% else %}
+                  <li class="disabled">
+                    <a href="#">
+                        <span>Previous</span>
+                    </a>
+                  </li>
+              {% endif %}
+
+            {% comment %}Affiche un des liens vers les pages encadrant la page courante{% endcomment %}
+              {% for p in page_links %}
+                  <li {% if p == page.number %}class="active"{% endif %}>
+                      <a href="?order_by={{ order_by }}&page={{ p }}">{{ p }}</a>
+                  </li>
+              {% endfor %}
+                {% comment %}Affiche un lien vers la page suivante{% endcomment %}
+              {% if page.has_next %}
+                  <li>
+                      <a href="?order_by={{ order_by }}&page={{ page.next_page_number }}">
+                        <span>Next</span>
+                      </a>
+                  </li>
+              {% else %}
+                  <li {% if not page.has_next %}class="disabled"{% endif %}>
+                      <a href="#">
+                          <span>Next</span>
+                      </a>
+                  </li>
+              {% endif %}
+                {% comment %}Affiche un lien vers la dernière page{% endcomment %}
+                <li>
+                      <a href="?order_by={{ order_by }}&page=last">
+                        <span>>></span>
+                      </a>
+                </li>
+            </ul>
+        </nav>
+    {% endif %}
+
+{% endblock %}

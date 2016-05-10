@@ -9,15 +9,16 @@ from django.shortcuts import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from borgia.models import ListCompleteView
 from notifications.forms import notiftest
+from django.views.generic.edit import UpdateView
 
 # CRUD modèle notification
 
 # List
 
 
-class NotificationListView(ListCompleteView):
+class NotificationListCompleteView(ListCompleteView):
     form_class = notiftest
-    template_name = 'notifications/notification_list.html'
+    template_name = 'notifications/notification_list_complete.html'
     success_url = '/auth/login'
     attr = {
         'order_by': '-creation_datetime',
@@ -26,7 +27,7 @@ class NotificationListView(ListCompleteView):
     def get(self, request, *args, **kwargs):
         # Ajout au fil d'ariane
         add_to_breadcrumbs(request, 'Notifications')
-        return super(NotificationListView, self).get(request, *args, **kwargs)
+        return super(NotificationListCompleteView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
 
@@ -36,7 +37,34 @@ class NotificationListView(ListCompleteView):
             if notification.read_date is None:
                 notification.read_date = now()
                 notification.save()
-        return super(NotificationListView, self).get_context_data(**kwargs)
+        return super(NotificationListCompleteView, self).get_context_data(**kwargs)
+
+
+class NotificationTemplateListCompleteView(ListCompleteView):
+    form_class = notiftest
+    template_name = 'notifications/notification_template_list_complete.html'
+    success_url = '/auth/login'
+    attr = {
+        'order_by': '-creation_datetime',
+    }
+
+    def get(self, request, *args, **kwargs):
+        # Ajout au fil d'ariane
+        add_to_breadcrumbs(request, 'Notifications templates')
+        return super(NotificationTemplateListCompleteView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+
+        # Récupération de la liste de notifications filtrées de l'user
+        self.query = NotificationTemplate.objects.all().order_by(self.attr['order_by'])
+        return super(NotificationTemplateListCompleteView, self).get_context_data(**kwargs)
+
+
+class NotificationTemplateUpdateView(UpdateView):
+    model = NotificationTemplate
+    template_name = 'notifications/notification_template_update.html'
+    fields = ['message_template', 'category_template', 'type_template', 'is_activated']
+    success_url = '/notifications/templates/'
 
 
 def read_notification(request):

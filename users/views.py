@@ -7,7 +7,7 @@ from django.contrib.messages.views import SuccessMessageMixin
 from django.core import serializers
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
-from notifications.models import  *
+from notifications.models import notify
 from django.db.models import Q
 import json
 import datetime
@@ -187,7 +187,7 @@ class UserCreateView(FormNextView):
         user.save()
 
         # Notifications
-        user_creation_notify_success_to_user_and_admins(self.request, user)
+        notify(self.request, 'user_creation', ['User', 'Présidents', "Trésoriers"], None, None)
 
         return super(UserCreateView, self).form_valid(form)
 
@@ -243,7 +243,7 @@ class UserUpdateView(FormView):
     def get_success_url(self):
         if self.modified is True:
             # Notifications
-            user_updating_notify_success_to_user_and_admins(self.request, self.request.user)
+            notify(self.request, 'user_updating', ['User', 'Recipient', 'Présidents', "Trésoriers"], self.request.user, None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get_initial(self):
@@ -295,7 +295,7 @@ class UserUpdateAdminView(FormView):
     def get_success_url(self):
         if self.modified is True:
             # Notifications si changement
-            user_updating_notify_success_to_user_and_admins(self.request, User.objects.get(pk=self.kwargs['pk']))
+            notify(self.request, 'user_updating', ['User', "Recipient", 'Présidents', "Trésoriers"], User.objects.get(pk=self.kwargs['pk']), None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get_initial(self):
@@ -330,13 +330,16 @@ class UserDesactivateView(SuccessMessageMixin, View):
 
     def post(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
-        user_updating_notify_success_to_user_and_admins(self.request, user)
         if user.is_active is True:
             user.is_active = False
         else:
             user.is_active = True
-
         user.save()
+        # Notifications
+        if user.is_active is True:
+            notify(self.request, 'user_activation', ['User', 'Recipient', 'Présidents', "Trésoriers"], user, None)
+        else:
+            notify(self.request, 'user_deactivation', ['User', 'Recipient', 'Présidents', "Trésoriers"], user, None)
         return redirect(force_text(self.request.POST.get('next')))
 
 
