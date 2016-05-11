@@ -3,18 +3,12 @@ from django.shortcuts import render, force_text, HttpResponseRedirect, redirect
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView
 from django.contrib.auth import logout
-from django.contrib.messages.views import SuccessMessageMixin
-from django.contrib import messages
-from datetime import datetime
-from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.models import Group
-from django.contrib.contenttypes.models import ContentType
 
 from shops.models import *
 from shops.forms import *
 from users.models import User
 from finances.models import *
-from notifications.models import *
+from notifications.models import notify
 from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
 from contrib.models import add_to_breadcrumbs
 
