@@ -351,10 +351,35 @@ class SupplyLydiaSelfConfirmView(View):
 
 @csrf_exempt
 def supply_lydia_self_callback(request):
+    """
+    Fonction qui permet de catch le callback de Lydia après un paiement automatique par carte bancaire.
+    Crée une vente entre celui qui a envoyé un paiement et l'AE ENSAM. C'est une vente de la catégorie 'rechargement'
+    avec comme wording 'rechargement automatique', l'opérateur est l'émetteur du paiement lui-même.
+    :param user_pk: en GET. Pk correspondant à l'utilisateur qui a envoyé le paiement.
+    :param currency: en POST. Sigle représentant la monnaie utilisée, ex : EUR
+    :param request_id: en POST. Id de requete chez Lydia.
+    :param amount: en POST. Montant du paiement, dans la monnaie "currency"
+    :param signed: en POST. ?
+    :param transaction_identifier: en POST. Id de transaction chez Lydia.
+    :param vendor_token: en POST. Token de l'AE ENSAM publique.
+    :param sig: en POST. Signature générée par Lydia avec l'algorithme Lydia
+    :type user_pk: integer strictement positif
+    :type currency: chaîne de caractère
+    :type request_id: chaîne de caractère
+    :type amount: en POST. Montant du paiement, dans la monnaie "currency"
+    :type signed: booleen
+    :type transaction_identifier: chaîne de caractère
+    :type vendor_token: chaîne de caractère
+    :type sig: chaîne de caractère
 
-    # tests de lecture
-    # pour d  terminer comment sont envoy  s les informations
+    Remarque : même si certains paramètres ne sont pas utilisés (signed, request_id), ils ne sont pas pour autant optionnels. Ils sont en
+    effet utilisés pour vérifié la signature.
 
+    :return:
+     Erreur 403 si la signature n'est pas la bonne.
+     300 si l'utilisateur n'existe pas dans notre base ou s'il manque un paramètre.
+     200 si tout s'est bien passé : la signature est identifiée, la vente créée et l'utilisateur crédité.
+    """
     params_dict = {
         "currency": request.POST.get("currency"),
         "request_id": request.POST.get("request_id"),
@@ -368,13 +393,6 @@ def supply_lydia_self_callback(request):
     # Verification du token
     if verify_token_algo_lydia(params_dict, settings.LYDIA_API_TOKEN) is True:
 
-        response = '200' + ' ' + params_dict.__str__()
-        file = open("log_lydia.txt", "w")
-        file.write(User.objects.get(pk=request.GET.get('user_pk')).__str__())
-        file.write(User.objects.get(username='AE_ENSAM').__str__())
-        file.write(decimal.Decimal(params_dict['amount']).__str__())
-        file.write(params_dict['transaction_identifier'])
-
         try:
             sale_recharging(sender=User.objects.get(pk=request.GET.get('user_pk')),
                             operator=User.objects.get(pk=request.GET.get('user_pk')),
@@ -385,21 +403,13 @@ def supply_lydia_self_callback(request):
                                                                 id_from_lydia=params_dict['transaction_identifier'],
                                                                 sender=User.objects.get(pk=request.GET.get('user_pk')),
                                                                 recipient=User.objects.get(username='AE_ENSAM'))])
-            file.write('supply')
 
         except KeyError or ObjectDoesNotExist:
-            file.write("error")
-            file.close()
             return HttpResponse('300')
 
-        file.close()
         return HttpResponse('200')
 
     else:
-        response = '403' + ' ' + params_dict.__str__()
-        file = open("log_lydia.txt", "w")
-        file.write(response)
-        file.close()
         raise PermissionDenied
 
 
