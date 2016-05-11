@@ -270,7 +270,6 @@ def create_notification(request, notification_templates, action_medium, target_o
     already_notified_users = []
     for template in notification_templates:
         if template.is_activated:
-            print("A")
             target_user_group = []
             if template.target_group_template is None:
                 if template.target_user_template == "User":
@@ -280,10 +279,7 @@ def create_notification(request, notification_templates, action_medium, target_o
                     if action_medium != request.user:
                         target_user_group = [User.objects.get(pk=action_medium.pk)]
             else:
-                print("B")
-                print(User.objects.filter(groups=template.target_group_template))
                 target_user_group = [n for n in User.objects.filter(groups=template.target_group_template) if n not in already_notified_users]
-                print(target_user_group)
                 already_notified_users = already_notified_users + target_user_group
 
             if action_medium is None:

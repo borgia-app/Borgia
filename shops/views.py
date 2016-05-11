@@ -671,7 +671,7 @@ class ProductListView(ListCompleteView):
     attr = {
         'order_by': 'name',
         'shop': '1',
-        'type_product' : 'product_base'
+        'type_product': 'product_base'
     }
 
     def get_form_kwargs(self):
@@ -776,15 +776,25 @@ class ProductCreateMultipleView(FormNextView):
                                                    place=form.cleaned_data['place'],
                                                    product_base=form.cleaned_data['product_base'])
                 # Notifications
-                notify(self.request,
-                       "container_creation",
-                       ['User',
-                        'Recipient',
-                        'Trésoriers',
-                        "Chefs gestionnaires du foyer",
-                        "Chefs gestionnaires de l'auberge"],
-                       self.object,
-                       None)
+                if product.product_base.shop.name == 'Foyer':
+                    notify(self.request,
+                           "foyer_container_creation",
+                           ['User',
+                            'Recipient',
+                            'Trésoriers',
+                            "Chefs gestionnaires du foyer"],
+                           product,
+                           None)
+
+                elif product.product_base.shop.name == 'Auberge':
+                    notify(self.request,
+                           "auberge_container_creation",
+                           ['User',
+                            'Recipient',
+                            'Trésoriers',
+                            "Chefs gestionnaires de l'auberge"],
+                           product,
+                           None)
 
         elif form.cleaned_data['product_base'].type == 'single_product':
             for i in range(0, form.cleaned_data['quantity']):
@@ -794,15 +804,25 @@ class ProductCreateMultipleView(FormNextView):
                                                        place=form.cleaned_data['place'],
                                                        product_base=form.cleaned_data['product_base'])
                 # Notifications
-                notify(self.request,
-                       "single_product_creation",
-                       ['User',
-                        'Recipient',
-                        'Trésoriers',
-                        "Chefs gestionnaires du foyer",
-                        "Chefs gestionnaires de l'auberge"],
-                       self.object,
-                       None)
+                if product.product_base.shop.name == 'Foyer':
+                    notify(self.request,
+                           "foyer_single_product_creation",
+                           ['User',
+                            'Recipient',
+                            'Trésoriers',
+                            "Chefs gestionnaires du foyer"],
+                           product,
+                           None)
+
+                elif product.product_base.shop.name == 'Auberge':
+                    notify(self.request,
+                           "auberge_single_product_creation",
+                           ['User',
+                            'Recipient',
+                            'Trésoriers',
+                            "Chefs gestionnaires de l'auberge"],
+                           product,
+                           None)
 
         return super(ProductCreateMultipleView, self).form_valid(form)
 
