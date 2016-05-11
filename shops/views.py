@@ -518,7 +518,15 @@ class ProductUnitCreateView(CreateNextView):
 
     def get_success_url(self):
         # Notifications
-        product_unit_creation_notify_success_to_user_and_admins(self.request, self.object)  # Notification
+        notify(self.request,
+               "product_unit_creation",
+               ['User',
+                'Recipient',
+                'Trésoriers',
+                "Chefs gestionnaires du foyer",
+                "Chefs gestionnaires de l'auberge"],
+               self.object,
+               None)
         return force_text(self.request.POST.get('next', self.success_url))
 
     def get(self, request, *args, **kwargs):
@@ -547,7 +555,16 @@ class ProductUnitUpdateView(UpdateView):
         return context
 
     def get_success_url(self):
-        product_unit_updating_notify_success_to_user_and_admins(self.request, self.object)
+        # Notifications
+        notify(self.request,
+               "product_unit_updating",
+               ['User',
+                'Recipient',
+                'Trésoriers',
+                "Chefs gestionnaires du foyer",
+                "Chefs gestionnaires de l'auberge"],
+               self.object,
+               None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get(self, request, *args, **kwargs):
@@ -559,11 +576,6 @@ class ProductUnitDeleteView(DeleteView):
     model = ProductUnit
     template_name = 'shops/productunit_delete.html'
     success_url = '/shops/productunit/'
-
-    def get_success_url(self):
-        # Notifications
-        product_unit_deletion_notify_success_to_user_and_admins(self.request, self.get_object())
-        return force_text(self.request.GET.get('next', self.success_url))
 
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Suppression unité de produit')
@@ -588,7 +600,15 @@ class ProductBaseCreateView(CreateNextView):
 
     def get_success_url(self):
         # Notifications
-        product_base_creation_notify_success_to_user_and_admins(self.request, self.object)
+        notify(self.request,
+               "product_base_creation",
+               ['User',
+                'Recipient',
+                'Trésoriers',
+                "Chefs gestionnaires du foyer",
+                "Chefs gestionnaires de l'auberge"],
+               self.object,
+               None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get_initial(self):
@@ -622,7 +642,16 @@ class ProductBaseUpdateView(UpdateView):
         return context
 
     def get_success_url(self):
-        product_base_updating_notify_success_to_user_and_admins(self.request, self.object)
+        # Notification
+        notify(self.request,
+               "product_base_updating",
+               ['User',
+                'Recipient',
+                'Trésoriers',
+                "Chefs gestionnaires du foyer",
+                "Chefs gestionnaires de l'auberge"],
+               self.object,
+               None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get(self, request, *args, **kwargs):
@@ -635,11 +664,6 @@ class ProductBaseDeleteView(DeleteView):
     template_name = 'shops/productbase_delete.html'
     success_url = '/shops/productbase/'
     success_message = "Product base was delated successfully"
-
-    def get_success_url(self):
-        # Notifications
-        product_base_deletion_notify_success_to_user_and_admins(self.request, self.get_object()) # self.get_object nécessaire pour obtenir l'objet manipulé
-        return force_text(self.request.GET.get('next', self.success_url))
 
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Suppression base de produits')
@@ -758,7 +782,15 @@ class ProductCreateMultipleView(FormNextView):
                                                    place=form.cleaned_data['place'],
                                                    product_base=form.cleaned_data['product_base'])
                 # Notifications
-                container_creation_notify_success_to_user_and_admins(self.request, product)
+                notify(self.request,
+                       "container_creation",
+                       ['User',
+                        'Recipient',
+                        'Trésoriers',
+                        "Chefs gestionnaires du foyer",
+                        "Chefs gestionnaires de l'auberge"],
+                       self.object,
+                       None)
 
         elif form.cleaned_data['product_base'].type == 'single_product':
             for i in range(0, form.cleaned_data['quantity']):
@@ -768,7 +800,15 @@ class ProductCreateMultipleView(FormNextView):
                                                        place=form.cleaned_data['place'],
                                                        product_base=form.cleaned_data['product_base'])
                 # Notifications
-                single_product_creation_notify_success_to_user_and_admins(self.request, product)
+                notify(self.request,
+                       "single_product_creation",
+                       ['User',
+                        'Recipient',
+                        'Trésoriers',
+                        "Chefs gestionnaires du foyer",
+                        "Chefs gestionnaires de l'auberge"],
+                       self.object,
+                       None)
 
         return super(ProductCreateMultipleView, self).form_valid(form)
 
@@ -790,3 +830,4 @@ class ProductCreateMultipleView(FormNextView):
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Création produits')
         return super(ProductCreateMultipleView, self).get(request, *args, **kwargs)
+    
