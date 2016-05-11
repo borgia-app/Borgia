@@ -8,7 +8,7 @@ from django.core.exceptions import PermissionDenied
 from django.shortcuts import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from borgia.models import ListCompleteView
-from notifications.forms import notiftest
+from notifications.forms import notiftest, NotificationTemplateUpdateViewForm
 from django.views.generic.edit import UpdateView
 
 # CRUD modèle notification
@@ -62,8 +62,8 @@ class NotificationTemplateListCompleteView(ListCompleteView):
 
 class NotificationTemplateUpdateView(UpdateView):
     model = NotificationTemplate
+    form_class = NotificationTemplateUpdateViewForm
     template_name = 'notifications/notification_template_update.html'
-    fields = ['message_template', 'category_template', 'type_template', 'is_activated']
     success_url = '/notifications/templates/'
 
 

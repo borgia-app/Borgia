@@ -1,16 +1,8 @@
 #-*- coding: utf-8 -*-
 from django import forms
-from django.contrib.auth import authenticate
-from django.forms import ModelForm
-from django.forms.widgets import PasswordInput, DateInput, TextInput
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import RegexValidator
-from django.utils.timezone import now
-import re
-
-from users.models import User
-from finances.models import Cheque, Cash, Lydia, BankAccount, SharedEvent
 from borgia.validators import *
+from notifications.models import NotificationTemplate
+import re
 
 
 class notiftest(forms.Form):
@@ -19,3 +11,32 @@ class notiftest(forms.Form):
                                 validators=[autocomplete_username_validator])
 
     amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
+
+
+class NotificationTemplateUpdateViewForm(forms.ModelForm):
+    class Meta:
+        model = NotificationTemplate
+        fields = ['message_template', 'category_template', 'type_template', 'is_activated']
+
+    def clean_message_template(self):
+        regex = re.compile(r"{{.*?}}")
+        list = regex.findall(self.cleaned_data['message_template'])
+
+        regex = re.compile(r"(?:{{ *| *}})")
+        # Compiler l'expression regex avant une boucle permet d'améliorer les performances
+        for e in enumerate(list):
+            list[e[0]] = regex.sub("", e[1])
+            
+        authorized_tags = ("recipient",
+                           "recipient.surname",
+                           "recipient.first_name",
+                           "recipient.last_name")
+
+        for e in list:
+            if e not in authorized_tags:
+                raise ValidationError("Utilisation de tags non autorisés ou mal orthographiés")
+
+        return self.cleaned_data['message_template']
+
+
+

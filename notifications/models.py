@@ -345,6 +345,10 @@ def get_unread_notifications_for_user(request):
                 elif e.type == "ERROR":
                     message_level = 40
 
+                else:
+                    # Par défaut le message est de type INFO
+                    message_level = 20
+
                 # Ajout de la notification au middleware message
                 messages.add_message(request,
                                      message_level,
