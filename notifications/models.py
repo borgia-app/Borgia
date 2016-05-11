@@ -360,7 +360,8 @@ def get_unread_notifications_for_user(request):
                                          "Le " + str(e.creation_datetime.day) + '/' + str(e.creation_datetime.month) +
                                          '/' + str(e.creation_datetime.year) + ' à ' + str(e.creation_datetime.hour) +
                                          ':' + str(e.creation_datetime.minute) + "\n" + e.verb).render(
-                                         template.Context({'recipient': e.action_medium_object})),
+                                         template.Context({'recipient': e.action_medium_object},
+                                                          {'object': e.action_medium_object})),
                                      extra_tags=e.pk)
 
                 # Prise en compte de l'affichage de la notification pour utilisation ultérieure

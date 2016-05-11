@@ -30,7 +30,8 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
         authorized_tags = ("recipient",
                            "recipient.surname",
                            "recipient.first_name",
-                           "recipient.last_name")
+                           "recipient.last_name",
+                           "object")
 
         for e in list:
             if e not in authorized_tags:
