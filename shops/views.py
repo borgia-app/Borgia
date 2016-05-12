@@ -566,14 +566,20 @@ class ProductUnitUpdateView(UpdateView):
         return super(ProductUnitUpdateView, self).get(request, *args, **kwargs)
 
 
-class ProductUnitDeleteView(DeleteView):
+class ProductUnitDeleteView(UpdateView):
     model = ProductUnit
+    fields = []
     template_name = 'shops/productunit_delete.html'
     success_url = '/shops/productunit/'
 
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Suppression unité de produit')
         return super(ProductUnitDeleteView, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object.is_active = False
+        self.object.save()
+        return super(ProductUnitDeleteView, self).form_valid(form)
 
 
 class ProductUnitListView(ListView):
@@ -586,11 +592,11 @@ class ProductUnitListView(ListView):
         return super(ProductUnitListView, self).get(request, *args, **kwargs)
 
 
-class ProductBaseCreateView(CreateNextView):
-    fields = ['name', 'description', 'shop', 'brand', 'type', 'product_unit', 'quantity']
-    model = ProductBase
+class ProductBaseCreateView(FormNextView):
+    form_class = ProductBaseCreateForm
     template_name = 'shops/productbase_create.html'
     success_url = '/shops/productbase/'
+    object = None
 
     def get_success_url(self):
         # Notifications
@@ -613,6 +619,23 @@ class ProductBaseCreateView(CreateNextView):
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Création base de produits')
         return super(ProductBaseCreateView, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        if form.cleaned_data['type'] == 'container':
+            self.object = ProductBase.objects.create(name=form.cleaned_data['name'],
+                                                     description=form.cleaned_data['description'],
+                                                     shop=form.cleaned_data['shop'],
+                                                     brand=form.cleaned_data['brand'],
+                                                     type=form.cleaned_data['type'],
+                                                     product_unit=form.cleaned_data['product_unit'],
+                                                     quantity=form.cleaned_data['quantity'])
+        elif form.cleaned_data['type'] == 'single_product':
+            self.object = ProductBase.objects.create(name=form.cleaned_data['name'],
+                                                     description=form.cleaned_data['description'],
+                                                     shop=form.cleaned_data['shop'],
+                                                     brand=form.cleaned_data['brand'],
+                                                     type=form.cleaned_data['type'])
+        return super(ProductBaseCreateView, self).form_valid(form)
 
 
 class ProductBaseRetrieveView(DetailView):
@@ -653,15 +676,20 @@ class ProductBaseUpdateView(UpdateView):
         return super(ProductBaseUpdateView, self).get(request, *args, **kwargs)
 
 
-class ProductBaseDeleteView(DeleteView):
+class ProductBaseDeleteView(UpdateView):
     model = ProductBase
+    fields = []
     template_name = 'shops/productbase_delete.html'
     success_url = '/shops/productbase/'
-    success_message = "Product base was delated successfully"
 
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Suppression base de produits')
         return super(ProductBaseDeleteView, self).get(request, *args, **kwargs)
+
+    def form_valid(self, form):
+        self.object.is_active = False
+        self.object.save()
+        return super(ProductBaseDeleteView, self).form_valid(form)
 
 
 class ProductListView(ListCompleteView):
@@ -700,7 +728,7 @@ class ProductListView(ListCompleteView):
             if self.attr['order_by'] not in ProductBase._meta.get_all_field_names() \
                     and self.attr['order_by'] not in ['sell_price', '-sell_price', 'quantity_stock', '-quantity_stock']:
                 self.query = \
-                    ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)
+                    ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop']), is_active=True).exclude(pk=1)
             else:
                 # Cas sell price
                 if self.attr['order_by'] in ['sell_price', '-sell_price']:
@@ -709,7 +737,7 @@ class ProductListView(ListCompleteView):
                     else:
                         reverse = False
                     self.query = sorted(
-                        ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1),
+                        ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop']), is_active=True).exclude(pk=1),
                         key=lambda pb: pb.get_moded_usual_price(), reverse=reverse)
                 # Cas quantité en stock
                 elif self.attr['order_by'] in ['quantity_stock', '-quantity_stock']:
@@ -718,12 +746,12 @@ class ProductListView(ListCompleteView):
                     else:
                         reverse = False
                     self.query = sorted(
-                        ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1),
+                        ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop']), is_active=True).exclude(pk=1),
                         key=lambda pb: pb.quantity_products_stock(), reverse=reverse)
                 # Cas normal
                 else:
                     self.query = \
-                        ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop'])).order_by(
+                        ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop']), is_active=True).order_by(
                             self.attr['order_by']).exclude(pk=1)
 
         elif self.attr['type_product'] == 'product_unit':
@@ -731,7 +759,7 @@ class ProductListView(ListCompleteView):
             if self.attr['order_by'] not in ProductUnit._meta.get_all_field_names() \
                     and self.attr['order_by'] not in ['type', '-type']:
                 self.query = \
-                    ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1)
+                    ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop']), is_active=True).exclude(pk=1)
 
             else:
                 # Cas du type
@@ -741,12 +769,12 @@ class ProductListView(ListCompleteView):
                     else:
                         reverse = False
                     self.query = sorted(
-                        ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).exclude(pk=1),
+                        ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop']), is_active=True).exclude(pk=1),
                         key=lambda pb: pb.get_type_display(), reverse=reverse)
                 # Cas normal
                 else:
                     self.query = \
-                        ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop'])).order_by(
+                        ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop']), is_active=True).order_by(
                             self.attr['order_by']).exclude(pk=1)
 
         return super(ProductListView, self).get_context_data(**kwargs)

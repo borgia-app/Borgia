@@ -218,8 +218,7 @@ class ProductCreateMultipleForm(forms.Form):
         shop = kwargs.pop('shop')
         super(ProductCreateMultipleForm, self).__init__(**kwargs)
         self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
-                                                             queryset=ProductBase.objects.filter(shop=shop).exclude(
-                                                                 product_unit__type='fictional_money'))
+                                                             queryset=ProductBase.objects.filter(shop=shop, is_active=True).exclude(pk=1).order_by('name'))
         self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter', min_value=0)
         self.fields['price'] = forms.DecimalField(label='Prix d\'achat unitaire', decimal_places=2, max_digits=9,
                                                   min_value=0)
@@ -254,3 +253,15 @@ class ProductListForm(forms.Form):
         if user.has_perm('shops.list_productunit'):
             choices_type_product.append(('product_unit', 'Unités de produits'))
         self.fields['type_product'] = forms.ChoiceField(label='Type de produits', choices=choices_type_product)
+
+
+class ProductBaseCreateForm(forms.Form):
+    name = forms.CharField(label='Nom')
+    description = forms.CharField(label='Description')
+    shop = forms.ModelChoiceField(label='Magasin', queryset=Shop.objects.all())
+    brand = forms.CharField(label='Marque')
+    type = forms.ChoiceField(label='Type', choices=ProductBase.TYPE_CHOICES)
+    product_unit = forms.ModelChoiceField(label='Unité de produit', queryset=ProductUnit.objects.filter(is_active=True).exclude(pk=1).order_by('name'),
+                                          required=False)
+    quantity = forms.IntegerField(label='Contenance en unité de produit (ex: en cl pour un liquide, en gr pour de la '
+                                        'nourriture)', min_value=1)

@@ -115,6 +115,7 @@ class ProductBase(models.Model):
     # Avec shops.models
     shop = models.ForeignKey('Shop')
     product_unit = models.ForeignKey('ProductUnit', related_name='product_unit', blank=True, null=True)
+    is_active = models.BooleanField('Actif', default=True)
 
     # Méthodes
     def __str__(self):
@@ -312,6 +313,8 @@ class ProductUnit(models.Model):
     description = models.TextField('Description', max_length=255, null=True, blank=True)
     unit = models.CharField('Unité', max_length=255, choices=UNIT_CHOICES, default=UNIT_CHOICES[0][0])
     type = models.CharField('Type', max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])
+
+    is_active = models.BooleanField('Actif', default=True)
 
     # Méthodes
     def usual_quantity(self):
