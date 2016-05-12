@@ -14,6 +14,9 @@
                     {% if perms.users.gestionnaires_du_foyer_group_manage %}
                         <li><a href="{% url 'url_manage_group' %}?group_pk={{ group_gestionnaires_du_foyer_pk }}&next=/shops/foyer/workboard"><img src="{% static 'img/group.png' %}" alt="Gestion groupe"><span class="name">Gestionnaires du foyer</span></a></li>
                     {% endif %}
+                    {% if perms.users.exceptionnal_movement %}
+                    <li><a href="{% url 'url_supply_exceptionnal' %}?next=/finances/treasury/workboard"><img src="{% static 'img/warning.png' %}" alt="Mouvement exceptionnel"><span class="name">Mouvement exceptionnel</span></a></li>
+                    {% endif %}
                     <li><a href="{% url 'url_create_product_multiple' shop="Foyer" %}?next=/shops/foyer/workboard"><img src="{% static 'img/shopping.png' %}" alt="Gestion produits"><span class="name">Ajout produits</span></a></li>
                     <li><a href="{% url 'url_list_product' %}"><img src="{% static 'img/shopping.png' %}" alt="Liste produits"><span class="name">Liste produits</span></a></li>
                     <li><a href="{% url 'url_list_active_keg' %}"><img src="{% static 'img/keg.png' %}" alt="Gestion tireuses"><span class="name">Tireuses</span></a></li>
