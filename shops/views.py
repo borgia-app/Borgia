@@ -46,12 +46,6 @@ class PurchaseAuberge(FormView):
 
         return initial
 
-    def get(self, request, *args, **kwargs):
-        return self.render_to_response(self.get_context_data())
-
-    def form_invalid(self, form):
-        return self.render_to_response(self.get_context_data())
-
     def get_context_data(self, **kwargs):
         context = super(PurchaseAuberge, self).get_context_data(**kwargs)
         form = self.get_form()
@@ -136,7 +130,7 @@ class PurchaseAuberge(FormView):
                                                                                     sale_price=e[1].get_moded_usual_price() * e[0]))
 
         if list_products_sold:
-            s = sale_sale(sender=self.request.user, operator=self.request.user, date=now(),
+            s = sale_sale(sender=User.objects.get(username=form.cleaned_data['client_username']), operator=self.request.user, date=now(),
                           products_list=list_products_sold, wording='Vente auberge', to_return=True)
 
             # Deconnection
