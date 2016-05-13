@@ -54,4 +54,8 @@ urlpatterns = [
     (PurchaseAuberge.as_view()), name='url_purchase_auberge'),
     url(r'^auberge/workboard', permission_required('shops.reach_workboard_auberge', raise_exception=True)
     (workboard_auberge), name='url_workboard_auberge'),
+
+    # Ajax
+    url(r'productbase/get/$', get_product_base, name='url_get_productbase'),
+    url(r'productunit/get/$', get_product_unit, name='url_get_productunit'),
 ]

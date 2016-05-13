@@ -61,7 +61,7 @@ class ModelChoiceFieldWithQuantity(ModelChoiceField):
         for cont in self.list_active_keg:
             if cont in list_container:
                 quantity_in_stock -= 1
-                
+
         return obj.__str__() + ' (' + str(quantity_in_stock) + ')'
 
 
@@ -201,8 +201,10 @@ class ProductCreateMultipleForm(forms.Form):
         super(ProductCreateMultipleForm, self).__init__(**kwargs)
         self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
                                                              queryset=ProductBase.objects.filter(shop=shop, is_active=True).exclude(pk=1).order_by('name'))
+
         self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter', min_value=0)
-        self.fields['price'] = forms.DecimalField(label='Prix d\'achat unitaire', decimal_places=2, max_digits=9,
+
+        self.fields['price'] = forms.DecimalField(label='Prix d\'achat TTC', decimal_places=2, max_digits=9,
                                                   min_value=0)
         self.fields['purchase_date'] = forms.DateField(label='Date d\'achat',
                                                        widget=forms.DateInput(attrs={'class': 'datepicker'}))
