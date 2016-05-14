@@ -8,6 +8,8 @@ from django.core import serializers
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
 from notifications.models import notify
+from django.db.models import BooleanField
+from django.forms import ChoiceField
 from django.db.models import Q
 import json
 import datetime
@@ -343,16 +345,6 @@ class UserDesactivateView(SuccessMessageMixin, View):
         return redirect(force_text(self.request.POST.get('next')))
 
 
-class UserListView(ListView):
-    model = User
-    template_name = "users/list.html"
-    queryset = User.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, "Liste users")
-        return super(UserListView, self).get(request, *args, **kwargs)
-
-
 class UserListCompleteView(ListCompleteView):
     form_class = UserListCompleteForm
     template_name = 'users/user_list_complete.html'
@@ -468,3 +460,65 @@ def workboard_vices_presidents_vie_interne(request):
 
     add_to_breadcrumbs(request, 'Workboard vices présidents')
     return render(request, 'users/workboard_vices_presidents_vie_interne.html', locals())
+
+
+def get_users(request):
+    """
+    Permet de sérialiser en JSON les users. Il est possible de donner des paramtères GET à cette fonction pour moduler
+    la liste obtenue, plutôt que de faire un traitement en JS.
+    Ne renvoie par les informations sensibles comme is_superuser ou password.
+    :param request.GET : chaîne de caractère qui doit représenter une recherche filter dans un des champs de User
+    :type request.GET : doit être dans les champs de User
+    Les paramètres spéciaux sont order_by pour trier et search pour chercher dans [username, last_name, first_name]
+    :return HttpResponse(data): liste User sérialisés en JSON, modulée par les parametres
+
+    Exemple :
+    request.GET = { 'family': '101-99', 'order_by': 'year' }
+    renverra la liste des users dont la famille est 101-99 en les triant par année
+    """
+    # Liste des filtres
+    kwargs_filter = {}
+    for param in request.GET:
+        if param != 'order_by' and param != 'search':
+            if param in User._meta.get_all_field_names():
+                if isinstance(User._meta.get_field(param), BooleanField):
+                    if request.GET[param] in ['True', 'true']:
+                        kwargs_filter[param] = True
+                    else:
+                        kwargs_filter[param] = False
+                else:
+                    kwargs_filter[param] = request.GET[param]
+    query = User.objects.filter(**kwargs_filter)
+
+    # Recherche si précisée
+    try:
+        query = query.filter(Q(username__startswith=request.GET['search']) |
+                             Q(last_name__startswith=request.GET['search']) |
+                             Q(first_name__startswith=request.GET['search'])).distinct()
+    except KeyError:
+        pass
+
+    # On enlève admin et AE_ENSAM
+    query = query.exclude(username__in=['admin', 'AE_ENSAM'])
+
+    # Order_by si précisé
+    try:
+        query = query.order_by(request.GET['order_by'])
+    except KeyError:
+        pass
+
+    # Sérialisation
+    data = serializers.serialize('json', query, fields=('surname', 'family', 'balance', 'year', 'campus',
+                                                        'first_name', 'last_name', 'is_active'))
+
+    return HttpResponse(data)
+
+
+class UserListView(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            next = request.GET['next']
+        except KeyError:
+            next = '/users/profile/'
+
+        return render(request, 'users/user_list.html', context={'next': next, 'list_year': list_year()})

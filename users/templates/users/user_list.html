@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+{% load finances_extra %}
+{% load users_extra %}
+
+{% block content %}
+    <div class="container">
+        <div class="row">
+            Recherche <input type="text" id="id_search" name="search" /><br>
+            <input type="checkbox" id="id_is_active" name="is_active" /> Utilisateurs désactivés <br>
+            <select id="id_year">
+                <option value="all">Toutes les années</option>
+                {% for y in list_year %}
+                    <option value="{{ y }}">{{ y }}</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="row">
+            <table id="table_users">
+                <tr id="first_line">
+                    <th id="last_name">Nom</th>
+                    <th id="first_name">Prénom</th>
+                    <th id="surname">Bucque</th>
+                    <th id="family">Num's</th>
+                    <th id="campus">Tabagn's</th>
+                    <th id="year">Prom's</th>
+                    <th id="balance">Solde</th>
+                    <th id="is_active">Est actif</th>
+                    <th>Détail</th>
+                </tr>
+                {% for e in page %}
+                    <tr>
+                        <td>{{ e.last_name }}</td>
+                        <td>{{ e.first_name }}</td>
+                        <td>{{ e.surname }}</td>
+                        <td>{{ e.family }}</td>
+                        <td>{{ e.campus }}</td>
+                        <td>{{ e.year_pg }}</td>
+                        <td>{{ e.balance }}</td>
+                        <td>{% human_reading e.is_active 'true_false' %}</td>
+                        <td><a href="{% url 'url_retrieve_user' pk=e.pk %}?next={{ next }}">Détail</a></td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        <script>
+            var order_by;
+            var search;
+            var year;
+            var is_active = 'True';
+
+            $(document).ready(function(){
+                set_user_list();
+            });
+            var search_handler = function() {
+                if ($('#id_search').val().trim()!='') {
+                    search = $('#id_search').val().trim();
+                    set_user_list();
+                }
+                else {
+                    search = undefined;
+                    set_user_list();
+                }
+            };
+            $('#id_search').keyup(search_handler).change(search_handler);
+            $("#id_year").change(function(){
+                if ($("select option:selected").attr('value') == 'all') {
+                    year = undefined;
+                }
+                else {
+                    year = $("select option:selected").attr('value');
+                }
+                set_user_list();
+            });
+            $("#id_is_active").change(function(){
+                if ($(this).is(':checked') == true) {
+                    is_active = 'False';
+                }
+                else {
+                    is_active = 'True';
+                }
+                set_user_list();
+            });
+            $("#first_line th[id]").click(function(){
+                if (order_by == $(this).attr('id')) {
+                    order_by = '-' + $(this).attr('id');
+                }
+                else {
+                    order_by = $(this).attr('id');
+                }
+                set_user_list();
+            });
+
+            function set_user_list() {
+                $.ajax({
+                    url: "{% url 'url_get_user' %}",
+                    dataType: "json",
+                    data: {
+                        order_by: order_by,
+                        is_active: is_active,
+                        year: year,
+                        search: search
+                    },
+                    success: function(data) {
+                        // Clean du tableau
+                        $("#table_users tr").not('#first_line').remove();
+                        // Ajout des nouvelles lignes
+                        for (i=0; i<data.length; i++) {
+                            var data_is_active = 'Non';
+                            if (data[i].fields.is_active == true) {
+                                data_is_active = 'Oui'
+                            }
+                            add_line([data[i].fields.last_name, data[i].fields.first_name, data[i].fields.surname,
+                                data[i].fields.family, data[i].fields.campus, data[i].fields.year, data[i].fields.balance + '€',
+                                data_is_active, '<a href="/users/retrieve/' + data[i].pk + '/?next={{ next }}">Détail</a>']);
+                        }
+                    },
+                    error: function() {
+
+                    }
+                });
+            }
+
+            function add_line(data) {
+                var line = '<tr>';
+                for (j=0; j<data.length; j++) {
+                    line += '<td>' + data[j] + '</td>'
+                }
+                line += '</tr>';
+                $('#table_users').append(line);
+            }
+        </script>
+{% endblock %}

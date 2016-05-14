@@ -19,10 +19,10 @@ urlpatterns = [
     (UserUpdateAdminView.as_view()), name='url_update_admin_user'),
     url(r'^desactivate/(?P<pk>\d+)/$', permission_required('users.delete_user', raise_exception=True)
     (UserDesactivateView.as_view()), name='url_desactivate_user'),
-    url(r'^$', permission_required('users.list_user', raise_exception=True)
-    (UserListView.as_view()), name='url_list_user'),
-    url(r'^list_complete$', permission_required('users.list_user', raise_exception=True)
-    (UserListCompleteView.as_view()), name='url_list_user_complete'),
+    #url(r'^$', permission_required('users.list_user', raise_exception=True)
+    #(UserListView.as_view()), name='url_list_user'),
+    #url(r'^list_complete$', permission_required('users.list_user', raise_exception=True)
+    #(UserListCompleteView.as_view()), name='url_list_user_complete'),
 
     # Ajax
     url(r'^username_from_username_part$', username_from_username_part, name='url_username_from_username_part'),
@@ -38,4 +38,10 @@ urlpatterns = [
     (workboard_presidents), name='url_workboard_presidents'),
     url(r'^vices_presidents_vie_interne/workboard$', permission_required('users.reach_workboard_vices_presidents_vie_interne', raise_exception=True)
     (workboard_vices_presidents_vie_interne), name='url_workboard_vices_presidents_vie_interne'),
+
+    url(r'^user/$', permission_required('users.list_user', raise_exception=True)
+    (UserListView.as_view()), name='url_list_user'),
+    # REST
+    url(r'^user/get/$', permission_required('users.list_user', raise_exception=True)
+    (get_users), name='url_get_user'),
 ]
