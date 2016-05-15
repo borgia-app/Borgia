@@ -193,7 +193,9 @@ def get_unique_model(request, pk, model, props=None):
                             pass
                     data_load[i]['props'] = props_dict
 
+            data = json.dumps(data_load)
+            
     except ObjectDoesNotExist:
         data = [[]]
 
-    return HttpResponse(data_load)
+    return HttpResponse(data)
