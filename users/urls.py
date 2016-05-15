@@ -3,6 +3,7 @@ from django.conf.urls import url
 from django.contrib.auth.views import password_change, password_change_done
 from users.views import *
 from django.contrib.auth.decorators import permission_required
+from borgia.views import *
 
 
 urlpatterns = [
@@ -41,7 +42,10 @@ urlpatterns = [
 
     url(r'^user/$', permission_required('users.list_user', raise_exception=True)
     (UserListView.as_view()), name='url_list_user'),
+
     # REST
     url(r'^user/get/$', permission_required('users.list_user', raise_exception=True)
-    (get_users), name='url_get_user'),
+    (get_list_model), {'model': User, 'search_in': ['username', 'last_name', 'first_name', 'family']}, name='url_get_list_user'),
+    url(r'^user/get/retrieve/(?P<pk>\d+)/$', permission_required('users.list_user', raise_exception=True)
+    (get_unique_model), {'model': User}, name='url_get_retrieve_user'),
 ]

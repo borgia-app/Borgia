@@ -92,7 +92,7 @@
 
             function set_user_list() {
                 $.ajax({
-                    url: "{% url 'url_get_user' %}",
+                    url: "{% url 'url_get_list_user' %}",
                     dataType: "json",
                     data: {
                         order_by: order_by,
