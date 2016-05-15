@@ -11,6 +11,7 @@ from django.core.serializers import serialize
 
 from users.models import User
 from django.contrib.auth.models import Group
+import json
 from django.core.exceptions import ObjectDoesNotExist
 
 
@@ -41,7 +42,7 @@ def jsi18n_catalog(request):
     return render(request, 'jsi18n.html')
 
 
-def get_list_model(request, model, search_in):
+def get_list_model(request, model, search_in, props=None):
     """
     Permet de sérialiser en JSON les instances de modèle. Il est possible de donner des paramtères GET à cette fonction pour moduler
     la liste obtenue, plutôt que de faire un traitement en JS.
@@ -50,8 +51,9 @@ def get_list_model(request, model, search_in):
     :param model: Model dont on veut lister les instances
     :type model: héritée de models.Model
     :param search_in: paramètres dans lesquels le paramètre GET search sera recherché
-    :type search_in: liste de chaîne de caractères
-
+    :type search_in: liste de chaînes de caractères
+    :param props: méthodes du model à envoyer dans la sérialisation en supplément
+    :type props: liste de chaînes de caractères de nom de méthodes de model
     :param request.GET : chaîne de caractère qui doit représenter une recherche filter dans un des champs de model
     :type request.GET : doit être dans les champs de model
     Les paramètres spéciaux sont order_by pour trier et search pour chercher dans search_in
@@ -97,7 +99,18 @@ def get_list_model(request, model, search_in):
             pass
 
         # Sérialisation
-        data = serialize('json', query)
+        data_serialise = serialize('json', query)
+        data_load = json.loads(data_serialise)
+        if props:
+            for i, e in enumerate(data_load):
+                props_dict = {}
+                for p in props:
+                    try:
+                        props_dict[p] = getattr(model.objects.get(pk=e['pk']), p)()
+                    except:
+                        pass
+                data_load[i]['props'] = props_dict
+        data = json.dumps(data_load)
 
     else:
         # Suppression des users spéciaux
@@ -113,12 +126,25 @@ def get_list_model(request, model, search_in):
         allowed_fields = User._meta.get_all_field_names()
         for e in ['password', 'is_superuser', 'is_staff', 'last_login']:
             allowed_fields.remove(e)
-        data = serialize('json', query, fields=allowed_fields)
+
+        data_serialise = serialize('json', query, fields=allowed_fields)
+        data_load = json.loads(data_serialise)
+
+        if props:
+            for i, e in enumerate(data_load):
+                props_dict = {}
+                for p in props:
+                    try:
+                        props_dict[p] = getattr(model.objects.get(pk=e['pk']), p)()
+                    except:
+                        pass
+                data_load[i]['props'] = props_dict
+        data = json.dumps(data_load)
 
     return HttpResponse(data)
 
 
-def get_unique_model(request, pk, model):
+def get_unique_model(request, pk, model, props=None):
     """
     Permet de sérialiser en JSON une instance spécifique pk=pk de model.
     Ne renvoie par les informations sensibles comme is_superuser ou password dans le cas d'un User.
@@ -153,8 +179,21 @@ def get_unique_model(request, pk, model):
             allowed_fields = User._meta.get_all_field_names()
             for e in ['password', 'is_superuser', 'is_staff', 'last_login']:
                 allowed_fields.remove(e)
-            data = serialize('json', [User.objects.get(pk=pk), ], fields=allowed_fields)
+
+            data_serialise = serialize('json', [User.objects.get(pk=pk), ], fields=allowed_fields)
+            data_load = json.loads(data_serialise)
+
+            if props:
+                for i, e in enumerate(data_load):
+                    props_dict = {}
+                    for p in props:
+                        try:
+                            props_dict[p] = getattr(model.objects.get(pk=e['pk']), p)()
+                        except:
+                            pass
+                    data_load[i]['props'] = props_dict
+
     except ObjectDoesNotExist:
         data = [[]]
 
-    return HttpResponse(data)
+    return HttpResponse(data_load)
