@@ -13,6 +13,7 @@ from users.models import User
 from django.contrib.auth.models import Group
 import json
 from django.core.exceptions import ObjectDoesNotExist
+import operator
 
 
 class LoginPG(FormView):
@@ -70,10 +71,10 @@ def get_list_model(request, model, search_in, props=None):
     # Liste des filtres
     kwargs_filter = {}
     for param in request.GET:
-        if param != 'order_by' and param != 'search':
+        if param not in ['order_by', 'reverse', 'search'] :
             if param in model._meta.get_all_field_names():
                 # Traitement spécifique pour les booléens envoyés en GET
-                if isinstance(model._meta.get_field(param), BooleanField):
+                if request.GET[param] in ['True', 'true', 'False', 'false']:
                     if request.GET[param] in ['True', 'true']:
                         kwargs_filter[param] = True
                     else:
@@ -89,38 +90,15 @@ def get_list_model(request, model, search_in, props=None):
     except KeyError:
         pass
 
-    # On traite le cas particulier de User à part car des informations sont sensibles
+    # Sérialisation
     if model is not User:
 
-        # Order_by si précisé
-        try:
-            query = query.order_by(request.GET['order_by'])
-        except KeyError:
-            pass
-
-        # Sérialisation
         data_serialise = serialize('json', query)
-        data_load = json.loads(data_serialise)
-        if props:
-            for i, e in enumerate(data_load):
-                props_dict = {}
-                for p in props:
-                    try:
-                        props_dict[p] = getattr(model.objects.get(pk=e['pk']), p)()
-                    except:
-                        pass
-                data_load[i]['props'] = props_dict
-        data = json.dumps(data_load)
 
-    else:
+    else: # Cas User traité à part car contient des fields sensibles
+
         # Suppression des users spéciaux
         query = query.exclude(Q(groups=Group.objects.get(pk=9)) | Q(username='admin'))
-
-        # Order_by si précisé
-        try:
-            query = query.order_by(request.GET['order_by'])
-        except KeyError:
-            pass
 
         # Sérialisation
         allowed_fields = User._meta.get_all_field_names()
@@ -128,19 +106,38 @@ def get_list_model(request, model, search_in, props=None):
             allowed_fields.remove(e)
 
         data_serialise = serialize('json', query, fields=allowed_fields)
-        data_load = json.loads(data_serialise)
 
-        if props:
-            for i, e in enumerate(data_load):
-                props_dict = {}
-                for p in props:
-                    try:
-                        props_dict[p] = getattr(model.objects.get(pk=e['pk']), p)()
-                    except:
-                        pass
-                data_load[i]['props'] = props_dict
-        data = json.dumps(data_load)
+    data_load = json.loads(data_serialise)
 
+    # Méthodes supplémentaires
+    if props:
+        for i, e in enumerate(data_load):
+            props_dict = {}
+            for p in props:
+                try:
+                    props_dict[p] = getattr(model.objects.get(pk=e['pk']), p)()
+                except:
+                    pass
+            data_load[i]['props'] = props_dict
+
+    # Trie si précisé
+    try:
+        if request.GET['reverse'] in ['True', 'true']:
+            reverse = True
+        else:
+            reverse = False
+        # Trie par la valeur d'un field
+        if request.GET['order_by'] in model._meta.get_all_field_names():
+            data_load = sorted(data_load, key=lambda obj: obj['fields'][request.GET['order_by']], reverse=reverse)
+        # Trie par la valeur d'une méthode
+        else:
+            data_load = sorted(data_load,
+                               key=lambda obj: getattr(model.objects.get(pk=obj['pk']), request.GET['order_by'])(),
+                               reverse=reverse)
+    except KeyError:
+        pass
+
+    data = json.dumps(data_load)
     return HttpResponse(data)
 
 

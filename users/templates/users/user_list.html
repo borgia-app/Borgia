@@ -27,19 +27,6 @@
                     <th id="is_active">Est actif</th>
                     <th>Détail</th>
                 </tr>
-                {% for e in page %}
-                    <tr>
-                        <td>{{ e.last_name }}</td>
-                        <td>{{ e.first_name }}</td>
-                        <td>{{ e.surname }}</td>
-                        <td>{{ e.family }}</td>
-                        <td>{{ e.campus }}</td>
-                        <td>{{ e.year_pg }}</td>
-                        <td>{{ e.balance }}</td>
-                        <td>{% human_reading e.is_active 'true_false' %}</td>
-                        <td><a href="{% url 'url_retrieve_user' pk=e.pk %}?next={{ next }}">Détail</a></td>
-                    </tr>
-                {% endfor %}
             </table>
         </div>
         <script>
@@ -47,6 +34,7 @@
             var search;
             var year;
             var is_active = 'True';
+            var reverse = 'False';
 
             $(document).ready(function(){
                 set_user_list();
@@ -82,11 +70,17 @@
             });
             $("#first_line th[id]").click(function(){
                 if (order_by == $(this).attr('id')) {
-                    order_by = '-' + $(this).attr('id');
+                    if (reverse == 'False') {
+                        reverse = 'True'
+                    }
+                    else {
+                        reverse = 'False';
+                    }
                 }
                 else {
-                    order_by = $(this).attr('id');
+                    reverse = 'False';
                 }
+                order_by = $(this).attr('id');
                 set_user_list();
             });
 
@@ -96,6 +90,7 @@
                     dataType: "json",
                     data: {
                         order_by: order_by,
+                        reverse: reverse,
                         is_active: is_active,
                         year: year,
                         search: search
