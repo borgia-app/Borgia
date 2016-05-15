@@ -67,12 +67,6 @@ class ModelChoiceFieldWithQuantity(ModelChoiceField):
 
 class PurchaseAubergeForm(forms.Form):
 
-    # Gestionnaire - opérateur
-    operator_username = forms.CharField(label='Gestionnaire',
-                                        widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
-                                        validators=[autocomplete_username_validator])
-    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
-
     # Client
     client_username = forms.CharField(label='Client', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
                                       validators=[autocomplete_username_validator])
@@ -122,18 +116,6 @@ class PurchaseAubergeForm(forms.Form):
         cleaned_data = super(PurchaseAubergeForm, self).clean()
 
         try:
-            # Authentification de l'opérateur
-            operator_username = cleaned_data['operator_username']
-            operator_password = cleaned_data['operator_password']
-            # Essaye d'authentification seulement si les deux champs sont valides
-            # Cas d'échec d'authentification
-            operator = authenticate(username=operator_username, password=operator_password)
-            if operator is not None:
-                if operator.has_perm('shops.sell_auberge') is False:
-                    raise forms.ValidationError('Permission refusée !')
-            else:
-                raise forms.ValidationError('Echec d\'authentification')
-
             # Vérification de la commande sans provision
             if float(self.request.POST.get('hidden_balance_after')) < 0:
                 raise forms.ValidationError('Commande sans provision')

@@ -40,7 +40,7 @@ def balance_from_username(request):
     try:
         return HttpResponse(User.objects.get(username=request.GET.get('username')).balance)
     except ObjectDoesNotExist:
-        pass
+        return HttpResponse()
 
 
 class ManageGroupView(FormNextView):
