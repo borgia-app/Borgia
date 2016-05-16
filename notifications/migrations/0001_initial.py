@@ -37,33 +37,4 @@ class Migration(migrations.Migration):
                 ('target_user', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='notification_target_user', to=settings.AUTH_USER_MODEL)),
             ],
         ),
-        migrations.CreateModel(
-            name='NotificationClass',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=255, unique=True)),
-                ('description', models.TextField()),
-                ('creation_datetime', models.DateTimeField(auto_now_add=True)),
-                ('last_call_datetime', models.DateTimeField(blank=True, null=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='NotificationTemplate',
-            fields=[
-                ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('message_template', models.TextField(blank=True, null=True)),
-                ('target_user_template', models.CharField(blank=True, max_length=20, null=True)),
-                ('category_template', models.CharField(choices=[('ADMIN', 'admin'), ('FUNDS', 'funds'), ('FOYER', 'foyer'), ('AUBERGE', 'auberge'), ('OTHER', 'other')], default='OTHER', max_length=10)),
-                ('type_template', models.CharField(choices=[('DEBUG', 'debug'), ('SUCCESS', 'success'), ('INFO', 'info'), ('WARNING', 'warning'), ('ERROR', 'error')], default='INFO', max_length=10)),
-                ('creation_datetime', models.DateTimeField(auto_now_add=True)),
-                ('update_date', models.DateTimeField(auto_now=True)),
-                ('last_call_datetime', models.DateTimeField(blank=True, null=True)),
-                ('is_activated', models.BooleanField(default=False)),
-                ('notification_class', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='notifications.NotificationClass')),
-                ('target_group_template', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='auth.Group')),
-            ],
-            options={
-                'permissions': (('notification_templates_manage', 'Gérer les template de notification'),),
-            },
-        ),
     ]

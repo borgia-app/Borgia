@@ -22,16 +22,11 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
         regex = re.compile(r"{{.*?}}")
         list = regex.findall(self.cleaned_data['message_template'])
 
-        regex = re.compile(r"(?:{{ *| *}})")
-        # Compiler l'expression regex avant une boucle permet d'améliorer les performances
-        for e in enumerate(list):
-            list[e[0]] = regex.sub("", e[1])
-            
-        authorized_tags = ("recipient",
-                           "recipient.surname",
-                           "recipient.first_name",
-                           "recipient.last_name",
-                           "object")
+        authorized_tags = ("{{ recipient }}",
+                           "{{ recipient.surname }}",
+                           "{{ recipient.first_name }}",
+                           "{{ recipient.last_name }}",
+                           "{{ object }}")
 
         for e in list:
             if e not in authorized_tags:

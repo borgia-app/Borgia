@@ -506,10 +506,10 @@ class ProductUnitCreateView(CreateNextView):
 
     def get_success_url(self):
         # Notifications
+
         notify(self.request,
                "product_unit_creation",
                ['User',
-                'Recipient',
                 'Trésoriers',
                 "Chefs gestionnaires du foyer",
                 "Chefs gestionnaires de l'auberge"],
@@ -594,15 +594,22 @@ class ProductBaseCreateView(FormNextView):
 
     def get_success_url(self):
         # Notifications
-        notify(self.request,
-               "product_base_creation",
-               ['User',
-                'Recipient',
-                'Trésoriers',
-                "Chefs gestionnaires du foyer",
-                "Chefs gestionnaires de l'auberge"],
-               self.object,
-               None)
+        if self.object.shop.name == 'Foyer':
+            notify(self.request,
+                   "foyer_product_base_creation",
+                   ['User',
+                    'Trésoriers',
+                    "Chefs gestionnaires du foyer",],
+                   self.object,
+                   None)
+        elif self.object.shop.name == 'Auberge':
+            notify(self.request,
+                   "auberge_product_base_creation",
+                   ['User',
+                    'Trésoriers',
+                    "Chefs gestionnaires de l'auberge"],
+                   self.object,
+                   None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get_initial(self):
@@ -654,15 +661,22 @@ class ProductBaseUpdateView(UpdateView):
 
     def get_success_url(self):
         # Notification
-        notify(self.request,
-               "product_base_updating",
-               ['User',
-                'Recipient',
-                'Trésoriers',
-                "Chefs gestionnaires du foyer",
-                "Chefs gestionnaires de l'auberge"],
-               self.object,
-               None)
+        if self.object.shop.name == 'Foyer':
+            notify(self.request,
+                   "foyer_product_base_updating",
+                   ['User',
+                    'Trésoriers',
+                    "Chefs gestionnaires du foyer",],
+                   self.object,
+                   None)
+        elif self.object.shop.name == 'Auberge':
+            notify(self.request,
+                   "auberge_product_base_updating",
+                   ['User',
+                    'Trésoriers',
+                    "Chefs gestionnaires de l'auberge"],
+                   self.object,
+                   None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get(self, request, *args, **kwargs):
@@ -802,7 +816,6 @@ class ProductCreateMultipleView(FormNextView):
                     notify(self.request,
                            "foyer_container_creation",
                            ['User',
-                            'Recipient',
                             'Trésoriers',
                             "Chefs gestionnaires du foyer"],
                            product,
@@ -812,7 +825,6 @@ class ProductCreateMultipleView(FormNextView):
                     notify(self.request,
                            "auberge_container_creation",
                            ['User',
-                            'Recipient',
                             'Trésoriers',
                             "Chefs gestionnaires de l'auberge"],
                            product,
@@ -830,7 +842,6 @@ class ProductCreateMultipleView(FormNextView):
                     notify(self.request,
                            "foyer_single_product_creation",
                            ['User',
-                            'Recipient',
                             'Trésoriers',
                             "Chefs gestionnaires du foyer"],
                            product,
@@ -840,7 +851,6 @@ class ProductCreateMultipleView(FormNextView):
                     notify(self.request,
                            "auberge_single_product_creation",
                            ['User',
-                            'Recipient',
                             'Trésoriers',
                             "Chefs gestionnaires de l'auberge"],
                            product,
