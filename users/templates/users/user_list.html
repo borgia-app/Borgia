@@ -28,100 +28,127 @@
                     <th>Détail</th>
                 </tr>
             </table>
+            <div class="pagination">
+                <a href="" class="first" data-action="first">&laquo;</a>
+                <a href="" class="previous" data-action="previous">&lsaquo;</a>
+                <input type="text" readonly="readonly" data-max-page="1" />
+                <a href="" class="next" data-action="next">&rsaquo;</a>
+                <a href="" class="last" data-action="last">&raquo;</a>
+            </div>
         </div>
-        <script>
-            var order_by;
-            var search;
-            var year;
-            var is_active = 'True';
-            var reverse = 'False';
+    </div>
+    <script>
+        var order_by;
+        var search;
+        var year;
+        var is_active = 'True';
+        var reverse = 'False';
+        var by_page = 25;
+        var begin = 0;
+        var end = by_page-1;
+        var nb_pages;
 
-            $(document).ready(function(){
+        $(document).ready(function(){
+            set_user_list();
+        });
+
+        var search_handler = function() {
+            if ($('#id_search').val().trim()!='') {
+                search = $('#id_search').val().trim();
                 set_user_list();
-            });
-            var search_handler = function() {
-                if ($('#id_search').val().trim()!='') {
-                    search = $('#id_search').val().trim();
-                    set_user_list();
-                }
-                else {
-                    search = undefined;
-                    set_user_list();
-                }
-            };
-            $('#id_search').keyup(search_handler).change(search_handler);
-            $("#id_year").change(function(){
-                if ($("select option:selected").attr('value') == 'all') {
-                    year = undefined;
-                }
-                else {
-                    year = $("select option:selected").attr('value');
-                }
+            }
+            else {
+                search = undefined;
                 set_user_list();
-            });
-            $("#id_is_active").change(function(){
-                if ($(this).is(':checked') == true) {
-                    is_active = 'False';
-                }
-                else {
-                    is_active = 'True';
-                }
-                set_user_list();
-            });
-            $("#first_line th[id]").click(function(){
-                if (order_by == $(this).attr('id')) {
-                    if (reverse == 'False') {
-                        reverse = 'True'
-                    }
-                    else {
-                        reverse = 'False';
-                    }
+            }
+        };
+        $('#id_search').keyup(search_handler).change(search_handler);
+        $("#id_year").change(function(){
+            if ($("select option:selected").attr('value') == 'all') {
+                year = undefined;
+            }
+            else {
+                year = $("select option:selected").attr('value');
+            }
+            set_user_list();
+        });
+        $("#id_is_active").change(function(){
+            if ($(this).is(':checked') == true) {
+                is_active = 'False';
+            }
+            else {
+                is_active = 'True';
+            }
+            set_user_list();
+        });
+        $("#first_line th[id]").click(function(){
+            if (order_by == $(this).attr('id')) {
+                if (reverse == 'False') {
+                    reverse = 'True'
                 }
                 else {
                     reverse = 'False';
                 }
-                order_by = $(this).attr('id');
-                set_user_list();
-            });
+            }
+            else {
+                reverse = 'False';
+            }
+            order_by = $(this).attr('id');
+            set_user_list();
+        });
 
-            function set_user_list() {
-                $.ajax({
-                    url: "{% url 'url_get_list_user' %}",
-                    dataType: "json",
-                    data: {
-                        order_by: order_by,
-                        reverse: reverse,
-                        is_active: is_active,
-                        year: year,
-                        search: search
-                    },
-                    success: function(data) {
-                        // Clean du tableau
-                        $("#table_users tr").not('#first_line').remove();
-                        // Ajout des nouvelles lignes
-                        for (i=0; i<data.length; i++) {
-                            var data_is_active = 'Non';
-                            if (data[i].fields.is_active == true) {
-                                data_is_active = 'Oui'
-                            }
-                            add_line([data[i].fields.last_name, data[i].fields.first_name, data[i].fields.surname,
-                                data[i].fields.family, data[i].fields.campus, data[i].fields.year, data[i].fields.balance + '€',
-                                data_is_active, '<a href="/users/retrieve/' + data[i].pk + '/?next={{ next }}">Détail</a>']);
+        function set_user_list() {
+            $.ajax({
+                url: "{% url 'url_get_list_user' %}",
+                dataType: "json",
+                data: {
+                    order_by: order_by,
+                    reverse: reverse,
+                    is_active: is_active,
+                    year: year,
+                    search: search,
+                    begin: begin,
+                    end: end
+                },
+                success: function(data) {
+                    // Clean du tableau
+                    $("#table_users tr").not('#first_line').remove();
+                    // Ajout des nouvelles lignes
+                    for (i=0; i<data.length; i++) {
+                        var data_is_active = 'Non';
+                        if (data[i].fields.is_active == true) {
+                            data_is_active = 'Oui'
                         }
-                    },
-                    error: function() {
-
+                        add_line([data[i].fields.last_name, data[i].fields.first_name, data[i].fields.surname,
+                            data[i].fields.family, data[i].fields.campus, data[i].fields.year, data[i].fields.balance + '€',
+                            data_is_active, '<a href="/users/retrieve/' + data[i].pk + '/?next={{ next }}">Détail</a>']);
                     }
-                });
-            }
 
-            function add_line(data) {
-                var line = '<tr>';
-                for (j=0; j<data.length; j++) {
-                    line += '<td>' + data[j] + '</td>'
+                    // Pagination
+                    var nb_pages = Math.trunc(data[0].count / by_page) + 1;
+                    $('.pagination').jqPagination({
+                        max_page	: nb_pages,
+                        paged: function(page) {
+                            begin = (page-1)*by_page;
+                            end = page*by_page - 1;
+                            set_user_list();
+                        }
+                    });
+                },
+                error: function() {
+                    // Clean du tableau
+                    $("#table_users tr").not('#first_line').remove();
                 }
-                line += '</tr>';
-                $('#table_users').append(line);
+            });
+        }
+
+        function add_line(data) {
+            var line = '<tr>';
+            for (j=0; j<data.length; j++) {
+                line += '<td>' + data[j] + '</td>'
             }
-        </script>
+            line += '</tr>';
+            $('#table_users').append(line);
+        }
+    </script>
 {% endblock %}

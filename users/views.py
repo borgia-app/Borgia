@@ -469,4 +469,5 @@ class UserListView(View):
         except KeyError:
             next = '/users/profile/'
 
+        add_to_breadcrumbs(request, 'Liste utilisateurs')
         return render(request, 'users/user_list.html', context={'next': next, 'list_year': list_year()})

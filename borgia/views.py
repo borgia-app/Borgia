@@ -137,6 +137,21 @@ def get_list_model(request, model, search_in, props=None):
     except KeyError:
         pass
 
+    # Information du nombre total d'élément
+    count = len(data_load)
+
+    # End et begin
+    try:
+        data_load = data_load[int(request.GET['begin']):int(request.GET['end'])]
+    except KeyError or AttributeError:
+        pass
+
+    # Ajout de l'information du nombre total d'élément
+    try:
+        data_load[0]['count'] = count
+    except IndexError:
+        pass
+
     data = json.dumps(data_load)
     return HttpResponse(data)
 

@@ -19,64 +19,70 @@
     <script src="{% static 'jquery-ui-1.11.4/jquery-ui.js' %}"></script>
     <script src="{% static 'js/widgets.js' %}"></script>
     <link rel="stylesheet" href="{% static 'jquery-ui-1.11.4/jquery-ui.css' %}">
+
+    <script src="{% static 'jqPagination/js/jquery.jqpagination.js' %}"></script>
+
+    <script src="{% static 'jqPagination/js/demo.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'jqPagination/css/jqpagination.css' %}" />
+
     <script type="text/javascript">
-    function show_hide_div(id)
-    {
-        if(document.getElementById(id).style.visibility=="hidden")
+        function show_hide_div(id)
         {
-            document.getElementById(id).style.visibility="visible";
-        }
-        else
-        {
-            document.getElementById(id).style.visibility="hidden";
-        }
-        return true;
-    }
-
-    var read_count = 0;
-    var display_count = 0;
-
-    function display_notification()
-    {
-        for (display_count; display_count<10; display_count++)
-        {
-            $("#container-notifications-hidden>div:first").insertBefore($(".notifications-footer"))
+            if(document.getElementById(id).style.visibility=="hidden")
+            {
+                document.getElementById(id).style.visibility="visible";
+            }
+            else
+            {
+                document.getElementById(id).style.visibility="hidden";
+            }
+            return true;
         }
 
-        if (display_count + read_count < {{ messages|length }})
+        var read_count = 0;
+        var display_count = 0;
+
+        function display_notification()
         {
-             document.querySelector('.notifications-footer').firstElementChild.innerHTML=({{ messages|length }}-read_count-display_count).toString()+' autres messages. Tout afficher.';
+            for (display_count; display_count<10; display_count++)
+            {
+                $("#container-notifications-hidden>div:first").insertBefore($(".notifications-footer"))
+            }
+
+            if (display_count + read_count < {{ messages|length }})
+            {
+                document.querySelector('.notifications-footer').firstElementChild.innerHTML=({{ messages|length }}-read_count-display_count).toString()+' autres messages. Tout afficher.';
+            }
+            else
+            {
+                document.querySelector('.notifications-footer').firstElementChild.innerHTML='Afficher toutes les notifications.';
+            }
+
+
         }
-        else
+
+        function make_notification_read_and_undisplay_it(id)
         {
-            document.querySelector('.notifications-footer').firstElementChild.innerHTML='Afficher toutes les notifications.';
-        }
+            document.getElementById('container-notifications').removeChild(document.getElementById(id));
 
-
-    }
-
-    function make_notification_read_and_undisplay_it(id)
-    {
-        document.getElementById('container-notifications').removeChild(document.getElementById(id));
-
-        var xhr = new XMLHttpRequest();
+            var xhr = new XMLHttpRequest();
             xhr.open('GET', '{% url 'url_read_notification' %}?notification_id=' + id);
             xhr.send(null);
 
-        read_count = read_count + 1;
-        display_count = display_count - 1;
+            read_count = read_count + 1;
+            display_count = display_count - 1;
 
-        display_notification()
+            display_notification()
 
-        if (read_count < {{ messages|length }})
-        {
-            document.querySelector('span.buble-notifications-count').innerHTML=({{ messages|length }}-read_count).toString();
+            if (read_count < {{ messages|length }})
+            {
+                document.querySelector('span.buble-notifications-count').innerHTML=({{ messages|length }}-read_count).toString();
+            }
+            else
+            {
+                document.querySelector('span.buble-notifications-count').style.visibility="hidden";
+            }
         }
-        else
-        {
-            document.querySelector('span.buble-notifications-count').style.visibility="hidden";
-        }
-    }
 
     </script>
 </head>
@@ -137,20 +143,20 @@
             show_hide_div('container-notifications');
         </script>
         <div class="notifications-header">
-             <h1 class="notifications-header">Nouvelles notifications:</h1>
+            <h1 class="notifications-header">Nouvelles notifications:</h1>
         </div>
-            {% if messages %}
-            {% else %}
-                <div class="notifications info">Il n'y a pas de nouvelles notifications pour toi.</div>
-            {% endif %}
+        {% if messages %}
+        {% else %}
+            <div class="notifications info">Il n'y a pas de nouvelles notifications pour toi.</div>
+        {% endif %}
         <div class="notifications-footer">
             <a href="{% url 'url_list_complete_notification' %}">Tout afficher ...</a>
         </div>
-    {% if messages %}
-        <script type="text/javascript">
-            display_notification()
-        </script>
-    {% endif %}
+        {% if messages %}
+            <script type="text/javascript">
+                display_notification()
+            </script>
+        {% endif %}
     </div>
 {%  endif %}
 <div class="container">
