@@ -16,11 +16,11 @@ class notiftest(forms.Form):
 class NotificationTemplateUpdateViewForm(forms.ModelForm):
     class Meta:
         model = NotificationTemplate
-        fields = ['message_template', 'category_template', 'type_template', 'is_activated']
+        fields = ["message", "category", "type", 'is_activated']
 
     def clean_message_template(self):
         regex = re.compile(r"{{.*?}}")
-        list = regex.findall(self.cleaned_data['message_template'])
+        list = regex.findall(self.cleaned_data["message"])
 
         authorized_tags = ("{{ recipient }}",
                            "{{ recipient.surname }}",
@@ -32,7 +32,7 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
             if e not in authorized_tags:
                 raise ValidationError("Utilisation de tags non autorisés ou mal orthographiés")
 
-        return self.cleaned_data['message_template']
+        return self.cleaned_data["message"]
 
 
 

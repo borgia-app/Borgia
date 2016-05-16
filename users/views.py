@@ -245,7 +245,7 @@ class UserUpdateView(FormView):
     def get_success_url(self):
         if self.modified is True:
             # Notifications
-            notify(self.request, 'user_updating', ['User', 'Recipient', 'Présidents', "Trésoriers"], self.request.user, None)
+            notify(self.request, 'user_updating', self.request.user, None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get_initial(self):
@@ -297,7 +297,7 @@ class UserUpdateAdminView(FormView):
     def get_success_url(self):
         if self.modified is True:
             # Notifications si changement
-            notify(self.request, 'user_updating', ['User', "Recipient", 'Présidents', "Trésoriers"], User.objects.get(pk=self.kwargs['pk']), None)
+            notify(self.request, 'user_updating', User.objects.get(pk=self.kwargs['pk']), None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get_initial(self):
@@ -339,9 +339,9 @@ class UserDesactivateView(SuccessMessageMixin, View):
         user.save()
         # Notifications
         if user.is_active is True:
-            notify(self.request, 'user_activation', ['User', 'Recipient', 'Présidents', "Trésoriers"], user, None)
+            notify(self.request, 'user_activation', user, None)
         else:
-            notify(self.request, 'user_deactivation', ['User', 'Recipient', 'Présidents', "Trésoriers"], user, None)
+            notify(self.request, 'user_deactivation', user, None)
         return redirect(force_text(self.request.POST.get('next')))
 
 

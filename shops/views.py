@@ -509,10 +509,6 @@ class ProductUnitCreateView(CreateNextView):
 
         notify(self.request,
                "product_unit_creation",
-               ['User',
-                'Trésoriers',
-                "Chefs gestionnaires du foyer",
-                "Chefs gestionnaires de l'auberge"],
                self.object,
                None)
         return force_text(self.request.POST.get('next', self.success_url))
@@ -546,11 +542,6 @@ class ProductUnitUpdateView(UpdateView):
         # Notifications
         notify(self.request,
                "product_unit_updating",
-               ['User',
-                'Recipient',
-                'Trésoriers',
-                "Chefs gestionnaires du foyer",
-                "Chefs gestionnaires de l'auberge"],
                self.object,
                None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
@@ -597,17 +588,11 @@ class ProductBaseCreateView(FormNextView):
         if self.object.shop.name == 'Foyer':
             notify(self.request,
                    "foyer_product_base_creation",
-                   ['User',
-                    'Trésoriers',
-                    "Chefs gestionnaires du foyer",],
                    self.object,
                    None)
         elif self.object.shop.name == 'Auberge':
             notify(self.request,
                    "auberge_product_base_creation",
-                   ['User',
-                    'Trésoriers',
-                    "Chefs gestionnaires de l'auberge"],
                    self.object,
                    None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
@@ -664,17 +649,11 @@ class ProductBaseUpdateView(UpdateView):
         if self.object.shop.name == 'Foyer':
             notify(self.request,
                    "foyer_product_base_updating",
-                   ['User',
-                    'Trésoriers',
-                    "Chefs gestionnaires du foyer",],
                    self.object,
                    None)
         elif self.object.shop.name == 'Auberge':
             notify(self.request,
                    "auberge_product_base_updating",
-                   ['User',
-                    'Trésoriers',
-                    "Chefs gestionnaires de l'auberge"],
                    self.object,
                    None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
@@ -815,18 +794,12 @@ class ProductCreateMultipleView(FormNextView):
                 if product.product_base.shop.name == 'Foyer':
                     notify(self.request,
                            "foyer_container_creation",
-                           ['User',
-                            'Trésoriers',
-                            "Chefs gestionnaires du foyer"],
                            product,
                            None)
 
                 elif product.product_base.shop.name == 'Auberge':
                     notify(self.request,
                            "auberge_container_creation",
-                           ['User',
-                            'Trésoriers',
-                            "Chefs gestionnaires de l'auberge"],
                            product,
                            None)
 
@@ -841,18 +814,12 @@ class ProductCreateMultipleView(FormNextView):
                 if product.product_base.shop.name == 'Foyer':
                     notify(self.request,
                            "foyer_single_product_creation",
-                           ['User',
-                            'Trésoriers',
-                            "Chefs gestionnaires du foyer"],
                            product,
                            None)
 
                 elif product.product_base.shop.name == 'Auberge':
                     notify(self.request,
                            "auberge_single_product_creation",
-                           ['User',
-                            'Trésoriers',
-                            "Chefs gestionnaires de l'auberge"],
                            product,
                            None)
 

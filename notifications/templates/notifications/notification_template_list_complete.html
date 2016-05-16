@@ -2,7 +2,9 @@
 {% load users_extra %}
 
 {% block content %}
-
+<div class="container">
+    <a href="create/">Ajouter un nouveau template.</a>
+</div>
 {% if page %}
    <div class="container">
         <input type=hidden name="order_by" value="{{ order_by }}" />
@@ -16,18 +18,19 @@
                 <th>Catégorie</th>
                 <th>Activée</th>
                 <th>Modification</th>
+                <th>Ajouter un nouveau template pour la même classe</th>
             </tr>
             {% for e in page %}
                 <tr>
                     <td>{{ e.pk }}</td>
                     <td>{{ e.notification_class.name}}</td>
-                    <td>{{ e.message_template}}</td>
-                    <td>{% if e.target_group_template == None %}{{ e.target_user_template }}
-                    {% else %}{{ e.target_group_template }}{% endif %}</td>
-                    <td>{{ e.type_template }}</td>
-                    <td>{{ e.category_template }}</td>
+                    <td>{{ e.message}}</td>
+                    <td>{{ e.target_users }}</td>
+                    <td>{{ e.type }}</td>
+                    <td>{{ e.category }}</td>
                     <td>{{ e.is_activated }}</td>
                     <td><a href="update/{{ e.pk }}">Modifier</a></td>
+                    <td><a href="create/?notification_class={{ e.notification_class.name }}">Add</a> </td>
                 </tr>
             {% endfor %}
         </table>

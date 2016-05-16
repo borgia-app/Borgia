@@ -11,10 +11,16 @@ urlpatterns = [
     url(r'^$', NotificationListCompleteView.as_view(), name='url_list_complete_notification'),  # Liste
     url(r'^read_notification/$', read_notification, name='url_read_notification'),
     url(r'^templates/$',
-        permission_required('notifications.notification_templates_manage', raise_exception=True)(NotificationTemplateListCompleteView.as_view()),
+        permission_required('notifications.notification_templates_manage',
+                            raise_exception=True)(NotificationTemplateListCompleteView.as_view()),
         name='url_list_complete_notification_template'),
     url(r'^templates/update/(?P<pk>\d+)/$',
-        permission_required('notifications.notification_templates_manage', raise_exception=True)(NotificationTemplateUpdateView.as_view()),
+        permission_required('notifications.notification_templates_manage',
+                            raise_exception=True)(NotificationTemplateUpdateView.as_view()),
         name='url_update_notification_template'),
+    url(r'^templates/create/$',
+        permission_required('notifications.notification_templates_manage',
+                            raise_exception=True)(NotificationTemplateCreateView.as_view()),
+        name='url_create_notification_template'),
 
 ]

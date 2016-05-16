@@ -9,7 +9,7 @@ from django.shortcuts import HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from borgia.models import ListCompleteView
 from notifications.forms import notiftest, NotificationTemplateUpdateViewForm
-from django.views.generic.edit import UpdateView
+from django.views.generic.edit import UpdateView, CreateView
 
 # CRUD modèle notification
 
@@ -50,14 +50,30 @@ class NotificationTemplateListCompleteView(ListCompleteView):
 
     def get(self, request, *args, **kwargs):
         # Ajout au fil d'ariane
-        add_to_breadcrumbs(request, 'Notifications templates')
+        add_to_breadcrumbs(request, 'Templates de notification')
         return super(NotificationTemplateListCompleteView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
 
-        # Récupération de la liste de notifications filtrées de l'user
+        # Récupération de la liste de templates de notifications
         self.query = NotificationTemplate.objects.all().order_by(self.attr['order_by'])
         return super(NotificationTemplateListCompleteView, self).get_context_data(**kwargs)
+
+
+class NotificationTemplateCreateView(CreateView):
+    model = NotificationTemplate
+    template_name = 'notifications/notification_template_create.html'
+    success_url = '/notifications/templates/'
+    fields = ['notification_class', 'target_users', 'required_permission', 'message', 'category', 'type', 'is_activated']
+
+    def get(self, request, *args, **kwargs):
+        # Ajout au fil d'ariane
+        add_to_breadcrumbs(request, 'Création de template')
+        return super(NotificationTemplateCreateView, self).get(request, *args, **kwargs)
+
+    def get_initial(self):
+        if self.request.GET.get('notification_class') is not None:
+            return {'notification_class': NotificationClass.objects.get(name=self.request.GET.get('notification_class'))}
 
 
 class NotificationTemplateUpdateView(UpdateView):
@@ -65,6 +81,11 @@ class NotificationTemplateUpdateView(UpdateView):
     form_class = NotificationTemplateUpdateViewForm
     template_name = 'notifications/notification_template_update.html'
     success_url = '/notifications/templates/'
+
+    def get(self, request, *args, **kwargs):
+        # Ajout au fil d'ariane
+        add_to_breadcrumbs(request, 'Modification de template')
+        return super(NotificationTemplateUpdateView, self).get(request, *args, **kwargs)
 
 
 def read_notification(request):
