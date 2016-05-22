@@ -28,13 +28,6 @@
                     <th>Détail</th>
                 </tr>
             </table>
-            <div class="pagination">
-                <a href="" class="first" data-action="first">&laquo;</a>
-                <a href="" class="previous" data-action="previous">&lsaquo;</a>
-                <input type="text" readonly="readonly" data-max-page="1" />
-                <a href="" class="next" data-action="next">&rsaquo;</a>
-                <a href="" class="last" data-action="last">&raquo;</a>
-            </div>
         </div>
     </div>
     <script>
@@ -43,10 +36,6 @@
         var year;
         var is_active = 'True';
         var reverse = 'False';
-        var by_page = 25;
-        var begin = 0;
-        var end = by_page-1;
-        var nb_pages;
 
         $(document).ready(function(){
             set_user_list();
@@ -106,9 +95,7 @@
                     reverse: reverse,
                     is_active: is_active,
                     year: year,
-                    search: search,
-                    begin: begin,
-                    end: end
+                    search: search
                 },
                 success: function(data) {
                     // Clean du tableau
@@ -123,17 +110,6 @@
                             data[i].fields.family, data[i].fields.campus, data[i].fields.year, data[i].fields.balance + '€',
                             data_is_active, '<a href="/users/retrieve/' + data[i].pk + '/?next={{ next }}">Détail</a>']);
                     }
-
-                    // Pagination
-                    var nb_pages = Math.trunc(data[0].count / by_page) + 1;
-                    $('.pagination').jqPagination({
-                        max_page	: nb_pages,
-                        paged: function(page) {
-                            begin = (page-1)*by_page;
-                            end = page*by_page - 1;
-                            set_user_list();
-                        }
-                    });
                 },
                 error: function() {
                     // Clean du tableau
