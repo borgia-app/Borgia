@@ -176,7 +176,7 @@ class ProductBase(models.Model):
 
     def get_moded_price(self):
         if self.is_manual:
-            return self.is_manual
+            return self.manual_price
         else:
             return self.set_calculated_price_mean()
 
