@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
 {% load finances_extra %}
 {% load users_extra %}
+{% load static %}
 
 {% block content %}
     <div class="container">
@@ -15,7 +16,7 @@
             </select>
         </div>
         <div class="row">
-            <table id="table_users">
+            <table id="table_object">
                 <tr id="first_line">
                     <th id="last_name">Nom</th>
                     <th id="first_name">Prénom</th>
@@ -28,30 +29,24 @@
                     <th>Détail</th>
                 </tr>
             </table>
+            <div class="pagination-div">
+                <ul class="pagination noselect" style="margin: 5px 0 10px 0">
+                    <li id="previous">
+                        <span aria-hidden="true">&laquo; Précédent</span>
+                    </li>
+                    <li id="next">
+                        <span aria-hidden="true">Suivant &raquo;</span>
+                    </li>
+                </ul>
+            </div>
         </div>
     </div>
+
     <script>
-        var order_by;
-        var search;
+
+        // Current
         var year;
         var is_active = 'True';
-        var reverse = 'False';
-
-        $(document).ready(function(){
-            set_user_list();
-        });
-
-        var search_handler = function() {
-            if ($('#id_search').val().trim()!='') {
-                search = $('#id_search').val().trim();
-                set_user_list();
-            }
-            else {
-                search = undefined;
-                set_user_list();
-            }
-        };
-        $('#id_search').keyup(search_handler).change(search_handler);
         $("#id_year").change(function(){
             if ($("select option:selected").attr('value') == 'all') {
                 year = undefined;
@@ -59,7 +54,8 @@
             else {
                 year = $("select option:selected").attr('value');
             }
-            set_user_list();
+            page = 1;
+            set_object_list();
         });
         $("#id_is_active").change(function(){
             if ($(this).is(':checked') == true) {
@@ -68,63 +64,106 @@
             else {
                 is_active = 'True';
             }
-            set_user_list();
+            page = 1;
+            set_object_list();
         });
-        $("#first_line th[id]").click(function(){
-            if (order_by == $(this).attr('id')) {
-                if (reverse == 'False') {
-                    reverse = 'True'
-                }
-                else {
-                    reverse = 'False';
-                }
-            }
-            else {
-                reverse = 'False';
-            }
-            order_by = $(this).attr('id');
-            set_user_list();
-        });
-
-        function set_user_list() {
+        function set_object_list() {
             $.ajax({
-                url: "{% url 'url_get_list_user' %}",
+                url: "/users/user/api/",
                 dataType: "json",
                 data: {
-                    order_by: order_by,
-                    reverse: reverse,
+                    ordering: order_by,
                     is_active: is_active,
                     year: year,
-                    search: search
+                    search: search,
+                    page: page
                 },
                 success: function(data) {
+
                     // Clean du tableau
-                    $("#table_users tr").not('#first_line').remove();
+                    $("#table_object tr").not('#first_line').remove();
                     // Ajout des nouvelles lignes
-                    for (i=0; i<data.length; i++) {
-                        var data_is_active = 'Non';
-                        if (data[i].fields.is_active == true) {
-                            data_is_active = 'Oui'
-                        }
-                        add_line([data[i].fields.last_name, data[i].fields.first_name, data[i].fields.surname,
-                            data[i].fields.family, data[i].fields.campus, data[i].fields.year, data[i].fields.balance + '€',
-                            data_is_active, '<a href="/users/retrieve/' + data[i].pk + '/?next={{ next }}">Détail</a>']);
+                    for (i=0; i<data.results.length; i++) {
+                        add_line([data.results[i].last_name, data.results[i].first_name, data.results[i].surname, data.results[i].family,
+                            data.results[i].campus, data.results[i].year, data.results[i].balance, data.results[i].is_active,
+                            '<a href="/users/retrieve/' + String(data.results[i].pk) + '/?next={{ next }}">Détail</a>']);
                     }
+
+                    // Pagination
+                    set_pagination_links(data.previous, data.next);
+
                 },
                 error: function() {
                     // Clean du tableau
-                    $("#table_users tr").not('#first_line').remove();
+                    $("#table_object tr").not('#first_line').remove();
                 }
             });
         }
 
+        // Generic
+        var order_by;
+        var page = 1;
+        var search;
+        $(document).ready(function(){
+            set_object_list();
+        });
+        $("#first_line th[id]").click(function(){
+            if (order_by == $(this).attr('id')) {
+                order_by = '-' + $(this).attr('id');
+            }
+            else {
+                order_by = $(this).attr('id');
+            }
+            page = 1;
+            set_object_list();
+        });
+        var search_handler = function() {
+            if ($('#id_search').val().trim()!='') {
+                search = $('#id_search').val().trim();
+                page = 1;
+                set_object_list();
+            }
+            else {
+                search = undefined;
+                page = 1;
+                set_object_list();
+            }
+        };
+        $('#id_search').keyup(search_handler).change(search_handler);
+        $("#previous").click(function() {
+            if (this.className != 'disabled') {
+                page = page - 1;
+                set_object_list();
+            }
+        });
+        $("#next").click(function() {
+            if (this.className != 'disabled') {
+                page = page + 1;
+                set_object_list();
+            }
+        });
+        function set_pagination_links(previous, next) {
+            if (previous == null) {
+                $("#previous").attr('class', 'disabled');
+            }
+            else {
+                $("#previous").attr('class', 'enabled');
+            }
+            if (next == null) {
+                $("#next").attr('class', 'disabled');
+            }
+            else {
+                $("#next").attr('class', 'enabled');
+            }
+        }
         function add_line(data) {
             var line = '<tr>';
             for (j=0; j<data.length; j++) {
                 line += '<td>' + data[j] + '</td>'
             }
             line += '</tr>';
-            $('#table_users').append(line);
+            $('#table_object').append(line);
         }
     </script>
+
 {% endblock %}

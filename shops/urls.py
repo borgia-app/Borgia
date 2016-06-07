@@ -55,7 +55,35 @@ urlpatterns = [
     url(r'^auberge/workboard', permission_required('shops.reach_workboard_auberge', raise_exception=True)
     (workboard_auberge), name='url_workboard_auberge'),
 
-    # Ajax
-    url(r'productbase/get/$', get_product_base, name='url_get_productbase'),
-    url(r'productunit/get/$', get_product_unit, name='url_get_productunit'),
+    # REST
+    url(r'^productbase/api/$', ProductBaseViewSet.as_view({
+        'get': 'list',
+        'post': 'create'
+    }), name='url_api_listcreate_productbase'),
+    url(r'^productbase/api/(?P<pk>\d+)/$', ProductBaseViewSet.as_view({
+        'get': 'retrieve',
+        'put': 'update',
+        'patch': 'partial_update',
+        'delete': 'destroy'
+    }), name='url_api_retrieveudatedestroy_productbase'),
+    url(r'^productunit/api/$', ProductUnitViewSet.as_view({
+        'get': 'list',
+        'post': 'create'
+    }), name='url_api_listcreate_productunit'),
+    url(r'^productunit/api/(?P<pk>\d+)/$', ProductUnitViewSet.as_view({
+        'get': 'retrieve',
+        'put': 'update',
+        'patch': 'partial_update',
+        'delete': 'destroy'
+    }), name='url_api_retrieveudatedestroy_productunit'),
+    url(r'^shop/api/$', ShopViewSet.as_view({
+        'get': 'list',
+        'post': 'create'
+    }), name='url_api_listcreate_shop'),
+    url(r'^shop/api/(?P<pk>\d+)/$', ShopViewSet.as_view({
+        'get': 'retrieve',
+        'put': 'update',
+        'patch': 'partial_update',
+        'delete': 'destroy'
+    }), name='url_api_retrieveudatedestroy_shop'),
 ]

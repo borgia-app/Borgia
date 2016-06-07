@@ -14,8 +14,10 @@ from django.db.models import Q
 import json
 import datetime
 import re, datetime
+from rest_framework import mixins
+from rest_framework import generics, filters, pagination, response
 
-from users.models import User, list_year
+from users.models import User, list_year, UserSerializer, UserSerializerUnprotected
 from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
 from contrib.models import add_to_breadcrumbs
 
@@ -471,3 +473,25 @@ class UserListView(View):
 
         add_to_breadcrumbs(request, 'Liste utilisateurs')
         return render(request, 'users/user_list.html', context={'next': next, 'list_year': list_year()})
+
+
+class UserList(generics.ListAPIView):
+    serializer_class = UserSerializer
+    queryset = User.objects.all().exclude(groups=Group.objects.get(pk=9), username__in=['AE_ENSAM', 'admin'])
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter, )
+    filter_fields = ('year', 'is_active')
+    search_fields = ('last_name', 'first_name', 'surname', '^family')
+
+
+class UserListUnprotected(generics.ListAPIView):
+    serializer_class = UserSerializerUnprotected
+    queryset = User.objects.all().exclude(groups=Group.objects.get(pk=9), username__in=['AE_ENSAM', 'admin'])
+    filter_backends = (filters.SearchFilter, filters.OrderingFilter)
+    search_fields = ('^last_name', '^first_name', '^surname', '^family', '^username')
+    ordering = ('-year',)
+    pagination_class = None
+
+
+class UserDetail(generics.RetrieveAPIView):
+    queryset = User.objects.all().exclude(groups=Group.objects.get(pk=9), username__in=['AE_ENSAM', 'admin'])
+    serializer_class = UserSerializer

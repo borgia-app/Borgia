@@ -9,6 +9,8 @@ from django.core.validators import RegexValidator
 
 from finances.models import Sale, BankAccount, SharedEvent
 
+from rest_framework import serializers
+
 
 class User(AbstractUser):
 
@@ -112,6 +114,18 @@ class User(AbstractUser):
 
             ('add_product', 'Ajouter des produits'),
         )
+
+
+class UserSerializer(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('pk', 'last_name', 'first_name', 'surname', 'family', 'campus', 'year', 'balance', 'is_active')
+
+
+class UserSerializerUnprotected(serializers.HyperlinkedModelSerializer):
+    class Meta:
+        model = User
+        fields = ('username', 'last_name', 'first_name', 'family', 'campus', 'year')
 
 
 def list_year():

@@ -15,12 +15,13 @@ jQuery(function($){
     $('.autocomplete_username').autocomplete({
         source: function( request, response ) {
             $.ajax({
-                url: "/users/username_from_username_part",
+                url: "/users/user/api/unpr/",
                 dataType: "json",
                 data: {
-                    keywords: request.term
+                    search: request.term
                 },
                 success: function( data ) {
+                    alert(data);
                     response( data );
                 }
             });

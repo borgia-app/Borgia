@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
     'users',
     'shops',
     'notifications',
@@ -138,6 +139,7 @@ LOGIN_EXEMPT_URLS = [
     '/auth/password_reset/done/',
     '/auth/done/',
     '/users/username_from_username_part',
+    '/users/user/api/unpr/',
     '/finances/electrovanne/request1',
     '/finances/electrovanne/request2',
     '/finances/electrovanne/date',
@@ -189,3 +191,9 @@ PASSWORD_RESET_TIMEOUT_DAYS = 1  # en jours
 # Les paramètres modifiables sont des objets Settings de l'app settings_data
 # A modifier directement dans l'application
 # [LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, MARGIN_PROFIT]
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 50
+}
