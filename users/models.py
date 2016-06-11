@@ -119,7 +119,7 @@ class User(AbstractUser):
 class UserSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = User
-        fields = ('pk', 'last_name', 'first_name', 'surname', 'family', 'campus', 'year', 'balance', 'is_active')
+        fields = ('pk', 'username', 'last_name', 'first_name', 'surname', 'family', 'campus', 'year', 'balance', 'is_active')
 
 
 class UserSerializerUnprotected(serializers.HyperlinkedModelSerializer):

@@ -12,10 +12,8 @@ from notifications.models import notify
 from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
 from contrib.models import add_to_breadcrumbs
 
-from rest_framework import mixins
-from rest_framework import generics
-from rest_framework import viewsets
 from shops.serializers import ProductBaseSerializer, ProductUnitSerializer, ShopSerializer
+from rest_framework import generics, filters, viewsets, mixins
 
 
 # AUBERGE
@@ -803,25 +801,25 @@ class ProductCreateMultipleView(FormNextView):
                                                    place=form.cleaned_data['place'],
                                                    product_base=form.cleaned_data['product_base'])
                 # Notifications
-                if product.product_base.shop.name == 'Foyer':
-                    notify(self.request,
-                           "foyer_container_creation",
-                           ['User',
-                            'Recipient',
-                            'Trésoriers',
-                            "Chefs gestionnaires du foyer"],
-                           product,
-                           None)
-
-                elif product.product_base.shop.name == 'Auberge':
-                    notify(self.request,
-                           "auberge_container_creation",
-                           ['User',
-                            'Recipient',
-                            'Trésoriers',
-                            "Chefs gestionnaires de l'auberge"],
-                           product,
-                           None)
+                # if product.product_base.shop.name == 'Foyer':
+                #     notify(self.request,
+                #            "foyer_container_creation",
+                #            ['User',
+                #             'Recipient',
+                #             'Trésoriers',
+                #             "Chefs gestionnaires du foyer"],
+                #            product,
+                #            None)
+                #
+                # elif product.product_base.shop.name == 'Auberge':
+                #     notify(self.request,
+                #            "auberge_container_creation",
+                #            ['User',
+                #             'Recipient',
+                #             'Trésoriers',
+                #             "Chefs gestionnaires de l'auberge"],
+                #            product,
+                #            None)
 
         elif form.cleaned_data['product_base'].type == 'single_product':
             for i in range(0, form.cleaned_data['quantity']):
@@ -831,25 +829,25 @@ class ProductCreateMultipleView(FormNextView):
                                                        place=form.cleaned_data['place'],
                                                        product_base=form.cleaned_data['product_base'])
                 # Notifications
-                if product.product_base.shop.name == 'Foyer':
-                    notify(self.request,
-                           "foyer_single_product_creation",
-                           ['User',
-                            'Recipient',
-                            'Trésoriers',
-                            "Chefs gestionnaires du foyer"],
-                           product,
-                           None)
-
-                elif product.product_base.shop.name == 'Auberge':
-                    notify(self.request,
-                           "auberge_single_product_creation",
-                           ['User',
-                            'Recipient',
-                            'Trésoriers',
-                            "Chefs gestionnaires de l'auberge"],
-                           product,
-                           None)
+                # if product.product_base.shop.name == 'Foyer':
+                #     notify(self.request,
+                #            "foyer_single_product_creation",
+                #            ['User',
+                #             'Recipient',
+                #             'Trésoriers',
+                #             "Chefs gestionnaires du foyer"],
+                #            product,
+                #            None)
+                #
+                # elif product.product_base.shop.name == 'Auberge':
+                #     notify(self.request,
+                #            "auberge_single_product_creation",
+                #            ['User',
+                #             'Recipient',
+                #             'Trésoriers',
+                #             "Chefs gestionnaires de l'auberge"],
+                #            product,
+                #            None)
 
         return super(ProductCreateMultipleView, self).form_valid(form)
 
@@ -874,17 +872,34 @@ class ProductCreateMultipleView(FormNextView):
 
 
 # REST FRAMEWORK
-class ProductBaseViewSet(viewsets.ModelViewSet):
-    queryset = ProductBase.objects.all()
+class ProductBaseList(generics.ListAPIView):
     serializer_class = ProductBaseSerializer
+    queryset = ProductBase.objects.all().exclude(pk=1)
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter, )
 
 
-class ProductUnitViewSet(viewsets.ModelViewSet):
-    queryset = ProductUnit.objects.all()
+class ProductBaseRetrieve(generics.RetrieveAPIView):
+    serializer_class = ProductBaseSerializer
+    queryset = ProductBase.objects.all().exclude(pk=1)
+
+
+class ProductUnitList(generics.ListAPIView):
     serializer_class = ProductUnitSerializer
+    queryset = ProductUnit.objects.all().exclude(pk=1)
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter, )
 
 
-# REST FRAMEWORK
-class ShopViewSet(viewsets.ModelViewSet):
-    queryset = Shop.objects.all()
+class ProductUnitRetrieve(generics.RetrieveAPIView):
+    serializer_class = ProductUnitSerializer
+    queryset = ProductUnit.objects.all().exclude(pk=1)
+
+
+class ShopList(generics.ListAPIView):
     serializer_class = ShopSerializer
+    queryset = Shop.objects.all()
+    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter, )
+
+
+class ShopRetrieve(generics.RetrieveAPIView):
+    serializer_class = ShopSerializer
+    queryset = Shop.objects.all()

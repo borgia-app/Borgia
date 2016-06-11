@@ -56,34 +56,16 @@ urlpatterns = [
     (workboard_auberge), name='url_workboard_auberge'),
 
     # REST
-    url(r'^productbase/api/$', ProductBaseViewSet.as_view({
-        'get': 'list',
-        'post': 'create'
-    }), name='url_api_listcreate_productbase'),
-    url(r'^productbase/api/(?P<pk>\d+)/$', ProductBaseViewSet.as_view({
-        'get': 'retrieve',
-        'put': 'update',
-        'patch': 'partial_update',
-        'delete': 'destroy'
-    }), name='url_api_retrieveudatedestroy_productbase'),
-    url(r'^productunit/api/$', ProductUnitViewSet.as_view({
-        'get': 'list',
-        'post': 'create'
-    }), name='url_api_listcreate_productunit'),
-    url(r'^productunit/api/(?P<pk>\d+)/$', ProductUnitViewSet.as_view({
-        'get': 'retrieve',
-        'put': 'update',
-        'patch': 'partial_update',
-        'delete': 'destroy'
-    }), name='url_api_retrieveudatedestroy_productunit'),
-    url(r'^shop/api/$', ShopViewSet.as_view({
-        'get': 'list',
-        'post': 'create'
-    }), name='url_api_listcreate_shop'),
-    url(r'^shop/api/(?P<pk>\d+)/$', ShopViewSet.as_view({
-        'get': 'retrieve',
-        'put': 'update',
-        'patch': 'partial_update',
-        'delete': 'destroy'
-    }), name='url_api_retrieveudatedestroy_shop'),
+    url(r'^productbase/api/$', permission_required('shops.list_productbase', raise_exception=True)
+    (ProductBaseList.as_view()), name='url_api_list_productbase'),
+    url(r'^productbase/api/(?P<pk>\d+)/$', permission_required('shops.retrieve_productbase', raise_exception=True)
+    (ProductBaseRetrieve.as_view()), name='url_api_retrieve_productbase'),
+    url(r'^productunit/api/$', permission_required('shops.list_productunit', raise_exception=True)
+    (ProductUnitList.as_view()), name='url_api_list_productunit'),
+    url(r'^productunit/api/(?P<pk>\d+)/$', permission_required('shops.retrieve_productunit', raise_exception=True)
+    (ProductUnitRetrieve.as_view()), name='url_api_retrieve_productunit'),
+    url(r'^shop/api/$', permission_required('shops.list_shop', raise_exception=True)
+    (ShopList.as_view()), name='url_api_list_shop'),
+    url(r'^shop/api/(?P<pk>\d+)/$', permission_required('shops.retrieve_shop', raise_exception=True)
+    (ShopRetrieve.as_view()), name='url_api_retrieve_shop')
 ]

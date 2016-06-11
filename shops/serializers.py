@@ -3,8 +3,8 @@ from shops.models import ProductBase, ProductUnit, Shop
 
 
 class ProductBaseSerializer(serializers.HyperlinkedModelSerializer):
-    product_unit = serializers.HyperlinkedRelatedField(view_name='url_api_retrieveudatedestroy_productunit', read_only=True)
-    shop = serializers.HyperlinkedRelatedField(view_name='url_api_retrieveudatedestroy_shop', read_only=True)
+    product_unit = serializers.HyperlinkedRelatedField(view_name='url_api_retrieve_productunit', read_only=True)
+    shop = serializers.HyperlinkedRelatedField(view_name='url_api_retrieve_shop', read_only=True)
 
     class Meta:
         model = ProductBase

@@ -480,7 +480,7 @@ class UserList(generics.ListAPIView):
     queryset = User.objects.all().exclude(groups=Group.objects.get(pk=9), username__in=['AE_ENSAM', 'admin'])
     filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter, )
     filter_fields = ('year', 'is_active')
-    search_fields = ('last_name', 'first_name', 'surname', '^family')
+    search_fields = ('username', 'last_name', 'first_name', 'surname', '^family')
 
 
 class UserListUnprotected(generics.ListAPIView):
