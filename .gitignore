@@ -429,5 +429,4 @@ wsgi.py
 borgia.sock
 borgia.wsgi
 borgia_nginx.conf.save
-settings.py
 
