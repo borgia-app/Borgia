@@ -1,8 +1,9 @@
 #-*- coding: utf-8 -*-
-from django.shortcuts import render, force_text, HttpResponseRedirect, redirect
+from django.shortcuts import render, force_text, HttpResponseRedirect, redirect, HttpResponse, Http404
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView
 from django.contrib.auth import logout
+from django.core import serializers
 
 from shops.models import *
 from shops.forms import *
@@ -11,9 +12,6 @@ from finances.models import *
 from notifications.models import notify
 from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
 from contrib.models import add_to_breadcrumbs
-
-from shops.serializers import ProductBaseSerializer, ProductUnitSerializer, ShopSerializer
-from rest_framework import generics, filters, viewsets, mixins
 
 
 # AUBERGE
@@ -509,13 +507,9 @@ class ProductUnitCreateView(CreateNextView):
 
     def get_success_url(self):
         # Notifications
+
         notify(self.request,
                "product_unit_creation",
-               ['User',
-                'Recipient',
-                'Trésoriers',
-                "Chefs gestionnaires du foyer",
-                "Chefs gestionnaires de l'auberge"],
                self.object,
                None)
         return force_text(self.request.POST.get('next', self.success_url))
@@ -549,11 +543,6 @@ class ProductUnitUpdateView(UpdateView):
         # Notifications
         notify(self.request,
                "product_unit_updating",
-               ['User',
-                'Recipient',
-                'Trésoriers',
-                "Chefs gestionnaires du foyer",
-                "Chefs gestionnaires de l'auberge"],
                self.object,
                None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
@@ -597,15 +586,16 @@ class ProductBaseCreateView(FormNextView):
 
     def get_success_url(self):
         # Notifications
-        notify(self.request,
-               "product_base_creation",
-               ['User',
-                'Recipient',
-                'Trésoriers',
-                "Chefs gestionnaires du foyer",
-                "Chefs gestionnaires de l'auberge"],
-               self.object,
-               None)
+        if self.object.shop.name == 'Foyer':
+            notify(self.request,
+                   "foyer_product_base_creation",
+                   self.object,
+                   None)
+        elif self.object.shop.name == 'Auberge':
+            notify(self.request,
+                   "auberge_product_base_creation",
+                   self.object,
+                   None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get_initial(self):
@@ -657,15 +647,16 @@ class ProductBaseUpdateView(UpdateView):
 
     def get_success_url(self):
         # Notification
-        notify(self.request,
-               "product_base_updating",
-               ['User',
-                'Recipient',
-                'Trésoriers',
-                "Chefs gestionnaires du foyer",
-                "Chefs gestionnaires de l'auberge"],
-               self.object,
-               None)
+        if self.object.shop.name == 'Foyer':
+            notify(self.request,
+                   "foyer_product_base_updating",
+                   self.object,
+                   None)
+        elif self.object.shop.name == 'Auberge':
+            notify(self.request,
+                   "auberge_product_base_updating",
+                   self.object,
+                   None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get(self, request, *args, **kwargs):
@@ -787,6 +778,25 @@ class ProductListView(ListCompleteView):
 
 
 class ProductCreateMultipleView(FormNextView):
+    """
+    Vue de création de 1 ou plusieurs produits. Il faut différencier les produits classiques (conteneurs et produits
+    unitaires) dont les contenants sont au peu prés fixes dans le temps des autres produits spécifiques.
+
+    Par exemple, dans le cas d'un produit classique :
+    la base de produit contient une quantité d'unité, un fût de 5000 cl de Kronembourg
+    Cette vue permet de créer 10 fûts de 5000 cl en une fois, via le champ "quantity"
+
+    Mais dans le cas des conteneurs dont la quantité varie à chaque fois car le packaging n'est pas fixe, par exemple un
+    jambon qui pèse entre 2 et 3 kg, il faut utiliser une autre méthode.
+    Les produits de bases sont calibrés à 1000 g. Ainsi l'ajout d'un produit de cette base demande d'entrée la quantité
+    dans le conteneur actuel via le champ "quantity", par exemple 2,45 kg.
+    Le prix entré est celui des 2,45kg.
+    La vue permet de créer un produit de cette base, en ajustant le prix pour le ramener à 1000 g du coup.
+    L'information de quantité initiale du vrai conteneur peut être utile un jour, donc nous la stockons dans le champ
+    du model Container quantity_remaining qui était devenu obsolète.
+    Cette méthode s'applique aux produits dont l'unité est de type "meat" ou "cheese". A priori ce problème est
+    spécifique à l'auberge et ne vaut pas la peine de remettre en question toute la structure de la base de donnée.
+    """
     template_name = 'shops/product_create_multiple.html'
     form_class = ProductCreateMultipleForm
     success_url = '/auth/login'
@@ -794,32 +804,58 @@ class ProductCreateMultipleView(FormNextView):
     def form_valid(self, form):
 
         if form.cleaned_data['product_base'].type == 'container':
-            for i in range(0, form.cleaned_data['quantity']):
-                product = Container.objects.create(price=form.cleaned_data['price'],
+
+            # Cas spécifique des produits alimentaires de l'auberge
+            # On crée un container de 1000 g en ajustant le prix, mais on stocke l'info de quantité dans remaining
+            # quantity (car le champ est la et est inutile)7
+            if form.cleaned_data['product_base'].product_unit.type in ['meat', 'cheese']:
+                product = Container.objects.create(price=(form.cleaned_data['price'] / form.cleaned_data['quantity'])*form.cleaned_data['product_base'].quantity,
+                                                   quantity_remaining=form.cleaned_data['quantity'],
                                                    purchase_date=form.cleaned_data['purchase_date'],
                                                    expiry_date=form.cleaned_data['expiry_date'],
                                                    place=form.cleaned_data['place'],
                                                    product_base=form.cleaned_data['product_base'])
+
                 # Notifications
-                # if product.product_base.shop.name == 'Foyer':
-                #     notify(self.request,
-                #            "foyer_container_creation",
-                #            ['User',
-                #             'Recipient',
-                #             'Trésoriers',
-                #             "Chefs gestionnaires du foyer"],
-                #            product,
-                #            None)
-                #
-                # elif product.product_base.shop.name == 'Auberge':
-                #     notify(self.request,
-                #            "auberge_container_creation",
-                #            ['User',
-                #             'Recipient',
-                #             'Trésoriers',
-                #             "Chefs gestionnaires de l'auberge"],
-                #            product,
-                #            None)
+                if product.product_base.shop.name == 'Foyer':
+                    notify(self.request,
+                           "foyer_container_creation",
+                           product,
+                           None)
+
+                elif product.product_base.shop.name == 'Auberge':
+                    notify(self.request,
+                           "auberge_container_creation",
+                           product,
+                           None)
+            else:
+
+                for i in range(0, form.cleaned_data['quantity']):
+                    product = Container.objects.create(price=form.cleaned_data['price'],
+                                                       purchase_date=form.cleaned_data['purchase_date'],
+                                                       expiry_date=form.cleaned_data['expiry_date'],
+                                                       place=form.cleaned_data['place'],
+                                                       product_base=form.cleaned_data['product_base'])
+                    # Notifications
+                    #if product.product_base.shop.name == 'Foyer':
+                    #    notify(self.request,
+                    #           "foyer_container_creation",
+                    #           ['User',
+                    #            'Recipient',
+                    #            'Trésoriers',
+                    #            "Chefs gestionnaires du foyer"],
+                    #           product,
+                    #           None)
+
+                    #elif product.product_base.shop.name == 'Auberge':
+                    #    notify(self.request,
+                    #           "auberge_container_creation",
+                    #           ['User',
+                    #            'Recipient',
+                    #            'Trésoriers',
+                    #            "Chefs gestionnaires de l'auberge"],
+                    #           product,
+                    #           None)
 
         elif form.cleaned_data['product_base'].type == 'single_product':
             for i in range(0, form.cleaned_data['quantity']):
@@ -829,25 +865,17 @@ class ProductCreateMultipleView(FormNextView):
                                                        place=form.cleaned_data['place'],
                                                        product_base=form.cleaned_data['product_base'])
                 # Notifications
-                # if product.product_base.shop.name == 'Foyer':
-                #     notify(self.request,
-                #            "foyer_single_product_creation",
-                #            ['User',
-                #             'Recipient',
-                #             'Trésoriers',
-                #             "Chefs gestionnaires du foyer"],
-                #            product,
-                #            None)
-                #
-                # elif product.product_base.shop.name == 'Auberge':
-                #     notify(self.request,
-                #            "auberge_single_product_creation",
-                #            ['User',
-                #             'Recipient',
-                #             'Trésoriers',
-                #             "Chefs gestionnaires de l'auberge"],
-                #            product,
-                #            None)
+                #if product.product_base.shop.name == 'Foyer':
+                #    notify(self.request,
+                #           "foyer_single_product_creation",
+                #           product,
+                #           None)
+
+                #elif product.product_base.shop.name == 'Auberge':
+                #    notify(self.request,
+                #           "auberge_single_product_creation",
+                #           product,
+                #           None)
 
         return super(ProductCreateMultipleView, self).form_valid(form)
 
@@ -869,37 +897,3 @@ class ProductCreateMultipleView(FormNextView):
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Création produits')
         return super(ProductCreateMultipleView, self).get(request, *args, **kwargs)
-
-
-# REST FRAMEWORK
-class ProductBaseList(generics.ListAPIView):
-    serializer_class = ProductBaseSerializer
-    queryset = ProductBase.objects.all().exclude(pk=1)
-    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter, )
-
-
-class ProductBaseRetrieve(generics.RetrieveAPIView):
-    serializer_class = ProductBaseSerializer
-    queryset = ProductBase.objects.all().exclude(pk=1)
-
-
-class ProductUnitList(generics.ListAPIView):
-    serializer_class = ProductUnitSerializer
-    queryset = ProductUnit.objects.all().exclude(pk=1)
-    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter, )
-
-
-class ProductUnitRetrieve(generics.RetrieveAPIView):
-    serializer_class = ProductUnitSerializer
-    queryset = ProductUnit.objects.all().exclude(pk=1)
-
-
-class ShopList(generics.ListAPIView):
-    serializer_class = ShopSerializer
-    queryset = Shop.objects.all()
-    filter_backends = (filters.DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter, )
-
-
-class ShopRetrieve(generics.RetrieveAPIView):
-    serializer_class = ShopSerializer
-    queryset = Shop.objects.all()

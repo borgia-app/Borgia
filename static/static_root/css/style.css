@@ -1248,8 +1248,7 @@ body{
 }
 
 .centre {
-    margin-top: 50vh;
-    transform: translateY(-50%);
+    margin-top: 70px;
 }
 
 /* ==========================================================================
@@ -1257,6 +1256,16 @@ body{
    ========================================================================== */
 
 #container-notifications{
+    position: absolute;
+    z-index: 1;
+    background-color: #353e4f;
+    color: white;
+    width: 40%;
+    margin-left: 55%;
+    margin-right: 5%;
+}
+
+#container-notifications-hidden{
     position: absolute;
     z-index: 1;
     background-color: #353e4f;
@@ -1319,9 +1328,10 @@ div.notifications-footer:hover{
     font-weight: bold;
 }
 
+/* ==========================================================================
+   Breadcrumbs
+   ========================================================================== */
 
-
-/* Breadcrumbs */
 
 #breadcrumbs {
     list-style-type: none;
@@ -1333,4 +1343,34 @@ div.notifications-footer:hover{
 
 .justify {
     text-align: justify;
+}
+
+
+#next_login_pg {
+    font-size: 30px;
+}
+
+/* ==========================================================================
+   Pagination
+   ========================================================================== */
+
+nav.pagination{
+    width: 80%;
+    margin-left: 10%;
+    text-align: center;
+}
+
+.pagination li{
+    display: inline-block;
+    background-color: #353e4f;
+    padding: 5px;
+}
+
+.pagination li:hover{
+    display: inline-block;
+    background-color: #60637b;
+}
+
+.pagination li.active{
+    background-color: #1A2B3C;
 }

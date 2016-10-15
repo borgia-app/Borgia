@@ -4,7 +4,7 @@
     "pk": 1,
     "fields": {
       "name": "Foyer",
-      "description": "Foyer des élèves de l'AE ENSAM"
+      "description": "Foyer des   l  ves de l'AE ENSAM"
     }
   },
   {
@@ -12,7 +12,7 @@
     "pk": 2,
     "fields": {
       "name": "Auberge",
-      "description": "Auberge des élèves de l'AE ENSAM"
+      "description": "Auberge des él  ves de l'AE ENSAM"
     }
   },
     {
@@ -24,3 +24,4 @@
     }
   }
 ]
+

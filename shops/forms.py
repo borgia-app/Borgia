@@ -248,4 +248,4 @@ class ProductBaseCreateForm(forms.Form):
     product_unit = forms.ModelChoiceField(label='Unité de produit', queryset=ProductUnit.objects.filter(is_active=True).exclude(pk=1).order_by('name'),
                                           required=False)
     quantity = forms.IntegerField(label='Contenance en unité de produit (ex: en cl pour un liquide, en gr pour de la '
-                                        'nourriture)', min_value=1)
+                                        'nourriture)', min_value=0, required=False)

@@ -58,7 +58,7 @@
                         <td>{{ e.year_pg }}</td>
                         <td>{{ e.balance }}</td>
                         <td>{% human_reading e.is_active 'true_false' %}</td>
-                        <td><a href="{% url 'url_retrieve_user' pk=e.pk %}?next={{ next }}">Détail</a></td>
+                        <td><a href="{% url 'url_retrieve_user' pk=e.pk %}?next=/users/list_complete">Détail</a></td>
                     </tr>
                 {% endfor %}
             </table>
@@ -179,3 +179,4 @@
         });
     </script>
 {% endblock %}
+

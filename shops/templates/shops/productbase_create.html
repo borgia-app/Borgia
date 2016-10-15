@@ -21,9 +21,8 @@
                     elem.label = labels[i];
             }
         }
-
-        document.getElementById('id_type').addEventListener('change', function(e) {
-            if (e.target.value == 'single_product') {
+        $(document).ready(function() {
+            if ($("#id_type").val() == 'single_product') {
                 document.getElementById('id_product_unit').style.display = 'None';
                 document.getElementById('id_product_unit').label.style.display = 'None';
                 document.getElementById('id_quantity').style.display = 'None';
@@ -31,15 +30,42 @@
                 document.getElementById('id_product_unit').value = '';
                 document.getElementById('id_quantity').value = 0;
                 document.getElementById('id_link_create_productunit').style.display = 'None';
-            }
-            if (e.target.value == 'container') {
+                $("#id_product_unit").prop('required',false);
+                $("#id_quantity").prop('required', false);            
+}
+            if ($("#id_type").val() == 'container') {
                 document.getElementById('id_product_unit').style.display = '';
                 document.getElementById('id_product_unit').label.style.display = '';
                 document.getElementById('id_quantity').style.display = '';
                 document.getElementById('id_quantity').label.style.display = '';
                 document.getElementById('id_link_create_productunit').style.display = '';
+                $("#id_product_unit").prop('required',true);
+                $("#id_quantity").prop('required', true);
             }
-        }, false)
+});
+	$("#id_type").change( function() {
+
+            if ($(this).val() == 'single_product') {
+                document.getElementById('id_product_unit').style.display = 'None';
+                document.getElementById('id_product_unit').label.style.display = 'None';
+                document.getElementById('id_quantity').style.display = 'None';
+                document.getElementById('id_quantity').label.style.display = 'None';
+                document.getElementById('id_product_unit').value = '';
+                document.getElementById('id_quantity').value = 0;
+                document.getElementById('id_link_create_productunit').style.display = 'None';
+		$("#id_product_unit").prop('required',false);
+		$("#id_quantity").prop('required', false);            
+}
+            if ($(this).val() == 'container') {
+                document.getElementById('id_product_unit').style.display = '';
+                document.getElementById('id_product_unit').label.style.display = '';
+                document.getElementById('id_quantity').style.display = '';
+                document.getElementById('id_quantity').label.style.display = '';
+                document.getElementById('id_link_create_productunit').style.display = '';
+		$("#id_product_unit").prop('required',true);
+		$("#id_quantity").prop('required', true);
+            }
+        });
     </script>
 
 {% endblock %}

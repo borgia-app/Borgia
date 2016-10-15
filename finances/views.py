@@ -333,9 +333,11 @@ class SupplyLydiaSelfView(FormView):
 
 
 def get_button_lydia(request, amount, tel_number):
+
     vendor_token = settings.LYDIA_VENDOR_TOKEN
     confirm_url = settings.LYDIA_CONFIRM_URL
     callback_url = settings.LYDIA_CALLBACK_URL
+
     amount = amount
     tel_number = tel_number
     message = "Ajout d'argent compte de" + request.user.__str__() + "Borgia AE ENSAM"

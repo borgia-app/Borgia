@@ -419,3 +419,14 @@ node_modules
 
 # Optional REPL history
 .node_repl_history
+
+# Configuration of the server Nginx Wsgi
+borgia.sql
+borgia_nginx.conf
+borgia_uwsgi.ini
+uwsgi_params
+wsgi.py
+borgia.sock
+borgia.wsgi
+borgia_nginx.conf.save
+

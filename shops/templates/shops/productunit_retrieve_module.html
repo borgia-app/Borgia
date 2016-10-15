@@ -4,5 +4,5 @@
     <li>Unité : {{ object.get_unit_display }}</li>
     <li>Type : {{ object.get_type_display }}</li>
     <li><a class="s" href="{% url 'url_update_productunit' pk=object.pk %}?next={% url 'url_list_product' %}?type_product=product_unit">Modifier</a></li>
-    <li><a class="s" href="{% url 'url_delete_productunit' pk=object.pk %}?next={% url 'url_list_product' %}?type_product=product_unit">Supprimer</a></li>
+   {% comment %}<li><a class="s" href="{% url 'url_delete_productunit' pk=object.pk %}?next={% url 'url_list_product' %}?type_product=product_unit">Supprimer</a></li>{% endcomment %}
 </ul>

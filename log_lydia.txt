@@ -1,11 +1,1 @@
-
-date : 
-2016-04-03 12:09:08.382361+00:00
-request - get
-<QueryDict: {'test': ['dkiedi']}>
-request - post
-<QueryDict: {}>
-request - body
-b''
-request
-<WSGIRequest: GET '/finances/supply/lydia/self/callback?test=dkiedi'>b''
+Niki NouriAE ENSAM10.0049D4B4A5CF8032B5CCE608A51FC075E1supply

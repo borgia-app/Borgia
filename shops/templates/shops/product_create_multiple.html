@@ -17,7 +17,7 @@
     <script>
         document.getElementById('id_shop').value = document.getElementById('hidden_shop').value;
     </script>
-
+{% comment %}
     <script>
         // Initialisation de type et du compte en banque (erreur de validation)
         $(document).ready(function() {
@@ -32,40 +32,43 @@
 
 
         function check_type_product() {
+            $.ajax({
+                url: "{% url 'url_get_productbase' %}",
+                dataType: "json",
+                data: {
+                    pk: $('#id_product_base').val()
+                },
+                success: function(data) {
 
-            if ($('#id_product_base').val() != '') {
-                $.ajax({
-                    url: "/shops/productbase/api/" + $('#id_product_base').val() + "/",
-                    dataType: "json",
-                    success: function (data) {
-
-                        if (data.type == 'container') {
-
-                            $.ajax({
-                                url: data.product_unit,
-                                dataType: "json",
-                                success: function (data2) {
-                                    if (data2.type == 'meat' || data2.type == 'cheese') {
-                                        $('label[for="id_quantity"]').html("Contenance (ex: en gr pour les fromages et les jambons)");
-                                    }
-                                    else {
-                                        $('label[for="id_quantity"]').html("Quantité à ajouter");
-                                    }
+                    if (data.fields.type == 'container') {
+                        $.ajax({
+                            url: "{% url 'url_get_productunit' %}",
+                            dataType: "json",
+                            data: {
+                                pk: data.fields.product_unit
+                            },
+                            success: function(data2) {
+                                if (data2.fields.type == 'meat' || data2.fields.type == 'cheese') {
+                                    $('label[for="id_quantity"]').html("Contenance (ex: en gr pour les fromages et les jambons)");
                                 }
-                            });
+                                else {
+                                    $('label[for="id_quantity"]').html("Quantité à ajouter");
+                                }
+                            }
+                        });
 
-                        }
-
-                        else {
-                            $('label[for="id_quantity"]').html("Quantité à ajouter");
-                        }
                     }
-                });
-            }
+
+                    else {
+                        $('label[for="id_quantity"]').html("Quantité à ajouter");
+                    }
+                }
+            });
         }
 
 
 
 
     </script>
+{% endcomment %}
 {% endblock %}

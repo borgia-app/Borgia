@@ -217,6 +217,7 @@
                 sum_container_syrup += Number(document.getElementById("selected_price_container_syrup_" + i).textContent);
             }
             var balance_before = Number(document.getElementById("balance_before").textContent.replace(",","."));
+		//alert(balance_before);
             document.getElementById("total_consumption").textContent = String((sum_active_keg+sum_single_product+sum_container_soft+sum_container_liquor+sum_container_syrup).toFixed(2));
             document.getElementById("balance_after").textContent = String((balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2));
             document.getElementById("hidden_balance_after").value = (balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2);
@@ -492,7 +493,6 @@
                 }
             }
         }
-
         // initialisation
         // Focus sur document pour touche "entrée"
         if (selected_quantity_active_keg[0] !== undefined) {
@@ -546,6 +546,6 @@
         setTimeout(function(){
             update_consumption()
         }, 1000);
-    </script>
+</script>
 
 {% endblock %}

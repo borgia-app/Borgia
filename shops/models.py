@@ -163,10 +163,13 @@ class ProductBase(models.Model):
             return 0
 
     def manual_price_usual(self):
-        if self.type == 'container':
-            return round((self.manual_price * self.product_unit.usual_quantity()) / self.quantity, 2)
-        else:
-            return self.manual_price
+        try:
+            if self.type == 'container':
+                return round((self.manual_price * self.product_unit.usual_quantity()) / self.quantity, 2)
+            else:
+                return self.manual_price
+        except AttributeError:
+            return 0
 
     def get_moded_usual_price(self):
         if self.is_manual:

@@ -16,19 +16,20 @@
             <td><a href="{% url 'url_retrieve_sale' pk=e.id %}">détail</a></td>
         </tr>
     {% endfor %}
-    {% if page.has_other_pages %}
+</table>
+    {% if page_obj.has_other_pages %}
         <nav class="pagination">
             <ul class="pagination">
                 {% comment %}Affiche un lien vers la première page{% endcomment %}
                 <li>
-                    <a href="?order_by={{ order_by }}&shop={{ shop }}&page=first">
+                    <a href="?page=1">
                         <span><<</span>
                     </a>
                 </li>
                 {% comment %}Affiche un lien vers la page précédente{% endcomment %}
-                {% if page.has_previous %}
+                {% if page_obj.has_previous %}
                     <li>
-                        <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ page.previous_page_number }}">
+                        <a href="?page={{ page_obj.previous_page_number }}">
                             <span>Previous</span>
                         </a>
                     </li>
@@ -40,16 +41,10 @@
                     </li>
                 {% endif %}
 
-                {% comment %}Affiche un des liens vers les pages encadrant la page courante{% endcomment %}
-                {% for p in page_links %}
-                    <li {% if p == page.number %}class="active"{% endif %}>
-                        <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ p }}">{{ p }}</a>
-                    </li>
-                {% endfor %}
                 {% comment %}Affiche un lien vers la page suivante{% endcomment %}
-                {% if page.has_next %}
+                {% if page_obj.has_next %}
                     <li>
-                        <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ page.next_page_number }}">
+                        <a href="?page={{ page_obj.next_page_number }}">
                             <span>Next</span>
                         </a>
                     </li>
@@ -62,11 +57,10 @@
                 {% endif %}
                 {% comment %}Affiche un lien vers la dernière page{% endcomment %}
                 <li>
-                    <a href="?order_by={{ order_by }}&shop={{ shop }}&page=last">
+                    <a href="?page_obj=last">
                         <span>>></span>
                     </a>
                 </li>
             </ul>
         </nav>
     {% endif %}
-</table>
