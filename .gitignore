@@ -430,3 +430,5 @@ borgia.sock
 borgia.wsgi
 borgia_nginx.conf.save
 
+# Migrations
+*/migrations
