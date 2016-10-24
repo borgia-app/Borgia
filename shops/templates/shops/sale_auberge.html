@@ -15,6 +15,7 @@
                             {{ form.client_username.errors }}
                             <label for="{{ form.client_username.id_for_label }}">Client:</label>
                             {{ form.client_username }}
+                            <span class="user-balance" id="surname"></span>
                         </div>
                         <div class="row">
                             <label>
@@ -160,15 +161,12 @@
         var selected_price_container_side = [];
         var selected_initial_price_container_side = [];
 
-        document.getElementById('id_client_username').addEventListener('blur', function() {
-            var xhr = new XMLHttpRequest();
-            xhr.open('GET', '{% url 'url_balance_from_username' %}?username=' + document.getElementById('id_client_username').value);
-            xhr.onreadystatechange = function() {
-                if (xhr.readyState == 4 && xhr.status == 200) {
-                    document.getElementById('balance_before').textContent = xhr.response;
-                }
-            };
-            xhr.send(null);
+        $("#id_client_username").blur(function() {
+            var usersAPI = '{% url 'url_data_from_username' %}?username=' + document.getElementById('id_client_username').value
+            $.getJSON( usersAPI, function( data ) {
+                $("#balance_before").text(data['balance'])
+                $("#surname").text(data['surname'] + ' ' + data['family'])
+            })
         });
 
         for (i=0; i<{{ single_product_available_list|length }}; i++) {

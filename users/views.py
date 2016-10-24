@@ -1,4 +1,5 @@
 #-*- coding: utf-8 -*-
+
 from django.shortcuts import render, HttpResponse, force_text, redirect, HttpResponseRedirect
 from users.forms import *
 from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin, DeleteView
@@ -20,6 +21,8 @@ from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListComp
 from contrib.models import add_to_breadcrumbs
 
 
+
+
 class LinkTokenUserView(FormNextView):
     form_class = LinkTokenUserForm
     template_name = 'users/link_token_user.html'
@@ -36,9 +39,14 @@ class LinkTokenUserView(FormNextView):
         return super(LinkTokenUserView, self).form_valid(form)
 
 
-def balance_from_username(request):
+def data_from_username(self):
     try:
-        return HttpResponse(User.objects.get(username=request.GET.get('username')).balance)
+        user = User.objects.get(username=self.GET.get('username'))
+        data = {
+            'surname': user.surname,
+            'balance': str(user.balance),
+            'family': user.family}
+        return HttpResponse(json.dumps(data))
     except ObjectDoesNotExist:
         return HttpResponse()
 
