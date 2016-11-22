@@ -4,6 +4,7 @@ from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView
 from django.contrib.auth import logout
 from django.core import serializers
+from math import ceil
 
 from shops.models import *
 from shops.forms import *
@@ -128,18 +129,18 @@ class PurchaseAuberge(FormView):
                 # Premier conteneur de la liste dans le queryset du product base
                 list_products_sold.append(SingleProductFromContainer.objects.create(container=Container.objects.filter(product_base=e[1])[0],
                                                                                     quantity=e[0] * e[1].product_unit.usual_quantity(),
-                                                                                    sale_price=e[1].get_moded_usual_price() * e[0]))
+                                                                                    sale_price=ceil(e[1].get_moded_usual_price() * e[0]/10) / 100))
 
         if list_products_sold:
-            s = sale_sale(sender=User.objects.get(username=form.cleaned_data['client_username']), operator=self.request.user, date=now(),
+            s = sale_sale(sender=User.objects.get(username=form.cleaned_data['client_username']), operator=self.request.user, date=now(),g
                           products_list=list_products_sold, wording='Vente auberge', to_return=True)
 
             # Deconnection
-            logout(self.request)
+            # logout(self.request)
 
             # Affichage de la purchase au client
             return render(self.request, 'shops/sale_validation.html', {'sale': s,
-                                                                       'next': '/auberge'})
+                                                                       'next': '/shops/auberge/consumption/'})
         else:
             # Commande nulle
 
@@ -1030,7 +1031,7 @@ class ProductCreateMultipleView(FormNextView):
             # On crée un container de 1000 g en ajustant le prix, mais on stocke l'info de quantité dans remaining
             # quantity (car le champ est la et est inutile)7
             if form.cleaned_data['product_base'].product_unit.type in ['meat', 'cheese']:
-                product = Container.objects.create(price=(form.cleaned_data['price'] / form.cleaned_data['quantity'])*form.cleaned_data['product_base'].quantity,
+                product = Container.objects.create(price=(form.cleaned_data['price'] *1000/ form.cleaned_data['quantity'])*form.cleaned_data['product_base'].quantity,
                                                    quantity_remaining=form.cleaned_data['quantity'],
                                                    purchase_date=form.cleaned_data['purchase_date'],
                                                    expiry_date=form.cleaned_data['expiry_date'],
