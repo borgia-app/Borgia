@@ -132,7 +132,7 @@ class PurchaseAuberge(FormView):
                                                                                     sale_price=ceil(e[1].get_moded_usual_price() * e[0]/10) / 100))
 
         if list_products_sold:
-            s = sale_sale(sender=User.objects.get(username=form.cleaned_data['client_username']), operator=self.request.user, date=now(),g
+            s = sale_sale(sender=User.objects.get(username=form.cleaned_data['client_username']), operator=self.request.user, date=now(),
                           products_list=list_products_sold, wording='Vente auberge', to_return=True)
 
             # Deconnection
