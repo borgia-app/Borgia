@@ -53,8 +53,8 @@
                 <div class="row" id="div_container_meat">
                     <table>
                         <th>Produit</th>
-                        <th>Prix 1 gr</th>
-                        <th>Nombre</th>
+                        <th>Prix au kg</th>
+                        <th>Poids au gramme</th>
                         <th>Prix correspondant</th>
 
                         {% for e in dict_field_container_meat %}
@@ -73,8 +73,8 @@
                 <div class="row" id="div_container_cheese">
                     <table>
                         <th>Produit</th>
-                        <th>Prix 1 gr</th>
-                        <th>Nombre</th>
+                        <th>Prix au Kg</th>
+                        <th>Poids en g</th>
                         <th>Prix correspondant</th>
 
                         {% for e in dict_field_container_cheese %}
@@ -93,8 +93,8 @@
                 <div class="row" id="div_container_side">
                     <table>
                         <th>Produit</th>
-                        <th>Prix 1 gr</th>
-                        <th>Nombre</th>
+                        <th>Prix au Kg</th>
+                        <th>Poids en g</th>
                         <th>Prix correspondant</th>
 
                         {% for e in dict_field_container_side %}
@@ -200,7 +200,7 @@
         for (i=0;i<{{ container_meat_list|length }};i++){
             (function(x) {
                 selected_quantity_container_meat[i].addEventListener('change', function(e) {
-                    selected_price_container_meat[x].textContent = String((e.target.value * Number(selected_initial_price_container_meat[x].textContent.replace(",", "."))).toFixed(2));
+                    selected_price_container_meat[x].textContent = String((Math.ceil(e.target.value * Number(selected_initial_price_container_meat[x].textContent.replace(",", "."))/10)/100).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
@@ -208,7 +208,7 @@
         for (i=0;i<{{ container_cheese_list|length }};i++){
             (function(x) {
                 selected_quantity_container_cheese[i].addEventListener('change', function(e) {
-                    selected_price_container_cheese[x].textContent = String((e.target.value * Number(selected_initial_price_container_cheese[x].textContent.replace(",", "."))).toFixed(2));
+                    selected_price_container_cheese[x].textContent = String((Math.ceil(e.target.value * Number(selected_initial_price_container_cheese[x].textContent.replace(",", "."))/10)/100).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
@@ -216,7 +216,7 @@
         for (i=0;i<{{ container_side_list|length }};i++){
             (function(x) {
                 selected_quantity_container_side[i].addEventListener('change', function(e) {
-                    selected_price_container_side[x].textContent = String((e.target.value * Number(selected_initial_price_container_side[x].textContent.replace(",", "."))).toFixed(2));
+                    selected_price_container_side[x].textContent = String((Math.ceil(e.target.value * Number(selected_initial_price_container_side[x].textContent.replace(",", "."))/10)/100).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
@@ -399,7 +399,7 @@
             var balance_before = Number(document.getElementById("balance_before").textContent);
             document.getElementById("total_consumption").textContent = String((sum_single_product+sum_container_meat+sum_container_cheese+sum_container_side).toFixed(2));
             document.getElementById("balance_after").textContent = String((balance_before-sum_single_product-sum_container_meat-sum_container_cheese-sum_container_side).toFixed(2));
-            document.getElementById("hidden_balance_after").value = (balance_before-sum_single_product-sum_container_meat-sum_container_cheese-sum_container_side).toFixed(2);
+            document.getElementById("hidden_balance_after").value = (balance_before-(sum_single_product-sum_container_meat-sum_container_cheese-sum_container_side)).toFixed(2);
         }
 
 

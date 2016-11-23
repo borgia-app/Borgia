@@ -194,6 +194,80 @@ class PurchaseFoyerForm(forms.Form):
         return super(PurchaseFoyerForm, self).clean()
 
 
+class DebitZifoysForm(forms.Form):
+
+        # Client
+    client_username = forms.CharField(label='Client', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                                      validators=[autocomplete_username_validator])
+
+    def __init__(self, *args, **kwargs):
+
+        # Initialisation des listes de produits
+        active_keg_container_list = kwargs.pop('active_keg_container_list')
+        single_product_available_list = kwargs.pop('single_product_available_list')
+        container_soft_list = kwargs.pop('container_soft_list')
+        container_syrup_list = kwargs.pop('container_syrup_list')
+        container_liquor_list = kwargs.pop('container_liquor_list')
+
+        self.request = kwargs.pop('request')
+        super(DebitZifoysForm, self).__init__(*args, **kwargs)
+
+        # Création des éléments de formulaire
+        for (i, t) in enumerate(active_keg_container_list):
+            self.fields['field_active_keg_container_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        for (i, t) in enumerate(single_product_available_list):
+            self.fields['field_single_product_%s' % i] = forms.IntegerField(required=True, min_value=0,
+                                                                            max_value=len(t[1]))
+        for (i, t) in enumerate(container_soft_list):
+            self.fields['field_container_soft_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        for (i, t) in enumerate(container_syrup_list):
+            self.fields['field_container_syrup_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        for (i, t) in enumerate(container_liquor_list):
+            self.fields['field_container_liquor_%s' % i] = forms.IntegerField(required=True, min_value=0)
+            self.fields['field_container_entire_liquor_%s' % i] = forms.IntegerField(required=True, min_value=0)
+
+    # Fonctions de récupérations des réponses en POST
+    def active_keg_container_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_active_keg_container_'):
+                yield (self.fields[name].label, value)
+
+    def single_product_available_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_single_product_'):
+                yield (self.fields[name].label, value)
+
+    def container_soft_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_container_soft_'):
+                yield (self.fields[name].label, value)
+
+    def container_syrup_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_container_syrup_'):
+                yield (self.fields[name].label, value)
+
+    def container_liquor_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_container_liquor_'):
+                yield (self.fields[name].label, value)
+
+    def container_entire_liquor_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_container_entire_liquor_'):
+                yield (self.fields[name].label, value)
+
+    def clean(self):
+        try:
+            # Vérification de la commande sans provision
+            if float(self.request.POST.get('hidden_balance_after')) < 0:
+                raise forms.ValidationError('Commande sans provision')
+        except ValueError:
+            raise forms.ValidationError('Erreur, veuillez recharger la page (F5 dans la barre d\'url)')
+
+        return super(DebitZifoysForm, self).clean()
+
+
 class ProductCreateMultipleForm(forms.Form):
 
     def __init__(self, **kwargs):
