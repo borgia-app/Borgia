@@ -139,7 +139,7 @@ def username_from_username_part(request):
         key = request.GET.get('keywords')
 
         # Fam'ss en entier
-        where_search = User.objects.filter(family=key)
+        where_search = User.objects.filter(family=key).order_by('-year')
 
         if len(key) > 2:
             # Nom de famille, début ou entier à partir de 3 caractères

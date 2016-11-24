@@ -279,6 +279,7 @@ class SupplyUnitedView(FormNextView):
     def get_initial(self):
         initial = super(SupplyUnitedView, self).get_initial()
         initial['signature_date'] = now
+        initial['operator_username'] = self.request.user.username
         return initial
 
 
@@ -307,6 +308,10 @@ class ExceptionnalMovementView(FormNextView):
 
         return super(ExceptionnalMovementView, self).form_valid(form)
 
+    def get_initial(self):
+        initial = super(ExceptionnalMovementView, self).get_initial()
+        initial['operator_username'] = self.request.user.username
+        return initial
 
 class SupplyLydiaSelfView(FormView):
     form_class = SupplyLydiaSelfForm
