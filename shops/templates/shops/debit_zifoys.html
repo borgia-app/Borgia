@@ -1,0 +1,583 @@
+{% extends 'base_clean.html' %}
+
+{% load static %}
+
+{% block content %}
+    <form method="POST" action="{% url 'url_debit_zifoys' %}" id="form_purchase">
+        {% csrf_token %}
+            <div class="row">
+                <div class="column offset-by-four">
+                    <div class="row">
+                        <div class="fieldWrapper">
+                            {{ form.client_username.errors }}
+                            <label for="{{ form.client_username.id_for_label }}">Client:</label>
+                            {{ form.client_username }}
+                            <span class="user-balance" id="surname"></span>
+                        </div>
+                        <div class="row">
+                            <label>
+                            <span class="user-balance"><span id="balance_before">0.00</span> € - <span id="total_consumption">0.00</span> € = <span id="balance_after">0.00</span> €</span>
+                            <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" /></label>
+                        </div>
+                        <div class="row">
+                            <input id="id_submit" class="self_submit" type=submit value="Valider (la 84)"/><br>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <style>
+            .self_submit {
+                background: #4B99AD;
+                padding: 5px !important;
+                margin: 5px;
+                border: none;
+                color: #fff;
+            }
+        </style>
+        <div id="div_purchase" class="container">
+            <div class="row">
+                <input type=hidden name="hidden_active_div" id="hidden_active_div" value=""/>
+                <ul id="onglets">
+                    <li id="li_active_keg_container">Tireuses à bières</li>
+                    <li id="li_single_product">Produits unitaires</li>
+                    <li id="li_liquor">Alcools forts</li>
+                    <li id="li_syrup">Sirops</li>
+                    <li id="li_soft">Soft</li>
+                </ul>
+            </div>
+            <div class="row">
+                <div class="row" id="div_active_keg_container">
+                    <span id="div_active_keg_container_txt"></span>
+                    <table>
+                        <th>Raccourci</th>
+                        <th>Bière</th>
+                        <th>Prix 25 cl</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
+
+                        {% for e in dict_field_active_keg_container %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                    {% endif %}</td>
+                                    <td>{{ e.1.product_base.product_unit }}</td>
+                                    <td><span id="selected_initial_price_active_keg_{{ e.2 }}">{{ e.1.product_base.get_moded_usual_price }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td><span id="selected_price_active_keg_{{ e.2 }}">0.00</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </div>
+                <div class="row" id="div_container_liquor">
+                    <table>
+                        <th>Raccourci</th>
+                        <th>Produit</th>
+                        <th>4 cl</th>
+                        <th>Nombre</th>
+                        <th>Bouteille</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
+
+                        {% for e in dict_field_container_liquor %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                    {% endif %}</td>
+                                    <td>{{ e.1.product_unit }}</td>
+                                    <td><span id="selected_initial_price_container_liquor_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td><span id="selected_initial_price_container_entire_liquor_{{ e.2 }}">{{ e.1.get_moded_price }}</span> €</td>
+                                    <td>{{ e.3 }}</td>
+                                    <td> <span id="selected_price_container_liquor_{{ e.2 }}">0.00</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="row" id="div_container_syrup">
+                    <table>
+                        <th>Raccourci</th>
+                        <th>Produit</th>
+                        <th>Prix 4 cl</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
+                        {% for e in dict_field_container_syrup %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                    {% endif %}</td>
+                                    <td>{{ e.1.product_unit }}</td>
+                                    <td><span id="selected_initial_price_container_syrup_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_container_syrup_{{ e.2 }}">0.00</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="row" id="div_single_product">
+                    <table>
+                        <th>Raccourci</th>
+                        <th>Produit</th>
+                        <th>Prix</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
+
+                        {% for e in dict_field_single_product %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                    {% endif %}</td>
+                                    <td>{{ e.1 }}</td>
+                                    <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_single_product_{{ e.2 }}">0.00</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </div>
+                <div class="row" id="div_soft">
+                    <table>
+                        <th>Raccourci</th>
+                        <th>Produit</th>
+                        <th>Prix 25 cl</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
+
+                        {% for e in dict_field_container_soft %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                    {% endif %}</td>
+                                    <td>{{ e.1.product_unit }}</td>
+                                    <td><span id="selected_initial_price_container_soft_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_container_soft_{{ e.2 }}">0.00</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <p></p>
+            <h3>Comment ça marche ?</h3>
+            <li><i class="fa fa-long-arrow-left" aria-hidden="true"></i> & <i class="fa fa-long-arrow-right" aria-hidden="true"></i> pour naviguer entre les onglets</li>
+            <li><i class="fa fa-long-arrow-up" aria-hidden="true"></i> & <i class="fa fa-long-arrow-down" aria-hidden="true"></i> pour naviguer entre les produits</li>
+            <li>+ & - pour ajouter ou supprimer des produits</li>
+            <li>Les numéros du clavier et du pavé numérique fonctionnent</li>
+            <li>"Entrée" ou bouton "Valider" pour valider la commande</li>
+        </div>
+    </form>
+    <script>
+        onglets = document.getElementById('onglets');
+        var li_list = onglets.getElementsByTagName('li');
+        var div_list = [];
+        div_list.push(document.getElementById('div_active_keg_container'));
+        div_list.push(document.getElementById('div_single_product'));
+        div_list.push(document.getElementById('div_container_liquor'));
+        div_list.push(document.getElementById('div_container_syrup'));
+        div_list.push(document.getElementById('div_soft'));
+        var active_li = 0;
+        // initialisation -> affichage des tireuses par défaut
+        set_active_li(0);
+
+        var fields_list = [];
+        var active_field = 0;
+
+        function update_consumption() {
+            var sum_active_keg = 0;
+            var sum_single_product = 0;
+            var sum_container_soft = 0;
+            var sum_container_liquor = 0;
+            var sum_container_syrup = 0;
+
+            for (i=0; i<{{ active_keg_container_list|length }}; i++) {
+                sum_active_keg += Number(document.getElementById("selected_price_active_keg_" + i).textContent);
+            }
+            for (i=0; i<{{ single_product_available_list|length }}; i++) {
+                sum_single_product += Number(document.getElementById("selected_price_single_product_" + i).textContent);
+            }
+            for (i=0; i<{{ container_soft_list|length }}; i++) {
+                sum_container_soft += Number(document.getElementById("selected_price_container_soft_" + i).textContent);
+            }
+            for (i=0; i<{{ container_liquor_list|length }}; i++) {
+                sum_container_liquor += Number(document.getElementById("selected_price_container_liquor_" + i).textContent);
+            }
+            for (i=0; i<{{ container_syrup_list|length }}; i++) {
+                sum_container_syrup += Number(document.getElementById("selected_price_container_syrup_" + i).textContent);
+            }
+            var balance_before = Number(document.getElementById("balance_before").textContent.replace(",","."));
+		//alert(balance_before);
+            document.getElementById("total_consumption").textContent = String((sum_active_keg+sum_single_product+sum_container_soft+sum_container_liquor+sum_container_syrup).toFixed(2));
+            document.getElementById("balance_after").textContent = String((balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2));
+            document.getElementById("hidden_balance_after").value = (balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2);
+        }
+
+        var selected_quantity_active_keg = [];
+        var selected_price_active_keg = [];
+        var selected_initial_price_active_keg = [];
+        var selected_quantity_single_product = [];
+        var selected_price_single_product = [];
+        var selected_initial_price_single_product = [];
+        var selected_quantity_container_soft = [];
+        var selected_price_container_soft = [];
+        var selected_initial_price_container_soft = [];
+        var selected_quantity_container_liquor = [];
+        var selected_price_container_liquor = [];
+        var selected_initial_price_container_liquor = [];
+        var selected_quantity_container_entire_liquor = [];
+        var selected_price_container_entire_liquor = [];
+        var selected_initial_price_container_entire_liquor = [];
+        var selected_quantity_container_syrup = [];
+        var selected_price_container_syrup = [];
+        var selected_initial_price_container_syrup = [];
+
+        $("#id_client_username").blur(function() {
+            var usersAPI = '{% url 'url_data_from_username' %}?username=' + document.getElementById('id_client_username').value
+            $.getJSON( usersAPI, function( data ) {
+                $("#balance_before").text(data['balance'])
+                $("#surname").text(data['surname'] + ' ' + data['family'])
+            })
+        });
+
+        for (i=0; i<{{ active_keg_container_list|length }}; i++) {
+            selected_price_active_keg.push(document.getElementById("selected_price_active_keg_"+i));
+            selected_quantity_active_keg.push(document.getElementById("id_field_active_keg_container_"+i));
+            selected_initial_price_active_keg.push(document.getElementById("selected_initial_price_active_keg_"+i));
+        }
+        for (i=0; i<{{ single_product_available_list|length }}; i++) {
+            selected_price_single_product.push(document.getElementById("selected_price_single_product_"+i));
+            selected_quantity_single_product.push(document.getElementById("id_field_single_product_"+i));
+            selected_initial_price_single_product.push(document.getElementById("selected_initial_price_single_product_"+i));
+        }
+        for (i=0; i<{{ container_soft_list|length }}; i++) {
+            selected_price_container_soft.push(document.getElementById("selected_price_container_soft_"+i));
+            selected_quantity_container_soft.push(document.getElementById("id_field_container_soft_"+i));
+            selected_initial_price_container_soft.push(document.getElementById("selected_initial_price_container_soft_"+i));
+        }
+        for (i=0; i<{{ container_liquor_list|length }}; i++) {
+            selected_price_container_liquor.push(document.getElementById("selected_price_container_liquor_"+i));
+            selected_quantity_container_liquor.push(document.getElementById("id_field_container_liquor_"+i));
+            selected_initial_price_container_liquor.push(document.getElementById("selected_initial_price_container_liquor_"+i));
+            selected_quantity_container_entire_liquor.push(document.getElementById("id_field_container_entire_liquor_"+i));
+            selected_initial_price_container_entire_liquor.push(document.getElementById("selected_initial_price_container_entire_liquor_"+i));
+        }
+        for (i=0; i<{{ container_syrup_list|length }}; i++) {
+            selected_price_container_syrup.push(document.getElementById("selected_price_container_syrup_"+i));
+            selected_quantity_container_syrup.push(document.getElementById("id_field_container_syrup_"+i));
+            selected_initial_price_container_syrup.push(document.getElementById("selected_initial_price_container_syrup_"+i));
+        }
+        for (i=0;i<{{ active_keg_container_list|length }};i++){
+            (function(x) {
+                selected_quantity_active_keg[i].addEventListener('change', function(e) {
+                    selected_price_active_keg[x].textContent = String((e.target.value * Number(selected_initial_price_active_keg[x].textContent.replace(",", "."))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+        for (i=0;i<{{ single_product_available_list|length }};i++){
+            (function(x) {
+                selected_quantity_single_product[i].addEventListener('change', function(e) {
+                    selected_price_single_product[x].textContent = String((e.target.value * Number(selected_initial_price_single_product[x].textContent.replace(",", "."))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+        for (i=0;i<{{ container_soft_list|length }};i++){
+            (function(x) {
+                selected_quantity_container_soft[i].addEventListener('change', function(e) {
+                    selected_price_container_soft[x].textContent = String((e.target.value * Number(selected_initial_price_container_soft[x].textContent.replace(",", "."))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+        for (i=0;i<{{ container_liquor_list|length }};i++){
+            (function(x) {
+                selected_quantity_container_liquor[i].addEventListener('change', function(e) {
+                    selected_price_container_liquor[x].textContent = String(((e.target.value * Number(selected_initial_price_container_liquor[x].textContent.replace(",", ".")))+(selected_quantity_container_entire_liquor[x].value * Number(selected_initial_price_container_entire_liquor[x].textContent.replace(",", ".")))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+            (function(x) {
+                selected_quantity_container_entire_liquor[i].addEventListener('change', function(e) {
+                    selected_price_container_liquor[x].textContent = String(((e.target.value * Number(selected_initial_price_container_entire_liquor[x].textContent.replace(",", ".")))+(selected_quantity_container_liquor[x].value * Number(selected_initial_price_container_liquor[x].textContent.replace(",", ".")))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+        for (i=0;i<{{ container_syrup_list|length }};i++){
+            (function(x) {
+                selected_quantity_container_syrup[i].addEventListener('change', function(e) {
+                    selected_price_container_syrup[x].textContent = String((e.target.value * Number(selected_initial_price_container_syrup[x].textContent.replace(",", "."))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+
+        fields_list.push(selected_quantity_active_keg);
+        fields_list.push(selected_quantity_single_product);
+        fields_list.push(selected_quantity_container_liquor);
+        fields_list.push(selected_quantity_container_syrup);
+        fields_list.push(selected_quantity_container_soft);
+
+        function set_active_field(new_active_field) {
+            fields_list[active_li][new_active_field].focus();
+            active_field = new_active_field;
+        }
+
+        document.onkeydown = function (e) {
+            if (!e.metaKey) {
+                if (!($.inArray(e.keyCode, [8,9,13,46,96,97,98,99,100,101,102,103,104,105,48,49,50,51,52,53,54,55,56,57]) > -1)) {
+                    e.preventDefault();
+                }
+            }
+
+            // Touches F1 à F12
+            if (e.keyCode == 112) {
+                fields_list[active_li][0].value = Number(fields_list[active_li][0].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][0].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 113) {
+                fields_list[active_li][1].value = Number(fields_list[active_li][1].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][1].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 114) {
+                fields_list[active_li][2].value = Number(fields_list[active_li][2].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][2].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 115) {
+                fields_list[active_li][3].value = Number(fields_list[active_li][3].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][3].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 116) {
+                fields_list[active_li][4].value = Number(fields_list[active_li][4].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][4].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 117) {
+                fields_list[active_li][5].value = Number(fields_list[active_li][5].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][5].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 118) {
+                fields_list[active_li][6].value = Number(fields_list[active_li][6].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][6].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 119) {
+                fields_list[active_li][7].value = Number(fields_list[active_li][7].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][7].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 120) {
+                fields_list[active_li][8].value = Number(fields_list[active_li][8].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][8].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 121) {
+                fields_list[active_li][9].value = Number(fields_list[active_li][9].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][9].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 122) {
+                fields_list[active_li][10].value = Number(fields_list[active_li][10].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][10].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 123) {
+                fields_list[active_li][11].value = Number(fields_list[active_li][11].value) + 1;
+                // erreur dans PyCharm mais fonctionnel
+                fields_list[active_li][11].dispatchEvent(new Event('change'));
+            }
+
+            // Naviguation avec haut et bas à l'intérieur d'un div
+            if (e.keyCode == 40) {
+                if (active_field < fields_list[active_li].length-1) {
+                    set_active_field(active_field+1);
+                }
+            }
+            if (e.keyCode == 38) {
+                if (active_field > 0) {
+                    set_active_field(active_field-1);
+                }
+            }
+
+            // Navigation avec gauche et droite
+            if (e.keyCode == 37 && active_li>0) {
+                set_active_li(active_li - 1);
+                active_field = 0;
+                set_active_field(0);
+            }
+            if (e.keyCode == 39 && active_li<li_list.length-1) {
+                set_active_li(active_li + 1);
+                active_field = 0;
+                set_active_field(0);
+            }
+
+            // + et - pour ajouter ou enlever de la quantité
+            if (e.keyCode == 107) {
+                fields_list[active_li][active_field].value = Number(fields_list[active_li][active_field].value) + 1;
+                fields_list[active_li][active_field].dispatchEvent(new Event('change'));
+            }
+            if (e.keyCode == 109) {
+                if (Number(fields_list[active_li][active_field].value) > 0) {
+                    fields_list[active_li][active_field].value = Number(fields_list[active_li][active_field].value) - 1;
+                    fields_list[active_li][active_field].dispatchEvent(new Event('change'));
+                }
+            }
+
+            // Problème du 0
+            if ($.inArray(e.keyCode, [96,97,98,99,100,101,102,103,104,105,48,49,50,51,52,53,54,55,56,57]) > -1) {
+                var $focused = $(':focus');
+                if ($focused.is('input')) {
+                    if($focused.val() == 0) {
+                        $focused.val('');
+                    }
+                }
+            }
+
+            // Problème du champ vide quand on valide
+            if (e.keyCode == 13) {
+                $("#div_purchase :input").each(
+                        function () {
+                            if ($(this).val() == '') {
+                                $(this).val(0);
+                            }
+                        });
+                $("#submit_purchase").click();
+            }
+
+            // Echap pour logout
+            if (e.keyCode == 27) {
+                $("#submit_logout").click();
+            }
+        };
+
+        document.getElementById('li_active_keg_container').addEventListener('click', function(e) {
+            set_active_li(0);
+        }, false);
+        document.getElementById('li_single_product').addEventListener('click', function(e) {
+            set_active_li(1);
+        }, false);
+        document.getElementById('li_liquor').addEventListener('click', function(e) {
+            set_active_li(2);
+        }, false);
+        document.getElementById('li_syrup').addEventListener('click', function(e) {
+            set_active_li(3);
+        }, false);
+        document.getElementById('li_soft').addEventListener('click', function(e) {
+            set_active_li(4);
+        }, false);
+
+        function set_active_li(new_active_li) {
+            active_li = new_active_li;
+            display_none_all(div_list[active_li]);
+            document.getElementById('hidden_active_div').value = new_active_li;
+        }
+
+        function display_none_all(div_except) {
+            for (i=0; i<div_list.length; i++) {
+                if (div_list[i] != div_except) {
+                    li_list[i].className = '';
+                    div_list[i].style.display = 'none';
+                }
+                else {
+                    div_list[i].style.display = 'block';
+                    li_list[i].className = 'active';
+                }
+            }
+        }
+        // initialisation
+
+        var input_client_username = $("#id_client_username");
+        if (input_client_username.val() != '') {
+            input_client_username.focus();
+            input_client_username.blur();
+        }
+
+        // Focus sur document pour touche "entrée"
+        if (selected_quantity_active_keg[0] !== undefined) {
+            selected_quantity_active_keg[0].focus();
+        }
+
+        selected_quantity_active_keg[0].focus();
+        // Récupération des valeurs et mises à jours
+        var a = 0;
+        while (a<{{ active_keg_container_list|length }}) {
+            (function(a) {
+                return selected_quantity_active_keg[a].dispatchEvent(new Event('change'));
+            })(a);
+            a++;
+        }
+        var b = 0;
+        while (b<{{ single_product_available_list|length }}) {
+            (function(b) {
+                return selected_quantity_single_product[b].dispatchEvent(new Event('change'));
+            })(b);
+            b++;
+        }
+        var c = 0;
+        while (c<{{ container_soft_list|length }}) {
+            (function(c) {
+                return selected_quantity_container_soft[c].dispatchEvent(new Event('change'));
+            })(c);
+            c++;
+        }
+        var d = 0;
+        while (d<{{ container_liquor_list|length }}) {
+            (function(d) {
+                return selected_quantity_container_liquor[d].dispatchEvent(new Event('change'));
+            })(d);
+            d++;
+        }
+        d = 0;
+        while (d<{{ container_liquor_list|length }}) {
+            (function(d) {
+                return selected_quantity_container_entire_liquor[d].dispatchEvent(new Event('change'));
+            })(d);
+            d++;
+        }
+        var e = 0;
+        while (e<{{ container_syrup_list|length }}) {
+            (function(e) {
+                return selected_quantity_container_syrup[e].dispatchEvent(new Event('change'));
+            })(e);
+            e++;
+        }
+        setTimeout(function(){
+            update_consumption()
+        }, 1000);
+
+        document.onkeydown = function (e) {
+            // Problème du champ vide quand on valide
+            if (e.keyCode == 13) {
+                $("#div_purchase :input").each(
+                        function () {
+                            if ($(this).val() == '') {
+                                $(this).val(0);
+                            }
+                        })
+            }
+        }
+</script>
+
+{% endblock %}

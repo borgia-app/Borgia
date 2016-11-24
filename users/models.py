@@ -15,16 +15,17 @@ class User(AbstractUser):
     # Listes de validations
     CAMPUS_CHOICES = (
         ('ME', 'Me'),
-        ('KA', 'Ka'),
+        ('AN', 'An'),
         ('CH', 'Ch'),
         ('AI', 'Ai'),
         ('BO', 'Bo'),
         ('LI', 'Li'),
         ('CL', 'Cl'),
+        ('KA', 'Ka'),
         ('KIN', 'Kin')
     )
     YEAR_CHOICES = []
-    for i in range(1900, datetime.now().year):
+    for i in range(1953, datetime.now().year + 1):
         YEAR_CHOICES.append((i, i))
 
     # Attributs

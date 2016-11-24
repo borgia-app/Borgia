@@ -88,6 +88,7 @@ class Shop(models.Model):
     class Meta:
         permissions = (
             ('reach_workboard_foyer', 'Aller sur le workboard du foyer'),
+            ('sell_foyer', 'Vendre des produits au foyer'),
             ('reach_workboard_auberge', 'Aller sur le workboard de l\'auberge'),
             ('sell_auberge', 'Vendre des produits à l\'auberge'),
         )
