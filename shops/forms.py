@@ -276,7 +276,7 @@ class ProductCreateMultipleForm(forms.Form):
         self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
                                                              queryset=ProductBase.objects.filter(shop=shop, is_active=True).exclude(pk=1).order_by('name'))
 
-        self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter', min_value=0)
+        self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter (de Fût, en KG, ou de bouteille)', min_value=0, max_value=5000)
 
         self.fields['price'] = forms.DecimalField(label='Prix d\'achat TTC', decimal_places=2, max_digits=9,
                                                   min_value=0)
