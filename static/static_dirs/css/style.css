@@ -140,7 +140,7 @@ body {
 
     background-image: url(/static/img/chat_buquage_2.png);
     background-repeat: no-repeat;
-    background-cover: contain;
+    background-size: contain;
     background-origin: content-box;
 }
 
