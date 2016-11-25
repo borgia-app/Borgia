@@ -86,18 +86,21 @@
 <body>
 
 <div class="wrapper overlay">
-    <nav class="navbar navbar-inverse navbar-static-top">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
 
         <div class="container-fluid">
-             <div class="navbar-header col-md-2 col-xs-2">
+             <div class="navbar-header col-md-1 col-xs-2">
                  <a class="navbar-brand" href="{% url 'url_profile' %}">
                     Borgia
                  </a>
              </div>
-             <div id="wrapper-user-menu" class="col-md-5 col-xs-5">
+             {% if user.is_authenticated %}
+                <div id="wrapper-user-menu" class="col-md-6 col-xs-6">
+             {% else %}
+                 <div id="wrapper-user-menu" class="col-md-3 col-xs-5">
+             {% endif %}
                 <ul class="user-menu">
                     {% if user.is_authenticated %}
-
                         <!-- <li><a class="icon icon-people" href="{% url 'url_list_user' %}"></a></li> -->
                         <li>
                             <span class="icon icon-notification" onclick="show_hide_div('container-notifications');">
@@ -115,15 +118,36 @@
                     {% endif %}
                 </ul>
              </div>
-             <div id="wrapper-user" class="col-md-5 col-xs-5">
+             {% if user.is_authenticated %}
+                    <div id="wrapper-user" class="col-md-5 col-xs-5">
+             {% else %}
+                    <div id="wrapper-user" class="col-md-8 col-xs-5">
+             {% endif %}
                 {% if user.is_authenticated %}
                     <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
                         <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
                         <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
                         <span class="user-balance">{{ user.balance }} €</span>
                     </a>
+                {% else %}
+                    <form class="form-inline" action='' method="post">{% csrf_token %}
+                        <div class="form-group">
+                            <label class="icon icon-user" for="id_username"><span class="element-invisible">Nom d'utilisateur</span></label>
+                            <input id="id_username" type="text" name="username" placeholder="Nom d'utilisateur" class="form-control autocomplete_username" maxlength="254" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="icon icon-lock" for="id_password"><span class="element-invisible">Mot de passe</span></label>
+                            <input id="id_password" type="password" name="password" placeholder="Mot de passe" class="form-control" required>
+                        </div>
+                        <div class="form-group connexion">
+                            <button id="id_submit" type="submit" class="btn classic-btn">Connexion</button>
+                            <a href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
+                        </div>
+
+                    </form>
                 {% endif %}
-             </div>
+
+             </form>
         </div>
     </nav>
 </div>
@@ -216,5 +240,4 @@
         document.querySelector('span.buble-notifications-count').innerHTML=({{ messages|length }}).toString();
     </script>
 {% endif %}
-
 </html>

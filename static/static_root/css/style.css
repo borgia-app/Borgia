@@ -131,7 +131,7 @@ html {
 
 body {
     color: #fff;
-    background-color: #565a68;
+    background-color: #41444f;
     font-family: 'source_sans_proregular';
     overflow-y: scroll;
     font-size: 1em;
@@ -181,11 +181,13 @@ img {
 
 /* Layout */
 .overlay {
-    padding: 0 0 1%;
+    padding: 1%;
 }
 
 .wrapper {
-    width: 100%;
+    width: 80%;
+    margin-left: 10%;
+    margin-right: 10%;
     position: relative;
     z-index: 1;
 }
@@ -390,7 +392,7 @@ textarea {
     top: -10px;
     box-shadow: none;
 }
-.listing-apps a:hover:before,
+.listing-apps a:hover:before
 .listing-apps a:focus:before {
     height: 10px;
 }
@@ -886,10 +888,10 @@ input.btn {
 
 .footer {
     display: inline-block;
-    position: relative;
+    position: fixed;
+    bottom: 0;
     background-color: #565a68;
     width: 100%;
-    margin-top: 50px;
 }
 .footer nav {
     margin: 0 1em;
@@ -1240,6 +1242,7 @@ html{
 body{
     height:100%;
     position: relative;
+    padding-top: 80px;
 }
 
 #wrap{
