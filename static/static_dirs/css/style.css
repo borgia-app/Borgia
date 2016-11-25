@@ -131,7 +131,7 @@ html {
 
 body {
     color: #fff;
-    background-color: #41444f;
+    background-color: #565a68;
     font-family: 'source_sans_proregular';
     overflow-y: scroll;
     font-size: 1em;
@@ -181,13 +181,11 @@ img {
 
 /* Layout */
 .overlay {
-    padding: 1%;
+    padding: 0 0 1%;
 }
 
 .wrapper {
-    width: 80%;
-    margin-left: 10%;
-    margin-right: 10%;
+    width: 100%;
     position: relative;
     z-index: 1;
 }
@@ -888,10 +886,10 @@ input.btn {
 
 .footer {
     display: inline-block;
-    position: fixed;
-    bottom: 0;
+    position: relative;
     background-color: #565a68;
     width: 100%;
+    margin-top: 50px;
 }
 .footer nav {
     margin: 0 1em;
@@ -1242,7 +1240,6 @@ html{
 body{
     height:100%;
     position: relative;
-    padding-top: 80px;
 }
 
 #wrap{
