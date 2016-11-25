@@ -131,12 +131,16 @@ html {
 
 body {
     color: #fff;
-    background: #41444f;
+    background-color: #41444f;
     font-family: 'source_sans_proregular';
     overflow-y: scroll;
     font-size: 1em;
     line-height:1.5;
     margin: 0;
+
+    background-image: url(/static/img/chat_buquage_2.png);
+    background-repeat: no-repeat;
+    background-origin: content-box;
 }
 
 h1:first-child,
