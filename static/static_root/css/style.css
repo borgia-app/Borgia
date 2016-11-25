@@ -138,9 +138,9 @@ body {
     line-height:1.5;
     margin: 0;
 
-    background-image: url(/static/img/chat_buquage_2.png);
+    background-image: url(/static/img/fond_borgia.jpg);
     background-repeat: no-repeat;
-    background-size: contain;
+    background-size: cover;
     background-origin: content-box;
 }
 

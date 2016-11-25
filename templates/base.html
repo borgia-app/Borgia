@@ -10,7 +10,7 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Borgia - V2.5.3</title>
+    <title>Borgia - V2.7.0</title>
     <link rel="stylesheet" href="{% static 'css/skeleton.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
@@ -166,18 +166,23 @@
 
 <footer class="container footer">
     <div class="credit">
-        <small>
-            WIP - Borgia v2.5.3 - 18/04/2016 - <a href="https://wikiae.iresam.org/doku.php?id=borgia:historique_version_borgia">Historique des versions</a><br/>
-            Borgia is an open-source project, developped by Arts et Métiers students.<br/>
-            Me214 - Pastys 101-99 & Elek 142<br/>
-            CSS d'après <a href="https://yunohost.org">Yunohost</a><br/>
-            <a href="http://fortawesome.github.io/Font-Awesome/">FontAwesome</a>
-        </small>
-    </div>
-    <div class="ideas">
-        <small>
-            Un bug? Des remarques? Partage les nous! <input type="submit" value="Reporter un bug" id="mailto_report">
-        </small>
+        <div class="col-md-6">
+           <small>
+                     WIP - Borgia v2.7.0 - 25/11/2016 - <a href="https://wikiae.iresam.org/doku.php?id=borgia:historique_version_borgia">Historique des versions</a><br />
+                     Borgia is an open-source project, developped by Arts et Métiers students.<br/>
+                     Me214 - Pastys 101-99 & Elek 142<br />
+                     Me215 - Eyap 53 & Leyphay'ss 87 & Rowsky 144<br />
+           </small>
+        </div>
+        <div class="col-md-6">
+            <small>
+                CSS d'après <a href="https://yunohost.org">Yunohost</a><br/>
+                <a href="http://fortawesome.github.io/Font-Awesome/">FontAwesome</a>
+                <div class="ideas">
+                    Un bug? Des remarques? Partage les nous! <input type="submit" value="Reporter un bug" id="mailto_report" class="btn-default">
+                </div>
+            </small>
+         </div>
     </div>
     <script>
         document.getElementById("mailto_report").addEventListener('click', function(e) {
