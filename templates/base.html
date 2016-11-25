@@ -1,6 +1,7 @@
 {% load staticfiles %}
 {% load notifications_extra %}
 {% load users_extra %}
+
 {% if user.is_authenticated %}
     {{ request|filter_get_unread_notifications_for_user }}
 {% endif %}
@@ -11,6 +12,7 @@
     <meta charset="UTF-8">
     <title>Borgia - V2.5.3</title>
     <link rel="stylesheet" href="{% static 'css/skeleton.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style-xsmall.css' %}" />
     <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
