@@ -158,7 +158,8 @@ dl:first-child{
 /* Responsive image */
 img {
     max-width: 100%;
-    height :auto;
+    height: auto;
+    vertical-align: top;
 }
 
 .element-invisible {
@@ -256,7 +257,11 @@ img {
 /* Fonts & Colors */
 
 a { text-decoration: none; }
-
+a:hover,
+a:focus {
+  color: #FFF;
+  text-decoration: none;
+}
 .s {
     text-decoration: underline;
 }
@@ -535,7 +540,7 @@ textarea {
     font-size: 1em;
     font-family: 'source_sans_proregular';
     display: block;
-    margin-top: -0.6em;
+    margin-top: -0.2em;
 }
 
 
@@ -636,7 +641,9 @@ textarea {
     font-size: 100%;
     margin: 0;
 }
-
+input[type="button"] {
+    color: black;
+}
 input[type="search"] {
     -webkit-appearance: textfield;
 }
@@ -664,7 +671,6 @@ input::-moz-focus-inner {
         border-radius: 0;
     }
 }
-
 .form-text {
     padding: 0.8em;
     width: 100%;
@@ -714,7 +720,7 @@ label + .help-link:hover {background: #30333b;}
 .form-text {
     border: 0;
     background: #797b83;
-    color: #fff;
+    color: #FFF;
     padding: 0.8em;
     margin-bottom: 0.3em;
     display: block;
@@ -1158,6 +1164,8 @@ tr:hover {
     -o-transition: all 0.30s ease-in-out;
     outline: none;
     width: 100%;
+    color: #000;
+
 }
 .form-style-1 input[type=text]:focus,
 .form-style-1 input[type=date]:focus,
