@@ -140,6 +140,7 @@ body {
 
     background-image: url(/static/img/chat_buquage_2.png);
     background-repeat: no-repeat;
+    background-cover: contain;
     background-origin: content-box;
 }
 
@@ -898,8 +899,8 @@ input.btn {
 
 .footer {
     display: inline-block;
-    position: absolute;
-    margin-top: 150px;
+    position: fixed;
+    bottom: 0;
     background-color: #565a68;
     width: 100%;
 }
