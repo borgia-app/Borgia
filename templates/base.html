@@ -85,40 +85,48 @@
 </head>
 <body>
 
-<nav class="container">
-    <div class="wrapper overlay">
-        <div id="wrapper-user">
-            {% if user.is_authenticated %}
-                <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
-                    <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
-                    <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
-                    <span class="user-balance">{{ user.balance }} €</span>
-                </a>
-            {% endif %}
-        </div>
-        <div id="wrapper-user-menu">
-            <ul class="user-menu">
-                {% if user.is_authenticated %}
-                    <li><a class="icon icon-home" href="{% url 'url_profile' %}"></a></li>
-                    <!-- <li><a class="icon icon-people" href="{% url 'url_list_user' %}"></a></li> -->
-                    <li>
-                        <span class="icon icon-notification" onclick="show_hide_div('container-notifications');">
-                        </span>
-                        {% if messages %}
-                            <span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">
+<div class="wrapper overlay">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+
+        <div class="container-fluid">
+             <div class="navbar-header col-md-2">
+                 <a class="navbar-brand" href="{% url 'url_profile' %}">
+                    Borgia
+                 </a>
+             </div>
+             <div id="wrapper-user-menu" class="col-md-5">
+                <ul class="user-menu">
+                    {% if user.is_authenticated %}
+
+                        <!-- <li><a class="icon icon-people" href="{% url 'url_list_user' %}"></a></li> -->
+                        <li>
+                            <span class="icon icon-notification" onclick="show_hide_div('container-notifications');">
                             </span>
-                        {% endif %}</li>
-                    <!-- <li><a class="icon icon-settings" href=""></a></li> -->
-                    <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
-                    <!-- <li><a class="icon icon-admin" href=""></a></li> -->
-                {% else %}
-                    <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
-                    <li><a class="icon icon-beer" href="{% url 'url_login_pg' organe='foyer' %}">Conso. Foyer</a></li>
+                            {% if messages %}
+                                <span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">
+                                </span>
+                            {% endif %}</li>
+                        <!-- <li><a class="icon icon-settings" href=""></a></li> -->
+                        <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
+                        <!-- <li><a class="icon icon-admin" href=""></a></li> -->
+                    {% else %}
+                        <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
+                        <li><a class="icon icon-beer" href="{% url 'url_login_pg' organe='foyer' %}">Conso. Foyer</a></li>
+                    {% endif %}
+                </ul>
+             </div>
+             <div id="wrapper-user" class="col-md-5">
+                {% if user.is_authenticated %}
+                    <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
+                        <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
+                        <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
+                        <span class="user-balance">{{ user.balance }} €</span>
+                    </a>
                 {% endif %}
-            </ul>
+             </div>
         </div>
-    </div>
-</nav>
+    </nav>
+</div>
 
 {% if user.is_authenticated %}
     <div class="container" id="container-notifications-hidden">

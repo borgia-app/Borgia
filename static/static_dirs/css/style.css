@@ -195,18 +195,6 @@ img {
 .wrapper:after {content: " ";display: table;}
 .wrapper:after {clear: both;}
 
-#wrapper-user{
-    width: 50%;
-    float: left;
-}
-
-#wrapper-user-menu{
-    width: 50%;
-    float: left;
-}
-
-
-
 /* Logo */
 .logo {
     text-align: center;
@@ -573,7 +561,7 @@ textarea {
 
 /* User menu */
 .user-menu {
-    float: right;
+    float: left;
     margin: 0;
     padding: 0;
 }
@@ -653,7 +641,7 @@ input[type="search"] {
     -webkit-appearance: textfield;
 }
 [type="submit"],
-[type="password"],Type :
+[type="password"],
 [type="email"],
 [type="text"] {
     /* <3 Apple */
@@ -860,6 +848,7 @@ input.btn {
     width: 100%;
     background: #fff;
     color: #41444f;
+    margin-left: 6px;
 
 }
 .login-form .form-test:-moz-placeholder{color:#999;}
@@ -1253,6 +1242,7 @@ html{
 body{
     height:100%;
     position: relative;
+    padding-top: 80px;
 }
 
 #wrap{
@@ -1274,8 +1264,8 @@ body{
     background-color: #353e4f;
     color: white;
     width: 40%;
-    margin-left: 55%;
-    margin-right: 5%;
+    margin-left: 5%;
+    margin-right: 55%;
 }
 
 #container-notifications-hidden{
@@ -1284,8 +1274,8 @@ body{
     background-color: #353e4f;
     color: white;
     width: 40%;
-    margin-left: 55%;
-    margin-right: 5%;
+    margin-left: 5%;
+    margin-right: 55%;
 }
 
 div.notifications-body{
