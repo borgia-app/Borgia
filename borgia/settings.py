@@ -24,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'd8!^$6uved6+1d)iiqwhf5q8ao3*z)ykfdff3&zi4@i7pv#jzd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = []  # 'www.borgia.iresam.org' en prod, '*' pour une simulation de prod en local.
+ALLOWED_HOSTS = ['borgia.iresam.org', 'www.iresam.org']  # 'www.borgia.iresam.org' en prod, '*' pour une simulation de prod en local.
 
 
 # Application definition
@@ -87,8 +87,12 @@ WSGI_APPLICATION = 'borgia.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'borgia',
+        'USER': 'borgiauser',
+        'PASSWORD': 'borgiaadmin',
+        'HOST': 'localhost',
+        'PORT': '', 
     }
 }
 
@@ -181,7 +185,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # Electrovanne
 ELECTROVANNE_TOKEN = '80eg11TBAiR13UCI3dJKHWa5e7764KA3'
 
-ADMINS = [('Alexandre', 'a-palo@laposte.net'), ('Guillaume', 'guillaume@broggi.ovh')]
+ADMINS = [('Alexandre', 'a-palo@laposte.net'), ('Guillaume', 'guillaume@broggi.ovh'), ('Vincent', 'vtim@hotmail.fr'), ('Wassim', 'wassimbel94@gmail.com'), ('Mael', 'mael.lacour@gadz.org')]
 
 # Durée de validité du token reset password
 PASSWORD_RESET_TIMEOUT_DAYS = 1  # en jours
