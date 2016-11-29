@@ -7,7 +7,7 @@
             {{ form.non_field_errors }}
             {{ form.username.errors }}
             {{ form.password.errors }}
-            <form class="login-form large" action= '' method="post">{% csrf_token %}
+            <form class="login-form large" action='' method="post">{% csrf_token %}
                 <div class="form-group">
                     <label class="icon icon-user" for="id_username"><span class="element-invisible">Nom d'utilisateur</span></label>
                     <input autocomplete="off" id="id_username" type="text" name="username" placeholder="Nom d'utilisateur" class="form-text autocomplete_username" maxlength="254" required>

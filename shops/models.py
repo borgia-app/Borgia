@@ -120,7 +120,7 @@ class ProductBase(models.Model):
 
     # Méthodes
     def __str__(self):
-        if self.quantity:
+        if self.quantity and self.product_unit:
             return self.name + ' ' + str(self.quantity) + ' ' + self.product_unit.unit
         else:
             return self.name

@@ -1,6 +1,7 @@
 {% load staticfiles %}
 {% load notifications_extra %}
 {% load users_extra %}
+
 {% if user.is_authenticated %}
     {{ request|filter_get_unread_notifications_for_user }}
 {% endif %}
@@ -9,8 +10,9 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Borgia - V2.5.3</title>
+    <title>Borgia - V2.7.4</title>
     <link rel="stylesheet" href="{% static 'css/skeleton.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style-xsmall.css' %}" />
     <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
@@ -83,41 +85,72 @@
 </head>
 <body>
 
-<nav class="container">
-    <div class="wrapper overlay">
-        <div id="wrapper-user">
-            {% if user.is_authenticated %}
-                <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
-                    <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
-                    <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
-                    <span class="user-balance">{{ user.balance }} €</span>
-                </a>
-            {% endif %}
-        </div>
-        <div id="wrapper-user-menu">
-            <ul class="user-menu">
-                {% if user.is_authenticated %}
-                    <li><a class="icon icon-home" href="{% url 'url_profile' %}"></a></li>
-                    <!-- <li><a class="icon icon-people" href="{% url 'url_list_user' %}"></a></li> -->
-                    <li>
-                        <span class="icon icon-notification" onclick="show_hide_div('container-notifications');">
-                        </span>
-                        {% if messages %}
-                            <span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">
+<div class="wrapper overlay">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+
+        <div class="container-fluid">
+             <div class="navbar-header col-md-1 col-xs-2">
+                 <a class="navbar-brand" href="{% url 'url_profile' %}">
+                    Borgia
+                 </a>
+             </div>
+             {% if user.is_authenticated %}
+                <div id="wrapper-user-menu" class="col-md-6 col-xs-6">
+             {% else %}
+                 <div id="wrapper-user-menu" class="col-md-3 col-xs-5">
+             {% endif %}
+                <ul class="user-menu">
+                    {% if user.is_authenticated %}
+                        <!-- <li><a class="icon icon-people" href="{% url 'url_list_user' %}"></a></li> -->
+                        <li>
+                            <span class="icon icon-notification" onclick="show_hide_div('container-notifications');">
                             </span>
-                        {% endif %}</li>
-                    <!-- <li><a class="icon icon-settings" href=""></a></li> -->
-                    <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
-                    <!-- <li><a class="icon icon-admin" href=""></a></li> -->
+                            {% if messages %}
+                                <span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">
+                                </span>
+                            {% endif %}</li>
+                        <!-- <li><a class="icon icon-settings" href=""></a></li> -->
+                        <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}">Logout</a></li>
+                        <!-- <li><a class="icon icon-admin" href=""></a></li> -->
+                    {% else %}
+                        <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
+                        <li><a class="icon icon-beer" href="{% url 'url_login_pg' organe='foyer' %}">Conso. Foyer</a></li>
+                    {% endif %}
+                </ul>
+             </div>
+             {% if user.is_authenticated %}
+                    <div id="wrapper-user" class="col-md-5 col-xs-5">
+             {% else %}
+                    <div id="wrapper-user" class="col-md-8 col-xs-5">
+             {% endif %}
+                {% if user.is_authenticated %}
+                    <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
+                        <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
+                        <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
+                        <span class="user-balance">{{ user.balance }} €</span>
+                    </a>
                 {% else %}
-                    <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
-                    <li><a class="icon icon-beer" href="{% url 'url_login_pg' organe='foyer' %}">Conso. Foyer</a></li>
-                    <li><a class="icon icon-cutlery" href="{% url 'url_login_pg' organe='auberge' %}">Conso. Auberge</a></li>
+                    <form class="form-inline" action='' method="post">{% csrf_token %}
+                        <div class="form-group">
+                            <label class="icon icon-user" for="id_username"><span class="element-invisible">Nom d'utilisateur</span></label>
+                            <input id="id_username" type="text" name="username" placeholder="Nom d'utilisateur" class="form-control autocomplete_username" maxlength="254" required>
+                        </div>
+                        <div class="form-group">
+                            <label class="icon icon-lock" for="id_password"><span class="element-invisible">Mot de passe</span></label>
+                            <input id="id_password" type="password" name="password" placeholder="Mot de passe" class="form-control" required>
+                        </div>
+                        <div class="form-group connexion">
+                            <button id="id_submit" type="submit" class="btn classic-btn">Connexion</button>
+                            <a href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
+                        </div>
+
+                    </form>
                 {% endif %}
-            </ul>
+
+             </form>
         </div>
-    </div>
-</nav>
+    </nav>
+</div>
 
 {% if user.is_authenticated %}
     <div class="container" id="container-notifications-hidden">
@@ -165,18 +198,23 @@
 
 <footer class="container footer">
     <div class="credit">
-        <small>
-            WIP - Borgia v2.5.3 - 18/04/2016 - <a href="https://wikiae.iresam.org/doku.php?id=borgia:historique_version_borgia">Historique des versions</a><br/>
-            Borgia is an open-source project, developped by Arts et Métiers students.<br/>
-            Me214 - Pastys 101-99 & Elek 142<br/>
-            CSS d'après <a href="https://yunohost.org">Yunohost</a><br/>
-            <a href="http://fortawesome.github.io/Font-Awesome/">FontAwesome</a>
-        </small>
-    </div>
-    <div class="ideas">
-        <small>
-            Un bug? Des remarques? Partage les nous! <input type="submit" value="Reporter un bug" id="mailto_report">
-        </small>
+        <div class="col-md-6">
+           <small>
+                     WIP - Borgia v2.7.4 - 25/11/2016 - <a href="http://wikiae.iresam.org/doku.php?id=borgia:historique_version_borgia">Historique des versions</a><br />
+                     Borgia is an open-source project, developped by Arts et Métiers students.<br/>
+                     Me214 - Pastys 101-99 & Elek 142<br />
+                     Me215 - Eyap 53 & Leyphay'ss 87 & Rowsky 144<br />
+           </small>
+        </div>
+        <div class="col-md-6">
+            <small>
+                CSS d'après <a href="https://yunohost.org">Yunohost</a><br/>
+                <a href="http://fortawesome.github.io/Font-Awesome/">FontAwesome</a>
+                <div class="ideas">
+                    Un bug? Des remarques? Partage les nous! <input type="submit" value="Reporter un bug" id="mailto_report" class="btn-default">
+                </div>
+            </small>
+         </div>
     </div>
     <script>
         document.getElementById("mailto_report").addEventListener('click', function(e) {

@@ -28,7 +28,6 @@ DEBUG = False
 
 ALLOWED_HOSTS = ['borgia.iresam.org', 'www.iresam.org']  # 'www.borgia.iresam.org' en prod, '*' pour une simulation de prod en local.
 
-
 # Application definition
 
 INSTALLED_APPS = [

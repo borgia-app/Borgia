@@ -131,12 +131,17 @@ html {
 
 body {
     color: #fff;
-    background: #41444f;
+    background-color: #41444f;
     font-family: 'source_sans_proregular';
     overflow-y: scroll;
     font-size: 1em;
     line-height:1.5;
     margin: 0;
+
+    background-image: url(/static/img/fond_borgia.jpg);
+    background-repeat: no-repeat;
+    background-size: cover;
+    background-origin: content-box;
 }
 
 h1:first-child,
@@ -158,7 +163,8 @@ dl:first-child{
 /* Responsive image */
 img {
     max-width: 100%;
-    height :auto;
+    height: auto;
+    vertical-align: top;
 }
 
 .element-invisible {
@@ -188,18 +194,6 @@ img {
 .wrapper:before,
 .wrapper:after {content: " ";display: table;}
 .wrapper:after {clear: both;}
-
-#wrapper-user{
-    width: 50%;
-    float: left;
-}
-
-#wrapper-user-menu{
-    width: 50%;
-    float: left;
-}
-
-
 
 /* Logo */
 .logo {
@@ -256,7 +250,11 @@ img {
 /* Fonts & Colors */
 
 a { text-decoration: none; }
-
+a:hover,
+a:focus {
+  color: #FFF;
+  text-decoration: none;
+}
 .s {
     text-decoration: underline;
 }
@@ -394,7 +392,7 @@ textarea {
     top: -10px;
     box-shadow: none;
 }
-.listing-apps a:hover:before,
+.listing-apps a:hover:before
 .listing-apps a:focus:before {
     height: 10px;
 }
@@ -535,7 +533,7 @@ textarea {
     font-size: 1em;
     font-family: 'source_sans_proregular';
     display: block;
-    margin-top: -0.6em;
+    margin-top: -0.2em;
 }
 
 
@@ -563,7 +561,7 @@ textarea {
 
 /* User menu */
 .user-menu {
-    float: right;
+    float: left;
     margin: 0;
     padding: 0;
 }
@@ -636,12 +634,14 @@ textarea {
     font-size: 100%;
     margin: 0;
 }
-
+input[type="button"] {
+    color: black;
+}
 input[type="search"] {
     -webkit-appearance: textfield;
 }
 [type="submit"],
-[type="password"],Type :
+[type="password"],
 [type="email"],
 [type="text"] {
     /* <3 Apple */
@@ -664,7 +664,6 @@ input::-moz-focus-inner {
         border-radius: 0;
     }
 }
-
 .form-text {
     padding: 0.8em;
     width: 100%;
@@ -714,7 +713,7 @@ label + .help-link:hover {background: #30333b;}
 .form-text {
     border: 0;
     background: #797b83;
-    color: #fff;
+    color: #FFF;
     padding: 0.8em;
     margin-bottom: 0.3em;
     display: block;
@@ -849,6 +848,7 @@ input.btn {
     width: 100%;
     background: #fff;
     color: #41444f;
+    margin-left: 6px;
 
 }
 .login-form .form-test:-moz-placeholder{color:#999;}
@@ -888,8 +888,8 @@ input.btn {
 
 .footer {
     display: inline-block;
-    position: absolute;
-    margin-top: 150px;
+    position: fixed;
+    bottom: 0;
     background-color: #565a68;
     width: 100%;
 }
@@ -1158,6 +1158,8 @@ tr:hover {
     -o-transition: all 0.30s ease-in-out;
     outline: none;
     width: 100%;
+    color: #000;
+
 }
 .form-style-1 input[type=text]:focus,
 .form-style-1 input[type=date]:focus,
@@ -1240,6 +1242,7 @@ html{
 body{
     height:100%;
     position: relative;
+    padding-top: 80px;
 }
 
 #wrap{
@@ -1261,8 +1264,8 @@ body{
     background-color: #353e4f;
     color: white;
     width: 40%;
-    margin-left: 55%;
-    margin-right: 5%;
+    margin-left: 5%;
+    margin-right: 55%;
 }
 
 #container-notifications-hidden{
@@ -1271,8 +1274,8 @@ body{
     background-color: #353e4f;
     color: white;
     width: 40%;
-    margin-left: 55%;
-    margin-right: 5%;
+    margin-left: 5%;
+    margin-right: 55%;
 }
 
 div.notifications-body{
