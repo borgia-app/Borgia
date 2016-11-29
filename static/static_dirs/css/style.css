@@ -893,7 +893,7 @@ input.btn {
    ========================================================================== */
 
 .footer {
-    display: inline-block;
+    display: none;
     position: absolute;
     margin-top: 60px;
     background-color: #565a68;
