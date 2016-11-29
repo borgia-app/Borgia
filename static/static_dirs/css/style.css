@@ -131,7 +131,7 @@ html {
 
 body {
     color: #fff !important;
-    background-color: #41444f;
+    background-color: #565a68;
     font-family: 'source_sans_proregular';
     overflow-y: scroll;
     font-size: 1em;
@@ -1106,10 +1106,15 @@ table {
 th, td {
     text-align: left;
     padding: 4px;
+    padding-left: 6px;
 }
 
 tr:nth-child(even){
     background-color: #46495c;
+}
+
+tr:nth-child(odd){
+    background-color: #41444f;
 }
 
 a {
