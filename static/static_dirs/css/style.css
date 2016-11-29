@@ -130,7 +130,7 @@ html {
 }
 
 body {
-    color: #fff;
+    color: #fff !important;
     background-color: #41444f;
     font-family: 'source_sans_proregular';
     overflow-y: scroll;
@@ -633,6 +633,7 @@ textarea {
     font-family: inherit;
     font-size: 100%;
     margin: 0;
+    color: #000 !important;
 }
 input[type="button"] {
     color: black;
@@ -756,7 +757,7 @@ input:disabled {
     padding: 0.5em 1em;
     line-height: normal;
     text-decoration: none;
-    color: #FFF;
+    color: #FFF !important;
     cursor: pointer;
     transition: all 0.1s ease;
     -webkit-transition: all 0.1s ease;
@@ -865,6 +866,7 @@ input.btn {
 .connexion {
     margin-top: 18px;
     margin-left: 5px;
+
 }
 /* Edit form*/
 
@@ -892,8 +894,8 @@ input.btn {
 
 .footer {
     display: inline-block;
-    position: fixed;
-    bottom: 0;
+    position: absolute;
+    margin-top: 60px;
     background-color: #565a68;
     width: 100%;
 }
