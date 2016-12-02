@@ -363,8 +363,8 @@ textarea {
 .icon-user:before { content: '\e801'; }
 .icon-lock:before { content: '\e800'; }
 .icon-connexion:before { content: '\e802'; }
-.icon-deconnexion:before { content: '\e802'; color:crimson}
 .icon-pencil:before { content: '\e804'; }
+.icon-pencil-grey:before { content: '\e804'; color: grey;}
 .icon-trash:before { content: '\e80c'; }
 .icon-angle-left:before { content: '\e803'; }
 .icon-notification:before{
@@ -508,8 +508,10 @@ textarea {
    ========================================================================== */
 
 .user-container {
-    display:block;
+    display: block;
     position: relative;
+    top: 19px;
+    right: -17%;
     padding: 0.4em 1em;
     color: #fff;
 }
@@ -546,15 +548,14 @@ textarea {
 }
 
 .user-container:before {
-    display: block;
-    position: relative;
+    position: absolute;
     z-index: 1;
-    float: left;
-    margin-right: 10px;
+    float: right;
+    right: 22%;
     content: '\e801';
     display: inline-block;
     font-family: 'ynh_ssowat';
-    font-size: 4em;
+    font-size: 5em;
     text-align: center;
     border: 3px solid #fff;
     width: 1em;
@@ -565,14 +566,25 @@ textarea {
     overflow: hidden;
     transition: all 0.1s ease;
     -webkit-transition: all 0.1s ease;
+    -moz-box-shadow: 0px 0px 20px 2px #656565;
+    -webkit-box-shadow: 0px 0px 20px 2px #656565;
+    box-shadow: 0px 0px 20px 2px #656565;
 }
 .user-container:hover:before {
     color: #fff;
 }
 
 .user-container .user-username {
-    font-size: 1.5em;
+    font-size: 1.4em;
+    text-align: right;
     margin: 0;
+    display: inline-block;
+    color: #000;
+    background: #fff;
+    position: absolute;
+    right: 28%;
+    padding: 1px 26px 1px 12px;
+    border-radius: 5px;
 }
 
 .user-container .user-fullname {
@@ -601,13 +613,84 @@ textarea {
 .user-container .user-mail, .user-container .user-balance {
     color: #fff;
     font-size: 1.5em;
-    display: block;
-    margin-top: -0.2em;
+    display: inline-block;
+    margin-top: 1px;
+    position: absolute;
+    top: 35px;
+    right: 28%;
+    padding-left: 10px;
+    padding-right: 55px;
+    border-radius: 5px;
+
+}
+
+.posits {
+    background: #76CC81;
+}
+
+.negats {
+    background: #e21E12;
+}
+
+.user-connexion {
+    position: absolute;
+    display: inline-block;
+    top: -22px;
+    right: -9px;
+    float: right;
+    width: 55px;
+	height: 50px;
+    padding-left: 5px;
+	background: crimson;
+    border-top-right-radius: 100%;
+	-webkit-clip-path: polygon(0 56%, 80% 9%, 105% 100%, 22% 96%);
+    clip-path: polygon(0 56%, 80% 9%, 105% 100%, 22% 96%);
+}
+.user-connexion:hover{
+    background: #f9254f;
+}
+
+.user-edition {
+    width: 68px;
+    height: 40px;
+    top: 23px;
+    left: -50px;
+    background: #fff;
+    padding-left: 10px;
+    display: inline-block;
+    position: absolute;
+    -webkit-clip-path: polygon(0 4%, 83% 7%, 82% 98%, 0 79%);
+    clip-path: polygon(0 4%, 83% 7%, 82% 98%, 0 79%);
+}
+
+.user-edition > a {
+    margin-top: -10px;
+}
+
+.user-edition:hover {
+    background: beige;
+}
+
+.user-notification {
+    width: 60px;
+    height: 54px;
+    background: #656565;
+    display: inline-block;
+    position: absolute;
+    top: 54px;
+    right: -3px;
+    padding: 11px 0 0 11px;
+    border-bottom-right-radius: 100%;
+    -webkit-clip-path: polygon(3% 0, 100% 16%, 85% 125%, 0% 20%);
+    clip-path: polygon(3% 0, 100% 16%, 85% 125%, 0% 20%);
+}
+
+.user-notification:hover{
+    background: #878787;
 }
 
 /* User menu */
 .user-menu {
-    float: left;
     margin: 0;
     padding: 0;
 }
@@ -1321,8 +1404,9 @@ body{
     background-color: #353e4f;
     color: white;
     width: 40%;
-    margin-left: 5%;
-    margin-right: 55%;
+    margin-left: 58%;
+    margin-right: 5%;
+    margin-top: 4%;
 }
 
 #container-notifications-hidden{
