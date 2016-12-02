@@ -89,29 +89,19 @@
     <nav class="navbar navbar-inverse navbar-fixed-top">
 
         <div class="container-fluid">
-             <div class="navbar-header col-md-2 col-xs-2">
+             <div class="navbar-header col-md-2 col-sm-2 col-xs-6">
                 <a href="{% url 'url_profile' %}">
                    <span style="background: url('{% static 'img/borgia_logo.svg' %}') no-repeat;" class="logo-background"></span>
                 </a>
              </div>
-             {% if user.is_authenticated %}
-                <div id="wrapper-user-menu" class="col-md-5 col-xs-5">
-             {% else %}
-                 <div id="wrapper-user-menu" class="col-md-3 col-xs-5">
-             {% endif %}
-                <ul class="user-menu">
+
+            <div id="wrapper-user-menu" class="col-md-3 col-sm-3 col-xs-6">
+
+                <ul class="user-menu pull-left">
                     {% if user.is_authenticated %}
-                        <!-- <li><a class="icon icon-people" href="{% url 'url_list_user' %}"></a></li> -->
-                        <li>
-                            <span class="icon icon-notification" onclick="show_hide_div('container-notifications');">
-                            </span>
-                            {% if messages %}
-                                <span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">
-                                </span>
-                            {% endif %}</li>
-                        <!-- <li><a class="icon icon-settings" href=""></a></li> -->
-                        <li><a class="icon icon-deconnexion" href="{% url 'django.contrib.auth.views.logout' %}"></a></li>
                         <li><a href="{% url 'url_supply_lydia_self' %}"><div class="lydia"><span style="background: url('{% static 'img/lydia_logo.png' %}') no-repeat; background-size: cover;" class="lydia-logo"></span><span class="lydia-text">Crédit compte</span></div></a></li>
+                        <!-- <li><a class="icon icon-people" href="{% url 'url_list_user' %}"></a></li> -->
+                        <!-- <li><a class="icon icon-settings" href=""></a></li> -->
                         <!-- <li><a class="icon icon-admin" href=""></a></li> -->
                     {% else %}
                         <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
@@ -119,17 +109,26 @@
                     {% endif %}
                 </ul>
              </div>
-             {% if user.is_authenticated %}
-                    <div id="wrapper-user" class="col-md-5 col-xs-5">
-             {% else %}
-                    <div id="wrapper-user" class="col-md-7 col-xs-5">
-             {% endif %}
+             <div id="wrapper-user" class="col-md-7 col-sm-7 col-xs-12">
                 {% if user.is_authenticated %}
                     <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
                         <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
-                        <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
-                        <span class="user-balance">{{ user.balance }} €</span>
+                        <span class="user-balance {% if user.balance >= 0 %}posits {% else %}negats {% endif %}">{{ user.balance }} €</span>
                     </a>
+                    <ul class="user-menu pull-right">
+                        <li><span class="user-connexion"><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}" title="Déconnexion"></a></span></li>
+                        <li><span class="user-edition"><a class="icon icon-pencil-grey" href="{% url 'url_update_user' pk=user.pk %}" title="Édition"></a></span></span></li>
+                        <li>
+                            <span class="user-notification">
+                                <span class="icon icon-notification" onclick="show_hide_div('container-notifications');" title="Notifications">
+                                </span>
+                            </span>
+                            {% if messages %}
+                                <span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">
+                                </span>
+                            {% endif %}</li>
+
+                    </ul>
                 {% else %}
                     <form class="form-inline" action='' method="post">{% csrf_token %}
                         <div class="form-group">

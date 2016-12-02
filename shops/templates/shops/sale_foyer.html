@@ -10,14 +10,15 @@
                 <h2>{{ form.non_field_errors }}</h2>
             </div>
             <div class="row">
-                <div class="col-md-6 col-xs-6">
-                    <span class="user-container">
-                        <h2 class="user-username"> Balance: </h2>
-                        <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0</span> € = <span id="balance_after">0</span> €</span>
-                    </span>
+                <div class="col-md-5 col-xs-5">
+
+                    <h2> Balance: </h2>
+                    <h3>
+                    <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0</span> € = <span id="balance_after">0</span></span>
                     <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
+                    </h3>
                 </div>
-                <div class="col-md-6 col-xs-6">
+                <div class="col-md-7 col-xs-7">
                     <input id="submit_purchase" type=submit value="Valider" class="self_submit" style="margin-top:35px;">
                 </div>
             </div>
@@ -219,7 +220,13 @@
             var balance_before = Number(document.getElementById("balance_before").textContent.replace(",","."));
 		//alert(balance_before);
             document.getElementById("total_consumption").textContent = String((sum_active_keg+sum_single_product+sum_container_soft+sum_container_liquor+sum_container_syrup).toFixed(2));
-            document.getElementById("balance_after").textContent = String((balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2));
+            document.getElementById("balance_after").textContent = String((balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2))+'€';
+            if ((balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup)>0) {
+                document.getElementById("balance_after").style.color = "#76CC81";
+            }
+            else {
+                document.getElementById("balance_after").style.color = "#e21E12";
+            }
             document.getElementById("hidden_balance_after").value = (balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2);
         }
 
