@@ -115,7 +115,8 @@
                         <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
                         <span class="user-balance {% if user.balance >= 0 %}posits {% else %}negats {% endif %}">{{ user.balance }} €</span>
                     </a>
-                    <ul class="user-menu pull-right">
+                    <div class="row">
+                    <ul class="user-menu pull-right" style="position:absolute; right: 0;">
                         <li><span class="user-connexion"><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}" title="Déconnexion"></a></span></li>
                         <li><span class="user-edition"><a class="icon icon-pencil-grey" href="{% url 'url_update_user' pk=user.pk %}" title="Édition"></a></span></span></li>
                         <li>
@@ -129,6 +130,7 @@
                             {% endif %}</li>
 
                     </ul>
+                    </div>
                 {% else %}
                     <form class="form-inline" action='' method="post">{% csrf_token %}
                         <div class="form-group">
@@ -240,5 +242,4 @@
         document.querySelector('span.buble-notifications-count').innerHTML=({{ messages|length }}).toString();
     </script>
 {% endif %}
-
 </html>

@@ -511,7 +511,7 @@ textarea {
     display: block;
     position: relative;
     top: 19px;
-    right: -17%;
+    right: -19%;
     padding: 0.4em 1em;
     color: #fff;
 }
@@ -582,9 +582,17 @@ textarea {
     color: #000;
     background: #fff;
     position: absolute;
-    right: 28%;
+    right: 26%;
     padding: 1px 26px 1px 12px;
     border-radius: 5px;
+}
+
+@media screen and (min-width: 1920px) {
+    .user-container .user-username {
+
+        right: 25%;
+        padding: 1px 34px 1px 12px;
+    }
 }
 
 .user-container .user-fullname {
@@ -624,6 +632,13 @@ textarea {
 
 }
 
+@media screen and (min-width: 1920px) {
+    .user-container .user-mail, .user-container .user-balance {
+        right: 25%;
+    }
+}
+
+
 .posits {
     background: #76CC81;
 }
@@ -638,29 +653,32 @@ textarea {
     top: -22px;
     right: -9px;
     float: right;
-    width: 55px;
+    width: 78px;
 	height: 50px;
-    padding-left: 5px;
+    padding-left: 29px;
 	background: crimson;
     border-top-right-radius: 100%;
-	-webkit-clip-path: polygon(0 56%, 80% 9%, 105% 100%, 22% 96%);
+	-webkit-clip-path: polygon(0 56%, 80% 9%, 105% 100%, 22% 96%) !important;
     clip-path: polygon(0 56%, 80% 9%, 105% 100%, 22% 96%);
+    clip-path: url('../svg/clip-connexion.svg#clip-shape');
+
 }
 .user-connexion:hover{
     background: #f9254f;
 }
 
 .user-edition {
-    width: 68px;
+    width: 85px;
     height: 40px;
     top: 23px;
-    left: -50px;
+    left: -64px;
     background: #fff;
-    padding-left: 10px;
+    padding-left: 29px;
     display: inline-block;
     position: absolute;
-    -webkit-clip-path: polygon(0 4%, 83% 7%, 82% 98%, 0 79%);
+    -webkit-clip-path: polygon(0 4%, 83% 7%, 82% 98%, 0 79%) !important;
     clip-path: polygon(0 4%, 83% 7%, 82% 98%, 0 79%);
+    clip-path: url('../svg/clip-edition.svg#clip-shape');
 }
 
 .user-edition > a {
@@ -672,17 +690,18 @@ textarea {
 }
 
 .user-notification {
-    width: 60px;
+    width: 80px;
     height: 54px;
     background: #656565;
     display: inline-block;
     position: absolute;
     top: 54px;
     right: -3px;
-    padding: 11px 0 0 11px;
+    padding: 15px 0 0 23px;
     border-bottom-right-radius: 100%;
-    -webkit-clip-path: polygon(3% 0, 100% 16%, 85% 125%, 0% 20%);
+    -webkit-clip-path: polygon(3% 0, 100% 16%, 85% 125%, 0% 20%) !important;
     clip-path: polygon(3% 0, 100% 16%, 85% 125%, 0% 20%);
+    clip-path: url('../svg/clip-notification.svg#clip-shape');
 }
 
 .user-notification:hover{
@@ -1405,6 +1424,7 @@ body{
     color: white;
     width: 40%;
     margin-left: 58%;
+    margin-right: 5%;
     margin-right: 5%;
     margin-top: 4%;
 }
