@@ -1,20 +1,9 @@
 {% load finances_extra %}
 
-<table id="table_sales">
-    <tr>
-        <th>Date</th>
-        <th>Emetteur</th>
-        <th>Receveur</th>
-        <th>Type</th>
-        <th>Libellé</th>
-        <th>Montant</th>
-        <th>Détails</th>
-    </tr>
+<table id="table_sales" class="table_sales">
     {% for e in object_list %}
         <tr>
             <td>{{ e.date|date:"d/m/y" }}</td>
-            <td>{{ e.sender }}</td>
-            <td>{{ e.recipient }}</td>
             <td>{{ e.get_category_display }}</td>
             <td>{% if e.category == 'sale' %}
                 {{ e.string_products|truncatechars:30 }}
@@ -23,56 +12,21 @@
             {% else %}
                 {{ e.wording|truncatechars:30 }}
             {% endif %}</td>
+            <td>{{ e.recipient }}</td>
             <td>{% price_for e user %} €</td>
-            <td><a href="{% url 'url_retrieve_sale' pk=e.id %}?for_user={{ user.pk }}">détail</a></td>
         </tr>
     {% endfor %}
 
     <script>
-        var list_sale = document.getElementsByTagName("tr");
-        var bouton_plus = document.createElement("input");
-        bouton_plus.setAttribute("type", "button");
-        bouton_plus.setAttribute("value", "afficher plus");
-        affichage_plus = false;
+        $(document).ready(function () {
 
-        // Si plus de 5 sale, on ajoute un bouton "plus" qui affiche le reste
-        if (list_sale.length > 5) {
-            var table = document.getElementById('table_sales');
-            var parentDiv = table.parentNode;
-            parentDiv.insertBefore(bouton_plus, table);
-        }
+             $(".history_slide").hide();
+             $(".history_toggle").show();
 
-        // Masquage de tous les éléments supérieurs à 5
-        afficher_tr(list_sale, 5, 'None');
+             $('.history_toggle').click(function () {
+                 $(".history_slide").slideToggle("slide");
+             });
 
-        // Affichage du reste des éléments
-        bouton_plus.addEventListener("click", function() {
-            if (affichage_plus == true) {
-                afficher_tr(list_sale, 4, 'None');
-                affichage_plus = false;
-                bouton_plus.value = "Afficher plus";
-            }
-            else {
-                afficher_tr(list_sale, 4, '');
-                affichage_plus = true;
-                bouton_plus.value = "Afficher moins";
-            }
-        }, false);
-
-        function afficher_tr(liste, debut, afficher) {
-            for (i=0; i<liste.length; i++) {
-                if (i>debut) {
-                    liste[i].style.display = afficher;
-                }
-            }
-        }
-        function insertAfter(newElement, afterElement) {
-            var parent = afterElement.parentNode;
-            if (parent.lastChild === afterElement) { // Si le dernier élément est le même que l'élément après lequel on veut insérer, il suffit de faire appendChild()
-                parent.appendChild(newElement);
-            } else { // Dans le cas contraire, on fait un insertBefore() sur l'élément suivant
-                parent.insertBefore(newElement, afterElement.nextSibling);
-            }
-        }
+        });
     </script>
 </table>

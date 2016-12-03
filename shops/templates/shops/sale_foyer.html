@@ -168,17 +168,15 @@
                 </div>
             </div>
         </div>
-
-        <div class="container">
-            <p></p>
-            <h3>Comment ça marche ?</h3>
-            <li><i class="fa fa-long-arrow-left" aria-hidden="true"></i> & <i class="fa fa-long-arrow-right" aria-hidden="true"></i> pour naviguer entre les onglets</li>
-            <li><i class="fa fa-long-arrow-up" aria-hidden="true"></i> & <i class="fa fa-long-arrow-down" aria-hidden="true"></i> pour naviguer entre les produits</li>
-            <li>+ & - pour ajouter ou supprimer des produits</li>
-            <li>Les numéros du clavier et du pavé numérique fonctionnent</li>
-            <li>"Entrée" ou bouton "Valider" pour valider la commande</li>
-        </div>
     </form>
+    <div class="history">
+        <div class="row">
+            <div class="history_slide">
+                {% include 'finances/sale_list_light_module.html' with object_list=user.list_sale %}
+            </div>
+            <button class="history_toggle"><h3>Historique</h3></button>
+        </div>
+    </div>
     <script>
         onglets = document.getElementById('onglets');
         var li_list = onglets.getElementsByTagName('li');
