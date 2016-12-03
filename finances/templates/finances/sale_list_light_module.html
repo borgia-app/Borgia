@@ -13,20 +13,39 @@
                 {{ e.wording|truncatechars:30 }}
             {% endif %}</td>
             <td>{{ e.recipient }}</td>
-            <td>{% price_for e user %} €</td>
+            <td style="width: 15%;" class="{% if e.is_credit or e.recipient == user %}posits{% else %}negats{% endif %}">{% price_for e user %} €</td>
         </tr>
     {% endfor %}
 
     <script>
-        $(document).ready(function () {
+   {#   Ouvre et ferme l'historique en cliquant sur le bouton historique #}
 
-             $(".history_slide").hide();
+        $(document).ready(function () {
+             $(".history_container").hide();
              $(".history_toggle").show();
 
              $('.history_toggle').click(function () {
-                 $(".history_slide").slideToggle("slide");
+                 $(".history_toggle").hide();
+                 $(".history_container").slideDown(200);
              });
 
+             $('.history_toggle_inside').click(function () {
+                 $(".history_container").slideUp(200);
+                 $(".history_toggle").show();
+             });
+
+        });
+
+    {#    Ferme l'historique quand on clique ailleur    #}
+        $(document).mouseup(function (e) {
+            var container = $(".history_container");
+
+            if (!container.is(e.target) // Si la cible n'est pas le container
+                    && container.has(e.target).length === 0) // ... ou descendant...
+            {
+                    container.slideUp(200);
+                    $(".history_toggle").show()
+            }
         });
     </script>
 </table>

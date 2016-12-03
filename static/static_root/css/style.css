@@ -580,7 +580,7 @@ textarea {
     background: #fff;
     position: absolute;
     right: 26%;
-    padding: 1px 26px 1px 12px;
+    padding: 3px 65px 3px 12px;
     border-radius: 5px;
 }
 
@@ -588,7 +588,7 @@ textarea {
     .user-container .user-username {
 
         right: 25%;
-        padding: 1px 34px 1px 12px;
+        padding: 3px 34px 3px 12px;
     }
 }
 
@@ -601,8 +601,7 @@ textarea {
 
 
 .user-container-info .user-username:after {
-    content: '\e804';
-    font-family: 'ynh_ssowat';
+
     color: #b4b4b4;
     display: inline-block;vertical-align: text-top;
     font-size: 0.8em;
@@ -634,7 +633,6 @@ textarea {
         right: 25%;
     }
 }
-
 
 .posits {
     background: #76CC81;
@@ -1288,27 +1286,30 @@ tr:hover {
     color: #fff;
     border-collapse: collapse;
     width: 100%;
-    background-color: #353e4f;
+    background-color: #000;
 }
 
-.table_sales > th, td {
-    text-align: left;
-    padding-top: 15px;
-    padding-left: 6px;
+.table_sales tr{
+    background-color: #000;
+    border-bottom: 2px solid rgba(34, 34, 34, 0.8);
 }
 
-.table_sales > tr:nth-child(even){
-    background-color: #46495c;
-}
-
-.table_sales > tr:nth-child(odd){
-    background-color: #41444f;
-}
-
-.table_sales > tr:hover {
+.table_sales tr:hover {
     background-color: #60637b;
 }
 
+.table_sales td {
+    text-align: left;
+    font-size: 15px;
+    padding-left: 6px;
+    border-right: 1px solid rgba(34, 34, 34, 0.8);
+}
+
+@media screen and (max-width: 1024px) {
+    .table_sales th, td {
+        font-size: 13px;
+    }
+}
 
 /* ==========================================================================
    Formulaire style-form-1
@@ -1578,30 +1579,68 @@ nav.pagination{
 /* ==========================================================================
    Historique
    ========================================================================== */
-.history {
-
+.history_title {
+    margin-left: 15px;
+    display: inline;
 }
+
 .history_toggle {
     position: fixed;
     right: 0;
     bottom: 0;
     opacity: 0.8;
     width: 40%;
-    background: #444444;
+    background: #222222;
     border: none;
     padding: 10px;
     color: #fff !important;
     font-size: 1.5em;
-
 }
-.history_slide {
+
+.history_toggle_inside {
+    width: 100%;
+    background: #222222;
+    border: none;
+    color: #fff !important;
+    font-size: 1.5em;
+}
+
+.history_container {
+    display: none;
     position: fixed;
     right: 0;
     opacity: 0.8;
     width: 40%;
-    background: #444444;
+    height: 60%;
+    background: #222222;
     padding: 10px;
     border: none;
     bottom: 56px;
+}
 
+.history_slide {
+    overflow-y: auto;
+    position: fixed;
+    right: 0;
+    width: 40%;
+    height: 60%;
+    background: #222222;
+    padding: 10px;
+    border: none;
+    bottom: 0px;
+
+}
+
+.history_slide::-webkit-scrollbar {
+    width: 8px;
+    background: #656565;
+}
+
+.history_slide::-webkit-scrollbar-track {
+    -webkit-box-shadow: inset 0 0 6px white;
+}
+
+.history_slide::-webkit-scrollbar-thumb {
+  background-color: white;
+  outline: 1px solid beige;
 }
