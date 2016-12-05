@@ -4,13 +4,10 @@
 
 {% block content %}
 
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <div>
                 <ul class="listing-apps">
-                    <li><a href="{% url 'url_supply_lydia_self' %}"><img src="{% static 'img/lydia.png' %}" alt="Crédit lydia"><span class="name">Crédit CB et Lydia</span></a></li>
-                    <li><a href="{% url 'url_create_transfert' %}?next=/users/profile"><img src="{% static 'img/transfer.png' %}" alt="Transfer"><span class="name">Transfert</span></a></li>
-                    <li><a href="{% url 'url_list_shared_event' %}"><img src="{% static 'img/events.png' %}" alt="Evénements"><span class="name">Evénements</span></a></li>
                     {% if perms.shops.reach_workboard_auberge %}
                         <li><a href="{% url 'url_workboard_auberge' %}"><img src="{% static 'img/auberge.png' %}"><span class="name">Auberge workboard</span></a></li>
                     {% endif %}

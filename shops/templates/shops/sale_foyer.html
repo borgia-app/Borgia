@@ -5,21 +5,20 @@
 {% block content %}
     <form method="POST" action="{% url 'url_purchase_foyer' %}" id="form_purchase">
         {% csrf_token %}
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
                 <h2>{{ form.non_field_errors }}</h2>
             </div>
             <div class="row">
-                <div class="col-md-5 col-xs-5">
-
-                    <h2> Balance: </h2>
-                    <h3>
-                    <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0</span> € = <span id="balance_after">0</span></span>
-                    <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
-                    </h3>
-                </div>
-                <div class="col-md-7 col-xs-7">
-                    <input id="submit_purchase" type=submit value="Valider" class="self_submit" style="margin-top:35px;">
+                <div class="col-md-7 col-sm-7 col-xs-12">
+                    <div class="well">
+                        <h2> Balance: </h2>
+                        <h3>
+                        <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0</span> € = <span id="balance_after">0</span></span>
+                        <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
+                        </h3>
+                        <input id="submit_purchase" type=submit value="Valider" class="self_submit">
+                    </div>
                 </div>
             </div>
         </div>
@@ -32,7 +31,7 @@
                 color: #fff !important;
             }
         </style>
-        <div id="div_purchase" class="container">
+        <div id="div_purchase" class="container-fluid">
             <div class="row">
                 <input type=hidden name="hidden_active_div" id="hidden_active_div" value=""/>
                 <ul id="onglets">
@@ -43,10 +42,11 @@
                     <li id="li_soft">Soft</li>
                 </ul>
             </div>
-            <div class="row">
-                <div class="row" id="div_active_keg_container">
+            <div class="row-fluid">
+                <div class="row-fluid" id="div_active_keg_container">
                     <span id="div_active_keg_container_txt"></span>
-                    <table>
+                    <table class="table_foyer">
+
                         <th>Raccourci</th>
                         <th>Bière</th>
                         <th>Prix 25 cl</th>
@@ -69,8 +69,8 @@
 
                     </table>
                 </div>
-                <div class="row" id="div_container_liquor">
-                    <table>
+                    <div class="row-fluid" id="div_container_liquor">
+                    <table class="table_foyer">
                         <th>Raccourci</th>
                         <th>Produit</th>
                         <th>4 cl</th>
@@ -96,8 +96,8 @@
                         {% endfor %}
                     </table>
                 </div>
-                <div class="row" id="div_container_syrup">
-                    <table>
+                <div class="row-fluid" id="div_container_syrup">
+                    <table class="table_foyer">
                         <th>Raccourci</th>
                         <th>Produit</th>
                         <th>Prix 4 cl</th>
@@ -118,8 +118,8 @@
                         {% endfor %}
                     </table>
                 </div>
-                <div class="row" id="div_single_product">
-                    <table>
+                <div class="row-fluid" id="div_single_product">
+                    <table class="table_foyer">
                         <th>Raccourci</th>
                         <th>Produit</th>
                         <th>Prix</th>
@@ -142,8 +142,8 @@
 
                     </table>
                 </div>
-                <div class="row" id="div_soft">
-                    <table>
+                <div class="row-fluid" id="div_soft">
+                    <table class="table_foyer">
                         <th>Raccourci</th>
                         <th>Produit</th>
                         <th>Prix 25 cl</th>
@@ -168,16 +168,26 @@
                 </div>
             </div>
         </div>
-        <div class="container">
+        <div class="container-fluid">
             <hr>
-            <h3>Comment ça marche ?</h3>
-            <li><i class="fa fa-long-arrow-left" aria-hidden="true"></i> &
-                <i class="fa fa-long-arrow-right" aria-hidden="true"></i> pour naviguer entre les onglets
-            </li>
-            <li><i class="fa fa-long-arrow-up" aria-hidden="true"></i> & <i class="fa fa-long-arrow-down" aria-hidden="true"></i> pour naviguer entre les produits</li>
-            <li>+ & - pour ajouter ou supprimer des produits</li>
-            <li>Les numéros du clavier et du pavé numérique fonctionnent</li>
-            <li>"Entrée" ou bouton "Valider" pour valider la commande</li>
+            <div class="panel panel-custom">
+                <a role="button" data-toggle="collapse" href="#howTo" aria-expanded="false" aria-controls="howTo">
+                <div class="panel-heading" role="tab" id="heading1">
+                    <h4 class="panel-title">Comment ça marche?</h4>
+                </div>
+                </a>
+                <div id="howTo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading1">
+                    <div class="panel-body">
+                        <li><i class="fa fa-long-arrow-left" aria-hidden="true"></i> &
+                        <i class="fa fa-long-arrow-right" aria-hidden="true"></i> pour naviguer entre les onglets
+                        </li>
+                        <li><i class="fa fa-long-arrow-up" aria-hidden="true"></i> & <i class="fa fa-long-arrow-down" aria-hidden="true"></i> pour naviguer entre les produits</li>
+                        <li>+ & - pour ajouter ou supprimer des produits</li>
+                        <li>Les numéros du clavier et du pavé numérique fonctionnent</li>
+                        <li>"Entrée" ou bouton "Valider" pour valider la commande</li>
+                    </div>
+                </div>
+            </div>
         </div>
     </form>
     <div class="history">

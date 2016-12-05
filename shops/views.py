@@ -448,7 +448,8 @@ class PurchaseFoyer(FormView):
         return kwargs
 
     def get(self, request, *args, **kwargs):
-        return self.render_to_response(self.get_context_data())
+        add_to_breadcrumbs(request, 'Consommation foyer')
+        return super(PurchaseFoyer, self).get(request, *args, **kwargs)
 
     def form_invalid(self, form):
         return self.render_to_response(self.get_context_data())

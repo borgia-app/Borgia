@@ -4,7 +4,7 @@
 
     <form method="POST" action="{% url 'url_purchase_auberge' %}" id="form_purchase">
         {% csrf_token %}
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
                 {{ form.non_field_errors }}
             </div>

@@ -43,7 +43,8 @@
 #div_purchase
 {
     position: relative;
-    min-width: 800px;
+    /*min-width: 800px;*/
+    min-width: 100%;
     margin: 0 auto;
     padding: 0 20px;
     box-sizing: border-box;
@@ -131,14 +132,14 @@ html {
 
 body {
     color: #fff !important;
-    background-color: #565a68;
+    background-color: #000;
     font-family: 'source_sans_proregular';
     overflow-y: scroll;
     font-size: 1em;
     line-height:1.5;
     margin: 0;
 
-    background-image: url(/static/img/fond_borgia.jpg);
+    background-image: url("../img/fond_borgia.jpg");
     background-repeat: no-repeat;
     background-size: cover;
     background-origin: content-box;
@@ -182,16 +183,19 @@ img {
 /* Layout */
 .transparent-bcg {
     background: rgba(0,0,0,0.3);
-    width: 100%;
+    min-width: 100%;
     min-height: 100%;
 }
 
+/* Logo Lydia */
 .lydia {
     width: 200px;
     vertical-align: middle;
 }
 
 .lydia-logo {
+        background: url('../img/lydia_logo.png') no-repeat;
+        background-size: contain;
         position: relative;
         display: inline-block;
         width: 36px;
@@ -205,7 +209,6 @@ img {
 .lydia-text {
     position: relative;
     z-index: 1;
-    width: 50%;
     padding: 0.06em 16px 0.11em 42px;
     background-color: #2e6da4;
     color: #e2e2e2;
@@ -218,8 +221,31 @@ img {
     color: #2e6da4;
 }
 
+@media screen and (max-width: 767px){
+    .lydia {
+        width: 112px;
+    }
+    .lydia-text {
+        display: none;
+        font-size: 0.8em;
+        padding: 0.06em 9px 0.11em 26px;
+    }
+    .lydia-logo {
+        width: 28px;
+        height: 27px;
+        margin-top: 2px;
+        margin-left: 40px;
+    }
+}
+
 .overlay {
     padding: 1%;
+}
+
+@media screen and (max-width: 767px) {
+    .offset {
+        padding-top: 50px;
+    }
 }
 
 .wrapper {
@@ -235,10 +261,17 @@ img {
 
 /* Logo */
 .logo-background {
-    width: 215px;
+    width: 164px;
     height: 65px;
     float: left;
     background-size: contain;
+}
+
+@media screen and (max-width: 767px) {
+    .logo-background {
+        width: 111px;
+        height: 45px;
+    }
 }
 
 .logo {
@@ -395,8 +428,11 @@ textarea {
     content: '\f0f5';
     font-family: FontAwesome;
 }
-
-
+@media screen and (max-width: 767px){
+    .icon-connexion:before { content: '\e802'; padding-left: 22px;}
+    .icon-pencil-grey:before { content: '\e804'; color: grey; padding-left: 16px;}
+    .icon-notification:before{ content: '\f024'; padding-left: 16px;}
+}
 /* ==========================================================================
    2 = Apps
    ========================================================================== */
@@ -503,6 +539,78 @@ textarea {
     font-size: 0.3em;
 }
 
+/* Menu latéral */
+.list_group_apps {
+    position: fixed;
+    top: 75px;
+    left: 0;
+    width: 16.66%;
+    height: 89%;  /* deviendra 95% */
+    z-index: 1;
+}
+
+.list_group_apps li{
+    height: 16.66%;
+    text-align: right;
+    border-radius: 0% !important;
+    border: none;
+    opacity: 0.8;
+}
+
+.list_group_apps_item_active {
+    width: 7%;
+    padding: 0;
+    color: transparent;
+}
+
+@media screen and (max-width: 767px) {
+    .list_group_apps {
+        top: 50px;
+        height: 50px;
+        width: 100%;
+        display: inline-block;
+    }
+
+    .list_group_apps li{
+        height: 50px;
+        width: 16.66%;
+        float: left;
+    }
+
+    .list_group_apps h3{
+        font-size: 16px;
+    }
+
+    .list_group_apps_item_active{
+        width: 100%;
+        height: 15px !important;
+    }
+}
+
+.list-foys {
+    background: #9DBA8D;
+    border-radius: 0% !important;
+}
+
+.list-shops {
+    background: #F2C177;
+}
+
+.list-transfert {
+    background: #FE6B6F;
+}
+
+.list-manips {
+    background: #9F009F;
+}
+
+.list-frais {
+    background: #0080C0;
+}
+
+.list-bouls {
+    background: #94E9E7;
+}
 /* ==========================================================================
    3 = User
    ========================================================================== */
@@ -549,7 +657,7 @@ textarea {
 
 .user-container:before {
     position: absolute;
-    z-index: 1;
+    z-index: 3;
     float: right;
     right: 22%;
     content: '\e801';
@@ -572,7 +680,7 @@ textarea {
 }
 
 .user-container .user-username {
-    font-size: 1.4em;
+    font-size: 1.35em;
     text-align: right;
     margin: 0;
     display: inline-block;
@@ -586,9 +694,8 @@ textarea {
 
 @media screen and (min-width: 1920px) {
     .user-container .user-username {
-
         right: 25%;
-        padding: 3px 34px 3px 12px;
+        padding: 3px 46px 3px 12px;
     }
 }
 
@@ -620,7 +727,7 @@ textarea {
     display: inline-block;
     margin-top: 1px;
     position: absolute;
-    top: 35px;
+    top: 34px;
     right: 28%;
     padding-left: 10px;
     padding-right: 55px;
@@ -631,6 +738,12 @@ textarea {
 @media screen and (min-width: 1920px) {
     .user-container .user-mail, .user-container .user-balance {
         right: 25%;
+    }
+}
+
+@media screen and (max-width: 767px) {
+    .user-container {
+        right: 10%;
     }
 }
 
@@ -647,11 +760,9 @@ textarea {
     display: inline-block;
     top: -10px;
     right: -9px;
-    float: right;
     width: 78px;
 	height: 33px;
     padding-left: 35px;
-    padding-top:-5px;
     border-top-right-radius: 50%;
 	background: crimson;
 }
@@ -696,6 +807,7 @@ textarea {
 }
 
 .user-notification {
+    z-index: 1;
     width: 80px;
     height: 24px;
     background: #656565;
@@ -703,8 +815,14 @@ textarea {
     position: absolute;
     top: 46px;
     right: -3px;
-    padding: 3px 0 0 37px;
+    padding: 3px 0 0 0px;
     border-bottom-right-radius: 40%;
+}
+
+.user-notification .icon {
+    width: 80px;
+    height: 21px;
+    padding-left: 50px;
 }
 
 @media screen and (min-width: 1920px) {
@@ -740,10 +858,59 @@ textarea {
 .user-menu a:focus {
     color: #fff;
 }
+    /* responsive */
+@media screen and (max-width: 767px) {
+    .user-container {
+        top: 5px;
+    }
+    .user-container:before {
+        font-size: 3em;
+        right: 25%;
+        top: -2px;
+    }
+    .user-container .user-username {
+        font-size: 0.8em;
+        right: 31%;
+        padding: 3px 36px 3px 7px;
+    }
+    .user-container .user-balance{
+        font-size: 0.8em;
+        top: 25px;
+        right: 30%;
+    }
+   .user-connexion {
+        top: -25px;
+        right: -42px;
+        padding-left: 0;
+        width: 52px;
+        border-top-right-radius: 0%;
+    }
+   .user-edition {
+        top: -25px;
+        left: -49px;
+        padding-left: 0;
+        width: 44px;
+        height: 33px;
+    }
+   .user-notification {
+        top: -25px;
+        right: 52px;
+        padding-left: 0;
+        width: 44px;
+        height: 33px;
+        border-bottom-right-radius: 0%;
+    }
+   .user-notification .icon{
+        padding-left: 0px;
+   }
+    .user-menu a {
+        padding: 0.4em 0em;
+        width: 28px;
+    }
+}
 
 .user-menu span.icon {
     color: #999;
-    padding: 1.25em 1em;
     position: relative;
     z-index: 1;
     transition: all 0.1s ease;
@@ -1306,8 +1473,17 @@ tr:hover {
 }
 
 @media screen and (max-width: 1024px) {
-    .table_sales th, td {
+    .table_sales td {
         font-size: 13px;
+    }
+}
+
+@media screen and (max-width: 1024px) {
+    .table_foyer {
+        width: 100%;
+    }
+    .table_foyer input {
+        width: 50px;
     }
 }
 
@@ -1439,9 +1615,14 @@ html{
 body{
     height:100%;
     position: relative;
-    padding-top: 65px;
 }
 
+@media screen and (min-width: 768px) {
+    body { padding-top: 65px;}
+}
+@media screen and (max-width: 767px) {
+    body { padding-top: 50px;}
+}
 #wrap{
     min-height:100%;
     position: relative;
@@ -1464,6 +1645,14 @@ body{
     margin-left: 59%;
     margin-right: 5%;
     margin-top: 3%;
+}
+
+@media screen and (max-width: 767px) {
+    #container-notifications{
+        width: 60%;
+        margin-left: 38%;
+        margin-top: 10%;
+    }
 }
 
 #container-notifications-hidden{
@@ -1505,16 +1694,14 @@ div.notifications-body:hover{
 }
 
 div.notifications-header{
-    border: 1px solid black;
+    border-bottom: 1px solid white;
 }
 
 div.notifications-header h1{
     margin: 0px;
 }
 
-
 div.notifications-footer{
-    border: 1px solid black;
     border-top: none;
 }
 
@@ -1586,9 +1773,9 @@ nav.pagination{
 
 .history_toggle {
     position: fixed;
-    right: 0;
+    right: 1%;
     bottom: 0;
-    opacity: 0.8;
+    opacity: 0.9;
     width: 40%;
     background: #222222;
     border: none;
@@ -1608,20 +1795,21 @@ nav.pagination{
 .history_container {
     display: none;
     position: fixed;
-    right: 0;
-    opacity: 0.8;
+    right: 1%;
+    opacity: 0.9;
     width: 40%;
     height: 60%;
     background: #222222;
     padding: 10px;
     border: none;
     bottom: 56px;
+    z-index: 2;
 }
 
 .history_slide {
     overflow-y: auto;
     position: fixed;
-    right: 0;
+    right: 1%;
     width: 40%;
     height: 60%;
     background: #222222;
@@ -1643,4 +1831,33 @@ nav.pagination{
 .history_slide::-webkit-scrollbar-thumb {
   background-color: white;
   outline: 1px solid beige;
+}
+
+@media screen and (max-width: 767px) {
+    .history_container { width: 75%;}
+    .history_slide { width: 75%;}
+}
+.well { background: rgba(25,25,25,0.8); border: none;}
+
+.panel-custom { border: none; opacity: 0.9;}
+.panel-custom .panel-heading {
+        background: #353535;
+}
+.panel-custom .panel-footer {
+    background: #656565;
+}
+.panel-body label { color: #656565; }
+.panel-body li {color: black;}
+.panel-body a {color: #333388;}
+
+   /* Smartphone Portrait and Landscape */
+@media only screen and (max-width : 479px){
+    .mobileHide { display: none !important; }
+    .navbar {
+        min-height: 41px;}
+}
+@media only screen and (min-width: 480px) {
+    .mobileShow {
+        display: none !important;
+    }
 }

@@ -2,14 +2,20 @@
 
 {% block content %}
 
-    <div class="container50">
-    <h2 class="align-center">Création d'un compte en banque</h2>
-        <form class="form-style-1" action= "" method="post">
-            {% csrf_token %}
-            {{ form.as_ul }}
-            <input type=hidden name="next" value="{{ next }}" />
-            <li><input type="submit" value="Submit"/></li>
-        </form>
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-custom">
+            <div class="panel-heading">
+                <h2 class="align-center">Création d'un compte en banque</h2>
+            </div>
+            <div class="panel-body">
+                <form class="form-style-1" action= "" method="post">
+                    {% csrf_token %}
+                    {{ form.as_ul }}
+                    <input type=hidden name="next" value="{{ next }}" />
+                    <li><input type="submit" value="Créer"/></li>
+            </form>
+            </div>
+        </div>
     </div>
 
 {% endblock %}

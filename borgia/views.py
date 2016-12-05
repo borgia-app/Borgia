@@ -42,6 +42,8 @@ def jsi18n_catalog(request):
     """
     return render(request, 'jsi18n.html')
 
+def page_clean(request, template_name):
+    return render(request, 'page_clean.html')
 
 def get_list_model(request, model, search_in, props=None):
     """

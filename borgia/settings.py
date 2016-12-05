@@ -128,7 +128,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en²/1.9/howto/static-files/
 AUTH_USER_MODEL = 'users.User'
-LOGIN_REDIRECT_URL = '/users/profile/'
+LOGIN_REDIRECT_URL = '/shops/foyer/consumption/'
 LOGIN_URL = '/auth/login'
 
 LOGIN_EXEMPT_URLS = [

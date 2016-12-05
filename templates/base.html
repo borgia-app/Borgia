@@ -10,15 +10,17 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
     <title>Borgia - V2.7.4</title>
     <link rel="stylesheet" href="{% static 'css/skeleton.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style-xsmall.css' %}" />
     <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
     <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.png' %}"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script src="{% static 'jquery-ui-1.11.4/jquery-ui.js' %}"></script>
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/widgets.js' %}"></script>
     <link rel="stylesheet" href="{% static 'jquery-ui-1.11.4/jquery-ui.css' %}">
 
@@ -89,49 +91,46 @@
     <nav class="navbar navbar-inverse navbar-fixed-top">
 
         <div class="container-fluid">
-             <div class="navbar-header col-md-2 col-sm-2 col-xs-6">
+             <div class="navbar-header col-md-2 col-sm-2 col-xs-2" style="padding-left: 2px">
                 <a href="{% url 'url_profile' %}">
                    <span style="background: url('{% static 'img/borgia_logo.svg' %}') no-repeat;" class="logo-background"></span>
                 </a>
              </div>
 
-            <div id="wrapper-user-menu" class="col-md-3 col-sm-3 col-xs-12">
+            <div id="wrapper-user-menu" class="col-md-3 col-sm-3 col-xs-3">
 
                 <ul class="user-menu pull-left">
                     {% if user.is_authenticated %}
-                        <li><a href="{% url 'url_supply_lydia_self' %}"><div class="lydia"><span style="background: url('{% static 'img/lydia_logo.png' %}') no-repeat; background-size: cover;" class="lydia-logo"></span><span class="lydia-text">Crédit compte</span></div></a></li>
+                        <li><a href="{% url 'url_supply_lydia_self' %}" title="Crédit Lydia"><div class="lydia"><span class="lydia-logo"></span><span class="lydia-text">Crédit compte</span></div></a></li>
                         <!-- <li><a class="icon icon-people" href="{% url 'url_list_user' %}"></a></li> -->
                         <!-- <li><a class="icon icon-settings" href=""></a></li> -->
                         <!-- <li><a class="icon icon-admin" href=""></a></li> -->
-                    {% else %}
-                        <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
-                        <li><a class="icon icon-beer" href="{% url 'url_login_pg' organe='foyer' %}">Conso. Foyer</a></li>
                     {% endif %}
                 </ul>
              </div>
-             <div id="wrapper-user" class="col-md-7 col-sm-7 col-xs-6-pull">
+             <div id="wrapper-user" class="col-md-7 col-sm-7 col-xs-7">
                 {% if user.is_authenticated %}
-                    <a class="user-container user-container-info" href="{% url 'url_update_user' pk=user.pk %}">
+                    <span class="user-container">
                         <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
                         <span class="user-balance {% if user.balance >= 0 %}posits {% else %}negats {% endif %}">{{ user.balance }} €</span>
-                    </a>
+                    </span>
                     <div class="row">
-
-                    <ul class="user-menu pull-right" style="position:absolute; right: 0;">
-                        <li><span class="user-connexion"><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}" title="Déconnexion"></a></span></li>
-                        <li><span class="user-edition"><a class="icon icon-pencil-grey" href="{% url 'url_update_user' pk=user.pk %}" title="Édition"></a></span></span></li>
-                        <li>
-                            <span class="user-notification">
-                                <span class="icon icon-notification" onclick="show_hide_div('container-notifications');" title="Notifications">
+                        <ul class="user-menu pull-right" style="position:absolute; right: 0;">
+                            <li><span class="user-connexion"><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}" title="Déconnexion"></a></span></li>
+                            <li><span class="user-edition"><a class="icon icon-pencil-grey" style="height: 23px;" href="{% url 'url_update_user' pk=user.pk %}" title="Édition"></a></span></span></li>
+                            <li>
+                                <span class="user-notification">
+                                    <span class="icon icon-notification" onclick="show_hide_div('container-notifications');" title="Notifications">
+                                    </span>
                                 </span>
-                            </span>
-                            {% if messages %}
-                                <span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">
-                                </span>
-                            {% endif %}</li>
-
-                    </ul>
+                                {% if messages %}
+                                    <span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">
+                                    </span>
+                                {% endif %}</li>
+                        </ul>
                     </div>
+             </div>
+
                 {% else %}
                     <form class="form-inline" action='' method="post">{% csrf_token %}
                         <div class="form-group">
@@ -174,11 +173,11 @@
             show_hide_div('container-notifications');
         </script>
         <div class="notifications-header">
-            <h1 class="notifications-header">Nouvelles notifications:</h1>
+            <h3 class="notifications-header">Nouvelles notifications:</h3>
         </div>
         {% if messages %}
         {% else %}
-            <div class="notifications info">Il n'y a pas de nouvelles notifications pour toi.</div>
+            <div class="notifications info"> Il n'y a pas de nouvelles notifications pour toi.</div>
         {% endif %}
         <div class="notifications-footer">
             <a href="{% url 'url_list_complete_notification' %}">Tout afficher ...</a>
@@ -190,12 +189,34 @@
         {% endif %}
     </div>
 {%  endif %}
-<div class="container">
+<div class="container-fluid">
     {% if user.is_authenticated %}
-        {% breadcrumbs %}
-    {%  endif %}
-    {%  block content %}
-    {%  endblock %}
+        <div class="col-md-2 col-sm-2 col-xs-12">
+            <ul class="list-group list_group_apps">
+                {% url 'url_purchase_foyer' as url_foys %}
+                {% url 'url_create_transfert' as url_transfert %}
+                {% url 'url_list_shared_event' as url_event %}
+                <a href="{% if request.path  == url_foys %}{% url 'url_page_clean' %}{% else %}{{ url_foys}}{% endif %}"><li class="list-group-item list-foys {% if request.path  == url_foys %}list_group_apps_item_active{% endif %}"><h3>Foy's</h3></li></a>
+                <a href="#"><li class="list-group-item list-shops"><h3>Shop's (En dev)</h3></li></a>
+                <a href="{% if request.path  == url_transfert %}{% url 'url_page_clean' %}{% else %}{{ url_transfert}}{% endif %}"><li class="list-group-item list-transfert {% if request.path  == url_transfert %}list_group_apps_item_active{% endif %}"><h3>Transfert</h3></li></a>
+                <a href="{% if request.path  == url_event %}{% url 'url_page_clean' %}{% else %}{{ url_event}}{% endif %}"><li class="list-group-item list-manips {% if request.path  == url_event %}list_group_apps_item_active{% endif %}"><h3>Manips</h3></li></a>
+                <a href="#"><li class="list-group-item list-frais"><h3>Frais AE (En dev)</h3></li></a>
+                <a href="#"><li class="list-group-item list-bouls"><h3>Boul's (En dev)</h3></li></a>
+            </ul>
+        </div>
+    {% endif %}
+
+    {% if user.is_authenticated %}
+       <div class="col-md-10 col-sm-10 col-xs-12 offset">
+            {% breadcrumbs %}
+    {% else %}
+       <div class="container-fluid">
+    {% endif %}
+        {%  block content %}
+        {%  endblock %}
+       </div>
+
+
 </div>
 </body>
 
