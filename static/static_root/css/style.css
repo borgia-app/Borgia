@@ -558,9 +558,22 @@ textarea {
 }
 
 .list_group_apps_item_active {
-    width: 7%;
+    width: 50%;
     padding: 0;
     color: transparent;
+}
+
+.list_group_apps img {
+    width: 35%;
+    height: 60%;
+    float: left;
+}
+
+.list_group_apps_item_active img {
+    float: none;
+    width: 100%;
+    height: 92%;
+    padding-top: 8px;
 }
 
 @media screen and (max-width: 767px) {
@@ -583,7 +596,11 @@ textarea {
 
     .list_group_apps_item_active{
         width: 100%;
-        height: 15px !important;
+        height: 25px !important;
+    }
+
+    .list_group_apps_item_active img {
+        padding-top: 0;
     }
 }
 
@@ -1849,8 +1866,8 @@ nav.pagination{
 .panel-body label { color: #656565; }
 .panel-body li {color: black;}
 .panel-body a {color: #333388;}
-
-   /* Smartphone Portrait and Landscape */
+.panel-body p { color: black;}
+/* Smartphone Portrait and Landscape */
 @media only screen and (max-width : 479px){
     .mobileHide { display: none !important; }
     .navbar {

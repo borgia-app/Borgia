@@ -117,7 +117,7 @@
                     <div class="row">
                         <ul class="user-menu pull-right" style="position:absolute; right: 0;">
                             <li><span class="user-connexion"><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}" title="Déconnexion"></a></span></li>
-                            <li><span class="user-edition"><a class="icon icon-pencil-grey" style="height: 23px;" href="{% url 'url_update_user' pk=user.pk %}" title="Édition"></a></span></span></li>
+                            <li><span class="user-edition"><a class="icon icon-pencil-grey" style="height: 23px;" href="{% url 'url_update_user' pk=user.pk %}" title="Édition"></a></span></li>
                             <li>
                                 <span class="user-notification">
                                     <span class="icon icon-notification" onclick="show_hide_div('container-notifications');" title="Notifications">
@@ -196,12 +196,12 @@
                 {% url 'url_purchase_foyer' as url_foys %}
                 {% url 'url_create_transfert' as url_transfert %}
                 {% url 'url_list_shared_event' as url_event %}
-                <a href="{% if request.path  == url_foys %}{% url 'url_page_clean' %}{% else %}{{ url_foys}}{% endif %}"><li class="list-group-item list-foys {% if request.path  == url_foys %}list_group_apps_item_active{% endif %}"><h3>Foy's</h3></li></a>
-                <a href="#"><li class="list-group-item list-shops"><h3>Shop's (En dev)</h3></li></a>
-                <a href="{% if request.path  == url_transfert %}{% url 'url_page_clean' %}{% else %}{{ url_transfert}}{% endif %}"><li class="list-group-item list-transfert {% if request.path  == url_transfert %}list_group_apps_item_active{% endif %}"><h3>Transfert</h3></li></a>
-                <a href="{% if request.path  == url_event %}{% url 'url_page_clean' %}{% else %}{{ url_event}}{% endif %}"><li class="list-group-item list-manips {% if request.path  == url_event %}list_group_apps_item_active{% endif %}"><h3>Manips</h3></li></a>
-                <a href="#"><li class="list-group-item list-frais"><h3>Frais AE (En dev)</h3></li></a>
-                <a href="#"><li class="list-group-item list-bouls"><h3>Boul's (En dev)</h3></li></a>
+                <a href="{% if request.path  == url_foys %}{% url 'url_page_clean' %}{% else %}{{ url_foys}}{% endif %}"><li class="list-group-item list-foys {% if request.path  == url_foys %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/tap.svg' %}" /><h3>Foy's</h3></li></a>
+                <a href="#"><li class="list-group-item list-shops"><img src="{% static 'img/store.svg' %}" /><h3>Shop's</h3></li></a>
+                <a href="{% if request.path  == url_transfert %}{% url 'url_page_clean' %}{% else %}{{ url_transfert}}{% endif %}"><li class="list-group-item list-transfert {% if request.path  == url_transfert %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/transfer.svg' %}" /><h3>Transfert</h3></li></a>
+                <a href="{% if request.path  == url_event %}{% url 'url_page_clean' %}{% else %}{{ url_event}}{% endif %}"><li class="list-group-item list-manips {% if request.path  == url_event %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/event-calendar-symbol.svg' %}" /><h3>Manips</h3></li></a>
+                <a href="#"><li class="list-group-item list-frais"><img src="{% static 'img/thief.svg' %}" /><h3>Frais AE</h3></li></a>
+                <a href="#"><li class="list-group-item list-bouls"><img src="{% static 'img/lazy.svg' %}" /><h3>Boul's</h3></li></a>
             </ul>
         </div>
     {% endif %}
