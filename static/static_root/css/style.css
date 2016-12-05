@@ -1868,12 +1868,11 @@ nav.pagination{
 .panel-body a {color: #333388;}
 .panel-body p { color: black;}
 /* Smartphone Portrait and Landscape */
-@media only screen and (max-width : 479px){
+@media only screen and (max-width : 767px){
     .mobileHide { display: none !important; }
-    .navbar {
-        min-height: 41px;}
+
 }
-@media only screen and (min-width: 480px) {
+@media only screen and (min-width: 320px) {
     .mobileShow {
         display: none !important;
     }
