@@ -26,21 +26,6 @@
     "model": "auth.group",
     "pk": 2,
     "fields": {
-      "name": "Vices présidents délégués à la vie interne",
-      "permissions": [["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
-        ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"],
-        ["reach_workboard_vices_presidents_vie_interne", "users", "user"],
-        ["add_user", "users", "user"],
-        ["change_user", "users", "user"],
-        ["delete_user", "users", "user"],
-        ["retrieve_user", "users", "user"],
-        ["list_user", "users", "user"]]
-    }
-  },
-  {
-    "model": "auth.group",
-    "pk": 3,
-    "fields": {
       "name": "Trésoriers",
       "permissions": [
         ["retrieve_sale", "finances", "sale"],
@@ -97,7 +82,7 @@
   },
   {
     "model": "auth.group",
-    "pk": 4,
+    "pk": 3,
     "fields": {
       "name": "Chefs gestionnaires du foyer",
       "permissions": [
@@ -110,6 +95,7 @@
         ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
         ["delete_productbase", "shops", "productbase"],
+        ["change_price_productbase", "shops", "productbase"],
 
         ["add_productunit", "shops", "productunit"],
         ["change_productunit", "shops", "productunit"],
@@ -128,13 +114,16 @@
         ["reach_workboard_foyer", "users", "user"],
 
         ["supply_account", "users", "user"],
-        ["add_bankaccount", "finances", "bankaccount"]
+        ["add_bankaccount", "finances", "bankaccount"],
+
+        ["sell_foyer", "shops", "shop"],
+        ["list_sale", "finances", "sale"]
       ]
     }
   },
   {
     "model": "auth.group",
-    "pk": 5,
+    "pk": 4,
     "fields": {
       "name": "Gestionnaires du foyer",
       "permissions": [
@@ -163,13 +152,16 @@
         ["add_user", "users", "user"],
 
         ["supply_account", "users", "user"],
-        ["add_bankaccount", "finances", "bankaccount"]
+        ["add_bankaccount", "finances", "bankaccount"],
+
+        ["sell_foyer", "shops", "shop"],
+        ["list_sale", "finances", "sale"]
       ]
     }
   },
   {
     "model": "auth.group",
-    "pk": 6,
+    "pk": 5,
     "fields": {
       "name": "Chefs gestionnaires de l'auberge",
       "permissions": [
@@ -181,6 +173,7 @@
         ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
         ["delete_productbase", "shops", "productbase"],
+        ["change_price_productbase", "shops", "productbase"],
 
         ["add_productunit", "shops", "productunit"],
         ["change_productunit", "shops", "productunit"],
@@ -195,13 +188,14 @@
         ["reach_workboard_auberge", "users", "user"],
 
         ["add_product", "shops", "shop"],
-        ["sell_auberge", "shops", "shop"]
+        ["sell_auberge", "shops", "shop"],
+        ["list_sale", "finances", "sale"]
       ]
     }
   },
   {
     "model": "auth.group",
-    "pk": 7,
+    "pk": 6,
     "fields": {
       "name": "Gestionnaires de l'auberge",
       "permissions": [
@@ -226,13 +220,62 @@
         ["reach_workboard_auberge", "users", "user"],
 
         ["add_product", "shops", "shop"],
-        ["sell_auberge", "shops", "shop"]
+        ["sell_auberge", "shops", "shop"],
+        ["list_sale", "finances", "sale"]
       ]
     }
   },
     {
     "model": "auth.group",
+    "pk": 7,
+    "fields": {
+      "name": "Gadz'Arts",
+      "permissions": [
+        ["add_own_bankaccount", "finances", "bankaccount"],
+        ["add_transfert", "finances", "sale"],
+        ["add_sharedevent", "finances", "sharedevent"],
+        ["register_sharedevent", "finances", "sharedevent"],
+        ["list_sharedevent", "finances", "sharedevent"]
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
     "pk": 8,
+    "fields": {
+      "name": "Membres d'honneurs",
+      "permissions": [
+        ["add_own_bankaccount", "finances", "bankaccount"],
+        ["add_transfert", "finances", "sale"]
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 9,
+    "fields": {
+      "name": "Membres spéciaux",
+      "permissions": []
+    }
+  },
+    {
+    "model": "auth.group",
+    "pk": 10,
+    "fields": {
+      "name": "Vices présidents délégués à la vie interne",
+      "permissions": [["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
+        ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"],
+        ["reach_workboard_vices_presidents_vie_interne", "users", "user"],
+        ["add_user", "users", "user"],
+        ["change_user", "users", "user"],
+        ["delete_user", "users", "user"],
+        ["retrieve_user", "users", "user"],
+        ["list_user", "users", "user"]]
+    }
+  },
+    {
+    "model": "auth.group",
+    "pk": 11,
     "fields": {
       "name": "Chefs gestionnaires de la cvis",
       "permissions": [
@@ -258,13 +301,14 @@
         ["gestionnaires_de_la_cvis_group_manage", "users", "user"],
 
         ["add_product", "shops", "shop"],
-        ["sell_cvis", "shops", "shop"]
+        ["sell_cvis", "shops", "shop"],
+        ["list_sale", "finances", "sale"]
       ]
     }
   },
   {
     "model": "auth.group",
-    "pk": 9,
+    "pk": 12,
     "fields": {
       "name": "Gestionnaires de la cvis",
       "permissions": [
@@ -289,13 +333,14 @@
         ["reach_workboard_cvis", "users", "user"],
 
         ["add_product", "shops", "shop"],
-        ["sell_cvis", "shops", "shop"]
+        ["sell_cvis", "shops", "shop"],
+        ["list_sale", "finances", "sale"]
       ]
     }
   },
     {
     "model": "auth.group",
-    "pk": 10,
+    "pk": 13,
     "fields": {
       "name": "Chefs gestionnaires de la bkars",
       "permissions": [
@@ -307,6 +352,7 @@
         ["retrieve_productbase", "shops", "productbase"],
         ["list_productbase", "shops", "productbase"],
         ["delete_productbase", "shops", "productbase"],
+        ["change_price_productbase", "shops", "productbase"],
 
         ["add_productunit", "shops", "productunit"],
         ["change_productunit", "shops", "productunit"],
@@ -321,13 +367,14 @@
         ["reach_workboard_bkars", "users", "user"],
 
         ["add_product", "shops", "shop"],
-        ["sell_bkars", "shops", "shop"]
+        ["sell_bkars", "shops", "shop"],
+        ["list_sale", "finances", "sale"]
       ]
     }
   },
   {
     "model": "auth.group",
-    "pk": 11,
+    "pk": 14,
     "fields": {
       "name": "Gestionnaires de la bkars",
       "permissions": [
@@ -352,41 +399,9 @@
         ["reach_workboard_bkars", "users", "user"],
 
         ["add_product", "shops", "shop"],
-        ["sell_bkars", "shops", "shop"]
+        ["sell_bkars", "shops", "shop"],
+        ["list_sale", "finances", "sale"]
       ]
-    }
-  },
-  {
-    "model": "auth.group",
-    "pk": 12,
-    "fields": {
-      "name": "Gadz'Arts",
-      "permissions": [
-        ["add_own_bankaccount", "finances", "bankaccount"],
-        ["add_transfert", "finances", "sale"],
-        ["add_sharedevent", "finances", "sharedevent"],
-        ["register_sharedevent", "finances", "sharedevent"],
-        ["list_sharedevent", "finances", "sharedevent"]
-      ]
-    }
-  },
-  {
-    "model": "auth.group",
-    "pk": 13,
-    "fields": {
-      "name": "Membres d'honneurs",
-      "permissions": [
-        ["add_own_bankaccount", "finances", "bankaccount"],
-        ["add_transfert", "finances", "sale"]
-      ]
-    }
-  },
-  {
-    "model": "auth.group",
-    "pk": 14,
-    "fields": {
-      "name": "Membres spéciaux",
-      "permissions": []
     }
   }
 

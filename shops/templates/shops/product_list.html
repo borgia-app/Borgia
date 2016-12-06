@@ -31,7 +31,7 @@
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Nom</a></th>
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Type</a></th>
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'quantity_stock'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Stock</a></th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Prix de vente usuel</a></th>
+                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Prix de vente actuel</a></th>
                         <th>Quantité usuelle</th>
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'is_manual'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Calcul du prix</a></th>
                         {% if perms.shops.change_productbase %}

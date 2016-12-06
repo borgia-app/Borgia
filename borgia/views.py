@@ -100,7 +100,7 @@ def get_list_model(request, model, search_in, props=None):
     else: # Cas User traité à part car contient des fields sensibles
 
         # Suppression des users spéciaux
-        query = query.exclude(Q(groups=Group.objects.get(pk=14)) | Q(username='admin'))
+        query = query.exclude(Q(groups=Group.objects.get(pk=9)) | Q(username='admin'))
 
         # Sérialisation
         allowed_fields = User._meta.get_all_field_names()

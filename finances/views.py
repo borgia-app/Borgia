@@ -968,7 +968,7 @@ class SharedEventManageView(View):
                     for i in range(0, len(list_year())):
                         if download_xlsx_form.cleaned_data["field_year_%s" % i] is True:
                             list_year_result.append(list_year()[i])
-                    for u in User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=14)).order_by('last_name'):
+                    for u in User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=9)).order_by('last_name'):
                         data.append([u.last_name + ' ' + u.first_name, u.surname, u.username])
                     worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
                     workbook.close()
