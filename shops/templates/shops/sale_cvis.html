@@ -1,0 +1,190 @@
+{% extends 'base_clean.html' %}
+
+{% block content %}
+
+    <form method="POST" action="{% url 'url_purchase_cvis' %}" id="form_purchase">
+        {% csrf_token %}
+        <div class="container">
+            <div class="row">
+                {{ form.non_field_errors }}
+            </div>
+            <div class="row">
+                <div class="column offset-by-four">
+                    <div class="row">
+                        <div class="fieldWrapper">
+                            {{ form.client_username.errors }}
+                            <label for="{{ form.client_username.id_for_label }}">Client:</label>
+                            {{ form.client_username }}
+                            <span class="user-balance" id="surname"></span>
+                        </div>
+                        <div class="row">
+                            <label>
+                            <span class="user-balance"><span id="balance_before">0.00</span> € - <span id="total_consumption">0.00</span> € = <span id="balance_after">0.00</span> €</span>
+                            <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" /></label>
+                        </div>
+                        <div class="row">
+                            <input id="id_submit" class="self_submit" type=submit value="Valider"/><br>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <style>
+            .self_submit {
+                background: #4B99AD;
+                padding: 5px !important;
+                margin: 5px;
+                border: none;
+                color: #fff;
+            }
+        </style>
+        <div id="div_purchase" class="container">
+            <div class="row">
+                <ul id="onglets">
+                    <li id="li_single_product">Produits unitaires</li>
+                </ul>
+            </div>
+            <div class="row">
+
+                <div class="row" id="div_single_product">
+                    <table>
+                        <th>Produit</th>
+                        <th>Prix</th>
+                        <th>Nombre</th>
+                        <th>Prix correspondant</th>
+
+                        {% for e in dict_field_single_product %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td>{{ e.1 }}</td>
+                                    <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
+                                    <td>{{ e.0 }}</td>
+                                    <td> <span id="selected_price_single_product_{{ e.2 }}">0.00</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </div>
+
+            </div>
+        </div>
+    </form>
+
+    <script>
+        onglets = document.getElementById('onglets');
+        var li_list = onglets.getElementsByTagName('li');
+        var div_list = [];
+        var active_li = 0;
+        var fields_list = [];
+        var active_field = 0;
+
+        div_list.push(document.getElementById('div_single_product'));
+
+        var selected_quantity_single_product = [];
+        var selected_price_single_product = [];
+        var selected_initial_price_single_product = [];
+
+        $("#id_client_username").blur(function() {
+            var usersAPI = '{% url 'url_data_from_username' %}?username=' + document.getElementById('id_client_username').value
+            $.getJSON( usersAPI, function( data ) {
+                $("#balance_before").text(data['balance'])
+                $("#surname").text(data['surname'] + ' ' + data['family'])
+            })
+        });
+
+        for (i=0; i<{{ single_product_available_list|length }}; i++) {
+            selected_price_single_product.push(document.getElementById("selected_price_single_product_"+i));
+            selected_quantity_single_product.push(document.getElementById("id_field_single_product_"+i));
+            selected_initial_price_single_product.push(document.getElementById("selected_initial_price_single_product_"+i));
+        }
+        for (i=0;i<{{ single_product_available_list|length }};i++){
+            (function(x) {
+                selected_quantity_single_product[i].addEventListener('change', function(e) {
+                    selected_price_single_product[x].textContent = String((e.target.value * Number(selected_initial_price_single_product[x].textContent.replace(",", "."))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
+
+        fields_list.push(selected_quantity_single_product);
+
+        // initialisation -> Viandes
+        document.getElementById('li_single_product').addEventListener('click', function(e) {
+            set_active_li(3);
+        }, false);
+
+        function set_active_li(new_active_li) {
+            active_li = new_active_li;
+            display_none_all(div_list[active_li]);
+        }
+
+        function set_active_field(new_active_field) {
+            fields_list[active_li][new_active_field].focus();
+            active_field = new_active_field;
+        }
+
+        function display_none_all(div_except) {
+            for (i=0; i<div_list.length; i++) {
+                if (div_list[i] != div_except) {
+                    li_list[i].className = '';
+                    div_list[i].style.display = 'none';
+                }
+                else {
+                    div_list[i].style.display = 'block';
+                    li_list[i].className = 'active';
+                }
+            }
+        }
+
+        function update_consumption() {
+            var sum_single_product = 0;
+
+
+            for (i=0; i<{{ single_product_available_list|length }}; i++) {
+                sum_single_product += Number(document.getElementById("selected_price_single_product_" + i).textContent);
+            }
+
+            var balance_before = Number(document.getElementById("balance_before").textContent);
+            document.getElementById("total_consumption").textContent = String((sum_single_product).toFixed(2));
+            document.getElementById("balance_after").textContent = String((balance_before-sum_single_product).toFixed(2));
+            document.getElementById("hidden_balance_after").value = (balance_before-sum_single_product).toFixed(2);
+        }
+
+
+        // initialisation
+
+        var input_client_username = $("#id_client_username");
+        if (input_client_username.val() != '') {
+            input_client_username.focus();
+            input_client_username.blur();
+        }
+
+        var d = 0;
+        while (d<{{ single_product_available_list|length }}) {
+            (function(d) {
+                return selected_quantity_single_product[d].dispatchEvent(new Event('change'));
+            })(d);
+            d++;
+        }
+
+        setTimeout(function(){
+            update_consumption()
+        }, 2000);
+
+        document.onkeydown = function (e) {
+            // Problème du champ vide quand on valide
+            if (e.keyCode == 13) {
+                $("#div_purchase :input").each(
+                        function () {
+                            if ($(this).val() == '') {
+                                $(this).val(0);
+                            }
+                        })
+            }
+        }
+
+    </script>
+
+{% endblock %}

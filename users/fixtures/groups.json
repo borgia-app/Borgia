@@ -26,6 +26,21 @@
     "model": "auth.group",
     "pk": 2,
     "fields": {
+      "name": "Vices présidents délégués à la vie interne",
+      "permissions": [["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
+        ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"],
+        ["reach_workboard_vices_presidents_vie_interne", "users", "user"],
+        ["add_user", "users", "user"],
+        ["change_user", "users", "user"],
+        ["delete_user", "users", "user"],
+        ["retrieve_user", "users", "user"],
+        ["list_user", "users", "user"]]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 3,
+    "fields": {
       "name": "Trésoriers",
       "permissions": [
         ["retrieve_sale", "finances", "sale"],
@@ -82,7 +97,7 @@
   },
   {
     "model": "auth.group",
-    "pk": 3,
+    "pk": 4,
     "fields": {
       "name": "Chefs gestionnaires du foyer",
       "permissions": [
@@ -102,15 +117,15 @@
         ["list_productunit", "shops", "productunit"],
         ["delete_productunit", "shops", "productunit"],
 
-        ["reach_workboard_foyer", "shops", "shop"],
 
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
 
-        ["add_product", "users", "user"],
+        ["add_product", "shops", "shop"],
         ["add_user", "users", "user"],
 
         ["gestionnaires_du_foyer_group_manage", "users", "user"],
+        ["reach_workboard_foyer", "users", "user"],
 
         ["supply_account", "users", "user"],
         ["add_bankaccount", "finances", "bankaccount"]
@@ -119,7 +134,7 @@
   },
   {
     "model": "auth.group",
-    "pk": 4,
+    "pk": 5,
     "fields": {
       "name": "Gestionnaires du foyer",
       "permissions": [
@@ -139,12 +154,12 @@
         ["list_productunit", "shops", "productunit"],
         ["delete_productunit", "shops", "productunit"],
 
-        ["reach_workboard_foyer", "shops", "shop"],
+        ["reach_workboard_foyer", "users", "user"],
 
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
-        ["add_product", "users", "user"],
 
+        ["add_product", "shops", "shop"],
         ["add_user", "users", "user"],
 
         ["supply_account", "users", "user"],
@@ -154,7 +169,7 @@
   },
   {
     "model": "auth.group",
-    "pk": 5,
+    "pk": 6,
     "fields": {
       "name": "Chefs gestionnaires de l'auberge",
       "permissions": [
@@ -176,19 +191,17 @@
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
 
-        ["add_product", "users", "user"],
-        ["supply_account", "users", "user"],
-        ["add_bankaccount", "finances", "bankaccount"],
-
         ["gestionnaires_de_l_auberge_group_manage", "users", "user"],
-        ["sell_auberge", "shops", "shop"],
-        ["reach_workboard_auberge", "shops", "shop"]
+        ["reach_workboard_auberge", "users", "user"],
+
+        ["add_product", "shops", "shop"],
+        ["sell_auberge", "shops", "shop"]
       ]
     }
   },
   {
     "model": "auth.group",
-    "pk": 6,
+    "pk": 7,
     "fields": {
       "name": "Gestionnaires de l'auberge",
       "permissions": [
@@ -210,18 +223,142 @@
         ["add_singleproduct", "shops", "singleproduct"],
         ["list_singleproduct", "shops", "singleproduct"],
 
-        ["add_product", "users", "user"],
-        ["supply_account", "users", "user"],
-        ["add_bankaccount", "finances", "bankaccount"],
+        ["reach_workboard_auberge", "users", "user"],
 
-        ["sell_auberge", "shops", "shop"],
-        ["reach_workboard_auberge", "shops", "shop"]
+        ["add_product", "shops", "shop"],
+        ["sell_auberge", "shops", "shop"]
+      ]
+    }
+  },
+    {
+    "model": "auth.group",
+    "pk": 8,
+    "fields": {
+      "name": "Chefs gestionnaires de la cvis",
+      "permissions": [
+        ["add_container", "shops", "container"],
+        ["list_container", "shops", "container"],
+
+        ["add_productbase", "shops", "productbase"],
+        ["change_productbase", "shops", "productbase"],
+        ["retrieve_productbase", "shops", "productbase"],
+        ["list_productbase", "shops", "productbase"],
+        ["delete_productbase", "shops", "productbase"],
+
+        ["add_productunit", "shops", "productunit"],
+        ["change_productunit", "shops", "productunit"],
+        ["retrieve_productunit", "shops", "productunit"],
+        ["list_productunit", "shops", "productunit"],
+        ["delete_productunit", "shops", "productunit"],
+
+        ["add_singleproduct", "shops", "singleproduct"],
+        ["list_singleproduct", "shops", "singleproduct"],
+
+        ["reach_workboard_cvis", "users", "user"],
+        ["gestionnaires_de_la_cvis_group_manage", "users", "user"],
+
+        ["add_product", "shops", "shop"],
+        ["sell_cvis", "shops", "shop"]
       ]
     }
   },
   {
     "model": "auth.group",
-    "pk": 7,
+    "pk": 9,
+    "fields": {
+      "name": "Gestionnaires de la cvis",
+      "permissions": [
+        ["add_container", "shops", "container"],
+        ["list_container", "shops", "container"],
+
+        ["add_productbase", "shops", "productbase"],
+        ["change_productbase", "shops", "productbase"],
+        ["retrieve_productbase", "shops", "productbase"],
+        ["list_productbase", "shops", "productbase"],
+        ["delete_productbase", "shops", "productbase"],
+
+        ["add_productunit", "shops", "productunit"],
+        ["change_productunit", "shops", "productunit"],
+        ["retrieve_productunit", "shops", "productunit"],
+        ["list_productunit", "shops", "productunit"],
+        ["delete_productunit", "shops", "productunit"],
+
+        ["add_singleproduct", "shops", "singleproduct"],
+        ["list_singleproduct", "shops", "singleproduct"],
+
+        ["reach_workboard_cvis", "users", "user"],
+
+        ["add_product", "shops", "shop"],
+        ["sell_cvis", "shops", "shop"]
+      ]
+    }
+  },
+    {
+    "model": "auth.group",
+    "pk": 10,
+    "fields": {
+      "name": "Chefs gestionnaires de la bkars",
+      "permissions": [
+        ["add_container", "shops", "container"],
+        ["list_container", "shops", "container"],
+
+        ["add_productbase", "shops", "productbase"],
+        ["change_productbase", "shops", "productbase"],
+        ["retrieve_productbase", "shops", "productbase"],
+        ["list_productbase", "shops", "productbase"],
+        ["delete_productbase", "shops", "productbase"],
+
+        ["add_productunit", "shops", "productunit"],
+        ["change_productunit", "shops", "productunit"],
+        ["retrieve_productunit", "shops", "productunit"],
+        ["list_productunit", "shops", "productunit"],
+        ["delete_productunit", "shops", "productunit"],
+
+        ["add_singleproduct", "shops", "singleproduct"],
+        ["list_singleproduct", "shops", "singleproduct"],
+
+        ["gestionnaires_de_la_bkars_group_manage", "users", "user"],
+        ["reach_workboard_bkars", "users", "user"],
+
+        ["add_product", "shops", "shop"],
+        ["sell_bkars", "shops", "shop"]
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 11,
+    "fields": {
+      "name": "Gestionnaires de la bkars",
+      "permissions": [
+        ["add_container", "shops", "container"],
+        ["list_container", "shops", "container"],
+
+        ["add_productbase", "shops", "productbase"],
+        ["change_productbase", "shops", "productbase"],
+        ["retrieve_productbase", "shops", "productbase"],
+        ["list_productbase", "shops", "productbase"],
+        ["delete_productbase", "shops", "productbase"],
+
+        ["add_productunit", "shops", "productunit"],
+        ["change_productunit", "shops", "productunit"],
+        ["retrieve_productunit", "shops", "productunit"],
+        ["list_productunit", "shops", "productunit"],
+        ["delete_productunit", "shops", "productunit"],
+
+        ["add_singleproduct", "shops", "singleproduct"],
+        ["list_singleproduct", "shops", "singleproduct"],
+
+        ["reach_workboard_bkars", "users", "user"],
+
+        ["add_product", "shops", "shop"],
+        ["sell_bkars", "shops", "shop"]
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 12,
     "fields": {
       "name": "Gadz'Arts",
       "permissions": [
@@ -235,7 +372,7 @@
   },
   {
     "model": "auth.group",
-    "pk": 8,
+    "pk": 13,
     "fields": {
       "name": "Membres d'honneurs",
       "permissions": [
@@ -246,45 +383,12 @@
   },
   {
     "model": "auth.group",
-    "pk": 9,
+    "pk": 14,
     "fields": {
       "name": "Membres spéciaux",
       "permissions": []
     }
-  },
-  {
-    "model": "auth.group",
-    "pk": 10,
-    "fields": {
-      "name": "Vices présidents délégués à la vie interne",
-      "permissions": [["chefs_gestionnaires_du_foyer_group_manage", "users", "user"],
-        ["chefs_gestionnaires_de_l_auberge_group_manage", "users", "user"],
-        ["reach_workboard_vices_presidents_vie_interne", "users", "user"],
-        ["add_user", "users", "user"],
-        ["change_user", "users", "user"],
-        ["delete_user", "users", "user"],
-        ["retrieve_user", "users", "user"],
-        ["list_user", "users", "user"]]
-    }
-  },
-  {
-    "model": "auth.group",
-    "pk": 11,
-    "fields": {
-      "name": "Chefs gestionnaires de la C-Vis",
-      "permissions": [
-
-      ]
-    }
-  },
-  {
-    "model": "auth.group",
-    "pk": 12,
-    "fields": {
-      "name": "Gestionnaires de la C-Vis",
-      "permissions": [
-
-      ]
-    }
   }
+
+
 ]

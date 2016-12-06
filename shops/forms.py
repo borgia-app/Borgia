@@ -93,7 +93,7 @@ class PurchaseAubergeForm(forms.Form):
 
     def single_product_avalaible_answers(self):
         for name, value in self.cleaned_data.items():
-            if name.startwith('field_signle_product_'):
+            if name.startwith('field_single_product_'):
                 yield (self.fields[name].label, value)
 
     def container_meat_answers(self):
@@ -113,15 +113,100 @@ class PurchaseAubergeForm(forms.Form):
 
     def clean(self):
 
-        cleaned_data = super(PurchaseAubergeForm, self).clean()
+        try:
+            # Vérification de la commande sans provision
+            if float(self.request.POST.get('hidden_balance_after')) < 0:
+                raise forms.ValidationError('Commande sans provision')
+        except ValueError:
+            raise forms.ValidationError('Erreur, veuillez recharger la page (F5 dans la barre d\'url)')
+
+        return super(PurchaseAubergeForm, self).clean()
+
+
+# C-Vis
+class PurchaseCvisForm(forms.Form):
+
+    # Client
+    client_username = forms.CharField(label='Client', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                                      validators=[autocomplete_username_validator])
+
+    def __init__(self, *args, **kwargs):
+
+        # Initialisation des listes de produits
+        # container_consumable_list = kwargs.pop('container_side_list')
+        single_product_available_list = kwargs.pop('single_product_available_list')
+        self.request = kwargs.pop('request')
+        super(PurchaseCvisForm, self).__init__(*args, **kwargs)
+
+        # Création des éléments de formulaire
+        for (i, t) in enumerate(single_product_available_list):
+            self.fields['field_single_product_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        # for (i, t) in enumerate(container_consumable_list):
+        #     self.fields['field_container_consumable_%s' % i] = forms.IntegerField(required=True, min_value=0)
+
+    def single_product_avalaible_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_single_product_'):
+                yield (self.fields[name].label, value)
+
+    # def container_consumable_answers(self):
+    #     for name, value in self.cleaned_data.items():
+    #         if name.startwith('field_container_side_'):
+    #             yield (self.fields[name].label, value)
+
+    def clean(self):
 
         try:
             # Vérification de la commande sans provision
             if float(self.request.POST.get('hidden_balance_after')) < 0:
                 raise forms.ValidationError('Commande sans provision')
-        except KeyError:
-            pass
-        return super(PurchaseAubergeForm, self).clean()
+        except ValueError:
+            raise forms.ValidationError('Erreur, veuillez recharger la page (F5 dans la barre d\'url)')
+
+        return super(PurchaseCvisForm, self).clean()
+
+
+# BB
+class PurchaseBkarsForm(forms.Form):
+
+    # Client
+    client_username = forms.CharField(label='Client', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                                      validators=[autocomplete_username_validator])
+
+    def __init__(self, *args, **kwargs):
+
+        # Initialisation des listes de produits
+        # container_consumable_list = kwargs.pop('container_side_list')
+        single_product_available_list = kwargs.pop('single_product_available_list')
+        self.request = kwargs.pop('request')
+        super(PurchaseBkarsForm, self).__init__(*args, **kwargs)
+
+        # Création des éléments de formulaire
+        for (i, t) in enumerate(single_product_available_list):
+            self.fields['field_single_product_%s' % i] = forms.IntegerField(required=True, min_value=0)
+        # for (i, t) in enumerate(container_consumable_list):
+        #     self.fields['field_container_consumable_%s' % i] = forms.IntegerField(required=True, min_value=0)
+
+    def single_product_avalaible_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_single_product_'):
+                yield (self.fields[name].label, value)
+
+    # def container_consumable_answers(self):
+    #     for name, value in self.cleaned_data.items():
+    #         if name.startwith('field_container_side_'):
+    #             yield (self.fields[name].label, value)
+
+    def clean(self):
+
+        try:
+            # Vérification de la commande sans provision
+            if float(self.request.POST.get('hidden_balance_after')) < 0:
+                raise forms.ValidationError('Commande sans provision')
+        except ValueError:
+            raise forms.ValidationError('Erreur, veuillez recharger la page (F5 dans la barre d\'url)')
+
+        return super(PurchaseBkarsForm, self).clean()
 
 
 class PurchaseFoyerForm(forms.Form):
@@ -278,7 +363,7 @@ class ProductCreateMultipleForm(forms.Form):
 
         self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter (de Fût, en KG, ou de bouteille)', min_value=0, max_value=5000)
 
-        self.fields['price'] = forms.DecimalField(label='Prix d\'achat TTC', decimal_places=2, max_digits=9,
+        self.fields['price'] = forms.DecimalField(label='Prix d\'achat TTC (par Fût, KG, bouteille)', decimal_places=2, max_digits=9,
                                                   min_value=0)
         self.fields['purchase_date'] = forms.DateField(label='Date d\'achat',
                                                        widget=forms.DateInput(attrs={'class': 'datepicker'}))
@@ -303,7 +388,10 @@ class ProductListForm(forms.Form):
                     available_shop.append(Shop.objects.get(name='Foyer').pk)
                 if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in user.groups.all() or Group.objects.get(name='Gestionnaires de l\'auberge') in user.groups.all():
                     available_shop.append(Shop.objects.get(name='Auberge').pk)
-
+                if Group.objects.get(name='Chefs gestionnaires de la cvis') in user.groups.all() or Group.objects.get(name='Gestionnaires de la cvis') in user.groups.all():
+                    available_shop.append(Shop.objects.get(name='Cvis').pk)
+                if Group.objects.get(name='Chefs gestionnaires de la bkars') in user.groups.all() or Group.objects.get(name='Gestionnaires de la bkars') in user.groups.all():
+                    available_shop.append(Shop.objects.get(name='Bkars').pk)
             self.fields['shop'] = forms.ModelChoiceField(label='Magasin', queryset=Shop.objects.filter(pk__in=available_shop), empty_label=None)
 
         choices_type_product = []

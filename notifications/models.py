@@ -217,14 +217,17 @@ def determine_permission_level(group):
                     ("get_vice-president_notifications", 2),
                     ("get_treasurer_notifications", 3),
                     ("Chefs gestionnaires du foyer", 4),
-                    ("Chefs gestionnaires de l'auberge", 5),
-                    ("Gestionnaires du foyer", 6),
+                    ("Gestionnaires du foyer", 5),
+                    ("Chefs gestionnaires de l'auberge", 6),
                     ("Gestionnaires de l'auberge", 7),
-                    ("Chefs gestionnaires de la C-Vis", 8),
-                    ("Gestionnaires de la C-Vis", 9),
-                    ("Gadz'Arts", 10),
-                    ("Membres d'honneurs", 11),
-                    ("Membres spéciaux", 12),
+                    ("Chefs gestionnaires de la cvis", 8),
+                    ("Gestionnaires de la cvis", 9),
+                    ("Chefs gestionnaires de la bkars", 10),
+                    ("Gestionnaires de la bkars", 11),
+
+                    ("Gadz'Arts", 12),
+                    ("Membres d'honneurs", 13),
+                    ("Membres spéciaux", 14),
                     )
     for group_level in group_levels:
         if group_level[0] == group:

@@ -465,6 +465,8 @@ def workboard_vices_presidents_vie_interne(request):
 
     group_chefs_gestionnaires_foyer_pk = Group.objects.get(name='Chefs gestionnaires du foyer').pk
     group_chefs_gestionnaires_auberge_pk = Group.objects.get(name='Chefs gestionnaires de l\'auberge').pk
+    group_chefs_gestionnaires_cvis_pk = Group.objects.get(name='Chefs gestionnaires de la cvis').pk
+    group_chefs_gestionnaires_bkars_pk = Group.objects.get(name='Chefs gestionnaires de la bkars').pk
 
     add_to_breadcrumbs(request, 'Workboard vices présidents')
     return render(request, 'users/workboard_vices_presidents_vie_interne.html', locals())

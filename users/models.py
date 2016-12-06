@@ -88,20 +88,44 @@ class User(AbstractUser):
 
     class Meta:
         permissions = (
+            # Presidents
             ('presidents_group_manage', 'Gérer le groupe des présidents'),
+            ('reach_workboard_presidents', 'Accéder au workboard des présidents'),
+            ('reach_workboard_vices_presidents_vie_interne', 'Accéder au workboard des vices présidents délégués à la vie interne'),
+
+
+            # Tresorie
             ('tresoriers_group_manage', 'Gérer le groupe des trésoriers'),
+            ('reach_workboard_treasury', 'Accéder au workboard de la trésorie'),
+
+            # Foyer
             ('chefs_gestionnaires_du_foyer_group_manage', 'Gérer le groupe des chefs gestionnaires du foyer'),
             ('gestionnaires_du_foyer_group_manage', 'Gérer le groupe des gestionnaires du foyer'),
+            ('reach_workboard_foyer', 'Aller sur le workboard du foyer'),
+
+            # Auberge
             ('chefs_gestionnaires_de_l_auberge_group_manage', 'Gérer le groupe des chefs gestionnaires de l\'auberge'),
             ('gestionnaires_de_l_auberge_group_manage', 'Gérer le groupe des gestionnaires de l\'auberge'),
+            ('reach_workboard_auberge', 'Aller sur le workboard de l\'auberge'),
+
+            #CVis
+            ('chefs_gestionnaires_de_la_cvis_group_manage', 'Gérer le groupe des chefs gestionnaires de la cvis'),
+            ('gestionnaires_de_la_cvis_group_manage', 'Gérer le groupe des gestionnaires de la cvis'),
+            ('reach_workboard_cvis', 'Aller sur le workboard de la cvis'),
+
+            #Bkars
+            ('chefs_gestionnaires_de_la_bkars_group_manage', 'Gérer le groupe des chefs gestionnaires de la bkars'),
+            ('gestionnaires_de_la_bkars_group_manage', 'Gérer le groupe des gestionnaires de la bkars'),
+            ('reach_workboard_bkars', 'Aller sur le workboard de la bkars'),
+
+
+            #Autre
             ('gadz_arts_group_manage', 'Gérer le groupe des Gadz\'Arts'),
             ('membres_d_honneurs_group_manage', 'Gérer le groupe des membres d\'honneurs'),
             ('membres_speciaux_group_manage', 'Gérer le groupe des membres spéciaux'),
             ('vices_presidents_delegues_a_la_vie_interne_group_manage',
              'Gérer le groupe des vices présidents délégués à la vie interne'),
-            ('reach_workboard_treasury', 'Accéder au workboard de la trésorie'),
-            ('reach_workboard_presidents', 'Accéder au workboard des présidents'),
-            ('reach_workboard_vices_presidents_vie_interne', 'Accéder au workboard des vices présidents délégués à la vie interne'),
+
 
             ('list_user', 'Lister les users'),
             ('retrieve_user', 'Afficher les users'),
@@ -111,7 +135,6 @@ class User(AbstractUser):
 
             ('link_token_user', 'Lier un jeton à un user'),
 
-            ('add_product', 'Ajouter des produits'),
         )
 
 

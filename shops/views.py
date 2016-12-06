@@ -149,6 +149,205 @@ class PurchaseAuberge(FormView):
             return redirect('/auberge')
 
 
+def workboard_auberge(request):
+    group_gestionnaires_de_l_auberge_pk = Group.objects.get(name='Gestionnaires de l\'auberge').pk
+    add_to_breadcrumbs(request, 'Workboard auberge')
+    return render(request, 'shops/workboard_auberge.html', locals())
+
+
+# C-Vis
+class PurchaseCvis(FormView):
+    form_class = PurchaseCvisForm
+    template_name = 'shops/sale_cvis.html'
+    success_url = '/auth/login'
+
+    def get_form_kwargs(self):
+        kwargs = super(PurchaseCvis, self).get_form_kwargs()
+        # kwargs['container_consumable_list'] = Shop.objects.get(name='Cvis').list_product_base_container(status_sold=False, type='consumable')
+        kwargs['single_product_available_list'] = Shop.objects.get(name='Cvis').list_product_base_single_product(status_sold=False)
+        kwargs['request'] = self.request
+        return kwargs
+
+    def get_initial(self):
+        initial = super(PurchaseCvis, self).get_initial()
+        # container_consumable_list = Shop.objects.get(name='Cvis').list_product_base_container(status_sold=False, type='consumable')
+        single_product_available_list = Shop.objects.get(name='Cvis').list_product_base_single_product(status_sold=False)
+
+        for i in range(0, len(single_product_available_list)):
+            initial['field_single_product_%s' % i] = 0
+        # for i in range(0, len(container_consumable_list)):
+        #     initial['field_container_consumable_%s' % i] = 0
+
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(PurchaseCvis, self).get_context_data(**kwargs)
+        form = self.get_form()
+        dict_field_single_product = []
+        # dict_field_container_consumable = []
+        # container_consumable_list = Shop.objects.get(name='Cvis').list_product_base_container(status_sold=False, type='consumable')
+        single_product_available_list = Shop.objects.get(name='Cvis').list_product_base_single_product(status_sold=False)
+        for i in range(0, len(single_product_available_list)):
+            dict_field_single_product.append((form['field_single_product_%s' % i],
+                                              single_product_available_list[i][0], i))
+        # for i in range(0, len(container_consumable_list)):
+        #     dict_field_container_consumable.append((form['field_container_consumable_%s' % i],
+        #                                             container_consumable_list[i][0], i))
+        context['dict_field_single_product'] = dict_field_single_product
+        # context['dict_field_container_consumable'] = dict_field_container_consumable
+        context['single_product_available_list'] = single_product_available_list
+        # context['container_consumable_list'] = container_consumable_list
+        return context
+
+    def form_valid(self, form):
+
+        # container_consumable_list = Shop.objects.get(name='Cvis').list_product_base_container(status_sold=False, type='consumable')
+        single_product_available_list = Shop.objects.get(name='Cvis').list_product_base_single_product(
+            status_sold=False)
+        # list_results_container_consumable = []
+        list_results_single_product = []
+
+        for i in range(0, len(single_product_available_list)):
+            list_results_single_product.append((form.cleaned_data["field_single_product_%s" % i],
+                                                single_product_available_list[i][0]))
+        # for i in range(0, len(container_consumable_list)):
+        #     list_results_container_consumable.append((form.cleaned_data["field_container_consumable_%s" % i],
+        #                                               container_consumable_list[i][0]))
+
+        # Objects vendus
+        list_products_sold = []
+
+        # Objects unitaires - ex: Skolls
+        for e in list_results_single_product:
+            if e[0] != 0:
+                # Le client demande e[0] objets identiques au produit de base e[1]
+                # On les prends dans l'ordre du queryset (on s'en fiche) des objets non vendus bien sûr
+                # Le prix de vente est le prix du base product à l'instant de la vente
+                for i in range(0, e[0]):
+                    sp = SingleProduct.objects.filter(product_base=e[1], is_sold=False)[i]
+                    sp.is_sold = True
+                    sp.sale_price = sp.product_base.get_moded_usual_price()
+                    sp.save()
+                    list_products_sold.append(sp)
+
+        # Food
+        # list_results_containers = list_results_container_consumable
+        # for e in list_results_containers:
+        #     if e[0] != 0:
+        #         # Premier conteneur de la liste dans le queryset du product base
+        #         list_products_sold.append(SingleProductFromContainer.objects.create(container=Container.objects.filter(product_base=e[1])[0],
+        #                                                                             quantity=e[0] * e[1].product_unit.usual_quantity(),
+        #                                                                             sale_price=ceil(e[1].get_moded_usual_price() * e[0]/10) / 100))
+
+        if list_products_sold:
+            s = sale_sale(sender=User.objects.get(username=form.cleaned_data['client_username']), operator=self.request.user, date=now(),
+                          products_list=list_products_sold, wording='Vente cvis', to_return=True)
+
+            # Deconnection
+            # logout(self.request)
+
+            # Affichage de la purchase au client
+            return render(self.request, 'shops/sale_validation.html', {'sale': s,
+                                                                       'next': '/shops/cvis/consumption/'})
+        else:
+            # Commande nulle
+
+            # Deconnection
+            logout(self.request)
+            return redirect('/cvis')
+
+
+def workboard_cvis(request):
+    group_gestionnaires_de_la_cvis_pk = Group.objects.get(name='Gestionnaires de la cvis').pk
+    add_to_breadcrumbs(request, 'Workboard cvis')
+    return render(request, 'shops/workboard_cvis.html', locals())
+
+# Bkars
+class PurchaseBkars(FormView):
+    form_class = PurchaseBkarsForm
+    template_name = 'shops/sale_bkars.html'
+    success_url = '/auth/login'
+
+    def get_form_kwargs(self):
+        kwargs = super(PurchaseBkars, self).get_form_kwargs()
+        kwargs['single_product_available_list'] = Shop.objects.get(name='Bkars').list_product_base_single_product(status_sold=False)
+        kwargs['request'] = self.request
+        return kwargs
+
+    def get_initial(self):
+        initial = super(PurchaseBkars, self).get_initial()
+        single_product_available_list = Shop.objects.get(name='Bkars').list_product_base_single_product(status_sold=False)
+
+        for i in range(0, len(single_product_available_list)):
+            initial['field_single_product_%s' % i] = 0
+
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(PurchaseBkars, self).get_context_data(**kwargs)
+        form = self.get_form()
+        dict_field_single_product = []
+        single_product_available_list = Shop.objects.get(name='Bkars').list_product_base_single_product(status_sold=False)
+        for i in range(0, len(single_product_available_list)):
+            dict_field_single_product.append((form['field_single_product_%s' % i],
+                                              single_product_available_list[i][0], i))
+
+        context['dict_field_single_product'] = dict_field_single_product
+        context['single_product_available_list'] = single_product_available_list
+        return context
+
+    def form_valid(self, form):
+
+        single_product_available_list = Shop.objects.get(name='Bkars').list_product_base_single_product(
+            status_sold=False)
+        list_results_single_product = []
+
+        for i in range(0, len(single_product_available_list)):
+            list_results_single_product.append((form.cleaned_data["field_single_product_%s" % i],
+                                                single_product_available_list[i][0]))
+
+
+        # Objects vendus
+        list_products_sold = []
+
+        # Objects unitaires - ex: Skolls
+        for e in list_results_single_product:
+            if e[0] != 0:
+                # Le client demande e[0] objets identiques au produit de base e[1]
+                # On les prends dans l'ordre du queryset (on s'en fiche) des objets non vendus bien sûr
+                # Le prix de vente est le prix du base product à l'instant de la vente
+                for i in range(0, e[0]):
+                    sp = SingleProduct.objects.filter(product_base=e[1], is_sold=False)[i]
+                    sp.is_sold = True
+                    sp.sale_price = sp.product_base.get_moded_usual_price()
+                    sp.save()
+                    list_products_sold.append(sp)
+
+
+        if list_products_sold:
+            s = sale_sale(sender=User.objects.get(username=form.cleaned_data['client_username']), operator=self.request.user, date=now(),
+                          products_list=list_products_sold, wording='Vente bkars', to_return=True)
+
+            # Deconnection
+            # logout(self.request)
+
+            # Affichage de la purchase au client
+            return render(self.request, 'shops/sale_validation.html', {'sale': s,
+                                                                       'next': '/shops/bkars/consumption/'})
+        else:
+            # Commande nulle
+
+            # Deconnection
+            logout(self.request)
+            return redirect('/bkars')
+
+
+def workboard_bkars(request):
+    group_gestionnaires_de_la_bkars_pk = Group.objects.get(name='Gestionnaires de la bkars').pk
+    add_to_breadcrumbs(request, 'Workboard bkars')
+    return render(request, 'shops/workboard_bkars.html', locals())
+
+# Debit Zifoys
 class DebitZifoys(FormView):
     form_class = DebitZifoysForm
     template_name = 'shops/debit_zifoys.html'
@@ -368,12 +567,6 @@ class DebitZifoys(FormView):
             # Deconnection
             logout(self.request)
             return redirect('/foyer')
-
-
-def workboard_auberge(request):
-    group_gestionnaires_de_l_auberge_pk = Group.objects.get(name='Gestionnaires de l\'auberge').pk
-    add_to_breadcrumbs(request, 'Workboard auberge')
-    return render(request, 'shops/workboard_auberge.html', locals())
 
 
 # FOYER
@@ -819,6 +1012,16 @@ class ProductBaseCreateView(FormNextView):
                    "auberge_product_base_creation",
                    self.object,
                    None)
+        elif self.object.shop.name == 'Cvis':
+            notify(self.request,
+                   "cvis_product_base_creation",
+                   self.object,
+                   None)
+        elif self.object.shop.name == 'Bkars':
+            notify(self.request,
+                   "bkars_product_base_creation",
+                   self.object,
+                   None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get_initial(self):
@@ -880,6 +1083,16 @@ class ProductBaseUpdateView(UpdateView):
                    "auberge_product_base_updating",
                    self.object,
                    None)
+        elif self.object.shop.name == 'Cvis':
+            notify(self.request,
+                   "cvis_product_base_updating",
+                   self.object,
+                   None)
+        elif self.object.shop.name == 'Bkars':
+            notify(self.request,
+                   "bkars_product_base_updating",
+                   self.object,
+                   None)
         return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get(self, request, *args, **kwargs):
@@ -909,9 +1122,9 @@ class ProductListView(ListCompleteView):
     success_url = '/auth/login'
     attr = {
         'order_by': 'name',
-        'shop': '1',
+        'shop': 1,
         'type_product': 'product_base'
-    }
+    }  # Celui par défaut
 
     def get_form_kwargs(self):
         kwargs = super(ProductListView, self).get_form_kwargs()
@@ -919,18 +1132,39 @@ class ProductListView(ListCompleteView):
         return kwargs
 
     def post(self, request, *args, **kwargs):
-        if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in request.user.groups.all() or \
-                        Group.objects.get(name='Gestionnaires de l\'auberge') in request.user.groups.all():
+        # if self.kwargs['organe'] in ['foyer', 'auberge', 'cvis', 'bkars']:
+        #     if self.kwargs['organe'] == 'foyer':
+        #         self.attr['shop'] = 1
+        #     if self.kwargs['organe'] == 'auberge':
+        #         self.attr['shop'] = 2
+        #     if self.kwargs['organe'] == 'cvis':
+        #         self.attr['shop'] = 3
+        #     if self.kwargs['organe'] == 'bkars':
+        #         self.attr['shop'] = 4
+
+        if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de l\'auberge') in request.user.groups.all():
             self.attr['shop'] = 2
+        if Group.objects.get(name='Chefs gestionnaires de la cvis') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de la cvis') in request.user.groups.all():
+            self.attr['shop'] = 3
+        if Group.objects.get(name='Chefs gestionnaires de la bkars') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de la bkars') in request.user.groups.all():
+            self.attr['shop'] = 4
+
         return super(ProductListView, self).post(request, *args, **kwargs)
+        # else:
+        #     raise Http404
 
     def get(self, request, *args, **kwargs):
-        if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in request.user.groups.all() or \
-                        Group.objects.get(name='Gestionnaires de l\'auberge') in request.user.groups.all():
+        if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de l\'auberge') in request.user.groups.all():
             self.attr['shop'] = 2
+        if Group.objects.get(name='Chefs gestionnaires de la cvis') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de la cvis') in request.user.groups.all():
+            self.attr['shop'] = 3
+        if Group.objects.get(name='Chefs gestionnaires de la bkars') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de la bkars') in request.user.groups.all():
+            self.attr['shop'] = 4
 
         add_to_breadcrumbs(request, 'Liste produits')
         return super(ProductListView, self).get(request, *args, **kwargs)
+        # else:
+        #     raise Http404
 
     def get_context_data(self, **kwargs):
 
@@ -1051,34 +1285,14 @@ class ProductCreateMultipleView(FormNextView):
                            "auberge_container_creation",
                            product,
                            None)
-            else:
 
+            else:
                 for i in range(0, form.cleaned_data['quantity']):
                     product = Container.objects.create(price=form.cleaned_data['price'],
                                                        purchase_date=form.cleaned_data['purchase_date'],
                                                        expiry_date=form.cleaned_data['expiry_date'],
                                                        place=form.cleaned_data['place'],
                                                        product_base=form.cleaned_data['product_base'])
-                    # Notifications
-                    #if product.product_base.shop.name == 'Foyer':
-                    #    notify(self.request,
-                    #           "foyer_container_creation",
-                    #           ['User',
-                    #            'Recipient',
-                    #            'Trésoriers',
-                    #            "Chefs gestionnaires du foyer"],
-                    #           product,
-                    #           None)
-
-                    #elif product.product_base.shop.name == 'Auberge':
-                    #    notify(self.request,
-                    #           "auberge_container_creation",
-                    #           ['User',
-                    #            'Recipient',
-                    #            'Trésoriers',
-                    #            "Chefs gestionnaires de l'auberge"],
-                    #           product,
-                    #           None)
 
         elif form.cleaned_data['product_base'].type == 'single_product':
             for i in range(0, form.cleaned_data['quantity']):
@@ -1087,18 +1301,6 @@ class ProductCreateMultipleView(FormNextView):
                                                        expiry_date=form.cleaned_data['expiry_date'],
                                                        place=form.cleaned_data['place'],
                                                        product_base=form.cleaned_data['product_base'])
-                # Notifications
-                #if product.product_base.shop.name == 'Foyer':
-                #    notify(self.request,
-                #           "foyer_single_product_creation",
-                #           product,
-                #           None)
-
-                #elif product.product_base.shop.name == 'Auberge':
-                #    notify(self.request,
-                #           "auberge_single_product_creation",
-                #           product,
-                #           None)
 
         return super(ProductCreateMultipleView, self).form_valid(form)
 

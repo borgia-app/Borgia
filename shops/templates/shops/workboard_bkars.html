@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+
+    <div class="container">
+        <div class="row">
+            <h1 class="align-center">Workboard BB</h1>
+        </div>
+        <div class="row">
+            <div>
+                <ul class="listing-apps">
+                <li><a href="{% url 'url_purchase_bkars' %}"><img src="{% static 'img/food.png' %}" alt="Listes ventes bkars"><span class="name">Debuquage BB</span></a></a></li>
+                    {% if perms.users.gestionnaires_de_la_bkars_group_manage %}
+                        <li><a href="{% url 'url_manage_group' %}?group_pk={{ group_gestionnaires_de_la_bkars_pk }}&next=/shops/bkars/workboard"><img src="{% static 'img/group.png' %}" alt="Gestion groupe"><span class="name">Gestionnaires de la bkars</span></a></li>
+                    {% endif %}
+                    <li><a href="{% url 'url_create_product_multiple' shop="Bkars" %}?next=/shops/bkars/workboard"><img src="{% static 'img/shopping.png' %}" alt="Gestion produits"><span class="name">Ajout produits</span></a></li>
+                <li><a href="{% url 'url_list_product' %}"><img src="{% static 'img/shopping.png' %}" alt="Liste produits"><span class="name">Liste produits</span></a></li>
+                <li><a href="{% url 'url_list_sale_organe' organe='bkars' %}"><img src="{% static 'img/shop.png' %}" alt="Listes ventes bkars"><span class="name">Listes ventes bkars</span></a></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}

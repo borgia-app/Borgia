@@ -8,11 +8,17 @@
         <div class="row">
             <div>
                 <ul class="listing-apps">
-                    {% if perms.shops.reach_workboard_auberge %}
+                    {% if perms.users.reach_workboard_auberge %}
                         <li><a href="{% url 'url_workboard_auberge' %}"><img src="{% static 'img/auberge.png' %}"><span class="name">Auberge workboard</span></a></li>
                     {% endif %}
-                    {% if perms.shops.reach_workboard_foyer %}
+                    {% if perms.users.reach_workboard_foyer %}
                         <li><a href="{% url 'url_workboard_foyer' %}"><img src="{% static 'img/food.png' %}"><span class="name">Foyer workboard</span></a></li>
+                    {% endif %}
+                    {% if perms.users.reach_workboard_cvis %}
+                        <li><a href="{% url 'url_workboard_cvis' %}"><img src="{% static 'img/token.png' %}"><span class="name">C-Vis workboard</span></a></li>
+                    {% endif %}
+                    {% if perms.users.reach_workboard_bkars %}
+                        <li><a href="{% url 'url_workboard_bkars' %}"><img src="{% static 'img/food.png' %}"><span class="name">BB workboard</span></a></li>
                     {% endif %}
                     {% if perms.users.reach_workboard_treasury %}
                         <li><a href="{% url 'url_workboard_treasury' %}"><img src="{% static 'img/coffre.png' %}"><span class="name">Trésoriers workboard</span></a></li>
