@@ -642,13 +642,13 @@ class PurchaseFoyer(FormView):
 
             # Affichage de la purchase au client
             return render(self.request, 'shops/sale_validation.html', {'sale': s,
-                                                                       'next': '/foyer'})
+                                                                       'next': '/shops/foyer/consumption'})
         else:
             # Commande nulle
 
             # Deconnection
             logout(self.request)
-            return redirect('/foyer')
+            return redirect('/shops/foyer/consumption')
 
 
 def workboard_foyer(request):

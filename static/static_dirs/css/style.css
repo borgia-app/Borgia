@@ -554,7 +554,6 @@ textarea {
     text-align: right;
     border-radius: 0% !important;
     border: none;
-    opacity: 0.8;
 }
 
 .list_group_apps_item_active {
@@ -608,25 +607,45 @@ textarea {
     background: #9DBA8D;
     border-radius: 0% !important;
 }
+.list-foys:hover {
+    background: #9DCB8D;
+}
 
 .list-shops {
-    background: #F2C177;
+    background: #F2C277;
+}
+.list-shops:hover {
+    background: #f3dc66;
 }
 
 .list-transfert {
+    background: #FF586F;
+}
+
+.list-transfert:hover {
     background: #FE6B6F;
 }
 
 .list-manips {
     background: #9F009F;
 }
+.list-manips:hover {
+    background: #BF00CF;
+}
 
 .list-frais {
     background: #0080C0;
 }
+.list-frais:hover {
+    background: #00A0D0;
+}
 
 .list-bouls {
     background: #94E9E7;
+}
+
+.list-bouls:hover {
+    background: #94FAD7;
 }
 /* ==========================================================================
    3 = User
@@ -1234,10 +1253,10 @@ input.btn {
    ========================================================================== */
 
 .footer {
-    display: none;
-    position: absolute;
-    margin-top: 60px;
-    background-color: #565a68;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    background-color: #262626;
     width: 100%;
 }
 .footer nav {
@@ -1256,11 +1275,9 @@ input.btn {
 
 .footer a {
     display: inline-block;
-    vertical-align: top;
     color: #999;
 }
 .footer a:before {
-    content: "â€¢";
     display: inline-block;
     vertical-align: top;
     padding: 0 0.5em 0 0.25em;
@@ -1522,7 +1539,7 @@ tr:hover {
 }
 .form-style-1 label{
     margin:0 0 3px 0;
-    padding:0px;
+    padding: 0;
     display:block;
     font-weight: bold;
 }
@@ -1541,7 +1558,7 @@ tr:hover {
     -moz-box-sizing: border-box;
     border:1px solid #BEBEBE;
     padding: 7px;
-    margin:0px;
+    margin: 0;
     -webkit-transition: all 0.30s ease-in-out;
     -moz-transition: all 0.30s ease-in-out;
     -ms-transition: all 0.30s ease-in-out;
@@ -1715,7 +1732,7 @@ div.notifications-header{
 }
 
 div.notifications-header h1{
-    margin: 0px;
+    margin: 0;
 }
 
 div.notifications-footer{
@@ -1832,7 +1849,7 @@ nav.pagination{
     background: #222222;
     padding: 10px;
     border: none;
-    bottom: 0px;
+    bottom: 0;
 
 }
 
@@ -1867,6 +1884,27 @@ nav.pagination{
 .panel-body li {color: black;}
 .panel-body a {color: #333388;}
 .panel-body p { color: black;}
+
+.clickable {
+    cursor: pointer;
+}
+
+.clickable .glyphicon {
+    background: rgba(0, 0, 0, 0.15);
+    display: inline-block;
+    padding: 6px 12px;
+    border-radius: 4px
+}
+
+.panel-heading span {
+    margin-top: -23px;
+    font-size: 15px;
+    margin-right: -9px;
+}
+a.clickable { color: inherit; }
+a.clickable:hover { text-decoration:none; }
+
+
 /* Smartphone Portrait and Landscape */
 @media only screen and (max-width : 767px){
     .mobileHide { display: none !important; }

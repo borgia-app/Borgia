@@ -71,7 +71,7 @@
             read_count = read_count + 1;
             display_count = display_count - 1;
 
-            display_notification()
+            display_notification();
 
             if (read_count < {{ messages|length }})
             {
@@ -92,24 +92,25 @@
 
         <div class="container-fluid">
              <div class="navbar-header col-md-2 col-sm-2 col-xs-2" style="padding-left: 2px">
-                <a href="{% url 'url_profile' %}">
+                <a href="{% url 'url_purchase_foyer' %}">
                    <span style="background: url('{% static 'img/borgia_logo.svg' %}') no-repeat;" class="logo-background"></span>
                 </a>
              </div>
 
+            {% if user.is_authenticated %}
             <div id="wrapper-user-menu" class="col-md-3 col-sm-3 col-xs-3">
 
                 <ul class="user-menu pull-left">
-                    {% if user.is_authenticated %}
+
                         <li><a href="{% url 'url_supply_lydia_self' %}" title="Crédit Lydia"><div class="lydia"><span class="lydia-logo"></span><span class="lydia-text">Crédit compte</span></div></a></li>
                         <!-- <li><a class="icon icon-people" href="{% url 'url_list_user' %}"></a></li> -->
                         <!-- <li><a class="icon icon-settings" href=""></a></li> -->
                         <!-- <li><a class="icon icon-admin" href=""></a></li> -->
-                    {% endif %}
+
                 </ul>
              </div>
              <div id="wrapper-user" class="col-md-7 col-sm-7 col-xs-7">
-                {% if user.is_authenticated %}
+
                     <span class="user-container mobileHide">
                         <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
                         <span class="user-balance {% if user.balance >= 0 %}posits {% else %}negats {% endif %}">{{ user.balance }} €</span>
@@ -132,6 +133,7 @@
              </div>
 
                 {% else %}
+                    <div id="user-wrapper" class="col-md-9 col-sm-10 col-xs-12">
                     <form class="form-inline" action='' method="post">{% csrf_token %}
                         <div class="form-group">
                             <label class="icon icon-user" for="id_username"><span class="element-invisible">Nom d'utilisateur</span></label>
@@ -147,9 +149,8 @@
                         </div>
 
                     </form>
+                    </div>
                 {% endif %}
-
-             </form>
         </div>
     </nav>
   </div>
@@ -196,12 +197,13 @@
                 {% url 'url_purchase_foyer' as url_foys %}
                 {% url 'url_create_transfert' as url_transfert %}
                 {% url 'url_list_shared_event' as url_event %}
+                {% url 'url_profile' as url_profile %}
                 <a href="{% if request.path  == url_foys %}{% url 'url_page_clean' %}{% else %}{{ url_foys}}{% endif %}"><li class="list-group-item list-foys {% if request.path  == url_foys %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/tap.svg' %}" /><h3>Foy's</h3></li></a>
                 <a href="#"><li class="list-group-item list-shops"><img src="{% static 'img/store.svg' %}" /><h3>Shop's</h3></li></a>
                 <a href="{% if request.path  == url_transfert %}{% url 'url_page_clean' %}{% else %}{{ url_transfert}}{% endif %}"><li class="list-group-item list-transfert {% if request.path  == url_transfert %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/transfer.svg' %}" /><h3>Transfert</h3></li></a>
                 <a href="{% if request.path  == url_event %}{% url 'url_page_clean' %}{% else %}{{ url_event}}{% endif %}"><li class="list-group-item list-manips {% if request.path  == url_event %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/event-calendar-symbol.svg' %}" /><h3>Manips</h3></li></a>
                 <a href="#"><li class="list-group-item list-frais"><img src="{% static 'img/thief.svg' %}" /><h3>Frais AE</h3></li></a>
-                <a href="#"><li class="list-group-item list-bouls"><img src="{% static 'img/lazy.svg' %}" /><h3>Boul's</h3></li></a>
+                <a href="{% if request.path  == url_profile %}{% url 'url_page_clean' %}{% else %}{{ url_profile}}{% endif %}"><li class="list-group-item list-bouls {% if request.path  == url_profile %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/lazy.svg' %}" /><h3>Boul's</h3></li></a>
             </ul>
         </div>
     {% endif %}
@@ -220,33 +222,6 @@
 </div>
 </body>
 
-<footer class="container footer">
-    <div class="credit">
-        <div class="col-md-6">
-           <small>
-                     WIP - Borgia v2.7.4 - 25/11/2016 - <a href="http://wikiae.iresam.org/doku.php?id=borgia:historique_version_borgia">Historique des versions</a><br />
-                     Borgia is an open-source project, developped by Arts et Métiers students.<br/>
-                     Me214 - Pastys 101-99 & Elek 142<br />
-                     Me215 - Eyap 53 & Leyphay'ss 87 & Rowsky 144<br />
-           </small>
-        </div>
-        <div class="col-md-6">
-            <small>
-                CSS d'après <a href="https://yunohost.org">Yunohost</a><br/>
-                <a href="http://fortawesome.github.io/Font-Awesome/">FontAwesome</a>
-                <div class="ideas">
-                    Un bug? Des remarques? Partage les nous! <input type="submit" value="Reporter un bug" id="mailto_report" class="btn-default">
-                </div>
-            </small>
-         </div>
-    </div>
-    <script>
-        document.getElementById("mailto_report").addEventListener('click', function(e) {
-            window = window.open("mailto:support@iresam.org?Subject=Feedback Borgia", 'EmailWindow')
-        }, false);
-    </script>
-</footer>
-</div>
 {% if user.is_authenticated %}
     {% if user.avatar %}
         <style>

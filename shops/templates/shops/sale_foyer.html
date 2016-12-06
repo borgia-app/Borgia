@@ -12,11 +12,11 @@
             <div class="row">
                 <div class="col-md-7 col-sm-7 col-xs-12">
                     <div class="well">
-                        <h3>
+                        <h3 style="display: inline;">
                             <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0</span> € = <span id="balance_after">0</span></span>
                             <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
                         </h3>
-                        <input id="submit_purchase" type=submit value="Valider" class="self_submit">
+                        <input id="submit_purchase" type=submit value="Valider" class="self_submit pull-right">
                     </div>
                 </div>
             </div>
@@ -68,7 +68,7 @@
 
                     </table>
                 </div>
-                    <div class="row-fluid" id="div_container_liquor">
+                    <div class="row-fluid" id="div_container_liquor" style="display: none;">
                     <table class="table_foyer">
                         <th class="mobileHide">Raccourci</th>
                         <th>Produit</th>
@@ -95,7 +95,7 @@
                         {% endfor %}
                     </table>
                 </div>
-                <div class="row-fluid" id="div_container_syrup">
+                <div class="row-fluid" id="div_container_syrup" style="display: none;">
                     <table class="table_foyer">
                         <th class="mobileHide">Raccourci</th>
                         <th>Produit</th>
@@ -117,7 +117,7 @@
                         {% endfor %}
                     </table>
                 </div>
-                <div class="row-fluid" id="div_single_product">
+                <div class="row-fluid" id="div_single_product" style="display: none;">
                     <table class="table_foyer">
                         <th class="mobileHide">Raccourci</th>
                         <th>Produit</th>
@@ -141,7 +141,7 @@
 
                     </table>
                 </div>
-                <div class="row-fluid" id="div_soft">
+                <div class="row-fluid" id="div_soft" style="display: none;">
                     <table class="table_foyer">
                         <th class="mobileHide">Raccourci</th>
                         <th>Produit</th>
@@ -170,23 +170,21 @@
         <div class="container-fluid">
             <hr>
             <div class="panel panel-custom">
-                <a role="button" data-toggle="collapse" href="#howTo" aria-expanded="false" aria-controls="howTo">
-                <div class="panel-heading" role="tab" id="heading1">
-                    <h4 class="panel-title">Comment ça marche?</h4>
+                <div class="panel-heading clickable">
+                    <h3 class="panel-title">
+                        Comment ça marche?</h3>
+                    <span class="pull-right "><i class="glyphicon glyphicon-minus"></i></span>
                 </div>
-                </a>
-                <div id="howTo" class="panel-collapse collapse" role="tabpanel" aria-labelledby="heading1">
-                    <div class="panel-body">
-                        <li><i class="fa fa-long-arrow-left" aria-hidden="true"></i> &
+                <div class="panel-body" style="display: none;">
+                    <li><i class="fa fa-long-arrow-left" aria-hidden="true"></i> &
                         <i class="fa fa-long-arrow-right" aria-hidden="true"></i> pour naviguer entre les onglets
                         </li>
                         <li><i class="fa fa-long-arrow-up" aria-hidden="true"></i> & <i class="fa fa-long-arrow-down" aria-hidden="true"></i> pour naviguer entre les produits</li>
                         <li>+ & - pour ajouter ou supprimer des produits</li>
                         <li>Les numéros du clavier et du pavé numérique fonctionnent</li>
                         <li>"Entrée" ou bouton "Valider" pour valider la commande</li>
-                    </div>
-                </div>
             </div>
+        </div>
         </div>
     </form>
     <div class="history">
@@ -575,6 +573,25 @@
         setTimeout(function(){
             update_consumption()
         }, 1000);
+
+</script>
+    <!-- Accordion Comment ça marche? -->
+<script>
+        $(document).on('click', '.panel div.clickable', function (e) {
+            var $this = $(this);
+            if (!$this.hasClass('panel-collapsed')) {
+                $this.parents('.panel').find('.panel-body').slideUp(200);
+                $this.addClass('panel-collapsed');
+                $this.find('i').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+            } else {
+                $this.parents('.panel').find('.panel-body').slideDown(200);
+                $this.removeClass('panel-collapsed');
+                $this.find('i').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+            }
+        });
+        $(document).ready(function () {
+            $('.panel div.clickable').click();
+        });
 </script>
 
 {% endblock %}
