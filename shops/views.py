@@ -298,8 +298,7 @@ class PurchaseBkars(FormView):
 
     def form_valid(self, form):
 
-        single_product_available_list = Shop.objects.get(name='Bkars').list_product_base_single_product(
-            status_sold=False)
+        single_product_available_list = Shop.objects.get(name='Bkars').list_product_base_single_product(status_sold=False)
         list_results_single_product = []
 
         for i in range(0, len(single_product_available_list)):

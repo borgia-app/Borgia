@@ -334,7 +334,16 @@ class SupplyLydiaSelfView(FormView):
         return kwargs
 
     def form_valid(self, form):
+        user = self.request.user
+        if user.phone is None:
+            user.phone = form.cleaned_data['tel_number']
+            user.save()
         return get_button_lydia(self.request, form.cleaned_data['amount'], form.cleaned_data['tel_number'])
+
+    def get_initial(self):
+        initial = super(SupplyLydiaSelfView, self).get_initial()
+        initial['tel_number'] = self.request.user.phone
+        return initial
 
 
 def get_button_lydia(request, amount, tel_number):

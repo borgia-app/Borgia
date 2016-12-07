@@ -8,8 +8,8 @@
             <div class="row">
                 {{ form.non_field_errors }}
             </div>
-            <div class="row">
-                <div class="column offset-by-four">
+
+            <div class="col-lg-push-4 col-md-7 col-md-push-3 col-sm-9 col-sm-push-2 col-xs-10 col-xs-push-3">
                     <div class="row">
                         <div class="fieldWrapper">
                             {{ form.client_username.errors }}
@@ -17,12 +17,12 @@
                             {{ form.client_username }}
                             <span class="user-balance" id="surname"></span>
                         </div>
-                        <div class="row">
+                        <div class="row-fluid">
                             <label>
                             <span class="user-balance"><span id="balance_before">0.00</span> € - <span id="total_consumption">0.00</span> € = <span id="balance_after">0.00</span> €</span>
                             <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" /></label>
                         </div>
-                        <div class="row">
+                        <div class="row-fluid">
                             <input id="id_submit" class="self_submit" type=submit value="Valider"/><br>
                         </div>
                     </div>
@@ -36,11 +36,11 @@
                 padding: 5px !important;
                 margin: 5px;
                 border: none;
-                color: #fff;
+                color: #fff !important;
             }
         </style>
-        <div id="div_purchase" class="container">
-            <div class="row">
+        <div id="div_purchase" class="container-fluid">
+            <div class="row-fluid">
                 <ul id="onglets">
                     <li id="li_meat">Viandes</li>
                     <li id="li_cheese">Fromages</li>
@@ -48,9 +48,9 @@
                     <li id="li_single_product">Produits unitaires</li>
                 </ul>
             </div>
-            <div class="row">
+            <div class="row-fluid">
 
-                <div class="row" id="div_container_meat">
+                <div class="row-fluid" id="div_container_meat">
                     <table>
                         <th>Produit</th>
                         <th>Prix au kg</th>
@@ -70,7 +70,7 @@
                     </table>
                 </div>
 
-                <div class="row" id="div_container_cheese">
+                <div class="row-fluid" id="div_container_cheese">
                     <table>
                         <th>Produit</th>
                         <th>Prix au Kg</th>
@@ -90,7 +90,7 @@
                     </table>
                 </div>
 
-                <div class="row" id="div_container_side">
+                <div class="row-fluid" id="div_container_side">
                     <table>
                         <th>Produit</th>
                         <th>Prix au Kg</th>
@@ -110,7 +110,7 @@
                     </table>
                 </div>
 
-                <div class="row" id="div_single_product">
+                <div class="row-fluid" id="div_single_product">
                     <table>
                         <th>Produit</th>
                         <th>Prix</th>

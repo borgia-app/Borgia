@@ -1,33 +1,32 @@
-{% extends 'base_clean.html' %}
+{% extends 'base.html' %}
 
 {% block content %}
 
     <form method="POST" action="{% url 'url_purchase_bkars' %}" id="form_purchase">
         {% csrf_token %}
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
                 {{ form.non_field_errors }}
             </div>
-            <div class="row">
-                <div class="column offset-by-four">
-                    <div class="row">
-                        <div class="fieldWrapper">
-                            {{ form.client_username.errors }}
-                            <label for="{{ form.client_username.id_for_label }}">Client:</label>
-                            {{ form.client_username }}
-                            <span class="user-balance" id="surname"></span>
-                        </div>
-                        <div class="row">
-                            <label>
+
+            <div class="col-lg-push-4 col-md-7 col-md-push-3 col-sm-9 col-sm-push-2 col-xs-10 col-xs-push-3">
+                <div class="row">
+                    <div class="fieldWrapper">
+                        {{ form.client_username.errors }}
+                        <label for="{{ form.client_username.id_for_label }}">Client:</label>
+                        {{ form.client_username }}
+                        <span class="user-balance" id="surname"></span>
+                    </div>
+                    <div class="row-fluid">
+                        <label>
                             <span class="user-balance"><span id="balance_before">0.00</span> € - <span id="total_consumption">0.00</span> € = <span id="balance_after">0.00</span> €</span>
-                            <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" /></label>
-                        </div>
-                        <div class="row">
-                            <input id="id_submit" class="self_submit" type=submit value="Valider"/><br>
-                        </div>
+                            <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
+                        </label>
+                    </div>
+                    <div class="row-fluid">
+                        <input id="id_submit" class="self_submit" type=submit value="Valider"/><br>
                     </div>
                 </div>
-
             </div>
         </div>
         <style>
@@ -36,18 +35,18 @@
                 padding: 5px !important;
                 margin: 5px;
                 border: none;
-                color: #fff;
+                color: #fff !important;
             }
         </style>
-        <div id="div_purchase" class="container">
-            <div class="row">
+        <div id="div_purchase" class="container-fluid">
+            <div class="row-fluid">
                 <ul id="onglets">
                     <li id="li_single_product">Produits unitaires</li>
                 </ul>
             </div>
-            <div class="row">
+            <div class="row-fluid">
 
-                <div class="row" id="div_single_product">
+                <div class="row-fluid" id="div_single_product">
                     <table>
                         <th>Produit</th>
                         <th>Prix</th>
@@ -110,9 +109,10 @@
 
         fields_list.push(selected_quantity_single_product);
 
-        // initialisation -> Viandes
+        // initialisation -> Produits unitaires
+        set_active_li(0);
         document.getElementById('li_single_product').addEventListener('click', function(e) {
-            set_active_li(3);
+            set_active_li(0);
         }, false);
 
         function set_active_li(new_active_li) {
