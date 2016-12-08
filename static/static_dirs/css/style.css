@@ -1254,16 +1254,9 @@ input.btn {
 
 .footer {
     position: fixed;
-    bottom: 0;
+    bottom: -20px;
     left: 0;
-    background-color: #262626;
     width: 100%;
-}
-.footer nav {
-    margin: 0 1em;
-    padding: 0.25em;
-    border-top: 1px solid #666;
-    font-size: 0.9em;
 }
 
 .footer .credit {
