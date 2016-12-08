@@ -1461,8 +1461,7 @@ th, td {
 }
 
 tr:nth-child(even){
-    background-color: #fff;
-    color: #151515;
+    background-color: #252525;
 }
 
 tr:nth-child(odd){
@@ -1470,8 +1469,8 @@ tr:nth-child(odd){
 }
 
 tr:hover {
-    background-color: #656565;
-    color: #fff;
+    background-color: #fff;
+    color: #000;
 }
 
 a {

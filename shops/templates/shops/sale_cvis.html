@@ -301,8 +301,8 @@
             while(el = el.parentNode) {
                 if (el.nodeName.toLowerCase() === 'tr') {
                     inputs[i].onfocus = function () {
-                        this.parentRow.style.backgroundColor = '#656565';
-                        this.parentRow.style.color = '#fff';
+                        this.parentRow.style.backgroundColor = '#fff';
+                        this.parentRow.style.color = '#000';
 
                     };
                     inputs[i].onblur = function () {

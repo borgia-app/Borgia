@@ -86,7 +86,8 @@
     </script>
 </head>
 <body>
-<div {% if user.is_authenticated %} class="transparent-bcg" {% endif %}>
+{% url 'url_page_clean' as url_clean %}
+<div {% if user.is_authenticated and request.path != url_clean %} class="transparent-bcg" {% endif %}>
   <div class="wrapper overlay">
     <nav class="navbar navbar-inverse navbar-fixed-top">
 

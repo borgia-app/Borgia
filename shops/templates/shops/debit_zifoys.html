@@ -74,7 +74,7 @@
 
                     </table>
                 </div>
-                <div class="row-fluid" id="div_container_liquor">
+                <div class="row-fluid" id="div_container_liquor" style="display: none;">
                     <table>
                         <th>Raccourci</th>
                         <th>Produit</th>
@@ -101,7 +101,7 @@
                         {% endfor %}
                     </table>
                 </div>
-                <div class="row-fluid" id="div_container_syrup">
+                <div class="row-fluid" id="div_container_syrup" style="display: none;">
                     <table>
                         <th>Raccourci</th>
                         <th>Produit</th>
@@ -123,7 +123,7 @@
                         {% endfor %}
                     </table>
                 </div>
-                <div class="row-fluid" id="div_single_product">
+                <div class="row-fluid" id="div_single_product" style="display: none;">
                     <table>
                         <th>Raccourci</th>
                         <th>Produit</th>
@@ -147,7 +147,7 @@
 
                     </table>
                 </div>
-                <div class="row-fluid" id="div_soft">
+                <div class="row-fluid" id="div_soft" style="display: none;">
                     <table>
                         <th>Raccourci</th>
                         <th>Produit</th>
@@ -341,32 +341,22 @@
             active_field = new_active_field;
         }
 
-         //Surbrillance input au focus
-        var inputs = document.getElementsByTagName("input");
-            for(var i = 0; i < inputs.length; i++) {
-            var el = inputs[i];
-            while(el = el.parentNode) {
-                if (el.nodeName.toLowerCase() === 'tr') {
-                    inputs[i].onfocus = function () {
-                        this.parentRow.style.backgroundColor = '#656565';
-                        this.parentRow.style.color = '#fff';
-
-                    };
-                    inputs[i].onblur = function () {
-                        this.parentRow.style.backgroundColor = '';
-                        this.parentRow.style.color = '';
-                    };
-                    inputs[i].parentRow = el;
-                    break;
-                }
-            }
-        }
-
         document.onkeydown = function (e) {
             if (!e.metaKey) {
                 if (!($.inArray(e.keyCode, [8,9,13,46,96,97,98,99,100,101,102,103,104,105,48,49,50,51,52,53,54,55,56,57]) > -1)) {
                     e.preventDefault();
                 }
+            }
+
+            // Problème du champ vide quand on valide
+
+            if (e.keyCode == 13) {
+                $("#div_purchase :input").each(
+                        function () {
+                            if ($(this).val() == '') {
+                                $(this).val(0);
+                            }
+                        })
             }
 
             // Touches F1 à F12
@@ -466,33 +456,7 @@
                     fields_list[active_li][active_field].dispatchEvent(new Event('change'));
                 }
             }
-
-            // Problème du 0
-            if ($.inArray(e.keyCode, [96,97,98,99,100,101,102,103,104,105,48,49,50,51,52,53,54,55,56,57]) > -1) {
-                var $focused = $(':focus');
-                if ($focused.is('input')) {
-                    if($focused.val() == 0) {
-                        $focused.val('');
-                    }
-                }
-            }
-
-            // Problème du champ vide quand on valide
-            if (e.keyCode == 13) {
-                $("#div_purchase :input").each(
-                        function () {
-                            if ($(this).val() == '') {
-                                $(this).val(0);
-                            }
-                        });
-                $("#submit_purchase").click();
-            }
-
-            // Echap pour logout
-            if (e.keyCode == 27) {
-                $("#submit_logout").click();
-            }
-        };
+        }
 
         document.getElementById('li_active_keg_container').addEventListener('click', function(e) {
             set_active_li(0);
@@ -590,21 +554,28 @@
         }, 1000);
 
 
+</script>
+<script>
+        //Surbrillance input au focus
+        var inputs = document.getElementsByTagName("input");
+            for(var i = 0; i < inputs.length; i++) {
+            var el = inputs[i];
+            while(el = el.parentNode) {
+                if (el.nodeName.toLowerCase() === 'tr') {
+                    inputs[i].onfocus = function () {
+                        this.parentRow.style.backgroundColor = '#fff';
+                        this.parentRow.style.color = '#000';
 
-        document.onkeydown = function (e) {
-            // Problème du champ vide quand on valide
-            if (e.keyCode == 13) {
-                $("#div_purchase :input").each(
-                        function () {
-                            if ($(this).val() == '') {
-                                $(this).val(0);
-                            }
-                        })
+                    };
+                    inputs[i].onblur = function () {
+                        this.parentRow.style.backgroundColor = '';
+                        this.parentRow.style.color = '';
+                    };
+                    inputs[i].parentRow = el;
+                    break;
+                }
             }
         }
-</script>
-    <script>
-
 </script>
 
 {% endblock %}
