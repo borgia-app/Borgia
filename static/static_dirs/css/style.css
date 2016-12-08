@@ -32,12 +32,12 @@
 #onglets li.active
 {
     border-bottom: 1px solid #fff;
-    background-color: #60637b;
+    background-color: #454545;
 }
 
 #onglets li:hover
 {
-    background: #60637b;
+    background: #454545;
 }
 
 #div_purchase
@@ -799,7 +799,7 @@ textarea {
     width: 78px;
 	height: 33px;
     padding-left: 35px;
-    border-top-right-radius: 50%;
+    border-top-right-radius: 5px;
 	background: crimson;
 }
 
@@ -852,7 +852,7 @@ textarea {
     top: 46px;
     right: -3px;
     padding: 3px 0 0 0px;
-    border-bottom-right-radius: 40%;
+    border-bottom-right-radius: 5px;
 }
 
 .user-notification .icon {
@@ -1461,19 +1461,21 @@ th, td {
 }
 
 tr:nth-child(even){
-    background-color: #46495c;
+    background-color: #fff;
+    color: #151515;
 }
 
 tr:nth-child(odd){
-    background-color: #41444f;
+    background-color: #454545;
+}
+
+tr:hover {
+    background-color: #656565;
+    color: #fff;
 }
 
 a {
     color: #fff;
-}
-
-tr:hover {
-    background-color: #60637b;
 }
 
 .table_sales {
@@ -1485,11 +1487,12 @@ tr:hover {
 
 .table_sales tr{
     background-color: #000;
+    color: #fff;
     border-bottom: 2px solid rgba(34, 34, 34, 0.8);
 }
 
-.table_sales tr:hover {
-    background-color: #60637b;
+.table_sales tr:hover{
+    background-color: #333;
 }
 
 .table_sales td {
@@ -1860,7 +1863,7 @@ nav.pagination{
   outline: 1px solid beige;
 }
 
-@media screen and (max-width: 767px) {
+@media screen and (max-width: 1023px) {
     .history_container { width: 75%;}
     .history_slide { width: 75%;}
 }

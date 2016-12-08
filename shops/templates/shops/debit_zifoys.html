@@ -1,12 +1,14 @@
-{% extends 'base_clean.html' %}
-
-{% load static %}
+{% extends 'base.html' %}
 
 {% block content %}
     <form method="POST" action="{% url 'url_debit_zifoys' %}" id="form_purchase">
         {% csrf_token %}
+        <div class="container-fluid">
             <div class="row">
-                <div class="column offset-by-four">
+                {{ form.non_field_errors }}
+            </div>
+
+            <div class="col-lg-push-4 col-md-7 col-md-push-3 col-sm-9 col-sm-push-2 col-xs-10 col-xs-push-3">
                     <div class="row">
                         <div class="fieldWrapper">
                             {{ form.client_username.errors }}
@@ -14,30 +16,29 @@
                             {{ form.client_username }}
                             <span class="user-balance" id="surname"></span>
                         </div>
-                        <div class="row">
+                        <div class="row-fluid">
                             <label>
                             <span class="user-balance"><span id="balance_before">0.00</span> € - <span id="total_consumption">0.00</span> € = <span id="balance_after">0.00</span> €</span>
                             <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" /></label>
                         </div>
-                        <div class="row">
+                        <div class="row-fluid">
                             <p><em>(La 53 a)</em><input id="id_submit" class="self_submit" type=submit value="Valider"/><em>(la 84)</em></p>
                         </div>
                     </div>
                 </div>
 
             </div>
-        </div>
         <style>
             .self_submit {
                 background: #4B99AD;
                 padding: 5px !important;
                 margin: 5px;
                 border: none;
-                color: #fff;
+                color: #fff !important;
             }
         </style>
-        <div id="div_purchase" class="container">
-            <div class="row">
+        <div id="div_purchase" class="container-fluid">
+            <div class="row-fluid">
                 <input type=hidden name="hidden_active_div" id="hidden_active_div" value=""/>
                 <ul id="onglets">
                     <li id="li_active_keg_container">Tireuses à bières</li>
@@ -47,8 +48,8 @@
                     <li id="li_soft">Soft</li>
                 </ul>
             </div>
-            <div class="row">
-                <div class="row" id="div_active_keg_container">
+            <div class="row-fluid">
+                <div class="row-fluid" id="div_active_keg_container">
                     <span id="div_active_keg_container_txt"></span>
                     <table>
                         <th>Raccourci</th>
@@ -73,7 +74,7 @@
 
                     </table>
                 </div>
-                <div class="row" id="div_container_liquor">
+                <div class="row-fluid" id="div_container_liquor">
                     <table>
                         <th>Raccourci</th>
                         <th>Produit</th>
@@ -100,7 +101,7 @@
                         {% endfor %}
                     </table>
                 </div>
-                <div class="row" id="div_container_syrup">
+                <div class="row-fluid" id="div_container_syrup">
                     <table>
                         <th>Raccourci</th>
                         <th>Produit</th>
@@ -122,7 +123,7 @@
                         {% endfor %}
                     </table>
                 </div>
-                <div class="row" id="div_single_product">
+                <div class="row-fluid" id="div_single_product">
                     <table>
                         <th>Raccourci</th>
                         <th>Produit</th>
@@ -146,7 +147,7 @@
 
                     </table>
                 </div>
-                <div class="row" id="div_soft">
+                <div class="row-fluid" id="div_soft">
                     <table>
                         <th>Raccourci</th>
                         <th>Produit</th>
@@ -338,6 +339,27 @@
         function set_active_field(new_active_field) {
             fields_list[active_li][new_active_field].focus();
             active_field = new_active_field;
+        }
+
+         //Surbrillance input au focus
+        var inputs = document.getElementsByTagName("input");
+            for(var i = 0; i < inputs.length; i++) {
+            var el = inputs[i];
+            while(el = el.parentNode) {
+                if (el.nodeName.toLowerCase() === 'tr') {
+                    inputs[i].onfocus = function () {
+                        this.parentRow.style.backgroundColor = '#656565';
+                        this.parentRow.style.color = '#fff';
+
+                    };
+                    inputs[i].onblur = function () {
+                        this.parentRow.style.backgroundColor = '';
+                        this.parentRow.style.color = '';
+                    };
+                    inputs[i].parentRow = el;
+                    break;
+                }
+            }
         }
 
         document.onkeydown = function (e) {
@@ -567,6 +589,8 @@
             update_consumption()
         }, 1000);
 
+
+
         document.onkeydown = function (e) {
             // Problème du champ vide quand on valide
             if (e.keyCode == 13) {
@@ -578,6 +602,9 @@
                         })
             }
         }
+</script>
+    <script>
+
 </script>
 
 {% endblock %}

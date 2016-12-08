@@ -10,7 +10,7 @@
         <div class="row">
             <div>
                 <ul class="listing-apps">
-                <li><a href="{% url 'url_purchase_auberge' %}"><img src="{% static 'img/auberge.png' %}" alt="Listes ventes auberge"><span class="name">Debuquage Auberge</span></a></a></li>
+                <li><a href="{% url 'url_purchase_auberge' %}"><img src="{% static 'img/auberge.png' %}" alt="Listes ventes auberge"><span class="name">Débuquage Auberge</span></a></a></li>
                     {% if perms.users.gestionnaires_de_l_auberge_group_manage %}
                         <li><a href="{% url 'url_manage_group' %}?group_pk={{ group_gestionnaires_de_l_auberge_pk }}&next=/shops/auberge/workboard"><img src="{% static 'img/group.png' %}" alt="Gestion groupe"><span class="name">Gestionnaires de l'auberge</span></a></li>
                     {% endif %}

@@ -133,7 +133,7 @@
              </div>
 
                 {% else %}
-                    <div id="user-wrapper" class="col-md-9 col-sm-10 col-xs-12">
+                    <div id="user-wrapper" class="col-lg-10 col-lg-push-2 col-md-10 col-sm-10 col-xs-12">
                     <form class="form-inline" action='' method="post">{% csrf_token %}
                         <div class="form-group">
                             <label class="icon icon-user" for="id_username"><span class="element-invisible">Nom d'utilisateur</span></label>
@@ -209,7 +209,7 @@
     {% endif %}
 
     {% if user.is_authenticated %}
-       <div class="col-md-10 col-sm-10 col-xs-12 offset">
+       <div class="col-md-10 col-sm-10 col-xs-12 offset" style="margin-top:30px;">
     {% else %}
        <div class="container-fluid">
     {% endif %}

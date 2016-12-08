@@ -10,7 +10,7 @@
         <div class="row">
             <div>
                 <ul class="listing-apps">
-                <li><a href="{% url 'url_purchase_cvis' %}"><img src="{% static 'img/token.png' %}" alt="Listes ventes cvis"><span class="name">Debuquage C-Vis</span></a></a></li>
+                <li><a href="{% url 'url_purchase_cvis' %}"><img src="{% static 'img/token.png' %}" alt="Listes ventes cvis"><span class="name">Débuquage C-Vis</span></a></a></li>
                     {% if perms.users.gestionnaires_de_la_cvis_group_manage %}
                         <li><a href="{% url 'url_manage_group' %}?group_pk={{ group_gestionnaires_de_la_cvis_pk }}&next=/shops/cvis/workboard"><img src="{% static 'img/group.png' %}" alt="Gestion groupe"><span class="name">Gestionnaires de la cvis</span></a></li>
                     {% endif %}

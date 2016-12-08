@@ -1,6 +1,11 @@
 {% load finances_extra %}
 
 <table id="table_sales" class="table_sales">
+    <th>Date</th>
+    <th>Type</th>
+    <th>Libellé</th>
+    <th>Receveur</th>
+    <th>Montant</th>
     {% for e in object_list %}
         <tr>
             <td>{{ e.date|date:"d/m/y" }}</td>
