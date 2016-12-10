@@ -602,6 +602,11 @@ textarea {
     padding-top: 8px;
 }
 
+@media screen and (min-width: 1200px){
+    .list_group_apps {
+        width: 14.66%;
+    }
+}
 @media screen and (max-width: 767px) {
     .list_group_apps {
         top: 50px;
