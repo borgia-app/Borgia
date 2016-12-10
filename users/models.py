@@ -96,7 +96,7 @@ class User(AbstractUser):
 
             # Tresorie
             ('tresoriers_group_manage', 'Gérer le groupe des trésoriers'),
-            ('reach_workboard_treasury', 'Accéder au workboard de la trésorie'),
+            ('reach_workboard_treasury', 'Accéder au workboard de la trésorerie'),
 
             # Foyer
             ('chefs_gestionnaires_du_foyer_group_manage', 'Gérer le groupe des chefs gestionnaires du foyer'),

@@ -122,7 +122,7 @@ class Shop(models.Model):
             ('sell_foyer', 'Vendre des produits au foyer'),
             ('sell_auberge', 'Vendre des produits à l\'auberge'),
             ('sell_cvis', 'Vendre des produits à la cvis'),
-            ('sell_bkars', 'Vendre des produits à la cvis'),
+            ('sell_bkars', 'Vendre des produits à la bb'),
             ('add_product', 'Ajouter des produits'),
         )
 
