@@ -5,20 +5,19 @@
 {% block content %}
     <form method="POST" action="{% url 'url_purchase_foyer' %}" id="form_purchase">
         {% csrf_token %}
-        <div class="container">
+        <div class="container-fluid">
             <div class="row">
                 <h2>{{ form.non_field_errors }}</h2>
             </div>
             <div class="row">
-                <div class="col-md-6 col-xs-6">
-                    <span class="user-container">
-                        <h2 class="user-username"> Balance: </h2>
-                        <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0</span> € = <span id="balance_after">0</span> €</span>
-                    </span>
-                    <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
-                </div>
-                <div class="col-md-6 col-xs-6">
-                    <input id="submit_purchase" type=submit value="Valider" class="self_submit" style="margin-top:35px;">
+                <div class="col-md-7 col-sm-7 col-xs-12">
+                    <div class="well balance-foyer">
+                        <h3 style="display: inline;">
+                            <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0</span> € = <span id="balance_after">0</span></span>
+                            <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
+                        </h3>
+                        <input id="submit_purchase" type=submit value="Valider" class="self_submit" style="margin-left:15px;">
+                    </div>
                 </div>
             </div>
         </div>
@@ -31,13 +30,15 @@
                 color: #fff !important;
             }
         </style>
-        <div id="div_purchase" class="container">
+        <div id="div_purchase" class="container-fluid">
             <div class="row">
                 <input type=hidden name="hidden_active_div" id="hidden_active_div" value=""/>
                 <ul id="onglets">
                     <li id="li_active_keg_container">Tireuses à bières</li>
                     <li id="li_single_product">Produits unitaires</li>
+                    <li id="li_shooter">Shooters</li>
                     <li id="li_liquor">Alcools forts</li>
+                    <li id="li_entire_liquor">Bouteilles réserve</li>
                     <li id="li_syrup">Sirops</li>
                     <li id="li_soft">Soft</li>
                 </ul>
@@ -45,8 +46,9 @@
             <div class="row">
                 <div class="row" id="div_active_keg_container">
                     <span id="div_active_keg_container_txt"></span>
-                    <table>
-                        <th>Raccourci</th>
+                    <table class="table_foyer">
+
+                        <th class="mobileHide768">Raccourci</th>
                         <th>Bière</th>
                         <th>Prix 25 cl</th>
                         <th>Nombre</th>
@@ -55,110 +57,154 @@
                         {% for e in dict_field_active_keg_container %}
                             <tr>
                                 <div class="fieldWrapper">
-                                    <td>{% if e.2 < 12 %}
+                                    <td class="mobileHide768">{% if e.2 < 12 %}
                                         F{{ e.2|add:1 }}
                                     {% endif %}</td>
                                     <td>{{ e.1.product_base.product_unit }}</td>
                                     <td><span id="selected_initial_price_active_keg_{{ e.2 }}">{{ e.1.product_base.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td><span id="selected_price_active_keg_{{ e.2 }}">0.00</span> €</td>
+                                    <td class="mobileHide768"><span id="selected_price_active_keg_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
 
                     </table>
                 </div>
-                <div class="row" id="div_container_liquor">
-                    <table>
-                        <th>Raccourci</th>
+
+                <div class="row" id="div_container_liquor" style="display: none;">
+                    <table class="table_foyer">
+                        <th class="mobileHide768">Raccourci</th>
                         <th>Produit</th>
                         <th>4 cl</th>
                         <th>Nombre</th>
-                        <th>Bouteille</th>
-                        <th>Nombre</th>
-                        <th>Prix correspondant</th>
+                        <th class="mobileHide768">Prix correspondant</th>
 
                         {% for e in dict_field_container_liquor %}
                             <tr>
                                 <div class="fieldWrapper">
-                                    <td>{% if e.2 < 12 %}
+                                    <td class="mobileHide768">{% if e.2 < 12 %}
                                         F{{ e.2|add:1 }}
                                     {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_liquor_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td><span id="selected_initial_price_container_entire_liquor_{{ e.2 }}">{{ e.1.get_moded_price }}</span> €</td>
-                                    <td>{{ e.3 }}</td>
-                                    <td> <span id="selected_price_container_liquor_{{ e.2 }}">0.00</span> €</td>
+                                    <td class="mobileHide768"> <span id="selected_price_container_liquor_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
                     </table>
                 </div>
-                <div class="row" id="div_container_syrup">
-                    <table>
-                        <th>Raccourci</th>
+                <div class="row" id="div_container_entire_liquor" style="display: none;">
+                    <table class="table_foyer">
+                        <th class="mobileHide768">Raccourci</th>
+                        <th>Bouteille</th>
+                        <th>Prix</th>
+                        <th>Nombre</th>
+                        <th class="mobileHide768">Prix correspondant</th>
+
+                        {% for e in dict_field_container_liquor %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td class="mobileHide768">{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                    {% endif %}</td>
+                                    <td>{{ e.1 }}</td>
+                                    <td><span id="selected_initial_price_container_entire_liquor_{{ e.2 }}">{{ e.1.get_moded_price }}</span> €</td>
+                                    <td>{{ e.3 }}</td>
+                                    <td class="mobileHide768"> <span id="selected_price_container_entire_liquor_{{ e.2 }}">0.00</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+                    </table>
+                </div>
+                <div class="row" id="div_container_syrup" style="display: none;">
+                    <table class="table_foyer">
+                        <th class="mobileHide768">Raccourci</th>
                         <th>Produit</th>
                         <th>Prix 4 cl</th>
                         <th>Nombre</th>
-                        <th>Prix correspondant</th>
+                        <th class="mobileHide768">Prix correspondant</th>
                         {% for e in dict_field_container_syrup %}
                             <tr>
                                 <div class="fieldWrapper">
-                                    <td>{% if e.2 < 12 %}
+                                    <td class="mobileHide768">{% if e.2 < 12 %}
                                         F{{ e.2|add:1 }}
                                     {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_syrup_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_container_syrup_{{ e.2 }}">0.00</span> €</td>
+                                    <td class="mobileHide768"> <span id="selected_price_container_syrup_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
                     </table>
                 </div>
-                <div class="row" id="div_single_product">
-                    <table>
-                        <th>Raccourci</th>
+                <div class="row" id="div_single_product" style="display: none;">
+                    <table class="table_foyer">
+                        <th class="mobileHide768">Raccourci</th>
                         <th>Produit</th>
                         <th>Prix</th>
                         <th>Nombre</th>
-                        <th>Prix correspondant</th>
+                        <th class="mobileHide768">Prix correspondant</th>
 
                         {% for e in dict_field_single_product %}
                             <tr>
                                 <div class="fieldWrapper">
-                                    <td>{% if e.2 < 12 %}
+                                    <td class="mobileHide768">{% if e.2 < 12 %}
                                         F{{ e.2|add:1 }}
                                     {% endif %}</td>
                                     <td>{{ e.1 }}</td>
                                     <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_single_product_{{ e.2 }}">0.00</span> €</td>
+                                    <td class="mobileHide768"> <span id="selected_price_single_product_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
 
                     </table>
                 </div>
-                <div class="row" id="div_soft">
-                    <table>
-                        <th>Raccourci</th>
+                <div class="row" id="div_shooter" style="display: none;">
+                    <table class="table_foyer">
+                        <th class="mobileHide768">Raccourci</th>
+                        <th>Produit</th>
+                        <th>Prix</th>
+                        <th>Nombre</th>
+                        <th class="mobileHide768">Prix correspondant</th>
+
+                        {% for e in dict_field_shooter %}
+                            <tr>
+                                <div class="fieldWrapper">
+                                    <td class="mobileHide768" style="max-width: 76px;">{% if e.2 < 12 %}
+                                        F{{ e.2|add:1 }}
+                                    {% endif %}</td>
+                                    <td>{{ e.1 }}</td>
+                                    <td><span id="selected_initial_price_shooter_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
+                                    <td style="min-width: 50px;">{{ e.0 }}</td>
+                                    <td class="mobileHide768"> <span id="selected_price_shooter_{{ e.2 }}">0.00</span> €</td>
+                                </div>
+                            </tr>
+                        {% endfor %}
+
+                    </table>
+                </div>
+                <div class="row" id="div_soft" style="display: none;">
+                    <table class="table_foyer">
+                        <th class="mobileHide768">Raccourci</th>
                         <th>Produit</th>
                         <th>Prix 25 cl</th>
                         <th>Nombre</th>
-                        <th>Prix correspondant</th>
+                        <th class="mobileHide768">Prix correspondant</th>
 
                         {% for e in dict_field_container_soft %}
                             <tr>
                                 <div class="fieldWrapper">
-                                    <td>{% if e.2 < 12 %}
+                                    <td class="mobileHide768">{% if e.2 < 12 %}
                                         F{{ e.2|add:1 }}
                                     {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_soft_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
                                     <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_container_soft_{{ e.2 }}">0.00</span> €</td>
+                                    <td class="mobileHide768"> <span id="selected_price_container_soft_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -167,24 +213,47 @@
                 </div>
             </div>
         </div>
-
-        <div class="container">
-            <p></p>
-            <h3>Comment ça marche ?</h3>
-            <li><i class="fa fa-long-arrow-left" aria-hidden="true"></i> & <i class="fa fa-long-arrow-right" aria-hidden="true"></i> pour naviguer entre les onglets</li>
-            <li><i class="fa fa-long-arrow-up" aria-hidden="true"></i> & <i class="fa fa-long-arrow-down" aria-hidden="true"></i> pour naviguer entre les produits</li>
-            <li>+ & - pour ajouter ou supprimer des produits</li>
-            <li>Les numéros du clavier et du pavé numérique fonctionnent</li>
-            <li>"Entrée" ou bouton "Valider" pour valider la commande</li>
+        <div class="container-fluid mobileHide768">
+            <hr>
+            <div class="panel panel-custom">
+                <div class="panel-heading clickable">
+                    <h3 class="panel-title">
+                        Comment ça marche?</h3>
+                    <span class="pull-right "><i class="glyphicon glyphicon-minus"></i></span>
+                </div>
+                <div class="panel-body" style="display: none;">
+                    <li><i class="fa fa-long-arrow-left" aria-hidden="true"></i> &
+                        <i class="fa fa-long-arrow-right" aria-hidden="true"></i> pour naviguer entre les onglets
+                        </li>
+                        <li><i class="fa fa-long-arrow-up" aria-hidden="true"></i> & <i class="fa fa-long-arrow-down" aria-hidden="true"></i> pour naviguer entre les produits</li>
+                        <li>+ & - pour ajouter ou supprimer des produits</li>
+                        <li>Les numéros du clavier et du pavé numérique fonctionnent</li>
+                        <li>"Entrée" ou bouton "Valider" pour valider la commande</li>
+            </div>
+        </div>
         </div>
     </form>
+    <div id="history" class="history">
+        <div class="row">
+            <button class="history_toggle"><i class="fa fa-line-chart" aria-hidden="true"></i><h3 class="history_title">Historique</h3></button>
+            <div class="history_container container-fluid">
+                <button class="history_toggle_inside"><span class="fa fa-line-chart" aria-hidden="true"></span><h3 class="history_title">Historique</h3></button>
+                <div class="history_slide">
+                    {% include 'finances/sale_list_light_module.html' with object_list=user.list_sale %}
+                </div>
+            </div>
+
+        </div>
+    </div>
     <script>
         onglets = document.getElementById('onglets');
         var li_list = onglets.getElementsByTagName('li');
         var div_list = [];
         div_list.push(document.getElementById('div_active_keg_container'));
         div_list.push(document.getElementById('div_single_product'));
+        div_list.push(document.getElementById('div_shooter'));
         div_list.push(document.getElementById('div_container_liquor'));
+        div_list.push(document.getElementById('div_container_entire_liquor'));
         div_list.push(document.getElementById('div_container_syrup'));
         div_list.push(document.getElementById('div_soft'));
         var active_li = 0;
@@ -197,8 +266,10 @@
         function update_consumption() {
             var sum_active_keg = 0;
             var sum_single_product = 0;
+            var sum_shooter = 0;
             var sum_container_soft = 0;
             var sum_container_liquor = 0;
+            var sum_container_entire_liquor = 0;
             var sum_container_syrup = 0;
 
             for (i=0; i<{{ active_keg_container_list|length }}; i++) {
@@ -207,20 +278,32 @@
             for (i=0; i<{{ single_product_available_list|length }}; i++) {
                 sum_single_product += Number(document.getElementById("selected_price_single_product_" + i).textContent);
             }
+            for (i=0; i<{{ shooter_available_list|length }}; i++) {
+                sum_shooter += Number(document.getElementById("selected_price_shooter_" + i).textContent);
+            }
             for (i=0; i<{{ container_soft_list|length }}; i++) {
                 sum_container_soft += Number(document.getElementById("selected_price_container_soft_" + i).textContent);
             }
             for (i=0; i<{{ container_liquor_list|length }}; i++) {
                 sum_container_liquor += Number(document.getElementById("selected_price_container_liquor_" + i).textContent);
             }
+            for (i=0; i<{{ container_liquor_list|length }}; i++) {
+                sum_container_entire_liquor += Number(document.getElementById("selected_price_container_entire_liquor_" + i).textContent);
+            }
             for (i=0; i<{{ container_syrup_list|length }}; i++) {
                 sum_container_syrup += Number(document.getElementById("selected_price_container_syrup_" + i).textContent);
             }
             var balance_before = Number(document.getElementById("balance_before").textContent.replace(",","."));
 		//alert(balance_before);
-            document.getElementById("total_consumption").textContent = String((sum_active_keg+sum_single_product+sum_container_soft+sum_container_liquor+sum_container_syrup).toFixed(2));
-            document.getElementById("balance_after").textContent = String((balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2));
-            document.getElementById("hidden_balance_after").value = (balance_before-sum_active_keg-sum_single_product-sum_container_soft-sum_container_liquor-sum_container_syrup).toFixed(2);
+            document.getElementById("total_consumption").textContent = String((sum_active_keg+sum_single_product+sum_shooter+sum_container_soft+sum_container_liquor+sum_container_entire_liquor+sum_container_syrup).toFixed(2));
+            document.getElementById("balance_after").textContent = String((balance_before-sum_active_keg-sum_single_product-sum_shooter-sum_container_soft-sum_container_liquor-sum_container_entire_liquor-sum_container_syrup).toFixed(2))+' €';
+            if ((balance_before-sum_active_keg-sum_single_product-sum_shooter-sum_container_soft-sum_container_liquor-sum_container_entire_liquor-sum_container_syrup)>0) {
+                document.getElementById("balance_after").style.color = "#76CC81";
+            }
+            else {
+                document.getElementById("balance_after").style.color = "#e21E12";
+            }
+            document.getElementById("hidden_balance_after").value = (balance_before-sum_active_keg-sum_single_product-sum_shooter-sum_container_soft-sum_container_liquor-sum_container_entire_liquor-sum_container_syrup).toFixed(2);
         }
 
         var selected_quantity_active_keg = [];
@@ -229,6 +312,9 @@
         var selected_quantity_single_product = [];
         var selected_price_single_product = [];
         var selected_initial_price_single_product = [];
+        var selected_quantity_shooter = [];
+        var selected_price_shooter = [];
+        var selected_initial_price_shooter = [];
         var selected_quantity_container_soft = [];
         var selected_price_container_soft = [];
         var selected_initial_price_container_soft = [];
@@ -252,6 +338,11 @@
             selected_quantity_single_product.push(document.getElementById("id_field_single_product_"+i));
             selected_initial_price_single_product.push(document.getElementById("selected_initial_price_single_product_"+i));
         }
+        for (i=0; i<{{ shooter_available_list|length }}; i++) {
+            selected_price_shooter.push(document.getElementById("selected_price_shooter_"+i));
+            selected_quantity_shooter.push(document.getElementById("id_field_shooter_"+i));
+            selected_initial_price_shooter.push(document.getElementById("selected_initial_price_shooter_"+i));
+        }
         for (i=0; i<{{ container_soft_list|length }}; i++) {
             selected_price_container_soft.push(document.getElementById("selected_price_container_soft_"+i));
             selected_quantity_container_soft.push(document.getElementById("id_field_container_soft_"+i));
@@ -261,6 +352,9 @@
             selected_price_container_liquor.push(document.getElementById("selected_price_container_liquor_"+i));
             selected_quantity_container_liquor.push(document.getElementById("id_field_container_liquor_"+i));
             selected_initial_price_container_liquor.push(document.getElementById("selected_initial_price_container_liquor_"+i));
+        }
+        for (i=0; i<{{ container_liquor_list|length }}; i++) {
+            selected_price_container_entire_liquor.push(document.getElementById("selected_price_container_entire_liquor_"+i));
             selected_quantity_container_entire_liquor.push(document.getElementById("id_field_container_entire_liquor_"+i));
             selected_initial_price_container_entire_liquor.push(document.getElementById("selected_initial_price_container_entire_liquor_"+i));
         }
@@ -285,6 +379,14 @@
                 }, false);
             })(i);
         }
+        for (i=0;i<{{ shooter_available_list|length }};i++){
+            (function(x) {
+                selected_quantity_shooter[i].addEventListener('change', function(e) {
+                    selected_price_shooter[x].textContent = String((e.target.value * Number(selected_initial_price_shooter[x].textContent.replace(",", "."))).toFixed(2));
+                    update_consumption();
+                }, false);
+            })(i);
+        }
         for (i=0;i<{{ container_soft_list|length }};i++){
             (function(x) {
                 selected_quantity_container_soft[i].addEventListener('change', function(e) {
@@ -296,13 +398,15 @@
         for (i=0;i<{{ container_liquor_list|length }};i++){
             (function(x) {
                 selected_quantity_container_liquor[i].addEventListener('change', function(e) {
-                    selected_price_container_liquor[x].textContent = String(((e.target.value * Number(selected_initial_price_container_liquor[x].textContent.replace(",", ".")))+(selected_quantity_container_entire_liquor[x].value * Number(selected_initial_price_container_entire_liquor[x].textContent.replace(",", ".")))).toFixed(2));
+                    selected_price_container_liquor[x].textContent = String(((e.target.value * Number(selected_initial_price_container_liquor[x].textContent.replace(",", ".")))).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
+        }
+        for (i=0;i<{{ container_liquor_list|length }};i++){
             (function(x) {
                 selected_quantity_container_entire_liquor[i].addEventListener('change', function(e) {
-                    selected_price_container_liquor[x].textContent = String(((e.target.value * Number(selected_initial_price_container_entire_liquor[x].textContent.replace(",", ".")))+(selected_quantity_container_liquor[x].value * Number(selected_initial_price_container_liquor[x].textContent.replace(",", ".")))).toFixed(2));
+                    selected_price_container_entire_liquor[x].textContent = String(((selected_quantity_container_entire_liquor[x].value * Number(selected_initial_price_container_entire_liquor[x].textContent.replace(",", ".")))).toFixed(2));
                     update_consumption();
                 }, false);
             })(i);
@@ -318,7 +422,9 @@
 
         fields_list.push(selected_quantity_active_keg);
         fields_list.push(selected_quantity_single_product);
+        fields_list.push(selected_quantity_shooter);
         fields_list.push(selected_quantity_container_liquor);
+        fields_list.push(selected_quantity_container_entire_liquor);
         fields_list.push(selected_quantity_container_syrup);
         fields_list.push(selected_quantity_container_soft);
 
@@ -465,14 +571,20 @@
         document.getElementById('li_single_product').addEventListener('click', function(e) {
             set_active_li(1);
         }, false);
-        document.getElementById('li_liquor').addEventListener('click', function(e) {
+        document.getElementById('li_shooter').addEventListener('click', function(e) {
             set_active_li(2);
         }, false);
-        document.getElementById('li_syrup').addEventListener('click', function(e) {
+        document.getElementById('li_liquor').addEventListener('click', function(e) {
             set_active_li(3);
         }, false);
-        document.getElementById('li_soft').addEventListener('click', function(e) {
+        document.getElementById('li_entire_liquor').addEventListener('click', function(e) {
             set_active_li(4);
+        }, false);
+        document.getElementById('li_syrup').addEventListener('click', function(e) {
+            set_active_li(5);
+        }, false);
+        document.getElementById('li_soft').addEventListener('click', function(e) {
+            set_active_li(6);
         }, false);
 
         function set_active_li(new_active_li) {
@@ -516,36 +628,90 @@
             b++;
         }
         var c = 0;
-        while (c<{{ container_soft_list|length }}) {
+        while (c<{{ shooter_available_list|length }}) {
             (function(c) {
-                return selected_quantity_container_soft[c].dispatchEvent(new Event('change'));
+                return selected_quantity_shooter[c].dispatchEvent(new Event('change'));
             })(c);
             c++;
         }
         var d = 0;
-        while (d<{{ container_liquor_list|length }}) {
+        while (d<{{ container_soft_list|length }}) {
             (function(d) {
-                return selected_quantity_container_liquor[d].dispatchEvent(new Event('change'));
-            })(d);
-            d++;
-        }
-        d = 0;
-        while (d<{{ container_liquor_list|length }}) {
-            (function(d) {
-                return selected_quantity_container_entire_liquor[d].dispatchEvent(new Event('change'));
+                return selected_quantity_container_soft[d].dispatchEvent(new Event('change'));
             })(d);
             d++;
         }
         var e = 0;
-        while (e<{{ container_syrup_list|length }}) {
+        while (e<{{ container_liquor_list|length }}) {
             (function(e) {
-                return selected_quantity_container_syrup[e].dispatchEvent(new Event('change'));
+                return selected_quantity_container_liquor[e].dispatchEvent(new Event('change'));
             })(e);
             e++;
+        }
+        e = 0;
+        while (e<{{ container_liquor_list|length }}) {
+            (function(e) {
+                return selected_quantity_container_entire_liquor[e].dispatchEvent(new Event('change'));
+            })(e);
+            e++;
+        }
+        var f = 0;
+        while (f<{{ container_syrup_list|length }}) {
+            (function(f) {
+                return selected_quantity_container_syrup[f].dispatchEvent(new Event('change'));
+            })(f);
+            f++;
         }
         setTimeout(function(){
             update_consumption()
         }, 1000);
+
 </script>
+
+<script>
+        // Accordion Comment ça marche?
+        $(document).on('click', '.panel div.clickable', function (e) {
+            var $this = $(this);
+            if (!$this.hasClass('panel-collapsed')) {
+                $this.parents('.panel').find('.panel-body').slideUp(200);
+                $this.addClass('panel-collapsed');
+                $this.find('i').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+            } else {
+                $this.parents('.panel').find('.panel-body').slideDown(200);
+                $this.removeClass('panel-collapsed');
+                $this.find('i').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+            }
+        });
+        $(document).ready(function () {
+            $('.panel div.clickable').click();
+        });
+
+        //Surbrillance input au focus et disparition de l'historique pour les petits écrans
+        var inputs = document.getElementsByTagName("input");
+            for(var i = 0; i < inputs.length; i++) {
+                var el = inputs[i];
+                while(el = el.parentNode) {
+                    if (el.nodeName.toLowerCase() === 'tr') {
+
+                        inputs[i].onfocus = function () {
+                            if ($(window).width() < 768) {
+                                document.getElementById("history").style.visibility = "hidden";
+                            }
+                            this.parentRow.style.backgroundColor = '#fff';
+                            this.parentRow.style.color = '#000';
+                        };
+                        inputs[i].onblur = function () {
+                            if ($(window).width() < 768) {
+                                document.getElementById("history").style.visibility = "visible";
+                            }
+                            this.parentRow.style.backgroundColor = '';
+                            this.parentRow.style.color = '';
+                        };
+                        inputs[i].parentRow = el;
+                        break;
+                    }
+                }
+            }
+    </script>
 
 {% endblock %}

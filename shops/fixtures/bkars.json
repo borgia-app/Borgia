@@ -1,0 +1,87 @@
+[
+
+  {
+    "model": "shops.productbase",
+    "pk": 301,
+    "fields": {
+      "name": "Blanche de Namur 33cl",
+      "description": "Bouteille de Blanche de Namur 33cl",
+      "brand": "Brasserie du Bocq",
+      "type": "single_product",
+      "shop": 4
+    }
+  },
+
+  {
+    "model": "shops.productbase",
+    "pk": 302,
+    "fields": {
+      "name": "Licorne black 33cl",
+      "description": "Bouteille de Licorne black 33cl",
+      "brand": "Licorne",
+      "type": "single_product",
+      "shop": 4
+    }
+  },
+
+  {
+    "model": "shops.productbase",
+    "pk": 303,
+    "fields": {
+      "name": "Cuvée des Trolls 25cl",
+      "description": "Bouteille de Cuvée des Trolls 25cl",
+      "brand": "Brasserie Dubuisson",
+      "type": "single_product",
+      "shop": 4
+    }
+  },
+
+  {
+    "model": "shops.productbase",
+    "pk": 304,
+    "fields": {
+      "name": "Duvel 33cl",
+      "description": "Bouteille de Duvel 33cl",
+      "brand": "Duvel",
+      "type": "single_product",
+      "shop": 4
+    }
+  },
+
+  {
+    "model": "shops.productbase",
+    "pk": 305,
+    "fields": {
+      "name": "Chouffe blonde 33cl",
+      "description": "Bouteille de Chouffe blonde 33cl",
+      "brand":"Brasserie d'Achouffe",
+      "type": "single_product",
+      "shop": 4
+    }
+  },
+
+  {
+    "model": "shops.productbase",
+    "pk": 306,
+    "fields": {
+      "name": "Orval 33cl",
+      "description": "Bouteille de Orval 33cl",
+      "brand": "Abbaye d'Orval",
+      "type": "single_product",
+      "shop": 4
+    }
+  },
+
+  {
+    "model": "shops.productbase",
+    "pk": 307,
+    "fields": {
+      "name": "Chimay bleue 33cl",
+      "description": "Bouteille de Chimay bleue 33cl",
+      "brand": "Abbaye Notre-Dame de Scourmont",
+      "type": "single_product",
+      "shop": 4
+    }
+  }
+
+]

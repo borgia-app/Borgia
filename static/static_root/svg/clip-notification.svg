@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<svg version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" width="0" height="0">
+    <defs>
+         <clipPath id="clip-shape" clipPathUnits="objectBoundingBox">
+             <polygon points="0.03 0, 1 0.16, 0.85 1.25, 0 0.2" />
+         </clipPath>
+    </defs>
+</svg>

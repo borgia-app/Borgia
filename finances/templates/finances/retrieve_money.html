@@ -3,7 +3,7 @@
 
 {% block content %}
 
-    <div class="container">
+    <div class="container-fluid">
         <div class="row">
             <form action= "{% url 'url_treasury_retrieve_money' %}" method="post">
                 {% csrf_token %}

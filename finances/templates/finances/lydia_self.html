@@ -2,13 +2,19 @@
 {% load static %}
 
 {% block content %}
-    <div class="container50">
-        <h2 class="align-center">Crédit par Lydia</h2>
-        <form class="form-style-1" action= "{% url 'url_supply_lydia_self' %}" method="post">
-            {% csrf_token %}
-            {{ form.as_ul }}
-            <li><input type="submit" value="Valider"/></li>
-        </form>
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-custom">
+            <div class="panel-heading">
+                <h2 class="align-center">Crédit par Lydia</h2>
+            </div>
+            <div class="panel-body">
+                <form class="form-style-1" action= "{% url 'url_supply_lydia_self' %}" method="post">
+                    {% csrf_token %}
+                    {{ form.as_ul }}
+                    <li><input type="submit" value="Valider"/></li>
+                </form>
+            </div>
+        </div>
     </div>
 
     <script>

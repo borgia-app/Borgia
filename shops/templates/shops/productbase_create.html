@@ -2,15 +2,21 @@
 
 {% block content %}
 
-    <div class="container50">
-        <h2 class="align-center">Ajout d'une base de produit</h2>
-        <form class="form-style-1" action= "{% url 'url_create_productbase' %}" method="POST">
-            {% csrf_token %}
-            {{ form.as_ul }}
-            <li id="id_link_create_productunit"><label>L'unité n'est pas dans la liste ? <a href="{% url 'url_create_productunit' %}?next=/shops/productbase/create?next={{ next }}">Ajout !</a></label></li>
-            <input type=hidden name="next" value="{{ next }}" />
-            <li><input type="submit" value="Valider"/></li>
-        </form>
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-custom">
+            <div class="panel-heading">
+                <h2 class="align-center">Ajout d'une base de produit</h2>
+            </div>
+            <div class="panel-body">
+                <form class="form-style-1" action= "{% url 'url_create_productbase' %}" method="POST">
+                    {% csrf_token %}
+                    {{ form.as_ul }}
+                    <li id="id_link_create_productunit"><label>L'unité n'est pas dans la liste ? <a href="{% url 'url_create_productunit' %}?next=/shops/productbase/create?next={{ next }}">Ajout !</a></label></li>
+                    <input type=hidden name="next" value="{{ next }}" />
+                    <li><input type="submit" value="Valider"/></li>
+                </form>
+            </div>
+        </div>
     </div>
     <script>
         var labels = document.getElementsByTagName('LABEL');
