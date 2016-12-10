@@ -27,7 +27,7 @@ urlpatterns = [
 
     # Ajax
     url(r'^username_from_username_part$', username_from_username_part, name='url_username_from_username_part'),
-    url(r'^data_from_username', permission_required('shops.sell_auberge' or 'shops.sell_foyer' or 'shops.sell_cvis'or 'shops.sell_bkars', raise_exception=True)
+    url(r'^data_from_username', permission_required('shops.sell_foyer' or 'shops.sell_auberge' or 'shops.sell_cvis' or 'shops.sell_bkars', raise_exception=True)
         (data_from_username), name='url_data_from_username'),
 
     # Token
