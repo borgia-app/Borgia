@@ -358,6 +358,7 @@ class DebitZifoys(FormView):
                                                                        product_base__product_unit__type='keg',
                                                                        place__startswith='tireuse')
         kwargs['single_product_available_list'] = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        kwargs['shooter_available_list'] = Shop.objects.get(name='Foyer').list_product_base_single_product_shooter(status_sold=False)
         kwargs['container_soft_list'] = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
         kwargs['container_syrup_list'] = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
         kwargs['container_liquor_list'] = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
@@ -378,12 +379,14 @@ class DebitZifoys(FormView):
                                                              product_base__product_unit__type='keg',
                                                              place__startswith='tireuse')
         single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        shooter_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product_shooter(status_sold=False)
         container_soft_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
         container_syrup_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
         container_liquor_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
                                                                                            type='liquor')
         dict_field_active_keg_container = []
         dict_field_single_product = []
+        dict_field_shooter = []
         dict_field_container_soft = []
         dict_field_container_syrup = []
         dict_field_container_liquor = []
@@ -394,6 +397,9 @@ class DebitZifoys(FormView):
         for i in range(0, len(single_product_available_list)):
             dict_field_single_product.append((form['field_single_product_%s' % i],
                                               single_product_available_list[i][0], i))
+        for i in range(0, len(shooter_available_list)):
+            dict_field_shooter.append((form['field_shooter_%s' % i],
+                                              shooter_available_list[i][0], i))
         for i in range(0, len(container_soft_list)):
             dict_field_container_soft.append((form['field_container_soft_%s' % i],
                                               container_soft_list[i][0], i))
@@ -407,11 +413,13 @@ class DebitZifoys(FormView):
 
         context['dict_field_active_keg_container'] = dict_field_active_keg_container
         context['dict_field_single_product'] = dict_field_single_product
+        context['dict_field_shooter'] = dict_field_shooter
         context['dict_field_container_soft'] = dict_field_container_soft
         context['dict_field_container_syrup'] = dict_field_container_syrup
         context['dict_field_container_liquor'] = dict_field_container_liquor
 
         context['single_product_available_list'] = single_product_available_list
+        context['shooter_available_list'] = shooter_available_list
         context['container_soft_list'] = container_soft_list
         context['container_syrup_list'] = container_syrup_list
         context['container_liquor_list'] = container_liquor_list
@@ -425,6 +433,8 @@ class DebitZifoys(FormView):
                                                              product_base__product_unit__type='keg',
                                                              place__startswith='tireuse')
         single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        shooter_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product_shooter(
+            status_sold=False)
         container_soft_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
         container_syrup_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
         container_liquor_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
@@ -432,6 +442,8 @@ class DebitZifoys(FormView):
 
         for i in range(0, len(single_product_available_list)):
             initial['field_single_product_%s' % i] = 0
+        for i in range(0, len(shooter_available_list)):
+            initial['field_shooter_%s' % i] = 0
         for i in range(0, len(container_soft_list)):
             initial['field_container_soft_%s' % i] = 0
         for i in range(0, len(container_syrup_list)):
@@ -450,12 +462,14 @@ class DebitZifoys(FormView):
                                                              product_base__product_unit__type='keg',
                                                              place__startswith='tireuse')
         single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        shooter_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product_shooter(status_sold=False)
         container_soft_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
         container_syrup_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
         container_liquor_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
                                                                                            type='liquor')
         list_results_active_keg_container = []
         list_results_single_product = []
+        list_results_shooter = []
         list_results_container_soft = []
         list_results_container_syrup = []
         list_results_container_liquor = []
@@ -467,6 +481,9 @@ class DebitZifoys(FormView):
         for i in range(0, len(single_product_available_list)):
             list_results_single_product.append((form.cleaned_data["field_single_product_%s" % i],
                                                 single_product_available_list[i][0]))
+        for i in range(0, len(shooter_available_list)):
+            list_results_shooter.append((form.cleaned_data["field_shooter_%s" % i],
+                                                shooter_available_list[i][0]))
         for i in range(0, len(container_soft_list)):
             list_results_container_soft.append((form.cleaned_data["field_container_soft_%s" % i],
                                                 container_soft_list[i][0]))
@@ -496,6 +513,19 @@ class DebitZifoys(FormView):
                         sp.sale_price = sp.product_base.get_moded_usual_price()
                         sp.save()
                         list_products_sold.append(sp)
+                    except IndexError:
+                        pass
+
+        for e in list_results_shooter:
+            if e[0] != 0:
+                for i in range(0, e[0]):
+                    try:
+                        sht = SingleProduct.objects.filter(product_base=e[1], is_sold=False,
+                                                        product_base__description__contains="shooter")[i]
+                        sht.is_sold = True
+                        sht.sale_price = sht.product_base.get_moded_usual_price()
+                        sht.save()
+                        list_products_sold.append(sht)
                     except IndexError:
                         pass
 
@@ -632,6 +662,7 @@ class PurchaseFoyer(FormView):
                                                                        product_base__product_unit__type='keg',
                                                                        place__startswith='tireuse')
         kwargs['single_product_available_list'] = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        kwargs['shooter_available_list'] = Shop.objects.get(name='Foyer').list_product_base_single_product_shooter(status_sold=False)
         kwargs['container_soft_list'] = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
         kwargs['container_syrup_list'] = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
         kwargs['container_liquor_list'] = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
@@ -653,12 +684,14 @@ class PurchaseFoyer(FormView):
                                                              product_base__product_unit__type='keg',
                                                              place__startswith='tireuse')
         single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        shooter_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product_shooter(status_sold=False)
         container_soft_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
         container_syrup_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
         container_liquor_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
                                                                                            type='liquor')
         dict_field_active_keg_container = []
         dict_field_single_product = []
+        dict_field_shooter = []
         dict_field_container_soft = []
         dict_field_container_syrup = []
         dict_field_container_liquor = []
@@ -669,6 +702,9 @@ class PurchaseFoyer(FormView):
         for i in range(0, len(single_product_available_list)):
             dict_field_single_product.append((form['field_single_product_%s' % i],
                                               single_product_available_list[i][0], i))
+        for i in range(0, len(shooter_available_list)):
+            dict_field_shooter.append((form['field_shooter_%s' % i],
+                                              shooter_available_list[i][0], i))
         for i in range(0, len(container_soft_list)):
             dict_field_container_soft.append((form['field_container_soft_%s' % i],
                                               container_soft_list[i][0], i))
@@ -682,11 +718,13 @@ class PurchaseFoyer(FormView):
 
         context['dict_field_active_keg_container'] = dict_field_active_keg_container
         context['dict_field_single_product'] = dict_field_single_product
+        context['dict_field_shooter'] = dict_field_shooter
         context['dict_field_container_soft'] = dict_field_container_soft
         context['dict_field_container_syrup'] = dict_field_container_syrup
         context['dict_field_container_liquor'] = dict_field_container_liquor
 
         context['single_product_available_list'] = single_product_available_list
+        context['shooter_available_list'] = shooter_available_list
         context['container_soft_list'] = container_soft_list
         context['container_syrup_list'] = container_syrup_list
         context['container_liquor_list'] = container_liquor_list
@@ -700,6 +738,7 @@ class PurchaseFoyer(FormView):
                                                              product_base__product_unit__type='keg',
                                                              place__startswith='tireuse')
         single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        shooter_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product_shooter(status_sold=False)
         container_soft_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
         container_syrup_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
         container_liquor_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
@@ -707,6 +746,8 @@ class PurchaseFoyer(FormView):
 
         for i in range(0, len(single_product_available_list)):
             initial['field_single_product_%s' % i] = 0
+        for i in range(0, len(shooter_available_list)):
+            initial['field_shooter_%s' % i] = 0
         for i in range(0, len(container_soft_list)):
             initial['field_container_soft_%s' % i] = 0
         for i in range(0, len(container_syrup_list)):
@@ -725,12 +766,14 @@ class PurchaseFoyer(FormView):
                                                              product_base__product_unit__type='keg',
                                                              place__startswith='tireuse')
         single_product_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product(status_sold=False)
+        shooter_available_list = Shop.objects.get(name='Foyer').list_product_base_single_product_shooter(status_sold=False)
         container_soft_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='soft')
         container_syrup_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False, type='syrup')
         container_liquor_list = Shop.objects.get(name='Foyer').list_product_base_container(status_sold=False,
                                                                                            type='liquor')
         list_results_active_keg_container = []
         list_results_single_product = []
+        list_results_shooter = []
         list_results_container_soft = []
         list_results_container_syrup = []
         list_results_container_liquor = []
@@ -742,6 +785,9 @@ class PurchaseFoyer(FormView):
         for i in range(0, len(single_product_available_list)):
             list_results_single_product.append((form.cleaned_data["field_single_product_%s" % i],
                                                 single_product_available_list[i][0]))
+        for i in range(0, len(shooter_available_list)):
+            list_results_shooter.append((form.cleaned_data["field_shooter_%s" % i],
+                                                shooter_available_list[i][0]))
         for i in range(0, len(container_soft_list)):
             list_results_container_soft.append((form.cleaned_data["field_container_soft_%s" % i],
                                                 container_soft_list[i][0]))
@@ -771,6 +817,19 @@ class PurchaseFoyer(FormView):
                         sp.sale_price = sp.product_base.get_moded_usual_price()
                         sp.save()
                         list_products_sold.append(sp)
+                    except IndexError:
+                        pass
+
+        for e in list_results_shooter:
+            if e[0] != 0:
+                for i in range(0, e[0]):
+                    try:
+                        sht = SingleProduct.objects.filter(product_base=e[1], is_sold=False,
+                                                           product_base__description__contains="shooter")[i]
+                        sht.is_sold = True
+                        sht.sale_price = sht.product_base.get_moded_usual_price()
+                        sht.save()
+                        list_products_sold.append(sht)
                     except IndexError:
                         pass
 

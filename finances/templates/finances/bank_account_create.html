@@ -11,11 +11,19 @@
                 <form class="form-style-1" action= "" method="post">
                     {% csrf_token %}
                     {{ form.as_ul }}
+                    <em style="color: black">Exemple: FR12 3456 7890 1234 5678 90</em>
                     <input type=hidden name="next" value="{{ next }}" />
                     <li><input type="submit" value="Créer"/></li>
             </form>
             </div>
         </div>
     </div>
-
+    <style>#id_account{ text-transform: uppercase}</style>
+    <script>
+        $(document).ready(function () {
+            $('#id_account').mask('SS00 0000 0000 0000 0000 00', {
+                placeholder: '____ ____ ____ ____ ____ __'
+            });
+        });
+    </script>
 {% endblock %}

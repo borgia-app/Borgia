@@ -50,6 +50,12 @@
     box-sizing: border-box;
 }
 
+@media screen and (max-width: 767px) {
+    #div_purchase {
+        padding: 0;
+    }
+}
+
 /* Autocompletion */
 #results {
     font-family: source_sans_proregular;
@@ -262,6 +268,17 @@ img {
 .wrapper:after {content: " ";display: table;}
 .wrapper:after {clear: both;}
 
+.navbar-toggle {
+    position: absolute;
+    margin-top: 7px;
+    right: -40px;
+}
+
+@media screen and (min-width: 568px) {
+    .navbar-collapse-menu {
+        display: none !important;
+    }
+}
 /* Logo */
 .logo-background {
     background: url('../img/borgia_logo.svg') no-repeat;
@@ -665,11 +682,11 @@ textarea {
 }
 
 .list-bouls {
-    background: #94E9E7;
+    background: #94A5E7;
 }
 
 .list-bouls:hover {
-    background: #94FAD7;
+    background: #94C8E7;
 }
 /* ==========================================================================
    3 = User
@@ -1038,6 +1055,28 @@ textarea {
     }
 }
 
+@media screen and (max-width: 767px) {
+    .balance-foyer {
+        position: fixed;
+        top: 100px;
+        left: 0;
+        width: 100%;
+        z-index: 1;
+        height: 42px;
+        padding: 0;
+        text-align: center;
+    }
+    .balance-foyer h3 {
+        font-size: 15px;
+    }
+}
+@media screen and (max-width: 567px) {
+    .balance-foyer {
+        top: 106px;
+    }
+}
+
+
 
 
 /* ==========================================================================
@@ -1167,6 +1206,26 @@ input:disabled {
 }
 
 
+.connexion {
+    margin-top: 17px;
+    margin-left: 5px;
+}
+
+@media screen and (max-width: 767px) {
+    .form-inline label {
+        font-size: 1em;
+        padding: 0;
+        margin-top: 0;
+    }
+    .form-group {
+        margin-bottom: 8px;
+    }
+    .connexion {
+        margin-left: 0;
+        margin-top: 0;
+    }
+}
+
 
 /* Buttons */
 .btn {
@@ -1281,11 +1340,8 @@ input.btn {
 .login-form.large .form-text {
     font-size: 30px;
 }
-.connexion {
-    margin-top: 18px;
-    margin-left: 5px;
 
-}
+
 /* Edit form*/
 
 .form-edit .form-group .btn:before {
@@ -1569,6 +1625,9 @@ a {
     }
 }
 
+.table_foyer input {
+    width: 100px;
+}
 @media screen and (max-width: 1024px) {
     .table_foyer {
         width: 100%;
@@ -1895,7 +1954,7 @@ nav.pagination{
     display: none;
     position: fixed;
     right: 1%;
-    opacity: 0.9;
+    opacity: 1;
     width: 40%;
     height: 60%;
     background: #222222;
@@ -1937,13 +1996,13 @@ nav.pagination{
     .history_slide { width: 75%;}
 }
 @media screen and (max-width: 567px) {
-    .history_toggle { width: 100%;}
+    .history_toggle { width: 100%; padding: 8px; font-size: 1em;}
     .history_container { width: 100%;}
     .history_slide { width: 100%;}
 }
 
 
-.well { background: rgba(25,25,25,0.8); border: none;}
+.well { background: rgba(25,25,25,1); border: none;}
 
 .panel-custom { border: none; opacity: 0.9;}
 .panel-custom .panel-heading {
@@ -2046,17 +2105,5 @@ a.clickable:hover { text-decoration:none; }
 
     .col-xxs-1 {
         width: 8.33333333%;
-    }
-}
-
-.navbar-toggle {
-    position: absolute;
-    margin-top: 7px;
-    right: -40px;
-}
-
-@media screen and (min-width: 568px) {
-    .navbar-collapse-menu {
-        display: none !important;
     }
 }

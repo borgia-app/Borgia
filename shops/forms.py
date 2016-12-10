@@ -216,6 +216,7 @@ class PurchaseFoyerForm(forms.Form):
         # Initialisation des listes de produits
         active_keg_container_list = kwargs.pop('active_keg_container_list')
         single_product_available_list = kwargs.pop('single_product_available_list')
+        shooter_available_list = kwargs.pop('shooter_available_list')
         container_soft_list = kwargs.pop('container_soft_list')
         container_syrup_list = kwargs.pop('container_syrup_list')
         container_liquor_list = kwargs.pop('container_liquor_list')
@@ -228,6 +229,9 @@ class PurchaseFoyerForm(forms.Form):
             self.fields['field_active_keg_container_%s' % i] = forms.IntegerField(required=True, min_value=0)
         for (i, t) in enumerate(single_product_available_list):
             self.fields['field_single_product_%s' % i] = forms.IntegerField(required=True, min_value=0,
+                                                                            max_value=len(t[1]))
+        for (i, t) in enumerate(shooter_available_list):
+            self.fields['field_shooter_%s' % i] = forms.IntegerField(required=True, min_value=0,
                                                                             max_value=len(t[1]))
         for (i, t) in enumerate(container_soft_list):
             self.fields['field_container_soft_%s' % i] = forms.IntegerField(required=True, min_value=0)
@@ -246,6 +250,11 @@ class PurchaseFoyerForm(forms.Form):
     def single_product_available_answers(self):
         for name, value in self.cleaned_data.items():
             if name.startwith('field_single_product_'):
+                yield (self.fields[name].label, value)
+
+    def shooter_available_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_shooter_'):
                 yield (self.fields[name].label, value)
 
     def container_soft_answers(self):
@@ -290,6 +299,7 @@ class DebitZifoysForm(forms.Form):
         # Initialisation des listes de produits
         active_keg_container_list = kwargs.pop('active_keg_container_list')
         single_product_available_list = kwargs.pop('single_product_available_list')
+        shooter_available_list = kwargs.pop('shooter_available_list')
         container_soft_list = kwargs.pop('container_soft_list')
         container_syrup_list = kwargs.pop('container_syrup_list')
         container_liquor_list = kwargs.pop('container_liquor_list')
@@ -302,6 +312,9 @@ class DebitZifoysForm(forms.Form):
             self.fields['field_active_keg_container_%s' % i] = forms.IntegerField(required=True, min_value=0)
         for (i, t) in enumerate(single_product_available_list):
             self.fields['field_single_product_%s' % i] = forms.IntegerField(required=True, min_value=0,
+                                                                            max_value=len(t[1]))
+        for (i, t) in enumerate(shooter_available_list):
+            self.fields['field_shooter_%s' % i] = forms.IntegerField(required=True, min_value=0,
                                                                             max_value=len(t[1]))
         for (i, t) in enumerate(container_soft_list):
             self.fields['field_container_soft_%s' % i] = forms.IntegerField(required=True, min_value=0)
@@ -320,6 +333,11 @@ class DebitZifoysForm(forms.Form):
     def single_product_available_answers(self):
         for name, value in self.cleaned_data.items():
             if name.startwith('field_single_product_'):
+                yield (self.fields[name].label, value)
+
+    def shooter_available_answers(self):
+        for name, value in self.cleaned_data.items():
+            if name.startwith('field_shooter_'):
                 yield (self.fields[name].label, value)
 
     def container_soft_answers(self):

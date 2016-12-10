@@ -9,21 +9,21 @@
                 {{ form.non_field_errors }}
             </div>
 
-            <div class="col-lg-push-4 col-md-7 col-md-push-3 col-sm-9 col-sm-push-2 col-xs-10 col-xs-push-3">
-                <div class="row">
-                    <div class="fieldWrapper">
+            <div class="col-lg-push-2 col-md-7 col-md-push-3 col-sm-9 col-sm-push-2 col-xs-12">
+                <div class="row well">
+                    <div class="fieldWrapper align-center">
                         {{ form.client_username.errors }}
                         <label for="{{ form.client_username.id_for_label }}">Client:</label>
                         {{ form.client_username }}
-                        <span class="user-balance" id="surname"></span>
+                        <h4><span class="user-balance" id="surname"></span></h4>
                     </div>
-                    <div class="row-fluid">
-                        <label>
-                            <span class="user-balance"><span id="balance_before">0.00</span> € - <span id="total_consumption">0.00</span> € = <span id="balance_after">0.00</span> €</span>
+                    <div class="row-fluid align-center">
+                        <h4>
+                            <span class="user-balance"><span id="balance_before">0.00</span> € - <span id="total_consumption">0.00</span> € = <span id="balance_after">0.00</span></span>
                             <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
-                        </label>
+                        </h4>
                     </div>
-                    <div class="row-fluid">
+                    <div class="row-fluid align-center">
                         <input id="id_submit" class="self_submit" type=submit value="Valider"/><br>
                     </div>
                 </div>
@@ -92,8 +92,18 @@
         $("#id_client_username").blur(function() {
             var usersAPI = '{% url 'url_data_from_username' %}?username=' + document.getElementById('id_client_username').value
             $.getJSON( usersAPI, function( data ) {
-                $("#balance_before").text(data['balance'])
-                $("#surname").text(data['surname'] + ' ' + data['family'])
+                var sum = parseFloat(document.getElementById("total_consumption").textContent).toFixed(2);
+                var diff = parseFloat(data['balance']-sum).toFixed(2);
+                if (diff > 0) {
+                    $("#balance_after").css("color", "#76CC81");
+                } else {
+                    $("#balance_after").css("color", "#e21E12");
+                }
+
+                $("#balance_before").text(parseFloat(data['balance']).toFixed(2));
+                $("#balance_after").text(String(diff)+' €');
+                $("#hidden_balance_after").val((String(diff)));
+                $("#surname").text(data['surname'] + ' ' + data['family']);
             })
         });
 
@@ -152,7 +162,13 @@
 
             var balance_before = Number(document.getElementById("balance_before").textContent);
             document.getElementById("total_consumption").textContent = String((sum_single_product).toFixed(2));
-            document.getElementById("balance_after").textContent = String((balance_before-sum_single_product).toFixed(2));
+            document.getElementById("balance_after").textContent = String((balance_before-sum_single_product).toFixed(2))+ ' €';
+            if ((balance_before-sum_single_product)>=0) {
+                document.getElementById("balance_after").style.color = "#76CC81";
+            }
+            else {
+                document.getElementById("balance_after").style.color = "#e21E12";
+            }
             document.getElementById("hidden_balance_after").value = (balance_before-sum_single_product).toFixed(2);
         }
 

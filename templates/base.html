@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
     <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.png' %}"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
+    <script src="{% static 'js/jquery.mask.js' %}"></script>
     <script src="{% static 'jquery-ui-1.11.4/jquery-ui.js' %}"></script>
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/widgets.js' %}"></script>
@@ -154,6 +155,7 @@
                     <li class="align-center" style="padding-top:3px; background: #000;">{{ user.surname }} {{ user.username }}</li>
                     <li><a href="{% url 'url_update_user' pk=user.pk %}">Édition du profil</a></li>
                     <li><a href="{% url 'django.contrib.auth.views.logout' %}">Déconnexion</a></li>
+                </ul>
 
                 {% else %}
                     <div id="user-wrapper" class="col-lg-10 col-lg-push-2 col-md-10 col-sm-10 col-xs-12">
@@ -168,8 +170,9 @@
                         </div>
                         <div class="form-group connexion">
                             <button id="id_submit" type="submit" class="btn classic-btn">Connexion</button>
-                            <a href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
+                             <a href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
                         </div>
+
 
                     </form>
                     </div>
@@ -232,15 +235,13 @@
     {% endif %}
 
     {% if user.is_authenticated %}
-       <div class="col-md-10 col-sm-10 col-xs-12 offset" style="margin-top:30px; padding-bottom: 40px;">
+       <div class="col-md-10 col-sm-10 col-xs-12 offset" style="margin-top:30px; padding-bottom: 60px;">
     {% else %}
        <div class="container-fluid">
     {% endif %}
         {%  block content %}
         {%  endblock %}
        </div>
-
-
 </div>
 </body>
 

@@ -6,7 +6,7 @@
             <div class="panel-heading clickable">
                 <p class="panel-title align-center">
                         WIP - Borgia v2.8.0 - 09/12/2016</p>
-                    <span class="pull-right "><i class="glyphicon glyphicon-minus"></i></span>
+                    <span class="pull-right "><i class="glyphicon glyphicon-minus mobileHide768"></i></span>
                 </div>
                 <div class="panel-body footer-panel">
                     <style>
@@ -43,18 +43,22 @@
         document.getElementById("mailto_report").addEventListener('click', function(e) {
             window = window.open("mailto:support@iresam.org?Subject=Feedback Borgia", 'EmailWindow')
         }, false);
+
+
             $(document).on('click', '.panel div.clickable', function (e) {
-            var $this = $(this);
-            if (!$this.hasClass('panel-collapsed')) {
-                $this.parents('.panel').find('.panel-body').slideUp(200);
-                $this.addClass('panel-collapsed');
-                $this.find('i').removeClass('glyphicon-minus').addClass('glyphicon-plus');
-            } else {
-                $this.parents('.panel').find('.panel-body').slideDown(200);
-                $this.removeClass('panel-collapsed');
-                $this.find('i').removeClass('glyphicon-plus').addClass('glyphicon-minus');
-            }
-        });
+                if ($(window).width() > 767) {
+                    var $this = $(this);
+                    if (!$this.hasClass('panel-collapsed')) {
+                        $this.parents('.panel').find('.panel-body').slideUp(200);
+                        $this.addClass('panel-collapsed');
+                        $this.find('i').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+                    } else {
+                        $this.parents('.panel').find('.panel-body').slideDown(200);
+                        $this.removeClass('panel-collapsed');
+                        $this.find('i').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+                    }
+                }
+            });
         $(document).ready(function () {
             $('.panel div.clickable').click();
         });
