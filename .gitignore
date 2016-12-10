@@ -2,7 +2,7 @@ staticfiles
 venv
 unit.xml
 /**/.phutil_module_cache
-/static/media/img/avatars
+/static/media/img/
 
 ##########################################################################################
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio

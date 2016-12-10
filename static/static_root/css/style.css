@@ -180,6 +180,44 @@ img {
 
 
 /* Layout */
+.transparent-bcg {
+    background: rgba(0,0,0,0.3);
+    width: 100%;
+    min-height: 100%;
+}
+
+.lydia {
+    width: 200px;
+    vertical-align: middle;
+}
+
+.lydia-logo {
+        position: relative;
+        display: inline-block;
+        width: 36px;
+        height: 35px;
+        float: left;
+        vertical-align: middle;
+        margin-right: -2.2em;
+        z-index: 2;
+}
+
+.lydia-text {
+    position: relative;
+    z-index: 1;
+    width: 50%;
+    padding: 0.06em 16px 0.11em 42px;
+    background-color: #2e6da4;
+    color: #e2e2e2;
+    text-align: center;
+    font-size: 1.44em;
+    border-radius: 20px 20px 20px 19px;
+}
+
+.lydia-text:hover {
+    color: #2e6da4;
+}
+
 .overlay {
     padding: 1%;
 }
@@ -196,6 +234,13 @@ img {
 .wrapper:after {clear: both;}
 
 /* Logo */
+.logo-background {
+    width: 215px;
+    height: 65px;
+    float: left;
+    background-size: contain;
+}
+
 .logo {
     text-align: center;
     margin-bottom: 0;
@@ -318,11 +363,12 @@ textarea {
 .icon-user:before { content: '\e801'; }
 .icon-lock:before { content: '\e800'; }
 .icon-connexion:before { content: '\e802'; }
+.icon-deconnexion:before { content: '\e802'; color:crimson}
 .icon-pencil:before { content: '\e804'; }
 .icon-trash:before { content: '\e80c'; }
 .icon-angle-left:before { content: '\e803'; }
 .icon-notification:before{
-    content: '\f20e';
+    content: '\f024';
     font-family: FontAwesome;
 }
 .icon-people:before{
@@ -1253,7 +1299,7 @@ html{
 body{
     height:100%;
     position: relative;
-    padding-top: 80px;
+    padding-top: 65px;
 }
 
 #wrap{

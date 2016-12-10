@@ -1,4 +1,4 @@
-{% extends 'base_clean.html' %}
+{% extends 'base.html' %}
 
 {% load static %}
 
@@ -10,15 +10,15 @@
                 <h2>{{ form.non_field_errors }}</h2>
             </div>
             <div class="row">
-                <div class="one-half column">
-                    <span class="user-container user-container-info">
-                        <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
-                        <small class="user-fullname">{{ user.first_name }} {{ user.last_name }}</small>
+                <div class="col-md-6 col-xs-6">
+                    <span class="user-container">
+                        <h2 class="user-username"> Balance: </h2>
                         <span class="user-balance"><span id="balance_before">{{ user.balance }}</span> € - <span id="total_consumption">0</span> € = <span id="balance_after">0</span> €</span>
                     </span>
                     <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
-                    <a href="{% url 'url_logout' %}?next=/foyer"><input id="submit_logout" class="self_submit" type="button" value="Logout" /></a>
-                    <input id="submit_purchase" type=submit value="Valider" class="self_submit">
+                </div>
+                <div class="col-md-6 col-xs-6">
+                    <input id="submit_purchase" type=submit value="Valider" class="self_submit" style="margin-top:35px;">
                 </div>
             </div>
         </div>
