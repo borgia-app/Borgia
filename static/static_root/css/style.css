@@ -609,6 +609,7 @@ textarea {
 }
 @media screen and (max-width: 767px) {
     .list_group_apps {
+        background: rgba(25,25,25,0.9);
         top: 50px;
         height: 50px;
         width: 100%;
@@ -1305,6 +1306,16 @@ input.btn {
     background: #fff;
 }
 
+.btn-number {
+    width: 30px;
+    height: 25px;
+    padding-top: 4px;
+    float: right;
+    text-align: center;
+    border-radius: 25%;
+    color: white;
+}
+
 .login-form label {
     display: block;
     min-width: 1em;
@@ -1577,6 +1588,12 @@ th, td {
     text-align: left;
     padding: 4px;
     padding-left: 6px;
+}
+
+@media screen and (max-width: 568px) {
+    th, td {
+        font-size: small;
+    }
 }
 
 tr:nth-child(even){
@@ -2112,3 +2129,4 @@ a.clickable:hover { text-decoration:none; }
         width: 8.33333333%;
     }
 }
+
