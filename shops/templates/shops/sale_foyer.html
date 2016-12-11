@@ -676,8 +676,9 @@
         // Les boutons sont générés uniquement pour la version mobile
         $(function() {
              if ($(window).width() < 768) {
-                 $(".number").append('<span class="posits btn-number">+</span><span class="negats btn-number">-</span>');
-                 $("input").prop('disabled', true);
+                 $(".number").prepend('<span class="negats btn-number">-</span>');
+                 $(".number").append('<span class="posits btn-number">+</span>');
+                 $("[type='number']").prop('disabled', true);
              }
         });
         $(document).ready(function() {
