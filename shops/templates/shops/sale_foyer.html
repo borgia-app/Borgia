@@ -678,7 +678,7 @@
              if ($(window).width() < 768) {
                  $(".number").prepend('<span class="negats btn-number">-</span>');
                  $(".number").append('<span class="posits btn-number">+</span>');
-                 $("[type='number']").prop('disabled', true);
+                 $("[type='number']").prop('readonly', 'readonly');
              }
         });
         $(document).ready(function() {
