@@ -1095,6 +1095,7 @@ select,
 textarea {
     font-family: inherit;
     font-size: 100%;
+    max-width: 100%;
     margin: 0;
     color: #000 !important;
 }
@@ -1310,6 +1311,7 @@ input.btn {
     width: 30px;
     height: 25px;
     padding-top: 4px;
+    margin-right: 10px;
     float: right;
     text-align: center;
     border-radius: 25%;
@@ -2034,8 +2036,9 @@ nav.pagination{
     background: #656565;
 }
 .panel-body label { color: #656565; }
+.panel-body ul {padding-left: 0;}
 .panel-body li {color: black;}
-.panel-body a {color: #333388;}
+.panel-body a {color: #333388; word-wrap: break-word;}
 .panel-body p { color: black;}
 
 .clickable {
