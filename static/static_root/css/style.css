@@ -40,6 +40,16 @@
     background: #454545;
 }
 
+@media screen and (max-width: 567px) {
+    #onglets {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        padding-left: 0;
+        width: 617px;
+        overflow-x: auto;
+    }
+}
+
 #div_purchase
 {
     position: relative;
@@ -2131,6 +2141,11 @@ a.clickable:hover { text-decoration:none; }
 
     .col-xxs-1 {
         width: 8.33333333%;
+    }
+}
+@media screen and (max-width: 567px) {
+    .overflow-auto-568 {
+        overflow-x: auto;
     }
 }
 
