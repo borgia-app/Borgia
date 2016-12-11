@@ -62,7 +62,7 @@
                                     {% endif %}</td>
                                     <td>{{ e.1.product_base.product_unit }}</td>
                                     <td><span id="selected_initial_price_active_keg_{{ e.2 }}">{{ e.1.product_base.get_moded_usual_price }}</span> €</td>
-                                    <td>{{ e.0 }}</td>
+                                    <td class="number">{{ e.0 }}</td>
                                     <td class="mobileHide768"><span id="selected_price_active_keg_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
@@ -87,7 +87,7 @@
                                     {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_liquor_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
-                                    <td>{{ e.0 }}</td>
+                                    <td class="number">{{ e.0 }}</td>
                                     <td class="mobileHide768"> <span id="selected_price_container_liquor_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
@@ -110,7 +110,7 @@
                                     {% endif %}</td>
                                     <td>{{ e.1 }}</td>
                                     <td><span id="selected_initial_price_container_entire_liquor_{{ e.2 }}">{{ e.1.get_moded_price }}</span> €</td>
-                                    <td>{{ e.3 }}</td>
+                                    <td class="number">{{ e.3 }}</td>
                                     <td class="mobileHide768"> <span id="selected_price_container_entire_liquor_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
@@ -132,7 +132,7 @@
                                     {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_syrup_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
-                                    <td>{{ e.0 }}</td>
+                                    <td class="number">{{ e.0 }}</td>
                                     <td class="mobileHide768"> <span id="selected_price_container_syrup_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
@@ -155,7 +155,7 @@
                                     {% endif %}</td>
                                     <td>{{ e.1 }}</td>
                                     <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
-                                    <td>{{ e.0 }}</td>
+                                    <td class="number">{{ e.0 }}</td>
                                     <td class="mobileHide768"> <span id="selected_price_single_product_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
@@ -179,7 +179,7 @@
                                     {% endif %}</td>
                                     <td>{{ e.1 }}</td>
                                     <td><span id="selected_initial_price_shooter_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
-                                    <td style="min-width: 50px;">{{ e.0 }}</td>
+                                    <td class="number">{{ e.0 }}</td>
                                     <td class="mobileHide768"> <span id="selected_price_shooter_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
@@ -203,7 +203,7 @@
                                     {% endif %}</td>
                                     <td>{{ e.1.product_unit }}</td>
                                     <td><span id="selected_initial_price_container_soft_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
-                                    <td>{{ e.0 }}</td>
+                                    <td class="number">{{ e.0 }}</td>
                                     <td class="mobileHide768"> <span id="selected_price_container_soft_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
@@ -613,55 +613,59 @@
 
         selected_quantity_active_keg[0].focus();
         // Récupération des valeurs et mises à jours
-        var a = 0;
-        while (a<{{ active_keg_container_list|length }}) {
-            (function(a) {
-                return selected_quantity_active_keg[a].dispatchEvent(new Event('change'));
-            })(a);
-            a++;
-        }
-        var b = 0;
-        while (b<{{ single_product_available_list|length }}) {
-            (function(b) {
-                return selected_quantity_single_product[b].dispatchEvent(new Event('change'));
-            })(b);
-            b++;
-        }
-        var c = 0;
-        while (c<{{ shooter_available_list|length }}) {
-            (function(c) {
-                return selected_quantity_shooter[c].dispatchEvent(new Event('change'));
-            })(c);
-            c++;
-        }
-        var d = 0;
-        while (d<{{ container_soft_list|length }}) {
-            (function(d) {
-                return selected_quantity_container_soft[d].dispatchEvent(new Event('change'));
-            })(d);
-            d++;
-        }
-        var e = 0;
-        while (e<{{ container_liquor_list|length }}) {
-            (function(e) {
-                return selected_quantity_container_liquor[e].dispatchEvent(new Event('change'));
-            })(e);
-            e++;
-        }
-        e = 0;
-        while (e<{{ container_liquor_list|length }}) {
-            (function(e) {
-                return selected_quantity_container_entire_liquor[e].dispatchEvent(new Event('change'));
-            })(e);
-            e++;
-        }
-        var f = 0;
-        while (f<{{ container_syrup_list|length }}) {
-            (function(f) {
-                return selected_quantity_container_syrup[f].dispatchEvent(new Event('change'));
-            })(f);
-            f++;
-        }
+        function recuperation_valeurs() {
+            var a = 0;
+            while (a <{{ active_keg_container_list|length }}) {
+                (function (a) {
+                    return selected_quantity_active_keg[a].dispatchEvent(new Event('change'));
+                })(a);
+                a++;
+            }
+            var b = 0;
+            while (b <{{ single_product_available_list|length }}) {
+                (function (b) {
+                    return selected_quantity_single_product[b].dispatchEvent(new Event('change'));
+                })(b);
+                b++;
+            }
+            var c = 0;
+            while (c <{{ shooter_available_list|length }}) {
+                (function (c) {
+                    return selected_quantity_shooter[c].dispatchEvent(new Event('change'));
+                })(c);
+                c++;
+            }
+            var d = 0;
+            while (d <{{ container_soft_list|length }}) {
+                (function (d) {
+                    return selected_quantity_container_soft[d].dispatchEvent(new Event('change'));
+                })(d);
+                d++;
+            }
+            var e = 0;
+            while (e <{{ container_liquor_list|length }}) {
+                (function (e) {
+                    return selected_quantity_container_liquor[e].dispatchEvent(new Event('change'));
+                })(e);
+                e++;
+            }
+            e = 0;
+            while (e <{{ container_liquor_list|length }}) {
+                (function (e) {
+                    return selected_quantity_container_entire_liquor[e].dispatchEvent(new Event('change'));
+                })(e);
+                e++;
+            }
+            var f = 0;
+            while (f <{{ container_syrup_list|length }}) {
+                (function (f) {
+                    return selected_quantity_container_syrup[f].dispatchEvent(new Event('change'));
+                })(f);
+                f++;
+            }
+        };
+        recuperation_valeurs();
+
         setTimeout(function(){
             update_consumption()
         }, 1000);
@@ -669,6 +673,33 @@
 </script>
 
 <script>
+        // Les boutons sont générés uniquement pour la version mobile
+        $(function() {
+             if ($(window).width() < 768) {
+                 $(".number").append('<span class="posits btn-number">+</span><span class="negats btn-number">-</span>');
+                 $("input").prop('disabled', true);
+             }
+        });
+        $(document).ready(function() {
+            $(".btn-number").on("click", function () {
+                var button = $(this);
+                var oldValue = button.parent().find("input").val();
+
+                if (button.text() == "+") {
+                    var newVal = parseFloat(oldValue) + 1;
+                } else {
+                    // On fait en sorte qu'on ne puisse pas avoir de valeur négative
+                    if (oldValue > 0) {
+                        var newVal = parseFloat(oldValue) - 1;
+                    } else {
+                        newVal = 0;
+                    }
+                }
+                button.parent().find("input").val(newVal);
+                recuperation_valeurs();
+            });
+        });
+
         // Accordion Comment ça marche?
         $(document).on('click', '.panel div.clickable', function (e) {
             var $this = $(this);
@@ -711,7 +742,7 @@
                         break;
                     }
                 }
-            }
+            };
     </script>
 
 {% endblock %}
