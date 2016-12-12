@@ -40,13 +40,22 @@
     background: #454545;
 }
 
-@media screen and (max-width: 567px) {
+@media screen and (max-width: 767px) {
     #onglets {
         margin-bottom: 0;
         padding-bottom: 0;
         padding-left: 0;
-        width: 617px;
-        overflow-x: auto;
+        padding-top: 10px;
+    }
+    #onglets li {
+        height: 39px;
+        padding: 6px
+    }
+    .onglets-foyer {
+        width: 670px;
+    }
+    .onglets-auberge {
+        width: 427px;
     }
 }
 
@@ -272,7 +281,7 @@ img {
 
 .wrapper {
     position: relative;
-    z-index: 2;
+    z-index: 3;
 }
 .wrapper:before,
 .wrapper:after {content: " ";display: table;}
@@ -869,6 +878,9 @@ textarea {
     color: #e21E12;
 }
 
+.red-disabled {
+    background: #e55e5e;
+}
 .user-connexion {
     position: absolute;
     display: inline-block;
@@ -998,7 +1010,8 @@ textarea {
         right: -42px;
         padding-left: 0;
         width: 52px;
-        border-top-right-radius: 0%;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 5px;
     }
    .user-edition {
         top: -25px;
@@ -1014,6 +1027,8 @@ textarea {
         width: 44px;
         height: 33px;
         border-bottom-right-radius: 0%;
+        border-top-left-radius: 5px;
+        border-bottom-left-radius: 5px;
     }
    .user-notification .icon{
         padding-left: 0px;
@@ -1078,18 +1093,43 @@ textarea {
         left: 0;
         width: 100%;
         z-index: 1;
-        height: 42px;
+        height: 44px;
         padding: 0;
         text-align: center;
     }
     .balance-foyer h3 {
         font-size: 15px;
     }
+    .balance-debit-min {
+        position: fixed;
+        opacity: 0;
+        top: 95px;
+        left: 15px;
+        width: 100%;
+        z-index: 2;
+    }
+    .balance-debit-min #id_client_username{
+        display: none;
+    }
+    .balance-debit-min label {
+        display: none;
+    }
+    .balance-debit-min h4 {
+        display: inline;
+        font-size: 16px;
+    }
+    .well.balance-debit {
+        padding: 7px;
+    }
 }
 @media screen and (max-width: 567px) {
     .balance-foyer {
         top: 106px;
     }
+    .balance-debit-min {
+        top: 101px;
+    }
+
 }
 
 
@@ -1654,6 +1694,10 @@ a {
     border-right: 1px solid rgba(34, 34, 34, 0.8);
 }
 
+.table_sales td a {
+    color: white;
+}
+
 @media screen and (max-width: 1024px) {
     .table_sales td {
         font-size: 13px;
@@ -1762,6 +1806,12 @@ a {
 }
 .form-style-1 .required{
     color:red;
+}
+
+@media screen and (max-width: 567px) {
+      input[type=number]{
+          max-width: 70px;
+      }
 }
 
 /* ==========================================================================
@@ -2050,6 +2100,8 @@ nav.pagination{
 .panel-body ul {padding-left: 0;}
 .panel-body li {color: black;}
 .panel-body a {color: #333388; word-wrap: break-word;}
+.panel-body table a {color: #ffffff;}
+.panel-body table tr:hover a {color: #000;}
 .panel-body p { color: black;}
 
 .clickable {
@@ -2143,8 +2195,8 @@ a.clickable:hover { text-decoration:none; }
         width: 8.33333333%;
     }
 }
-@media screen and (max-width: 567px) {
-    .overflow-auto-568 {
+@media screen and (max-width: 767px) {
+    .overflow-auto-768 {
         overflow-x: auto;
     }
 }
