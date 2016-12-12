@@ -10,7 +10,7 @@
             </div>
 
             <div class="col-lg-push-2 col-md-7 col-md-push-3 col-sm-9 col-sm-push-2 col-xs-12">
-                <div class="row well">
+                <div class="row well balance-debit">
                     <div class="fieldWrapper align-center">
                         {{ form.client_username.errors }}
                         <label for="{{ form.client_username.id_for_label }}">Client:</label>
@@ -22,8 +22,6 @@
                             <span class="user-balance"><span id="balance_before">0.00</span> € - <span id="total_consumption">0.00</span> € = <span id="balance_after">0.00</span></span>
                             <input type=hidden name="hidden_balance_after" id="hidden_balance_after" value="" />
                         </h4>
-                    </div>
-                    <div class="row-fluid align-center">
                         <input id="id_submit" class="self_submit" type=submit value="Valider"/><br>
                     </div>
                 </div>
@@ -40,7 +38,7 @@
         </style>
         <div id="div_purchase" class="container-fluid">
             <div class="row-fluid">
-                <ul id="onglets">
+                <ul id="onglets" class="onglets-bkars">
                     <li id="li_single_product">Produits unitaires</li>
                 </ul>
             </div>
@@ -52,7 +50,7 @@
                         <th>Produit</th>
                         <th>Prix</th>
                         <th>Nombre</th>
-                        <th>Prix correspondant</th>
+                        <th class="mobileHide768">Prix correspondant</th>
 
                         {% for e in dict_field_single_product %}
                             <tr>
@@ -62,8 +60,8 @@
                                     {% endif %}</td>
                                     <td>{{ e.1 }}</td>
                                     <td><span id="selected_initial_price_single_product_{{ e.2 }}">{{ e.1.get_moded_usual_price }}</span> €</td>
-                                    <td>{{ e.0 }}</td>
-                                    <td> <span id="selected_price_single_product_{{ e.2 }}">0.00</span> €</td>
+                                    <td class="number">{{ e.0 }}</td>
+                                    <td class="mobileHide768"> <span id="selected_price_single_product_{{ e.2 }}">0.00</span> €</td>
                                 </div>
                             </tr>
                         {% endfor %}
@@ -184,17 +182,20 @@
             input_client_username.blur();
         }
 
-        var d = 0;
-        while (d<{{ single_product_available_list|length }}) {
-            (function(d) {
-                return selected_quantity_single_product[d].dispatchEvent(new Event('change'));
-            })(d);
-            d++;
-        }
+        function recuperation_valeurs() {
+            var a = 0;
+            while (a <{{ single_product_available_list|length }}) {
+                (function (a) {
+                    return selected_quantity_single_product[a].dispatchEvent(new Event('change'));
+                })(a);
+                a++;
+            }
+        };
+        recuperation_valeurs();
 
         setTimeout(function(){
             update_consumption()
-        }, 2000);
+        }, 1000);
 
         document.onkeydown = function (e) {
             if (!e.metaKey) {
@@ -311,7 +312,67 @@
                     fields_list[active_li][active_field].dispatchEvent(new Event('change'));
                 }
             }
-        }
+        };
+
+        // Faire apparaître un header fixe pour la version mobile
+        $(window).scroll(function () {
+            if ($(window).width() < 768) {
+                if ($(window).scrollTop() >= 215) {  //Phy'ss
+                    $('.balance-debit').addClass('balance-debit-min');
+                    $(".balance-debit").animate({"opacity": "1"}, 500);
+                    $('#div_purchase').css('margin-top', '215px');
+                    // $('#onglets').stop();
+                    //$('#onglets').animate({'padding-top': '55px'}, 100);
+                } else {
+                    $('.balance-debit').stop();
+                    $('.balance-debit').attr('style', '');
+                    $('.balance-debit').removeClass('balance-debit-min');
+                    $('#div_purchase').attr('style', '');
+                    //$('#onglets').stop();
+                    //$('#onglets').animate({'padding-top': '10px'}, 100);
+                }
+            }
+        });
+        // Les boutons sont générés uniquement pour la version mobile
+        $(function() {
+             if ($(window).width() < 768) {
+                 $(".number").prepend('<span class="red-disabled btn-number">-</span>');
+                 $(".number").append('<span class="posits btn-number">+</span>');
+                 $("[type='number']").prop('readonly', 'readonly');
+             }
+        });
+        $(document).ready(function() {
+            $(".btn-number").on("click", function () {
+                var button = $(this);
+                var oldValue = button.parent().find("input").val();
+                if (button.text() == "+") {
+                    var newVal = parseFloat(oldValue) + 1;
+                } else {
+                    // On fait en sorte qu'on ne puisse pas avoir de valeur négative
+                    if (oldValue > 0) {
+                        var newVal = parseFloat(oldValue) - 1;
+                    } else {
+                        newVal = 0;
+                    }
+                }
+                if (newVal == 0) {
+                    if (button.text() == "+") {
+                        button.parent().find(".red-disabled").css("background", "#e55e5e");
+                    } else {
+                        button.css("background", "#e55e5e");
+                    }
+                } else {
+                    if (button.text() == "+") {
+                        button.parent().find(".red-disabled").css("background", "#e21E12");
+                    } else {
+                        button.css("background", "#e21E12");
+                    }
+                }
+                button.parent().find("input").val(newVal);
+                // Prise en compte des changements
+                recuperation_valeurs();
+            });
+        });
 
         //Surbrillance input au focus
         var inputs = document.getElementsByTagName("input");

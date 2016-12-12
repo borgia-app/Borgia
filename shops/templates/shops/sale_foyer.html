@@ -24,16 +24,16 @@
         <style>
             .self_submit {
                 background: #4B99AD;
-                padding: 5px !important;
+                padding: 7px !important;
                 margin: 5px;
                 border: none;
                 color: #fff !important;
             }
         </style>
         <div id="div_purchase" class="container-fluid">
-            <div class="row overflow-auto-568">
+            <div class="row overflow-auto-768">
                 <input type=hidden name="hidden_active_div" id="hidden_active_div" value=""/>
-                <ul id="onglets">
+                <ul id="onglets" class="onglets-foyer">
                     <li id="li_active_keg_container">Tireuses à bières</li>
                     <li id="li_single_product">Produits unitaires</li>
                     <li id="li_shooter">Shooters</li>
@@ -214,7 +214,7 @@
             </div>
         </div>
         <div class="container-fluid mobileHide768">
-            <hr>
+            <br>
             <div class="panel panel-custom">
                 <div class="panel-heading clickable">
                     <h3 class="panel-title">
@@ -676,7 +676,7 @@
         // Les boutons sont générés uniquement pour la version mobile
         $(function() {
              if ($(window).width() < 768) {
-                 $(".number").prepend('<span class="negats btn-number">-</span>');
+                 $(".number").prepend('<span class="red-disabled btn-number">-</span>');
                  $(".number").append('<span class="posits btn-number">+</span>');
                  $("[type='number']").prop('readonly', 'readonly');
              }
@@ -685,7 +685,6 @@
             $(".btn-number").on("click", function () {
                 var button = $(this);
                 var oldValue = button.parent().find("input").val();
-
                 if (button.text() == "+") {
                     var newVal = parseFloat(oldValue) + 1;
                 } else {
@@ -696,7 +695,21 @@
                         newVal = 0;
                     }
                 }
+                if (newVal == 0) {
+                    if (button.text() == "+") {
+                        button.parent().find(".red-disabled").css("background", "#e55e5e");
+                    } else {
+                        button.css("background", "#e55e5e");
+                    }
+                } else {
+                    if (button.text() == "+") {
+                        button.parent().find(".red-disabled").css("background", "#e21E12");
+                    } else {
+                        button.css("background", "#e21E12");
+                    }
+                }
                 button.parent().find("input").val(newVal);
+                // Prise en compte des changements
                 recuperation_valeurs();
             });
         });
