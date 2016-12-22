@@ -12,10 +12,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <title>Borgia - V2.8.0</title>
-    <link rel="stylesheet" href="{% static 'css/skeleton.css' %}" />
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/style.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/style-xsmall.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/css_local.css' %}" />
     <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
     <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.png' %}"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
@@ -86,7 +84,7 @@
 
     </script>
 </head>
-<body>
+<body class="body_pg">
 {% url 'url_page_clean' as url_clean %}
 <div {% if user.is_authenticated and request.path != url_clean %} class="transparent-bcg" {% endif %}>
   <div class="wrapper overlay">
@@ -159,7 +157,7 @@
 
                 {% else %}
                     <div id="user-wrapper" class="col-lg-10 col-lg-push-2 col-md-10 col-sm-10 col-xs-12">
-                    <form class="form-inline" action='' method="post">{% csrf_token %}
+                    <form class="form-inline" action='' method="post" style="margin-top: 15px">{% csrf_token %}
                         <div class="form-group">
                             <label class="icon icon-user" for="id_username"><span class="element-invisible">Nom d'utilisateur</span></label>
                             <input id="id_username" type="text" name="username" placeholder="Nom d'utilisateur" class="form-control autocomplete_username" maxlength="254" required>
@@ -169,7 +167,7 @@
                             <input id="id_password" type="password" name="password" placeholder="Mot de passe" class="form-control" required>
                         </div>
                         <div class="form-group connexion">
-                            <button id="id_submit" type="submit" class="btn classic-btn">Connexion</button>
+                            <button id="id_submit" type="submit" class="btn btn-success">Connexion</button>
                              <a href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
                         </div>
 
@@ -181,41 +179,6 @@
     </nav>
   </div>
 
-{% if user.is_authenticated %}
-    <div class="container" id="container-notifications-hidden">
-        <script type="text/javascript">
-            show_hide_div('container-notifications-hidden');
-        </script>
-        {% if messages %}
-            {% for message in messages %}
-                <div class="notifications-body{% if message.level_tag %} {{ message.level_tag }}{% endif %}" {% if message.extra_tags %} id="{{ message.extra_tags }}" {% endif %} >
-                    <a onclick="make_notification_read_and_undisplay_it('{% if message.extra_tags %}{{ message.extra_tags }}{% endif %}');">{{ message|linebreaksbr}}<span class="icon icon-check-notification"></span></a>
-                </div>
-            {% endfor %}
-        {% endif %}
-    </div>
-
-    <div class="container" id="container-notifications">
-        <script type="text/javascript">
-            show_hide_div('container-notifications');
-        </script>
-        <div class="notifications-header">
-            <h3 class="notifications-header">Nouvelles notifications:</h3>
-        </div>
-        {% if messages %}
-        {% else %}
-            <div class="notifications info"> Il n'y a pas de nouvelles notifications pour toi.</div>
-        {% endif %}
-        <div class="notifications-footer">
-            <a href="{% url 'url_list_complete_notification' %}">Tout afficher ...</a>
-        </div>
-        {% if messages %}
-            <script type="text/javascript">
-                display_notification()
-            </script>
-        {% endif %}
-    </div>
-{%  endif %}
 <div class="container-fluid">
     {% if user.is_authenticated %}
         <div class="col-md-2 col-sm-2 col-xs-12">
