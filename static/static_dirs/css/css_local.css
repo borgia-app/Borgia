@@ -16,7 +16,16 @@
     background-origin: content-box;
 }
 
-.body_pg, input, select, textarea {
+.body_sober {
+    background-color: #fff;
+    font-family: 'source_sans_proregular';
+    overflow-y: scroll;
+    font-size: 1em;
+    line-height:1.5;
+    margin: 0;
+}
+
+.body_pg, .body_sober, input, select, textarea {
   font-size: 12pt;
 }
 

@@ -6,6 +6,7 @@ from django.contrib.auth.views import logout, login, password_reset, password_re
 from borgia.views import LoginPG, page_clean, jsi18n_catalog
 from django.conf import settings
 from django.conf.urls.static import static
+from django.views.generic import TemplateView
 
 urlpatterns = [
     # Applications
@@ -34,10 +35,9 @@ urlpatterns = [
     url(r'^auth/password_change_done$', password_change_done),
 
     # Alias url pour PGs
-    url('^(?P<organe>\w+)$', LoginPG.as_view(), name='url_login_pg')
+    url('^(?P<organe>\w+)$', LoginPG.as_view(), name='url_login_pg'),
+
+    # Test Bootstrap CSS & components
+    url('^tests/bootstrap$', TemplateView.as_view(template_name='test_bootstrap.html'))
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Cette ligne permet d'utiliser le dossier MEDIA en
 # dev (en prod c'est automatique)
-
-
-
-
