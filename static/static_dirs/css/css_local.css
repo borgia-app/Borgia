@@ -650,7 +650,8 @@ h6 {
 }
 
 .user-connexion > a {
-  padding-top: 7px !important;
+  color: white;
+  padding-top: 5px !important;
 }
 
 .user-edition {

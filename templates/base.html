@@ -134,11 +134,24 @@
                     </span>
                     <div class="row">
                         <ul class="user-menu pull-right" style="position:absolute; right: 0;">
-                            <li><span class="user-connexion"><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.logout' %}" title="Déconnexion"></a></span></li>
-                            <li><span class="user-edition"><a class="icon icon-pencil-grey" style="height: 23px;" href="{% url 'url_update_user' pk=user.pk %}" title="Édition"></a></span></li>
+                            <li>
+                              <span class="user-connexion">
+                                <a href="{% url 'django.contrib.auth.views.logout' %}" title="Déconnexion">
+                                  <i class="fa fa-power-off" aria-hidden="true"></i>
+                                </a>
+                              </span>
+                            </li>
+                            <li>
+                              <span class="user-edition">
+                                <a style="height: 23px;" href="{% url 'url_update_user' pk=user.pk %}" title="Édition">
+                                  <i class="fa fa-pencil" aria-hidden="true"></i>
+                                </a>
+                              </span>
+                            </li>
                             <li>
                                 <span class="user-notification">
-                                    <span class="icon icon-notification" onclick="show_hide_div('container-notifications');" title="Notifications">
+                                    <span onclick="show_hide_div('container-notifications');" title="Notifications">
+                                      <i class="fa fa-flag" aria-hidden="true"></i>
                                     </span>
                                 </span>
                                 {% if messages %}
@@ -159,16 +172,20 @@
                     <div id="user-wrapper" class="col-lg-10 col-lg-push-2 col-md-10 col-sm-10 col-xs-12">
                     <form class="form-inline" action='' method="post" style="margin-top: 15px">{% csrf_token %}
                         <div class="form-group">
-                            <label class="icon icon-user" for="id_username"><span class="element-invisible">Nom d'utilisateur</span></label>
+                            <label for="id_username" style="margin-right: 4px">
+                                <i class="fa fa-user" aria-hidden="true"></i>
+                            </label>
                             <input id="id_username" type="text" name="username" placeholder="Nom d'utilisateur" class="form-control autocomplete_username" maxlength="254" required>
                         </div>
                         <div class="form-group">
-                            <label class="icon icon-lock" for="id_password"><span class="element-invisible">Mot de passe</span></label>
+                            <label for="id_password" style="margin-top: 4px; margin-left: 15px">
+                              <i class="fa fa-lock" aria-hidden="true"></i>
+                            </label>
                             <input id="id_password" type="password" name="password" placeholder="Mot de passe" class="form-control" required>
                         </div>
-                        <div class="form-group connexion">
+                        <div class="form-group connexion" style="margin-left: 15px">
                             <button id="id_submit" type="submit" class="btn btn-success">Connexion</button>
-                             <a href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
+                             <a style="color: white; margin-left: 15px" href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
                         </div>
 
 
