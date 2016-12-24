@@ -3,7 +3,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import logout, login, password_reset, password_reset_complete, password_reset_confirm,\
     password_change, password_change_done, password_reset_done
-from borgia.views import LoginPG, page_clean, jsi18n_catalog
+from borgia.views import LoginPG, page_clean, jsi18n_catalog, TestBootstrapSober
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
@@ -38,6 +38,6 @@ urlpatterns = [
     url('^(?P<organe>\w+)$', LoginPG.as_view(), name='url_login_pg'),
 
     # Test Bootstrap CSS & components
-    url('^tests/bootstrap$', TemplateView.as_view(template_name='test_bootstrap.html'))
+    url('^tests/bootstrap$', TestBootstrapSober.as_view())
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Cette ligne permet d'utiliser le dossier MEDIA en
 # dev (en prod c'est automatique)

@@ -12,12 +12,12 @@
     <link rel="stylesheet" href="{% static 'css/css_local.css' %}" />
     <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
     <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.png' %}"/>
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
-    <script src="{% static 'js/jquery.mask.js' %}"></script>
-    <script src="{% static 'jquery-ui-1.11.4/jquery-ui.js' %}"></script>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/widgets.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'jquery-ui-1.11.4/jquery-ui.css' %}">
 </head>
 <body class="body_sober">
 {% url 'url_page_clean' as url_clean %}
@@ -127,11 +127,20 @@
     </nav>
   </div>
 
-   <div class="container">
+ {% if nav_tree %}
+ <div class="container-fluid">
+   <div class="col-md-2" style="margin-top: 40px">
+    {% include "lateral_menu.html" %}
+   </div>
+   <div class="col-md-10">
+  {% else %}
+  <div class="container">
+    <div class="col-md-12">
+  {% endif %}
     {%  block content %}
     {%  endblock %}
-   </div>
-</div>
+    </div>
+  </div>
 </body>
 
 {% if user.is_authenticated %}

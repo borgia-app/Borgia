@@ -1322,6 +1322,16 @@ a.clickable:hover { text-decoration:none; }
   }
 }
 
+/* =============================================
+============================================= */
+
+.lateral_menu.fadeIn {
+    -webkit-animation-name: fadeIn;
+    animation-name: fadeIn;
+    -webkit-animation-duration: 0.3s;
+    animation-duration: 0.3s;
+}
+
 /*
 .messages {
 color: #FFF;

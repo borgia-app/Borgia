@@ -1,0 +1,112 @@
+<!-- This snippet requires a tree of links to be displayed, a list of objects.
+For instance :
+context['nav_tree'] = nav_tree = [
+    {
+        'label': 'Link1',
+        'icon': 'home',
+        'id': 1,
+        'subs': [
+            {
+                'label': 'Sublink1',
+                'icon': 'home',
+                'url': '/sublink1',
+                'id': 11
+            },
+            {
+                'label': 'Sublink2',
+                'icon': 'pencil',
+                'url': '/sublink2',
+                'id': 12
+            }
+            ]
+    },
+    {
+        'label': 'Link2',
+        'icon': 'book',
+        'url': '/link2',
+        'id': 2
+    },
+    {
+        'label': 'Link3',
+        'id': 3,
+        'subs': [
+            {
+                'label': 'Sublink3',
+                'icon': 'book',
+                'url': '/sublink3',
+                'id': 31
+            },
+            {
+                'label': 'Sublink4',
+                'icon': 'gear',
+                'url': '/sublink4',
+                'id': 32
+            }
+        ]
+    }
+]
+-->
+{% if nav_tree %}
+  <div class="list-group lateral_menu" id="root">
+    {% for link in nav_tree %}
+    <a
+    class="list-group-item"
+    href="{% if link.url %}{{ link.url }}{% else %}#{% endif %}"
+    id={{ link.id }}
+    {% if link.subs %}data-has-subs{% endif %}
+    >
+      <i class="fa fa-{{ link.icon }} fa-fw" aria-hidden="true"></i>
+      &nbsp; {{ link.label }}
+      {% if link.subs %}
+      <i class="fa fa-angle-right" aria-hidden="true"></i>
+      {% endif %}
+     </a>
+  {% endfor %}
+  </div>
+{% endif %}
+
+{% for link_w_subs in nav_tree %}
+  {% if link_w_subs.subs %}
+  <div class="list-group lateral_menu" data-parent-id={{ link_w_subs.id }} style='display: none'>
+    <a
+    href="#"
+    class="list-group-item list-group-item-info"
+    data-parent-id={{ link_w_subs.id }}
+    >
+    {{ link_w_subs.label}}
+    </a>
+    {% for link in link_w_subs.subs %}
+    <a
+    class="list-group-item"
+    href="{% if link.url %}{{ link.url }}{% else %}#{% endif %}"
+    id={{ link.id }}
+    >
+      <i class="fa fa-{{ link.icon }} fa-fw" aria-hidden="true"></i>
+      &nbsp; {{ link.label }}
+      {% if link.subs %}
+      <i class="fa fa-angle-right" aria-hidden="true"></i>
+      {% endif %}
+     </a>
+  {% endfor %}
+  </div>
+  {% endif %}
+{% endfor %}
+
+<script>
+  $("#root a[data-has-subs]").each(function() {
+    $(this).click(function() {
+      let id = $(this).attr('id')
+      $('#root').hide()
+      $('div[data-parent-id='+id+']').show()
+      $('div[data-parent-id='+id+']').addClass('animated fadeIn');
+    })
+  })
+  $('a[data-parent-id]').each(function() {
+    let parent_id = $(this).attr('data-parent-id')
+    $(this).click(function() {
+      $('div[data-parent-id='+parent_id+']').hide()
+      $('#root').show()
+      $('#root').addClass('animated fadeIn');
+    })
+  })
+</script>
