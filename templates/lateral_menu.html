@@ -63,7 +63,6 @@ context['nav_tree'] = nav_tree = [
      </a>
   {% endfor %}
   </div>
-{% endif %}
 
 {% for link_w_subs in nav_tree %}
   {% if link_w_subs.subs %}
@@ -110,3 +109,4 @@ context['nav_tree'] = nav_tree = [
     })
   })
 </script>
+{% endif %}
