@@ -1,13 +1,13 @@
-#-*- coding: utf-8 -*-
 from django.db.models import Q
 from django.db.models import Model
 from contrib.models import TimeStampedDescription
 from django.utils.timezone import now
 
-from finances.models import *
 from decimal import Decimal, InvalidOperation
-from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
+
+from finances.models import *
 from settings_data.models import Setting
 
 
@@ -42,7 +42,8 @@ class Shop(models.Model):
         """
         Return the list of ProductBase corresponding to SingleProduct of this
         Shop and the corresponding instances (sold of not) of each
-        SingleProduct.
+        SingleProduct. Shooters are excluded, refer to method
+        list_product_base_single_product_shooter
 
         :param status_sold: if True return only sold instances, if False only
         not sold instances, both if "both".
@@ -58,7 +59,7 @@ class Shop(models.Model):
         Python types are dynamics.
         """
         list_product_base_single_product = []
-        for e in ProductBase.objects.all():
+        for e in ProductBase.objects.filter(type='single_product').exclude(description__contains='shooter'):
             if status_sold is False and SingleProduct.objects.filter(
                 product_base=e,
                 is_sold=False,
@@ -119,7 +120,7 @@ class Shop(models.Model):
         models in order to filter shooters, not only in description!
         """
         list_product_base_shooter = []
-        for e in ProductBase.objects.filter(description__contains="shooter"):
+        for e in ProductBase.objects.filter(description__contains='shooter', type='single_product'):
             if status_sold is False and SingleProduct.objects.filter(
                 product_base=e,
                 is_sold=False,
@@ -179,7 +180,7 @@ class Shop(models.Model):
         Python types are dynamics.
         """
         list_product_base_container = []
-        for e in ProductBase.objects.all():
+        for e in ProductBase.objects.filter(type='container', product_unit__type=type):
             if status_sold is False and Container.objects.filter(
                 product_base=e,
                 is_sold=False,
@@ -372,14 +373,18 @@ class ProductBase(models.Model):
         this case must not be an issue for the user because he is not going to
         see the price 0 as no instances are sold.
         """
+        # TODO: verify that we set is_sold=True when quantity_remaining = 0 !
         try:
             sum_prices = 0
             if self.type == 'container':
                 instances_products = Container.objects.filter(
-                    product_base=self, quantity_remaining__isnull=False)
+                    product_base=self,
+                    quantity_remaining__isnull=False,
+                    is_sold=False)
             else:
                 instances_products = SingleProduct.objects.filter(
-                    product_base=self, is_sold=False)
+                    product_base=self,
+                    is_sold=False)
 
             for i in instances_products:
                 sum_prices += i.price
@@ -409,6 +414,7 @@ class ProductBase(models.Model):
         :note:: In the case of SingleProduct ProductBase, the price is the
         manual price directly.
         """
+        # TODO: raise exceptions, don't return 0
         try:
             if self.type == 'container':
                 return round(
@@ -462,10 +468,11 @@ class ProductBase(models.Model):
         :note:: When the automatic calculated price cannot be determined (refer
         to the method set_calculated_price_mean for details), None is returned.
         """
+        # TODO: raise exceptions is better
         try:
             return round(
                 (abs(self.set_calculated_price_mean()
-                     - self.manual_price) / self.set_calculated_price_mean())
+                     - Decimal(self.manual_price)) / self.set_calculated_price_mean())
                 * 100, 2)
         except ZeroDivisionError:
             return None
@@ -512,7 +519,7 @@ class SingleProduct(models.Model):
 
     :param price: buying price of the instance, mandatory.
     :param sale_price: selling price of the instance, only when sold.
-    :param purchase_date: date of sell, mandatory.
+    :param purchase_date: date of purchase, mandatory.
     :param expiry_date: date of expiration.
     :param place: place where the instance is conserved before its sell,
     mandatory.
@@ -620,7 +627,7 @@ class Container(models.Model):
 
         :returns: ProductBase parent display name and id.
         """
-        return self.product_base.__str__() + ' ' + str(self.pk)
+        return self.product_base.__str__() + ' n°' + str(self.pk)
 
     def quantity_sold(self):
         """
@@ -647,7 +654,7 @@ class Container(models.Model):
         """
         quantity = self.product_base.quantity - self.quantity_sold()
         pourcentage = (quantity / self.product_base.quantity) * 100
-        return quantity, round(pourcentage)
+        return quantity, round(pourcentage, 2)
 
     class Meta:
         """
@@ -704,15 +711,13 @@ class ProductUnit(models.Model):
         Return the usual quantity in which the corresponding product is serve,
         regarding its type.
 
-        :note:: This method should covers the whole TYPE_CHOICES list.
-
         :returns: integer, the usual quantity.
         """
         if self.type in ('keg', 'soft'):
             return 25
         elif self.type in ('liquor', 'syrup'):
             return 4
-        elif self.type in ('meat', 'cheese', 'side'):
+        else:
             return 1
 
     def __str__(self):
@@ -781,4 +786,5 @@ class SingleProductFromContainer(models.Model):
         return (self.container.product_base.product_unit.__str__()
                 + ' '
                 + str(self.quantity)
+                + ' '
                 + self.container.product_base.product_unit.get_unit_display())
