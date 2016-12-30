@@ -191,10 +191,14 @@ class Sale(models.Model):
                                 default='sale', max_length=50)
     wording = models.CharField('Libellé', default='', max_length=254)
     justification = models.TextField('Justification', null=True, blank=True)
-    sender = models.ForeignKey('users.User', related_name='sender_sale')
-    recipient = models.ForeignKey('users.User', related_name='recipient_sale')
-    operator = models.ForeignKey('users.User', related_name='operator_sale')
-    payment = models.ForeignKey('Payment', blank=True, null=True)
+    sender = models.ForeignKey('users.User', related_name='sender_sale',
+    on_delete=models.CASCADE)
+    recipient = models.ForeignKey('users.User', related_name='recipient_sale',
+    on_delete=models.CASCADE)
+    operator = models.ForeignKey('users.User', related_name='operator_sale',
+    on_delete=models.CASCADE)
+    payment = models.ForeignKey('Payment', blank=True, null=True,
+    on_delete=models.CASCADE)
 
     def __str__(self):
         """
@@ -485,9 +489,11 @@ class DebitBalance(models.Model):
                                  validators=[MinValueValidator(Decimal(0))])
     date = models.DateTimeField('Date', default=now)
     sender = models.ForeignKey('users.User',
-                               related_name='sender_debit_balance')
+                               related_name='sender_debit_balance',
+                               on_delete=models.CASCADE)
     recipient = models.ForeignKey('users.User',
-                                  related_name='recipient_debit_balance')
+                                  related_name='recipient_debit_balance',
+                                  on_delete=models.CASCADE)
 
     def __str__(self):
         """
@@ -557,11 +563,14 @@ class Cheque(models.Model):
                                          RegexValidator('^[0-9]{7}$',
                                                         '''Numéro de chèque
                                                         invalide''')])
-    sender = models.ForeignKey('users.User', related_name='cheque_sender')
+    sender = models.ForeignKey('users.User', related_name='cheque_sender',
+    on_delete=models.CASCADE)
     recipient = models.ForeignKey('users.User',
-                                  related_name='cheque_recipient')
+                                  related_name='cheque_recipient',
+                                  on_delete=models.CASCADE)
     bank_account = models.ForeignKey('BankAccount',
-                                     related_name='cheque_bank_account')
+                                     related_name='cheque_bank_account',
+                                     on_delete=models.CASCADE)
 
     def __str__(self):
         """
@@ -629,7 +638,8 @@ class BankAccount(models.Model):
     """
     bank = models.CharField('Banque', max_length=255)
     account = models.CharField('Numéro de compte', max_length=255)
-    owner = models.ForeignKey('users.User', related_name='owner_bank_account')
+    owner = models.ForeignKey('users.User', related_name='owner_bank_account',
+    on_delete=models.CASCADE)
 
     def __str__(self):
         """
@@ -669,8 +679,10 @@ class Cash(models.Model):
     amount = models.DecimalField('Montant', default=0, decimal_places=2,
                                  max_digits=9,
                                  validators=[MinValueValidator(Decimal(0))])
-    sender = models.ForeignKey('users.User', related_name='cash_sender')
-    recipient = models.ForeignKey('users.User', related_name='cash_recipient')
+    sender = models.ForeignKey('users.User', related_name='cash_sender',
+    on_delete=models.CASCADE)
+    recipient = models.ForeignKey('users.User', related_name='cash_recipient',
+    on_delete=models.CASCADE)
 
     def __str__(self):
         """
@@ -749,8 +761,10 @@ class Lydia(models.Model):
                                  validators=[MinValueValidator(Decimal(0))])
     id_from_lydia = models.CharField('Numéro unique', max_length=255,
                                      unique=True)
-    sender = models.ForeignKey('users.User', related_name='lydia_sender')
-    recipient = models.ForeignKey('users.User', related_name='lydia_recipient')
+    sender = models.ForeignKey('users.User', related_name='lydia_sender',
+    on_delete=models.CASCADE)
+    recipient = models.ForeignKey('users.User', related_name='lydia_recipient',
+    on_delete=models.CASCADE)
     banked = models.BooleanField('Est encaissé', default=False)
     date_banked = models.DateField('Date encaissement', blank=True, null=True)
 
@@ -819,8 +833,10 @@ class SharedEvent(models.Model):
     bills = models.CharField('Facture(s)', max_length=254, null=True,
                              blank=True)
     done = models.BooleanField('Terminé', default=False)
-    manager = models.ForeignKey('users.User', related_name='manager')
-    sale = models.ForeignKey('Sale', null=True, blank=True)
+    manager = models.ForeignKey('users.User', related_name='manager',
+    on_delete=models.CASCADE)
+    sale = models.ForeignKey('Sale', null=True, blank=True,
+    on_delete=models.CASCADE)
     participants = models.ManyToManyField('users.User', blank=True,
                                           related_name='participants')
     registered = models.ManyToManyField('users.User', blank=True,

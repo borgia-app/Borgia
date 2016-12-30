@@ -450,7 +450,7 @@ class SaleTestCase(TestCase):
             self.sale.list_single_products()[0],
             [self.sp_pb1]
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.sale.list_single_products()[1],
             Decimal(1)
         )
@@ -460,32 +460,32 @@ class SaleTestCase(TestCase):
             self.sale.list_single_products_from_container()[0],
             [self.spfc_pb2]
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.sale.list_single_products_from_container()[1],
             Decimal(15)
         )
 
     def test_maj_amount(self):
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.sale.amount,
             Decimal(0)
         )
         self.sale.maj_amount()
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.sale.amount,
             Decimal(16)
         )
 
     def test_price_for(self):
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.sale.price_for(self.user1),
             Decimal(-10)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.sale.price_for(self.user2),
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.sale.price_for(self.user3),
             Decimal(-6)
         )
@@ -520,15 +520,15 @@ class MiscellaneousSaleTransfertTestCase(TestCase):
     def test_debit_balance(self):
         # Exceptions are directly raised if objects does not exists
         debit_balance = DebitBalance.objects.get(sender=self.user1)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             debit_balance.amount,
             Decimal(50)
         )
-        self.assertEquals(
+        self.assertEqual(
             debit_balance.sender,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             debit_balance.recipient,
             self.user2
         )
@@ -536,7 +536,7 @@ class MiscellaneousSaleTransfertTestCase(TestCase):
     def test_payment(self):
         # Exceptions are directly raised if objects does not exists
         payment = Payment.objects.all()[0]  # Theorically the only one.
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.amount,
             Decimal(50)
         )
@@ -556,19 +556,19 @@ class MiscellaneousSaleTransfertTestCase(TestCase):
             payment.list_debit_balance()[0],
             [DebitBalance.objects.get(sender=self.user1)]
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cheque()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_lydia()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cash()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_debit_balance()[1],
             Decimal(50)
         )
@@ -576,47 +576,47 @@ class MiscellaneousSaleTransfertTestCase(TestCase):
     def test_sale(self):
         # Exceptions are directly raised if objects does not exists
         sale = Sale.objects.get(sender=self.user1)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             sale.amount,
             Decimal(50)
         )
         self.assertTrue(sale.done)
         self.assertFalse(sale.is_credit)
-        self.assertEquals(
+        self.assertEqual(
             sale.category,
             'transfert'
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.wording,
             ''
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.justification,
             'remboursement'
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.sender,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.recipient,
             self.user2
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.operator,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.payment,
             Payment.objects.all()[0]
         )
 
     def test_balances(self):
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.user1.balance,
             Decimal(50)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.user2.balance,
             Decimal(60)
         )
@@ -648,7 +648,7 @@ class MiscellaneousSaleRechargingSelfLydiaTestCase(TestCase):
     def test_payment(self):
         # Exceptions are directly raised if objects does not exists
         payment = Payment.objects.all()[0]  # Theorically the only one.
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.amount,
             Decimal(10)
         )
@@ -668,19 +668,19 @@ class MiscellaneousSaleRechargingSelfLydiaTestCase(TestCase):
             payment.list_debit_balance()[0],
             []
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cheque()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_lydia()[1],
             Decimal(10)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cash()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_debit_balance()[1],
             Decimal(0)
         )
@@ -688,59 +688,59 @@ class MiscellaneousSaleRechargingSelfLydiaTestCase(TestCase):
     def test_sale(self):
         # Exceptions are directly raised if objects does not exists
         sale = Sale.objects.get(sender=self.user1)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             sale.amount,
             Decimal(10)
         )
         self.assertTrue(sale.done)
         self.assertTrue(sale.is_credit)
-        self.assertEquals(
+        self.assertEqual(
             sale.category,
             'recharging'
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.wording,
             'Rechargement automatique'
         )
         self.assertIsNone(sale.justification)
-        self.assertEquals(
+        self.assertEqual(
             sale.sender,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.recipient,
             User.objects.get(username='AE_ENSAM')
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.operator,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.payment,
             Payment.objects.all()[0]
         )
 
     def test_product(self):
         spfc = SingleProductFromContainer.objects.all()[0]
-        self.assertEquals(
+        self.assertEqual(
             spfc.quantity,
             1000
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.sale_price,
             10
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.container,
             Container.objects.get(pk=1)
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.sale,
             Sale.objects.get(sender=self.user1)
         )
 
     def test_balances(self):
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.user1.balance,
             Decimal(110)
         )
@@ -773,7 +773,7 @@ class MiscellaneousSaleRechargingWithOperatorTestCase(TestCase):
     def test_payment(self):
         # Exceptions are directly raised if objects does not exists
         payment = Payment.objects.all()[0]  # Theorically the only one.
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.amount,
             Decimal(10)
         )
@@ -793,19 +793,19 @@ class MiscellaneousSaleRechargingWithOperatorTestCase(TestCase):
             payment.list_debit_balance()[0],
             []
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cheque()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_lydia()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cash()[1],
             Decimal(10)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_debit_balance()[1],
             Decimal(0)
         )
@@ -813,59 +813,59 @@ class MiscellaneousSaleRechargingWithOperatorTestCase(TestCase):
     def test_sale(self):
         # Exceptions are directly raised if objects does not exists
         sale = Sale.objects.get(sender=self.user1)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             sale.amount,
             Decimal(10)
         )
         self.assertTrue(sale.done)
         self.assertTrue(sale.is_credit)
-        self.assertEquals(
+        self.assertEqual(
             sale.category,
             'recharging'
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.wording,
             'Rechargement manuel'
         )
         self.assertIsNone(sale.justification)
-        self.assertEquals(
+        self.assertEqual(
             sale.sender,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.recipient,
             User.objects.get(username='AE_ENSAM')
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.operator,
             self.user2
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.payment,
             Payment.objects.all()[0]
         )
 
     def test_product(self):
         spfc = SingleProductFromContainer.objects.all()[0]
-        self.assertEquals(
+        self.assertEqual(
             spfc.quantity,
             1000
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.sale_price,
             10
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.container,
             Container.objects.get(pk=1)
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.sale,
             Sale.objects.get(sender=self.user1)
         )
 
     def test_balances(self):
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.user1.balance,
             Decimal(110)
         )
@@ -895,7 +895,7 @@ class MiscellaneousSaleExceptionnalCreditTestCase(TestCase):
     def test_payment(self):
         # Exceptions are directly raised if objects does not exists
         payment = Payment.objects.all()[0]  # Theorically the only one.
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.amount,
             Decimal(10)
         )
@@ -915,19 +915,19 @@ class MiscellaneousSaleExceptionnalCreditTestCase(TestCase):
             payment.list_debit_balance()[0],
             []
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cheque()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_lydia()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cash()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_debit_balance()[1],
             Decimal(0)
         )
@@ -935,62 +935,62 @@ class MiscellaneousSaleExceptionnalCreditTestCase(TestCase):
     def test_sale(self):
         # Exceptions are directly raised if objects does not exists
         sale = Sale.objects.get(sender=self.user1)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             sale.amount,
             Decimal(10)
         )
         self.assertTrue(sale.done)
         self.assertTrue(sale.is_credit)
-        self.assertEquals(
+        self.assertEqual(
             sale.category,
             'exceptionnal_movement'
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.wording,
             'Mouvement exceptionnel'
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.justification,
             'Exception'
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.sender,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.recipient,
             User.objects.get(username='AE_ENSAM')
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.operator,
             self.user2
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.payment,
             Payment.objects.all()[0]
         )
 
     def test_product(self):
         spfc = SingleProductFromContainer.objects.all()[0]
-        self.assertEquals(
+        self.assertEqual(
             spfc.quantity,
             1000
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.sale_price,
             10
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.container,
             Container.objects.get(pk=1)
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.sale,
             Sale.objects.get(sender=self.user1)
         )
 
     def test_balances(self):
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.user1.balance,
             Decimal(110)
         )
@@ -1019,15 +1019,15 @@ class MiscellaneousSaleExceptionnalDebitTestCase(TestCase):
 
     def test_debit_balance(self):
         debit_balance = DebitBalance.objects.get(sender=self.user1)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             debit_balance.amount,
             Decimal(10)
         )
-        self.assertEquals(
+        self.assertEqual(
             debit_balance.sender,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             debit_balance.recipient,
             User.objects.get(username='AE_ENSAM')
         )
@@ -1035,7 +1035,7 @@ class MiscellaneousSaleExceptionnalDebitTestCase(TestCase):
     def test_payment(self):
         # Exceptions are directly raised if objects does not exists
         payment = Payment.objects.all()[0]  # Theorically the only one.
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.amount,
             Decimal(10)
         )
@@ -1055,19 +1055,19 @@ class MiscellaneousSaleExceptionnalDebitTestCase(TestCase):
             payment.list_debit_balance()[0],
             [DebitBalance.objects.all()[0]]
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cheque()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_lydia()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cash()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_debit_balance()[1],
             Decimal(10)
         )
@@ -1075,62 +1075,62 @@ class MiscellaneousSaleExceptionnalDebitTestCase(TestCase):
     def test_sale(self):
         # Exceptions are directly raised if objects does not exists
         sale = Sale.objects.get(sender=self.user1)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             sale.amount,
             Decimal(10)
         )
         self.assertTrue(sale.done)
         self.assertFalse(sale.is_credit)
-        self.assertEquals(
+        self.assertEqual(
             sale.category,
             'exceptionnal_movement'
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.wording,
             'Mouvement exceptionnel'
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.justification,
             'Exception'
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.sender,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.recipient,
             User.objects.get(username='AE_ENSAM')
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.operator,
             self.user2
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.payment,
             Payment.objects.all()[0]
         )
 
     def test_product(self):
         spfc = SingleProductFromContainer.objects.all()[0]
-        self.assertEquals(
+        self.assertEqual(
             spfc.quantity,
             1000
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.sale_price,
             10
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.container,
             Container.objects.get(pk=1)
         )
-        self.assertEquals(
+        self.assertEqual(
             spfc.sale,
             Sale.objects.get(sender=self.user1)
         )
 
     def test_balances(self):
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.user1.balance,
             Decimal(90)
         )
@@ -1201,15 +1201,15 @@ class MiscellaneousDirectSaleTestCase(TestCase):
 
     def test_debit_balance(self):
         debit_balance = DebitBalance.objects.get(sender=self.user1)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             debit_balance.amount,
             Decimal(16)
         )
-        self.assertEquals(
+        self.assertEqual(
             debit_balance.sender,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             debit_balance.recipient,
             User.objects.get(username='AE_ENSAM')
         )
@@ -1217,7 +1217,7 @@ class MiscellaneousDirectSaleTestCase(TestCase):
     def test_payment(self):
         # Exceptions are directly raised if objects does not exists
         payment = Payment.objects.all()[0]  # Theorically the only one.
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.amount,
             Decimal(16)
         )
@@ -1237,19 +1237,19 @@ class MiscellaneousDirectSaleTestCase(TestCase):
             payment.list_debit_balance()[0],
             [DebitBalance.objects.all()[0]]
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cheque()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_lydia()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_cash()[1],
             Decimal(0)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             payment.list_debit_balance()[1],
             Decimal(16)
         )
@@ -1257,51 +1257,51 @@ class MiscellaneousDirectSaleTestCase(TestCase):
     def test_sale(self):
         # Exceptions are directly raised if objects does not exists
         sale = Sale.objects.get(sender=self.user1)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             sale.amount,
             Decimal(16)
         )
         self.assertTrue(sale.done)
         self.assertFalse(sale.is_credit)
-        self.assertEquals(
+        self.assertEqual(
             sale.category,
             'sale'
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.wording,
             'Vente Shop name'
         )
         self.assertIsNone(sale.justification)
-        self.assertEquals(
+        self.assertEqual(
             sale.sender,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.recipient,
             User.objects.get(username='AE_ENSAM')
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.operator,
             self.user1
         )
-        self.assertEquals(
+        self.assertEqual(
             sale.payment,
             Payment.objects.all()[0]
         )
 
     def test_products(self):
-        self.assertEquals(
+        self.assertEqual(
             self.sp_pb1.sale,
             Sale.objects.get(sender=self.user1)
         )
         self.assertTrue(self.sp_pb1.is_sold)
-        self.assertEquals(
+        self.assertEqual(
             self.spfc_pb2.sale,
             Sale.objects.get(sender=self.user1)
         )
 
     def test_balances(self):
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.user1.balance,
             Decimal(84)
         )

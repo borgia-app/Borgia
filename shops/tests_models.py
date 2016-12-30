@@ -504,11 +504,11 @@ class ProductBaseTestCase(TestCase):
         # ProductBase1:
         # not sold: sp_pb1[0, 1, 2, 3, 4]
         # Mean = (1 + 1.1 + 1.2 + 1.3 + 1.4)/5 = 1.2
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb1.set_calculated_price_mean(),
             Decimal(1.20)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb2.set_calculated_price_mean(),
             Decimal(102)
         )
@@ -523,11 +523,11 @@ class ProductBaseTestCase(TestCase):
             value='10',
             value_type='f'
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb1.set_calculated_price_mean(),
             Decimal(1.32)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb2.set_calculated_price_mean(),
             Decimal(112.2)
         )
@@ -536,11 +536,11 @@ class ProductBaseTestCase(TestCase):
         s = Setting.objects.get(name='MARGIN_PROFIT')
         s.value = r
         s.save()
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb1.set_calculated_price_mean(),
             Decimal(round(1.2*(1+r/100), 2))
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb2.set_calculated_price_mean(),
             Decimal(round(102*(1+r/100), 2))
         )
@@ -557,12 +557,12 @@ class ProductBaseTestCase(TestCase):
         tests passed well.
         """
         # ProductBase1: directly the mean (single_product)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb1.calculated_price_usual(),
             self.pb1.set_calculated_price_mean()
         )
         # ProductBase2: with the quantity
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb2.calculated_price_usual(),
             ((self.pu1.usual_quantity() * self.pb2.set_calculated_price_mean())
              / self.pb2.quantity)
@@ -575,12 +575,12 @@ class ProductBaseTestCase(TestCase):
 
     def test_manual_price_usual(self):
         # ProductBase1: directly the manual price (single_product)
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb1.manual_price_usual(),
             self.pb1.manual_price
         )
         # ProductBase2: with the quantity
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb2.manual_price_usual(),
             ((self.pu1.usual_quantity() * self.pb2.manual_price)
              / self.pb2.quantity)
@@ -591,19 +591,19 @@ class ProductBaseTestCase(TestCase):
         :note:: I use directly set_calculated_price_mean here. I assume their
         tests passed well.
         """
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb1.get_moded_price(),
             self.pb1.set_calculated_price_mean()
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb2.get_moded_price(),
             self.pb2.set_calculated_price_mean()
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb3.get_moded_price(),
             self.pb3.manual_price
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb4.get_moded_price(),
             self.pb4.manual_price
         )
@@ -613,19 +613,19 @@ class ProductBaseTestCase(TestCase):
         :note:: I use directly calculated_price_usual here. I assume their
         tests passed well. Same for manual_price_usual method.
         """
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb1.get_moded_usual_price(),
             self.pb1.calculated_price_usual()
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb2.get_moded_usual_price(),
             self.pb2.calculated_price_usual()
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb3.get_moded_usual_price(),
             self.pb3.manual_price_usual()
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb4.get_moded_usual_price(),
             self.pb4.manual_price_usual()
         )
@@ -635,7 +635,7 @@ class ProductBaseTestCase(TestCase):
         # price auto = 1.2
         # manual price = 1.15
         # deviating = ((1.2-1.15)/1.2)*100 (%) = 4.17%
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb1.deviating_price_from_auto(),
             Decimal(4.17)
         )
@@ -643,7 +643,7 @@ class ProductBaseTestCase(TestCase):
         # price auto = 102
         # manual price = 150
         # deviating = ((102-150)/102)*100 (%) = 47.06%
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.pb2.deviating_price_from_auto(),
             Decimal(47.06)
         )
@@ -858,31 +858,31 @@ class ContainertestCase(TestCase):
         )
 
     def test_quantity_sold(self):
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.c1_pb2.quantity_sold(),
             Decimal(40)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.c2_pb2.quantity_sold(),
             Decimal(0)
         )
 
     def test_estimated_quantity_remaining(self):
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.c1_pb2.estimated_quantity_remaining()[0],
             Decimal(110)
         )
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.c2_pb2.estimated_quantity_remaining()[0],
             Decimal(150)
         )
         # 110 of 150 = 73.33%
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.c1_pb2.estimated_quantity_remaining()[1],
             Decimal(73.33)
         )
         # 150 of 150 = 100%
-        self.assertAlmostEquals(
+        self.assertAlmostEqual(
             self.c2_pb2.estimated_quantity_remaining()[1],
             Decimal(100)
         )

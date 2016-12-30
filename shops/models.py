@@ -308,10 +308,11 @@ class ProductBase(models.Model):
                                    null=True, blank=True, decimal_places=2,
                                    max_digits=9, validators=[
                                        MinValueValidator(Decimal(0))])
-    shop = models.ForeignKey('Shop')
+    shop = models.ForeignKey('Shop', on_delete=models.CASCADE)
     product_unit = models.ForeignKey('ProductUnit',
                                      related_name='product_unit', blank=True,
-                                     null=True)
+                                     null=True,
+                                     on_delete=models.CASCADE)
     is_active = models.BooleanField('Actif', default=True)
 
     def __str__(self):
@@ -548,8 +549,10 @@ class SingleProduct(models.Model):
     place = models.CharField('Lieu de stockage', max_length=255)
     is_sold = models.BooleanField('Est vendu', default=False)
     product_base = models.ForeignKey(
-        'ProductBase', related_name='product_base_single_product')
-    sale = models.ForeignKey('finances.Sale', null=True, blank=True)
+        'ProductBase', related_name='product_base_single_product',
+        on_delete=models.CASCADE)
+    sale = models.ForeignKey('finances.Sale', null=True, blank=True,
+    on_delete=models.CASCADE)
 
     def __str__(self):
         """
@@ -619,7 +622,8 @@ class Container(models.Model):
         max_digits=9, validators=[MinValueValidator(Decimal(0))])
     is_sold = models.BooleanField('Est vendu', default=False)
     product_base = models.ForeignKey('ProductBase',
-                                     related_name='product_base_container')
+                                     related_name='product_base_container',
+                                     on_delete=models.CASCADE)
 
     def __str__(self):
         """
@@ -772,8 +776,9 @@ class SingleProductFromContainer(models.Model):
                                      decimal_places=2, max_digits=9,
                                      validators=[
                                          MinValueValidator(Decimal(0))])
-    container = models.ForeignKey('Container')
-    sale = models.ForeignKey('finances.Sale', null=True, blank=True)
+    container = models.ForeignKey('Container', on_delete=models.CASCADE)
+    sale = models.ForeignKey('finances.Sale', null=True, blank=True,
+    on_delete=models.CASCADE)
 
     def __str__(self):
         """

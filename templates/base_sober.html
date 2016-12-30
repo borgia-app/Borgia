@@ -69,7 +69,7 @@
                         <ul class="user-menu pull-right" style="position:absolute; right: 0;">
                             <li>
                               <span class="user-connexion">
-                                <a href="{% url 'django.contrib.auth.views.logout' %}" title="Déconnexion">
+                                <a href="{% url 'url_logout' %}" title="Déconnexion">
                                   <i class="fa fa-power-off" aria-hidden="true"></i>
                                 </a>
                               </span>
@@ -98,7 +98,7 @@
                 <ul class="navbar-nav nav navbar-collapse-menu">
                     <li class="align-center" style="padding-top:3px; background: #000;">{{ user.surname }} {{ user.username }}</li>
                     <li><a href="{% url 'url_update_user' pk=user.pk %}">Édition du profil</a></li>
-                    <li><a href="{% url 'django.contrib.auth.views.logout' %}">Déconnexion</a></li>
+                    <li><a href="{% url 'url_logout' %}">Déconnexion</a></li>
                 </ul>
 
                 {% else %}
