@@ -2,18 +2,26 @@
 
 {% block content %}
 
-    <div class="container50">
-        <h2 class="align-center">Mouvement exceptionnel</h2>
-        <form class="form-style-1" action= "{% url 'url_supply_exceptionnal' %}" method="post">
-            {% csrf_token %}
-            {{ form.as_ul }}
-            <input type=hidden name="next" value="{{ next }}" />
-            <li><input type="submit" value="Valider" id="id_submit"/></li>
-            <p class="justify">Attention : cette fonctionnalité ne doit être utilisée qu'en dernier recours. Ce n'est pas la manière propre de procéder. En effet elle supprime un certain nombre de sécurités et de limitations.
-            Elle ne doit être utilisée qu'en cas de correction d'erreur etc. Un débit correspondant à une commande ou un événement devrait utiliser les fonctionnalités associées.
-            Un crédit correspondant à un rechargement d'argent devrait de même utiliser le module correspondant.</p>
-        </form>
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-custom">
+            <div class="panel-heading">
+                <h2 class="align-center">Mouvement exceptionnel</h2>
+            </div>
+            <div class="panel-body">
+                <form class="form-style-1" action= "{% url 'url_supply_exceptionnal' %}" method="post">
+                {% csrf_token %}
+                {{ form.as_ul }}
+                <input type=hidden name="next" value="{{ next }}" />
+                <li><input type="submit" value="Valider" id="id_submit"/></li>
+                </form>
+            </div>
+            <div class="panel-footer">
+                <p class="justify">Attention : cette fonctionnalité ne doit être utilisée qu'en dernier recours. Ce n'est pas la manière propre de procéder. En effet elle supprime un certain nombre de sécurités et de limitations.
+                Elle ne doit être utilisée qu'en cas de correction d'erreur etc. Un débit correspondant à une commande ou un événement devrait utiliser les fonctionnalités associées.
+                Un crédit correspondant à un rechargement d'argent devrait de même utiliser le module correspondant.</p>
 
-    </div>
+            </div>
+
+        </div>
 
 {% endblock %}

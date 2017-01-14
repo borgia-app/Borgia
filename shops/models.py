@@ -18,6 +18,8 @@ class Shop(models.Model):
 
         le foyer
         l'auberge
+        la cvis
+        la bkars
     """
 
     # Atttributs
@@ -41,19 +43,49 @@ class Shop(models.Model):
         list_product_base_single_product = []
         for e in ProductBase.objects.all():
             if status_sold is False and SingleProduct.objects.filter(product_base=e, is_sold=False,
-                                                                     product_base__shop=self).exists():
+                                                                     product_base__shop=self).exclude(
+                                                                        product_base__description__contains="shooter").exists():
                 list_product_base_single_product.append((e,
                                                          SingleProduct.objects.filter(product_base=e, is_sold=False,
-                                                                                      product_base__shop=self)))
+                                                                                      product_base__shop=self
+                                                                                     )))
             elif status_sold is True and SingleProduct.objects.filter(product_base=e, is_sold=True,
-                                                                      product_base__shop=self).exists():
+                                                                      product_base__shop=self).exclude(
+                                                                        product_base__description__contains="shooter").exists():
                 list_product_base_single_product.append((e,
                                                          SingleProduct.objects.filter(product_base=e, is_sold=True,
                                                                                       product_base__shop=self)))
             elif status_sold is "both":
                 list_product_base_single_product.append((e, SingleProduct.objects.filter(product_base=e,
                                                                                          product_base__shop=self)))
+
         return list_product_base_single_product
+
+    def list_product_base_single_product_shooter(self, status_sold="both"):
+        """
+        Idem single product pour les shooters
+        """
+
+        list_product_base_shooter = []
+        for e in ProductBase.objects.filter(description__contains="shooter"):
+            if status_sold is False and SingleProduct.objects.filter(product_base=e, is_sold=False,
+                                                                     product_base__shop=self).exists():
+                list_product_base_shooter.append((e,
+                                                  SingleProduct.objects.filter(product_base=e, is_sold=False,
+                                                  product_base__shop=self
+                                                  )))
+            elif status_sold is True and SingleProduct.objects.filter(product_base=e, is_sold=True,
+                                                                      product_base__shop=self
+                                                            ).exists():
+                list_product_base_shooter.append((e,
+                                                  SingleProduct.objects.filter(product_base=e, is_sold=True,
+                                                  product_base__shop=self)))
+            elif status_sold is "both":
+                list_product_base_shooter.append((e, SingleProduct.objects.filter(product_base=e,
+                                                                                  product_base__shop=self)))
+
+        return list_product_base_shooter
+
 
     def list_product_base_container(self, type, status_sold="both"):
         """
@@ -87,10 +119,11 @@ class Shop(models.Model):
 
     class Meta:
         permissions = (
-            ('reach_workboard_foyer', 'Aller sur le workboard du foyer'),
             ('sell_foyer', 'Vendre des produits au foyer'),
-            ('reach_workboard_auberge', 'Aller sur le workboard de l\'auberge'),
             ('sell_auberge', 'Vendre des produits à l\'auberge'),
+            ('sell_cvis', 'Vendre des produits à la cvis'),
+            ('sell_bkars', 'Vendre des produits à la bb'),
+            ('add_product', 'Ajouter des produits'),
         )
 
 
@@ -120,7 +153,7 @@ class ProductBase(models.Model):
 
     # Méthodes
     def __str__(self):
-        if self.quantity:
+        if self.quantity and self.product_unit:
             return self.name + ' ' + str(self.quantity) + ' ' + self.product_unit.unit
         else:
             return self.name
@@ -313,7 +346,7 @@ class ProductUnit(models.Model):
                     ('fictional_money', 'argent fictif'))
 
     # Attributs
-    name = models.CharField('Nom', max_length=255, default="Product unit name")
+    name = models.CharField('Nom', max_length=255)
     description = models.TextField('Description', max_length=255, null=True, blank=True)
     unit = models.CharField('Unité', max_length=255, choices=UNIT_CHOICES, default=UNIT_CHOICES[0][0])
     type = models.CharField('Type', max_length=255, choices=TYPE_CHOICES, default=TYPE_CHOICES[0][0])

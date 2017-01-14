@@ -49,6 +49,7 @@ class UserCreationCustomForm(forms.Form):
 
 class UserUpdateForm(forms.Form):
     email = forms.EmailField(label='Email')
+    phone = forms.CharField(label='Téléphone', required=False)
     avatar = forms.ImageField(label='Avatar', required=False)
 
     def __init__(self, **kwargs):

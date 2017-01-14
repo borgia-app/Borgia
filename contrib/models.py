@@ -129,4 +129,4 @@ class RedirectLoginProfile:
             '/',
         ]
         if request.path_info in login_pages and request.user.is_authenticated():
-            return HttpResponseRedirect('/users/profile')
+            return HttpResponseRedirect('/shops/foyer/consumption')

@@ -5,38 +5,48 @@
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
-    <title>Borgia - V2.5.2</title>
+    <title>Borgia - V2.8.0</title>
     <link rel="stylesheet" href="{% static 'css/skeleton.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style.css' %}" />
     <link rel="stylesheet" href="{% static 'css/style-xsmall.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.css' %}" />
     <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
-    <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.jpg' %}"/>
+
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.png' %}"/>
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/2.2.2/jquery.min.js"></script>
     <script src="{% static 'jquery-ui-1.11.4/jquery-ui.js' %}"></script>
     <script src="{% static 'js/widgets.js' %}"></script>
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <link rel="stylesheet" href="{% static 'jquery-ui-1.11.4/jquery-ui.css' %}">
 </head>
 <body>
-
-    <nav class="container">
-        <div class="wrapper overlay">
-            <div id="wrapper-user-menu">
+<div id="transparent-bcg">
+   <style>
+            #transparent-bcg {
+                background: rgba(0,0,0,0.3);
+                width: 100%;
+                min-height: 103%;
+                margin-top: -15px;
+            }
+   </style>
+<div class="wrapper overlay">
+    <nav class="navbar navbar-inverse navbar-fixed-top">
+       <div class="container-fluid">
+         <div id="wrapper-user-menu">
                 <ul class="user-menu">
                     <li><a class="icon icon-connexion" href="{% url 'django.contrib.auth.views.login' %}">Login</a></li>
                     <li><a class="icon icon-beer" href="{% url 'url_login_pg' organe='foyer' %}">Conso. Foyer</a></li>
                 </ul>
-            </div>
-        </div>
+         </div>
+       </div>
     </nav>
-
-<div class="container">
+</div>
+<div class="col-md-offset-0">
 
     {%  block content %}
     {%  endblock %}
 
 </div>
-
+</div>
 </body>
 
 {% if user.is_authenticated %}

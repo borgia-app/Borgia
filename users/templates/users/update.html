@@ -1,19 +1,25 @@
 {% extends 'base.html' %}
 
 {% block content %}
-    <div class="container50">
-        <h2 class="align-center">Modification des informations</h2>
-        <form enctype="multipart/form-data" class="form-style-1" action="" method="post">{% csrf_token %}
-            <span id="form">
-            {{ form.as_ul }}
-                </span>
-            <input type=hidden name="next" value="{{ next }}" />
-            <li><input type="submit" value="Modifier" /></li>
-        </form>
-        <p><label><a class="s" href="{% url 'password_change' %}">Modifier mon mot de passe</a></label></p>
-        <p>
-            <a class="s" href="{% url 'url_create_own_bank_account' %}?next={{ request.get_full_path }}">Ajouter un compte en banque</a>
-            {% include 'finances/bank_account_list_module.html' with object_list=user.list_bank_account next=request.get_full_path %}
-        </p>
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-custom">
+            <div class="panel-heading">
+                <h2 class="align-center">Modification des informations</h2>
+            </div>
+            <div class="panel-body">
+                <form enctype="multipart/form-data" class="form-style-1" action="" method="post">{% csrf_token %}
+                    <span id="form">
+                        {{ form.as_ul }}
+                    </span>
+                    <input type=hidden name="next" value="{{ next }}" />
+                    <li><input type="submit" value="Modifier" /></li>
+                </form>
+                <p><label><a class="s" href="{% url 'password_change' %}">Modifier mon mot de passe</a></label></p>
+                <p>
+                    <a class="s" href="{% url 'url_create_own_bank_account' %}?next={{ request.get_full_path }}">Ajouter un compte en banque</a>
+                    {% include 'finances/bank_account_list_module.html' with object_list=user.list_bank_account next=request.get_full_path %}
+                </p>
+            </div>
+        </div>
     </div>
 {% endblock %}

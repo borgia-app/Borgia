@@ -259,6 +259,7 @@ class UserUpdateView(FormView):
     def get_initial(self):
         initial = super(UserUpdateView, self).get_initial()
         initial['email'] = self.request.user.email
+        initial['phone'] = self.request.user.phone
         initial['avatar'] = self.request.user.avatar
         return initial
 
@@ -266,6 +267,9 @@ class UserUpdateView(FormView):
 
         if getattr(self.request.user, 'email') != form.cleaned_data['email']:
             setattr(self.request.user, 'email', form.cleaned_data['email'])
+            self.modified = True
+        if getattr(self.request.user, 'phone') != form.cleaned_data['phone']:
+            setattr(self.request.user, 'phone', form.cleaned_data['phone'])
             self.modified = True
         if getattr(self.request.user, 'avatar') != form.cleaned_data['avatar']:
             if self.request.user.avatar:
@@ -465,6 +469,8 @@ def workboard_vices_presidents_vie_interne(request):
 
     group_chefs_gestionnaires_foyer_pk = Group.objects.get(name='Chefs gestionnaires du foyer').pk
     group_chefs_gestionnaires_auberge_pk = Group.objects.get(name='Chefs gestionnaires de l\'auberge').pk
+    group_chefs_gestionnaires_cvis_pk = Group.objects.get(name='Chefs gestionnaires de la cvis').pk
+    group_chefs_gestionnaires_bkars_pk = Group.objects.get(name='Chefs gestionnaires de la bkars').pk
 
     add_to_breadcrumbs(request, 'Workboard vices présidents')
     return render(request, 'users/workboard_vices_presidents_vie_interne.html', locals())
