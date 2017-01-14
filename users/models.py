@@ -1,4 +1,5 @@
 from datetime import datetime
+from decimal import Decimal
 
 from django.db import models
 from django.db.models import Q
@@ -137,7 +138,7 @@ class User(AbstractUser):
         :raise: ValueError if the amount is negativ or null or if not a float
         or int
         """
-        if (not isinstance(amount, int)) and (not isinstance(amount, float)):
+        if (not isinstance(amount, int)) and (not isinstance(amount, float)) and (not isinstance(amount, Decimal)):
             raise ValueError('The amount is not a number')
         if amount <= 0:
             raise ValueError('The amount must be positiv')
@@ -158,7 +159,7 @@ class User(AbstractUser):
         :raise: ValueError if the amount is negativ or null or if not a float
         or int
         """
-        if (not isinstance(amount, int)) and (not isinstance(amount, float)):
+        if (not isinstance(amount, int)) and (not isinstance(amount, float)) and (not isinstance(amount, Decimal)):
             raise ValueError('The amount is not a number')
         if amount <= 0:
             raise ValueError('The amount must be positiv')

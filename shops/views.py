@@ -1228,7 +1228,7 @@ class ProductListView(ListCompleteView):
 
         if self.attr['type_product'] == 'product_base':
             # En cas de problème avec order_by
-            if self.attr['order_by'] not in ProductBase._meta.get_all_field_names() \
+            if self.attr['order_by'] not in [f.name for f in ProductBase._meta.get_fields()] \
                     and self.attr['order_by'] not in ['sell_price', '-sell_price', 'quantity_stock', '-quantity_stock']:
                 self.query = \
                     ProductBase.objects.filter(shop=Shop.objects.get(pk=self.attr['shop']), is_active=True).exclude(pk=1)
@@ -1259,7 +1259,7 @@ class ProductListView(ListCompleteView):
 
         elif self.attr['type_product'] == 'product_unit':
             # En cas de problème avec order_by
-            if self.attr['order_by'] not in ProductUnit._meta.get_all_field_names() \
+            if self.attr['order_by'] not in [f.name for f in ProductUnit._meta.get_fields()] \
                     and self.attr['order_by'] not in ['type', '-type']:
                 self.query = \
                     ProductUnit.objects.filter(product_unit__shop=Shop.objects.get(pk=self.attr['shop']), is_active=True).exclude(pk=1)

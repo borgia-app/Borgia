@@ -101,7 +101,8 @@ class NotificationClass(models.Model):
 
 
 class NotificationTemplate(models.Model):
-    notification_class = models.ForeignKey('NotificationClass')
+    notification_class = models.ForeignKey('NotificationClass',
+    on_delete=models.CASCADE)
     message = models.TextField(blank=True, null=True)
 
     class Meta:
@@ -120,7 +121,8 @@ class NotificationTemplate(models.Model):
 
     target_users = models.CharField(choices=TARGET_USERS_CHOICES, max_length=50, blank=True, null=True)
 
-    required_permission = models.ForeignKey('auth.Permission', blank=True, null=True)
+    required_permission = models.ForeignKey('auth.Permission', blank=True, null=True,
+    on_delete=models.CASCADE)
 
     CATEGORY_CHOICES = (
         ('ADMIN', 'admin'),
