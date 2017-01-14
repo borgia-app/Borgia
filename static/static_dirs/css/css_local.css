@@ -42,9 +42,14 @@ html {
     body { padding-top: 65px;}
 }
 @media screen and (max-width: 767px) {
-    body { padding-top: 50px;}
+    body { padding-top: 120px;}
 }
 
+.fa {
+      font: normal normal normal 19px/1 FontAwesome !important;
+      line-height: 1;
+
+}
 /* =============================================
 ============================================= */
 
@@ -461,7 +466,7 @@ h6 {
 .user-container {
   display: block;
   position: relative;
-  top: 19px;
+  top: 14px;
   right: -19%;
   padding: 0.4em 1em;
   color: #fff;
@@ -646,7 +651,7 @@ h6 {
 .user-connexion {
   position: absolute;
   display: inline-block;
-  top: -5px;
+  top: -10px;
   right: -9px;
   width: 78px;
   height: 33px;
@@ -704,7 +709,7 @@ h6 {
   position: absolute;
   top: 46px;
   right: -3px;
-  padding: 3px 0 0 0px;
+  padding: 3px 0 0 52px;
   border-bottom-right-radius: 5px;
 }
 
@@ -745,24 +750,24 @@ h6 {
     right: 30%;
   }
   .user-connexion {
-    top: -25px;
+    top: -20px;
     right: -42px;
-    padding-left: 0;
+    padding-left: 23px;
     width: 52px;
     border-top-right-radius: 5px;
     border-bottom-right-radius: 5px;
   }
   .user-edition {
-    top: -25px;
+    top: -20px;
     left: -49px;
-    padding-left: 0;
+    padding-left: 15px;
     width: 44px;
     height: 33px;
   }
   .user-notification {
-    top: -25px;
+    top: -20px;
     right: 52px;
-    padding-left: 0;
+    padding-left: 12px;
     width: 44px;
     height: 33px;
     border-bottom-right-radius: 0%;
