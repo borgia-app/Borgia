@@ -44,7 +44,7 @@ class LoginRequiredMiddleware:
  'django.contrib.auth.middleware.AuthenticationMiddleware'. If that doesn't\
  work, ensure your TEMPLATE_CONTEXT_PROCESSORS setting includes\
  'django.core.context_processors.auth'."
-        if not request.user.is_authenticated():
+        if not request.user.is_authenticated:
             path = request.path_info
             if path not in settings.LOGIN_EXEMPT_URLS:
                 denied = True
@@ -128,5 +128,5 @@ class RedirectLoginProfile:
             '/auth/login',
             '/',
         ]
-        if request.path_info in login_pages and request.user.is_authenticated():
+        if request.path_info in login_pages and request.user.is_authenticated:
             return HttpResponseRedirect('/shops/foyer/consumption')
