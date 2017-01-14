@@ -107,9 +107,11 @@
                         <li><a href="{% url 'url_supply_lydia_self' %}" title="Crédit Lydia"><div class="lydia"><span class="lydia-logo"></span><span class="lydia-text">Crédit compte</span></div></a></li>
                         <li class="hidden-lg hidden-md hidden-sm hidden-xs mobileShow568">
                                 <span class="user-notification">
-                                    <span class="icon icon-notification" onclick="show_hide_div('container-notifications');" title="Notifications">
+                                     <span onclick="show_hide_div('container-notifications');" title="Notifications">
+                                      <i class="fa fa-flag" aria-hidden="true"></i>
                                     </span>
                                 </span>
+
                                 {% if messages %}
                                     <span class="buble-notifications-count" onclick="show_hide_div('container-notifications');">
                                     </span>
