@@ -26,7 +26,7 @@
         </div>
         <div class="row">
             {% if type_product == 'product_base' %}
-                <table>
+                <table class="table_foyer">
                     <tr>
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Nom</a></th>
                         <th><a href="{% url 'url_list_product' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Type</a></th>
