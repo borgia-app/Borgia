@@ -74,7 +74,7 @@ def get_list_model(request, model, search_in, props=None):
     kwargs_filter = {}
     for param in request.GET:
         if param not in ['order_by', 'reverse', 'search'] :
-            if param in model._meta.get_all_field_names():
+            if param in [f.name for f in model._meta.get_fields()]:
                 # Traitement spécifique pour les booléens envoyés en GET
                 if request.GET[param] in ['True', 'true', 'False', 'false']:
                     if request.GET[param] in ['True', 'true']:
@@ -103,7 +103,7 @@ def get_list_model(request, model, search_in, props=None):
         query = query.exclude(Q(groups=Group.objects.get(pk=9)) | Q(username='admin'))
 
         # Sérialisation
-        allowed_fields = User._meta.get_all_field_names()
+        allowed_fields = [f.name for f in User._meta.get_fields()]
         for e in ['password', 'is_superuser', 'is_staff', 'last_login']:
             allowed_fields.remove(e)
 
@@ -129,7 +129,7 @@ def get_list_model(request, model, search_in, props=None):
         else:
             reverse = False
         # Trie par la valeur d'un field
-        if request.GET['order_by'] in model._meta.get_all_field_names():
+        if request.GET['order_by'] in [f.name for f in model._meta.get_fields()]:
             data_load = sorted(data_load, key=lambda obj: obj['fields'][request.GET['order_by']], reverse=reverse)
         # Trie par la valeur d'une méthode
         else:
@@ -190,7 +190,7 @@ def get_unique_model(request, pk, model, props=None):
         else:
 
             # Sérialisation
-            allowed_fields = User._meta.get_all_field_names()
+            allowed_fields = [f.name for f in User._meta.get_fields()]
             for e in ['password', 'is_superuser', 'is_staff', 'last_login']:
                 allowed_fields.remove(e)
 
