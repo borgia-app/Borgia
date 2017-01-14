@@ -25,6 +25,15 @@
     margin: 0;
 }
 
+body {
+  height: 100%;
+  position: relative;
+}
+
+html {
+  height: 100%;
+}
+
 .body_pg, .body_sober, input, select, textarea {
   font-size: 12pt;
 }
@@ -391,9 +400,7 @@ h6 {
 }
 
 @media screen and (max-width: 567px) {
-  .list_group_apps {
-    top: 56px;
-  }
+  
   .list_group_apps h3{
     display: none;
   }
