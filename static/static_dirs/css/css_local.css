@@ -405,7 +405,9 @@ h6 {
 }
 
 @media screen and (max-width: 567px) {
-
+  .list_group_apps {
+    top: 56px;
+  }
   .list_group_apps h3{
     display: none;
   }
@@ -973,50 +975,63 @@ h6 {
   }
 }
 
-.table_foyer {
+.table_shop {
     color: #fff;
     border-collapse: collapse;
     width: 100%;
     background-color: #353e4f;
 }
 
-.table_foyer th, .table_foyer td {
+.table_sales th, .table_sales td, .table_shop th, .table_shop td {
     text-align: left;
     padding: 4px;
     padding-left: 6px;
 }
 
 @media screen and (max-width: 568px) {
-    .table_foyer th, .table_foyer td {
+    .table_sales th, .table_sales td, .table_shop th, .table_shop td {
         font-size: small;
     }
 }
 
-.table_foyer tr:nth-child(even){
+.table_shop tr:first-child a {
+  color: #FFFFFF;
+}
+
+.table_shop tr:first-child:hover a {
+  color: #FFFFFF;
+}
+
+.table_shop tr:first-child a:hover {
+  color: white;
+  text-decoration: none;
+  cursor: pointer;
+}
+.table_shop tr:nth-child(even) {
     background-color: #252525;
 }
 
-.table_foyer tr:nth-child(odd){
+.table_shop tr:nth-child(odd){
     background-color: #454545;
 }
 
-.table_foyer tr:hover {
+.table_shop tr:not(:first-child):hover {
     background-color: #fff;
     color: #000;
 }
 
-.table_foyer tr:hover a {
+.table_shop tr:hover a {
     color: black;
 }
 
-.table_foyer input {
+.table_shop input {
   width: 100px;
 }
 @media screen and (max-width: 1024px) {
-  .table_foyer {
+  .table_shop {
     width: 100%;
   }
-  .table_foyer input {
+  .table_shop input {
     width: 50px;
   }
 }
