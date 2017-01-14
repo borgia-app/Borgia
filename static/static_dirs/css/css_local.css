@@ -25,6 +25,15 @@
     margin: 0;
 }
 
+body {
+  height: 100%;
+  position: relative;
+}
+
+html {
+  height: 100%;
+}
+
 .body_pg, .body_sober, input, select, textarea {
   font-size: 12pt;
 }
@@ -391,9 +400,7 @@ h6 {
 }
 
 @media screen and (max-width: 567px) {
-  .list_group_apps {
-    top: 56px;
-  }
+
   .list_group_apps h3{
     display: none;
   }
@@ -1106,6 +1113,10 @@ h6 {
   }
 }
 
+input, select, textarea {
+  color: #000 !important;
+}
+
 /* =============================================
 ============================================= */
 
@@ -1330,6 +1341,261 @@ a.clickable:hover { text-decoration:none; }
     animation-name: fadeIn;
     -webkit-animation-duration: 0.3s;
     animation-duration: 0.3s;
+}
+
+/* =============================================
+============================================= */
+
+.listing-apps {
+    margin: 0;
+    padding: 0;
+    letter-spacing: -5px; /*fix bug ff PC*/
+    font-family: 'source_sans_probold';
+}
+
+.listing-apps li {
+    display: inline-block;
+    vertical-align: top;
+    letter-spacing: normal;
+    list-style: none;
+    margin: 0 0 1em 1em;
+    box-shadow: 2px 2px 3px rgba(0, 0, 0, 0.4),
+    -2px -2px 3px 0 rgba(0, 0, 0, 0.7) inset;
+}
+
+.listing-apps a {
+    display: block;
+    position: relative;
+    padding: 0.2em;
+    top: 0;
+    left: 0;
+    width: 150px;
+    height: 150px;
+    background: #666;
+    color: #fff;
+    font-size: 4em;
+    transition: all 0.3s ease;
+    -webkit-transition: all 0.3s ease;
+}
+.listing-apps a:hover,
+.listing-apps a:focus {
+    left: -10px;
+    top: -10px;
+    box-shadow: none;
+}
+.listing-apps a:hover:before,
+.listing-apps a:focus:before {
+    height: 10px;
+}
+.listing-apps a:hover:after,
+.listing-apps a:focus:after {
+    width: 10px;
+}
+
+.listing-apps a:hover:after,
+.listing-apps a:focus:after,
+.listing-apps a:hover:before,
+.listing-apps a:focus:before {
+    background: #333;
+}
+
+.listing-apps a:after,
+.listing-apps a:before {
+    content: "";
+    position: absolute;
+    transition: all 0.3s ease;
+    -webkit-transition: all 0.3s ease;
+}
+
+.listing-apps a:before {
+    width: 100%;
+    height: 0;
+    left: 5px;
+    top: 100%;
+    box-shadow: 0 5px 10px rgba(0, 0, 0, 0.4);
+    transform: skew(45deg, 0deg);
+    -webkit-transform: skew(45deg, 0deg);
+}
+
+.listing-apps a:after {
+    width: 0;
+    height: 100%;
+    left: 100%;
+    top: 5px;
+    box-shadow: 5px 0 10px rgba(0, 0, 0, 0.4);
+    transform: skew(0deg, 45deg);
+    -webkit-transform: skew(0deg, 45deg);
+}
+
+.listing-apps span {
+    display: block;
+    margin: -1.2em 0 0 0.2em;
+}
+
+.listing-apps img {
+    margin: 0;
+    height: 64px;
+    width: 64px;
+}
+
+.listing-apps .first-letter { margin: 0; }
+.listing-apps .first-letter:before {
+    content: attr(data-first-letter);
+    display: inline-block;
+}
+.listing-apps .name {
+    font-family: 'source_sans_proregular';
+    font-size: 0.3em;
+}
+
+
+
+.listing-apps li:nth-child(1) a,
+.bluebg {
+    background: #3498DB!important;
+}
+.bluebg:hover:after,
+.bluebg:focus:after,
+.bluebg:hover:before,
+.bluebg:focus:before {
+    background: #16527A!important;
+}
+
+.listing-apps li:nth-child(2) a,
+.purplebg {
+    background: #9B59B6!important;
+}
+.purplebg:hover:after,
+.purplebg:focus:after,
+.purplebg:hover:before,
+.purplebg:focus:before {
+    background: #532C64!important;
+}
+
+.listing-apps li:nth-child(3) a,
+.redbg {
+    background: #E74C3C!important;
+}
+.redbg:hover:after,
+.redbg:focus:after,
+.redbg:hover:before,
+.redbg:focus:before {
+    background: #921E12!important;
+}
+
+.listing-apps li:nth-child(4) a,
+.orangebg {
+    background: #F39C12!important;
+}
+.orangebg:hover:after,
+.orangebg:focus:after,
+.orangebg:hover:before,
+.orangebg:focus:before {
+    background: #7F5006!important;
+}
+
+.listing-apps li:nth-child(5) a,
+.greenbg {
+    background: #2ECC71!important;
+}
+.greenbg:hover:after,
+.greenbg:focus:after,
+.greenbg:hover:before,
+.greenbg:focus:before {
+    background: #176437!important;
+}
+
+.listing-apps li:nth-child(6) a,
+.darkbluebg {
+    background: #34495E!important;
+}
+.darkbluebg:hover:after,
+.darkbluebg:focus:after,
+.darkbluebg:hover:before,
+.darkbluebg:focus:before {
+    background: #07090C!important;
+}
+
+.listing-apps li:nth-child(7) a,
+.lightbluebg {
+    background: #6A93D4!important;
+}
+.lightbluebg:hover:after,
+.lightbluebg:focus:after,
+.lightbluebg:hover:before,
+.lightbluebg:focus:before {
+    background: #2B5394!important;
+}
+
+.listing-apps li:nth-child(8) a,
+.yellowbg {
+    background: #F1C40F!important;
+}
+.yellowbg:hover:after,
+.yellowbg:focus:after,
+.yellowbg:hover:before,
+.yellowbg:focus:before {
+    background: #796307!important;
+}
+
+
+.listing-apps li:nth-child(9) a,
+.lightpinkbg {
+    background: #F76F87!important;
+}
+.lightpinkbg:hover:after,
+.lightpinkbg:focus:after,
+.lightpinkbg:hover:before,
+.lightpinkbg:focus:before {
+    background: #DA0C31!important;
+}
+
+/* Following colors are not used yet */
+.pinkbg {
+    background: #D66D92!important;
+}
+.pinkbg:hover:after,
+.pinkbg:focus:after,
+.pinkbg:hover:before,
+.pinkbg:focus:before {
+    background: #992B52!important;
+}
+
+.turquoisebg {
+    background: #1ABC9C!important;
+}
+.turquoisebg:hover:after,
+.turquoisebg:focus:after,
+.turquoisebg:hover:before,
+.turquoisebg:focus:before {
+    background: #0B4C3F!important;
+}
+.lightyellow {
+    background: #FFC973!important;
+}
+.lightyellow:hover:after,
+.lightyellow:focus:after,
+.lightyellow:hover:before,
+.lightyellow:focus:before {
+    background: #F39500!important;
+}
+.lightgreen {
+    background: #B5F36D!important;
+}
+.lightgreen:hover:after,
+.lightgreen:focus:after,
+.lightgreen:hover:before,
+.lightgreen:focus:before {
+    background: #77CF11!important;
+}
+.purpledarkbg {
+    background: #8E44AD!important;
+}
+.purpledarkbg:hover:after,
+.purpledarkbg:focus:after,
+.purpledarkbg:hover:before,
+.purpledarkbg:focus:before {
+    background: #432051!important;
 }
 
 /*
