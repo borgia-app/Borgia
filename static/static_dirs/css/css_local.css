@@ -400,7 +400,7 @@ h6 {
 }
 
 @media screen and (max-width: 567px) {
-  
+
   .list_group_apps h3{
     display: none;
   }
@@ -1111,6 +1111,10 @@ h6 {
   input[type=number]{
     max-width: 70px;
   }
+}
+
+input, select, textarea {
+  color: #000 !important;
 }
 
 /* =============================================
