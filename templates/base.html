@@ -229,7 +229,7 @@
     {% if user.avatar %}
         <style>
             .user-container:before {
-                background: url('{% static user.avatar.url %}') no-repeat 0 0;
+                background: url('{{ user.avatar.url }}') no-repeat 0 0;
                 background-size: 100%;
                 content: "";
             }
