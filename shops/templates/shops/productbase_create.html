@@ -13,7 +13,7 @@
                     {{ form.as_ul }}
                     <li id="id_link_create_productunit"><label>L'unité n'est pas dans la liste ? <a href="{% url 'url_create_productunit' %}?next=/shops/productbase/create?next={{ next }}">Ajout !</a></label></li>
                     <input type=hidden name="next" value="{{ next }}" />
-                    <li><input type="submit" value="Valider"/></li>
+                    <li><input type="submit" value="Valider" class="btn btn-success"/></li>
                 </form>
             </div>
         </div>

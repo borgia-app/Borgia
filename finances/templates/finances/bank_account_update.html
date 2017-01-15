@@ -11,7 +11,7 @@
                 <form class="form-style-1" action="" method="post">{% csrf_token %}
                     {{ form.as_ul }}
                     <input type=hidden name="next" value="{{ next }}" />
-                    <li><input type="submit" value="Modifier" /></li>
+                    <li><input type="submit" value="Modifier" class="btn btn-primary" /></li>
                 </form>
             </div>
         </div>
