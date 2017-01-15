@@ -614,10 +614,6 @@ h6 {
     transition: all 0.1s ease;
     -webkit-transition: all 0.1s ease;
 }
-.user-menu a:hover,
-.user-menu a:focus {
-    color: #fff;
-}
 
 @media screen and (min-width: 1920px) {
   .user-container .user-mail, .user-container .user-balance {
@@ -686,6 +682,10 @@ h6 {
   padding-left: 29px;
   display: inline-block;
   position: absolute;
+}
+
+.user-edition > a:hover {
+   color: #999;
 }
 
 @media screen and (min-width: 1920px) {
@@ -1122,7 +1122,7 @@ h6 {
   }
 }
 
-input[type=text], select, textarea {
+input[type=text], input[type=number], select, textarea {
   color: #000 !important;
 }
 

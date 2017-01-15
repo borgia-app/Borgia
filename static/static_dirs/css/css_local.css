@@ -684,6 +684,10 @@ h6 {
   position: absolute;
 }
 
+.user-edition > a:hover {
+   color: #999;
+}
+
 @media screen and (min-width: 1920px) {
   .user-edition {
     left: -78px;
@@ -1118,7 +1122,7 @@ h6 {
   }
 }
 
-input[type=text], select, textarea {
+input[type=text], input[type=number], select, textarea {
   color: #000 !important;
 }
 
