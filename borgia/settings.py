@@ -24,9 +24,9 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = 'd8!^$6uved6+1d)iiqwhf5q8ao3*z)ykfdff3&zi4@i7pv#jzd'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+DEBUG = True
 
-ALLOWED_HOSTS = ['borgia.iresam.org', 'www.iresam.org']  # 'www.borgia.iresam.org' en prod, '*' pour une simulation de prod en local.
+ALLOWED_HOSTS = ['*']  # 'www.borgia.iresam.org' en prod, '*' pour une simulation de prod en local.
 
 # Application definition
 
@@ -86,12 +86,8 @@ WSGI_APPLICATION = 'borgia.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'borgia',
-        'USER': 'borgiauser',
-        'PASSWORD': 'borgiaadmin',
-        'HOST': 'localhost',
-        'PORT': '', 
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
     }
 }
 
