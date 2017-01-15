@@ -15,7 +15,7 @@
                     <li id="id_link_create_productbase"><label>Le produit n'est pas dans la liste ? <a href="{% url 'url_create_productbase' %}?next=/shops/product/create/multiple/{{ shop }}/?next={{ next }}">Ajout !</a></label></li>
                     <input type=hidden name="next" value="{{ next }}" />
                     <input type=hidden name="shop" id='hidden_shop' value="{{ shop }}" />
-                    <li><input type="submit" value="Valider"/></li>
+                    <li><input type="submit" value="Valider" class="btn btn-success"/></li>
                 </form>
             </div>
         </div>

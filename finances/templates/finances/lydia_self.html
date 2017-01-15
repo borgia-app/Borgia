@@ -11,7 +11,7 @@
                 <form class="form-style-1" action= "{% url 'url_supply_lydia_self' %}" method="post">
                     {% csrf_token %}
                     {{ form.as_ul }}
-                    <li><input type="submit" value="Valider"/></li>
+                    <li><input type="submit" value="Valider" class="btn btn-success"/></li>
                 </form>
             </div>
         </div>

@@ -7,7 +7,7 @@
         <form class="form-style-1" action= "{% url 'url_set_price_product_base' pk=pk %}" method="post">
             {% csrf_token %}
             {{ form.as_ul }}
-            <li><input type="submit" value="Modifier"/></li>
+            <li><input type="submit" value="Modifier" class="btn btn-primary"/></li>
         </form>
         <p class="justify">Remarque : il est possible de définir un prix de vente manuel, même lorsqu'on utilise le
             prix automatique. Il sera alors sauvegardé mais non utilisé.</p>
