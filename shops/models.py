@@ -235,6 +235,8 @@ class Shop(models.Model):
             ('sell_cvis', 'Vendre des produits à la cvis'),
             ('sell_bkars', 'Vendre des produits à la bb'),
             ('add_product', 'Ajouter des produits'),
+            ('list_product', 'Lister les produits'),
+            ('change_price_product', 'Changer le prix des produits'),
         )
 
 

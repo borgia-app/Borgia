@@ -1,0 +1,26 @@
+{% extends 'base_sober.html' %}
+
+{% block content %}
+
+    {% load static %}
+    <script type="text/javascript" src="{% static 'admin/js/jquery.min.js' %}"></script>
+    <script type="text/javascript" src="{% static 'admin/js/jquery.init.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'admin/css/widgets.css' %}" />
+    {{ form.media }}
+
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Gestion du groupe {{ group_updated_name_display }}
+      </div>
+      <div class="panel-body">
+        <form action= "" method="post">
+            {% csrf_token %}
+            <div class="container">
+                {{ form.members }}
+                {{ form.permissions }}
+            </div>
+            <button class="btn btn-success" type="submit">Valider</button>
+        </form>
+      </div>
+    </div>
+{% endblock %}

@@ -113,15 +113,9 @@ class ManageGroupForm(forms.Form):
         self.fields['members'] = forms.ModelMultipleChoiceField(queryset=possible_members,
                                                                 widget=FilteredSelectMultiple('Membres', False),
                                                                 required=False)
-        # Utilisation d'un custom field pour pouvoir changer l'affichage des permissions
         self.fields['permissions'] = forms.ModelMultipleChoiceField(queryset=possible_permissions,
                                                                     widget=FilteredSelectMultiple('Permissions', False),
                                                                     required=False)
-
-
-class ModelMultipleChoiceCustomField(forms.ModelMultipleChoiceField):
-    def label_from_instance(self, obj):
-        return obj.name
 
 
 class LinkTokenUserForm(forms.Form):

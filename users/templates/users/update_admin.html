@@ -1,14 +1,19 @@
-{% extends 'base.html' %}
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
 
 {% block content %}
-    <div class="container50">
-        <h2 class="align-center">Modification des informations de {{ user_modified }}</h2>
-        <form enctype="multipart/form-data" class="form-style-1" action="" method="post">{% csrf_token %}
-            <span id="form">
-            {{ form.as_ul }}
-                </span>
-            <input type=hidden name="next" value="{{ next }}" />
-            <li><input type="submit" value="Modifier" class="btn btn-primary" /></li>
-        </form>
-    </div>
+<div class="panel panel-warning">
+  <div class="panel-heading">
+    Modification des informations de {{ user_modified }}
+  </div>
+  <div class="panel-body">
+    <form enctype="multipart/form-data" action="" method="post">
+      {% csrf_token %}
+      <span id="form">
+      {{ form|bootstrap }}
+      </span>
+      <button class="btn btn-warning" type="submit">Modifier</button>
+    </form>
+  </div>
+</div>
 {% endblock %}

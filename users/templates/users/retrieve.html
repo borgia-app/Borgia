@@ -1,35 +1,47 @@
 {# Utilisation d'un _module.html supplémentaire de façon à pour l'utiliser pour d'autres templates  #}
 
-{% extends 'base.html' %}
+{% extends 'base_sober.html' %}
 
 {% block content %}
-    <div class="container50">
-        {% include "users/retrieve_module.html" %}
-
-        {% if perms.users.change_user %}
-            <div class="row">
-                <p><a class="s" href="{% url 'url_update_admin_user' pk=object.pk %}?next=/users/retrieve/{{ object.pk }}?next={{ next }}">Modifier les informations</a></p>
-                <p><a class="s" href="{% url 'url_desactivate_user' pk=object.pk %}?next={{ next }}">
-                    {% if object.is_active == True %}
-                        Désactiver l'utilisateur
-                    {% else %}
-                        Activer l'utilisateur
-                    {% endif %}</a></p>
-                <input type=hidden name="next" value="{{ next }}" />
-            </div>
-        {% endif %}
-    </div>
-    <div class="container">
-        <hr>
-        <div class="row">
-            <a class="s" href="{% url 'url_create_bank_account' %}?next={{ request.get_full_path }}">Ajouter un compte en banque</a>
-            {% include 'finances/bank_account_list_module.html' with object_list=object.list_bank_account next=request.get_full_path %}
-        </div>
-
-        <hr>
-        <div class="row">
-            {% include 'finances/sale_list_light_module.html' with object_list=object.list_sale user=object %}
-        </div>
-    </div>
-
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Détails de l'utilisateur
+  </div>
+  <div class="panel-body">
+    {% include "users/retrieve_module.html" %}
+  </div>
+</div>
+{% if perms.users.change_user %}
+<div class="panel panel-warning">
+  <div class="panel-heading">
+    Administration
+  </div>
+  <div class="panel-body">
+    <p><a class="s" href="{% url 'url_user_update' group_name=group_name pk=object.pk %}">Modifier les informations</a></p>
+    <p><a class="s" href="{% url 'url_user_deactivate' group_name=group_name pk=object.pk %}">
+        {% if object.is_active == True %}
+            Désactiver l'utilisateur
+        {% else %}
+            Activer l'utilisateur
+        {% endif %}</a></p>
+  </div>
+</div>
+{% endif %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Comptes en banque
+  </div>
+  <div class="panel-body">
+    <a class="s" href="{% url 'url_create_bank_account' %}?next={{ request.get_full_path }}">Ajouter un compte en banque</a>
+    {% include 'finances/bank_account_list_module.html' with object_list=object.list_bank_account next=request.get_full_path %}
+  </div>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Détails de l'utilisateur
+  </div>
+  <div class="panel-body">
+    {% include 'finances/sale_list_light_module.html' with object_list=object.list_sale user=object %}
+  </div>
+</div>
 {% endblock %}

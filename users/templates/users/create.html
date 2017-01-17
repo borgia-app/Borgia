@@ -1,19 +1,17 @@
-{% extends 'base.html' %}
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
 
 {% block content %}
-    <div class="col-md-8 col-md-offset-2">
-        <div class="panel panel-custom">
-            <div class="panel-heading">
-                <h2 class="align-center">Ajout d'un utilisateur</h2>
-            </div>
-            <div class="panel-body">
-                <form class="form-style-1" action="{% url 'url_create_user' %}" method="post">
-                    {% csrf_token %}
-                    {{ form.as_ul }}
-                    <input type=hidden name="next" value="{{ next }}" />
-                    <li><input type="submit" value="Valider" class="btn btn-success"/></li>
-                </form>
-            </div>
-        </div>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Ajout d'un utilisateur
     </div>
+    <div class="panel-body">
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <button class="btn btn-success" type="submit">Ajouter</button>
+        </form>
+    </div>
+</div>
 {% endblock %}

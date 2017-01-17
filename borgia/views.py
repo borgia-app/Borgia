@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, View
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -14,6 +14,8 @@ from django.contrib.auth.models import Group
 import json
 from django.core.exceptions import ObjectDoesNotExist
 import operator
+
+from borgia.utils import *
 
 
 class LoginPG(FormView):
@@ -267,3 +269,13 @@ class TestBootstrapSober(TemplateView):
             }
         ]
         return context
+
+
+class GroupWorkboard(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    template_name = 'group_workboard.html'
+    perm_codename = None
+    lm_active = 'lm_workboard'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        return render(request, self.template_name, context=context)

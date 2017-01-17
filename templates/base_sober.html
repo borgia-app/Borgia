@@ -132,10 +132,10 @@
    <div class="col-md-2" style="margin-top: 40px">
     {% include "lateral_menu.html" %}
    </div>
-   <div class="col-md-10">
+   <div class="col-md-10" style="margin-top: 40px">
   {% else %}
   <div class="container">
-    <div class="col-md-12">
+    <div class="col-md-12" style="margin-top: 40px">
   {% endif %}
     {%  block content %}
     {%  endblock %}
@@ -147,7 +147,7 @@
     {% if user.avatar %}
         <style>
             .user-container:before {
-                background: url('{% static user.avatar.url %}') no-repeat 0 0;
+                background: url('{{ user.avatar.url }}') no-repeat 0 0;
                 background-size: 100%;
                 content: "";
             }

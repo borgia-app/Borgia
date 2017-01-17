@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'notifications',
     'finances',
     'settings_data',
+    'bootstrapform'
 ]
 
 MIDDLEWARE_CLASSES = [

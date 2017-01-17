@@ -1,10 +1,13 @@
-{% extends 'base.html' %}
+{% extends 'base_sober.html' %}
 {% load finances_extra %}
 {% load users_extra %}
 
 {% block content %}
-    <div class="container-fluid">
-        <div class="row">
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+          Recherche
+        </div>
+        <div class="panel-body">
             Recherche <input type="text" id="id_search" name="search" /><br>
             <input type="checkbox" id="id_is_active" name="is_active" /> Utilisateurs désactivés <br>
             <select id="id_year">
@@ -14,22 +17,26 @@
                 {% endfor %}
             </select>
         </div>
-        <div class="row">
-            <table id="table_users" class="table_shop">
-                <tr id="first_line">
-                    <th id="last_name">Nom</th>
-                    <th id="first_name">Prénom</th>
-                    <th id="surname">Bucque</th>
-                    <th id="family">Num's</th>
-                    <th id="campus">Tabagn's</th>
-                    <th id="year">Prom's</th>
-                    <th id="balance">Solde</th>
-                    <th id="is_active">Est actif</th>
-                    <th>Détail</th>
-                </tr>
-            </table>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Résultats
         </div>
-    </div>
+          <table class="table table-hover table-striped" id="table_users">
+            <tr id="first_line">
+                <th id="last_name">Nom</th>
+                <th id="first_name">Prénom</th>
+                <th id="surname">Bucque</th>
+                <th id="family">Num's</th>
+                <th id="campus">Tabagn's</th>
+                <th id="year">Prom's</th>
+                <th id="balance">Solde</th>
+                <th id="is_active">Est actif</th>
+                <th>Détail</th>
+            </tr>
+          </table>
+        </div>
+
     <script>
         var order_by;
         var search;
@@ -108,7 +115,7 @@
                         }
                         add_line([data[i].fields.last_name, data[i].fields.first_name, data[i].fields.surname,
                             data[i].fields.family, data[i].fields.campus, data[i].fields.year, data[i].fields.balance + '€',
-                            data_is_active, '<a href="/users/retrieve/' + data[i].pk + '/?next={{ next }}">Détail</a>']);
+                            data_is_active, '<a href="/{{ group_name }}/users/' + data[i].pk+ '/">Détail</a>']);
                     }
                 },
                 error: function() {

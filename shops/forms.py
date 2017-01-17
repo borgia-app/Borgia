@@ -12,6 +12,25 @@ from django.contrib.auth.models import Group
 from borgia.validators import autocomplete_username_validator
 
 
+class ProductCreateForm(forms.Form):
+
+    def __init__(self, **kwargs):
+        shop = kwargs.pop('shop')
+        super(ProductCreateForm, self).__init__(**kwargs)
+        self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
+                                                             queryset=ProductBase.objects.filter(shop=shop, is_active=True).exclude(pk=1).order_by('name'))
+
+        self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter (de Fût, en KG, ou de bouteille)', min_value=0, max_value=5000)
+
+        self.fields['price'] = forms.DecimalField(label='Prix d\'achat TTC (par Fût, KG, bouteille)', decimal_places=2, max_digits=9,
+                                                  min_value=0)
+        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat',
+                                                       widget=forms.DateInput(attrs={'class': 'datepicker'}))
+        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False,
+                                                     widget=forms.DateInput(attrs={'class': 'datepicker'}))
+        self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
+
+
 class ReplacementActiveKegForm(forms.Form):
 
     """
@@ -395,20 +414,20 @@ class ProductListForm(forms.Form):
         user = kwargs.pop('request').user
         super(ProductListForm, self).__init__(**kwargs)
 
-        if Group.objects.get(name='Trésoriers') in user.groups.all():
+        if Group.objects.get(pk=2) in user.groups.all():
             self.fields['shop'] = forms.ModelChoiceField(label='Magasin',
                                                          queryset=Shop.objects.all(),
                                                          empty_label=None)
         else:
             available_shop = []
             if user.has_perm('shops.list_productbase'):
-                if Group.objects.get(name='Chefs gestionnaires du foyer') in user.groups.all() or Group.objects.get(name='Gestionnaires du foyer') in user.groups.all():
+                if Group.objects.get(pk=3) in user.groups.all() or Group.objects.get(pk=4) in user.groups.all():
                     available_shop.append(Shop.objects.get(name='Foyer').pk)
-                if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in user.groups.all() or Group.objects.get(name='Gestionnaires de l\'auberge') in user.groups.all():
+                if Group.objects.get(pk=5) in user.groups.all() or Group.objects.get(pk=6) in user.groups.all():
                     available_shop.append(Shop.objects.get(name='Auberge').pk)
-                if Group.objects.get(name='Chefs gestionnaires de la cvis') in user.groups.all() or Group.objects.get(name='Gestionnaires de la cvis') in user.groups.all():
+                if Group.objects.get(pk=11) in user.groups.all() or Group.objects.get(pk=12) in user.groups.all():
                     available_shop.append(Shop.objects.get(name='Cvis').pk)
-                if Group.objects.get(name='Chefs gestionnaires de la bkars') in user.groups.all() or Group.objects.get(name='Gestionnaires de la bkars') in user.groups.all():
+                if Group.objects.get(pk=13) in user.groups.all() or Group.objects.get(pk=14) in user.groups.all():
                     available_shop.append(Shop.objects.get(name='Bkars').pk)
             self.fields['shop'] = forms.ModelChoiceField(label='Magasin', queryset=Shop.objects.filter(pk__in=available_shop), empty_label=None)
 

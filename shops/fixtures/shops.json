@@ -3,7 +3,7 @@
     "model": "shops.shop",
     "pk": 1,
     "fields": {
-      "name": "Foyer",
+      "name": "foyer",
       "description": "Foyer des  élèves de l'AE ENSAM"
     }
   },
@@ -11,7 +11,7 @@
     "model": "shops.shop",
     "pk": 2,
     "fields": {
-      "name": "Auberge",
+      "name": "auberge",
       "description": "Auberge des élèves de l'AE ENSAM"
     }
   },
@@ -19,7 +19,7 @@
     "model": "shops.shop",
     "pk": 3,
     "fields": {
-      "name": "Cvis",
+      "name": "cvis",
       "description": "C-Vis des élèves de l'AE ENSAM"
     }
   },
@@ -27,9 +27,8 @@
     "model": "shops.shop",
     "pk": 4,
     "fields": {
-      "name": "Bkars",
+      "name": "bkars",
       "description": "BB des élèves de l'AE ENSAM"
     }
   }
 ]
-

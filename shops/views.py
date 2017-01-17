@@ -1,21 +1,82 @@
-#-*- coding: utf-8 -*-
-from django.shortcuts import render, force_text, HttpResponseRedirect, redirect, HttpResponse, Http404
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import ListView, DetailView, FormView
-from django.contrib.auth import logout
 from django.core import serializers
 from math import ceil
 
+from django.shortcuts import render, force_text, HttpResponseRedirect, redirect
+from django.shortcuts import HttpResponse, Http404
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, FormView, View
+from django.contrib.auth import logout
+
+from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
 from shops.models import *
 from shops.forms import *
 from users.models import User
 from finances.models import *
 from notifications.models import notify
-from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
 from contrib.models import add_to_breadcrumbs
+from borgia.utils import *
+
+
+class ProductList(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    template_name = 'shops/product_list.html'
+    perm_codename = 'list_product'
+
+    def get(self, request, *args, **kwargs):
+        context = super(ProductList, self).get_context_data(**kwargs)
+        context['product_list'] = ProductBase.objects.filter(
+            shop=shop_from_group(self.group)
+        )
+        return render(request, self.template_name, context=context)
+
+
+class ProductCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    template_name = 'shops/product_create.html'
+    perm_codename = 'add_product'
+    form_class = ProductCreateForm
+
+    def form_valid(self, form):
+        if form.cleaned_data['product_base'].type == 'container':
+            if form.cleaned_data['product_base'].product_unit.type in ['meat', 'cheese']:
+                product = Container.objects.create(price=(form.cleaned_data['price'] *1000/ form.cleaned_data['quantity'])*form.cleaned_data['product_base'].quantity,
+                                                   quantity_remaining=form.cleaned_data['quantity'],
+                                                   purchase_date=form.cleaned_data['purchase_date'],
+                                                   expiry_date=form.cleaned_data['expiry_date'],
+                                                   place=form.cleaned_data['place'],
+                                                   product_base=form.cleaned_data['product_base'])
+            else:
+                for i in range(0, form.cleaned_data['quantity']):
+                    product = Container.objects.create(price=form.cleaned_data['price'],
+                                                       purchase_date=form.cleaned_data['purchase_date'],
+                                                       expiry_date=form.cleaned_data['expiry_date'],
+                                                       place=form.cleaned_data['place'],
+                                                       product_base=form.cleaned_data['product_base'])
+        elif form.cleaned_data['product_base'].type == 'single_product':
+            for i in range(0, form.cleaned_data['quantity']):
+                product = SingleProduct.objects.create(price=form.cleaned_data['price'],
+                                                       purchase_date=form.cleaned_data['purchase_date'],
+                                                       expiry_date=form.cleaned_data['expiry_date'],
+                                                       place=form.cleaned_data['place'],
+                                                       product_base=form.cleaned_data['product_base'])
+        return super(ProductCreate, self).form_valid(form)
+
+    def get_initial(self):
+        initial = super(ProductCreate, self).get_initial()
+        initial['purchase_date'] = now
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(ProductCreate, self).get_context_data(**kwargs)
+        context['shop'] = shop_from_group(self.group)
+        return context
+
+    def get_form_kwargs(self):
+        kwargs_form = super(ProductCreate, self).get_form_kwargs()
+        kwargs_form['shop'] = shop_from_group(self.group)
+        return kwargs_form
 
 
 # AUBERGE
+# Doit devenir module
 class PurchaseAuberge(FormView):
     form_class = PurchaseAubergeForm
     template_name = 'shops/sale_auberge.html'
@@ -148,14 +209,15 @@ class PurchaseAuberge(FormView):
             logout(self.request)
             return redirect('/auberge')
 
-
+# Obsolète, cf group workboard
 def workboard_auberge(request):
-    group_gestionnaires_de_l_auberge_pk = Group.objects.get(name='Gestionnaires de l\'auberge').pk
+    group_gestionnaires_de_l_auberge_pk = 6
     add_to_breadcrumbs(request, 'Workboard auberge')
     return render(request, 'shops/workboard_auberge.html', locals())
 
 
 # C-Vis
+# Doit devenir module
 class PurchaseCvis(FormView):
     form_class = PurchaseCvisForm
     template_name = 'shops/sale_cvis.html'
@@ -256,13 +318,14 @@ class PurchaseCvis(FormView):
             logout(self.request)
             return redirect('/cvis')
 
-
+# Obsolète, cf group workboard
 def workboard_cvis(request):
-    group_gestionnaires_de_la_cvis_pk = Group.objects.get(name='Gestionnaires de la cvis').pk
+    group_gestionnaires_de_la_cvis_pk = 12
     add_to_breadcrumbs(request, 'Workboard cvis')
     return render(request, 'shops/workboard_cvis.html', locals())
 
 # Bkars
+# Doit devenir module
 class PurchaseBkars(FormView):
     form_class = PurchaseBkarsForm
     template_name = 'shops/sale_bkars.html'
@@ -340,13 +403,14 @@ class PurchaseBkars(FormView):
             logout(self.request)
             return redirect('/bkars')
 
-
+# Obsolète, cf group workboard
 def workboard_bkars(request):
-    group_gestionnaires_de_la_bkars_pk = Group.objects.get(name='Gestionnaires de la bkars').pk
+    group_gestionnaires_de_la_bkars_pk = 14
     add_to_breadcrumbs(request, 'Workboard bkars')
     return render(request, 'shops/workboard_bkars.html', locals())
 
 # Debit Zifoys
+# Doit devenir module
 class DebitZifoys(FormView):
     form_class = DebitZifoysForm
     template_name = 'shops/debit_zifoys.html'
@@ -599,6 +663,7 @@ class DebitZifoys(FormView):
 
 
 # FOYER
+# Doit devenir module
 class ReplacementActiveKeyView(FormNextView):
     """
     Vue de remplacement d'un fût sous une tireuse pas un autre.
@@ -650,7 +715,7 @@ class ReplacementActiveKeyView(FormNextView):
             context['old_active_keg'] = 'Pas de fut actuellement'
         return context
 
-
+# Doit devenir module
 class PurchaseFoyer(FormView):
     form_class = PurchaseFoyerForm
     template_name = 'shops/sale_foyer.html'
@@ -901,9 +966,9 @@ class PurchaseFoyer(FormView):
             logout(self.request)
             return redirect('/shops/foyer/consumption')
 
-
+# Obsolète, cf group workboard
 def workboard_foyer(request):
-    group_gestionnaires_du_foyer_pk = Group.objects.get(name='Gestionnaires du foyer').pk
+    group_gestionnaires_du_foyer_pk = 4
     add_to_breadcrumbs(request, 'Workboard foyer')
     return render(request, 'shops/workboard_foyer.html', locals())
 
@@ -934,7 +999,7 @@ def list_active_keg(request):
     return render(request, 'shops/list_active_keg.html', locals())
 
 
-# Models
+# A voir
 class SingleProductRetrieveView(DetailView):
     model = SingleProduct
     template_name = 'shops/singleproduct_retrieve.html'
@@ -943,7 +1008,7 @@ class SingleProductRetrieveView(DetailView):
         add_to_breadcrumbs(request, 'Détail produit unitaire')
         return super(SingleProductRetrieveView, self).get(request, *args, **kwargs)
 
-
+# A voir
 class SingleProductListView(ListView):
     model = SingleProduct
     template_name = 'shops/singleproduct_list.html'
@@ -953,7 +1018,7 @@ class SingleProductListView(ListView):
         add_to_breadcrumbs(request, 'Liste produits unitaires')
         return super(SingleProductListView, self).get(request, *args, **kwargs)
 
-
+# A voir
 class ContainerRetrieveView(DetailView):
     model = Container
     template_name = 'shops/container_retrieve.html'
@@ -962,7 +1027,7 @@ class ContainerRetrieveView(DetailView):
         add_to_breadcrumbs(request, 'Détail conteneur')
         return super(ContainerRetrieveView, self).get(request, *args, **kwargs)
 
-
+# A voir
 class ContainerListView(ListView):
     model = Container
     template_name = 'shops/container_list.html'
@@ -973,6 +1038,7 @@ class ContainerListView(ListView):
         return super(ContainerListView, self).get(request, *args, **kwargs)
 
 
+# A refaire
 class ProductUnitCreateView(CreateNextView):
     model = ProductUnit
     fields = ['name', 'description', 'unit', 'type']
@@ -992,7 +1058,7 @@ class ProductUnitCreateView(CreateNextView):
         add_to_breadcrumbs(request, 'Création unité de produit')
         return super(ProductUnitCreateView, self).get(request, *args, **kwargs)
 
-
+# A voir
 class ProductUnitRetrieveView(DetailView):
     model = ProductUnit
     template_name = 'shops/productunit_retrieve.html'
@@ -1001,7 +1067,7 @@ class ProductUnitRetrieveView(DetailView):
         add_to_breadcrumbs(request, 'Détail unité de produit')
         return super(ProductUnitRetrieveView, self).get(request, *args, **kwargs)
 
-
+# A voir
 class ProductUnitUpdateView(UpdateView):
     model = ProductUnit
     fields = ['name', 'description', 'unit', 'type']
@@ -1025,7 +1091,7 @@ class ProductUnitUpdateView(UpdateView):
         add_to_breadcrumbs(request, 'Modification unité de produit')
         return super(ProductUnitUpdateView, self).get(request, *args, **kwargs)
 
-
+# A voir
 class ProductUnitDeleteView(UpdateView):
     model = ProductUnit
     fields = []
@@ -1041,7 +1107,7 @@ class ProductUnitDeleteView(UpdateView):
         self.object.save()
         return super(ProductUnitDeleteView, self).form_valid(form)
 
-
+# A voir
 class ProductUnitListView(ListView):
     model = ProductUnit
     template_name = 'shops/productunit_list.html'
@@ -1052,6 +1118,7 @@ class ProductUnitListView(ListView):
         return super(ProductUnitListView, self).get(request, *args, **kwargs)
 
 
+# A refaire
 class ProductBaseCreateView(FormNextView):
     form_class = ProductBaseCreateForm
     template_name = 'shops/productbase_create.html'
@@ -1108,7 +1175,7 @@ class ProductBaseCreateView(FormNextView):
                                                      type=form.cleaned_data['type'])
         return super(ProductBaseCreateView, self).form_valid(form)
 
-
+# A refaire
 class ProductBaseRetrieveView(DetailView):
     model = ProductBase
     template_name = 'shops/productbase_retrieve.html'
@@ -1117,7 +1184,7 @@ class ProductBaseRetrieveView(DetailView):
         add_to_breadcrumbs(request, 'Détail base de produits')
         return super(ProductBaseRetrieveView, self).get(request, *args, **kwargs)
 
-
+# A voir
 class ProductBaseUpdateView(UpdateView):
     model = ProductBase
     fields = ['name', 'description', 'brand', 'type', 'quantity', 'product_unit']
@@ -1157,7 +1224,7 @@ class ProductBaseUpdateView(UpdateView):
         add_to_breadcrumbs(request, 'Modification base de produits')
         return super(ProductBaseUpdateView, self).get(request, *args, **kwargs)
 
-
+# A voir
 class ProductBaseDeleteView(UpdateView):
     model = ProductBase
     fields = []
@@ -1173,7 +1240,7 @@ class ProductBaseDeleteView(UpdateView):
         self.object.save()
         return super(ProductBaseDeleteView, self).form_valid(form)
 
-
+# A refaire
 class ProductListView(ListCompleteView):
     form_class = ProductListForm
     template_name = 'shops/product_list.html'
@@ -1200,11 +1267,11 @@ class ProductListView(ListCompleteView):
         #     if self.kwargs['organe'] == 'bkars':
         #         self.attr['shop'] = 4
 
-        if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de l\'auberge') in request.user.groups.all():
+        if Group.objects.get(pk=5) in request.user.groups.all() or Group.objects.get(pk=6) in request.user.groups.all():
             self.attr['shop'] = 2
-        if Group.objects.get(name='Chefs gestionnaires de la cvis') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de la cvis') in request.user.groups.all():
+        if Group.objects.get(pk=11) in request.user.groups.all() or Group.objects.get(pk=12) in request.user.groups.all():
             self.attr['shop'] = 3
-        if Group.objects.get(name='Chefs gestionnaires de la bkars') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de la bkars') in request.user.groups.all():
+        if Group.objects.get(pk=13) in request.user.groups.all() or Group.objects.get(pk=14) in request.user.groups.all():
             self.attr['shop'] = 4
 
         return super(ProductListView, self).post(request, *args, **kwargs)
@@ -1212,11 +1279,11 @@ class ProductListView(ListCompleteView):
         #     raise Http404
 
     def get(self, request, *args, **kwargs):
-        if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de l\'auberge') in request.user.groups.all():
+        if Group.objects.get(pk=5) in request.user.groups.all() or Group.objects.get(pk=6) in request.user.groups.all():
             self.attr['shop'] = 2
-        if Group.objects.get(name='Chefs gestionnaires de la cvis') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de la cvis') in request.user.groups.all():
+        if Group.objects.get(pk=11) in request.user.groups.all() or Group.objects.get(pk=12) in request.user.groups.all():
             self.attr['shop'] = 3
-        if Group.objects.get(name='Chefs gestionnaires de la bkars') in request.user.groups.all() or Group.objects.get(name='Gestionnaires de la bkars') in request.user.groups.all():
+        if Group.objects.get(pk=13) in request.user.groups.all() or Group.objects.get(pk=14) in request.user.groups.all():
             self.attr['shop'] = 4
 
         add_to_breadcrumbs(request, 'Liste produits')
@@ -1291,7 +1358,7 @@ class ProductListView(ListCompleteView):
         initial['shop'] = Shop.objects.get(pk=self.attr['shop'])
         return initial
 
-
+# A refaire
 class ProductCreateMultipleView(FormNextView):
     """
     Vue de création de 1 ou plusieurs produits. Il faut différencier les produits classiques (conteneurs et produits

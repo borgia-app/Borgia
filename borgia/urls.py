@@ -3,14 +3,66 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import logout, login, password_reset, password_reset_complete, password_reset_confirm,\
     password_change, password_change_done, password_reset_done
-from borgia.views import LoginPG, page_clean, jsi18n_catalog, TestBootstrapSober
+from borgia.views import LoginPG, page_clean, jsi18n_catalog, TestBootstrapSober, GroupWorkboard
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
+from users.views import *
+from shops.views import ProductList, ProductCreate
+
+
 urlpatterns = [
     # Applications
     url(r'^admin/', admin.site.urls),
+
+    url(r'^(?P<group_name>[\w-]+)/workboard/$',
+        GroupWorkboard.as_view(), name='url_group_workboard'),
+
+    url(r'^(?P<group_name>[\w-]+)/users/create/$',
+        UserCreateView.as_view(), name='url_user_create'),
+    url(r'^(?P<group_name>[\w-]+)/users/$',
+        UserListView.as_view(), name='url_user_list'),
+    url(r'^(?P<group_name>[\w-]+)/users/(?P<pk>\d+)/$',
+        UserRetrieveView.as_view(), name='url_user_retrieve'),
+    url(r'^(?P<group_name>[\w-]+)/users/(?P<pk>\d+)/update/$',
+        UserUpdateAdminView.as_view(), name='url_user_update'),
+    url(r'^(?P<group_name>[\w-]+)/users/(?P<pk>\d+)/deactivate/$',
+        UserDeactivateView.as_view(), name='url_user_deactivate'),
+
+    url(r'^(?P<group_name>[\w-]+)/users/link_token/$',
+        LinkTokenUserView.as_view(), name='url_user_link_token'),
+    url(r'^(?P<group_name>[\w-]+)/groups/(?P<pk>\d+)/update/$',
+        ManageGroupView.as_view(), name='url_group_update'),
+
+    url(r'^(?P<group_name>[\w-]+)/product/$',
+        ProductList.as_view(), name='url_product_list'),
+    url(r'^(?P<group_name>[\w-]+)/product/create/$',
+        ProductCreate.as_view(), name='url_product_create'),
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     url(r'^users/', include('users.urls')),
     url(r'^finances/', include('finances.urls')),
     url(r'^shops/', include('shops.urls')),
@@ -38,6 +90,7 @@ urlpatterns = [
     url('^(?P<organe>\w+)$', LoginPG.as_view(), name='url_login_pg'),
 
     # Test Bootstrap CSS & components
-    url('^tests/bootstrap$', TestBootstrapSober.as_view())
+    url('^tests/bootstrap$', TestBootstrapSober.as_view()),
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Cette ligne permet d'utiliser le dossier MEDIA en
 # dev (en prod c'est automatique)
