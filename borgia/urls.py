@@ -13,8 +13,6 @@ from shops.views import ProductList, ProductCreate, ProductDeactivate, ProductRe
 
 
 urlpatterns = [
-    # Applications
-    url(r'^admin/', admin.site.urls),
 
     url(r'^(?P<group_name>[\w-]+)/workboard/$',
         GroupWorkboard.as_view(), name='url_group_workboard'),
@@ -35,16 +33,16 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/groups/(?P<pk>\d+)/update/$',
         ManageGroupView.as_view(), name='url_group_update'),
 
-    url(r'^(?P<group_name>[\w-]+)/product/$',
+    url(r'^(?P<group_name>[\w-]+)/products/$',
         ProductList.as_view(), name='url_product_list'),
-    url(r'^(?P<group_name>[\w-]+)/product/create/$',
+    url(r'^(?P<group_name>[\w-]+)/products/create/$',
         ProductCreate.as_view(), name='url_product_create'),
-    url(r'^(?P<group_name>[\w-]+)/product/(?P<pk>\d+)/deactivate/$',
-        ProductDeactivate.as_view(), name='url_product_deactivate'),
-    url(r'^(?P<group_name>[\w-]+)/product/(?P<pk>\d+)/$',
+    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/$',
         ProductRetrieve.as_view(), name='url_product_retrieve'),
-    url(r'^(?P<group_name>[\w-]+)/product/(?P<pk>\d+)/update/$',
+    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/$',
         ProductUpdate.as_view(), name='url_product_update'),
+    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
+        ProductDeactivate.as_view(), name='url_product_deactivate'),
 
 
 
@@ -66,6 +64,8 @@ urlpatterns = [
 
 
 
+    # Applications
+    url(r'^admin/', admin.site.urls),
     url(r'^users/', include('users.urls')),
     url(r'^finances/', include('finances.urls')),
     url(r'^shops/', include('shops.urls')),

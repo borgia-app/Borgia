@@ -6,40 +6,6 @@ from shops.views import *
 
 
 urlpatterns = [
-    
-    # Models
-    url(r'^product/create/multiple/(?P<shop>\w+)/$', permission_required('shops.add_product', raise_exception=True)
-    (ProductCreateMultipleView.as_view()), name='url_create_product_multiple'),
-    url(r'^singleproduct/create/multiple/$', permission_required('shops.add_singleproduct', raise_exception=True)
-    (SingleProductRetrieveView.as_view()), name='url_retrieve_singleproduct'),  # R
-    url(r'^singleproduct/$', permission_required('shops.list_singleproduct', raise_exception=True)
-    (SingleProductListView.as_view()), name='url_list_singleproduct'),  # L
-    url(r'^container/create/multiple/$', permission_required('shops.add_container', raise_exception=True)
-    (ContainerRetrieveView.as_view()), name='url_retrieve_container'),  # R
-    url(r'^container/$', permission_required('shops.list_container', raise_exception=True)
-    (ContainerListView.as_view()), name='url_list_container'),  # L
-    url(r'^productunit/create/$', permission_required('shops.add_productunit', raise_exception=True)
-    (ProductUnitCreateView.as_view()), name='url_create_productunit'),  # C
-    url(r'^productunit/retrieve/(?P<pk>\d+)/$', permission_required('shops.retrieve_productunit', raise_exception=True)
-    (ProductUnitRetrieveView.as_view()), name='url_retrieve_productunit'),  # R
-    url(r'^productunit/update/(?P<pk>\d+)/$', permission_required('shops.change_productunit', raise_exception=True)
-    (ProductUnitUpdateView.as_view()), name='url_update_productunit'),  # U
-#    url(r'^productunit/delete/(?P<pk>\d+)/$', permission_required('shops.delete_productunit', raise_exception=True)
-#    (ProductUnitDeleteView.as_view()), name='url_delete_productunit'),  # D
-    url(r'^productunit/$', permission_required('shops.list_productunit', raise_exception=True)
-    (ProductUnitListView.as_view()), name='url_list_productunit'),  # L
-    url(r'^productbase/create/$', permission_required('shops.add_productbase', raise_exception=True)
-    (ProductBaseCreateView.as_view()), name='url_create_productbase'),  # C
-    url(r'^productbase/retrieve/(?P<pk>\d+)/$', permission_required('shops.retrieve_productbase', raise_exception=True)
-    (ProductBaseRetrieveView.as_view()), name='url_retrieve_productbase'),  # C
-    url(r'^productbase/update/(?P<pk>\d+)/$', permission_required('shops.change_productbase', raise_exception=True)
-    (ProductBaseUpdateView.as_view()), name='url_update_productbase'),  # C
-#    url(r'^productbase/delete/(?P<pk>\d+)/$', permission_required('shops.delete_productbase', raise_exception=True)
-#    (ProductBaseDeleteView.as_view()), name='url_delete_productbase'),  # C
-    url(r'^productbase/$', permission_required('shops.list_productbase', raise_exception=True)
-    (ProductListView.as_view()), name='url_list_productbase'),  # C
-    url(r'^product/$', permission_required('shops.list_productbase', raise_exception=True)
-    (ProductListView.as_view()), name='url_list_product'),  # C
 
     # Foyer
     url(r'^foyer/consumption/$', PurchaseFoyer.as_view(), name='url_purchase_foyer'),
