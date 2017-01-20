@@ -117,6 +117,38 @@ class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View, Gro
         return render(request, self.template_name, context=context)
 
 
+class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin ,FormView, GroupLateralMenuFormMixin):
+    """
+    Update a product and redirect to the workboard of the group.
+
+    :param kwargs['group_name']: name of the group used.
+    :param kwargs['pk']: pk of the product
+    :param self.perm_codename: codename of the permission checked.
+    """
+    form_class = ProductUpdateForm
+    template_name = 'shops/product_update.html'
+    success_url = None
+    perm_codename = None
+
+    def get_context_data(self, **kwargs):
+        context = super(ProductUpdate, self).get_context_data(**kwargs)
+        context['object'] = self.object
+        return context
+
+    def get_initial(self):
+        initial = super(ProductUpdate, self).get_initial()
+        for k in ProductUpdateForm().fields.keys():
+            initial[k] = getattr(self.object, k)
+        return initial
+
+    def form_valid(self, form):
+        for k in form.fields.keys():
+            if form.cleaned_data[k] != getattr(self.object, k):
+                setattr(self.object, k, form.cleaned_data[k])
+        self.object.save()
+        return super(ProductUpdate, self).form_valid(form)
+
+
 # AUBERGE
 # Doit devenir module
 class PurchaseAuberge(FormView):

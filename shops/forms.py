@@ -31,6 +31,17 @@ class ProductCreateForm(forms.Form):
         self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
 
 
+class ProductUpdateForm(forms.ModelForm):
+    class Meta:
+        model = ProductBase
+        fields = ['name', 'description', 'brand', 'type', 'quantity', 'product_unit']
+
+
+
+
+
+
+
 class ReplacementActiveKegForm(forms.Form):
 
     """

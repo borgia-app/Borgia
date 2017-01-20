@@ -345,12 +345,10 @@ class ProductShopFromGroupMixin(object):
         except ObjectDoesNotExist:
             raise Http404
         try:
-            print(self.kwargs['pk'])
             self.object = ProductBase.objects.get(pk=self.kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
         if self.object.shop != self.shop:
-            print("h")
             raise PermissionDenied
         return super(ProductShopFromGroupMixin, self).dispatch(request, *args, **kwargs)
 
