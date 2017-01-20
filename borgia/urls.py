@@ -9,7 +9,7 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 
 from users.views import *
-from shops.views import ProductList, ProductCreate
+from shops.views import ProductList, ProductCreate, ProductDeactivate, ProductRetrieve
 
 
 urlpatterns = [
@@ -39,8 +39,10 @@ urlpatterns = [
         ProductList.as_view(), name='url_product_list'),
     url(r'^(?P<group_name>[\w-]+)/product/create/$',
         ProductCreate.as_view(), name='url_product_create'),
-
-
+    url(r'^(?P<group_name>[\w-]+)/product/(?P<pk>\d+)/deactivate/$',
+        ProductDeactivate.as_view(), name='url_product_deactivate'),
+    url(r'^(?P<group_name>[\w-]+)/product/(?P<pk>\d+)/$',
+        ProductRetrieve.as_view(), name='url_product_retrieve'),
 
 
 

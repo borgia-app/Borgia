@@ -305,6 +305,56 @@ class GroupPermissionMixin(object):
         return super(GroupPermissionMixin, self).dispatch(request, *args, **kwargs)
 
 
+class ProductShopMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.shop = Shop.objects.get(name='shop_name')
+        except ObjectDoesNotExist:
+            raise Http404
+        try:
+            self.product = ProductBase.objects.get(name=self.kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+        if self.product.shop is not self.shop:
+            raise PermissionDenied
+        return super(ProductShopMixin, self).dispatch(request, *args, **kwargs)
+
+
+class ShopMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.shop = Shop.objects.get(name='shop_name')
+        except ObjectDoesNotExist:
+            raise Http404
+        return super(ShopMixin, self).dispatch(request, *args, **kwargs)
+
+
+class ShopFromGroupMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.shop = shop_from_group(self.group)
+        except ObjectDoesNotExist:
+            raise Http404
+        return super(ShopFromGroupMixin, self).dispatch(request, *args, **kwargs)
+
+
+class ProductShopFromGroupMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.shop = shop_from_group(self.group)
+        except ObjectDoesNotExist:
+            raise Http404
+        try:
+            print(self.kwargs['pk'])
+            self.object = ProductBase.objects.get(pk=self.kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+        if self.object.shop != self.shop:
+            print("h")
+            raise PermissionDenied
+        return super(ProductShopFromGroupMixin, self).dispatch(request, *args, **kwargs)
+
+
 def permission_to_manage_group(group):
     """
     Récupère la permission qui permet de gérer le groupe 'group'

@@ -17,19 +17,17 @@ from contrib.models import add_to_breadcrumbs
 from borgia.utils import *
 
 
-class ProductList(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class ProductList(GroupPermissionMixin, ShopFromGroupMixin, View, GroupLateralMenuMixin):
     template_name = 'shops/product_list.html'
     perm_codename = 'list_product'
 
     def get(self, request, *args, **kwargs):
         context = super(ProductList, self).get_context_data(**kwargs)
-        context['product_list'] = ProductBase.objects.filter(
-            shop=shop_from_group(self.group)
-        )
+        context['product_list'] = ProductBase.objects.filter(shop=self.shop)
         return render(request, self.template_name, context=context)
 
 
-class ProductCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView, GroupLateralMenuFormMixin):
     template_name = 'shops/product_create.html'
     perm_codename = 'add_product'
     form_class = ProductCreateForm
@@ -66,13 +64,57 @@ class ProductCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     def get_context_data(self, **kwargs):
         context = super(ProductCreate, self).get_context_data(**kwargs)
-        context['shop'] = shop_from_group(self.group)
+        context['shop'] = self.shop
         return context
 
     def get_form_kwargs(self):
         kwargs_form = super(ProductCreate, self).get_form_kwargs()
-        kwargs_form['shop'] = shop_from_group(self.group)
+        kwargs_form['shop'] = self.shop
         return kwargs_form
+
+
+class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View, GroupLateralMenuMixin):
+    """
+    Deactivate a product and redirect to the workboard of the group.
+
+    :param kwargs['group_name']: name of the group used.
+    :param kwargs['pk']: pk of the product
+    :param self.perm_codename: codename of the permission checked.
+    """
+    template_name = 'shops/product_deactivate.html'
+    success_url = None
+    perm_codename = None
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['object'] = self.object
+        return render(request, self.template_name, context=context)
+
+    def post(self, request, *args, **kwargs):
+        if self.object.is_active is True:
+            self.object.is_active = False
+        else:
+            self.object.is_active = True
+        self.object.save()
+
+        return redirect(force_text(self.success_url))
+
+
+class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View, GroupLateralMenuMixin):
+    """
+    Retrieve a Product.
+
+    :param kwargs['group_name']: name of the group used.
+    :param kwargs['pk']: pk of the product
+    :param self.perm_codename: codename of the permission checked.
+    """
+    template_name = 'shops/product_retrieve.html'
+    perm_codename = None
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['object'] = self.object
+        return render(request, self.template_name, context=context)
 
 
 # AUBERGE

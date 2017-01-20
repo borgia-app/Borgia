@@ -1,0 +1,38 @@
+{% extends 'base_sober.html' %}
+
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Détails du produit
+  </div>
+  <div class="panel-body">
+    <ul>
+      <li>Nom : {{ object.name }}</li>
+      <li>Description : {{ object.description }}</li>
+      <li>Prix de vente actuel : {{ object.calculated_price }}</li>
+      <li>Marque : {{ object.brand }}</li>
+      <li>Type : {{ object.get_type_display }}</li>
+      <li>Magasin : {{ object.shop }}</li>
+      {% if object.product_unit %}
+      <li>Unité de produit : </li>
+      {% endif %}
+    </ul>
+  </div>
+</div>
+{% if perms.users.change_product %}
+<div class="panel panel-warning">
+  <div class="panel-heading">
+    Administration
+  </div>
+  <div class="panel-body">
+    <p><a class="s" href="{% url 'url_product_update' group_name=group_name pk=object.pk %}">Modifier les informations</a></p>
+    <p><a class="s" href="{% url 'url_product_deactivate' group_name=group_name pk=object.pk %}">
+        {% if object.is_active == True %}
+            Désactiver l'utilisateur
+        {% else %}
+            Activer l'utilisateur
+        {% endif %}</a></p>
+  </div>
+</div>
+{% endif %}
+{% endblock %}
