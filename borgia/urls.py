@@ -3,10 +3,11 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import logout, login, password_reset, password_reset_complete, password_reset_confirm,\
     password_change, password_change_done, password_reset_done
-from borgia.views import LoginPG, page_clean, jsi18n_catalog, TestBootstrapSober, GroupWorkboard
+from borgia.views import LoginPG, page_clean, jsi18n_catalog, TestBootstrapSober, GroupWorkboard, get_list_model, get_unique_model
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
+from django.contrib.auth.decorators import permission_required
 
 from users.views import *
 from shops.views import ProductList, ProductCreate, ProductDeactivate, ProductRetrieve, ProductUpdate
@@ -45,8 +46,10 @@ urlpatterns = [
         ProductDeactivate.as_view(), name='url_product_deactivate'),
 
 
-
-
+    url(r'^user/get/$', permission_required('users.list_user', raise_exception=True)
+        (get_list_model), {'model': User, 'search_in': ['username', 'last_name', 'first_name', 'family']}, name='url_get_list_user'),
+    url(r'^user/get/retrieve/(?P<pk>\d+)/$', permission_required('users.list_user', raise_exception=True)
+        (get_unique_model), {'model': User}, name='url_get_retrieve_user'),
 
 
 
@@ -66,9 +69,7 @@ urlpatterns = [
 
     # Applications
     url(r'^admin/', admin.site.urls),
-    url(r'^users/', include('users.urls')),
     url(r'^finances/', include('finances.urls')),
-    url(r'^shops/', include('shops.urls')),
     url(r'notifications/', include('notifications.urls')),
     url(r'settings_data/', include('settings_data.urls')),
     url(r'^local/jsi18n$', jsi18n_catalog),

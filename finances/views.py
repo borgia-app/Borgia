@@ -1,128 +1,33 @@
-#-*- coding: utf-8 -*-
+import json
+import time
+import re
+import csv
+import xlsxwriter
+import operator
+import hashlib
+import decimal
 from django.shortcuts import render, HttpResponse, force_text, redirect, Http404
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import ListView, DetailView, FormView, View
 from django.core import serializers
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Permission
 from django.db.models import Q
-from django.contrib.auth.models import Group
 from datetime import timedelta
 from django.utils.timezone import now
-import json, time, re, csv, xlsxwriter, operator, hashlib, decimal
 from django.views.decorators.csrf import csrf_exempt
 
+from django.views.generic.edit import CreateView, UpdateView, DeleteView
+from django.views.generic import ListView, DetailView, FormView, View
+from django.contrib.auth.models import Group
+from django.conf import settings
 
 from finances.forms import *
 from finances.models import *
 from shops.models import Container, ProductBase
 from users.models import user_from_token_tap, list_year
 from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
-from django.conf import settings
 from users.templatetags import users_extra
 from contrib.models import add_to_breadcrumbs
 from settings_data.models import Setting
-
-
-def electrovanne_request1(request):
-    data = []
-    try:
-        # Variables
-        container = Container.objects.get(place='tireuse %s' % request.GET.get('tireuse_pk'))
-        id = request.GET.get('id')
-        user = user_from_token_tap(request.GET.get('token_pk'))
-        sig = request.GET.get('sig')
-
-        # Quantité max possible
-        if user.balance <= 0:
-            max_quantity = 0
-        else:
-            max_quantity = round(float((container.product_base.quantity * user.balance) / container.product_base.get_moded_price()), 0)
-
-        # Vérification de la signature
-        params = {
-            'tireuse_pk': request.GET.get('tireuse_pk'),
-            'id': id,
-            'token_pk': request.GET.get('token_pk'),
-            'sig': sig
-        }
-        if verify_token_algo_lydia(params, settings.ELECTROVANNE_TOKEN):
-            # Ecriture de la liste
-            data.append(request.GET.get('token_pk'))
-            data.append(request.GET.get('tireuse_pk'))
-            data.append(id)
-            data.append(max_quantity)
-        else:
-            data.append('error0')
-
-    except ObjectDoesNotExist:
-        data.append('error0')
-
-    return HttpResponse(json.dumps(data))
-
-
-def electrovanne_request2(request):
-    data = []
-    try:
-        # Variables (id inutile pour nous)
-        container = Container.objects.get(place='tireuse %s' % request.GET.get('tireuse_pk'))
-        user = user_from_token_tap(request.GET.get('token_pk'))
-        quantity = request.GET.get('quantity')
-        id = request.GET.get('id')
-        sig = request.GET.get('sig')
-
-        # Vérification de la signature
-        params = {
-            'tireuse_pk': request.GET.get('tireuse_pk'),
-            'id': id,
-            'quantity': quantity,
-            'token_pk': request.GET.get('token_pk'),
-            'sig': sig
-        }
-        if verify_token_algo_lydia(params, settings.ELECTROVANNE_TOKEN):
-            # Création Sale
-            sale = Sale.objects.create(date=datetime.now(),
-                                       sender=user,
-                                       recipient=User.objects.get(username="AE_ENSAM"),
-                                       operator=user)
-
-            # Création Single product from container
-            spfc = SingleProductFromContainer.objects.create(container=container,
-                                                             sale=sale,
-                                                             quantity=quantity,
-                                                             sale_price=(container.product_base.get_moded_price()  /
-                                                                         container.product_base.quantity) * int(
-                                                                 quantity))
-            sale.maj_amount()
-
-            # Création paiement par compte foyer
-            d_b = DebitBalance.objects.create(amount=sale.amount,
-                                              date=datetime.now(),
-                                              sender=sale.sender,
-                                              recipient=sale.recipient)
-            payment = Payment.objects.create()
-            payment.debit_balance.add(d_b)
-            payment.save()
-            payment.maj_amount()
-
-            sale.payment = payment
-            sale.save()
-
-            # Paiement par le client
-            sale.payment.debit_balance.all()[0].set_movement()
-            data.append(200)
-        else:
-            data.append(403)
-
-    except ObjectDoesNotExist:
-        data.append(0)
-
-    return HttpResponse(json.dumps(data))
-
-
-def electrovanne_date(request):
-    data = [time.time()]
-    return HttpResponse(json.dumps(data))
 
 
 def workboard_treasury(request):
@@ -312,6 +217,7 @@ class ExceptionnalMovementView(FormNextView):
         initial = super(ExceptionnalMovementView, self).get_initial()
         initial['operator_username'] = self.request.user.username
         return initial
+
 
 class SupplyLydiaSelfView(FormView):
     form_class = SupplyLydiaSelfForm
@@ -525,63 +431,6 @@ class BankAccountListView(ListView):
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Liste comptes en banque')
         return super(BankAccountListView, self).get(request, *args, **kwargs)
-
-
-class ChequeRetrieveView(DetailView):
-    model = Cheque
-    template_name = "finances/cheque_retrieve.html"
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Détail chèque')
-        return super(ChequeRetrieveView, self).get(request, *args, **kwargs)
-
-
-class ChequeListView(ListView):
-    model = Cheque
-    template_name = "finances/cheque_list.html"
-    queryset = Cheque.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Liste chèques')
-        return super(ChequeListView, self).get(request, *args, **kwargs)
-
-
-class CashRetrieveView(DetailView):
-    model = Cash
-    template_name = "finances/cash_retrieve.html"
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Détail espèces')
-        return super(CashRetrieveView, self).get(request, *args, **kwargs)
-
-
-class CashListView(ListView):
-    model = Cash
-    template_name = "finances/cash_list.html"
-    queryset = Cash.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Liste espèces')
-        return super(CashListView, self).get(request, *args, **kwargs)
-
-
-class LydiaRetrieveView(DetailView):
-    model = Lydia
-    template_name = "finances/lydia_retrieve.html"
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Détail virement Lydia')
-        return super(LydiaRetrieveView, self).get(request, *args, **kwargs)
-
-
-class LydiaListView(ListView):
-    model = Lydia
-    template_name = "finances/lydia_list.html"
-    queryset = Lydia.objects.all()
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Liste virements Lydia')
-        return super(LydiaListView, self).get(request, *args, **kwargs)
 
 
 class SaleRetrieveView(DetailView):
