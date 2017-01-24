@@ -1,4 +1,3 @@
-#-*- coding: utf-8 -*-
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import logout, login, password_reset, password_reset_complete, password_reset_confirm,\
@@ -10,11 +9,14 @@ from django.views.generic import TemplateView
 from django.contrib.auth.decorators import permission_required
 
 from users.views import *
-from shops.views import ProductList, ProductCreate, ProductDeactivate, ProductRetrieve, ProductUpdate
+from shops.views import ProductList, ProductCreate, ProductDeactivate, ProductRetrieve, ProductUpdate, PurchaseFoyer
+from finances.views import *
 
+# TODO: 403 / 404 / 500 with lateral menu !
 
 urlpatterns = [
-
+    url(r'^(?P<group_name>[\w-]+)/$',
+        GroupWorkboard.as_view(), name='url_group_workboard'),
     url(r'^(?P<group_name>[\w-]+)/workboard/$',
         GroupWorkboard.as_view(), name='url_group_workboard'),
 
@@ -45,6 +47,37 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
         ProductDeactivate.as_view(), name='url_product_deactivate'),
 
+    url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/bank_accounts/create/$',
+        UserBankAccountCreate.as_view(), name='url_user_bankaccount_create'),
+    url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/bank_accounts/(?P<pk>\d+)/update/$',
+        UserBankAccountUpdate.as_view(), name='url_user_bankaccount_update'),
+    url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/bank_accounts/(?P<pk>\d+)/delete/$',
+        UserBankAccountDelete.as_view(), name='url_user_bankaccount_delete'),
+
+    url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/exceptionnal_movement/create/$',
+        UserExceptionnalMovementCreate.as_view(), name='url_user_exceptionnalmovement_create'),
+    url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/supply_money/$',
+        UserSupplyMoney.as_view(), name='url_user_supplymoney'),
+
+    url(r'^(?P<group_name>[\w-]+)/sales/$',
+        SaleList.as_view(), name='url_sale_list'),
+    url(r'^(?P<group_name>[\w-]+)/sales/(?P<pk>\d+)/$',
+        SaleRetrieve.as_view(), name='url_sale_retrieve'),
+
+    url(r'^(?P<group_name>[\w-]+)/rechargings/$',
+        RechargingList.as_view(), name='url_recharging_list'),
+    url(r'^(?P<group_name>[\w-]+)/rechargings/(?P<pk>\d+)/$',
+        RechargingRetrieve.as_view(), name='url_recharging_retrieve'),
+
+    url(r'^(?P<group_name>[\w-]+)/transferts/$',
+        TransfertList.as_view(), name='url_transfert_list'),
+    url(r'^(?P<group_name>[\w-]+)/transferts/(?P<pk>\d+)/$',
+        TransfertRetrieve.as_view(), name='url_transfert_retrieve'),
+
+    url(r'^(?P<group_name>[\w-]+)/exceptionnal_movements/$',
+        ExceptionnalMovementList.as_view(), name='url_exceptionnalmovement_list'),
+    url(r'^(?P<group_name>[\w-]+)/exceptionnal_movements/(?P<pk>\d+)/$',
+        ExceptionnalMovementRetrieve.as_view(), name='url_exceptionnalmovement_retrieve'),
 
     url(r'^user/get/$', permission_required('users.list_user', raise_exception=True)
         (get_list_model), {'model': User, 'search_in': ['username', 'last_name', 'first_name', 'family']}, name='url_get_list_user'),
@@ -52,8 +85,11 @@ urlpatterns = [
         (get_unique_model), {'model': User}, name='url_get_retrieve_user'),
 
 
+    url(r'^supply/lydia/self/$', SupplyLydiaSelfView.as_view(), name='url_supply_lydia_self'),
+    url(r'^supply/lydia/self/confirm$', SupplyLydiaSelfConfirmView.as_view(), name='url_supply_lydia_self_confirm'),
+    url(r'^supply/lydia/self/callback$', supply_lydia_self_callback, name='url_supply_lydia_self_callback'),
 
-
+    url(r'^shops/foyer/consumption/$', PurchaseFoyer.as_view(), name='url_purchase_foyer'),
 
 
 
@@ -69,7 +105,7 @@ urlpatterns = [
 
     # Applications
     url(r'^admin/', admin.site.urls),
-    url(r'^finances/', include('finances.urls')),
+    #url(r'^finances/', include('finances.urls')),
     url(r'notifications/', include('notifications.urls')),
     url(r'settings_data/', include('settings_data.urls')),
     url(r'^local/jsi18n$', jsi18n_catalog),

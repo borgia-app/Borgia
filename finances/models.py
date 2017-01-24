@@ -6,8 +6,9 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, RegexValidator
+from django.core.exceptions import ObjectDoesNotExist
 
-from shops.models import SingleProduct, SingleProductFromContainer, Container
+from shops.models import SingleProduct, SingleProductFromContainer, Container, Shop
 
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
@@ -327,6 +328,14 @@ class Sale(models.Model):
         string = string[0: len(string)-2]
         return string
 
+    def from_shop(self):
+        try:
+            return Shop.objects.get(name=self.wording.split(' ')[1])
+        except ObjectDoesNotExist:
+            return None
+        except IndexError:
+            return None
+
     class Meta:
         """
         Define Permissions for Sale.
@@ -334,7 +343,17 @@ class Sale(models.Model):
         permissions = (
             ('retrieve_sale', 'Afficher une vente'),
             ('list_sale', 'Lister les ventes'),
-            ('add_transfert', 'Effectuer un transfert d\'argent')
+            ('add_transfert', 'Effectuer un transfert d\'argent'),
+            ('retrieve_recharging', 'Afficher un rechargement'),
+            ('list_recharging', 'Lister les rechargements'),
+            ('retrieve_transfert', 'Afficher un transfert'),
+            ('list_transfert', 'Lister les transferts'),
+            ('retrieve_exceptionnal_movement',
+             'Afficher un mouvement exceptionnel'),
+            ('list_exceptionnal_movement',
+             'Lister les mouvements exceptionnels'),
+            ('add_exceptionnal_movement',
+             'Faire un mouvement exceptionnel')
         )
 
 

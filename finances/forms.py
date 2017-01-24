@@ -1,4 +1,3 @@
-#-*- coding: utf-8 -*-
 from django import forms
 from django.contrib.auth import authenticate
 from django.forms import ModelForm
@@ -9,8 +8,172 @@ from django.utils.timezone import now
 import re
 
 from users.models import User
+from shops.models import Shop
 from finances.models import Cheque, Cash, Lydia, BankAccount, SharedEvent, Sale
 from borgia.validators import *
+
+
+class BankAccountCreateForm(forms.ModelForm):
+    class Meta:
+        model = BankAccount
+        fields = ['bank', 'account']
+
+
+class BankAccountUpdateForm(forms.ModelForm):
+    class Meta:
+        model = BankAccount
+        fields = ['bank', 'account']
+
+
+class GenericListSearchDateForm(forms.Form):
+    search = forms.CharField(label='Recherche', max_length=255, required=False)
+    date_begin = forms.DateField(
+        label='Date de début',
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+        required=False)
+    date_end = forms.DateField(
+        label='Date de fin',
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+        required=False)
+
+
+class SaleListSearchDateForm(forms.Form):
+    shop = forms.ModelChoiceField(
+        label='Magasin',
+        queryset=Shop.objects.all(),
+        empty_label="Tous",
+        required=False)
+    search = forms.CharField(label='Recherche', max_length=255, required=False)
+    date_begin = forms.DateField(
+        label='Date de début',
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+        required=False)
+    date_end = forms.DateField(
+        label='Date de fin',
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+        required=False)
+
+
+class ExceptionnalMovementForm(forms.Form):
+    type_movement = forms.ChoiceField(choices=(('debit', 'Débit'),
+                                               ('credit', 'Crédit')),
+                                      label='Type')
+    amount = forms.DecimalField(label='Montant (€)', decimal_places=2,
+                                max_digits=9, min_value=0)
+    justification = forms.CharField(label='Justification')
+    operator_username = forms.CharField(label='Gestionnaire',
+                                        widget=forms.TextInput(
+                                            attrs={'class':
+                                                   'autocomplete_username'}),
+                                        validators=[
+                                            autocomplete_username_validator])
+    operator_password = forms.CharField(label='Mot de passe',
+                                        widget=PasswordInput)
+
+    def clean(self):
+        cleaned_data = super(ExceptionnalMovementForm, self).clean()
+
+        try:
+            operator_username = cleaned_data['operator_username']
+            operator_password = cleaned_data['operator_password']
+            if authenticate(username=operator_username, password=operator_password) is None:
+                raise forms.ValidationError('Echec d\'authentification')
+        except KeyError:
+            pass
+
+        return super(ExceptionnalMovementForm, self).clean()
+
+
+class UserSupplyMoneyForm(forms.Form):
+    type = forms.ChoiceField(label='Type', choices=(('cash', 'Espèces'),
+                                                    ('cheque', 'Chèque'),
+                                                    ('lydia', 'Lydia')))
+    amount = forms.DecimalField(label='Montant (€)', decimal_places=2,
+                                max_digits=9, min_value=0)
+    # Unused for Cash
+    unique_number = forms.CharField(label='Numéro unique', required=False)
+    # Unused for Cash
+    signature_date = forms.DateField(label='Date de signature', required=False,
+                                     widget=forms.DateInput(
+                                         attrs={'class': 'datepicker'}))
+    # Unused for Cash and Lydia
+    bank_account = forms.CharField(label='Compte bancaire', required=False)
+    operator_username = forms.CharField(label='Gestionnaire',
+                                        widget=forms.TextInput(
+                                            attrs={'class':
+                                                   'autocomplete_username'}),
+                                        validators=[
+                                            autocomplete_username_validator])
+    operator_password = forms.CharField(label='Mot de passe',
+                                        widget=PasswordInput)
+
+    def __init__(self, **kwargs):
+        self.user = kwargs.pop('user')
+        super(UserSupplyMoneyForm, self).__init__(**kwargs)
+        self.fields['bank_account'] = forms.ModelChoiceField(
+            label='Compte bancaire',
+            queryset=BankAccount.objects.filter(owner=self.user),
+            required=False
+        )
+
+    def clean_unique_number(self):
+        data = self.cleaned_data['unique_number']
+
+        if self.cleaned_data['type'] == 'cheque':
+            if re.match('^[0-9]{7}$', data) is None:
+                raise forms.ValidationError('Numéro de chèque invalide')
+        if self.cleaned_data['type'] == 'lydia':
+            if data == '':
+                raise forms.ValidationError('Obligatoire')
+
+        return data
+
+    def clean_signature_date(self):
+        data = self.cleaned_data['signature_date']
+
+        if self.cleaned_data['type'] == 'cheque' or self.cleaned_data['type'] == 'lydia':
+            if data is None:
+                raise forms.ValidationError('Obligatoire')
+
+        return data
+
+    def clean_bank_account(self):
+        data = self.cleaned_data['bank_account']
+
+        if self.cleaned_data['type'] == 'cheque':
+            if data is None:
+                raise forms.ValidationError('Obligatoire')
+
+        return data
+
+    def clean(self):
+
+        cleaned_data = super(UserSupplyMoneyForm, self).clean()
+
+        try:
+            operator_username = cleaned_data['operator_username']
+            operator_password = cleaned_data['operator_password']
+
+            if operator_password and operator_password:
+                if authenticate(username=operator_username, password=operator_password) is None:
+                    raise forms.ValidationError('Echec d\'authentification')
+        except KeyError:
+            pass
+
+        return cleaned_data
+
+
+
+
+
+
+
+
+
 
 
 class TransfertCreateForm(forms.Form):
@@ -37,83 +200,6 @@ class TransfertCreateForm(forms.Form):
                 raise forms.ValidationError('Le montant doit être inférieur ou égal à ton solde.')
         except KeyError:
             pass
-        return cleaned_data
-
-
-class SupplyUnitedForm(forms.Form):
-
-    # Général
-    # Type
-    type = forms.ChoiceField(label='Type', choices=(('cash', 'Espèces'), ('cheque', 'Chèque'), ('lydia', 'Lydia')))
-    # Informations générales
-    amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
-    sender = forms.CharField(label='Payeur', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
-                             validators=[autocomplete_username_validator])
-    unique_number = forms.CharField(label='Numéro unique', required=False)  # Inutile pour Cash
-    signature_date = forms.DateField(label='Date de signature', required=False,
-                                     widget=forms.DateInput(attrs={'class': 'datepicker'}))  # Inutile pour Cash
-    bank_account = forms.CharField(label='Compte bancaire', widget=forms.Select,
-                                   required=False)  # Inutile pour Cash et Lydia
-
-    # Gestionnaire - opérateur
-    operator_username = forms.CharField(label='Gestionnaire',
-                                        widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
-                                        validators=[autocomplete_username_validator])
-    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
-
-    def clean_unique_number(self):
-        data = self.cleaned_data['unique_number']
-
-        # Cas chèque -> obligatoire et bon format
-        if self.cleaned_data['type'] == 'cheque':
-            if re.match('^[0-9]{7}$', data) is None:
-                raise forms.ValidationError('Numéro de chèque invalide')
-
-        # Cas Lydia -> obligatoire
-        if self.cleaned_data['type'] == 'lydia':
-            if data == '':
-                raise forms.ValidationError('Obligatoire')
-
-        return data
-
-    def clean_signature_date(self):
-        data = self.cleaned_data['signature_date']
-
-        # Cas chèque et lydia -> obligatoire
-        if self.cleaned_data['type'] == 'cheque' or self.cleaned_data['type'] == 'lydia':
-            if data is None:
-                raise forms.ValidationError('Obligatoire')
-
-        return data
-
-    def clean_bank_account(self):
-        data = self.cleaned_data['bank_account']
-
-        # Cas chèque -> obligatoire
-        if self.cleaned_data['type'] == 'cheque':
-            if data == '':
-                raise forms.ValidationError('Obligatoire')
-
-        return data
-
-    def clean(self):
-
-        cleaned_data = super(SupplyUnitedForm, self).clean()
-
-        try:
-            operator_username = cleaned_data['operator_username']
-            operator_password = cleaned_data['operator_password']
-
-            # Essaye d'authentification seulement si les deux champs sont valides
-            if operator_password and operator_password:
-                # Cas d'échec d'authentification
-                if authenticate(username=operator_username, password=operator_password) is None:
-                    raise forms.ValidationError('Echec d\'authentification')
-                elif authenticate(username=operator_username, password=operator_password).has_perm('users.supply_account') is False:
-                    raise forms.ValidationError('Erreur de permission')
-        except KeyError:
-            pass
-
         return cleaned_data
 
 
@@ -148,37 +234,6 @@ class RetrieveMoneyForm(forms.Form):
         for name, value in self.cleaned_data.items():
             if name.startwith('field_user_'):
                 yield (self.fields[name].label, value)
-
-
-class ExceptionnalMovementForm(forms.Form):
-    type_movement = forms.ChoiceField(choices=(('debit', 'Débit'), ('credit', 'Crédit')), label='Type')
-    amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
-    justification = forms.CharField(label='Justification')
-    affected = forms.CharField(label='Concerné', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
-                               validators=[autocomplete_username_validator])
-    operator_username = forms.CharField(label='Gestionnaire',
-                                        widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
-                                        validators=[autocomplete_username_validator])
-    operator_password = forms.CharField(label='Mot de passe', widget=PasswordInput)
-
-    def clean(self):
-
-        cleaned_data = super(ExceptionnalMovementForm, self).clean()
-        try:
-            operator_username = cleaned_data['operator_username']
-            operator_password = cleaned_data['operator_password']
-
-            # Cas d'échec d'authentification
-            if authenticate(username=operator_username, password=operator_password) is None:
-                raise forms.ValidationError('Echec d\'authentification')
-            elif authenticate(username=operator_username, password=operator_password).has_perm(
-                    'users.exceptionnal_movement') is False:
-                raise forms.ValidationError('Erreur de permission')
-
-        except KeyError:
-            pass
-
-        return super(ExceptionnalMovementForm, self).clean()
 
 
 class SharedEventCreateForm(forms.Form):
@@ -253,20 +308,6 @@ class SetPriceProductBaseForm(forms.Form):
     manual_price = forms.DecimalField(label='Prix manuel', decimal_places=2, max_digits=9, min_value=0, required=False)
 
 
-class BankAccountCreateForm(forms.Form):
-    owner = forms.CharField(label='Possesseur', max_length=255,
-                            widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
-                            validators=[autocomplete_username_validator])
-    bank = forms.CharField(label='Banque')
-    account = forms.CharField(label='Numéro de compte')
-
-
 class BankAccountCreateOwnForm(forms.Form):
     bank = forms.CharField(label='Banque')
     account = forms.CharField(label='Numéro de compte')
-
-
-class SaleListAllForm(forms.Form):
-    date_begin = forms.DateField(label='Date de début', widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    date_end = forms.DateField(label='Date de fin', widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    category = forms.ChoiceField(label='Catégories', choices=(Sale.CATEGORY_CHOICES + tuple([('all_categories', 'Toutes')])))

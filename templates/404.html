@@ -1,11 +1,12 @@
-{% extends 'base.html' %}
+{% extends 'base_sober.html' %}
 
 {% block content %}
-
-        <div class="container50">
-            <h2 class="align-center">Erreur 404</h2>
-            <p>Page non trouvée !</p>
-            <a href="{% url 'url_profile' %}">Retourner au profil.</a>
-        </div>
-
+<div class="panel panel-danger">
+  <div class="panel-heading">
+    Erreur 404
+  </div>
+  <div class="panel-body">
+    Page non trouvée.
+  </div>
+</div>
 {% endblock %}

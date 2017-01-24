@@ -1,137 +1,61 @@
 {% extends 'base_sober.html' %}
 {% load finances_extra %}
 {% load users_extra %}
+{% load bootstrap %}
 
 {% block content %}
-    <div class="panel panel-primary">
-        <div class="panel-heading">
-          Recherche
-        </div>
-        <div class="panel-body">
-            Recherche <input type="text" id="id_search" name="search" /><br>
-            <input type="checkbox" id="id_is_active" name="is_active" /> Utilisateurs désactivés <br>
-            <select id="id_year">
-                <option value="all">Toutes les années</option>
-                {% for y in list_year %}
-                    <option value="{{ y }}">{{ y }}</option>
-                {% endfor %}
-            </select>
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    Recherche
+  </div>
+  <div class="panel-body">
+    <form action="" method="post" class="form-horizontal">
+      {% csrf_token %}
+      {{ form|bootstrap_horizontal }}
+      <div class="form-group">
+        <div class="col-sm-10 col-sm-offset-2">
+          <button type="submit" class="btn btn-primary">Recherche</button>
+          <a class="btn btn-warning" href="">Remise à zéro</a>
         </div>
       </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          Résultats
-        </div>
-          <table class="table table-hover table-striped" id="table_users">
-            <tr id="first_line">
-                <th id="last_name">Nom</th>
-                <th id="first_name">Prénom</th>
-                <th id="surname">Bucque</th>
-                <th id="family">Num's</th>
-                <th id="campus">Tabagn's</th>
-                <th id="year">Prom's</th>
-                <th id="balance">Solde</th>
-                <th id="is_active">Est actif</th>
-                <th>Détail</th>
-            </tr>
-          </table>
-        </div>
-
-    <script>
-        var order_by;
-        var search;
-        var year;
-        var is_active = 'True';
-        var reverse = 'False';
-
-        $(document).ready(function(){
-            set_user_list();
-        });
-
-        var search_handler = function() {
-            if ($('#id_search').val().trim()!='') {
-                search = $('#id_search').val().trim();
-                set_user_list();
-            }
-            else {
-                search = undefined;
-                set_user_list();
-            }
-        };
-        $('#id_search').keyup(search_handler).change(search_handler);
-        $("#id_year").change(function(){
-            if ($("select option:selected").attr('value') == 'all') {
-                year = undefined;
-            }
-            else {
-                year = $("select option:selected").attr('value');
-            }
-            set_user_list();
-        });
-        $("#id_is_active").change(function(){
-            if ($(this).is(':checked') == true) {
-                is_active = 'False';
-            }
-            else {
-                is_active = 'True';
-            }
-            set_user_list();
-        });
-        $("#first_line th[id]").click(function(){
-            if (order_by == $(this).attr('id')) {
-                if (reverse == 'False') {
-                    reverse = 'True'
-                }
-                else {
-                    reverse = 'False';
-                }
-            }
-            else {
-                reverse = 'False';
-            }
-            order_by = $(this).attr('id');
-            set_user_list();
-        });
-
-        function set_user_list() {
-            $.ajax({
-                url: "{% url 'url_get_list_user' %}",
-                dataType: "json",
-                data: {
-                    order_by: order_by,
-                    reverse: reverse,
-                    is_active: is_active,
-                    year: year,
-                    search: search
-                },
-                success: function(data) {
-                    // Clean du tableau
-                    $("#table_users tr").not('#first_line').remove();
-                    // Ajout des nouvelles lignes
-                    for (i=0; i<data.length; i++) {
-                        var data_is_active = 'Non';
-                        if (data[i].fields.is_active == true) {
-                            data_is_active = 'Oui'
-                        }
-                        add_line([data[i].fields.last_name, data[i].fields.first_name, data[i].fields.surname,
-                            data[i].fields.family, data[i].fields.campus, data[i].fields.year, data[i].fields.balance + '€',
-                            data_is_active, '<a href="/{{ group_name }}/users/' + data[i].pk+ '/">Détail</a>']);
-                    }
-                },
-                error: function() {
-                    // Clean du tableau
-                    $("#table_users tr").not('#first_line').remove();
-                }
-            });
-        }
-
-        function add_line(data) {
-            var line = '<tr>';
-            for (j=0; j<data.length; j++) {
-                line += '<td>' + data[j] + '</td>'
-            }
-            line += '</tr>';
-            $('#table_users').append(line);
-        }
-    </script>
+    </form>
+  </div>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Résultats
+  </div>
+  <table class="table table-hover table-striped">
+    <thead>
+      <tr>
+          <th>Nom</th>
+          <th>Prénom</th>
+          <th>Bucque</th>
+          <th>Num's</th>
+          <th>Tabagn's</th>
+          <th>Prom's</th>
+          <th>Solde</th>
+          <th>Est actif</th>
+          <th>Détail</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in user_list %}
+      <tr class="{% if user.balance >= 0 %}success{% else %}danger{% endif %}">
+        <td>{{ user.first_name }}</td>
+        <td>{{ user.last_name }}</td>
+        <td>{{ user.surname }}</td>
+        <td>{{ user.family }}</td>
+        <td>{{ user.campus }}</td>
+        <td>{{ user.year }}</td>
+        <td>{{ user.balance }}€</td>
+        <td>{{ user.is_active }}</td>
+        <td>
+          <a href="{% url 'url_user_retrieve' group_name=group_name pk=user.pk %}">Détail</a>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

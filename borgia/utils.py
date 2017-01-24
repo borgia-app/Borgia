@@ -72,6 +72,66 @@ def lateral_menu(user, group, active=None) :
             lateral_menu_product(group)
             )
 
+    # List sales
+    try:
+        if Permission.objects.get(codename='list_sale') in group.permissions.all():
+            nav_tree.append(simple_lateral_link(
+                label='Ventes',
+                faIcon='shopping-cart',
+                id='lm_sale_list',
+                url=reverse(
+                    'url_sale_list',
+                    kwargs={'group_name': group.name}
+                )
+            ))
+    except ObjectDoesNotExist:
+        pass
+
+    # List rechargings
+    try:
+        if Permission.objects.get(codename='list_recharging') in group.permissions.all():
+            nav_tree.append(simple_lateral_link(
+                label='Rechargements',
+                faIcon='money',
+                id='lm_recharging_list',
+                url=reverse(
+                    'url_recharging_list',
+                    kwargs={'group_name': group.name}
+                )
+            ))
+    except ObjectDoesNotExist:
+        pass
+
+    # List transferts
+    try:
+        if Permission.objects.get(codename='list_transfert') in group.permissions.all():
+            nav_tree.append(simple_lateral_link(
+                label='Transferts',
+                faIcon='exchange',
+                id='lm_transfert_list',
+                url=reverse(
+                    'url_transfert_list',
+                    kwargs={'group_name': group.name}
+                )
+            ))
+    except ObjectDoesNotExist:
+        pass
+
+    # List exceptionnal movements
+    try:
+        if Permission.objects.get(codename='list_exceptionnal_movement') in group.permissions.all():
+            nav_tree.append(simple_lateral_link(
+                label='Exceptionnels',
+                faIcon='exclamation-triangle',
+                id='lm_exceptionnalmovement_list',
+                url=reverse(
+                    'url_exceptionnalmovement_list',
+                    kwargs={'group_name': group.name}
+                )
+            ))
+    except ObjectDoesNotExist:
+        pass
+
     if active is not None:
         for link in nav_tree:
             try:
@@ -83,6 +143,7 @@ def lateral_menu(user, group, active=None) :
                 if link['id'] == active:
                     link['active'] = True
                     break
+
     return nav_tree
 
 def lateral_menu_model(model, group, faIcon='database'):
@@ -352,6 +413,33 @@ class ProductShopFromGroupMixin(object):
             raise PermissionDenied
         return super(ProductShopFromGroupMixin, self).dispatch(request, *args, **kwargs)
 
+
+class UserMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Add self.user and modify success_url to be the retrieve of the user by
+        default.
+
+        Add the user to self and to context. Modify the success_url to be the
+        retrieve of the user.
+
+        :param kwargs['user_pk']: pk of the user
+        :type kwargs['user_pk']: positiv integer
+        :raises: Http404 if no user found
+        """
+        try:
+            self.user = User.objects.get(pk=self.kwargs['user_pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+        self.success_url = reverse('url_user_retrieve', kwargs={
+            'group_name': self.kwargs['group_name'],
+            'pk': self.user.pk})
+        return super(UserMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(UserMixin, self).get_context_data(**kwargs)
+        context['user'] = self.user
+        return context
 
 def permission_to_manage_group(group):
     """

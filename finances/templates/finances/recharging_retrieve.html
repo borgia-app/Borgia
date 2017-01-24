@@ -3,16 +3,14 @@
 {% block content %}
 <div class="panel panel-default">
   <div class="panel-heading">
-    Détails d'une vente du magasin {{ object.from_shop }}
+    Détails d'un rechargement de compte
   </div>
   <div class="panel-body">
     <ul>
-      <li>Magasin : {{ object.from_shop }}</li>
       <li>Opérateur : {{ object.operator }}</li>
       <li>Acheteur : {{ object.sender }}</li>
       <li>Date : {{ object.date }}</li>
       <li>Montant : {{ object.amount }}€</li>
-      <li>Achats : {{ object.string_products }}</li>
     </ul>
   </div>
 </div>

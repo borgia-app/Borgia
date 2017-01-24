@@ -294,7 +294,7 @@ class User(AbstractUser):
             ('list_user', 'Lister les users'),
             ('retrieve_user', 'Afficher les users'),
 
-            ('supply_account', 'Ajouter de l\'argent à un compte'),
+            ('supply_money', 'Ajouter de l\'argent à un compte'),
             ('exceptionnal_movement', 'Créer un mouvement exceptionnel'),
 
             ('link_token_user', 'Lier un jeton à un user'),

@@ -341,7 +341,7 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return redirect(force_text(self.success_url))
 
 
-class UserListView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     """
     List User instances.
 
@@ -350,11 +350,50 @@ class UserListView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
     perm_codename = 'list_user'
     template_name = 'users/user_list.html'
+    lm_active = 'lm_user_list'
+    form_class = UserSearchForm
 
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        context['list_year'] = list_year()
-        return render(request, self.template_name, context=context)
+    search = None
+    unactive = None
+    year = None
+
+    def get_context_data(self, **kwargs):
+        context = super(UserListView, self).get_context_data(**kwargs)
+        context['user_list'] = User.objects.all()
+        context['user_list'] = self.form_query(context['user_list'])
+        return context
+
+    def form_query(self, query):
+
+        if self.search:
+            query = query.filter(
+                Q(last_name__contains=self.search)
+                | Q(first_name__contains=self.search)
+                | Q(surname__contains=self.search)
+            )
+
+        if self.unactive:
+            query = query.filter(
+                is_active=False)
+
+        if self.year and self.year != 'all':
+            query = query.filter(
+                year=self.year)
+
+        return query
+
+    def form_valid(self, form):
+        if form.cleaned_data['search']:
+            self.search = form.cleaned_data['search']
+
+        if form.cleaned_data['unactive']:
+            self.unactive = form.cleaned_data['unactive']
+
+        if form.cleaned_data['year']:
+            self.year = form.cleaned_data['year']
+
+        context = self.get_context_data()
+        return self.get(self.request, self.args, self.kwargs)
 
 
 # TODO: obsolète

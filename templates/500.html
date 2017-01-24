@@ -1,12 +1,12 @@
-{% extends 'base.html' %}
+{% extends 'base_sober.html' %}
 
 {% block content %}
-
-        <div class="container50">
-            <h2 class="align-center">Erreur 500</h2>
-            <p class="justify">Problème interne. Merci de prévenir un administrateur du context qui t'as amené à avoir
-                ce message d'erreur, il fera ce qu'il peut pour corriger le problème le plus rapidement possible !</p>
-            <a href="{% url 'url_profile' %}">Retourner au profil.</a>
-        </div>
-
+<div class="panel panel-danger">
+  <div class="panel-heading">
+    Erreur 500
+  </div>
+  <div class="panel-body">
+    Erreur interne.
+  </div>
+</div>
 {% endblock %}

@@ -10,12 +10,15 @@ from operator import or_
 from django.core.serializers import serialize
 
 from users.models import User
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 import json
 from django.core.exceptions import ObjectDoesNotExist
 import operator
 
 from borgia.utils import *
+from finances.models import Sale
+from borgia.forms import UserSearchForm
+from users.views import UserListView
 
 
 class LoginPG(FormView):
@@ -278,4 +281,22 @@ class GroupWorkboard(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data()
+        if Permission.objects.get(codename='list_user') in self.group.permissions.all():
+            context['user_search_form'] = UserSearchForm()
+            context['module_search_user'] = True
+        if Permission.objects.get(codename='list_sale') in self.group.permissions.all():
+            try:
+                shop = shop_from_group(self.group)
+                context['sale_list'] = Sale.objects.filter(
+                    category='sale',
+                    wording='Vente '+shop.name
+                ).order_by('-date')[:5]
+            except ValueError:
+                context['sale_list'] = Sale.objects.filter(
+                    category='sale'
+                ).order_by('-date')[:5]
+            context['module_list_sale'] = True
         return render(request, self.template_name, context=context)
+
+    def post(self, request, *args, **kwargs):
+        return UserListView().form_valid(UserSearchForm(request.POST))

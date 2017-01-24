@@ -42,7 +42,7 @@
         ["list_debitbalance", "finances", "debitbalance"],
 
         ["supply_account", "users", "user"],
-        ["exceptionnal_movement", "users", "user"],
+        ["add_exceptionnal_movement", "finances", "sale"],
         ["add_bankaccount", "finances", "bankaccount"],
         ["change_bankaccount", "finances", "bankaccount"],
         ["list_bankaccount", "finances", "bankaccount"],
@@ -74,7 +74,7 @@
         ["list_singleproduct", "shops", "singleproduct"],
 
         ["link_token_user", "users", "user"],
-        ["reach_workboard_treasury", "users", "user"],
+        ["reach_workboard_treasurers", "users", "user"],
 
         ["manage_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"],

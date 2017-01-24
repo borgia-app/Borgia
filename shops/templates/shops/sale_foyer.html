@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_sober.html' %}
 
 {% load static %}
 
@@ -233,18 +233,7 @@
         </div>
         </div>
     </form>
-    <div id="history" class="history">
-        <div class="row">
-            <button class="history_toggle"><i class="fa fa-line-chart" aria-hidden="true"></i><h3 class="history_title">Historique</h3></button>
-            <div class="history_container container-fluid">
-                <button class="history_toggle_inside"><span class="fa fa-line-chart" aria-hidden="true"></span><h3 class="history_title">Historique</h3></button>
-                <div class="history_slide">
-                    {% include 'finances/sale_list_light_module.html' with object_list=user.list_sale %}
-                </div>
-            </div>
 
-        </div>
-    </div>
     <script>
         onglets = document.getElementById('onglets');
         var li_list = onglets.getElementsByTagName('li');
