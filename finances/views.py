@@ -278,7 +278,7 @@ class SupplyUnitedView(FormNextView):
 
     def get_initial(self):
         initial = super(SupplyUnitedView, self).get_initial()
-        initial['signature_date'] = now
+        initial['signature_date'] = now().strftime("%d/%m/%Y")
         initial['operator_username'] = self.request.user.username
         return initial
 

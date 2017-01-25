@@ -49,7 +49,7 @@ class SupplyUnitedForm(forms.Form):
     amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
     sender = forms.CharField(label='Payeur', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
                              validators=[autocomplete_username_validator])
-    unique_number = forms.CharField(label='Numéro unique', required=False)  # Inutile pour Cash
+    unique_number = forms.CharField(label='Numéro unique', required=False, max_length=7)  # Inutile pour Cash
     signature_date = forms.DateField(label='Date de signature', required=False,
                                      widget=forms.DateInput(attrs={'class': 'datepicker'}))  # Inutile pour Cash
     bank_account = forms.CharField(label='Compte bancaire', widget=forms.Select,
