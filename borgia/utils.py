@@ -6,6 +6,8 @@ from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.urls import NoReverseMatch
+from modules.models import *
+
 
 
 def lateral_menu(user, group, active=None) :
@@ -54,6 +56,9 @@ def lateral_menu(user, group, active=None) :
                     'group_name': group.name,
                     'pk': g.pk})
             ))
+
+    # Modules
+
 
     # Functions
     # Link token to user
@@ -132,6 +137,32 @@ def lateral_menu(user, group, active=None) :
     except ObjectDoesNotExist:
         pass
 
+    # SelfSale module of shop
+    try:
+        shop = shop_from_group(group)
+        # TODO: check perm
+        nav_tree.append(simple_lateral_link(
+            label='Vente libre service',
+            faIcon='shopping-basket',
+            id='lm_selfsale_module',
+            url=reverse(
+                'url_module_selfsale_workboard',
+                kwargs={'group_name': group.name}
+            )
+        ))
+        # TODO: check perm
+        nav_tree.append(simple_lateral_link(
+            label='Vente par opérateur',
+            faIcon='coffee',
+            id='lm_operatorsale_module',
+            url=reverse(
+                'url_module_operatorsale_workboard',
+                kwargs={'group_name': group.name}
+            )
+        ))
+    except ValueError:
+        pass
+
     if active is not None:
         for link in nav_tree:
             try:
@@ -205,7 +236,7 @@ def lateral_menu_model(model, group, faIcon='database'):
 def lateral_menu_product(group):
     """
     """
-    model_tree = {
+    product_tree = {
         'label': 'Produits',
         'icon': 'cube',
         'id': 'lm_product',
@@ -218,7 +249,7 @@ def lateral_menu_product(group):
         codename='list_product')
 
     if add_permission in group.permissions.all():
-        model_tree['subs'].append({
+        product_tree['subs'].append({
             'label': 'Nouveau',
             'icon': 'plus',
             'id': 'lm_product_create',
@@ -228,7 +259,7 @@ def lateral_menu_product(group):
         })
 
     if list_permission in group.permissions.all():
-        model_tree['subs'].append({
+        product_tree['subs'].append({
             'label': 'Liste',
             'icon': 'list',
             'id': 'lm_product_list',
@@ -237,8 +268,8 @@ def lateral_menu_product(group):
                 kwargs={'group_name': group.name})
         })
 
-    if len(model_tree['subs']) > 0:
-        return model_tree
+    if len(product_tree['subs']) > 0:
+        return product_tree
     else:
         return None
 
@@ -263,6 +294,40 @@ def lateral_menu_user_groups(user):
                     kwargs={'group_name': group.name})
             })
         return user_groups_tree
+    else:
+        return None
+
+def lateral_menu_module(group, module):
+    """
+    """
+    module_tree = {
+        'label': module._meta.model_name,
+        'icon': 'cube',
+        'id': 'lm_module_' + module._meta.model_name,
+        'subs': []
+    }
+
+    # TODO: here
+    module_tree['subs'].append({
+        'label': 'Nouveau',
+        'icon': 'plus',
+        'id': 'lm_product_create',
+        'url': reverse(
+            'url_product_create',
+            kwargs={'group_name': group.name})
+    })
+
+    module_tree['subs'].append({
+        'label': 'Liste',
+        'icon': 'list',
+        'id': 'lm_product_list',
+        'url': reverse(
+            'url_product_list',
+            kwargs={'group_name': group.name})
+    })
+
+    if len(module_tree['subs']) > 0:
+        return model_tree
     else:
         return None
 
@@ -394,16 +459,21 @@ class ShopFromGroupMixin(object):
     def dispatch(self, request, *args, **kwargs):
         try:
             self.shop = shop_from_group(self.group)
-        except ObjectDoesNotExist:
+        except ValueError:
             raise Http404
         return super(ShopFromGroupMixin, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ShopFromGroupMixin, self).get_context_data(**kwargs)
+        context['shop'] = self.shop
+        return context
 
 
 class ProductShopFromGroupMixin(object):
     def dispatch(self, request, *args, **kwargs):
         try:
             self.shop = shop_from_group(self.group)
-        except ObjectDoesNotExist:
+        except ValueError:
             raise Http404
         try:
             self.object = ProductBase.objects.get(pk=self.kwargs['pk'])
@@ -440,6 +510,40 @@ class UserMixin(object):
         context = super(UserMixin, self).get_context_data(**kwargs)
         context['user'] = self.user
         return context
+
+
+class ShopModuleMixin(object):
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Add self.module and modify success_url to be the workboard of the shop
+        module by default.
+
+        If no module, create one.
+        """
+        try:
+            module_class = self.kwargs['module_class']
+        except KeyError:
+            module_class = self.module_class
+        if module_class == SelfSaleModule:
+            self.module, created = SelfSaleModule.objects.get_or_create(
+                shop=self.shop)
+            self.success_url = reverse(
+                'url_module_selfsale_workboard', kwargs={
+                'group_name': self.kwargs['group_name']})
+        elif module_class == OperatorSaleModule:
+            self.module, created = OperatorSaleModule.objects.get_or_create(
+                shop=self.shop)
+            self.success_url = reverse(
+                'url_module_operatorsale_workboard', kwargs={
+                'group_name': self.kwargs['group_name']})
+        return super(ShopModuleMixin,
+                     self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ShopModuleMixin, self).get_context_data(**kwargs)
+        context['module'] = self.module
+        return context
+
 
 def permission_to_manage_group(group):
     """
@@ -490,3 +594,15 @@ def group_name_display(group):
         return 'membres d\'honneur'
     else:
         raise ValueError('Unrecognized group name')
+
+def model_from_module_url_name(module_url_name):
+    if module_url_name == 'self_sale':
+        return SelfSaleModule
+    else:
+        raise ValueError('module_url_name does not match any defined module')
+
+def module_url_name_from_model(model):
+    if isinstance(model, SelfSaleModule):
+        return 'self_sale'
+    else:
+        raise ValueError('model does not match any defined module')

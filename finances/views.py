@@ -23,7 +23,7 @@ from django.conf import settings
 from finances.forms import *
 from finances.models import *
 from shops.models import Container, ProductBase
-from borgia.utils import*
+from borgia.utils import *
 
 
 class UserBankAccountCreate(GroupPermissionMixin, UserMixin, FormView,

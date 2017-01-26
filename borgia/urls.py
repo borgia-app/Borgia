@@ -11,8 +11,7 @@ from django.contrib.auth.decorators import permission_required
 from users.views import *
 from shops.views import ProductList, ProductCreate, ProductDeactivate, ProductRetrieve, ProductUpdate, PurchaseFoyer
 from finances.views import *
-
-# TODO: 403 / 404 / 500 with lateral menu !
+from modules.views import *
 
 urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/$',
@@ -75,9 +74,36 @@ urlpatterns = [
         TransfertRetrieve.as_view(), name='url_transfert_retrieve'),
 
     url(r'^(?P<group_name>[\w-]+)/exceptionnal_movements/$',
-        ExceptionnalMovementList.as_view(), name='url_exceptionnalmovement_list'),
+        ExceptionnalMovementList.as_view(),
+        name='url_exceptionnalmovement_list'),
     url(r'^(?P<group_name>[\w-]+)/exceptionnal_movements/(?P<pk>\d+)/$',
-        ExceptionnalMovementRetrieve.as_view(), name='url_exceptionnalmovement_retrieve'),
+        ExceptionnalMovementRetrieve.as_view(),
+        name='url_exceptionnalmovement_retrieve'),
+
+    url(r'^(?P<group_name>[\w-]+)/modules/self_sale/categories/$',
+        ShopModuleCategories.as_view(),
+        name='url_module_selfsale_categories',
+        kwargs={'module_class': SelfSaleModule}),
+    url(r'^(?P<group_name>[\w-]+)/modules/operator_sale/categories/$',
+        ShopModuleCategories.as_view(),
+        name='url_module_operatorsale_categories',
+        kwargs={'module_class': OperatorSaleModule}),
+
+    url(r'^(?P<group_name>[\w-]+)/modules/self_sale/$',
+        SelfSaleShopModuleWorkboard.as_view(),
+        name='url_module_selfsale_workboard'),
+    url(r'^(?P<group_name>[\w-]+)/modules/operator_sale/$',
+        OperatorSaleShopModuleWorkboard.as_view(),
+        name='url_module_operatorsale_workboard'),
+
+    url(r'^(?P<group_name>[\w-]+)/modules/self_sale/config/$',
+        ShopModuleConfig.as_view(),
+        name='url_module_selfsale_config',
+        kwargs={'module_class': SelfSaleModule}),
+    url(r'^(?P<group_name>[\w-]+)/modules/operator_sale/config/$',
+        ShopModuleConfig.as_view(),
+        name='url_module_operatorsale_config',
+        kwargs={'module_class': OperatorSaleModule}),
 
     url(r'^user/get/$', permission_required('users.list_user', raise_exception=True)
         (get_list_model), {'model': User, 'search_in': ['username', 'last_name', 'first_name', 'family']}, name='url_get_list_user'),
@@ -108,6 +134,7 @@ urlpatterns = [
     #url(r'^finances/', include('finances.urls')),
     url(r'notifications/', include('notifications.urls')),
     url(r'settings_data/', include('settings_data.urls')),
+    #url(r'modules/', include('modules.urls')),
     url(r'^local/jsi18n$', jsi18n_catalog),
 
     #Page vide

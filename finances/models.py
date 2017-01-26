@@ -1288,6 +1288,7 @@ def sale_sale(sender, operator, date, wording, category='sale',
     else:
         for product in products_list:
             product.sale = s
+            product.is_sold = True
             product.save()
         s.maj_amount()
 
