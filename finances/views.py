@@ -265,7 +265,6 @@ class SupplyUnitedView(FormNextView):
 
         elif form.cleaned_data['type'] == 'lydia':
             lydia = Lydia.objects.create(date_operation=form.cleaned_data['signature_date'],
-                                         id_from_lydia=form.cleaned_data['unique_number'],
                                          sender=sender,
                                          recipient=User.objects.get(username='AE_ENSAM'),
                                          amount=form.cleaned_data['amount'])
@@ -278,7 +277,7 @@ class SupplyUnitedView(FormNextView):
 
     def get_initial(self):
         initial = super(SupplyUnitedView, self).get_initial()
-        initial['signature_date'] = now().strftime("%d/%m/%Y")
+        initial['signature_date'] = now
         initial['operator_username'] = self.request.user.username
         return initial
 
