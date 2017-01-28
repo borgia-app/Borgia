@@ -336,6 +336,13 @@ class ProductBase(models.Model):
         else:
             return self.name
 
+    def sale_name(self):
+        if self.quantity and self.product_unit:
+            return self.product_unit.name
+        else:
+            return self.name
+
+
     def calculated_price_usual(self):
         """
         Return the sell price for the usual quantity (Container) or the whole

@@ -116,6 +116,16 @@ class User(AbstractUser):
             return 'undefined'
         return self.first_name + ' ' + self.last_name
 
+    def choice_string(self):
+        """
+        """
+        if not self.first_name or not self.last_name:
+            return 'undefined'
+        try:
+            return self.family + self.campus + str(self.year_pg()) + ' ' + self.first_name + ' ' + self.last_name
+        except TypeError:
+            return 'undefined'
+
     def year_pg(self):
         """
         Return the promotion's year of the user, under the Gadz'Art standard.

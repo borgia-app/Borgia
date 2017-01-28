@@ -137,12 +137,12 @@ def lateral_menu(user, group, active=None) :
     except ObjectDoesNotExist:
         pass
 
-    # SelfSale module of shop
+    # module of shop
     try:
         shop = shop_from_group(group)
         # TODO: check perm
         nav_tree.append(simple_lateral_link(
-            label='Vente libre service',
+            label='Module vente libre service',
             faIcon='shopping-basket',
             id='lm_selfsale_module',
             url=reverse(
@@ -152,7 +152,7 @@ def lateral_menu(user, group, active=None) :
         ))
         # TODO: check perm
         nav_tree.append(simple_lateral_link(
-            label='Vente par opérateur',
+            label='Module vente par opérateur',
             faIcon='coffee',
             id='lm_operatorsale_module',
             url=reverse(
@@ -160,6 +160,29 @@ def lateral_menu(user, group, active=None) :
                 kwargs={'group_name': group.name}
             )
         ))
+    except ValueError:
+        pass
+
+    # Shop sale for Gadz'Arts
+    if group.name == 'gadzarts':
+        for shop in Shop.objects.all():
+            if lateral_menu_shop_sale(group, shop) is not None:
+                nav_tree.append(lateral_menu_shop_sale(group, shop))
+
+    # Shop sale for shop
+    try:
+        shop = shop_from_group(group)
+        module = OperatorSaleModule.objects.get(shop=shop)
+        if module.state is True:
+            nav_tree.append(simple_lateral_link(
+                label='Module vente',
+                faIcon='shopping-basket',
+                id='lm_operatorsale_module',
+                url=reverse(
+                    'url_module_operatorsale',
+                    kwargs={'group_name': group.name,
+                            'shop_name': shop.name})
+            ))
     except ValueError:
         pass
 
@@ -297,37 +320,34 @@ def lateral_menu_user_groups(user):
     else:
         return None
 
-def lateral_menu_module(group, module):
+def lateral_menu_shop_sale(group, shop):
     """
     """
-    module_tree = {
-        'label': module._meta.model_name,
+    shop_tree = {
+        'label': shop.name,
         'icon': 'cube',
-        'id': 'lm_module_' + module._meta.model_name,
+        'id': 'lm_shop_' + shop.name,
         'subs': []
     }
 
-    # TODO: here
-    module_tree['subs'].append({
-        'label': 'Nouveau',
-        'icon': 'plus',
-        'id': 'lm_product_create',
-        'url': reverse(
-            'url_product_create',
-            kwargs={'group_name': group.name})
-    })
+    try:
+        if Permission.objects.get(codename='use_selfsalemodule') in group.permissions.all():
+            module = SelfSaleModule.objects.get(shop=shop)
+            if module.state is True:
+                shop_tree['subs'].append(simple_lateral_link(
+                    label='Vente libre service',
+                    faIcon='shopping-basket',
+                    id='lm_selfsale_module_'+shop.name,
+                    url=reverse(
+                        'url_module_selfsale',
+                        kwargs={'group_name': group.name,
+                                'shop_name': shop.name})
+                ))
+    except ObjectDoesNotExist:
+        pass
 
-    module_tree['subs'].append({
-        'label': 'Liste',
-        'icon': 'list',
-        'id': 'lm_product_list',
-        'url': reverse(
-            'url_product_list',
-            kwargs={'group_name': group.name})
-    })
-
-    if len(module_tree['subs']) > 0:
-        return model_tree
+    if len(shop_tree['subs']) > 0:
+        return shop_tree
     else:
         return None
 

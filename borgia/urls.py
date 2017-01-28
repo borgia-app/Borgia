@@ -105,6 +105,14 @@ urlpatterns = [
         name='url_module_operatorsale_config',
         kwargs={'module_class': OperatorSaleModule}),
 
+    url(r'^(?P<group_name>[\w-]+)/(?P<shop_name>[\w-]+)/selfsale/$',
+        SelfSaleShopModuleInterface.as_view(),
+        name='url_module_selfsale'),
+
+    url(r'^(?P<group_name>[\w-]+)/(?P<shop_name>[\w-]+)/operatorsale/$',
+        OperatorSaleShopModuleInterface.as_view(),
+        name='url_module_operatorsale'),
+
     url(r'^user/get/$', permission_required('users.list_user', raise_exception=True)
         (get_list_model), {'model': User, 'search_in': ['username', 'last_name', 'first_name', 'family']}, name='url_get_list_user'),
     url(r'^user/get/retrieve/(?P<pk>\d+)/$', permission_required('users.list_user', raise_exception=True)

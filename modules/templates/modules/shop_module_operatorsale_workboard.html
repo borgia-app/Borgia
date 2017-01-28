@@ -10,7 +10,7 @@
     <h3 class="{% if module.state == True %}bg-success text-success{% else %}bg-danger text-danger{% endif %}"
     style="padding: 5px">
     Etat : {{ module.state|yesno:"activé, désactivé, peut-être"}}</h3>
-    <a href="{% url 'url_module_selfsale_config' group_name=group_name %}" class="btn btn-default">Modifier</a>
+    <a href="{% url 'url_module_operatorsale_config' group_name=group_name %}" class="btn btn-default">Modifier</a>
   </div>
 </div>
 <div class="panel panel-default">

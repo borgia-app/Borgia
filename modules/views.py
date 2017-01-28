@@ -1,3 +1,4 @@
+from django.utils.timezone import now
 from django.shortcuts import render, HttpResponse, force_text, redirect, Http404
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
@@ -10,6 +11,165 @@ from django.forms.formsets import formset_factory
 from modules.forms import *
 from modules.models import *
 from borgia.utils import *
+from shops.models import ProductBase, SingleProduct, Container, SingleProductFromContainer
+from finances.models import Sale, sale_sale
+
+
+class SaleShopModuleInterface(GroupPermissionMixin, FormView,
+                              GroupLateralMenuFormMixin):
+    """
+    Generic FormView for handling invoice concerning product bases through a
+    shop.
+
+    :param self.template_name: template, mandatory.
+    :param self.form_class: form class, mandatory.
+    :param self.module_class: module class, mandatory.
+    :param self.perm_codename: permission to check
+    :type self.template_name: string
+    :type self.form_class: Form class object
+    :type self.module_class: ShopModule class object
+    :type self.perm_codename: string
+    """
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.shop = Shop.objects.get(name=kwargs['shop_name'])
+            self.module = self.module_class.objects.get(shop=self.shop)
+        except ObjectDoesNotExist:
+            raise Http404
+        if self.module.state is False:
+            raise Http404
+        return super(SaleShopModuleInterface,
+                     self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(SaleShopModuleInterface,
+                       self).get_form_kwargs(**kwargs)
+        kwargs['module'] = self.module
+        return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(SaleShopModuleInterface,
+                        self).get_context_data(**kwargs)
+        context['categories'] = self.module.categories.all()
+        return context
+
+    def form_valid(self, form):
+
+        products = []
+
+        for field in form.cleaned_data:
+            if field != 'client':
+                invoice = form.cleaned_data[field]
+                product_base_pk = field.split('-')[0]
+                product_base = ProductBase.objects.get(pk=product_base_pk)
+
+                if invoice != 0:
+                    products += self.get_products_with_strategy(
+                        product_base, invoice)
+
+        s = sale_sale(sender=self.client, operator=self.request.user,
+                      date=now(), products_list=products,
+                      wording='Vente '+self.shop.name, to_return=True)
+
+        return redirect(self.success_url)
+
+    def get_products_with_strategy(self, product_base, invoice):
+        """
+        Return a list of real products (single products or products from
+        container) knowing what the client want (product base) and how many
+        product he want.
+
+        This method takes the right product in the queryset of products from
+        the product base. In order to choose the product used (sold for a
+        single product or consume for a container), the method check if the
+        product base is important regarding the stock or not through the
+        attribute major_stocked.
+
+        :note:: If you buy single product major_stocked, you buy one by one.
+
+        Concerning single products:
+            if not major_stocked:
+                Bought products are the firsts in the queryset.
+            if major_stocked:
+                Bought product is the one in the queryset with the right
+                indication attribute.
+
+        Concerning containers:
+            if not major_stocked:
+                Bought products are consumed from the container with the
+                attribute buffer.
+            if major_stocked:
+                Bought products are consumed from the container with the right
+                indication attribute.
+
+        :param product_base: product base the client want,
+        mandatory.
+        :aram invoice: number of products the client want, mandatory.
+        :type product_base: ProductBase instance
+        :type invoice: strictly positiv integer
+        """
+        # TODO: indication and major_stocked in model
+        products = []
+
+        if (product_base.type == 'single_product'):
+            for i in range(0, invoice):
+                try:
+                    product = SingleProduct.objects.filter(
+                        product_base=product_base,
+                        is_sold=False)[i]
+                    product.is_sold = True
+                    product.sale_price = product_base.get_moded_usual_price()
+                    product.save()
+                    products.append(product)
+                except IndexError:
+                    pass
+
+        if (product_base.type == 'container'):
+            try:
+                container = Container.objects.filter(
+                    product_base=product_base,
+                    is_sold=False)[0]
+
+                product = SingleProductFromContainer.objects.create(
+                    container=container,
+                    quantity=product_base.product_unit.usual_quantity() * invoice,
+                    sale_price=product_base.get_moded_usual_price() * invoice
+                )
+                products.append(product)
+            except IndexError:
+                pass
+
+        return products
+
+
+class SelfSaleShopModuleInterface(SaleShopModuleInterface):
+    """
+    Sale interface for SelfSaleModule.
+    """
+    template_name = 'modules/shop_module_selfsale_interface.html'
+    form_class = SelfSaleShopModule
+    module_class = SelfSaleModule
+    perm_codename = 'use_selfsalemodule'
+
+    def form_valid(self, form):
+        self.client = self.request.user
+        return super(SelfSaleShopModuleInterface, self).form_valid(form)
+
+
+class OperatorSaleShopModuleInterface(SaleShopModuleInterface):
+    """
+    Sale interface for SelfOperatorModule.
+    """
+    template_name = 'modules/shop_module_operatorsale_interface.html'
+    form_class = OperatorSaleShopModule
+    module_class = OperatorSaleModule
+    perm_codename = 'use_operatorsalemodule'
+
+    def form_valid(self, form):
+        client_pk = int(form.cleaned_data['client'].split('/')[0])
+        self.client = User.objects.get(pk=client_pk)
+        return super(OperatorSaleShopModuleInterface, self).form_valid(form)
 
 
 class SelfSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,

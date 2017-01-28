@@ -16,9 +16,17 @@ def addstr(arg1, arg2):
     """
     return str(arg1) + str(arg2)
 
-@register.simple_tag
-def get_cat_pb_field(form, category_pk, product_base_pk):
+@register.filter
+def get(dictionnary, key):
     """
+    Return the value of the key in the dictionnary.
 
+    This method can be used for instance for complex key which cannot be
+    obtained by dict.key
+
+    :param dictionnary: dictionnary, mandatory.
+    :param key: key of the value, mandatory.
+    :type dict: python dictionnary
+    :type key: string
     """
-    return form['productbase_%s_category_%s' % (product_base_pk, category_pk)]
+    return dictionnary[key]

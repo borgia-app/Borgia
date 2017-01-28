@@ -45,8 +45,22 @@ class ShopModule(Module):
 
 
 class SelfSaleModule(ShopModule):
-    pass
+    """
+    Define Permissions for SelfSaleModule.
+    """
+    class Meta:
+        permissions = (
+            ('use_selfsalemodule',
+             'Consommer aux magasins par libre service'),
+        )
 
 
 class OperatorSaleModule(ShopModule):
-    pass
+    """
+    Define Permissions for OperatorSaleModule.
+    """
+    class Meta:
+        permissions = (
+            ('use_operatorsalemodule',
+             'Consommer aux magasins avec un opérateur'),
+        )
