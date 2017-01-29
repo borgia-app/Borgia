@@ -9,7 +9,10 @@ from django.views.generic import TemplateView
 from django.contrib.auth.decorators import permission_required
 
 from users.views import *
-from shops.views import ProductList, ProductCreate, ProductDeactivate, ProductRetrieve, ProductUpdate, PurchaseFoyer
+from shops.views import (
+    ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
+    ProductUpdate, PurchaseFoyer, ShopCreate, ShopList
+)
 from finances.views import *
 from modules.views import *
 
@@ -112,6 +115,14 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/(?P<shop_name>[\w-]+)/operatorsale/$',
         OperatorSaleShopModuleInterface.as_view(),
         name='url_module_operatorsale'),
+
+    url(r'^(?P<group_name>[\w-]+)/shops/$',
+        ShopList.as_view(),
+        name='url_shop_list'),
+
+    url(r'^(?P<group_name>[\w-]+)/shops/create/$',
+        ShopCreate.as_view(),
+        name='url_shop_create'),
 
     url(r'^ajax/username_from_username_part/$',
         username_from_username_part,

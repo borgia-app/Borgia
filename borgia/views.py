@@ -143,7 +143,6 @@ def get_list_model(request, model, search_in, props=None):
     data = json.dumps(data_load)
     return HttpResponse(data)
 
-
 def get_unique_model(request, pk, model, props=None):
     """
     Permet de sérialiser en JSON une instance spécifique pk=pk de model.

@@ -21,7 +21,7 @@ def lateral_menu(user, group, active=None) :
     # TODO: try for reverse urls
 
     models_checked = [
-        User,
+        User, Shop
     ]
 
     nav_tree = []
@@ -57,9 +57,6 @@ def lateral_menu(user, group, active=None) :
                     'pk': g.pk})
             ))
 
-    # Modules
-
-
     # Functions
     # Link token to user
     try:
@@ -71,6 +68,7 @@ def lateral_menu(user, group, active=None) :
                 reverse('url_user_link_token', kwargs={'group_name': group.name})))
     except ObjectDoesNotExist:
         pass
+
     # Manage products
     if lateral_menu_product(group) is not None:
         nav_tree.append(
@@ -172,7 +170,7 @@ def lateral_menu(user, group, active=None) :
     # Shop sale for shop
     try:
         shop = shop_from_group(group)
-        module = OperatorSaleModule.objects.get(shop=shop)
+        module, created = OperatorSaleModule.objects.get_or_create(shop=shop)
         if module.state is True:
             nav_tree.append(simple_lateral_link(
                 label='Module vente',
@@ -198,6 +196,7 @@ def lateral_menu(user, group, active=None) :
                     link['active'] = True
                     break
 
+    print("nav_tree")
     return nav_tree
 
 def lateral_menu_model(model, group, faIcon='database'):

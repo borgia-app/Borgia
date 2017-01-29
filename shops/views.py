@@ -6,14 +6,14 @@ from django.shortcuts import HttpResponse, Http404
 from django.views.generic.edit import CreateView, UpdateView, DeleteView
 from django.views.generic import ListView, DetailView, FormView, View
 from django.contrib.auth import logout
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
-from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
 from shops.models import *
 from shops.forms import *
 from users.models import User
 from finances.models import *
 from notifications.models import notify
-from contrib.models import add_to_breadcrumbs
 from borgia.utils import *
 
 
@@ -154,6 +154,87 @@ class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin ,FormView,
                 setattr(self.object, k, form.cleaned_data[k])
         self.object.save()
         return super(ProductUpdate, self).form_valid(form)
+
+
+class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    template_name = 'shops/shop_create.html'
+    perm_codename = 'add_shop'
+    lm_active = 'lm_shop_create'
+    form_class = ShopCreateForm
+    perm_chiefs = ['add_user', 'supply_money_user', 'add_product',
+                   'change_product', 'retrieve_product', 'list_product',
+                   'list_sale', 'retrieve_sale', 'user_operatorsalemodule']
+    perm_associates = ['add_user', 'supply_money_user', 'add_product',
+                   'change_product', 'retrieve_product', 'list_product',
+                   'list_sale', 'retrieve_sale', 'user_operatorsalemodule']
+
+    def form_valid(self, form):
+        """
+        Create the shop instance and relating groups and permissions.
+        """
+        shop = Shop.objects.create(
+            name=form.cleaned_data['name'],
+            description=form.cleaned_data['description'])
+
+        content_type = ContentType.objects.get(app_label='users', model='user')
+        manage_chiefs = Permission.objects.create(
+            name='Gérer le groupe des chiefs du magasin '+shop.name,
+            codename='manage_group_chiefs-'+shop.name,
+            content_type=content_type
+        )
+        manage_associates = Permission.objects.create(
+            name='Gérer le groupe des associés du magasin '+shop.name,
+            codename='manage_group_associates-'+shop.name,
+            content_type=content_type
+        )
+
+        chiefs = Group.objects.create(
+            name='chiefs-' + shop.name
+        )
+        associates = Group.objects.create(
+            name='associates-' + shop.name
+        )
+
+        for codename in self.perm_chiefs:
+            try:
+                chiefs.permissions.add(
+                    Permission.objects.get(codename=codename)
+                )
+            except ObjectDoesNotExist:
+                pass
+            except MultipleObjectsReturned:
+                pass
+        chiefs.permissions.add(manage_associates)
+        chiefs.save()
+        for codename in self.perm_associates:
+            try:
+                associates.permissions.add(
+                    Permission.objects.get(codename=codename)
+                )
+            except ObjectDoesNotExist:
+                pass
+            except MultipleObjectsReturned:
+                pass
+        associates.save()
+
+        presidents = Group.objects.get(pk=2)
+        presidents.permissions.add(manage_chiefs)
+        presidents.save()
+        vice_presidents = Group.objects.get(pk=3)
+        vice_presidents.permissions.add(manage_chiefs)
+        vice_presidents.save()
+        return super(ShopCreate, self).form_valid(form)
+
+
+class ShopList(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    template_name = 'shops/shop_list.html'
+    perm_codename = 'list_shop'
+    lm_active = 'lm_shop_list'
+
+    def get(self, request, *args, **kwargs):
+        context = super(ShopList, self).get_context_data(**kwargs)
+        context['shop_list'] = Shop.objects.all().exclude(pk=1)
+        return render(request, self.template_name, context=context)
 
 
 class PurchaseFoyer(FormView):

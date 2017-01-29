@@ -41,6 +41,10 @@ class ProductUpdateForm(forms.ModelForm):
         fields = ['name', 'description', 'brand', 'type', 'quantity',
                   'product_unit']
 
+class ShopCreateForm(forms.ModelForm):
+    class Meta:
+        model = Shop
+        fields = ['name', 'description']
 
 
 

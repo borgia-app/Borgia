@@ -6,6 +6,7 @@ from django.utils.timezone import now
 from decimal import Decimal, InvalidOperation
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
+from django.core.validators import RegexValidator
 
 from finances.models import *
 from settings_data.models import Setting
@@ -24,8 +25,12 @@ class Shop(models.Model):
     :type name: string
     :type description: string
     """
-    name = models.CharField('Nom', max_length=255, default="Shop name")
-    description = models.TextField('Description', default="Description")
+    name = models.CharField('Code', max_length=255,
+                            validators=[RegexValidator(
+                                regex='^[a-z]+$',
+                                message="""Ne doit contenir que des lettres,
+                                sans espace ni caractère spécial.""")])
+    description = models.TextField('Description')
 
     def __str__(self):
         """

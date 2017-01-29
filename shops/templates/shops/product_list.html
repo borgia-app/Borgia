@@ -9,29 +9,30 @@
           A faire
         </div>
       </div>
-      <div class="panel panel-default">
-        <div class="panel-heading">
-          Résultats
-        </div>
-          <table class="table table-hover table-striped">
-            <tr>
-                <th>Nom</th>
-                <th>Type</th>
-                <th>Stock</th>
-                <th>Actif</th>
-                <th>Détail</th>
-            </tr>
-            {% for product in product_list %}
-            <tr>
-                <td>{{ product }}</td>
-                <td>{{ product.type }}</td>
-                <td></td>
-                <td>{{ product.is_active }}</td>
-                <td>
-                  <a href="{% url 'url_product_retrieve' group_name=group_name pk=product.pk %}">Détail</a>
-                </td>
-            </tr>
-            {% endfor %}
-          </table>
-        </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Résultats
+      </div>
+        <table class="table table-hover table-striped">
+          <tr>
+              <th>Nom</th>
+              <th>Type</th>
+              <th>Stock</th>
+              <th>Actif</th>
+              <th>Détail</th>
+          </tr>
+          {% for product in product_list %}
+          <tr>
+              <td>{{ product }}</td>
+              <td>{{ product.type }}</td>
+              <td></td>
+              <td>{{ product.is_active }}</td>
+              <td>
+                <a href="{% url 'url_product_retrieve' group_name=group_name pk=product.pk %}">Détail</a>
+              </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
 {% endblock %}
