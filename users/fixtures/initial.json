@@ -1,0 +1,276 @@
+[
+  {
+    "model": "auth.group",
+    "pk": 1,
+    "fields": {
+      "name": "specials",
+      "permissions": []
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 2,
+    "fields": {
+      "name": "presidents",
+      "permissions": [
+        ["manage_group_honnored", "users", "user"],
+        ["manage_group_gadzarts", "users", "user"],
+        ["manage_group_treasurers", "users", "user"],
+        ["manage_group_vice-presidents-internal", "users", "user"],
+        ["manage_group_presidents", "users", "user"],
+
+        ["add_user", "users", "user"],
+        ["change_user", "users", "user"],
+        ["delete_user", "users", "user"],
+        ["retrieve_user", "users", "user"],
+        ["list_user", "users", "user"],
+        ["supply_money_user", "users", "user"],
+        ["link_token_user", "users", "user"],
+
+        ["add_shop", "shops", "shop"],
+        ["change_shop", "shops", "shop"],
+        ["delete_shop", "shops", "shop"],
+        ["retrieve_shop", "shops", "shop"],
+        ["list_shop", "shops", "shop"],
+        ["add_product", "shops", "shop"],
+        ["change_product", "shops", "shop"],
+        ["delete_product", "shops", "shop"],
+        ["retrieve_product", "shops", "shop"],
+        ["list_product", "shops", "shop"],
+        ["change_price_product", "shops", "shop"],
+
+        ["add_setting", "settings_data", "setting"],
+        ["change_setting", "settings_data", "setting"],
+        ["delete_setting", "settings_data", "setting"],
+        ["retrieve_setting", "settings_data", "setting"],
+        ["list_setting", "settings_data", "setting"],
+
+        ["add_sale", "finances", "sale"],
+        ["retrieve_sale", "finances", "sale"],
+        ["list_sale", "finances", "sale"],
+        ["retrieve_recharging", "finances", "sale"],
+        ["list_recharging", "finances", "sale"],
+        ["add_exceptionnal_movement", "finances", "sale"],
+        ["retrieve_exceptionnal_movement", "finances", "sale"],
+        ["list_exceptionnal_movement", "finances", "sale"],
+        ["add_transfert", "finances", "sale"],
+        ["retrieve_transfert", "finances", "sale"],
+        ["list_transfert", "finances", "sale"]
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 3,
+    "fields": {
+      "name": "vice-presidents-internal",
+      "permissions": [
+        ["add_user", "users", "user"],
+        ["change_user", "users", "user"],
+        ["delete_user", "users", "user"],
+        ["retrieve_user", "users", "user"],
+        ["list_user", "users", "user"],
+        ["supply_money_user", "users", "user"],
+        ["link_token_user", "users", "user"],
+
+        ["add_shop", "shops", "shop"],
+        ["change_shop", "shops", "shop"],
+        ["delete_shop", "shops", "shop"],
+        ["retrieve_shop", "shops", "shop"],
+        ["list_shop", "shops", "shop"],
+        ["add_product", "shops", "shop"],
+        ["change_product", "shops", "shop"],
+        ["delete_product", "shops", "shop"],
+        ["retrieve_product", "shops", "shop"],
+        ["list_product", "shops", "shop"],
+        ["change_price_product", "shops", "shop"],
+
+        ["add_setting", "settings_data", "setting"],
+        ["change_setting", "settings_data", "setting"],
+        ["delete_setting", "settings_data", "setting"],
+        ["retrieve_setting", "settings_data", "setting"],
+        ["list_setting", "settings_data", "setting"],
+
+        ["add_sale", "finances", "sale"],
+        ["retrieve_sale", "finances", "sale"],
+        ["list_sale", "finances", "sale"],
+        ["retrieve_recharging", "finances", "sale"],
+        ["list_recharging", "finances", "sale"],
+        ["add_exceptionnal_movement", "finances", "sale"],
+        ["retrieve_exceptionnal_movement", "finances", "sale"],
+        ["list_exceptionnal_movement", "finances", "sale"],
+        ["add_transfert", "finances", "sale"],
+        ["retrieve_transfert", "finances", "sale"],
+        ["list_transfert", "finances", "sale"]
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 4,
+    "fields": {
+      "name": "treasurers",
+      "permissions": [
+        ["add_user", "users", "user"],
+        ["change_user", "users", "user"],
+        ["delete_user", "users", "user"],
+        ["retrieve_user", "users", "user"],
+        ["list_user", "users", "user"],
+        ["supply_money_user", "users", "user"],
+        ["link_token_user", "users", "user"],
+
+        ["add_shop", "shops", "shop"],
+        ["change_shop", "shops", "shop"],
+        ["delete_shop", "shops", "shop"],
+        ["retrieve_shop", "shops", "shop"],
+        ["list_shop", "shops", "shop"],
+        ["add_product", "shops", "shop"],
+        ["change_product", "shops", "shop"],
+        ["delete_product", "shops", "shop"],
+        ["retrieve_product", "shops", "shop"],
+        ["list_product", "shops", "shop"],
+        ["change_price_product", "shops", "shop"],
+
+        ["add_setting", "settings_data", "setting"],
+        ["change_setting", "settings_data", "setting"],
+        ["delete_setting", "settings_data", "setting"],
+        ["retrieve_setting", "settings_data", "setting"],
+        ["list_setting", "settings_data", "setting"],
+
+        ["add_sale", "finances", "sale"],
+        ["retrieve_sale", "finances", "sale"],
+        ["list_sale", "finances", "sale"],
+        ["retrieve_recharging", "finances", "sale"],
+        ["list_recharging", "finances", "sale"],
+        ["add_exceptionnal_movement", "finances", "sale"],
+        ["retrieve_exceptionnal_movement", "finances", "sale"],
+        ["list_exceptionnal_movement", "finances", "sale"],
+        ["add_transfert", "finances", "sale"],
+        ["retrieve_transfert", "finances", "sale"],
+        ["list_transfert", "finances", "sale"],
+
+        ["add_bankaccount", "finances", "bankaccount"],
+        ["change_bankaccount", "finances", "bankaccount"],
+        ["list_bankaccount", "finances", "bankaccount"],
+        ["delete_bankaccount", "finances", "bankaccount"],
+        ["retrieve_bankaccount", "finances", "bankaccount"]
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 5,
+    "fields": {
+      "name": "gadzarts",
+      "permissions": [
+        ["use_selfsalemodule", "modules", "selfsalemodule"],
+        ["add_transfert", "finances", "sale"]
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 6,
+    "fields": {
+      "name": "honnored",
+      "permissions": [
+        ["use_selfsalemodule", "modules", "selfsalemodule"],
+        ["add_transfert", "finances", "sale"]
+      ]
+    }
+  },
+  {
+    "model": "users.user",
+    "pk": 1,
+    "fields": {
+      "is_superuser": false,
+      "username": "AE_ENSAM",
+      "first_name": "AE",
+      "last_name": "ENSAM",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2016-02-15T13:32:56.781Z",
+      "surname": null,
+      "family": null,
+      "balance": 0.0,
+      "year": null,
+      "campus": null,
+      "phone": null,
+      "groups": [1],
+      "user_permissions": []
+    }
+  },
+  {
+    "model": "shops.shop",
+    "pk": 1,
+    "fields": {
+      "name": "association",
+      "description": "generic association"
+    }
+  },
+  {
+    "model": "shops.productunit",
+    "pk": 1,
+    "fields": {
+      "name": "fictional money",
+      "description": "",
+      "unit": "CENT",
+      "type": "fictional_money"
+    }
+  },
+  {
+    "model": "shops.productbase",
+    "pk": 1,
+    "fields": {
+      "name": "fictional money",
+      "description": "",
+      "product_unit": 1,
+      "brand": "AE ENSAM",
+      "type": "container",
+      "shop": 1
+    }
+  },
+  {
+    "model": "shops.container",
+    "pk": 1,
+    "fields": {
+      "price": 0,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "",
+      "is_sold": false,
+      "product_base": 1
+    }
+  },
+  {
+    "model": "settings_data.setting",
+    "pk": 1,
+    "fields": {
+      "name": "LYDIA_MIN_PRICE",
+      "description": "Valeur minimale (€) de rechargement en automatique par Lydia",
+      "value": "5",
+      "value_type": "f"
+    }
+  },
+  {
+    "model": "settings_data.setting",
+    "pk": 2,
+    "fields": {
+      "name": "LYDIA_MAX_PRICE",
+      "description": "Valeur maximale (€) de rechargement en automatique par Lydia",
+      "value": "500",
+      "value_type": "f"
+    }
+  },
+  {
+    "model": "settings_data.setting",
+    "pk": 3,
+    "fields": {
+      "name": "MARGIN_PROFIT",
+      "description": "Marge (%) à appliquer sur le prix des produits calculés automatiquement",
+      "value": "5",
+      "value_type": "f"
+    }
+  }
+]
