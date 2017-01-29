@@ -2,7 +2,7 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import logout, login, password_reset, password_reset_complete, password_reset_confirm,\
     password_change, password_change_done, password_reset_done
-from borgia.views import LoginPG, page_clean, jsi18n_catalog, TestBootstrapSober, GroupWorkboard, get_list_model, get_unique_model
+from borgia.views import page_clean, jsi18n_catalog, TestBootstrapSober, GroupWorkboard, get_list_model, get_unique_model
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
@@ -113,41 +113,24 @@ urlpatterns = [
         OperatorSaleShopModuleInterface.as_view(),
         name='url_module_operatorsale'),
 
-    url(r'^user/get/$', permission_required('users.list_user', raise_exception=True)
-        (get_list_model), {'model': User, 'search_in': ['username', 'last_name', 'first_name', 'family']}, name='url_get_list_user'),
-    url(r'^user/get/retrieve/(?P<pk>\d+)/$', permission_required('users.list_user', raise_exception=True)
-        (get_unique_model), {'model': User}, name='url_get_retrieve_user'),
+    url(r'^ajax/username_from_username_part/$',
+        username_from_username_part,
+        name='url_ajax_username_from_username_part'),
+
+
+
+
+
 
 
     url(r'^supply/lydia/self/$', SupplyLydiaSelfView.as_view(), name='url_supply_lydia_self'),
     url(r'^supply/lydia/self/confirm$', SupplyLydiaSelfConfirmView.as_view(), name='url_supply_lydia_self_confirm'),
     url(r'^supply/lydia/self/callback$', supply_lydia_self_callback, name='url_supply_lydia_self_callback'),
 
-    url(r'^shops/foyer/consumption/$', PurchaseFoyer.as_view(), name='url_purchase_foyer'),
-
-
-
-
-
-
-
-
-
-
-
-
-
-    # Applications
     url(r'^admin/', admin.site.urls),
-    #url(r'^finances/', include('finances.urls')),
-    url(r'notifications/', include('notifications.urls')),
-    url(r'settings_data/', include('settings_data.urls')),
-    #url(r'modules/', include('modules.urls')),
     url(r'^local/jsi18n$', jsi18n_catalog),
+    url(r'notifications/', include('notifications.urls')),
 
-    #Page vide
-    url(r'^clean', page_clean, {'template_name': 'page_clean.html'}, name='url_page_clean'),
-    # Authentification
     url(r'^$', login, {'template_name': 'login.html'}, name='url_login'),  # A rediriger vers /auth/login
     url(r'^auth/login', login, {'template_name': 'login.html'}, name='url_login'),
     url(r'^auth/logout', logout, {'template_name': 'logout.html', 'next_page': login}, name='url_logout'),
@@ -160,9 +143,6 @@ urlpatterns = [
 
     url(r'^auth/password_change$', password_change, {'post_change_redirect': password_change_done}, name='password_change'),
     url(r'^auth/password_change_done$', password_change_done),
-
-    # Alias url pour PGs
-    url('^(?P<organe>\w+)$', LoginPG.as_view(), name='url_login_pg'),
 
     # Test Bootstrap CSS & components
     url('^tests/bootstrap$', TestBootstrapSober.as_view()),

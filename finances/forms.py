@@ -42,7 +42,7 @@ class GenericListSearchDateForm(forms.Form):
 class SaleListSearchDateForm(forms.Form):
     shop = forms.ModelChoiceField(
         label='Magasin',
-        queryset=Shop.objects.all(),
+        queryset=Shop.objects.all().exclude(pk=1),
         empty_label="Tous",
         required=False)
     search = forms.CharField(label='Recherche', max_length=255, required=False)

@@ -177,9 +177,9 @@ class UserCreateView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         user.save()
 
         if form.cleaned_data['honnor_member'] is True:
-            user.groups.add(Group.objects.get(pk=8))
+            user.groups.add(Group.objects.get(pk=6))
         else:
-            user.groups.add(Group.objects.get(pk=7))
+            user.groups.add(Group.objects.get(pk=5))
         user.save()
 
         return super(UserCreateView, self).form_valid(form)
@@ -359,7 +359,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
-        context['user_list'] = User.objects.all()
+        context['user_list'] = User.objects.all().exclude(groups=1)
         context['user_list'] = self.form_query(context['user_list'])
         return context
 
@@ -397,27 +397,10 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
 
 # TODO: obsolète
-def workboard_presidents(request):
+def profile_view(request):
+    add_to_breadcrumbs(request, 'Profil')
+    return render(request, 'users/profile.html', locals())
 
-    group_vices_presidents_vie_interne_pk = 10
-    group_tresoriers_pk = 2
-    group_presidents_pk = 1
-    group_gadzarts_pk = 7
-    group_membres_honneurs_pk = 8
-
-    add_to_breadcrumbs(request, 'Workboard présidents')
-    return render(request, 'users/workboard_presidents.html', locals())
-
-# TODO: obsolète
-def workboard_vices_presidents_vie_interne(request):
-
-    group_chefs_gestionnaires_foyer_pk = 3
-    group_chefs_gestionnaires_auberge_pk = 5
-    group_chefs_gestionnaires_cvis_pk = 11
-    group_chefs_gestionnaires_bkars_pk = 13
-
-    add_to_breadcrumbs(request, 'Workboard vices présidents')
-    return render(request, 'users/workboard_vices_presidents_vie_interne.html', locals())
 
 def username_from_username_part(request):
     data = []
@@ -426,7 +409,7 @@ def username_from_username_part(request):
         key = request.GET.get('keywords')
 
         # Fam'ss en entier
-        where_search = User.objects.filter(family=key).order_by('-year')
+        where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
 
         if len(key) > 2:
             # Nom de famille, début ou entier à partir de 3 caractères
@@ -446,19 +429,3 @@ def username_from_username_part(request):
         pass
 
     return HttpResponse(json.dumps(data))
-
-# TODO: obsolète
-def profile_view(request):
-    add_to_breadcrumbs(request, 'Profil')
-    return render(request, 'users/profile.html', locals())
-
-def data_from_username(self):
-    try:
-        user = User.objects.get(username=self.GET.get('username'))
-        data = {
-            'surname': user.surname,
-            'balance': str(user.balance),
-            'family': user.family}
-        return HttpResponse(json.dumps(data))
-    except ObjectDoesNotExist:
-        return HttpResponse()

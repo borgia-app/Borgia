@@ -137,20 +137,12 @@ LOGIN_EXEMPT_URLS = [
     '/auth/password_reset/',
     '/auth/password_reset/done/',
     '/auth/done/',
-    '/users/username_from_username_part',
-    '/finances/electrovanne/request1',
-    '/finances/electrovanne/request2',
-    '/finances/electrovanne/date',
-    '/foyer',
-    '/auberge',
-    '/finances/supply/lydia/self/callback',
+    '/ajax/username_from_username_part/',
     '/local/jsi18n',
     '/admin/'
 ]
 
-LOGIN_EXEMPT_URL_PATTERNS = [
-    re.compile('%s[0-9A-Z-a-z_\-]+%s.+%s' % ('/auth/', '/', '/')),
-]
+LOGIN_EXEMPT_URL_PATTERNS = []
 
 STATIC_URL = '/static/'
 # STATIC_ROOT = 'static/static_root/'

@@ -129,4 +129,7 @@ class RedirectLoginProfile:
             '/',
         ]
         if request.path_info in login_pages and request.user.is_authenticated:
-            return HttpResponseRedirect('/shops/foyer/consumption')
+            return render(reverse(
+                'url_group_workboard',
+                kwargs={'group_name': 'gadzarts'}
+            ))

@@ -14,7 +14,7 @@
       "surname": null,
       "family": null,
       "balance": 0.0,
-      "year": null,
+      "year": 2014,
       "campus": null,
       "phone": null,
       "groups": [2, 3, 4, 5],
