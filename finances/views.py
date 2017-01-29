@@ -704,7 +704,7 @@ class UserExceptionnalMovementCreate(GroupPermissionMixin, UserMixin, FormView,
 class UserSupplyMoney(GroupPermissionMixin, UserMixin, FormView,
                        GroupLateralMenuFormMixin):
     template_name = 'finances/user_supplymoney.html'
-    perm_codename = 'supply_money'
+    perm_codename = 'supply_money_user'
     lm_active = None
     form_class = UserSupplyMoneyForm
 

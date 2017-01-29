@@ -28,15 +28,5 @@
       "value": "5",
       "value_type": "f"
     }
-  },
-      {
-    "model": "settings_data.setting",
-    "pk": 4,
-    "fields": {
-      "name": "NUMBER_TAPS",
-      "description": "Nombre de tireuses au foyer",
-      "value": "7",
-      "value_type": "i"
-    }
   }
 ]

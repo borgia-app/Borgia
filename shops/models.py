@@ -23,8 +23,6 @@ class Shop(models.Model):
     :param description: Description, mandatory.
     :type name: string
     :type description: string
-
-    :note:: TODO: Add module attributes.
     """
     name = models.CharField('Nom', max_length=255, default="Shop name")
     description = models.TextField('Description', default="Description")
@@ -230,13 +228,20 @@ class Shop(models.Model):
         :note:: Initial Django Permission (create, delete, change) are added.
         """
         permissions = (
-            ('sell_foyer', 'Vendre des produits au foyer'),
-            ('sell_auberge', 'Vendre des produits à l\'auberge'),
-            ('sell_cvis', 'Vendre des produits à la cvis'),
-            ('sell_bkars', 'Vendre des produits à la bb'),
-            ('add_product', 'Ajouter des produits'),
+            # CRUDL
+            # add_shop
+            # change_shop
+            # delete_shop
+            ('list_shop', 'Lister les magasins'),
+            ('retrieve_shop', 'Afficher les détails d\'un magasin'),
+
+            # Product management
+            ('add_product', 'Ajouter un produit'),
+            ('change_product', 'Modifier un produit'),
+            ('delete_product', 'Supprimer un produit'),
             ('list_product', 'Lister les produits'),
-            ('change_price_product', 'Changer le prix des produits'),
+            ('retrieve_product', 'Afficher les détails d\'un produit'),
+            ('change_price_product', 'Changer le prix d\'un produit'),
         )
 
 
@@ -341,7 +346,6 @@ class ProductBase(models.Model):
             return self.product_unit.name
         else:
             return self.name
-
 
     def calculated_price_usual(self):
         """
@@ -508,10 +512,6 @@ class ProductBase(models.Model):
         :note:: Initial Django Permission (create, delete, change) are added.
         """
         permissions = (
-            ('list_productbase', 'Lister les produits de base'),
-            ('retrieve_productbase', 'Afficher un produit de base'),
-            ('change_price_productbase',
-             'Changer le prix d\'un produit de base'),
         )
 
 
@@ -578,8 +578,6 @@ class SingleProduct(models.Model):
         :note:: Initial Django Permission (create, delete, change) are added.
         """
         permissions = (
-            ('list_singleproduct', 'Lister les produits unitaires'),
-            ('retrieve_singleproduct', 'Afficher un produit unitaire')
         )
 
 
@@ -676,9 +674,6 @@ class Container(models.Model):
         :note:: Initial Django Permission (create, delete, change) are added.
         """
         permissions = (
-            ('list_container', 'Lister les conteneurs'),
-            ('retrieve_container', 'Afficher un conteneur'),
-            ('change_active_keg', 'Changer le fut d\'une tireuse'),
         )
 
 
@@ -748,8 +743,6 @@ class ProductUnit(models.Model):
         :note:: Initial Django Permission (create, delete, change) are added.
         """
         permissions = (
-            ('list_productunit', 'Lister les unités de produits'),
-            ('retrieve_productunit', 'Afficher une unité de produit'),
         )
 
 

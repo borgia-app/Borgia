@@ -249,66 +249,28 @@ class User(AbstractUser):
         deprecated in further versions.
         """
         permissions = (
-            # Presidency
+            # Group management
             ('manage_group_presidents', 'Gérer le groupe des présidents'),
-            ('reach_workboard_presidents', '''Accéder au workboard des
-             présidents'''),
             ('manage_group_vice-presidents-internal',
              '''Gérer le groupe des vices présidents délégués à la vie
              interne'''),
-            ('reach_workboard_vice-presidents-internal', '''Accéder au
-             workboard des vices présidents délégués à la vie interne'''),
-
-            # Treasury
             ('manage_group_treasurers', 'Gérer le groupe des trésoriers'),
-            ('reach_workboard_treasurers', '''Accéder au workboard de la
-             trésorerie'''),
-
-            # Hall of residence
-            ('manage_group_chiefs-foyer', '''Gérer le groupe
-             des chefs gestionnaires du foyer'''),
-            ('manage_group_associates-foyer', '''Gérer le groupe des
-             gestionnaires du foyer'''),
-            ('reach_workboard_foyer', 'Aller sur le workboard du foyer'),
-
-            # Auberge TODO: translation needed
-            ('manage_group_chiefs-auberge', '''Gérer le
-             groupe des chefs gestionnaires de l\'auberge'''),
-            ('manage_group_associates-auberge', '''Gérer le groupe des
-             gestionnaires de l\'auberge'''),
-            ('reach_workboard_auberge', '''Aller sur le workboard de
-             l\'auberge'''),
-
-            # CVis TODO: translation needed ?
-            ('manage_group_chiefs-cvis', '''Gérer le groupe
-             des chefs gestionnaires de la cvis'''),
-            ('manage_group_associates-cvis', '''Gérer le groupe des
-             gestionnaires de la cvis'''),
-            ('reach_workboard_cvis', 'Aller sur le workboard de la cvis'),
-
-            # B²
-            ('manage_group_chiefs-bkars', '''Gérer le groupe
-             des chefs gestionnaires de la bkars'''),
-            ('manage_group_associates-bkars', '''Gérer le groupe des
-             gestionnaires de la bkars'''),
-            ('reach_workboard_bkars', 'Aller sur le workboard de la bkars'),
-
-
-            # Miscellaneous
             ('manage_group_gadzarts', 'Gérer le groupe des Gadz\'Arts'),
             ('manage_group_honnored', '''Gérer le groupe des membres
              d\'honneurs'''),
             ('manage_group_specials', '''Gérer le groupe des membres
              spéciaux'''),
 
+            # CRUDL
+            # add_user
+            # change_user
+            # delete_user
             ('list_user', 'Lister les users'),
             ('retrieve_user', 'Afficher les users'),
 
-            ('supply_money', 'Ajouter de l\'argent à un compte'),
-            ('exceptionnal_movement', 'Créer un mouvement exceptionnel'),
-
-            ('link_token_user', 'Lier un jeton à un user'),
-
+            # Miscellaneous
+            ('supply_money_user', 'Ajouter de l\'argent à un utilisateur'),
+            ('link_token_user', 'Lier un jeton à un utilisateur')
         )
 
 

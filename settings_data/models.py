@@ -85,3 +85,13 @@ class Setting(models.Model):
             return self.value
         else:
             return types[self.value_type](self.value)
+
+    class Meta:
+        permissions = (
+            # CRUDL
+            # add_setting
+            # change_setting
+            # delete_setting
+            ('list_setting', 'Lister les paramètres généraux'),
+            ('retrieve_setting', 'Afficher un paramètre général')
+        )
