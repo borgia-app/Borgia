@@ -1,4 +1,6 @@
 #-*- coding: utf-8 -*-
+from django.shortcuts import redirect
+from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
@@ -129,7 +131,7 @@ class RedirectLoginProfile:
             '/',
         ]
         if request.path_info in login_pages and request.user.is_authenticated:
-            return render(reverse(
+            return redirect(reverse(
                 'url_group_workboard',
                 kwargs={'group_name': 'gadzarts'}
             ))
