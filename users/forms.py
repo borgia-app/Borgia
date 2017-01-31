@@ -1,6 +1,6 @@
 #-*- coding: utf-8 -*-
 from django import forms
-from users.models import User
+from users.models import User, list_year
 from django.forms.widgets import PasswordInput
 from django.core.exceptions import ObjectDoesNotExist
 
@@ -8,7 +8,6 @@ from django.contrib.admin.widgets import FilteredSelectMultiple
 from borgia.validators import *
 
 
-# Formulaire de creation d'un user
 class UserCreationCustomForm(forms.Form):
 
     username = forms.CharField(label='Username', max_length=255)
@@ -47,6 +46,7 @@ class UserCreationCustomForm(forms.Form):
         return data
 
 
+# unused now
 class UserUpdateForm(forms.Form):
     email = forms.EmailField(label='Email')
     phone = forms.CharField(label='Téléphone', required=False)
@@ -99,7 +99,6 @@ class UserUpdateAdminForm(forms.Form):
         return data
 
 
-# Formulaire de modification d'un groupe
 class ManageGroupForm(forms.Form):
 
     class Media:
@@ -113,15 +112,9 @@ class ManageGroupForm(forms.Form):
         self.fields['members'] = forms.ModelMultipleChoiceField(queryset=possible_members,
                                                                 widget=FilteredSelectMultiple('Membres', False),
                                                                 required=False)
-        # Utilisation d'un custom field pour pouvoir changer l'affichage des permissions
         self.fields['permissions'] = forms.ModelMultipleChoiceField(queryset=possible_permissions,
                                                                     widget=FilteredSelectMultiple('Permissions', False),
                                                                     required=False)
-
-
-class ModelMultipleChoiceCustomField(forms.ModelMultipleChoiceField):
-    def label_from_instance(self, obj):
-        return obj.name
 
 
 class LinkTokenUserForm(forms.Form):
@@ -142,19 +135,26 @@ class LinkTokenUserForm(forms.Form):
         return super(LinkTokenUserForm, self).clean()
 
 
-class UserListCompleteForm(forms.Form):
-
-    all = forms.BooleanField(label='Selectionner toutes les promotions', required=False)
-    unactive = forms.BooleanField(label='Utilisateurs désactivés', required=False)
+class UserSearchForm(forms.Form):
+    search = forms.CharField(
+        label='Recherche',
+        max_length=255,
+        required=False
+    )
+    unactive = forms.BooleanField(
+        label='Désactivés seulement',
+        required=False
+    )
 
     def __init__(self, **kwargs):
-        list_year = kwargs.pop('list_year')
-        super(UserListCompleteForm, self).__init__(**kwargs)
-
-        for (i, y) in enumerate(list_year):
-            self.fields['field_year_%s' % i] = forms.BooleanField(label=y, required=False)
-
-    def year_pg_list_answers(self):
-        for name, value in self.cleaned_data.items():
-            if name.startwith('field_year_pg_'):
-                yield (self.fields[name].label, value)
+        YEAR_CHOICES = [('all', 'Toutes')]
+        for year in list_year():
+            YEAR_CHOICES.append(
+                (year, year)
+            )
+        super(UserSearchForm, self).__init__(**kwargs)
+        self.fields['year'] = forms.ChoiceField(
+            label='Année',
+            choices=YEAR_CHOICES,
+            required=False
+        )

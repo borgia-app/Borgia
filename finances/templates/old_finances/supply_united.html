@@ -1,0 +1,96 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-custom">
+            <div class="panel-heading">
+                <h2 class="align-center">Rechargement de compte</h2>
+            </div>
+            <div class="panel-body">
+                <form class="form-style-1" action= "{% url 'url_supply_united' %}" method="post">
+                    {% csrf_token %}
+                    {{ form.as_ul }}
+                    <li id="id_link_create_bank_account"><label>Le compte en banque n'est pas dans la liste ? <a class="s" href="{% url 'url_create_bank_account' %}?next=/finances/supply/united?next={{ next }}">Ajout !</a></label></li>
+                    <input type=hidden name="next" value="{{ next }}" />
+                    <input id="type_value" type=hidden name="type_value" value="{{ form.type.value }}" />
+                    <li><input type="submit" value="Valider" class="btn btn-success" id="id_submit"/></li>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialisation de type et du compte en banque (erreur de validation)
+        $(document).ready(function() {
+            check_type();
+            set_bank_account();
+        });
+
+        // Changement de type
+        $('#id_type').change(function() {
+            check_type();        //$('#id_sender').trigger('change');
+        });
+
+        function check_type() {
+            if ($('#id_type option:selected').val() == 'cash') {
+                display_cash();
+            }
+            else if ($('#id_type option:selected').val() == 'cheque') {
+                display_cheque();
+            }
+            else if ($('#id_type option:selected').val() == 'lydia') {
+                display_lydia();
+            }
+        }
+        function display_cash() {
+            $('label[for=' + 'id_unique_number' + '], input#id_unique_number').hide();
+            $('label[for=' + 'id_bank_account' + '], #id_bank_account').hide();
+            $('label[for=' + 'id_signature_date' + '], input#id_signature_date').hide();
+            $('#id_link_create_bank_account').hide();
+        }
+        function display_cheque() {
+            $('label[for=' + 'id_unique_number' + '], input#id_unique_number').show();
+            $('label[for=' + 'id_bank_account' + '], #id_bank_account').show();
+            $('label[for=' + 'id_signature_date' + '], input#id_signature_date').show();
+            $('#id_link_create_bank_account').show();
+        }
+        function display_lydia() {
+            $('label[for=' + 'id_unique_number' + '], input#id_unique_number').show();
+            $('label[for=' + 'id_bank_account' + '], #id_bank_account').hide();
+            $('label[for=' + 'id_signature_date' + '], input#id_signature_date').show();
+            $('#id_link_create_bank_account').hide();
+        }
+
+        // Gestion des comptes en banque
+        $('#id_sender').blur(function() {
+            set_bank_account();
+        });
+
+        function set_bank_account() {
+            $.ajax({
+                url: "{% url 'url_bank_account_from_user' %}",
+                dataType: "json",
+                data: {
+                    user_username: $('#id_sender').val()
+                },
+                success: function(data) {
+                    $('#id_bank_account')
+                            .find('option')
+                            .remove()
+                            .end();
+                    for (i=0; i<data.length; i++) {
+                        var option = data[i].pk + ' ' + data[i].fields.bank + ' ' + data[i].fields.account;
+                        $('#id_bank_account').append('<option>'+option+'</option>');
+                    }
+                },
+                error: function() {
+                    $('#id_bank_account')
+                            .find('option')
+                            .remove()
+                            .end();
+                }
+            });
+        }
+    </script>
+{% endblock %}

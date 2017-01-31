@@ -1,0 +1,9 @@
+{# Utilisation d'un _module.html supplémentaire de façon à pour l'utiliser pour d'autres templates  #}
+
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="col-md-8 col-md-offset-2">
+        {% include "finances/sale_retrieve_module.html" %}
+    </div>
+{% endblock %}

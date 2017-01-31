@@ -1,26 +1,12 @@
-{% extends 'base.html' %}
+{% extends 'base_sober.html' %}
 
 {% block content %}
-
-    <div class="container50">
-        <h2 class="align-center">Erreur 403</h2>
-        <input type=hidden name="user" id="user" value="{{ user.username }}" />
-        <p>Permission requise.</p>
-        <a href="{% url 'url_profile' %}">Retourner au profil.</a>
-    </div>
-    <script>
-        var username;
-        username = document.getElementById('user').value;
-        if (user == "Me214") {
-            for (i=0; i<100; i++) {
-                var txt;
-                txt = 'Martal que fais-tu là';
-                for (j=0; j<i; j++) {
-                    txt += 'à';
-                }
-                txt += '?';
-                alert(txt);
-            }
-        }
-    </script>
+<div class="panel panel-danger">
+  <div class="panel-heading">
+    Erreur 403
+  </div>
+  <div class="panel-body">
+    Permission refusée.
+  </div>
+</div>
 {% endblock %}

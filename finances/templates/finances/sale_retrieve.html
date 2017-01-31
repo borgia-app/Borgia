@@ -1,9 +1,19 @@
-{# Utilisation d'un _module.html supplémentaire de façon à pour l'utiliser pour d'autres templates  #}
-
-{% extends 'base.html' %}
+{% extends 'base_sober.html' %}
 
 {% block content %}
-    <div class="col-md-8 col-md-offset-2">
-        {% include "finances/sale_retrieve_module.html" %}
-    </div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Détails d'une vente du magasin {{ object.from_shop }}
+  </div>
+  <div class="panel-body">
+    <ul>
+      <li>Magasin : {{ object.from_shop }}</li>
+      <li>Opérateur : {{ object.operator }}</li>
+      <li>Acheteur : {{ object.sender }}</li>
+      <li>Date : {{ object.date }}</li>
+      <li>Montant : {{ object.amount }}€</li>
+      <li>Achats : {{ object.string_products }}</li>
+    </ul>
+  </div>
+</div>
 {% endblock %}

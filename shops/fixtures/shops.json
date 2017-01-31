@@ -3,33 +3,42 @@
     "model": "shops.shop",
     "pk": 1,
     "fields": {
-      "name": "Foyer",
-      "description": "Foyer des  élèves de l'AE ENSAM"
+      "name": "association",
+      "description": "generic association"
     }
   },
   {
-    "model": "shops.shop",
-    "pk": 2,
+    "model": "shops.productunit",
+    "pk": 1,
     "fields": {
-      "name": "Auberge",
-      "description": "Auberge des élèves de l'AE ENSAM"
+      "name": "fictional money",
+      "description": "",
+      "unit": "CENT",
+      "type": "fictional_money"
     }
   },
   {
-    "model": "shops.shop",
-    "pk": 3,
+    "model": "shops.productbase",
+    "pk": 1,
     "fields": {
-      "name": "Cvis",
-      "description": "C-Vis des élèves de l'AE ENSAM"
+      "name": "fictional money",
+      "description": "",
+      "product_unit": 1,
+      "brand": "AE ENSAM",
+      "type": "container",
+      "shop": 1
     }
   },
   {
-    "model": "shops.shop",
-    "pk": 4,
+    "model": "shops.container",
+    "pk": 1,
     "fields": {
-      "name": "Bkars",
-      "description": "BB des élèves de l'AE ENSAM"
+      "price": 0,
+      "purchase_date": "2016-02-15",
+      "expiry_date": null,
+      "place": "",
+      "is_sold": false,
+      "product_base": 1
     }
   }
 ]
-

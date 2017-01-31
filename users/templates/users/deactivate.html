@@ -1,0 +1,22 @@
+{% extends 'base_sober.html' %}
+
+{% block content %}
+<div class="panel panel-danger">
+  <div class="panel-heading">
+    Désactivation d'un utilisateur
+  </div>
+  <div class="panel-body">
+    <form action="" method="post">
+      {% csrf_token %}
+      <label>{% if object.is_active == True %}
+            Désactiver
+        {% else %}
+            Activer
+        {% endif %}
+            l'utilisateur {{ object.username }} ({{ object.first_name }} {{ object.last_name }}) ?</label>
+        <input type=hidden name="is_active" value="{{ object.is_active }}" />
+        <button class="btn btn-danger" type="submit">Valider</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

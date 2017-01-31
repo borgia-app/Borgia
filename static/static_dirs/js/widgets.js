@@ -15,7 +15,7 @@ jQuery(function($){
     $('.autocomplete_username').autocomplete({
         source: function( request, response ) {
             $.ajax({
-                url: "/users/username_from_username_part",
+                url: "/ajax/username_from_username_part/",
                 dataType: "json",
                 data: {
                     keywords: request.term
@@ -27,4 +27,3 @@ jQuery(function($){
         }
     });
 });
-

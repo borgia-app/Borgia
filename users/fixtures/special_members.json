@@ -17,42 +17,8 @@
       "year": null,
       "campus": null,
       "phone": null,
-      "groups": [9],
+      "groups": [1],
       "user_permissions": []
-    }
-  },
-  {
-    "model": "shops.productunit",
-    "pk": 1,
-    "fields": {
-      "name": "Argent fictif",
-      "description": "Produit unitaire d'argent fictif utilisé pour les comptes de foyer",
-      "unit": "CENT",
-      "type": "fictional_money"
-    }
-  },
-  {
-    "model": "shops.productbase",
-    "pk": 1,
-    "fields": {
-      "name": "Argent fictif",
-      "description": "Argent fictif utilisé pour les comptes de foyer",
-      "product_unit": 1,
-      "brand": "AE ENSAM",
-      "type": "container",
-      "shop": 1
-    }
-  },
-  {
-    "model": "shops.container",
-    "pk": 1,
-    "fields": {
-      "price": 0,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "les nuages",
-      "is_sold": false,
-      "product_base": 1
     }
   }
 ]

@@ -1,0 +1,18 @@
+{% extends 'base_sober.html' %}
+
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Détails d'un transfert entre compte
+  </div>
+  <div class="panel-body">
+    <ul>
+      <li>Initiateur : {{ object.sender }}</li>
+      <li>Receveur : {{ object.recipient }}</li>
+      <li>Date : {{ object.date }}</li>
+      <li>Montant : {{ object.amount }}€</li>
+      <li>Justification : {{ object.justification }}</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

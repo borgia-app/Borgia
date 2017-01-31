@@ -1,0 +1,77 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+
+{% block content %}
+<div class="row">
+  <div class='col-md-8'>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Workboard {{ group_name_display }}
+        </div>
+        <div class="panel-body">
+          <div class="jumbotron">
+            <h1>Groupe des {{ group_name_display }}</h1>
+            <p>Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+          </div>
+        </div>
+    </div>
+  </div>
+  <div class="col-md-4">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Raccourcis
+        </div>
+        <div class="panel-body">
+          Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+        </div>
+    </div>
+  </div>
+</div>
+<div class="row">
+  {% if module_list_sale %}
+  <div class="col-md-8">
+    <div class="panel panel-default">
+      <div class="panel-heading">
+          Dernières ventes
+      </div>
+      <table class="table table-hover table-striped">
+        <tr>
+            <th>Opérateur</th>
+            <th>Acheteur</th>
+            <th>Prix</th>
+            <th>Magasin</th>
+            <th>Détail</th>
+        </tr>
+        {% for sale in sale_list %}
+        <tr>
+            <td>{{ sale.operator }}</td>
+            <td>{{ sale.sender }}</td>
+            <td>{{ sale.amount }}€</td>
+            <td>{{ sale.from_shop }}</td>
+            <td>
+              <a href="{% url 'url_sale_retrieve' group_name=group_name pk=sale.pk %}">Détail</a>
+            </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+  </div>
+  {% endif %}
+  {% if module_search_user %}
+  <div class="col-md-4">
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Recherche rapide d'un utilisateur
+        </div>
+        <div class="panel-body">
+          <form action="" method="post">
+              {% csrf_token %}
+              {{ user_search_form|bootstrap }}
+              <button class="btn btn-success" type="submit">Rechercher</button>
+          </form>
+        </div>
+    </div>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1,5 +1,5 @@
 #-*- coding: utf-8 -*-
-from django.views.generic import FormView, TemplateView
+from django.views.generic import FormView, TemplateView, View
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import login, authenticate, logout
 from django.contrib.auth.forms import AuthenticationForm
@@ -10,29 +10,15 @@ from operator import or_
 from django.core.serializers import serialize
 
 from users.models import User
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 import json
 from django.core.exceptions import ObjectDoesNotExist
 import operator
 
-
-class LoginPG(FormView):
-    form_class = AuthenticationForm
-    template_name = 'login_clean.html'
-
-    def get(self, request, *args, **kwargs):
-        if request.user:
-            logout(request)
-        return super(LoginPG, self).get(request, *args, **kwargs)
-
-    def form_valid(self, form):
-        login(self.request, form.get_user())
-        return redirect('/shops/' + self.kwargs['organe'] + '/consumption/')
-
-    def get_context_data(self, **kwargs):
-        context = super(LoginPG, self).get_context_data(**kwargs)
-        context['organe_name'] = self.kwargs['organe']
-        return context
+from borgia.utils import *
+from finances.models import Sale
+from borgia.forms import UserSearchForm
+from users.views import UserListView
 
 
 def jsi18n_catalog(request):
@@ -157,7 +143,6 @@ def get_list_model(request, model, search_in, props=None):
     data = json.dumps(data_load)
     return HttpResponse(data)
 
-
 def get_unique_model(request, pk, model, props=None):
     """
     Permet de sérialiser en JSON une instance spécifique pk=pk de model.
@@ -267,3 +252,31 @@ class TestBootstrapSober(TemplateView):
             }
         ]
         return context
+
+
+class GroupWorkboard(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    template_name = 'group_workboard.html'
+    perm_codename = None
+    lm_active = 'lm_workboard'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data()
+        if Permission.objects.get(codename='list_user') in self.group.permissions.all():
+            context['user_search_form'] = UserSearchForm()
+            context['module_search_user'] = True
+        if Permission.objects.get(codename='list_sale') in self.group.permissions.all():
+            try:
+                shop = shop_from_group(self.group)
+                context['sale_list'] = Sale.objects.filter(
+                    category='sale',
+                    wording='Vente '+shop.name
+                ).order_by('-date')[:5]
+            except ValueError:
+                context['sale_list'] = Sale.objects.filter(
+                    category='sale'
+                ).order_by('-date')[:5]
+            context['module_list_sale'] = True
+        return render(request, self.template_name, context=context)
+
+    def post(self, request, *args, **kwargs):
+        return UserListView().form_valid(UserSearchForm(request.POST))

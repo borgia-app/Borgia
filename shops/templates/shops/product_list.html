@@ -1,202 +1,38 @@
-{% extends 'base.html' %}
-{% load finances_extra %}
-{% load users_extra %}
-{% load shops_extra %}
+{% extends 'base_sober.html' %}
 
 {% block content %}
-
-    <div class="container-fluid">
-        <div class="row">
-            <form action= "{% url 'url_list_productbase' %}" method="post">
-                {% csrf_token %}
-                <input type=hidden name="next" value="{{ next }}" />
-                <input type=hidden name="order_by" value="{{ order_by }}" />
-                <input type=hidden name="shop" value="{{ shop }}" />
-                <input type=hidden name="type_product" value="{{ type_product }}" />
-                <div class="fieldWrapper">
-                    {{ form.shop.errors }}
-                    {{ form.shop.label }} : {{ form.shop }}
-                </div>
-                <div class="fieldWrapper">
-                    {{ form.type_product.errors }}
-                    {{ form.type_product.label }} : {{ form.type_product }}
-                </div>
-                <p><input type="submit" value="Lister"/></p>
-            </form>
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+          Recherche
         </div>
-        <div class="row">
-            {% if type_product == 'product_base' %}
-                <table class="table_shop">
-                    <tr>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Nom</a></th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Type</a></th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'quantity_stock'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Stock</a></th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'sell_price'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Prix de vente actuel</a></th>
-                        <th>Quantité usuelle</th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'is_manual'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Calcul du prix</a></th>
-                        {% if perms.shops.change_productbase %}
-                            <th>Détail</th>
-                        {% endif %}
-                        {% if perms.shops.change_price_productbase %}
-                            <th>Gestion prix</th>
-                        {% endif %}
-                    </tr>
-                    {% for e in page %}
-                        <tr>
-                            <td>{{ e.name }}</td>
-                            <td>{{ e.get_type_display }}</td>
-                            <td>{% quantity_stock_product_base e %}</td>
-                            <td>{{ e.get_moded_usual_price }} €</td>
-                            <td>
-                                {% if e.product_unit %}
-                                    {{ e.product_unit.usual_quantity }} {{ e.product_unit.get_unit_display }}
-                                {% else %}
-                                    -
-                                {% endif %}
-                            </td>
-                            <td>{% human_reading e.is_manual 'manual_price' %}</td>
-                            {% if perms.shops.change_productbase %}
-                                <td><a href="{% url 'url_retrieve_productbase' pk=e.id %}">détail</a></td>
-                            {% endif %}
-                            {% if perms.shops.change_price_productbase %}
-                                <td><a href="{% url 'url_set_price_product_base' pk=e.id %}">gestion prix</a></td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </table>
-                {% if page.has_other_pages %}
-                       </div>
-                            <nav class="pagination">
-                                <ul class="pagination">
-                                    {% comment %}Affiche un lien vers la première page{% endcomment %}
-                                    <li>
-                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page=first">
-                                            <span><<</span>
-                                          </a>
-                                      </li>
-                                {% comment %}Affiche un lien vers la page précédente{% endcomment %}
-                                  {% if page.has_previous %}
-                                      <li>
-                                        <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ page.previous_page_number }}">
-                                            <span>Previous</span>
-                                        </a>
-                                      </li>
-                                  {% else %}
-                                      <li class="disabled">
-                                        <a href="#">
-                                            <span>Previous</span>
-                                        </a>
-                                      </li>
-                                  {% endif %}
-
-                                {% comment %}Affiche un des liens vers les pages encadrant la page courante{% endcomment %}
-                                  {% for p in page_links %}
-                                      <li {% if p == page.number %}class="active"{% endif %}>
-                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ p }}">{{ p }}</a>
-                                      </li>
-                                  {% endfor %}
-                                    {% comment %}Affiche un lien vers la page suivante{% endcomment %}
-                                  {% if page.has_next %}
-                                      <li>
-                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ page.next_page_number }}">
-                                            <span>Next</span>
-                                          </a>
-                                      </li>
-                                  {% else %}
-                                      <li {% if not page.has_next %}class="disabled"{% endif %}>
-                                          <a href="#">
-                                              <span>Next</span>
-                                          </a>
-                                      </li>
-                                  {% endif %}
-                                    {% comment %}Affiche un lien vers la dernière page{% endcomment %}
-                                    <li>
-                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page=last">
-                                            <span>>></span>
-                                          </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                        {% endif %}
-            {% elif type_product == 'product_unit' %}
-                <table>
-                    <tr>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'name'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Nom</a></th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'type'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Type</a></th>
-                        <th><a href="{% url 'url_list_product' %}?order_by={{ 'unit'|order_by:request }}&shop={{ shop }}&page={{ page.number }}">Unité</a></th>
-                        {% if perms.shops.change_productunit %}
-                            <th>Détail</th>
-                        {% endif %}
-                    </tr>
-                    {% for e in page %}
-                        <tr>
-                            <td>{{ e.name }}</td>
-                            <td>{{ e.get_type_display }}</td>
-                            <td>
-                                {{ e.get_unit_display }}
-                            </td>
-                            {% if perms.shops.change_productunit %}
-                                <td><a href="{% url 'url_retrieve_productunit' pk=e.id %}">détail</a></td>
-                            {% endif %}
-                        </tr>
-                    {% endfor %}
-                </table>
-                {% if page.has_other_pages %}
-                       </div>
-                            <nav class="pagination">
-                                <ul class="pagination">
-                                    {% comment %}Affiche un lien vers la première page{% endcomment %}
-                                    <li>
-                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page=first">
-                                            <span><<</span>
-                                          </a>
-                                      </li>
-                                {% comment %}Affiche un lien vers la page précédente{% endcomment %}
-                                  {% if page.has_previous %}
-                                      <li>
-                                        <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ page.previous_page_number }}">
-                                            <span>Previous</span>
-                                        </a>
-                                      </li>
-                                  {% else %}
-                                      <li class="disabled">
-                                        <a href="#">
-                                            <span>Previous</span>
-                                        </a>
-                                      </li>
-                                  {% endif %}
-
-                                {% comment %}Affiche un des liens vers les pages encadrant la page courante{% endcomment %}
-                                  {% for p in page_links %}
-                                      <li {% if p == page.number %}class="active"{% endif %}>
-                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ p }}">{{ p }}</a>
-                                      </li>
-                                  {% endfor %}
-                                    {% comment %}Affiche un lien vers la page suivante{% endcomment %}
-                                  {% if page.has_next %}
-                                      <li>
-                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page={{ page.next_page_number }}">
-                                            <span>Next</span>
-                                          </a>
-                                      </li>
-                                  {% else %}
-                                      <li {% if not page.has_next %}class="disabled"{% endif %}>
-                                          <a href="#">
-                                              <span>Next</span>
-                                          </a>
-                                      </li>
-                                  {% endif %}
-                                    {% comment %}Affiche un lien vers la dernière page{% endcomment %}
-                                    <li>
-                                          <a href="?order_by={{ order_by }}&shop={{ shop }}&page=last">
-                                            <span>>></span>
-                                          </a>
-                                    </li>
-                                </ul>
-                            </nav>
-                    {% endif %}
-            {% endif %}
+        <div class="panel-body">
+          A faire
         </div>
+      </div>
     </div>
-
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Résultats
+      </div>
+        <table class="table table-hover table-striped">
+          <tr>
+              <th>Nom</th>
+              <th>Type</th>
+              <th>Stock</th>
+              <th>Actif</th>
+              <th>Détail</th>
+          </tr>
+          {% for product in product_list %}
+          <tr>
+              <td>{{ product }}</td>
+              <td>{{ product.type }}</td>
+              <td></td>
+              <td>{{ product.is_active }}</td>
+              <td>
+                <a href="{% url 'url_product_retrieve' group_name=group_name pk=product.pk %}">Détail</a>
+              </td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
 {% endblock %}

@@ -1,6 +1,7 @@
 {% load staticfiles %}
 {% load notifications_extra %}
 {% load users_extra %}
+{% load bootstrap %}
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -26,7 +27,7 @@
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
              <div class="navbar-header col-md-2 col-sm-2 col-xs-2 col-xxs-2" style="padding-left: 2px">
-                <a href="{% url 'url_purchase_foyer' %}">
+                <a href="">
                    <span class="logo-background"></span>
                 </a>
              </div>
@@ -53,9 +54,6 @@
                             <span class="icon-bar"></span>
                             <span class="icon-bar"></span>
                         </button>
-                        <!-- <li><a class="icon icon-people" href="{% url 'url_list_user' %}"></a></li> -->
-                        <!-- <li><a class="icon icon-settings" href=""></a></li> -->
-                        <!-- <li><a class="icon icon-admin" href=""></a></li> -->
                 </ul>
              </div>
 
@@ -76,7 +74,7 @@
                             </li>
                             <li>
                               <span class="user-edition">
-                                <a style="height: 23px;" href="{% url 'url_update_user' pk=user.pk %}" title="Édition">
+                                <a style="height: 23px;" href="" title="Édition">
                                   <i class="fa fa-pencil" aria-hidden="true"></i>
                                 </a>
                               </span>
@@ -97,7 +95,7 @@
              <div class="col-xxs-12 navbar-collapse collapse" id="navbar-collapse-1" aria-expanded="false" style="height: 2px;">
                 <ul class="navbar-nav nav navbar-collapse-menu">
                     <li class="align-center" style="padding-top:3px; background: #000;">{{ user.surname }} {{ user.username }}</li>
-                    <li><a href="{% url 'url_update_user' pk=user.pk %}">Édition du profil</a></li>
+                    <li><a href="">Édition du profil</a></li>
                     <li><a href="{% url 'url_logout' %}">Déconnexion</a></li>
                 </ul>
 
@@ -132,10 +130,10 @@
    <div class="col-md-2" style="margin-top: 40px">
     {% include "lateral_menu.html" %}
    </div>
-   <div class="col-md-10">
+   <div class="col-md-10" style="margin-top: 40px">
   {% else %}
   <div class="container">
-    <div class="col-md-12">
+    <div class="col-md-12" style="margin-top: 40px">
   {% endif %}
     {%  block content %}
     {%  endblock %}
@@ -147,7 +145,7 @@
     {% if user.avatar %}
         <style>
             .user-container:before {
-                background: url('{% static user.avatar.url %}') no-repeat 0 0;
+                background: url('{{ user.avatar.url }}') no-repeat 0 0;
                 background-size: 100%;
                 content: "";
             }

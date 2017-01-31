@@ -1,0 +1,19 @@
+{% extends 'base_sober.html' %}
+
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Détails d'un mouvement exceptionnel sur un compte
+  </div>
+  <div class="panel-body">
+    <ul>
+      <li>Opérateur : {{ object.operator }}</li>
+      <li>Receveur : {{ object.sender }}</li>
+      <li>Date : {{ object.date }}</li>
+      <li>Montant : {{ object.amount }}€</li>
+      <li>Type : {% if exceptionnal_movement.is_credit %}Crédit{% else %}Débit{% endif %}</li>
+      <li>Justification : {{ object.justification }}</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}

@@ -1,35 +1,93 @@
-{# Utilisation d'un _module.html supplémentaire de façon à pour l'utiliser pour d'autres templates  #}
-
-{% extends 'base.html' %}
+{% extends 'base_sober.html' %}
+{% load finances_extra %}
 
 {% block content %}
-    <div class="container50">
-        {% include "users/retrieve_module.html" %}
-
-        {% if perms.users.change_user %}
-            <div class="row">
-                <p><a class="s" href="{% url 'url_update_admin_user' pk=object.pk %}?next=/users/retrieve/{{ object.pk }}?next={{ next }}">Modifier les informations</a></p>
-                <p><a class="s" href="{% url 'url_desactivate_user' pk=object.pk %}?next={{ next }}">
-                    {% if object.is_active == True %}
-                        Désactiver l'utilisateur
-                    {% else %}
-                        Activer l'utilisateur
-                    {% endif %}</a></p>
-                <input type=hidden name="next" value="{{ next }}" />
-            </div>
-        {% endif %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Détails de l'utilisateur
+  </div>
+  <div class="panel-body">
+    <div class="col-md-6">
+      {% include "users/retrieve_module.html" %}
     </div>
-    <div class="container">
-        <hr>
-        <div class="row">
-            <a class="s" href="{% url 'url_create_bank_account' %}?next={{ request.get_full_path }}">Ajouter un compte en banque</a>
-            {% include 'finances/bank_account_list_module.html' with object_list=object.list_bank_account next=request.get_full_path %}
-        </div>
-
-        <hr>
-        <div class="row">
-            {% include 'finances/sale_list_light_module.html' with object_list=object.list_sale user=object %}
-        </div>
+    {% if perms.users.change_user %}
+    <div class="col-md-6">
+      <p><a class="s" href="{% url 'url_user_update' group_name=group_name pk=object.pk %}">Modifier les informations</a></p>
+      <p><a class="s" href="{% url 'url_user_deactivate' group_name=group_name pk=object.pk %}">
+          {% if object.is_active == True %}
+              Désactiver l'utilisateur
+          {% else %}
+              Activer l'utilisateur
+          {% endif %}</a></p>
+      <p><a class="s" href="{% url 'url_user_exceptionnalmovement_create' group_name=group_name user_pk=object.pk %}">Mouvement exceptionnel</a></p>
+      <p><a class="s" href="{% url 'url_user_supplymoney' group_name=group_name user_pk=object.pk %}">Ajout d'argent</a></p>
     </div>
-
+    {% endif %}
+  </div>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Comptes en banque   <a class="s" href="{% url 'url_user_bankaccount_create' group_name=group_name user_pk=object.pk %}">Ajouter</a>
+  </div>
+  <table class="table table-default table-striped table-hover">
+    <thead>
+      <tr>
+        <th>Banque</th>
+        <th>Compte</th>
+        <th>Modifier</th>
+        <th>Supprimer</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for account in object.list_bank_account %}
+      <tr>
+        <td>{{ account.bank }}</td>
+        <td>{{ account.account }}</td>
+        <td><a
+        href="{% url 'url_user_bankaccount_update' group_name=group_name user_pk=object.pk pk=account.pk %}">Modifier
+        </a></td>
+        <td><a
+        href="{% url 'url_user_bankaccount_delete' group_name=group_name user_pk=object.pk pk=account.pk %}">Supprimer
+        </a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Dernières transactions
+  </div>
+  <table class="table table-default table-striped table-hover">
+    <thead>
+      <tr>
+        <th>Date</th>
+        <th>Catégorie</th>
+        <th>Montant</th>
+        <th>Détail</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for transaction in object.list_sale %}
+      {% price_for sale=transaction user=object as price_for %}
+      <tr class="{% if price_for > 0 %}success{% else %}danger{% endif %}">
+        <td>{{ transaction.date }}</td>
+        <td>{{ transaction.wording }}</td>
+        <td>{{ price_for }}</td>
+        <td><a href="
+          {% if transaction.category == 'sale' %}
+            {% url 'url_sale_retrieve' group_name=group_name pk=transaction.pk %}
+          {% elif transaction.category == 'recharging' %}
+            {% url 'url_recharging_retrieve' group_name=group_name pk=transaction.pk %}
+          {% elif transaction.category == 'transfert' %}
+            {% url 'url_transfert_retrieve' group_name=group_name pk=transaction.pk %}
+          {% elif transaction.category == 'exceptionnal_movement' %}
+            {% url 'url_exceptionnalmovement_retrieve' group_name=group_name pk=transaction.pk %}
+          {% endif %}
+          ">Détail</a></td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
 {% endblock %}

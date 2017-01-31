@@ -1,0 +1,24 @@
+[
+  {
+    "model": "users.user",
+    "pk": 2,
+    "fields": {
+      "is_superuser": false,
+      "username": "admin",
+      "first_name": "admin",
+      "last_name": "admin",
+      "email": "",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2016-02-15T13:32:56.781Z",
+      "surname": null,
+      "family": null,
+      "balance": 0.0,
+      "year": 2014,
+      "campus": null,
+      "phone": null,
+      "groups": [2, 3, 4, 5],
+      "user_permissions": []
+    }
+  }
+]

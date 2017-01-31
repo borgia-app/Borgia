@@ -1,36 +1,41 @@
-#-*- coding: utf-8 -*-
+import json
+import datetime
+import re
 
-from django.shortcuts import render, HttpResponse, force_text, redirect, HttpResponseRedirect
-from users.forms import *
-from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin, DeleteView
+from django.shortcuts import render, HttpResponse, force_text, redirect
+from django.shortcuts import Http404, HttpResponseRedirect
+from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin
+from django.views.generic.edit import DeleteView
 from django.views.generic import ListView, DetailView, FormView, View
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core import serializers
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import PermissionDenied
-from notifications.models import notify
 from django.db.models import BooleanField
 from django.forms import ChoiceField
 from django.db.models import Q
-import json
-import datetime
-import re, datetime
+from django.core.urlresolvers import reverse
 
-from users.models import User, list_year
-from borgia.models import FormNextView, CreateNextView, UpdateNextView, ListCompleteView
+from users.forms import *
+from users.models import User, list_year, ExtendedPermission
 from contrib.models import add_to_breadcrumbs
+from borgia.utils import *
+from notifications.models import notify
 
 
+class LinkTokenUserView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    """
+    Link a token id to a User instance and redirect to the workboard of the
+    group.
 
-
-class LinkTokenUserView(FormNextView):
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
     form_class = LinkTokenUserForm
-    template_name = 'users/link_token_user.html'
-    success_url = '/auth/login'
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Liaison jeton')
-        return super(LinkTokenUserView, self).get(request, *args, **kwargs)
+    template_name = 'users/link_token.html'
+    success_url = None
+    perm_codename = 'link_token_user'
+    lm_active = 'lm_link_token'
 
     def form_valid(self, form):
         user = User.objects.get(username=form.cleaned_data['username'])
@@ -39,143 +44,126 @@ class LinkTokenUserView(FormNextView):
         return super(LinkTokenUserView, self).form_valid(form)
 
 
-def data_from_username(self):
-    try:
-        user = User.objects.get(username=self.GET.get('username'))
-        data = {
-            'surname': user.surname,
-            'balance': str(user.balance),
-            'family': user.family}
-        return HttpResponse(json.dumps(data))
-    except ObjectDoesNotExist:
-        return HttpResponse()
-
-
-class ManageGroupView(FormNextView):
-    template_name = 'users/manage_group.html'
-    success_url = '/auth/login'
+# TODO: jquery is not found on the template
+# Due to the jquery of admin ?
+class ManageGroupView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    template_name = 'users/group_manage.html'
+    success_url = None
     form_class = ManageGroupForm
+    perm_codename = None
+    group_updated = None
+    lm_active = None
 
-    def get(self, request, *args, **kwargs):
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Check permission.
 
-        # Test de permission
-        group = Group.objects.get(pk=request.GET.get('group_pk'))
-        manage_perm_linked = permission_to_manage_group(group=group)[1]
-        if request.user.has_perm(manage_perm_linked) is False:
+        This function is at some parts redundant with the mixin GroupPermission
+        however you cannot set a perm_codename directly, because it depends
+        on the group_name directly.
+
+        :raises: Http404 if the group doesn't exist
+        :raises: Http404 if the group updated doesn't exist
+        :raises: PermissionDenied if the group doesn't have perm
+
+        Save the group_updated in self.
+        """
+        try:
+            self.group = Group.objects.get(name=kwargs['group_name'])
+            self.group_updated = Group.objects.get(pk=kwargs['pk'])
+            self.lm_active = 'lm_manage_group_' + kwargs['group_name']
+        except ObjectDoesNotExist:
+            raise Http404
+
+        if permission_to_manage_group(self.group_updated)[0] not in self.group.permissions.all():
             raise PermissionDenied
 
-        add_to_breadcrumbs(request, 'Groupe ' + group.name)
-        return super(ManageGroupView, self).get(request, *args, **kwargs)
+        return super(ManageGroupView, self).dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
+        """
+        Add possible members and permissions to kwargs of the form.
 
-        kwgars = super(ManageGroupView, self).get_form_kwargs()
-        group = Group.objects.get(pk=self.request.GET.get('group_pk', self.request.POST.get('group_pk')))
+        Possible members are all members, except specials members.
+        Possible permissions are all permissions.
+        :note:: For the special case of a shop management, two groups exist:
+        group of chiefs and group of associates. If the group of associates is
+        managed, possible permissions are only permissions of the chiefs group.
+        """
+        kwargs = super(ManageGroupView, self).get_form_kwargs()
 
-        # Cas d'un groupe de gestionnaires d'organes
-        # Permissions possibles -> celles du groupe des chefs de l'organes (hors celle de gérer le group des chefs)
-        if group.name.startswith('Gestionnaires') is True:
-            chefs_gestionnaires_group_name = group.name.replace('Gestionnaires', 'Chefs gestionnaires')
-            kwgars['possible_permissions'] = Group.objects.get(
-                name=chefs_gestionnaires_group_name).permissions.all().exclude(
-                pk=permission_to_manage_group(group)[0].pk)
+        if self.group_updated.name.startswith('associates-') is True:
+            chiefs_group_name = self.group_updated.name.replace('associates', 'chiefs')
+            kwargs['possible_permissions'] = ExtendedPermission.objects.filter(
+                pk__in=[p.pk for p in Group.objects.get(
+                name=chiefs_group_name).permissions.all().exclude(
+                pk=permission_to_manage_group(self.group_updated)[0].pk)]
+            )
 
-        # Pour les autres groupes, tout est possible (utilisation normalement par le président seulement)
         else:
-            kwgars['possible_permissions'] = Permission.objects.all()
+            kwargs['possible_permissions'] = ExtendedPermission.objects.all()
 
-        # Dans tous les cas, les membres possibles sont tous les membres de l'association
-        kwgars['possible_members'] = User.objects.all().exclude(groups=Group.objects.get(name='Membres spéciaux'))
-        return kwgars
+        kwargs['possible_members'] = User.objects.all().exclude(
+            groups=Group.objects.get(name='specials'))
+        return kwargs
 
     def get_initial(self):
-
-        group = Group.objects.get(pk=self.request.GET.get('group_pk', self.request.POST.get('group_pk')))
         initial = super(ManageGroupView, self).get_initial()
-        initial['members'] = User.objects.filter(groups=group)
-        initial['permissions'] = group.permissions.all()
+        initial['members'] = User.objects.filter(groups=self.group_updated)
+        initial['permissions'] = [
+            ExtendedPermission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
+            ]
         return initial
 
     def get_context_data(self, **kwargs):
         context = super(ManageGroupView, self).get_context_data(**kwargs)
-        context['group_name'] = Group.objects.get(pk=self.request.GET.get('group_pk')).name
-        context['group_pk'] = self.request.GET.get('group_pk')
+        context['group_updated_name_display'] = group_name_display(self.group_updated)
         return context
 
     def form_valid(self, form):
-
-        group = Group.objects.get(pk=self.request.POST.get('group_pk'))
-        old_members = User.objects.filter(groups=group)
+        """
+        Update permissions and members of the group updated.
+        """
+        old_members = User.objects.filter(groups=self.group_updated)
         new_members = form.cleaned_data['members']
-        old_permissions = group.permissions.all()
+        old_permissions = self.group_updated.permissions.all()
         new_permissions = form.cleaned_data['permissions']
 
         # Modification des membres
         for m in old_members:
             if m not in new_members:
-                m.groups.remove(group)
+                m.groups.remove(self.group_updated)
                 m.save()
         for m in new_members:
             if m not in old_members:
-                m.groups.add(group)
+                m.groups.add(self.group_updated)
                 m.save()
 
         # Modification des permissions
         for p in old_permissions:
             if p not in new_permissions:
-                group.permissions.remove(p)
+                self.group_updated.permissions.remove(p)
         for p in new_permissions:
             if p not in old_permissions:
-                group.permissions.add(p)
-        group.save()
+                self.group_updated.permissions.add(p)
+        self.group_updated.save()
 
         return super(ManageGroupView, self).form_valid(form)
 
 
-def username_from_username_part(request):
-    data = []
+class UserCreateView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    """
+    Create a new user and redirect to the workboard of the group.
 
-    try:
-        key = request.GET.get('keywords')
-
-        # Fam'ss en entier
-        where_search = User.objects.filter(family=key).order_by('-year')
-
-        if len(key) > 2:
-            # Nom de famille, début ou entier à partir de 3 caractères
-            where_search = where_search | User.objects.filter(last_name__startswith=key)
-            # Prénom, début ou entier à partir de 3 caractères
-            where_search = where_search | User.objects.filter(first_name__startswith=key)
-            # Buque, début ou entier à partir de 3 caractères
-            where_search = where_search | User.objects.filter(surname__startswith=key)
-
-        # Suppression des doublons
-        where_search = where_search.distinct()
-
-        for e in where_search:
-            data.append(e.username)
-            
-    except KeyError:
-        pass
-
-    return HttpResponse(json.dumps(data))
-
-
-def profile_view(request):
-    add_to_breadcrumbs(request, 'Profil')
-    return render(request, 'users/profile.html', locals())
-
-
-class UserCreateView(FormNextView):
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
     form_class = UserCreationCustomForm
     template_name = 'users/create.html'
-    success_url = '/users/'  # Redirection a la fin
+    success_url = None
+    perm_codename = 'add_user'
+    lm_active = 'lm_user_create'
 
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Création user')
-        return super(UserCreateView, self).get(request, *args, **kwargs)
-
-    # Override form_valid pour enregistrer les attributs issues d'autres classes (m2m ou autres)
     def form_valid(self, form):
         user = User.objects.create(username=form.cleaned_data['username'],
                                    first_name=form.cleaned_data['first_name'],
@@ -188,42 +176,42 @@ class UserCreateView(FormNextView):
         user.set_password(form.cleaned_data['password'])
         user.save()
 
-        # Cas d'un membre d'honneur
         if form.cleaned_data['honnor_member'] is True:
-            user.groups.add(Group.objects.get(name='Membres d\'honneurs'))
-        # Sinon, c'est un Gadz'Arts
+            user.groups.add(Group.objects.get(pk=6))
         else:
-            user.groups.add(Group.objects.get(name='Gadz\'Arts'))
+            user.groups.add(Group.objects.get(pk=5))
         user.save()
-
-        # Notifications
-        #notify(self.request, 'user_creation', ['User', 'Présidents', "Trésoriers"], None, None)
 
         return super(UserCreateView, self).form_valid(form)
 
     def get_initial(self):
-        return {'campus': 'Me', 'year': 2014}
+        initial = super(UserCreateView, self).get_initial()
+        initial['campus'] = 'Me'
+        initial['year'] = 2014
+        return initial
 
 
-class UserRetrieveView(View):
-    template_name = "users/retrieve.html"
+class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    Retrieve a User instance.
+
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
+    template_name = 'users/retrieve.html'
+    perm_codename = 'retrieve_user'
 
     def get(self, request, *args, **kwargs):
 
         if request.user.has_perm('users.retrieve_user') is False and int(kwargs['pk']) != request.user.pk:
             raise PermissionDenied
 
-        add_to_breadcrumbs(request, 'Détail user')
-        return render(request, self.template_name, context=self.get_context_data())
-
-    def get_context_data(self, **kwargs):
-        context = {
-            'next': self.request.GET.get('next'),
-            'object': User.objects.get(pk=self.kwargs['pk']),
-        }
-        return context
+        context = self.get_context_data(**kwargs)
+        context['object'] = User.objects.get(pk=self.kwargs['pk'])
+        return render(request, self.template_name, context=context)
 
 
+# Used in the pg mode to modify itself
 class UserUpdateView(FormView):
     form_class = UserUpdateForm
     template_name = 'users/update.html'
@@ -284,16 +272,19 @@ class UserUpdateView(FormView):
         return super(UserUpdateView, self).form_valid(form)
 
 
-class UserUpdateAdminView(FormView):
+class UserUpdateAdminView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    """
+    Update an user and redirect to the workboard of the group.
+
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
     model = User
     form_class = UserUpdateAdminForm
     template_name = 'users/update_admin.html'
-    success_url = '/users/profile/'
+    success_url = None
+    perm_codename = 'change_user'
     modified = False
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Modification user')
-        return super(UserUpdateAdminView, self).get(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         kwargs = super(UserUpdateAdminView, self).get_form_kwargs()
@@ -303,14 +294,7 @@ class UserUpdateAdminView(FormView):
     def get_context_data(self, **kwargs):
         context = super(UserUpdateAdminView, self).get_context_data(**kwargs)
         context['user_modified'] = User.objects.get(pk=self.kwargs['pk'])
-        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
         return context
-
-    def get_success_url(self):
-        if self.modified is True:
-            # Notifications si changement
-            notify(self.request, 'user_updating', User.objects.get(pk=self.kwargs['pk']), None)
-        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
     def get_initial(self):
         initial = super(UserUpdateAdminView, self).get_initial()
@@ -329,18 +313,22 @@ class UserUpdateAdminView(FormView):
         return super(UserUpdateAdminView, self).form_valid(form)
 
 
-class UserDesactivateView(SuccessMessageMixin, View):
-    template_name = 'users/desactivate.html'
+class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    Deactivate an user and redirect to the workboard of the group.
 
-    success_url = '/users/'
-    success_message = "Mise à jour"
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
+    template_name = 'users/deactivate.html'
+    success_url = None
+    perm_codename = 'delete_user'
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
-        add_to_breadcrumbs(request, 'Désactivation user')
-        return render(request, 'users/desactivate.html',
-                      {'object': user,
-                       'next': self.request.GET.get('next', self.request.POST.get('next', self.success_url))})
+        context = self.get_context_data(**kwargs)
+        context['object'] = user
+        return render(request, 'users/deactivate.html', context=context)
 
     def post(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
@@ -349,139 +337,95 @@ class UserDesactivateView(SuccessMessageMixin, View):
         else:
             user.is_active = True
         user.save()
-        # Notifications
-        if user.is_active is True:
-            notify(self.request, 'user_activation', user, None)
-        else:
-            notify(self.request, 'user_deactivation', user, None)
-        return redirect(force_text(self.request.POST.get('next')))
+
+        return redirect(force_text(self.success_url))
 
 
-class UserListCompleteView(ListCompleteView):
-    form_class = UserListCompleteForm
-    template_name = 'users/user_list_complete.html'
-    success_url = '/auth/login'
-    attr = {
-        'order_by': 'last_name',
-        'years': 'all',
-        'active': True,
-        'next': '/auth/login'
-    }
+class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    """
+    List User instances.
 
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Liste users')
-        return super(UserListCompleteView, self).get(request, *args, **kwargs)
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
+    perm_codename = 'list_user'
+    template_name = 'users/user_list.html'
+    lm_active = 'lm_user_list'
+    form_class = UserSearchForm
 
-    def get_form_kwargs(self):
-        kwargs = super(UserListCompleteView, self).get_form_kwargs()
-        kwargs['list_year'] = list_year()
-        return kwargs
-
-    def get_initial(self):
-        initial = {}
-        if self.attr['years'] == 'all':
-            initial['all'] = True
-        else:
-            list_years = list_year()
-            for y in json.loads(self.attr['years']):
-                initial['field_year_%s' % list_years.index(y)] = True
-        if self.attr['active'] is False:
-            initial['unactive'] = True
-        return initial
+    search = None
+    unactive = None
+    year = None
 
     def get_context_data(self, **kwargs):
-        if self.attr['years'] != 'all':
-            self.query = User.objects.filter(is_active=self.attr['active'], year__in=json.loads(self.attr['years']))\
-                .exclude(groups=Group.objects.get(name='Membres spéciaux')).order_by(self.attr['order_by'])
-        else:
-            self.query = User.objects.filter(is_active=self.attr['active'])\
-                .exclude(groups=Group.objects.get(name='Membres spéciaux')).order_by(self.attr['order_by'])
-        return super(UserListCompleteView, self).get_context_data(**kwargs)
+        context = super(UserListView, self).get_context_data(**kwargs)
+        context['user_list'] = User.objects.all().exclude(groups=1)
+        context['user_list'] = self.form_query(context['user_list'])
+        return context
 
-    def form_valid(self, form, **kwargs):
-        """
-        Se charge de vérifier que si un choix sur le formulaire est fait, il met à jour les paramètres enregistrés.
-        """
-        list_year_result = []
+    def form_query(self, query):
 
-        # Cas où "toutes les promotions" est coché
-        if form.cleaned_data['all'] is True:
-            self.attr['years'] = 'all'
-        # Sinon on choisi seulement les promotions sélectionnées
-        else:
-            for i in range(0, len(list_year())):
-                if form.cleaned_data["field_year_%s" % i] is True:
-                    list_year_result.append(list_year()[i])
-                    self.attr['years'] = json.dumps(list_year_result)
+        if self.search:
+            query = query.filter(
+                Q(last_name__contains=self.search)
+                | Q(first_name__contains=self.search)
+                | Q(surname__contains=self.search)
+            )
 
-        # Si "utilisateurs désactivés" est coché
-        if form.cleaned_data['unactive'] is True:
-            self.attr['active'] = False
-        else:
-            self.attr['active'] = True
+        if self.unactive:
+            query = query.filter(
+                is_active=False)
 
-        return self.render_to_response(self.get_context_data(**kwargs))
+        if self.year and self.year != 'all':
+            query = query.filter(
+                year=self.year)
 
+        return query
 
-def permission_to_manage_group(group):
-    """
-    Récupère la permission qui permet de gérer le groupe 'group'
-    Utilisable directement dans has_perm
-    :param group:
-    :return: (objet permission, permission name formatée pour has_perm)
-    """
-    perm = Permission.objects.get(codename=group_name_clean_for_perm(group.name) + '_group_manage')
-    perm_name = 'users.' + perm.codename
-    return perm, perm_name
+    def form_valid(self, form):
+        if form.cleaned_data['search']:
+            self.search = form.cleaned_data['search']
+
+        if form.cleaned_data['unactive']:
+            self.unactive = form.cleaned_data['unactive']
+
+        if form.cleaned_data['year']:
+            self.year = form.cleaned_data['year']
+
+        context = self.get_context_data()
+        return self.get(self.request, self.args, self.kwargs)
 
 
-def group_name_clean_for_perm(group_name):
-    """
-    Formate un string en enlevant les accents,
-    remplaçant espaces et ' par _
-    Utilisé notamment pour permission_to_manage_group
-    :param group_name:
-    :return: string
-    """
-    dirty = ['é', 'è', 'ê', 'à', 'ù', 'û', 'ç', 'ô', 'î', 'ï', 'â', ' ', "\'"]
-    clean = ['e', 'e', 'e', 'a', 'u', 'u', 'c', 'o', 'i', 'i', 'a', '_', '_']
-
-    for i in range(0, len(dirty)):
-        group_name = group_name.replace(dirty[i], clean[i])
-
-    group_name = group_name.lower()
-    return group_name
+# TODO: obsolète
+def profile_view(request):
+    add_to_breadcrumbs(request, 'Profil')
+    return render(request, 'users/profile.html', locals())
 
 
-def workboard_presidents(request):
+def username_from_username_part(request):
+    data = []
 
-    group_vices_presidents_vie_interne_pk = Group.objects.get(name='Vices présidents délégués à la vie interne').pk
-    group_tresoriers_pk = Group.objects.get(name='Trésoriers').pk
-    group_presidents_pk = Group.objects.get(name='Présidents').pk
-    group_gadzarts_pk = Group.objects.get(name='Gadz\'Arts').pk
-    group_membres_honneurs_pk = Group.objects.get(name='Membres d\'honneurs').pk
+    try:
+        key = request.GET.get('keywords')
 
-    add_to_breadcrumbs(request, 'Workboard présidents')
-    return render(request, 'users/workboard_presidents.html', locals())
+        # Fam'ss en entier
+        where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
 
+        if len(key) > 2:
+            # Nom de famille, début ou entier à partir de 3 caractères
+            where_search = where_search | User.objects.filter(last_name__startswith=key)
+            # Prénom, début ou entier à partir de 3 caractères
+            where_search = where_search | User.objects.filter(first_name__startswith=key)
+            # Buque, début ou entier à partir de 3 caractères
+            where_search = where_search | User.objects.filter(surname__startswith=key)
 
-def workboard_vices_presidents_vie_interne(request):
+        # Suppression des doublons
+        where_search = where_search.distinct()
 
-    group_chefs_gestionnaires_foyer_pk = Group.objects.get(name='Chefs gestionnaires du foyer').pk
-    group_chefs_gestionnaires_auberge_pk = Group.objects.get(name='Chefs gestionnaires de l\'auberge').pk
-    group_chefs_gestionnaires_cvis_pk = Group.objects.get(name='Chefs gestionnaires de la cvis').pk
-    group_chefs_gestionnaires_bkars_pk = Group.objects.get(name='Chefs gestionnaires de la bkars').pk
+        for e in where_search:
+            data.append(e.username)
 
-    add_to_breadcrumbs(request, 'Workboard vices présidents')
-    return render(request, 'users/workboard_vices_presidents_vie_interne.html', locals())
+    except KeyError:
+        pass
 
-
-class UserListView(View):
-    def get(self, request, *args, **kwargs):
-        try:
-            next = request.GET['next']
-        except KeyError:
-            next = '/users/profile/'
-
-        add_to_breadcrumbs(request, 'Liste utilisateurs')
-        return render(request, 'users/user_list.html', context={'next': next, 'list_year': list_year()})
+    return HttpResponse(json.dumps(data))

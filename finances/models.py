@@ -6,8 +6,9 @@ import json
 
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, RegexValidator
+from django.core.exceptions import ObjectDoesNotExist
 
-from shops.models import SingleProduct, SingleProductFromContainer, Container
+from shops.models import SingleProduct, SingleProductFromContainer, Container, Shop
 
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
@@ -327,6 +328,14 @@ class Sale(models.Model):
         string = string[0: len(string)-2]
         return string
 
+    def from_shop(self):
+        try:
+            return Shop.objects.get(name=self.wording.split(' ')[1])
+        except ObjectDoesNotExist:
+            return None
+        except IndexError:
+            return None
+
     class Meta:
         """
         Define Permissions for Sale.
@@ -334,7 +343,17 @@ class Sale(models.Model):
         permissions = (
             ('retrieve_sale', 'Afficher une vente'),
             ('list_sale', 'Lister les ventes'),
-            ('add_transfert', 'Effectuer un transfert d\'argent')
+            ('retrieve_recharging', 'Afficher un rechargement'),
+            ('list_recharging', 'Lister les rechargements'),
+            ('add_transfert', 'Effectuer un transfert d\'argent'),
+            ('retrieve_transfert', 'Afficher un transfert'),
+            ('list_transfert', 'Lister les transferts'),
+            ('add_exceptionnal_movement',
+             'Faire un mouvement exceptionnel'),
+            ('retrieve_exceptionnal_movement',
+             'Afficher un mouvement exceptionnel'),
+            ('list_exceptionnal_movement',
+             'Lister les mouvements exceptionnels')
         )
 
 
@@ -523,8 +542,6 @@ class DebitBalance(models.Model):
         Define Permissions for DebitBalance.
         """
         permissions = (
-            ('retrieve_debitbalance', 'Afficher un débit sur compte foyer'),
-            ('list_debitbalance', 'Lister les débits sur comptes foyers'),
         )
 
 
@@ -617,8 +634,6 @@ class Cheque(models.Model):
         Define Permissions for Cheque.
         """
         permissions = (
-            ('retrieve_cheque', 'Afficher un cheque'),
-            ('list_cheque', 'Lister les chèques'),
         )
 
 
@@ -658,7 +673,6 @@ class BankAccount(models.Model):
         """
         permissions = (
             ('retrieve_bankaccount', 'Afficher un compte en banque'),
-            ('add_own_bankaccount', 'Ajouter un compte en banque personnel'),
             ('list_bankaccount', 'Lister les comptes en banque'),
         )
 
@@ -728,8 +742,6 @@ class Cash(models.Model):
         Define Permissions for Cash.
         """
         permissions = (
-            ('retrieve_cash', 'Afficher des espèces'),
-            ('list_cash', 'Lister les espèces'),
         )
 
 
@@ -802,8 +814,6 @@ class Lydia(models.Model):
         Define Permissions for Lydia.
         """
         permissions = (
-            ('retrieve_lydia', 'Afficher un virement Lydia'),
-            ('list_lydia', 'Lister les virements Lydias'),
         )
 
 
@@ -997,65 +1007,6 @@ class SharedEvent(models.Model):
             ('proceed_payment_sharedevent',
              'Procéder au paiement des événements communs'),
         )
-
-
-# No longer used
-def supply_self_lydia(user, recipient, amount, transaction_identifier):
-    """
-    Supply a user by a Lydia self transaction with the Lydia Application.
-
-    This function is used in the module Lydia Self Supply which let an User
-    supply himself money to his account by debit card or directly with money
-    on his Lydia account.
-
-    :note:: This function is longer used ! Please refer to sale_recharging.
-
-    :param user: user supplied, mandatory.
-    :param recipient: recipient, mandatory.
-    :param amount: amount of money supplied by Lydia, mandatory.
-    :param transaction_identifier: id for Lydia transaction, mandatory.
-    :type user: User object
-    :type recipient: User object
-    :type amount: float (Decimal)
-    :type transaction_identifier: string
-
-    This function creates a Lydia payment. It links it to a new Payment object,
-    and finally links it to a new Sale object. The user is credited of the
-    amount of money.
-
-    :note:: We should debit the association user.
-    """
-    container = Container.objects.get(pk=1)
-
-    sale = Sale.objects.create(date=datetime.now(),
-                               sender=user,
-                               recipient=recipient,
-                               operator=user,
-                               is_credit=True,
-                               category='recharging',
-                               wording='Rechargement automatique')
-
-    SingleProductFromContainer.objects.create(container=container,
-                                              sale=sale,
-                                              quantity=amount*100,
-                                              sale_price=amount)
-    sale.maj_amount()
-
-    lydia = Lydia.objects.create(date_operation=datetime.now(),
-                                 amount=amount,
-                                 id_from_lydia=transaction_identifier,
-                                 sender=user,
-                                 recipient=recipient)
-
-    payment = Payment.objects.create()
-    payment.lydias.add(lydia)
-    payment.save()
-    payment.maj_amount()
-
-    sale.payment = payment
-    sale.save()
-
-    user.credit(amount)
 
 
 def sale_transfert(sender, recipient, amount, date, justification):
@@ -1269,6 +1220,7 @@ def sale_sale(sender, operator, date, wording, category='sale',
     else:
         for product in products_list:
             product.sale = s
+            product.is_sold = True
             product.save()
         s.maj_amount()
 

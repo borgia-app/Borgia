@@ -7,8 +7,17 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 import re
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, Permission
 from finances.models import Sale, BankAccount, SharedEvent
+
+
+class ExtendedPermission(Permission):
+
+    class Meta:
+        proxy = True
+
+    def __str__(self):
+        return self.codename.replace('_', ' ').capitalize()
 
 
 class User(AbstractUser):
@@ -106,6 +115,16 @@ class User(AbstractUser):
         if not self.first_name or not self.last_name:
             return 'undefined'
         return self.first_name + ' ' + self.last_name
+
+    def choice_string(self):
+        """
+        """
+        if not self.first_name or not self.last_name:
+            return 'undefined'
+        try:
+            return self.family + self.campus + str(self.year_pg()) + ' ' + self.first_name + ' ' + self.last_name
+        except TypeError:
+            return 'undefined'
 
     def year_pg(self):
         """
@@ -230,66 +249,28 @@ class User(AbstractUser):
         deprecated in further versions.
         """
         permissions = (
-            # Presidency
-            ('presidents_group_manage', 'Gérer le groupe des présidents'),
-            ('reach_workboard_presidents', '''Accéder au workboard des
-             présidents'''),
-            ('reach_workboard_vices_presidents_vie_interne', '''Accéder au
-             workboard des vices présidents délégués à la vie interne'''),
-
-            # Treasury
-            ('tresoriers_group_manage', 'Gérer le groupe des trésoriers'),
-            ('reach_workboard_treasury', '''Accéder au workboard de la
-             trésorerie'''),
-
-            # Hall of residence
-            ('chefs_gestionnaires_du_foyer_group_manage', '''Gérer le groupe
-             des chefs gestionnaires du foyer'''),
-            ('gestionnaires_du_foyer_group_manage', '''Gérer le groupe des
-             gestionnaires du foyer'''),
-            ('reach_workboard_foyer', 'Aller sur le workboard du foyer'),
-
-            # Auberge TODO: translation needed
-            ('chefs_gestionnaires_de_l_auberge_group_manage', '''Gérer le
-             groupe des chefs gestionnaires de l\'auberge'''),
-            ('gestionnaires_de_l_auberge_group_manage', '''Gérer le groupe des
-             gestionnaires de l\'auberge'''),
-            ('reach_workboard_auberge', '''Aller sur le workboard de
-             l\'auberge'''),
-
-            # CVis TODO: translation needed ?
-            ('chefs_gestionnaires_de_la_cvis_group_manage', '''Gérer le groupe
-             des chefs gestionnaires de la cvis'''),
-            ('gestionnaires_de_la_cvis_group_manage', '''Gérer le groupe des
-             gestionnaires de la cvis'''),
-            ('reach_workboard_cvis', 'Aller sur le workboard de la cvis'),
-
-            # B²
-            ('chefs_gestionnaires_de_la_bkars_group_manage', '''Gérer le groupe
-             des chefs gestionnaires de la bkars'''),
-            ('gestionnaires_de_la_bkars_group_manage', '''Gérer le groupe des
-             gestionnaires de la bkars'''),
-            ('reach_workboard_bkars', 'Aller sur le workboard de la bkars'),
-
-
-            # Miscellaneous
-            ('gadz_arts_group_manage', 'Gérer le groupe des Gadz\'Arts'),
-            ('membres_d_honneurs_group_manage', '''Gérer le groupe des membres
-             d\'honneurs'''),
-            ('membres_speciaux_group_manage', '''Gérer le groupe des membres
-             spéciaux'''),
-            ('vices_presidents_delegues_a_la_vie_interne_group_manage',
+            # Group management
+            ('manage_group_presidents', 'Gérer le groupe des présidents'),
+            ('manage_group_vice-presidents-internal',
              '''Gérer le groupe des vices présidents délégués à la vie
              interne'''),
+            ('manage_group_treasurers', 'Gérer le groupe des trésoriers'),
+            ('manage_group_gadzarts', 'Gérer le groupe des Gadz\'Arts'),
+            ('manage_group_honnored', '''Gérer le groupe des membres
+             d\'honneurs'''),
+            ('manage_group_specials', '''Gérer le groupe des membres
+             spéciaux'''),
 
+            # CRUDL
+            # add_user
+            # change_user
+            # delete_user
             ('list_user', 'Lister les users'),
             ('retrieve_user', 'Afficher les users'),
 
-            ('supply_account', 'Ajouter de l\'argent à un compte'),
-            ('exceptionnal_movement', 'Créer un mouvement exceptionnel'),
-
-            ('link_token_user', 'Lier un jeton à un user'),
-
+            # Miscellaneous
+            ('supply_money_user', 'Ajouter de l\'argent à un utilisateur'),
+            ('link_token_user', 'Lier un jeton à un utilisateur')
         )
 
 

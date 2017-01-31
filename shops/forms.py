@@ -1,15 +1,53 @@
-#-*- coding: utf-8 -*-
 from django import forms
-from django.forms.widgets import Textarea, PasswordInput
 from django.db.models import Q
+
+from django.forms.widgets import Textarea, PasswordInput
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import ModelChoiceField
+from django.contrib.auth.models import Group
 
 from shops.models import Shop, Container, ProductBase, ProductUnit
 from users.models import User
-from django.contrib.auth.models import Group
 from borgia.validators import autocomplete_username_validator
+
+
+class ProductCreateForm(forms.Form):
+    def __init__(self, **kwargs):
+        shop = kwargs.pop('shop')
+        super(ProductCreateForm, self).__init__(**kwargs)
+        self.fields['product_base'] = forms.ModelChoiceField(
+            label='Base produit', queryset=ProductBase.objects.filter(
+                shop=shop, is_active=True).exclude(pk=1).order_by('name'))
+        self.fields['quantity'] = forms.IntegerField(
+            label='Quantité à ajouter (de Fût, en KG, ou de bouteille)',
+            min_value=0, max_value=5000)
+        self.fields['price'] = forms.DecimalField(
+            label='Prix d\'achat TTC (par Fût, KG, bouteille)',
+            decimal_places=2, max_digits=9, min_value=0)
+        self.fields['purchase_date'] = forms.DateField(
+            label='Date d\'achat',
+            widget=forms.DateInput(attrs={'class': 'datepicker'}))
+        self.fields['expiry_date'] = forms.DateField(
+            label='Date d\'expiration', required=False,
+            widget=forms.DateInput(attrs={'class': 'datepicker'}))
+        self.fields['place'] = forms.CharField(max_length=255,
+                                               label='Lieu de stockage')
+
+
+class ProductUpdateForm(forms.ModelForm):
+    class Meta:
+        model = ProductBase
+        fields = ['name', 'description', 'brand', 'type', 'quantity',
+                  'product_unit']
+
+class ShopCreateForm(forms.ModelForm):
+    class Meta:
+        model = Shop
+        fields = ['name', 'description']
+
+
+
 
 
 class ReplacementActiveKegForm(forms.Form):
@@ -369,63 +407,3 @@ class DebitZifoysForm(forms.Form):
             raise forms.ValidationError('Erreur, veuillez recharger la page (F5 dans la barre d\'url)')
 
         return super(DebitZifoysForm, self).clean()
-
-
-class ProductCreateMultipleForm(forms.Form):
-
-    def __init__(self, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ProductCreateMultipleForm, self).__init__(**kwargs)
-        self.fields['product_base'] = forms.ModelChoiceField(label='Base produit',
-                                                             queryset=ProductBase.objects.filter(shop=shop, is_active=True).exclude(pk=1).order_by('name'))
-
-        self.fields['quantity'] = forms.IntegerField(label='Quantité à ajouter (de Fût, en KG, ou de bouteille)', min_value=0, max_value=5000)
-
-        self.fields['price'] = forms.DecimalField(label='Prix d\'achat TTC (par Fût, KG, bouteille)', decimal_places=2, max_digits=9,
-                                                  min_value=0)
-        self.fields['purchase_date'] = forms.DateField(label='Date d\'achat',
-                                                       widget=forms.DateInput(attrs={'class': 'datepicker'}))
-        self.fields['expiry_date'] = forms.DateField(label='Date d\'expiration', required=False,
-                                                     widget=forms.DateInput(attrs={'class': 'datepicker'}))
-        self.fields['place'] = forms.CharField(max_length=255, label='Lieu de stockage')
-
-
-class ProductListForm(forms.Form):
-    def __init__(self, **kwargs):
-        user = kwargs.pop('request').user
-        super(ProductListForm, self).__init__(**kwargs)
-
-        if Group.objects.get(name='Trésoriers') in user.groups.all():
-            self.fields['shop'] = forms.ModelChoiceField(label='Magasin',
-                                                         queryset=Shop.objects.all(),
-                                                         empty_label=None)
-        else:
-            available_shop = []
-            if user.has_perm('shops.list_productbase'):
-                if Group.objects.get(name='Chefs gestionnaires du foyer') in user.groups.all() or Group.objects.get(name='Gestionnaires du foyer') in user.groups.all():
-                    available_shop.append(Shop.objects.get(name='Foyer').pk)
-                if Group.objects.get(name='Chefs gestionnaires de l\'auberge') in user.groups.all() or Group.objects.get(name='Gestionnaires de l\'auberge') in user.groups.all():
-                    available_shop.append(Shop.objects.get(name='Auberge').pk)
-                if Group.objects.get(name='Chefs gestionnaires de la cvis') in user.groups.all() or Group.objects.get(name='Gestionnaires de la cvis') in user.groups.all():
-                    available_shop.append(Shop.objects.get(name='Cvis').pk)
-                if Group.objects.get(name='Chefs gestionnaires de la bkars') in user.groups.all() or Group.objects.get(name='Gestionnaires de la bkars') in user.groups.all():
-                    available_shop.append(Shop.objects.get(name='Bkars').pk)
-            self.fields['shop'] = forms.ModelChoiceField(label='Magasin', queryset=Shop.objects.filter(pk__in=available_shop), empty_label=None)
-
-        choices_type_product = []
-        choices_type_product.append(('product_base', 'Bases de produits'))
-        if user.has_perm('shops.list_productunit'):
-            choices_type_product.append(('product_unit', 'Unités de produits'))
-        self.fields['type_product'] = forms.ChoiceField(label='Type de produits', choices=choices_type_product)
-
-
-class ProductBaseCreateForm(forms.Form):
-    name = forms.CharField(label='Nom')
-    description = forms.CharField(label='Description')
-    shop = forms.ModelChoiceField(label='Magasin', queryset=Shop.objects.all())
-    brand = forms.CharField(label='Marque')
-    type = forms.ChoiceField(label='Type', choices=ProductBase.TYPE_CHOICES)
-    product_unit = forms.ModelChoiceField(label='Unité de produit', queryset=ProductUnit.objects.filter(is_active=True).exclude(pk=1).order_by('name'),
-                                          required=False)
-    quantity = forms.IntegerField(label='Contenance en unité de produit (ex: en cl pour un liquide, en gr pour de la '
-                                        'nourriture)', min_value=0, required=False)

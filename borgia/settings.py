@@ -37,11 +37,13 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'bootstrapform',
     'users',
     'shops',
     'notifications',
     'finances',
     'settings_data',
+    'modules',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -127,7 +129,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en²/1.9/howto/static-files/
 AUTH_USER_MODEL = 'users.User'
-LOGIN_REDIRECT_URL = '/shops/foyer/consumption/'
+LOGIN_REDIRECT_URL = '/gadzarts/'
 LOGIN_URL = '/auth/login'
 
 LOGIN_EXEMPT_URLS = [
@@ -135,20 +137,12 @@ LOGIN_EXEMPT_URLS = [
     '/auth/password_reset/',
     '/auth/password_reset/done/',
     '/auth/done/',
-    '/users/username_from_username_part',
-    '/finances/electrovanne/request1',
-    '/finances/electrovanne/request2',
-    '/finances/electrovanne/date',
-    '/foyer',
-    '/auberge',
-    '/finances/supply/lydia/self/callback',
+    '/ajax/username_from_username_part/',
     '/local/jsi18n',
     '/admin/'
 ]
 
-LOGIN_EXEMPT_URL_PATTERNS = [
-    re.compile('%s[0-9A-Z-a-z_\-]+%s.+%s' % ('/auth/', '/', '/')),
-]
+LOGIN_EXEMPT_URL_PATTERNS = []
 
 STATIC_URL = '/static/'
 # STATIC_ROOT = 'static/static_root/'
