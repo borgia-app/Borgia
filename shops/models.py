@@ -28,8 +28,9 @@ class Shop(models.Model):
     name = models.CharField('Code', max_length=255,
                             validators=[RegexValidator(
                                 regex='^[a-z]+$',
-                                message="""Ne doit contenir que des lettres,
-                                sans espace ni caractère spécial.""")])
+                                message="""Ne doit contenir que des lettres
+                                minuscules, sans espace ni caractère
+                                spécial.""")])
     description = models.TextField('Description')
 
     def __str__(self):
@@ -62,7 +63,8 @@ class Shop(models.Model):
         Python types are dynamics.
         """
         list_product_base_single_product = []
-        for e in ProductBase.objects.filter(type='single_product').exclude(description__contains='shooter'):
+        for e in ProductBase.objects.filter(type='single_product').exclude(
+                description__contains='shooter'):
             if status_sold is False and SingleProduct.objects.filter(
                 product_base=e,
                 is_sold=False,
@@ -123,11 +125,13 @@ class Shop(models.Model):
         models in order to filter shooters, not only in description!
         """
         list_product_base_shooter = []
-        for e in ProductBase.objects.filter(description__contains='shooter', type='single_product'):
+        for e in ProductBase.objects.filter(
+            description__contains='shooter',
+                type='single_product'):
             if status_sold is False and SingleProduct.objects.filter(
                 product_base=e,
                 is_sold=False,
-                product_base__shop=self).exists():
+                    product_base__shop=self).exists():
                     list_product_base_shooter.append(
                         (
                             e,
@@ -140,7 +144,7 @@ class Shop(models.Model):
             elif status_sold is True and SingleProduct.objects.filter(
                 product_base=e,
                 is_sold=True,
-                product_base__shop=self).exists():
+                    product_base__shop=self).exists():
                     list_product_base_shooter.append(
                         (
                             e,
@@ -183,12 +187,14 @@ class Shop(models.Model):
         Python types are dynamics.
         """
         list_product_base_container = []
-        for e in ProductBase.objects.filter(type='container', product_unit__type=type):
+        for e in ProductBase.objects.filter(
+            type='container',
+                product_unit__type=type):
             if status_sold is False and Container.objects.filter(
                 product_base=e,
                 is_sold=False,
                 product_base__shop=self,
-                product_base__product_unit__type=type).exists():
+                    product_base__product_unit__type=type).exists():
                     list_product_base_container.append(
                         (
                             e,
@@ -203,7 +209,7 @@ class Shop(models.Model):
                 product_base=e,
                 is_sold=True,
                 product_base__shop=self,
-                product_base__product_unit__type=type).exists():
+                    product_base__product_unit__type=type).exists():
                     list_product_base_container.append(
                         (
                             e,
@@ -491,7 +497,8 @@ class ProductBase(models.Model):
         try:
             return round(
                 (abs(self.set_calculated_price_mean()
-                     - Decimal(self.manual_price)) / self.set_calculated_price_mean())
+                     - Decimal(self.manual_price))
+                 / self.set_calculated_price_mean())
                 * 100, 2)
         except ZeroDivisionError:
             return None
@@ -566,7 +573,7 @@ class SingleProduct(models.Model):
         'ProductBase', related_name='product_base_single_product',
         on_delete=models.CASCADE)
     sale = models.ForeignKey('finances.Sale', null=True, blank=True,
-    on_delete=models.CASCADE)
+                             on_delete=models.CASCADE)
 
     def __str__(self):
         """
@@ -785,7 +792,7 @@ class SingleProductFromContainer(models.Model):
                                          MinValueValidator(Decimal(0))])
     container = models.ForeignKey('Container', on_delete=models.CASCADE)
     sale = models.ForeignKey('finances.Sale', null=True, blank=True,
-    on_delete=models.CASCADE)
+                             on_delete=models.CASCADE)
 
     def __str__(self):
         """

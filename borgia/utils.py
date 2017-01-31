@@ -9,8 +9,7 @@ from django.urls import NoReverseMatch
 from modules.models import *
 
 
-
-def lateral_menu(user, group, active=None) :
+def lateral_menu(user, group, active=None):
     """
     Build the object tree used to generate the lateral menu in the template
     lateral_menu.html.
@@ -60,12 +59,14 @@ def lateral_menu(user, group, active=None) :
     # Functions
     # Link token to user
     try:
-        if Permission.objects.get(codename='link_token_user') in group.permissions.all():
+        if (Permission.objects.get(codename='link_token_user')
+                in group.permissions.all()):
             nav_tree.append(simple_lateral_link(
                 'Liaison jeton',
                 'tag',
                 'lm_link_token',
-                reverse('url_user_link_token', kwargs={'group_name': group.name})))
+                reverse('url_user_link_token',
+                        kwargs={'group_name': group.name})))
     except ObjectDoesNotExist:
         pass
 
@@ -77,7 +78,8 @@ def lateral_menu(user, group, active=None) :
 
     # List sales
     try:
-        if Permission.objects.get(codename='list_sale') in group.permissions.all():
+        if (Permission.objects.get(codename='list_sale')
+                in group.permissions.all()):
             nav_tree.append(simple_lateral_link(
                 label='Ventes',
                 faIcon='shopping-cart',
@@ -92,7 +94,8 @@ def lateral_menu(user, group, active=None) :
 
     # List rechargings
     try:
-        if Permission.objects.get(codename='list_recharging') in group.permissions.all():
+        if (Permission.objects.get(codename='list_recharging')
+                in group.permissions.all()):
             nav_tree.append(simple_lateral_link(
                 label='Rechargements',
                 faIcon='money',
@@ -107,7 +110,8 @@ def lateral_menu(user, group, active=None) :
 
     # List transferts
     try:
-        if Permission.objects.get(codename='list_transfert') in group.permissions.all():
+        if (Permission.objects.get(codename='list_transfert')
+                in group.permissions.all()):
             nav_tree.append(simple_lateral_link(
                 label='Transferts',
                 faIcon='exchange',
@@ -122,7 +126,8 @@ def lateral_menu(user, group, active=None) :
 
     # List exceptionnal movements
     try:
-        if Permission.objects.get(codename='list_exceptionnal_movement') in group.permissions.all():
+        if (Permission.objects.get(codename='list_exceptionnal_movement')
+                in group.permissions.all()):
             nav_tree.append(simple_lateral_link(
                 label='Exceptionnels',
                 faIcon='exclamation-triangle',
@@ -196,8 +201,8 @@ def lateral_menu(user, group, active=None) :
                     link['active'] = True
                     break
 
-    print("nav_tree")
     return nav_tree
+
 
 def lateral_menu_model(model, group, faIcon='database'):
     """
@@ -255,6 +260,7 @@ def lateral_menu_model(model, group, faIcon='database'):
     else:
         return None
 
+
 def lateral_menu_product(group):
     """
     """
@@ -295,16 +301,17 @@ def lateral_menu_product(group):
     else:
         return None
 
+
 def lateral_menu_user_groups(user):
     """
     """
     if len(user.groups.all()) > 1:
         user_groups_tree = {
-         'label': 'Groupes',
-         'icon': 'institution',
-         'id': 'lm_user_groups',
-         'class': 'info',
-         'subs': []
+            'label': 'Groupes',
+            'icon': 'institution',
+            'id': 'lm_user_groups',
+            'class': 'info',
+            'subs': []
         }
         for group in user.groups.all():
             user_groups_tree['subs'].append({
@@ -319,6 +326,7 @@ def lateral_menu_user_groups(user):
     else:
         return None
 
+
 def lateral_menu_shop_sale(group, shop):
     """
     """
@@ -330,7 +338,8 @@ def lateral_menu_shop_sale(group, shop):
     }
 
     try:
-        if Permission.objects.get(codename='use_selfsalemodule') in group.permissions.all():
+        if (Permission.objects.get(codename='use_selfsalemodule')
+                in group.permissions.all()):
             module = SelfSaleModule.objects.get(shop=shop)
             if module.state is True:
                 shop_tree['subs'].append(simple_lateral_link(
@@ -350,6 +359,7 @@ def lateral_menu_shop_sale(group, shop):
     else:
         return None
 
+
 def simple_lateral_link(label, faIcon, id, url):
     return {
         'label': label,
@@ -361,8 +371,10 @@ def simple_lateral_link(label, faIcon, id, url):
 
 class GroupLateralMenuFormMixin(ContextMixin):
     lm_active = None
+
     def get_context_data(self, **kwargs):
-        context = super(GroupLateralMenuFormMixin, self).get_context_data(**kwargs)
+        context = super(GroupLateralMenuFormMixin, self).get_context_data(
+            **kwargs)
         try:
             context['nav_tree'] = lateral_menu(
                 self.request.user,
@@ -381,6 +393,7 @@ class GroupLateralMenuFormMixin(ContextMixin):
 
 class GroupLateralMenuMixin(ContextMixin):
     lm_active = None
+
     def get_context_data(self, **kwargs):
         context = {}
         try:
@@ -400,6 +413,8 @@ class GroupLateralMenuMixin(ContextMixin):
 
 
 class GroupPermissionMixin(object):
+    #perm_codename = None
+
     def dispatch(self, request, *args, **kwargs):
         """
         Check permissions for the view regarding a group.
@@ -426,7 +441,8 @@ class GroupPermissionMixin(object):
             self.group = group
             try:
                 if self.perm_codename:
-                    permission = Permission.objects.get(codename=self.perm_codename)
+                    permission = Permission.objects.get(
+                        codename = self.perm_codename)
                     if permission not in group.permissions.all():
                         raise Http404
                     else:
@@ -443,11 +459,14 @@ class GroupPermissionMixin(object):
             raise Http404
 
         try:
-            self.success_url = reverse('url_group_workboard', kwargs={'group_name': self.kwargs['group_name']})
+            self.success_url = reverse(
+                'url_group_workboard',
+                kwargs={'group_name': self.kwargs['group_name']})
         except NoReverseMatch:
             raise Http404
 
-        return super(GroupPermissionMixin, self).dispatch(request, *args, **kwargs)
+        return super(GroupPermissionMixin,
+                     self).dispatch(request, *args, **kwargs)
 
 
 class ProductShopMixin(object):
@@ -480,7 +499,8 @@ class ShopFromGroupMixin(object):
             self.shop = shop_from_group(self.group)
         except ValueError:
             raise Http404
-        return super(ShopFromGroupMixin, self).dispatch(request, *args, **kwargs)
+        return super(ShopFromGroupMixin,
+                     self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(ShopFromGroupMixin, self).get_context_data(**kwargs)
@@ -500,7 +520,8 @@ class ProductShopFromGroupMixin(object):
             raise Http404
         if self.object.shop != self.shop:
             raise PermissionDenied
-        return super(ProductShopFromGroupMixin, self).dispatch(request, *args, **kwargs)
+        return super(ProductShopFromGroupMixin,
+                     self).dispatch(request, *args, **kwargs)
 
 
 class UserMixin(object):
@@ -548,13 +569,13 @@ class ShopModuleMixin(object):
                 shop=self.shop)
             self.success_url = reverse(
                 'url_module_selfsale_workboard', kwargs={
-                'group_name': self.kwargs['group_name']})
+                    'group_name': self.kwargs['group_name']})
         elif module_class == OperatorSaleModule:
             self.module, created = OperatorSaleModule.objects.get_or_create(
                 shop=self.shop)
             self.success_url = reverse(
                 'url_module_operatorsale_workboard', kwargs={
-                'group_name': self.kwargs['group_name']})
+                    'group_name': self.kwargs['group_name']})
         return super(ShopModuleMixin,
                      self).dispatch(request, *args, **kwargs)
 
@@ -575,11 +596,13 @@ def permission_to_manage_group(group):
     perm_name = 'users.' + perm.codename
     return perm, perm_name
 
+
 def shop_from_group(group):
     if 'chiefs' in group.name or 'associates' in group.name:
         return Shop.objects.get(name=group.name.split('-')[1])
     else:
         raise ValueError('Only for shop group')
+
 
 def group_name_display(group):
     """
@@ -614,11 +637,13 @@ def group_name_display(group):
     else:
         raise ValueError('Unrecognized group name')
 
+
 def model_from_module_url_name(module_url_name):
     if module_url_name == 'self_sale':
         return SelfSaleModule
     else:
         raise ValueError('module_url_name does not match any defined module')
+
 
 def module_url_name_from_model(model):
     if isinstance(model, SelfSaleModule):
