@@ -347,14 +347,7 @@ class ProductBase(models.Model):
 
         :note:: Should be base on type attribute.
         """
-        if self.quantity and self.product_unit:
-            return (self.name
-                    + ' '
-                    + str(self.quantity)
-                    + ' '
-                    + self.product_unit.unit)
-        else:
-            return self.name
+        return self.name
 
     def sale_name(self):
         if self.quantity and self.product_unit:

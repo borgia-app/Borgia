@@ -89,7 +89,6 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         return super(ProductCreate, self).form_valid(form)
 
     def form_valid_instance(self, form):
-
         if form.cleaned_data['product_base'].type == 'container':
             if form.cleaned_data['product_base'].product_unit.type in ['meat', 'cheese']:
                 product = Container.objects.create(price=(form.cleaned_data['price'] *1000/ form.cleaned_data['quantity'])*form.cleaned_data['product_base'].quantity,
@@ -114,10 +113,26 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                                                        product_base=form.cleaned_data['product_base'])
 
     def form_valid_productbase(self, form):
+        # Container:
+            # name : product_unit type + product_unit name + quantity + product_unit unit
         if form.cleaned_data['type'] == 'container':
             ProductBase.objects.create(
-                name=form.cleaned_data['name'],
-                description=form.cleaned_data['description'],
+                name=(
+                    form.cleaned_data['product_unit'].get_type_display().capitalize()
+                    + ' '
+                    + form.cleaned_data['product_unit'].name
+                    + ' '
+                    + str(form.cleaned_data['quantity'])
+                    + form.cleaned_data['product_unit'].get_unit_display()
+                ),
+                description=(
+                    form.cleaned_data['product_unit'].get_type_display().capitalize()
+                    + ' '
+                    + form.cleaned_data['product_unit'].name
+                    + ' '
+                    + str(form.cleaned_data['quantity'])
+                    + form.cleaned_data['product_unit'].get_unit_display()
+                ),
                 brand=form.cleaned_data['brand'],
                 type=form.cleaned_data['type'],
                 shop=self.shop,
@@ -250,10 +265,10 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     form_class = ShopCreateForm
     perm_chiefs = ['add_user', 'supply_money_user', 'add_product',
                    'change_product', 'retrieve_product', 'list_product',
-                   'list_sale', 'retrieve_sale', 'user_operatorsalemodule']
+                   'list_sale', 'retrieve_sale', 'use_operatorsalemodule']
     perm_associates = ['add_user', 'supply_money_user', 'add_product',
                    'change_product', 'retrieve_product', 'list_product',
-                   'list_sale', 'retrieve_sale', 'user_operatorsalemodule']
+                   'list_sale', 'retrieve_sale', 'use_operatorsalemodule']
 
     def form_valid(self, form):
         """

@@ -2,44 +2,85 @@
 {% load bootstrap %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/i18n/defaults-fr_FR.min.js"></script>
+
 <div class="panel panel-default">
   <div class="panel-heading">
       {% if product_class == 'productbase' %}
         <h3>Ajout d'une base de produit pour le magasin {{ shop }}</h3>
-        <div class="btn-group" role="group">
-          <a
-          class="btn btn-warning"
-          href="{% url 'url_product_create' group_name=group.name %}">
-            Retour à la création de produits</a>
-          <a
-          class="btn btn-success"
-          href="{% url 'url_productunit_create' group_name=group.name %}">
-            Ajouter une unité de produit</a>
-        </div>
+        <a
+        class="btn btn-warning"
+        href="{% url 'url_product_create' group_name=group.name %}">
+          Retour à la création de produits</a>
       {% elif product_class == 'productunit' %}
         <h3>Ajout d'une unité de produit pour le magasin {{ shop }}</h3>
-        <div class="btn-group" role="group">
           <a
           class="btn btn-warning"
-          href="{% url 'url_product_create' group_name=group.name %}">
+          href="{% url 'url_productbase_create' group_name=group.name %}">
             Retour à la création d'une base de produit</a>
-        </div>
-        {% else %}
-          <h3>Ajout de produits pour le magasin {{ shop }}</h3>
-          <div class="btn-group" role="group">
-            <a
-            class="btn btn-success"
-            href="{% url 'url_productbase_create' group_name=group.name %}">
-              Ajouter une base de produit</a>
-          </div>
+      {% else %}
+        <h3>Ajout de produits pour le magasin {{ shop }}</h3>
       {% endif %}
   </div>
   <div class="panel panel-body">
     <form action= "" method="post">
         {% csrf_token %}
-        {{ form|bootstrap }}
+        {% for field in form %}
+          {% if field == form.product_unit %}
+          <div class="row" id="product_unit">
+            <div class="form-group col-md-6">
+              <label for="id_product_unit">{{ field.label }}</label>
+              {{ field }}
+            </div>
+            <div class="form-group col-md-6">
+              <a
+              class="btn btn-default"
+              style="margin-top: 30px"
+              href="{% url 'url_productunit_create' group_name=group.name %}">
+                Ajouter une unité de produit</a>
+            </div>
+          </div>
+          {% elif field == form.product_base %}
+          <div class="row" id="product_base">
+            <div class="form-group col-md-6">
+              <label for="id_product_base">{{ field.label }}</label>
+              {{ field }}
+            </div>
+            <div class="form-group col-md-6">
+              <a
+              class="btn btn-default"
+              style="margin-top: 30px"
+              href="{% url 'url_productbase_create' group_name=group.name %}">
+                Ajouter une base de produit</a>
+            </div>
+          </div>
+          {% elif field == form.quantity %}
+          <div id="quantity">
+            {{ field|bootstrap }}
+          </div>
+          {% else %}
+            {{ field|bootstrap }}
+          {% endif %}
+        {% endfor %}
         <button type="submit" class="btn btn-success">Ajouter</button>
     </form>
   </div>
 </div>
+
+{% if product_class == 'productbase' %}
+<script>
+  $("#id_type").change(function() {
+    if ($(this).val() == 'single_product') {
+      $("#product_unit").hide()
+      $("#quantity").hide()
+    } else if ($(this).val() == 'container') {
+      $("#product_unit").show()
+      $("#quantity").show()
+    }
+  })
+  $("#id_type").trigger('change')
+</script>
+{% endif %}
 {% endblock %}

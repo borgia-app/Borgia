@@ -18,7 +18,9 @@ class ProductCreateForm(forms.Form):
         super(ProductCreateForm, self).__init__(**kwargs)
         self.fields['product_base'] = forms.ModelChoiceField(
             label='Base produit', queryset=ProductBase.objects.filter(
-                shop=shop, is_active=True).exclude(pk=1).order_by('name'))
+                shop=shop, is_active=True).exclude(pk=1).order_by('name'),
+            widget=forms.Select(attrs={'class': 'selectpicker form-control',
+                                       'data-live-search': 'True'}))
         self.fields['quantity'] = forms.IntegerField(
             label='Quantité à ajouter (de Fût, en KG, ou de bouteille)',
             min_value=0, max_value=5000)
@@ -39,18 +41,16 @@ class ProductBaseCreateForm(forms.Form):
     def __init__(self, **kwargs):
         shop = kwargs.pop('shop')
         super(ProductBaseCreateForm, self).__init__(**kwargs)
-        self.fields['name'] = forms.CharField(max_length=255,
-                                       label='Nom')
-        self.fields['description'] = forms.CharField(max_length=255,
-                                       label='Description')
         self.fields['product_unit'] = forms.ModelChoiceField(
             label='Unité de produit',
             queryset=ProductUnit.objects.filter(
                 shop=shop, is_active=True).exclude(pk=1),
-            required=False)
+            required=False,
+            widget=forms.Select(attrs={'class': 'selectpicker form-control',
+                                       'data-live-search': 'true'}))
         self.fields['quantity'] = forms.IntegerField(
             label='Quantité de produit unitaire (g, cl ...)',
-            min_value=0, max_value=5000,
+            min_value=0,
             required=False)
         self.fields['brand'] = forms.CharField(max_length=255,
                                        label='Marque')
@@ -59,6 +59,21 @@ class ProductBaseCreateForm(forms.Form):
             choices = (('container', 'Conteneur'),
                        ('single_product', 'Produit unitaire'))
         )
+
+    def clean(self):
+        cleaned_data = super(ProductBaseCreateForm, self).clean()
+        type = cleaned_data.get('type')
+        product_unit = cleaned_data.get('product_unit')
+        quantity = cleaned_data.get('quantity')
+        if type == 'container':
+            if product_unit is None:
+                raise forms.ValidationError(
+                    'Une unité de produit est exigée pour un conteneur'
+                )
+            if quantity is None:
+                raise forms.ValidationError(
+                    'Une quantité d\'unité de produit est exigée pour un conteneur'
+                )
 
 
 class ProductUnitCreateForm(forms.Form):

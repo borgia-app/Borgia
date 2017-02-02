@@ -44,8 +44,6 @@ class LinkTokenUserView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
         return super(LinkTokenUserView, self).form_valid(form)
 
 
-# TODO: jquery is not found on the template
-# Due to the jquery of admin ?
 class ManageGroupView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     template_name = 'users/group_manage.html'
     success_url = None
