@@ -71,7 +71,7 @@ class ManageGroupView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin)
         try:
             self.group = Group.objects.get(name=kwargs['group_name'])
             self.group_updated = Group.objects.get(pk=kwargs['pk'])
-            self.lm_active = 'lm_manage_group_' + kwargs['group_name']
+            self.lm_active = 'lm_group_manage_' + self.group_updated.name
         except ObjectDoesNotExist:
             raise Http404
 

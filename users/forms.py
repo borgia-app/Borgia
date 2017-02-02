@@ -4,7 +4,6 @@ from users.models import User, list_year
 from django.forms.widgets import PasswordInput
 from django.core.exceptions import ObjectDoesNotExist
 
-from django.contrib.admin.widgets import FilteredSelectMultiple
 from borgia.validators import *
 
 
@@ -100,25 +99,26 @@ class UserUpdateAdminForm(forms.Form):
 
 
 class ManageGroupForm(forms.Form):
-
-    class Media:
-        js = ('/local/jsi18n',)
-
     def __init__(self, *args, **kwargs):
-
         possible_members = kwargs.pop('possible_members')
         possible_permissions = kwargs.pop('possible_permissions')
         super(ManageGroupForm, self).__init__(*args, **kwargs)
-        self.fields['members'] = forms.ModelMultipleChoiceField(queryset=possible_members,
-                                                                widget=FilteredSelectMultiple('Membres', False),
-                                                                required=False)
-        self.fields['permissions'] = forms.ModelMultipleChoiceField(queryset=possible_permissions,
-                                                                    widget=FilteredSelectMultiple('Permissions', False),
-                                                                    required=False)
+        self.fields['members'] = forms.ModelMultipleChoiceField(
+            queryset=possible_members,
+            widget=forms.SelectMultiple(
+                attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
+            required=False)
+        self.fields['permissions'] = forms.ModelMultipleChoiceField(
+            queryset=possible_permissions,
+            widget=forms.SelectMultiple(
+                attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
+            required=False)
 
 
 class LinkTokenUserForm(forms.Form):
-    username = forms.CharField(label='User à lier', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
+    username = forms.CharField(
+        label='User à lier',
+        widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
     token_id = forms.CharField(label='Numéro unique du jeton')
 
     def clean(self):

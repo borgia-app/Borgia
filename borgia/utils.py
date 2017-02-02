@@ -50,7 +50,7 @@ def lateral_menu(user, group, active=None):
             nav_tree.append(simple_lateral_link(
                 'Gestion ' + group_name_display(g),
                 'users',
-                'lm_group_manage_' + group.name,
+                'lm_group_manage_' + g.name,
                 reverse('url_group_update', kwargs={
                     'group_name': group.name,
                     'pk': g.pk})
