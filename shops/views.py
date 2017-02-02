@@ -17,16 +17,40 @@ from notifications.models import notify
 from borgia.utils import *
 
 
-class ProductList(GroupPermissionMixin, ShopFromGroupMixin, View,
-                  GroupLateralMenuMixin):
+class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
+                  GroupLateralMenuFormMixin):
     template_name = 'shops/product_list.html'
     perm_codename = 'list_product'
     lm_active = 'lm_product_list'
+    form_class = ProductListForm
 
-    def get(self, request, *args, **kwargs):
+    search = None
+    type = None
+
+    def get_context_data(self, **kwargs):
         context = super(ProductList, self).get_context_data(**kwargs)
-        context['product_list'] = ProductBase.objects.filter(shop=self.shop)
-        return render(request, self.template_name, context=context)
+        context['product_list'] = self.form_query(
+            ProductBase.objects.filter(shop=self.shop))
+        return context
+
+    def form_valid(self, form):
+        if form.cleaned_data['search']:
+            self.search = form.cleaned_data['search']
+
+        if form.cleaned_data['type']:
+            self.type = form.cleaned_data['type']
+
+        return self.get(self.request, self.args, self.kwargs)
+
+    def form_query(self, query):
+        if self.search:
+            query = query.filter(
+                Q(name__contains=self.search)
+                | Q(description__contains=self.search)
+            )
+        if self.type:
+            query = query.filter(type=self.type)
+        return query
 
 
 class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
@@ -35,8 +59,37 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
     perm_codename = 'add_product'
     lm_active = 'lm_product_create'
     form_class = ProductCreateForm
+    product_class = None
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            if kwargs['product_class'] is ProductBase:
+                self.product_class = ProductBase
+                self.form_class = ProductBaseCreateForm
+            if kwargs['product_class'] is ProductUnit:
+                self.product_class = ProductUnit
+                self.form_class = ProductUnitCreateForm
+        except KeyError:
+            pass
+        return super(ProductCreate, self).dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
+        if self.product_class is None:
+            self.form_valid_instance(form)
+        if self.product_class is ProductBase:
+            self.form_valid_productbase(form)
+            self.success_url = reverse(
+                'url_product_create', kwargs={'group_name': self.group.name}
+            )
+        if self.product_class is ProductUnit:
+            self.form_valid_productunit(form)
+            self.success_url = reverse(
+                'url_productbase_create', kwargs={'group_name': self.group.name}
+            )
+        return super(ProductCreate, self).form_valid(form)
+
+    def form_valid_instance(self, form):
+
         if form.cleaned_data['product_base'].type == 'container':
             if form.cleaned_data['product_base'].product_unit.type in ['meat', 'cheese']:
                 product = Container.objects.create(price=(form.cleaned_data['price'] *1000/ form.cleaned_data['quantity'])*form.cleaned_data['product_base'].quantity,
@@ -59,16 +112,50 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                                                        expiry_date=form.cleaned_data['expiry_date'],
                                                        place=form.cleaned_data['place'],
                                                        product_base=form.cleaned_data['product_base'])
-        return super(ProductCreate, self).form_valid(form)
+
+    def form_valid_productbase(self, form):
+        if form.cleaned_data['type'] == 'container':
+            ProductBase.objects.create(
+                name=form.cleaned_data['name'],
+                description=form.cleaned_data['description'],
+                brand=form.cleaned_data['brand'],
+                type=form.cleaned_data['type'],
+                shop=self.shop,
+                quantity=form.cleaned_data['quantity'],
+                product_unit=form.cleaned_data['product_unit']
+            )
+        if form.cleaned_data['type'] == 'single_product':
+            ProductBase.objects.create(
+                name=form.cleaned_data['name'],
+                description=form.cleaned_data['description'],
+                brand=form.cleaned_data['brand'],
+                type=form.cleaned_data['type'],
+                shop=self.shop
+            )
+
+    def form_valid_productunit(self, form):
+        ProductUnit.objects.create(
+            name=form.cleaned_data['name'],
+            description=form.cleaned_data['description'],
+            unit=form.cleaned_data['unit'],
+            type=form.cleaned_data['type'],
+            shop=self.shop
+        )
 
     def get_initial(self):
         initial = super(ProductCreate, self).get_initial()
-        initial['purchase_date'] = now
+        if self.product_class is None:
+            initial['purchase_date'] = now
         return initial
 
     def get_context_data(self, **kwargs):
         context = super(ProductCreate, self).get_context_data(**kwargs)
         context['shop'] = self.shop
+        context['group'] = self.group
+        try:
+            context['product_class'] = self.product_class._meta.model_name
+        except AttributeError:
+            pass
         return context
 
     def get_form_kwargs(self):

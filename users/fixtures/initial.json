@@ -216,7 +216,8 @@
       "name": "fictional money",
       "description": "",
       "unit": "CENT",
-      "type": "fictional_money"
+      "type": "fictional_money",
+      "shop": 1
     }
   },
   {

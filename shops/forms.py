@@ -35,16 +35,73 @@ class ProductCreateForm(forms.Form):
                                                label='Lieu de stockage')
 
 
+class ProductBaseCreateForm(forms.Form):
+    def __init__(self, **kwargs):
+        shop = kwargs.pop('shop')
+        super(ProductBaseCreateForm, self).__init__(**kwargs)
+        self.fields['name'] = forms.CharField(max_length=255,
+                                       label='Nom')
+        self.fields['description'] = forms.CharField(max_length=255,
+                                       label='Description')
+        self.fields['product_unit'] = forms.ModelChoiceField(
+            label='Unité de produit',
+            queryset=ProductUnit.objects.filter(
+                shop=shop, is_active=True).exclude(pk=1),
+            required=False)
+        self.fields['quantity'] = forms.IntegerField(
+            label='Quantité de produit unitaire (g, cl ...)',
+            min_value=0, max_value=5000,
+            required=False)
+        self.fields['brand'] = forms.CharField(max_length=255,
+                                       label='Marque')
+        self.fields['type'] = forms.ChoiceField(
+            label='Type de produit',
+            choices = (('container', 'Conteneur'),
+                       ('single_product', 'Produit unitaire'))
+        )
+
+
+class ProductUnitCreateForm(forms.Form):
+    def __init__(self, **kwargs):
+        shop = kwargs.pop('shop')
+        super(ProductUnitCreateForm, self).__init__(**kwargs)
+        self.fields['name'] = forms.CharField(max_length=255,
+                                       label='Nom')
+        self.fields['description'] = forms.CharField(max_length=255,
+                                       label='Description')
+        self.fields['unit'] = forms.ChoiceField(
+            label='Unité de calcul',
+            choices = (('CL', 'cl'), ('G', 'g')))
+        self.fields['type'] = forms.ChoiceField(
+            label='Catégorie de produit',
+            choices = (('keg', 'fût'), ('liquor', 'alcool fort'),
+                            ('syrup', 'sirop'), ('soft', 'soft'),
+                            ('food', 'alimentaire'), ('meat', 'viande'),
+                            ('cheese', 'fromage'), ('side', 'accompagnement')))
+
+
 class ProductUpdateForm(forms.ModelForm):
     class Meta:
         model = ProductBase
         fields = ['name', 'description', 'brand', 'type', 'quantity',
                   'product_unit']
 
+
 class ShopCreateForm(forms.ModelForm):
     class Meta:
         model = Shop
         fields = ['name', 'description']
+
+
+class ProductListForm(forms.Form):
+    search = forms.CharField(label='Recherche', max_length=255, required=False)
+    type = forms.ChoiceField(
+        label='Type de produit',
+        choices = (('container', 'Conteneur'),
+                   ('single_product', 'Produit unitaire')))
+
+
+
 
 
 

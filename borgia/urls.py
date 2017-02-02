@@ -13,6 +13,7 @@ from shops.views import (
     ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
     ProductUpdate, PurchaseFoyer, ShopCreate, ShopList
 )
+from shops.models import ProductBase, ProductUnit
 from finances.views import *
 from modules.views import *
 
@@ -42,6 +43,12 @@ urlpatterns = [
         ProductList.as_view(), name='url_product_list'),
     url(r'^(?P<group_name>[\w-]+)/products/create/$',
         ProductCreate.as_view(), name='url_product_create'),
+    url(r'^(?P<group_name>[\w-]+)/products/product_bases/create/$',
+        ProductCreate.as_view(), name='url_productbase_create',
+        kwargs={'product_class': ProductBase}),
+    url(r'^(?P<group_name>[\w-]+)/products/product_bases/product_units/create/$',
+        ProductCreate.as_view(), name='url_productunit_create',
+        kwargs={'product_class': ProductUnit}),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/$',
         ProductRetrieve.as_view(), name='url_product_retrieve'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/$',

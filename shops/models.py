@@ -312,8 +312,8 @@ class ProductBase(models.Model):
     TYPE_CHOICES = (('single_product', 'Produit unitaire'),
                     ('container', 'Conteneur'))
 
-    name = models.CharField('Nom', max_length=255, default="Product base name")
-    description = models.TextField('Description', default="Description")
+    name = models.CharField('Nom', max_length=255)
+    description = models.TextField('Description')
     is_manual = models.BooleanField('Gestion manuelle du prix', default=False)
     manual_price = models.DecimalField('Prix manuel', default=0,
                                        decimal_places=2, max_digits=9,
@@ -326,8 +326,12 @@ class ProductBase(models.Model):
                                    null=True, blank=True, decimal_places=2,
                                    max_digits=9, validators=[
                                        MinValueValidator(Decimal(0))])
-    shop = models.ForeignKey('Shop', on_delete=models.CASCADE)
+    shop = models.ForeignKey(
+        'Shop',
+        related_name='%(app_label)s_%(class)s_shop',
+        on_delete=models.CASCADE)
     product_unit = models.ForeignKey('ProductUnit',
+                                     verbose_name='Unité de produit',
                                      related_name='product_unit', blank=True,
                                      null=True,
                                      on_delete=models.CASCADE)
@@ -722,9 +726,14 @@ class ProductUnit(models.Model):
                                    blank=True)
     unit = models.CharField('Unité', max_length=255, choices=UNIT_CHOICES,
                             default=UNIT_CHOICES[0][0])
+    # TODO: Is this attribute still valid ?
     type = models.CharField('Type', max_length=255, choices=TYPE_CHOICES,
                             default=TYPE_CHOICES[0][0])
     is_active = models.BooleanField('Actif', default=True)
+    shop = models.ForeignKey(
+        'Shop',
+        related_name='%(app_label)s_%(class)s_shop',
+        on_delete=models.CASCADE)
 
     def usual_quantity(self):
         """

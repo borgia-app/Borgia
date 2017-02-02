@@ -4,13 +4,40 @@
 {% block content %}
 <div class="panel panel-default">
   <div class="panel-heading">
-    Ajout de produits au magasin {{ shop }}
+      {% if product_class == 'productbase' %}
+        <h3>Ajout d'une base de produit pour le magasin {{ shop }}</h3>
+        <div class="btn-group" role="group">
+          <a
+          class="btn btn-warning"
+          href="{% url 'url_product_create' group_name=group.name %}">
+            Retour à la création de produits</a>
+          <a
+          class="btn btn-success"
+          href="{% url 'url_productunit_create' group_name=group.name %}">
+            Ajouter une unité de produit</a>
+        </div>
+      {% elif product_class == 'productunit' %}
+        <h3>Ajout d'une unité de produit pour le magasin {{ shop }}</h3>
+        <div class="btn-group" role="group">
+          <a
+          class="btn btn-warning"
+          href="{% url 'url_product_create' group_name=group.name %}">
+            Retour à la création d'une base de produit</a>
+        </div>
+        {% else %}
+          <h3>Ajout de produits pour le magasin {{ shop }}</h3>
+          <div class="btn-group" role="group">
+            <a
+            class="btn btn-success"
+            href="{% url 'url_productbase_create' group_name=group.name %}">
+              Ajouter une base de produit</a>
+          </div>
+      {% endif %}
   </div>
   <div class="panel panel-body">
     <form action= "" method="post">
         {% csrf_token %}
         {{ form|bootstrap }}
-        <label>Le produit n'est pas dans la liste ? <a href="{% url 'url_create_productbase' %}">Ajout !</a></label>
         <button type="submit" class="btn btn-success">Ajouter</button>
     </form>
   </div>
