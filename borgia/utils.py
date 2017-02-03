@@ -498,7 +498,7 @@ class ShopFromGroupMixin(object):
         try:
             self.shop = shop_from_group(self.group)
         except ValueError:
-            raise Http404
+            self.shop = None
         return super(ShopFromGroupMixin,
                      self).dispatch(request, *args, **kwargs)
 
@@ -513,13 +513,14 @@ class ProductShopFromGroupMixin(object):
         try:
             self.shop = shop_from_group(self.group)
         except ValueError:
-            raise Http404
+            self.shop = None
         try:
             self.object = ProductBase.objects.get(pk=self.kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
-        if self.object.shop != self.shop:
-            raise PermissionDenied
+        if self.shop:
+            if self.object.shop != self.shop:
+                raise PermissionDenied
         return super(ProductShopFromGroupMixin,
                      self).dispatch(request, *args, **kwargs)
 

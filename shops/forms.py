@@ -16,11 +16,18 @@ class ProductCreateForm(forms.Form):
     def __init__(self, **kwargs):
         shop = kwargs.pop('shop')
         super(ProductCreateForm, self).__init__(**kwargs)
-        self.fields['product_base'] = forms.ModelChoiceField(
-            label='Base produit', queryset=ProductBase.objects.filter(
-                shop=shop, is_active=True).exclude(pk=1).order_by('name'),
-            widget=forms.Select(attrs={'class': 'selectpicker form-control',
-                                       'data-live-search': 'True'}))
+        if shop:
+            self.fields['product_base'] = forms.ModelChoiceField(
+                label='Base produit', queryset=ProductBase.objects.filter(
+                    shop=shop, is_active=True).exclude(pk=1).order_by('name'),
+                widget=forms.Select(attrs={'class': 'selectpicker form-control',
+                                           'data-live-search': 'True'}))
+        else:
+            self.fields['product_base'] = forms.ModelChoiceField(
+                label='Base produit', queryset=ProductBase.objects.filter(
+                    is_active=True).exclude(pk=1).order_by('name'),
+                widget=forms.Select(attrs={'class': 'selectpicker form-control',
+                                           'data-live-search': 'True'}))
         self.fields['quantity'] = forms.IntegerField(
             label='Quantité à ajouter (de Fût, en KG, ou de bouteille)',
             min_value=0, max_value=5000)
@@ -41,13 +48,27 @@ class ProductBaseCreateForm(forms.Form):
     def __init__(self, **kwargs):
         shop = kwargs.pop('shop')
         super(ProductBaseCreateForm, self).__init__(**kwargs)
-        self.fields['product_unit'] = forms.ModelChoiceField(
-            label='Unité de produit',
-            queryset=ProductUnit.objects.filter(
-                shop=shop, is_active=True).exclude(pk=1),
-            required=False,
-            widget=forms.Select(attrs={'class': 'selectpicker form-control',
-                                       'data-live-search': 'true'}))
+        self.fields['name'] = forms.CharField(
+            label='Nom',
+            max_length=254,
+            required=False
+        )
+        if shop:
+            self.fields['product_unit'] = forms.ModelChoiceField(
+                label='Unité de produit',
+                queryset=ProductUnit.objects.filter(
+                    shop=shop, is_active=True).exclude(pk=1),
+                required=False,
+                widget=forms.Select(attrs={'class': 'selectpicker form-control',
+                                           'data-live-search': 'true'}))
+        else:
+            self.fields['product_unit'] = forms.ModelChoiceField(
+                label='Unité de produit',
+                queryset=ProductUnit.objects.filter(
+                    is_active=True).exclude(pk=1),
+                required=False,
+                widget=forms.Select(attrs={'class': 'selectpicker form-control',
+                                           'data-live-search': 'true'}))
         self.fields['quantity'] = forms.IntegerField(
             label='Quantité de produit unitaire (g, cl ...)',
             min_value=0,
@@ -59,6 +80,12 @@ class ProductBaseCreateForm(forms.Form):
             choices = (('container', 'Conteneur'),
                        ('single_product', 'Produit unitaire'))
         )
+        if shop is None:
+            self.fields['shop'] = forms.ModelChoiceField(
+                label='Magasin',
+                queryset=Shop.objects.all().exclude(pk=1)
+            )
+
 
     def clean(self):
         cleaned_data = super(ProductBaseCreateForm, self).clean()
@@ -82,8 +109,6 @@ class ProductUnitCreateForm(forms.Form):
         super(ProductUnitCreateForm, self).__init__(**kwargs)
         self.fields['name'] = forms.CharField(max_length=255,
                                        label='Nom')
-        self.fields['description'] = forms.CharField(max_length=255,
-                                       label='Description')
         self.fields['unit'] = forms.ChoiceField(
             label='Unité de calcul',
             choices = (('CL', 'cl'), ('G', 'g')))
@@ -93,6 +118,11 @@ class ProductUnitCreateForm(forms.Form):
                             ('syrup', 'sirop'), ('soft', 'soft'),
                             ('food', 'alimentaire'), ('meat', 'viande'),
                             ('cheese', 'fromage'), ('side', 'accompagnement')))
+        if shop is None:
+            self.fields['shop'] = forms.ModelChoiceField(
+                label='Magasin',
+                queryset=Shop.objects.all().exclude(pk=1)
+            )
 
 
 class ProductUpdateForm(forms.ModelForm):
@@ -109,14 +139,24 @@ class ShopCreateForm(forms.ModelForm):
 
 
 class ProductListForm(forms.Form):
-    search = forms.CharField(label='Recherche', max_length=255, required=False)
-    type = forms.ChoiceField(
-        label='Type de produit',
-        choices = (('container', 'Conteneur'),
-                   ('single_product', 'Produit unitaire')))
-
-
-
+    def __init__(self, **kwargs):
+        shop = kwargs.pop('shop')
+        super(ProductListForm, self).__init__(**kwargs)
+        if shop is None:
+            self.fields['shop'] = forms.ModelChoiceField(
+                label='Magasin',
+                queryset=Shop.objects.all().exclude(pk=1),
+                required=False
+            )
+        self.fields['search'] = forms.CharField(
+            label='Recherche',
+            max_length=255,
+            required=False)
+        self.fields['type'] = forms.ChoiceField(
+            label='Type de produit',
+            choices = (('container', 'Conteneur'),
+                       ('single_product', 'Produit unitaire')),
+            required=False)
 
 
 

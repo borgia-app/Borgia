@@ -26,14 +26,26 @@ class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
 
     search = None
     type = None
+    shop_query = None
 
     def get_context_data(self, **kwargs):
         context = super(ProductList, self).get_context_data(**kwargs)
         context['product_list'] = self.form_query(
-            ProductBase.objects.filter(shop=self.shop))
+            ProductBase.objects.all().exclude(pk=1))
         return context
 
+    def get_form_kwargs(self):
+        kwargs_form = super(ProductList, self).get_form_kwargs()
+        kwargs_form['shop'] = self.shop
+        return kwargs_form
+
     def form_valid(self, form):
+        try:
+            if form.cleaned_data['shop']:
+                self.shop_query = form.cleaned_data['shop']
+        except KeyError:
+            pass
+
         if form.cleaned_data['search']:
             self.search = form.cleaned_data['search']
 
@@ -43,6 +55,11 @@ class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         return self.get(self.request, self.args, self.kwargs)
 
     def form_query(self, query):
+        if self.shop:
+            query = query.filter(shop=self.shop)
+        else:
+            if self.shop_query:
+                query = query.filter(shop=self.shop_query)
         if self.search:
             query = query.filter(
                 Q(name__contains=self.search)
@@ -58,20 +75,25 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
     template_name = 'shops/product_create.html'
     perm_codename = 'add_product'
     lm_active = 'lm_product_create'
-    form_class = ProductCreateForm
     product_class = None
 
     def dispatch(self, request, *args, **kwargs):
         try:
             if kwargs['product_class'] is ProductBase:
                 self.product_class = ProductBase
-                self.form_class = ProductBaseCreateForm
             if kwargs['product_class'] is ProductUnit:
                 self.product_class = ProductUnit
-                self.form_class = ProductUnitCreateForm
         except KeyError:
             pass
         return super(ProductCreate, self).dispatch(request, *args, **kwargs)
+
+    def get_form_class(self):
+        if self.product_class is ProductBase:
+            return ProductBaseCreateForm
+        elif self.product_class is ProductUnit:
+            return ProductUnitCreateForm
+        else:
+            return ProductCreateForm
 
     def form_valid(self, form):
         if self.product_class is None:
@@ -113,49 +135,90 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                                                        product_base=form.cleaned_data['product_base'])
 
     def form_valid_productbase(self, form):
-        # Container:
-            # name : product_unit type + product_unit name + quantity + product_unit unit
-        if form.cleaned_data['type'] == 'container':
-            ProductBase.objects.create(
-                name=(
-                    form.cleaned_data['product_unit'].get_type_display().capitalize()
-                    + ' '
-                    + form.cleaned_data['product_unit'].name
-                    + ' '
-                    + str(form.cleaned_data['quantity'])
-                    + form.cleaned_data['product_unit'].get_unit_display()
-                ),
-                description=(
-                    form.cleaned_data['product_unit'].get_type_display().capitalize()
-                    + ' '
-                    + form.cleaned_data['product_unit'].name
-                    + ' '
-                    + str(form.cleaned_data['quantity'])
-                    + form.cleaned_data['product_unit'].get_unit_display()
-                ),
-                brand=form.cleaned_data['brand'],
-                type=form.cleaned_data['type'],
-                shop=self.shop,
-                quantity=form.cleaned_data['quantity'],
-                product_unit=form.cleaned_data['product_unit']
-            )
-        if form.cleaned_data['type'] == 'single_product':
-            ProductBase.objects.create(
+        if self.shop:
+            if form.cleaned_data['type'] == 'container':
+                ProductBase.objects.create(
+                    name=(
+                        form.cleaned_data['product_unit'].get_type_display().capitalize()
+                        + ' '
+                        + form.cleaned_data['product_unit'].name
+                        + ' '
+                        + str(form.cleaned_data['quantity'])
+                        + form.cleaned_data['product_unit'].get_unit_display()
+                    ),
+                    description=(
+                        form.cleaned_data['product_unit'].get_type_display().capitalize()
+                        + ' '
+                        + form.cleaned_data['product_unit'].name
+                        + ' '
+                        + str(form.cleaned_data['quantity'])
+                        + form.cleaned_data['product_unit'].get_unit_display()
+                    ),
+                    brand=form.cleaned_data['brand'],
+                    type=form.cleaned_data['type'],
+                    shop=self.shop,
+                    quantity=form.cleaned_data['quantity'],
+                    product_unit=form.cleaned_data['product_unit']
+                )
+            if form.cleaned_data['type'] == 'single_product':
+                ProductBase.objects.create(
+                    name=form.cleaned_data['name'],
+                    description=form.cleaned_data['name'],
+                    brand=form.cleaned_data['brand'],
+                    type=form.cleaned_data['type'],
+                    shop=self.shop
+                )
+        else:
+            if form.cleaned_data['type'] == 'container':
+                ProductBase.objects.create(
+                    name=(
+                        form.cleaned_data['product_unit'].get_type_display().capitalize()
+                        + ' '
+                        + form.cleaned_data['product_unit'].name
+                        + ' '
+                        + str(form.cleaned_data['quantity'])
+                        + form.cleaned_data['product_unit'].get_unit_display()
+                    ),
+                    description=(
+                        form.cleaned_data['product_unit'].get_type_display().capitalize()
+                        + ' '
+                        + form.cleaned_data['product_unit'].name
+                        + ' '
+                        + str(form.cleaned_data['quantity'])
+                        + form.cleaned_data['product_unit'].get_unit_display()
+                    ),
+                    brand=form.cleaned_data['brand'],
+                    type=form.cleaned_data['type'],
+                    shop=form.cleaned_data['shop'],
+                    quantity=form.cleaned_data['quantity'],
+                    product_unit=form.cleaned_data['product_unit']
+                )
+            if form.cleaned_data['type'] == 'single_product':
+                ProductBase.objects.create(
+                    name=form.cleaned_data['name'],
+                    description=form.cleaned_data['name'],
+                    brand=form.cleaned_data['brand'],
+                    type=form.cleaned_data['type'],
+                    shop=form.cleaned_data['shop']
+                )
+
+    def form_valid_productunit(self, form):
+        if self.shop:
+            ProductUnit.objects.create(
                 name=form.cleaned_data['name'],
-                description=form.cleaned_data['description'],
-                brand=form.cleaned_data['brand'],
+                description=form.cleaned_data['name'],
+                unit=form.cleaned_data['unit'],
                 type=form.cleaned_data['type'],
                 shop=self.shop
             )
-
-    def form_valid_productunit(self, form):
-        ProductUnit.objects.create(
-            name=form.cleaned_data['name'],
-            description=form.cleaned_data['description'],
-            unit=form.cleaned_data['unit'],
-            type=form.cleaned_data['type'],
-            shop=self.shop
-        )
+        else:
+            ProductUnit.objects.create(
+                name=form.cleaned_data['name'],
+                description=form.cleaned_data['name'],
+                unit=form.cleaned_data['unit'],
+                type=form.cleaned_data['type'],
+                shop=form.cleaned_data['shop']
+            )
 
     def get_initial(self):
         initial = super(ProductCreate, self).get_initial()

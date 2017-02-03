@@ -60,6 +60,10 @@
           <div id="quantity">
             {{ field|bootstrap }}
           </div>
+          {% elif field == form.name %}
+          <div id="name">
+            {{ field|bootstrap }}
+          </div>
           {% else %}
             {{ field|bootstrap }}
           {% endif %}
@@ -73,9 +77,11 @@
 <script>
   $("#id_type").change(function() {
     if ($(this).val() == 'single_product') {
+      $("#name").show()
       $("#product_unit").hide()
       $("#quantity").hide()
     } else if ($(this).val() == 'container') {
+      $("#name").hide()
       $("#product_unit").show()
       $("#quantity").show()
     }
