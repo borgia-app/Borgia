@@ -1,0 +1,67 @@
+[
+  {
+  		"model": "auth.permission",
+  		"pk": 1000,
+  		"fields": {
+  			"name": "G\u00e9rer le groupe des chiefs du magasin foyer",
+  			"content_type": 174,
+  			"codename": "manage_group_chiefs-foyer"
+  			}
+  }, {
+  		"model": "auth.permission",
+  		"pk": 1001,
+  		"fields": {
+  			"name": "G\u00e9rer le groupe des associés du magasin foyer",
+  			"content_type": 174,
+  			"codename": "manage_group_associates-foyer"
+  			}
+  }, {
+  		"model": "auth.permission",
+  		"pk": 1002,
+  		"fields": {
+  			"name": "G\u00e9rer le groupe des chiefs du magasin auberge",
+  			"content_type": 174,
+  			"codename": "manage_group_chiefs-auberge"
+  			}
+  }, {
+  		"model": "auth.permission",
+  		"pk": 1003,
+  		"fields": {
+  			"name": "G\u00e9rer le groupe des associés du magasin auberge",
+  			"content_type": 174,
+  			"codename": "manage_group_associates-auberge"
+  			}
+  }, {
+  		"model": "auth.permission",
+  		"pk": 1004,
+  		"fields": {
+  			"name": "G\u00e9rer le groupe des chiefs du magasin cvis",
+  			"content_type": 174,
+  			"codename": "manage_group_chiefs-cvis"
+  			}
+  },{
+  		"model": "auth.permission",
+  		"pk": 1005,
+  		"fields": {
+  			"name": "G\u00e9rer le groupe des associés du magasin cvis",
+  			"content_type": 174,
+  			"codename": "manage_group_associates-cvis"
+  			}
+  }, {
+  		"model": "auth.permission",
+  		"pk": 1006,
+  		"fields": {
+  			"name": "G\u00e9rer le groupe des chiefs du magasin bkars",
+  			"content_type": 174,
+  			"codename": "manage_group_chiefs-bkars"
+  			}
+  }, {
+  		"model": "auth.permission",
+  		"pk": 1007,
+  		"fields": {
+  			"name": "G\u00e9rer le groupe des associés du magasin bkars",
+  			"content_type": 174,
+  			"codename": "manage_group_associates-bkars"
+  			}
+  }
+]

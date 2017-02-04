@@ -214,7 +214,7 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 category='sale'
             ).order_by('-date')
 
-        context['sale_list'] = self.form_query(context['sale_list'])
+        context['sale_list'] = self.form_query(context['sale_list'])[:100]
 
         return context
 
@@ -256,10 +256,11 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
         if form.cleaned_data['date_end']:
             self.date_end = form.cleaned_data['date_end']
-
-        if form.cleaned_data['shop']:
-            self.query_shop = form.cleaned_data['shop']
-
+        try:
+            if form.cleaned_data['shop']:
+                self.query_shop = form.cleaned_data['shop']
+        except KeyError:
+            pass
         context = self.get_context_data()
         return self.get(self.request, self.args, self.kwargs)
 
@@ -347,7 +348,7 @@ class RechargingList(GroupPermissionMixin, FormView,
         ).order_by('-date')
 
         context['recharging_list'] = self.form_query(
-            context['recharging_list'])
+            context['recharging_list'])[:100]
 
         return context
 
@@ -458,7 +459,7 @@ class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         ).order_by('-date')
 
         context['transfert_list'] = self.form_query(
-            context['transfert_list'])
+            context['transfert_list'])[:100]
 
         return context
 
@@ -571,7 +572,7 @@ class ExceptionnalMovementList(GroupPermissionMixin, FormView,
         ).order_by('-date')
 
         context['exceptionnalmovement_list'] = self.form_query(
-            context['exceptionnalmovement_list'])
+            context['exceptionnalmovement_list'])[:100]
 
         return context
 
