@@ -25,18 +25,16 @@
         </div>
           <table class="table table-hover table-striped">
             <tr>
-                <th>Opérateur</th>
-                <th>Utilisateur</th>
+                <th>Envoyeur</th>
+                <th>Réceveur</th>
                 <th>Montant</th>
-                <th>Type</th>
                 <th>Détail</th>
             </tr>
             {% for transfert in transfert_list %}
             <tr>
-                <td>{{ transfert.operator }}</td>
                 <td>{{ transfert.sender }}</td>
+                <td>{{ transfert.recipient }}</td>
                 <td>{{ transfert.amount }}€</td>
-                <td>{{ transfert.wording }}</td>
                 <td>
                   <a href="{% url 'url_transfert_retrieve' group_name=group_name pk=transfert.pk %}">Détail</a>
                 </td>

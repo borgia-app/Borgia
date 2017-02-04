@@ -6,6 +6,12 @@ unit.xml
 /static/static_root/admin/
 /static/static_dirs/admin/
 
+
+# Dump v3
+dump_adapt.json
+dump_adapt_perm.json
+dump_adapt_groups.json
+
 ##########################################################################################
 # Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio
 

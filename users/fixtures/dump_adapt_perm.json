@@ -4,7 +4,7 @@
   		"pk": 1000,
   		"fields": {
   			"name": "G\u00e9rer le groupe des chiefs du magasin foyer",
-  			"content_type": 174,
+  			"content_type": 34,
   			"codename": "manage_group_chiefs-foyer"
   			}
   }, {
@@ -12,7 +12,7 @@
   		"pk": 1001,
   		"fields": {
   			"name": "G\u00e9rer le groupe des associés du magasin foyer",
-  			"content_type": 174,
+  			"content_type": 34,
   			"codename": "manage_group_associates-foyer"
   			}
   }, {
@@ -20,7 +20,7 @@
   		"pk": 1002,
   		"fields": {
   			"name": "G\u00e9rer le groupe des chiefs du magasin auberge",
-  			"content_type": 174,
+  			"content_type": 34,
   			"codename": "manage_group_chiefs-auberge"
   			}
   }, {
@@ -28,7 +28,7 @@
   		"pk": 1003,
   		"fields": {
   			"name": "G\u00e9rer le groupe des associés du magasin auberge",
-  			"content_type": 174,
+  			"content_type": 34,
   			"codename": "manage_group_associates-auberge"
   			}
   }, {
@@ -36,7 +36,7 @@
   		"pk": 1004,
   		"fields": {
   			"name": "G\u00e9rer le groupe des chiefs du magasin cvis",
-  			"content_type": 174,
+  			"content_type": 34,
   			"codename": "manage_group_chiefs-cvis"
   			}
   },{
@@ -44,7 +44,7 @@
   		"pk": 1005,
   		"fields": {
   			"name": "G\u00e9rer le groupe des associés du magasin cvis",
-  			"content_type": 174,
+  			"content_type": 34,
   			"codename": "manage_group_associates-cvis"
   			}
   }, {
@@ -52,7 +52,7 @@
   		"pk": 1006,
   		"fields": {
   			"name": "G\u00e9rer le groupe des chiefs du magasin bkars",
-  			"content_type": 174,
+  			"content_type": 34,
   			"codename": "manage_group_chiefs-bkars"
   			}
   }, {
@@ -60,7 +60,7 @@
   		"pk": 1007,
   		"fields": {
   			"name": "G\u00e9rer le groupe des associés du magasin bkars",
-  			"content_type": 174,
+  			"content_type": 34,
   			"codename": "manage_group_associates-bkars"
   			}
   }
