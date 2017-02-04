@@ -355,10 +355,21 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     unactive = None
     year = None
 
+    def get(self, request, *args, **kwargs):
+        """
+        Used to pass search through workboard.
+        """
+        try:
+            self.search = request.GET['search']
+        except KeyError:
+            pass
+        return super(UserListView, self).get(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
-        context['user_list'] = User.objects.all().exclude(groups=1)
-        context['user_list'] = self.form_query(context['user_list'])
+        context['group'] = self.group
+        context['user_list'] = self.form_query(
+            User.objects.all().exclude(groups=1))
         return context
 
     def form_query(self, query):
@@ -393,6 +404,10 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         context = self.get_context_data()
         return self.get(self.request, self.args, self.kwargs)
 
+    def get_initial(self):
+        initial = super(UserListView, self).get_initial()
+        initial['search'] = self.search
+        return initial
 
 # TODO: obsolète
 def profile_view(request):
