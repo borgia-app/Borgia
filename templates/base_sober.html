@@ -45,7 +45,7 @@
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
              <div class="navbar-header col-md-2 col-sm-2 col-xs-2 col-xxs-2" style="padding-left: 2px">
-                <a href="">
+                <a href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
                    <span class="logo-background"></span>
                 </a>
              </div>
