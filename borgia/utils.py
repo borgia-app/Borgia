@@ -481,6 +481,14 @@ class GroupPermissionMixin(object):
                 pk__in=[1, 5, 6]).count() > 0):
             context['first_job'] = self.request.user.groups.all().exclude(
                 pk__in=[1, 5, 6])[0]
+        context['list_selfsalemodule'] = []
+        for shop in Shop.objects.all().exclude(pk=1):
+            try:
+                module = SelfSaleModule.objects.get(shop=shop)
+                if module.state is True:
+                    context['list_selfsalemodule'].append(shop)
+            except ObjectDoesNotExist:
+                pass
         return context
 
 

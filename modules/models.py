@@ -1,6 +1,8 @@
 from django.db import models
 
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import (
+    GenericForeignKey, GenericRelation
+    )
 from django.contrib.contenttypes.models import ContentType
 
 from shops.models import Shop, ProductBase
@@ -27,7 +29,7 @@ class Module(models.Model):
     class Meta:
         abstract = True
 
-    state = models.BooleanField('Activé', default = False)
+    state = models.BooleanField('Activé', default=False)
 
 
 class ShopModule(Module):

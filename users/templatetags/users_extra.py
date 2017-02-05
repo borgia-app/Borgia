@@ -11,6 +11,11 @@ def has_group(user, group_name):
     return True if group in user.groups.all() else False
 
 
+@register.filter(name='height_ratio')
+def height_ratio(base, list_selfsalemodule):
+    return 100 / (len(list_selfsalemodule) + base)
+
+
 @register.inclusion_tag('breadcrumbs.html', takes_context=True)
 def breadcrumbs(context):
     try:

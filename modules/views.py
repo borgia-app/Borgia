@@ -51,6 +51,7 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
     def get_context_data(self, **kwargs):
         context = super(SaleShopModuleInterface,
                         self).get_context_data(**kwargs)
+        context['shop'] = self.shop
         context['categories'] = self.module.categories.all()
         return context
 
