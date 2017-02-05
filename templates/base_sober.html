@@ -134,7 +134,7 @@
               {% url 'url_profile' as url_profile %}
               <a href="{% if request.path  == url_foys %}{% url 'url_page_clean' %}{% else %}{{ url_foys}}{% endif %}"><li class="list-group-item list-foys {% if request.path  == url_foys %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/tap.svg' %}" /><h3>Foy's</h3></li></a>
               <a href="#"><li class="list-group-item list-shops"><img src="{% static 'img/store.svg' %}" /><h3>Shop's</h3></li></a>
-              <a href="{% if request.path  == url_transfert %}{% url 'url_page_clean' %}{% else %}{{ url_transfert}}{% endif %}"><li class="list-group-item list-transfert {% if request.path  == url_transfert %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/transfer.svg' %}" /><h3>Transfert</h3></li></a>
+              <a href="{% url 'url_self_transfert_create' group_name=group.name %}"><li class="list-group-item list-transfert {% if request.path  == url_transfert %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/transfer.svg' %}" /><h3>Transfert</h3></li></a>
               <a href="{% if request.path  == url_event %}{% url 'url_page_clean' %}{% else %}{{ url_event}}{% endif %}"><li class="list-group-item list-manips {% if request.path  == url_event %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/event-calendar-symbol.svg' %}" /><h3>Manips</h3></li></a>
               <a href="#"><li class="list-group-item list-frais"><img src="{% static 'img/thief.svg' %}" /><h3>Frais AE</h3></li></a>
               {% if first_job %}

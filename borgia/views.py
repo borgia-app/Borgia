@@ -276,8 +276,4 @@ class GroupWorkboard(GroupPermissionMixin, View, GroupLateralMenuMixin):
                     category='sale'
                 ).order_by('-date')[:5]
             context['module_list_sale'] = True
-
-        if request.user.groups.all().exclude(pk__in=[1, 5, 6]).count() > 0:
-            context['first_job'] = request.user.groups.all().exclude(
-                pk__in=[1, 5, 6])[0]
         return render(request, self.template_name, context=context)

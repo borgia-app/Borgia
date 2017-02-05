@@ -62,7 +62,7 @@
     <thead>
       <tr>
         <th>Date</th>
-        <th>Catégorie</th>
+        <th>Type</th>
         <th>Montant</th>
         <th>Détail</th>
       </tr>
@@ -72,7 +72,13 @@
       {% price_for sale=transaction user=object as price_for %}
       <tr class="{% if price_for > 0 %}success{% else %}danger{% endif %}">
         <td>{{ transaction.date }}</td>
-        <td>{{ transaction.wording }}</td>
+        <td>
+          {% if transaction.category == 'transfert' %}
+          {{ transaction.justification }}
+          {% else %}
+          {{ transaction.wording }}
+          {% endif %}
+        </td>
         <td>{{ price_for }}</td>
         <td><a href="
           {% if transaction.category == 'sale' %}

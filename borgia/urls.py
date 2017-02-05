@@ -135,7 +135,9 @@ urlpatterns = [
         username_from_username_part,
         name='url_ajax_username_from_username_part'),
 
-
+    url(r'^(?P<group_name>[\w-]+)/self/transferts/create/$',
+        SelfTransfertCreate.as_view(),
+        name='url_self_transfert_create'),
 
 
 

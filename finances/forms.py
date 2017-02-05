@@ -25,6 +25,28 @@ class BankAccountUpdateForm(forms.ModelForm):
         fields = ['bank', 'account']
 
 
+class SelfTransfertCreate(forms.Form):
+    def __init__(self, **kwargs):
+        sender = kwargs.pop('sender')
+        super(SelfTransfertCreate, self).__init__(**kwargs)
+        self.fields['recipient'] = forms.ModelChoiceField(
+            label='Receveur',
+            queryset=User.objects.all().exclude(pk__in=[1, sender.pk]),
+            widget=forms.Select(
+                attrs={'class': 'form-control selectpicker',
+                       'data-live-search': 'True'})
+            )
+        self.fields['amount'] = forms.DecimalField(
+            label='Montant (€)',
+            decimal_places=2,
+            max_digits=9,
+            min_value=0, max_value=sender.balance)
+        self.fields['justification'] = forms.CharField(
+            label='Justification',
+            max_length=254
+        )
+
+
 class GenericListSearchDateForm(forms.Form):
     search = forms.CharField(label='Recherche', max_length=255, required=False)
     date_begin = forms.DateField(
@@ -80,7 +102,9 @@ class ExceptionnalMovementForm(forms.Form):
         try:
             operator_username = cleaned_data['operator_username']
             operator_password = cleaned_data['operator_password']
-            if authenticate(username=operator_username, password=operator_password) is None:
+            if (authenticate(
+                username=operator_username,
+                    password=operator_password) is None):
                 raise forms.ValidationError('Echec d\'authentification')
         except KeyError:
             pass
@@ -135,7 +159,8 @@ class UserSupplyMoneyForm(forms.Form):
     def clean_signature_date(self):
         data = self.cleaned_data['signature_date']
 
-        if self.cleaned_data['type'] == 'cheque' or self.cleaned_data['type'] == 'lydia':
+        if (self.cleaned_data['type'] == 'cheque'
+                or self.cleaned_data['type'] == 'lydia'):
             if data is None:
                 raise forms.ValidationError('Obligatoire')
 
@@ -159,7 +184,9 @@ class UserSupplyMoneyForm(forms.Form):
             operator_password = cleaned_data['operator_password']
 
             if operator_password and operator_password:
-                if authenticate(username=operator_username, password=operator_password) is None:
+                if (authenticate(
+                    username=operator_username,
+                        password=operator_password) is None):
                     raise forms.ValidationError('Echec d\'authentification')
         except KeyError:
             pass

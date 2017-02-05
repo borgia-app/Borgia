@@ -472,6 +472,11 @@ class GroupPermissionMixin(object):
     def get_context_data(self, **kwargs):
         context = super(GroupPermissionMixin, self).get_context_data(**kwargs)
         context['group'] = self.group
+
+        if (self.request.user.groups.all().exclude(
+                pk__in=[1, 5, 6]).count() > 0):
+            context['first_job'] = self.request.user.groups.all().exclude(
+                pk__in=[1, 5, 6])[0]
         return context
 
 
