@@ -260,7 +260,7 @@ class GroupWorkboard(GroupPermissionMixin, View, GroupLateralMenuMixin):
     lm_active = 'lm_workboard'
 
     def get(self, request, *args, **kwargs):
-        context = self.get_context_data()
+        context = self.get_context_data(**kwargs)
         if Permission.objects.get(codename='list_user') in self.group.permissions.all():
             context['user_search_form'] = UserSearchForm()
             context['module_search_user'] = True
@@ -276,7 +276,8 @@ class GroupWorkboard(GroupPermissionMixin, View, GroupLateralMenuMixin):
                     category='sale'
                 ).order_by('-date')[:5]
             context['module_list_sale'] = True
-        return render(request, self.template_name, context=context)
 
-    def post(self, request, *args, **kwargs):
-        return UserListView().form_valid(UserSearchForm(request.POST))
+        if request.user.groups.all().exclude(pk__in=[1, 5, 6]).count() > 0:
+            context['first_job'] = request.user.groups.all().exclude(
+                pk__in=[1, 5, 6])[0]
+        return render(request, self.template_name, context=context)

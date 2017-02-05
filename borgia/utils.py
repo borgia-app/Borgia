@@ -391,11 +391,12 @@ class GroupLateralMenuFormMixin(ContextMixin):
         return context
 
 
+# TODO: Fusion with GroupLateralMenuFormMixin
 class GroupLateralMenuMixin(ContextMixin):
     lm_active = None
 
     def get_context_data(self, **kwargs):
-        context = {}
+        context = super(GroupLateralMenuMixin, self).get_context_data(**kwargs)
         try:
             context['nav_tree'] = lateral_menu(
                 self.request.user,
@@ -467,6 +468,11 @@ class GroupPermissionMixin(object):
 
         return super(GroupPermissionMixin,
                      self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(GroupPermissionMixin, self).get_context_data(**kwargs)
+        context['group'] = self.group
+        return context
 
 
 class ProductShopMixin(object):

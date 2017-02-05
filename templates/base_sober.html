@@ -22,7 +22,6 @@
 </head>
 <body class="body_sober">
 {% url 'url_page_clean' as url_clean %}
-<div>
   <div class="wrapper overlay">
     <nav class="navbar navbar-inverse navbar-fixed-top">
         <div class="container-fluid">
@@ -125,20 +124,42 @@
     </nav>
   </div>
 
- {% if nav_tree %}
- <div class="container-fluid">
-   <div class="col-md-2" style="margin-top: 40px">
-    {% include "lateral_menu.html" %}
-   </div>
-   <div class="col-md-10" style="margin-top: 40px">
+  {% if group.name == 'gadzarts' %}
+    <div class="container-fluid">
+      <div class="col-md-2 col-sm-2 col-xs-12">
+          <ul class="list-group list_group_apps">
+              {% url 'url_purchase_foyer' as url_foys %}
+              {% url 'url_create_transfert' as url_transfert %}
+              {% url 'url_list_shared_event' as url_event %}
+              {% url 'url_profile' as url_profile %}
+              <a href="{% if request.path  == url_foys %}{% url 'url_page_clean' %}{% else %}{{ url_foys}}{% endif %}"><li class="list-group-item list-foys {% if request.path  == url_foys %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/tap.svg' %}" /><h3>Foy's</h3></li></a>
+              <a href="#"><li class="list-group-item list-shops"><img src="{% static 'img/store.svg' %}" /><h3>Shop's</h3></li></a>
+              <a href="{% if request.path  == url_transfert %}{% url 'url_page_clean' %}{% else %}{{ url_transfert}}{% endif %}"><li class="list-group-item list-transfert {% if request.path  == url_transfert %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/transfer.svg' %}" /><h3>Transfert</h3></li></a>
+              <a href="{% if request.path  == url_event %}{% url 'url_page_clean' %}{% else %}{{ url_event}}{% endif %}"><li class="list-group-item list-manips {% if request.path  == url_event %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/event-calendar-symbol.svg' %}" /><h3>Manips</h3></li></a>
+              <a href="#"><li class="list-group-item list-frais"><img src="{% static 'img/thief.svg' %}" /><h3>Frais AE</h3></li></a>
+              {% if first_job %}
+              <a href="{% url 'url_group_workboard' group_name=first_job.name %}"><li class="list-group-item list-bouls {% if request.path  == url_profile %}list_group_apps_item_active{% endif %}"><img src="{% static 'img/lazy.svg' %}" /><h3>Boul's</h3></li></a>
+              {% endif %}
+          </ul>
+      </div>
+      <div class="col-md-10 col-sm-10 col-xs-12 offset" style="margin-top: 40px">
   {% else %}
-  <div class="container">
-    <div class="col-md-12" style="margin-top: 40px">
+    {% if nav_tree %}
+    <div class="container-fluid">
+     <div class="col-md-2" style="margin-top: 40px">
+      {% include "lateral_menu.html" %}
+     </div>
+     <div class="col-md-10" style="margin-top: 40px">
+    {% else %}
+    <div class="container">
+      <div class="col-md-12" style="margin-top: 40px">
+    {% endif %}
   {% endif %}
-    {%  block content %}
-    {%  endblock %}
+      {%  block content %}
+      {%  endblock %}
+      </div>
     </div>
-  </div>
+
 </body>
 
 {% if user.is_authenticated %}
