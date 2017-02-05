@@ -28,7 +28,7 @@ class OperatorSaleShopModule(SelfSaleShopModule):
     client = forms.ChoiceField(
         label='Client',
         choices=([(None, 'Selectionner un client')] + [(str(user.pk)+'/'+str(user.balance), user.choice_string())
-                 for user in User.objects.all().exclude(groups__pk=9)]),
+                 for user in User.objects.all().exclude(groups__pk=1)]),
         widget=forms.Select(
             attrs={'class': 'form-control selectpicker',
                    'data-live-search': 'True'})
