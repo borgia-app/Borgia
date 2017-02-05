@@ -183,10 +183,16 @@
                 </li>
               </a>
               {% endif %}
+              <a href="{% url 'url_self_transaction_list' group_name=group.name %}">
+                <li class="list-group-item lightgreen">
+                  <img src="{% static 'img/history.svg' %}" />
+                  <h3>Historique</h3>
+                </li>
+              </a>
           </ul>
           <style>
             .list_group_apps li {
-              height: {% if first_job %}{{ 3|height_ratio:list_selfsalemodule }}{% else %}{{ 2|height_ratio:list_selfsalemodule }}{% endif %}%
+              height: {% if first_job %}{{ 4|height_ratio:list_selfsalemodule }}{% else %}{{ 3|height_ratio:list_selfsalemodule }}{% endif %}%
               ;
             }
           </style>

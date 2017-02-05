@@ -181,6 +181,9 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/self/bank_accounts/(?P<pk>\d+)/delete/$',
         SelfBankAccountDelete.as_view(),
         name='url_self_bankaccount_delete'),
+    url(r'^(?P<group_name>[\w-]+)/self/sales/$',
+        SelfTransactionList.as_view(),
+        name='url_self_transaction_list'),
 
     url(r'^supply/lydia/self/$', SupplyLydiaSelfView.as_view(), name='url_supply_lydia_self'),
     url(r'^supply/lydia/self/confirm$', SupplyLydiaSelfConfirmView.as_view(), name='url_supply_lydia_self_confirm'),

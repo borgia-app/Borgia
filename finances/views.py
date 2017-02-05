@@ -808,6 +808,66 @@ class ExceptionnalMovementRetrieve(GroupPermissionMixin, View,
         return render(request, self.template_name, context=context)
 
 
+class SelfTransactionList(GroupPermissionMixin, FormView,
+                          GroupLateralMenuFormMixin):
+    """
+    View to list transactions of the logged user.
+
+    :param kwargs['group_name']: name of the group, mandatory
+    :type kwargs['group_name']: string
+    :raises: Http404 if the group_name doesn't match a group
+    """
+    template_name = 'finances/self_transaction_list.html'
+    perm_codename = None
+    lm_active = None
+    form_class = GenericListSearchDateForm
+
+    search = None
+    date_begin = None
+    date_end = None
+
+    def get_context_data(self, **kwargs):
+        context = super(SelfTransactionList, self).get_context_data(**kwargs)
+
+        context['transaction_list'] = self.form_query(
+            self.request.user.list_sale())[:100]
+        return context
+
+    def form_query(self, query):
+        if self.search:
+            query = query.filter(
+                Q(wording__contains=self.search)
+                | Q(category__contains=self.search)
+            )
+
+        if self.date_begin:
+            query = query.filter(
+                date__gte=self.date_begin)
+
+        if self.date_end:
+            query = query.filter(
+                date__lte=self.date_end)
+
+        return query
+
+    def form_valid(self, form):
+        if form.cleaned_data['search']:
+            self.search = form.cleaned_data['search']
+        if form.cleaned_data['date_begin']:
+            self.date_begin = form.cleaned_data['date_begin']
+
+        if form.cleaned_data['date_end']:
+            self.date_end = form.cleaned_data['date_end']
+        try:
+            if form.cleaned_data['shop']:
+                self.query_shop = form.cleaned_data['shop']
+        except KeyError:
+            pass
+        context = self.get_context_data()
+        return self.get(self.request, self.args, self.kwargs)
+
+
+
 class UserExceptionnalMovementCreate(GroupPermissionMixin, UserMixin, FormView,
                                      GroupLateralMenuFormMixin):
     """
