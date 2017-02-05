@@ -19,6 +19,7 @@ from shops.views import (
 from shops.models import ProductBase, ProductUnit
 from finances.views import *
 from modules.views import *
+from notifications.views import *
 
 handler403 = handler403
 handler404 = handler404
@@ -122,6 +123,29 @@ urlpatterns = [
         name='url_module_operatorsale_config',
         kwargs={'module_class': OperatorSaleModule}),
 
+    url(r'^user/get/$', permission_required('users.list_user', raise_exception=True)
+        (get_list_model), {'model': User, 'search_in': ['username', 'last_name', 'first_name', 'family']}, name='url_get_list_user'),
+    url(r'^user/get/retrieve/(?P<pk>\d+)/$', permission_required('users.list_user', raise_exception=True)
+        (get_unique_model), {'model': User}, name='url_get_retrieve_user'),
+
+
+    url(r'^supply/lydia/self/$', SupplyLydiaSelfView.as_view(), name='url_supply_lydia_self'),
+    url(r'^supply/lydia/self/confirm$', SupplyLydiaSelfConfirmView.as_view(), name='url_supply_lydia_self_confirm'),
+    url(r'^supply/lydia/self/callback$', supply_lydia_self_callback, name='url_supply_lydia_self_callback'),
+
+    url(r'^shops/foyer/consumption/$', PurchaseFoyer.as_view(), name='url_purchase_foyer'),
+
+    url(r'^(?P<group_name>[\w-]+)/notifications/$',
+        NotificationListCompleteView.as_view(), name='url_notification_list'),
+    url(r'^(?P<group_name>[\w-]+)/notifications/read_notification/$',
+        read_notification, name='url_read_notification'),
+    url(r'^(?P<group_name>[\w-]+)/notifications/templates/$',
+        NotificationTemplateListCompleteView.as_view(), name='url_notificationtemplate_list'),
+    url(r'^(?P<group_name>[\w-]+)/notifications/templates/(?P<pk>\d+)/update/$',
+        NotificationTemplateUpdateView.as_view(), name='url_notificationtemplate_change'),
+    url(r'^(?P<group_name>[\w-]+)/notifications/templates/create/$',
+        NotificationTemplateCreateView.as_view(), name='url_notificationtemplate_create'),
+
     url(r'^(?P<group_name>[\w-]+)/(?P<shop_name>[\w-]+)/selfsale/$',
         SelfSaleShopModuleInterface.as_view(),
         name='url_module_selfsale'),
@@ -157,8 +181,6 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/self/bank_accounts/(?P<pk>\d+)/delete/$',
         SelfBankAccountDelete.as_view(),
         name='url_self_bankaccount_delete'),
-
-
 
     url(r'^supply/lydia/self/$', SupplyLydiaSelfView.as_view(), name='url_supply_lydia_self'),
     url(r'^supply/lydia/self/confirm$', SupplyLydiaSelfConfirmView.as_view(), name='url_supply_lydia_self_confirm'),

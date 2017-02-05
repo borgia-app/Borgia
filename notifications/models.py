@@ -1,6 +1,5 @@
 #-*- coding: utf-8 -*-
 from django.db import models, IntegrityError
-from django.db.models import Q
 from django.db.models import Model
 from contrib.models import TimeStampedDescription
 from django.utils.timezone import now
@@ -10,17 +9,18 @@ from django.contrib import messages
 from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group, Permission
 from django import template
+from lxml import etree
+
+from django.utils.html import conditional_escape
 
 from users.models import User
-
-# Table d'archivage des notifications?
 
 # Modèle notifications (stocke les notifications générées par ailleurs)
 
 
 class Notification(models.Model):
     """
-    Notifications est la table qui stocke les notifications des users.
+    Table des notifications.
     """
 
     # TODO : sécu, auth
@@ -31,6 +31,10 @@ class Notification(models.Model):
     # TODO : se vide automatiquement
     # TODO : notifications de masse
 
+    class Meta:
+        default_permissions = (
+            'list',
+        )
     # Attributs
 
     # Catégorie : catégorie de la notification (admin, argent, etc)
@@ -62,8 +66,8 @@ class Notification(models.Model):
     actor_id = models.PositiveIntegerField()
     actor_object = GenericForeignKey('actor_type', 'actor_id')
 
-    # verb : phrase verbale qui décrit l'action réalisée.
-    verb = models.TextField()
+    # notification_template : template xml qui va permettre de générer la notification
+    notification_template = models.ForeignKey('NotificationTemplate', blank=True, null=True, on_delete=models.CASCADE)
 
     # target_user : user cible de la notification, chez qui elle sera affichée
     target_user = models.ForeignKey('users.User', related_name='notification_target_user', on_delete=models.CASCADE)
@@ -91,6 +95,10 @@ class Notification(models.Model):
 
 
 class NotificationClass(models.Model):
+    """
+    Table des classes de notifications. Une classe correspond à une action (exemple: création user) et fait référence à
+    un ou plusieurs templates créés pour des publics différents.
+    """
     name = models.CharField(max_length=255, unique=True)
     description = models.TextField()
     creation_datetime = models.DateTimeField(auto_now_add=True)
@@ -101,16 +109,20 @@ class NotificationClass(models.Model):
 
 
 class NotificationTemplate(models.Model):
+    """
+    Table des templates de notification. Un template se présente sous la forme de texte xml éditable par l'utilisateur,
+    à l'aide de balises dédiées.
+    """
     notification_class = models.ForeignKey('NotificationClass',
     on_delete=models.CASCADE)
     message = models.TextField(blank=True, null=True)
 
     class Meta:
-        permissions = (
-            ('notification_templates_manage', 'Gérer les template de notification'),
-            ("get_president_notifications", "Peut recevoir les notifications destinées aux présidents"),
-            ("get_vice-president_notifications", "Peut recevoir les notifications destinées aux vices-présidents"),
-            ("get_treasurer_notifications", "Peut recevoir les notifications destinées aux trésoriers"),
+        default_permissions = (
+            'list',
+            'add',
+            'change',
+            'delete',
         )
 
     TARGET_USERS_CHOICES = (
@@ -281,7 +293,7 @@ def create_notification(request, notification_templates, action_medium, target_o
                                             type=notification_template.type,
                                             actor_id=request.user.pk,
                                             actor_type=ContentType.objects.get(app_label='users', model='user'),
-                                            verb=notification_template.message,
+                                            notification_template=notification_template,
                                             target_user=target_user,
                                             action_medium_id=action_medium_id,
                                             action_medium_type=action_medium_type,
@@ -298,7 +310,8 @@ def get_unread_notifications_for_user(request):
     :return: un str vide pour ne pas altérer le html
     """
     try:
-        notifications_for_user = Notification.objects.filter(target_user=request.user,  read_date=None) # Filtre la table de notification à la recherche des notifications qui concernent l'utilisateur et qui n'ont pas été affichées
+        notifications_for_user = Notification.objects.filter(target_user=request.user,
+                                                             read_date=None) # Filtre la table de notification à la recherche des notifications qui concernent l'utilisateur et qui n'ont pas été affichées
 
         if notifications_for_user:  # Si la liste n'est pas vide...
             for e in notifications_for_user:
@@ -335,9 +348,11 @@ def get_unread_notifications_for_user(request):
                                      template.Template(
                                          "Le " + str(e.creation_datetime.day) + '/' + str(e.creation_datetime.month) +
                                          '/' + str(e.creation_datetime.year) + ' à ' + str(e.creation_datetime.hour) +
-                                         ':' + str(e.creation_datetime.minute) + "\n" + e.verb).render(
-                                         template.Context({'recipient': e.action_medium_object,
-                                                          'object': e.action_medium_object})),
+                                         ':' + str(e.creation_datetime.minute) + "\n" +
+                                         template_rendering_engine(NotificationTemplate.objects.get(
+                                             pk=e.notification_template.pk).message)).render(template.Context({'recipient': e.action_medium_object,
+                                                                          'object': e.action_medium_object,
+                                                                          'actor': e.actor_object})),
                                      extra_tags=e.pk)
 
                 # Prise en compte de l'affichage de la notification pour utilisation ultérieure
@@ -350,10 +365,6 @@ def get_unread_notifications_for_user(request):
 
     return ""  # Nécessaire sinon retourne un beau none dans le html
 
-# Centralisation des méthodes de notification
-
-# Application Shops
-
 
 def determine_notification_category(product):
 
@@ -365,3 +376,80 @@ def determine_notification_category(product):
         category = 'OTHER'
 
     return category
+
+
+def xml_parser(node, parsed_xml=""):
+    """
+    Lit un noeud xml généré par minidom et remplace les balises reconnues par des balises html. Le reste du texte est
+    échappé par sécurité.
+    :param node:
+    :param parsed_xml:
+    :return:
+    """
+    tag_dictionary = {'bold': ('<strong>', '</strong>'),
+                      'actor': ('<a href="{% url "url_user_retrieve" pk=actor.pk group_name=group_name %}">{{actor}}</a>', ''),
+                      '#text': ('', ''),
+                      'bcode': ('<div class="bcode">', '</div>')}
+
+    # Si parsed_xml est vide, il n'existe pas de texte à insérer et il faut récupérer la valeur de la balise
+    if not parsed_xml:
+        if node.text is None:
+            text = ""
+        else:
+            text = conditional_escape(node.text)
+        if node.tail is None:
+            tail = ""
+        else:
+            tail = conditional_escape(node.tail)
+    else:
+        text = parsed_xml
+        tail = ""
+
+    # Reconnaissance des balises et remplacement
+    try:
+        html_result = tag_dictionary[node.tag][0] + text + tag_dictionary[node.tag][1] + tail
+    except KeyError:
+        html_result = conditional_escape(etree.tostring(node))
+
+    return html_result
+
+
+def recursive_parser(tree):
+    """
+    Fonction récursive qui permet de lire l'ensemble de l'arbre xml généré par lxml
+    :param tree: Arbre xml
+    :return:
+    """
+    parsed_xml = ""
+
+    # tree.iter() construit un itérateur qui renvoit une liste des noeuds de l'arbre (les plus profonds en premier)
+    for node in tree.iter():
+        parsed_xml += xml_parser(node)
+
+    return xml_parser(tree, parsed_xml)
+
+
+def template_xml_tree_builder(xml_body):
+    """
+    Construit l'arbre xml associé au template d'une notificatipn grâce à lxml
+    :param xml_body:
+    :return:
+    """
+    # Ajout d'une une balise d'encadrement bcode qui générera une div bcode dans le html pour un éventuel traitement
+    xml_header = "<bcode>"
+    xml_footer = "</bcode>"
+    xml_template = xml_header + xml_body + xml_footer
+
+    return etree.fromstring(xml_template, parser=etree.XMLParser(recover=True))
+
+
+def template_rendering_engine(xml_body):
+    """
+    Génère le code html associé à un template xml
+    :param xml_body:
+    :return:
+    """
+    xml_tree = template_xml_tree_builder(xml_body)
+
+    return recursive_parser(xml_tree)
+

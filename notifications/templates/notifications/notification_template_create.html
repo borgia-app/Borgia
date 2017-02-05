@@ -1,9 +1,17 @@
-{% extends 'base.html' %}
-{% load users_extra %}
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
 
 {% block content %}
-<form action="" method="post">{% csrf_token %}
-    {{ form.as_p }}
-    <input type="submit" value="Update" />
-</form>
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Ajout d'un template
+    </div>
+    <div class="panel-body">
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <button class="btn btn-success" type="submit">Ajouter</button>
+        </form>
+    </div>
+</div>
 {% endblock %}

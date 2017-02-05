@@ -1,4 +1,4 @@
-{% extends 'base.html' %}
+{% extends 'base_sober.html' %}
 {% load users_extra %}
 
 {% block content %}
@@ -6,9 +6,13 @@
     <a href="create/">Ajouter un nouveau template.</a>
 </div>
 {% if page %}
-   <div class="container">
-        <input type=hidden name="order_by" value="{{ order_by }}" />
-        <table id="notifications-list">
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Templates
+  </div>
+    <input type=hidden name="order_by" value="{{ order_by }}" />
+    <table class="table table-hover table-striped">
+        <thead>
             <tr>
                 <th>Id</th>
                 <th>Notification class</th>
@@ -20,20 +24,23 @@
                 <th>Modification</th>
                 <th>Ajouter un nouveau template pour la même classe</th>
             </tr>
+        </thead>
+        <tbody>
             {% for e in page %}
-                <tr>
-                    <td>{{ e.pk }}</td>
-                    <td>{{ e.notification_class.name}}</td>
-                    <td>{{ e.message}}</td>
-                    <td>{{ e.target_users }}</td>
-                    <td>{{ e.type }}</td>
-                    <td>{{ e.category }}</td>
-                    <td>{{ e.is_activated }}</td>
-                    <td><a href="update/{{ e.pk }}">Modifier</a></td>
-                    <td><a href="create/?notification_class={{ e.notification_class.name }}">Add</a> </td>
-                </tr>
+            <tr>
+                <td>{{ e.pk }}</td>
+                <td>{{ e.notification_class.name}}</td>
+                <td>{{ view.template_rendering_engine|safe}}</td>
+                <td>{{ e.target_users }}</td>
+                <td>{{ e.type }}</td>
+                <td>{{ e.category }}</td>
+                <td>{{ e.is_activated }}</td>
+                <td><a href="{{ e.pk }}/update/">Modifier</a></td>
+                <td><a href="create/?notification_class={{ e.notification_class.name }}">Add</a> </td>
+            </tr>
             {% endfor %}
-        </table>
+        </tbody>
+    </table>
 {% endif %}
 {% if page.has_other_pages %}
    </div>

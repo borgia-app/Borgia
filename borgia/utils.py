@@ -1,5 +1,6 @@
 from django.contrib.auth.models import Group, Permission
 from users.models import User
+from notifications.models import Notification, NotificationTemplate
 from shops.models import ProductBase, Shop
 from django.views.generic.base import ContextMixin
 from django.core.urlresolvers import reverse
@@ -20,7 +21,10 @@ def lateral_menu(user, group, active=None):
     # TODO: try for reverse urls
 
     models_checked = [
-        User, Shop
+        User,
+        Shop,
+        Notification,
+        NotificationTemplate,
     ]
 
     nav_tree = []
