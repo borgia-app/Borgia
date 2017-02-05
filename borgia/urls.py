@@ -2,7 +2,10 @@ from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import logout, login, password_reset, password_reset_complete, password_reset_confirm,\
     password_change, password_change_done, password_reset_done
-from borgia.views import page_clean, jsi18n_catalog, TestBootstrapSober, GroupWorkboard, get_list_model, get_unique_model
+from borgia.views import (
+    page_clean, jsi18n_catalog, TestBootstrapSober, GroupWorkboard,
+    get_list_model, get_unique_model, handler403, handler404, handler500
+    )
 from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import TemplateView
@@ -12,10 +15,14 @@ from users.views import *
 from shops.views import (
     ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
     ProductUpdate, PurchaseFoyer, ShopCreate, ShopList
-)
+    )
 from shops.models import ProductBase, ProductUnit
 from finances.views import *
 from modules.views import *
+
+handler403 = handler403
+handler404 = handler404
+handler500 = handler500
 
 urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/$',

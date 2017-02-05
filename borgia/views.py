@@ -1,4 +1,3 @@
-#-*- coding: utf-8 -*-
 from django.views.generic import FormView, TemplateView, View
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import login, authenticate, logout
@@ -23,43 +22,106 @@ from users.views import UserListView
 
 def jsi18n_catalog(request):
     """
-    Render le js nécessaire à la jsi18n utilisé dans certains widgets venant de l'app admin
+    Render le js nécessaire à la jsi18n utilisé dans certains widgets venant
+    de l'app admin
     Par exemple: FilteredSelectMultiple
     """
     return render(request, 'jsi18n.html')
 
+
+def handler403(request):
+    context = {}
+    try:
+        group_name = request.path.split('/')[1]
+        context['group'] = Group.objects.get(name=group_name)
+        context['group_name'] = group_name
+    except IndexError:
+        pass
+    except ObjectDoesNotExist:
+        pass
+    response = render(
+        request,
+        '403.html',
+        context=context)
+    response.status_code = 403
+    return response
+
+
+def handler404(request):
+    context = {}
+    try:
+        group_name = request.path.split('/')[1]
+        context['group'] = Group.objects.get(name=group_name)
+        context['group_name'] = group_name
+    except IndexError:
+        pass
+    except ObjectDoesNotExist:
+        pass
+    response = render(
+        request,
+        '404.html',
+        context=context)
+    response.status_code = 404
+    return response
+
+
+def handler500(request):
+    context = {}
+    try:
+        group_name = request.path.split('/')[1]
+        context['group'] = Group.objects.get(name=group_name)
+        context['group_name'] = group_name
+    except IndexError:
+        pass
+    except ObjectDoesNotExist:
+        pass
+    response = render(
+        request,
+        '500.html',
+        context=context)
+    response.status_code = 500
+    return response
+
+
 def page_clean(request, template_name):
     return render(request, 'page_clean.html')
 
+
 def get_list_model(request, model, search_in, props=None):
     """
-    Permet de sérialiser en JSON les instances de modèle. Il est possible de donner des paramtères GET à cette fonction pour moduler
+    Permet de sérialiser en JSON les instances de modèle. Il est possible de
+    donner des paramtères GET à cette fonction pour moduler
     la liste obtenue, plutôt que de faire un traitement en JS.
     Ne renvoie par les informations sensibles comme is_superuser ou password.
 
     :param model: Model dont on veut lister les instances
     :type model: héritée de models.Model
-    :param search_in: paramètres dans lesquels le paramètre GET search sera recherché
+    :param search_in: paramètres dans lesquels le paramètre GET search sera
+    recherché
     :type search_in: liste de chaînes de caractères
-    :param props: méthodes du model à envoyer dans la sérialisation en supplément
+    :param props: méthodes du model à envoyer dans la sérialisation en
+    supplément
     :type props: liste de chaînes de caractères de nom de méthodes de model
-    :param request.GET : chaîne de caractère qui doit représenter une recherche filter dans un des champs de model
+    :param request.GET : chaîne de caractère qui doit représenter une
+    recherche filter dans un des champs de model
     :type request.GET : doit être dans les champs de model
-    Les paramètres spéciaux sont order_by pour trier et search pour chercher dans search_in
-
-    :return HttpResponse(data): liste des instances de model sérialisé en JSON, modulée par les parametres
+    Les paramètres spéciaux sont order_by pour trier et search pour chercher
+    dans search_in
+    :return HttpResponse(data): liste des instances de model sérialisé
+    en JSON, modulée par les parametres
 
     Exemple :
     model = User
     search_in = ['username', 'last_name', 'first_name']
     request.GET = { 'family': '101-99', 'order_by': 'year' }
-    renverra la liste des users dont la famille est 101-99 en les triant par année
+    renverra la liste des users dont la famille est 101-99
+    en les triant par année
     """
 
     # Liste des filtres
     kwargs_filter = {}
     for param in request.GET:
-        if param not in ['order_by', 'reverse', 'search'] :
+        if param not in ['order_by', 'reverse', 'search']:
             if param in [f.name for f in model._meta.get_fields()]:
                 # Traitement spécifique pour les booléens envoyés en GET
                 if request.GET[param] in ['True', 'true', 'False', 'false']:
@@ -73,7 +135,10 @@ def get_list_model(request, model, search_in, props=None):
 
     # Recherche si précisée
     try:
-        args_search = reduce(lambda q, where: q | Q(**{where + '__startswith': request.GET['search']}), search_in, Q())
+        args_search = reduce(
+            lambda q, where: q | Q(
+                **{where + '__startswith': request.GET['search']}), search_in,
+            Q())
         query = query.filter(args_search).distinct()
     except KeyError:
         pass
@@ -83,10 +148,11 @@ def get_list_model(request, model, search_in, props=None):
 
         data_serialise = serialize('json', query)
 
-    else: # Cas User traité à part car contient des fields sensibles
+    else:  # Cas User traité à part car contient des fields sensibles
 
         # Suppression des users spéciaux
-        query = query.exclude(Q(groups=Group.objects.get(pk=9)) | Q(username='admin'))
+        query = query.exclude(
+            Q(groups=Group.objects.get(pk=1)) | Q(username='admin'))
 
         # Sérialisation
         allowed_fields = [f.name for f in User._meta.get_fields()]
@@ -115,13 +181,20 @@ def get_list_model(request, model, search_in, props=None):
         else:
             reverse = False
         # Trie par la valeur d'un field
-        if request.GET['order_by'] in [f.name for f in model._meta.get_fields()]:
-            data_load = sorted(data_load, key=lambda obj: obj['fields'][request.GET['order_by']], reverse=reverse)
+        if (request.GET['order_by']
+                in [f.name for f in model._meta.get_fields()]):
+            data_load = sorted(
+                data_load,
+                key=lambda obj: obj['fields'][request.GET['order_by']],
+                reverse=reverse)
         # Trie par la valeur d'une méthode
         else:
-            data_load = sorted(data_load,
-                               key=lambda obj: getattr(model.objects.get(pk=obj['pk']), request.GET['order_by'])(),
-                               reverse=reverse)
+            data_load = sorted(
+                data_load,
+                key=lambda obj: getattr(
+                    model.objects.get(pk=obj['pk']),
+                    request.GET['order_by'])(),
+                reverse=reverse)
     except KeyError:
         pass
 
@@ -130,7 +203,8 @@ def get_list_model(request, model, search_in, props=None):
 
     # End et begin
     try:
-        data_load = data_load[int(request.GET['begin']):int(request.GET['end'])]
+        data_load = data_load[int(request.GET[
+            'begin']):int(request.GET['end'])]
     except KeyError or AttributeError:
         pass
 
@@ -143,10 +217,12 @@ def get_list_model(request, model, search_in, props=None):
     data = json.dumps(data_load)
     return HttpResponse(data)
 
+
 def get_unique_model(request, pk, model, props=None):
     """
     Permet de sérialiser en JSON une instance spécifique pk=pk de model.
-    Ne renvoie par les informations sensibles comme is_superuser ou password dans le cas d'un User.
+    Ne renvoie par les informations sensibles comme is_superuser ou password
+    dans le cas d'un User.
 
     :param model: Model dont on veut lister les instances
     :type model: héritée de models.Model
@@ -161,12 +237,15 @@ def get_unique_model(request, pk, model, props=None):
     renverra le json de l'user pk=3
 
     Remarque :
-    serialise envoie une liste sérialisé, pour récupérer en js il ne faut pas faire data car c'est une liste, mais bien
-    data[0]. Il n'y aura toujours que 1 élément dans cette liste car générée par un objects.get()
+    serialise envoie une liste sérialisé, pour récupérer en js il ne faut
+    pas faire data car c'est une liste, mais bien
+    data[0]. Il n'y aura toujours que 1 élément dans cette liste car
+    générée par un objects.get()
     """
 
     try:
-        # On traite le cas particulier de User à part car des informations sont sensibles
+        # On traite le cas particulier de User à part car des informations
+        # sont sensibles
         if model is not User:
 
             # Sérialisation
@@ -179,7 +258,8 @@ def get_unique_model(request, pk, model, props=None):
             for e in ['password', 'is_superuser', 'is_staff', 'last_login']:
                 allowed_fields.remove(e)
 
-            data_serialise = serialize('json', [User.objects.get(pk=pk), ], fields=allowed_fields)
+            data_serialise = serialize('json', [User.objects.get(pk=pk), ],
+                                       fields=allowed_fields)
             data_load = json.loads(data_serialise)
 
             if props:
@@ -187,7 +267,8 @@ def get_unique_model(request, pk, model, props=None):
                     props_dict = {}
                     for p in props:
                         try:
-                            props_dict[p] = getattr(model.objects.get(pk=e['pk']), p)()
+                            props_dict[p] = getattr(
+                                model.objects.get(pk=e['pk']), p)()
                         except:
                             pass
                     data_load[i]['props'] = props_dict
@@ -261,10 +342,12 @@ class GroupWorkboard(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        if Permission.objects.get(codename='list_user') in self.group.permissions.all():
+        if (Permission.objects.get(codename='list_user')
+                in self.group.permissions.all()):
             context['user_search_form'] = UserSearchForm()
             context['module_search_user'] = True
-        if Permission.objects.get(codename='list_sale') in self.group.permissions.all():
+        if (Permission.objects.get(codename='list_sale')
+                in self.group.permissions.all()):
             try:
                 shop = shop_from_group(self.group)
                 context['sale_list'] = Sale.objects.filter(
