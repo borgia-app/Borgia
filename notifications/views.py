@@ -83,7 +83,10 @@ class NotificationTemplateListCompleteView(GroupPermissionMixin, ListCompleteVie
     # Définit la méthode de rendu du template qui sera accessible dans le template avec view
     def template_rendering_engine(self):
         for e in self.query:
-            return template_rendering_engine(e.message)
+            return Template(template_rendering_engine(e.message)).render(template.Context({
+                'group_name': self.kwargs['group_name'],
+                'actor': self.request.user,
+            }))
 
 
 class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLateralMenuFormMixin):
