@@ -21,10 +21,10 @@ def lateral_menu(user, group, active=None):
     # TODO: try for reverse urls
 
     models_checked = [
-        User,
-        Shop,
-        Notification,
-        NotificationTemplate,
+        (User, 'Utilisateurs'),
+        (Shop, 'Magasins'),
+        (Notification, 'Notifications'),
+        (NotificationTemplate, 'Templates notification'),
     ]
 
     nav_tree = []
@@ -240,24 +240,24 @@ def lateral_menu_model(model, group, faIcon='database'):
     :type faIcon: string
     """
     model_tree = {
-        'label': model._meta.model_name.capitalize(),
+        'label': model[1],
         'icon': faIcon,
-        'id': 'lm_' + model._meta.model_name,
+        'id': 'lm_' + model[0]._meta.model_name,
         'subs': []
     }
 
     add_permission = Permission.objects.get(
-        codename='add_' + model._meta.model_name)
+        codename='add_' + model[0]._meta.model_name)
     list_permission = Permission.objects.get(
-        codename='list_' + model._meta.model_name)
+        codename='list_' + model[0]._meta.model_name)
 
     if add_permission in group.permissions.all():
         model_tree['subs'].append({
             'label': 'Nouveau',
             'icon': 'plus',
-            'id': 'lm_' + model._meta.model_name + '_create',
+            'id': 'lm_' + model[0]._meta.model_name + '_create',
             'url': reverse(
-                'url_' + model._meta.model_name + '_create',
+                'url_' + model[0]._meta.model_name + '_create',
                 kwargs={'group_name': group.name})
         })
 
@@ -265,9 +265,9 @@ def lateral_menu_model(model, group, faIcon='database'):
         model_tree['subs'].append({
             'label': 'Liste',
             'icon': 'list',
-            'id': 'lm_' + model._meta.model_name + '_list',
+            'id': 'lm_' + model[0]._meta.model_name + '_list',
             'url': reverse(
-                'url_' + model._meta.model_name + '_list',
+                'url_' + model[0]._meta.model_name + '_list',
                 kwargs={'group_name': group.name})
         })
 
