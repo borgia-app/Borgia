@@ -373,11 +373,6 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial['search'] = self.search
         return initial
 
-# TODO: obsolète
-def profile_view(request):
-    add_to_breadcrumbs(request, 'Profil')
-    return render(request, 'users/profile.html', locals())
-
 
 def username_from_username_part(request):
     data = []

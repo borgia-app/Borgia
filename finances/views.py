@@ -57,6 +57,37 @@ class UserBankAccountCreate(GroupPermissionMixin, UserMixin, FormView,
         return super(UserBankAccountCreate, self).form_valid(form)
 
 
+class SelfBankAccountCreate(GroupPermissionMixin, FormView,
+                            GroupLateralMenuFormMixin):
+    """
+    View to create a bank account for the logged user.
+
+    :param kwargs['group_name']: name of the group, mandatory
+    :type kwargs['group_name']: string
+    :raises: Http404 if the group_name doesn't match a group
+    :raises: Http404 if the logged user is not in the group
+    """
+    template_name = 'finances/self_bankaccount_create.html'
+    perm_codename = None
+    lm_active = None
+    form_class = BankAccountCreateForm
+
+    def form_valid(self, form):
+        """
+        Create a bank account for the logged user.
+        """
+        BankAccount.objects.create(
+            bank=form.cleaned_data['bank'],
+            account=form.cleaned_data['account'],
+            owner=self.request.user
+        )
+        self.success_url = reverse(
+            'url_self_user_update',
+            kwargs={'group_name': self.group.name}
+        )
+        return super(SelfBankAccountCreate, self).form_valid(form)
+
+
 class UserBankAccountUpdate(GroupPermissionMixin, UserMixin, FormView,
                             GroupLateralMenuFormMixin):
     """
@@ -102,16 +133,70 @@ class UserBankAccountUpdate(GroupPermissionMixin, UserMixin, FormView,
 
     def get_initial(self):
         initial = super(UserBankAccountUpdate, self).get_initial()
-        for k in BankAccountUpdateForm().fields.keys():
-            initial[k] = getattr(self.object, k)
+        initial['bank'] = self.object.bank
+        initial['account'] = self.object.account
         return initial
 
     def form_valid(self, form):
-        for k in form.fields.keys():
-            if form.cleaned_data[k] != getattr(self.object, k):
-                setattr(self.object, k, form.cleaned_data[k])
+        self.object.bank = form.cleaned_data['bank']
+        self.object.account = form.cleaned_data['account']
         self.object.save()
         return super(UserBankAccountUpdate, self).form_valid(form)
+
+
+class SelfBankAccountUpdate(GroupPermissionMixin, FormView,
+                            GroupLateralMenuFormMixin):
+    """
+    View to update a bank account for the logged user.
+
+    :param kwargs['group_name']: name of the group, mandatory
+    :param kwargs['pk']: pk of the bankaccount, mandatory
+    :type kwargs['group_name']: string
+    :type kwargs['pk']: positiv integer
+    :raises: Http404 if the group_name doesn't match a group
+    :raises: Http404 if the pk doesn't match a bank account
+    :raises: PermissionDenied if the bank account is not owned by the user
+    """
+    template_name = 'finances/self_bankaccount_update.html'
+    perm_codename = None
+    lm_active = None
+    form_class = BankAccountUpdateForm
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Check if the bank account is owned by the logged user.
+
+        :raises: PermissionDenied if not.
+        """
+        try:
+            self.object = BankAccount.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+        if self.object.owner != request.user:
+            raise PermissionDenied
+        return super(SelfBankAccountUpdate, self).dispatch(
+            request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SelfBankAccountUpdate, self).get_context_data(**kwargs)
+        context['object'] = self.object
+        return context
+
+    def get_initial(self):
+        initial = super(SelfBankAccountUpdate, self).get_initial()
+        initial['bank'] = self.object.bank
+        initial['account'] = self.object.account
+        return initial
+
+    def form_valid(self, form):
+        self.object.bank = form.cleaned_data['bank']
+        self.object.account = form.cleaned_data['account']
+        self.object.save()
+        self.success_url = reverse(
+            'url_self_user_update',
+            kwargs={'group_name': self.group.name}
+        )
+        return super(SelfBankAccountUpdate, self).form_valid(form)
 
 
 class UserBankAccountDelete(GroupPermissionMixin, UserMixin, View,
@@ -159,6 +244,50 @@ class UserBankAccountDelete(GroupPermissionMixin, UserMixin, View,
     def post(self, request, *args, **kwargs):
         self.object.delete()
         return redirect(force_text(self.success_url))
+
+
+class SelfBankAccountDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    View to delete a bank account for the logged user.
+
+    :param kwargs['group_name']: name of the group, mandatory
+    :param kwargs['pk']: pk of the bankaccount, mandatory
+    :type kwargs['group_name']: string
+    :type kwargs['pk']: positiv integer
+    :raises: Http404 if the group_name doesn't match a group
+    :raises: Http404 if the pk doesn't match a bank account
+    :raises: PermissionDenied if the bank account is not owned by the logged
+    user
+    """
+    template_name = 'finances/self_bankaccount_delete.html'
+    perm_codename = None
+    lm_active = None
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Check if the bank account is owned by the logged user.
+
+        :raises: PermissionDenied if not.
+        """
+        try:
+            self.object = BankAccount.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+        if self.object.owner != request.user:
+            raise PermissionDenied
+        return super(SelfBankAccountDelete, self).dispatch(
+            request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['object'] = self.object
+        return render(request, self.template_name, context=context)
+
+    def post(self, request, *args, **kwargs):
+        self.object.delete()
+        return redirect(reverse(
+            'url_self_user_update',
+            kwargs={'group_name': self.group.name}))
 
 
 class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):

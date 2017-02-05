@@ -141,6 +141,15 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/users/self/$',
         SelfUserUpdate.as_view(),
         name='url_self_user_update'),
+    url(r'^(?P<group_name>[\w-]+)/self/bank_accounts/create/$',
+        SelfBankAccountCreate.as_view(),
+        name='url_self_bankaccount_create'),
+    url(r'^(?P<group_name>[\w-]+)/self/bank_accounts/(?P<pk>\d+)/update/$',
+        SelfBankAccountUpdate.as_view(),
+        name='url_self_bankaccount_update'),
+    url(r'^(?P<group_name>[\w-]+)/self/bank_accounts/(?P<pk>\d+)/delete/$',
+        SelfBankAccountDelete.as_view(),
+        name='url_self_bankaccount_delete'),
 
 
 
