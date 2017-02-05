@@ -133,9 +133,9 @@
     $("#total").text(total.toFixed(2))
     $("#result").text((Number($("#initial").text()) - total.toFixed(2)).toFixed(2))
     if (Number($("#result").text()) < 0) {
-      $("#result").attr("class", "col-md-4 text-danger bg-danger")
+      $("#result").attr("class", "col-md-4 bg-danger")
     } else if (Number($("#result").text()) > 0) {
-      $("#result").attr("class", "col-md-4 text-success bg-success")
+      $("#result").attr("class", "col-md-4 bg-success")
     } else {
       $("#result").attr("class", 'col-md-4')
     }
