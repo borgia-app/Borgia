@@ -49,9 +49,15 @@ def lateral_menu(user, group, active=None):
             nav_tree.append(lateral_menu_model(model, group))
 
     # Groups management
+    nav_management_groups = {
+        'label': 'Gestion des groupes',
+        'icon': 'users',
+        'id': 'lm_group_management',
+        'subs': []
+    }
     for g in Group.objects.all():
         if permission_to_manage_group(g)[0] in group.permissions.all():
-            nav_tree.append(simple_lateral_link(
+            nav_management_groups['subs'].append(simple_lateral_link(
                 'Gestion ' + group_name_display(g),
                 'users',
                 'lm_group_manage_' + g.name,
@@ -59,6 +65,12 @@ def lateral_menu(user, group, active=None):
                     'group_name': group.name,
                     'pk': g.pk})
             ))
+    if len(nav_management_groups['subs']) > 1:
+        nav_tree.append(nav_management_groups)
+    elif len(nav_management_groups['subs']) == 1:
+        nav_tree.append(nav_management_groups['subs'][0])
+    else:
+        pass
 
     # Functions
     # Link token to user
