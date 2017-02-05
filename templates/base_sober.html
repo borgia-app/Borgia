@@ -73,7 +73,9 @@
                             </li>
                             <li>
                               <span class="user-edition">
-                                <a style="height: 23px;" href="" title="Édition">
+                                <a style="height: 23px;"
+                                href="{% url 'url_self_user_update' group_name=group.name %}"
+                                title="Édition">
                                   <i class="fa fa-pencil" aria-hidden="true"></i>
                                 </a>
                               </span>
@@ -94,7 +96,7 @@
              <div class="col-xxs-12 navbar-collapse collapse" id="navbar-collapse-1" aria-expanded="false" style="height: 2px;">
                 <ul class="navbar-nav nav navbar-collapse-menu">
                     <li class="align-center" style="padding-top:3px; background: #000;">{{ user.surname }} {{ user.username }}</li>
-                    <li><a href="">Édition du profil</a></li>
+                    <li><a href="{% url 'url_self_user_update' group_name=group.name %}">Édition du profil</a></li>
                     <li><a href="{% url 'url_logout' %}">Déconnexion</a></li>
                 </ul>
 
