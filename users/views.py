@@ -209,65 +209,29 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-# Used in the pg mode to modify itself
-class UserUpdateView(FormView):
-    form_class = UserUpdateForm
-    template_name = 'users/update.html'
-    success_url = '/users/profile/'
-    modified = False
-
-    def get(self, request, *args, **kwargs):
-        try:
-            if int(self.kwargs['pk']) != request.user.pk:
-                raise PermissionDenied
-        except ValueError:
-            raise PermissionDenied
-
-        add_to_breadcrumbs(request, 'Modification user')
-        return super(UserUpdateView, self).get(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        kwargs = super(UserUpdateView, self).get_form_kwargs()
-        kwargs['user_modified'] = self.request.user
-        return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super(UserUpdateView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
-        return context
-
-    def get_success_url(self):
-        if self.modified is True:
-            # Notifications
-            notify(self.request, 'user_updating', self.request.user, None)
-        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
+class SelfUserUpdate(GroupPermissionMixin, FormView,
+                     GroupLateralMenuFormMixin):
+    template_name = 'users/self_user_update.html'
+    form_class = SelfUserUpdateForm
+    perm_codename = None
 
     def get_initial(self):
-        initial = super(UserUpdateView, self).get_initial()
+        initial = super(SelfUserUpdate, self).get_initial()
         initial['email'] = self.request.user.email
         initial['phone'] = self.request.user.phone
         initial['avatar'] = self.request.user.avatar
         return initial
 
     def form_valid(self, form):
-
-        if getattr(self.request.user, 'email') != form.cleaned_data['email']:
-            setattr(self.request.user, 'email', form.cleaned_data['email'])
-            self.modified = True
-        if getattr(self.request.user, 'phone') != form.cleaned_data['phone']:
-            setattr(self.request.user, 'phone', form.cleaned_data['phone'])
-            self.modified = True
-        if getattr(self.request.user, 'avatar') != form.cleaned_data['avatar']:
+        self.request.user.email = form.cleaned_data['email']
+        self.request.user.phone = form.cleaned_data['phone']
+        if form.cleaned_data['avatar'] is not False:
+            setattr(self.request.user, 'avatar', form.cleaned_data['avatar'])
+        else:
             if self.request.user.avatar:
                 self.request.user.avatar.delete(True)
-            if form.cleaned_data['avatar'] is not False:
-                setattr(self.request.user, 'avatar', form.cleaned_data['avatar'])
-            self.modified = True
-
-        if self.modified is True:
-            self.request.user.save()
-
-        return super(UserUpdateView, self).form_valid(form)
+        self.request.user.save()
+        return super(SelfUserUpdate, self).form_valid(form)
 
 
 class UserUpdateAdminView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):

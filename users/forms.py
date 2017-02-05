@@ -45,23 +45,10 @@ class UserCreationCustomForm(forms.Form):
         return data
 
 
-# unused now
-class UserUpdateForm(forms.Form):
-    email = forms.EmailField(label='Email')
-    phone = forms.CharField(label='Téléphone', required=False)
-    avatar = forms.ImageField(label='Avatar', required=False)
-
-    def __init__(self, **kwargs):
-        self.user_modified = kwargs.pop('user_modified')
-        super(UserUpdateForm, self).__init__(**kwargs)
-
-    def clean_email(self):
-        data = self.cleaned_data['email']
-        if data == '':
-            raise ValidationError('Ce champ ne peut pas être vide')
-        if User.objects.filter(email=data).exclude(pk=self.user_modified.pk).exists():
-            raise ValidationError('Un autre user existe avec cet email')
-        return data
+class SelfUserUpdateForm(forms.ModelForm):
+    class Meta:
+        model = User
+        fields = ['email', 'phone', 'avatar']
 
 
 class UserUpdateAdminForm(forms.Form):

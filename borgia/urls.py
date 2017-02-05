@@ -138,8 +138,9 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/self/transferts/create/$',
         SelfTransfertCreate.as_view(),
         name='url_self_transfert_create'),
-
-
+    url(r'^(?P<group_name>[\w-]+)/users/self/$',
+        SelfUserUpdate.as_view(),
+        name='url_self_user_update'),
 
 
 
