@@ -7,7 +7,8 @@ from borgia.models import ListCompleteView
 from notifications.forms import notiftest, NotificationTemplateUpdateViewForm
 from django.views.generic.edit import UpdateView, CreateView
 from borgia.utils import *
-from django.template import Template
+from django.template import Template, Context
+from lxml import etree
 
 # CRUD modèle notification
 
@@ -123,6 +124,27 @@ class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLate
         # Ajout au fil d'ariane
         add_to_breadcrumbs(request, 'Modification de template')
         return super(NotificationTemplateUpdateView, self).get(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(NotificationTemplateUpdateView, self).get_context_data(**kwargs)
+        context['actor'] = self.request.user
+
+        try:
+            tag_dictionary = dict()
+            allowed_tags = get_allowed_tags()
+            del (allowed_tags['#text'], allowed_tags['bcode'])
+            for tag, html in allowed_tags.items():
+                if html[1] == "":
+                    tag_dictionary[etree.tostring(etree.Element(tag))] = str(Template(html[0]).render(Context(context)))
+                else:
+                    xml_element = etree.Element(tag)
+                    xml_element.text = tag
+                    tag_dictionary[etree.tostring(xml_element)] = str(Template(html[0]+tag+html[1]).render(Context(context)))
+            context['tag_dictionary'] = tag_dictionary
+        except ObjectDoesNotExist:
+            pass
+
+        return context
 
 
 def read_notification(request):

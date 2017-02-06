@@ -2,16 +2,16 @@
 {% load bootstrap %}
 
 {% block content %}
-<div class="panel panel-default">
-    <div class="panel-heading">
-        Ajout d'un template
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Ajout d'un template
+        </div>
+        <div class="panel-body">
+            <form action="" method="post">
+                {% csrf_token %}
+                {{ form|bootstrap }}
+                <button class="btn btn-success" type="submit">Ajouter</button>
+            </form>
+        </div>
     </div>
-    <div class="panel-body">
-        <form action="" method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <button class="btn btn-success" type="submit">Ajouter</button>
-        </form>
-    </div>
-</div>
 {% endblock %}

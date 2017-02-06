@@ -386,10 +386,6 @@ def xml_parser(node, parsed_xml=""):
     :param parsed_xml:
     :return:
     """
-    tag_dictionary = {'bold': ('<strong>', '</strong>'),
-                      'actor': ('<a href="{% url "url_user_retrieve" pk=actor.pk group_name=group_name %}">{{actor}}</a>', ''),
-                      '#text': ('', ''),
-                      'bcode': ('<div class="bcode">', '</div>')}
 
     # Si parsed_xml est vide, il n'existe pas de texte à insérer et il faut récupérer la valeur de la balise
     if not parsed_xml:
@@ -407,6 +403,7 @@ def xml_parser(node, parsed_xml=""):
 
     # Reconnaissance des balises et remplacement
     try:
+        tag_dictionary = get_allowed_tags()
         html_result = tag_dictionary[node.tag][0] + text + tag_dictionary[node.tag][1] + tail
     except KeyError:
         html_result = conditional_escape(etree.tostring(node))
@@ -453,3 +450,16 @@ def template_rendering_engine(xml_body):
 
     return recursive_parser(xml_tree)
 
+
+def get_allowed_tags():
+    """
+
+    :return:
+    """
+    tag_dictionary = {'bold': ('<strong>', '</strong>'),
+                      'actor': ('<a href="{% url "url_user_retrieve" pk=actor.pk group_name=group_name %}">'
+                                '{{actor}}</a>', ''),
+                      '#text': ('', ''),
+                      'bcode': ('<div class="bcode">', '</div>')}
+
+    return tag_dictionary
