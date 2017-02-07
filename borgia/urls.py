@@ -123,21 +123,21 @@ urlpatterns = [
         name='url_module_operatorsale_config',
         kwargs={'module_class': OperatorSaleModule}),
 
-    url(r'^user/get/$', permission_required('users.list_user', raise_exception=True)
-        (get_list_model), {'model': User, 'search_in': ['username', 'last_name', 'first_name', 'family']}, name='url_get_list_user'),
-    url(r'^user/get/retrieve/(?P<pk>\d+)/$', permission_required('users.list_user', raise_exception=True)
-        (get_unique_model), {'model': User}, name='url_get_retrieve_user'),
-
     url(r'^(?P<group_name>[\w-]+)/notifications/$',
-        NotificationListCompleteView.as_view(), name='url_notification_list'),
+        NotificationListCompleteView.as_view(),
+        name='url_notification_list'),
     url(r'^(?P<group_name>[\w-]+)/notifications/read_notification/$',
-        read_notification, name='url_read_notification'),
+        read_notification,
+        name='url_read_notification'),
     url(r'^(?P<group_name>[\w-]+)/notifications/templates/$',
-        NotificationTemplateListCompleteView.as_view(), name='url_notificationtemplate_list'),
+        NotificationTemplateListCompleteView.as_view(),
+        name='url_notificationtemplate_list'),
     url(r'^(?P<group_name>[\w-]+)/notifications/templates/(?P<pk>\d+)/update/$',
-        NotificationTemplateUpdateView.as_view(), name='url_notificationtemplate_change'),
+        NotificationTemplateUpdateView.as_view(),
+        name='url_notificationtemplate_change'),
     url(r'^(?P<group_name>[\w-]+)/notifications/templates/create/$',
-        NotificationTemplateCreateView.as_view(), name='url_notificationtemplate_create'),
+        NotificationTemplateCreateView.as_view(),
+        name='url_notificationtemplate_create'),
 
     url(r'^(?P<group_name>[\w-]+)/(?P<shop_name>[\w-]+)/selfsale/$',
         SelfSaleShopModuleInterface.as_view(),
@@ -152,10 +152,6 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/shops/create/$',
         ShopCreate.as_view(),
         name='url_shop_create'),
-
-    url(r'^ajax/username_from_username_part/$',
-        username_from_username_part,
-        name='url_ajax_username_from_username_part'),
 
     url(r'^(?P<group_name>[\w-]+)/self/transferts/create/$',
         SelfTransfertCreate.as_view(),
@@ -186,25 +182,45 @@ urlpatterns = [
         self_lydia_callback,
         name='url_self_lydia_callback'),
 
+    url(r'^$',
+        login, {'template_name': 'login.html'},
+        name='url_login'),
+    url(r'^auth/login',
+        login, {'template_name': 'login.html'},
+        name='url_login'),
+    url(r'^auth/logout',
+        logout, {'template_name': 'logout.html', 'next_page': login},
+        name='url_logout'),
+
+    url(r'^auth/password_reset/$',
+        password_reset,
+        name='reset_password_reset1'),
+    url(r'^auth/password_reset/done/$',
+        password_reset_done,
+        name='password_reset_done'),
+    url(r'^auth/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$',
+        password_reset_confirm,
+        name='password_reset_confirm'),
+    url(r'^auth/done/$',
+        password_reset_complete,
+        name='password_reset_complete'),
+    url(r'^auth/password_change$',
+        password_change, {'post_change_redirect': password_change_done},
+        name='password_change'),
+    url(r'^auth/password_change_done$',
+        password_change_done),
+
+    # Test Bootstrap CSS & components
+    url('^tests/bootstrap$',
+        TestBootstrapSober.as_view()),
+
+    url(r'^ajax/username_from_username_part/$',
+        username_from_username_part,
+        name='url_ajax_username_from_username_part'),
+
     url(r'^admin/', admin.site.urls),
     url(r'^local/jsi18n$', jsi18n_catalog),
     url(r'notifications/', include('notifications.urls')),
-
-    url(r'^$', login, {'template_name': 'login.html'}, name='url_login'),  # A rediriger vers /auth/login
-    url(r'^auth/login', login, {'template_name': 'login.html'}, name='url_login'),
-    url(r'^auth/logout', logout, {'template_name': 'logout.html', 'next_page': login}, name='url_logout'),
-
-    url(r'^auth/password_reset/$', password_reset, name='reset_password_reset1'),
-    url(r'^auth/password_reset/done/$', password_reset_done, name='password_reset_done'),
-    url(r'^auth/(?P<uidb64>[0-9A-Za-z_\-]+)/(?P<token>.+)/$', password_reset_confirm,
-        name='password_reset_confirm'),
-    url(r'^auth/done/$', password_reset_complete, name='password_reset_complete'),
-
-    url(r'^auth/password_change$', password_change, {'post_change_redirect': password_change_done}, name='password_change'),
-    url(r'^auth/password_change_done$', password_change_done),
-
-    # Test Bootstrap CSS & components
-    url('^tests/bootstrap$', TestBootstrapSober.as_view()),
-
-] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)  # Cette ligne permet d'utiliser le dossier MEDIA en
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+# Cette ligne permet d'utiliser le dossier MEDIA en
 # dev (en prod c'est automatique)
