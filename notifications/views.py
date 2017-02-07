@@ -109,6 +109,32 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
         if self.request.GET.get('notification_class') is not None:
             return {'notification_class': NotificationClass.objects.get(name=self.request.GET.get('notification_class'))}
 
+    # Here we will add allowed tags to context in order to display it and help users
+    def get_context_data(self, **kwargs):
+        # First, we get the usual context thanks to super
+        context = super(NotificationTemplateCreateView, self).get_context_data(**kwargs)
+        # Next, we add variables used to render tags
+        context['actor'] = self.request.user
+
+        # Finally, we add allowed tags
+        try:
+            tag_dictionary = dict()
+            allowed_tags = get_allowed_tags()
+            del (allowed_tags['#text'], allowed_tags['bcode'])
+            for tag, html in allowed_tags.items():
+                # if html[1] = "", it means the tag is alone, like <actor/r
+                if html[1] == "":
+                    tag_dictionary[etree.tostring(etree.Element(tag))] = str(Template(html[0]).render(Context(context)))
+                else:
+                    xml_element = etree.Element(tag)
+                    xml_element.text = tag
+                    tag_dictionary[etree.tostring(xml_element)] = str(Template(html[0]+tag+html[1]).render(Context(context)))
+            context['tag_dictionary'] = tag_dictionary
+        except ObjectDoesNotExist:
+            pass
+
+        return context
+
 
 class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLateralMenuFormMixin):
     """
@@ -125,27 +151,33 @@ class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLate
         add_to_breadcrumbs(request, 'Modification de template')
         return super(NotificationTemplateUpdateView, self).get(request, *args, **kwargs)
 
+    # Here we will add allowed tags to context in order to display it and help users
     def get_context_data(self, **kwargs):
+        # First, we get the usual context thanks to super
         context = super(NotificationTemplateUpdateView, self).get_context_data(**kwargs)
+        # Next, we add variables used to render tags
         context['actor'] = self.request.user
 
+        # Finally, we add allowed tags
         try:
             tag_dictionary = dict()
             allowed_tags = get_allowed_tags()
             del (allowed_tags['#text'], allowed_tags['bcode'])
             for tag, html in allowed_tags.items():
+                # if html[1] = "", it means the tag is alone, like <actor/r
                 if html[1] == "":
-                    tag_dictionary[etree.tostring(etree.Element(tag))] = str(Template(html[0]).render(Context(context)))
+                    tag_dictionary[etree.tostring(etree.Element(tag))] = str(
+                        Template(html[0]).render(Context(context)))
                 else:
                     xml_element = etree.Element(tag)
                     xml_element.text = tag
-                    tag_dictionary[etree.tostring(xml_element)] = str(Template(html[0]+tag+html[1]).render(Context(context)))
+                    tag_dictionary[etree.tostring(xml_element)] = str(
+                        Template(html[0] + tag + html[1]).render(Context(context)))
             context['tag_dictionary'] = tag_dictionary
         except ObjectDoesNotExist:
             pass
 
         return context
-
 
 def read_notification(request):
 

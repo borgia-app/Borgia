@@ -14,4 +14,31 @@
             </form>
         </div>
     </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Règles d'édition des templates de notification
+        </div>
+        <div class="panel-body">
+            <strong>Balises autorisées</strong>
+            <table class="table table-hover table-striped">
+                <thead>
+                    <tr>
+                        <th>Balise</th>
+                        <th>Effet</th>
+                        <th>Html correspondant</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for tag, htlm in tag_dictionary.items %}
+                    <tr>
+                        <td>{{ tag }}</td>
+                        <td>{{ htlm|safe}}</td>
+                        <td>{{ htlm|escape}}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            <p>Se reporter à la documentation pour plus de détails.</p>
+        </div>
+    </div>
 {% endblock %}
