@@ -25,6 +25,7 @@ from finances.forms import *
 from finances.models import *
 from shops.models import Container, ProductBase
 from borgia.utils import *
+from settings_data.models import Setting
 
 
 class UserBankAccountCreate(GroupPermissionMixin, UserMixin, FormView,
@@ -867,7 +868,6 @@ class SelfTransactionList(GroupPermissionMixin, FormView,
         return self.get(self.request, self.args, self.kwargs)
 
 
-
 class UserExceptionnalMovementCreate(GroupPermissionMixin, UserMixin, FormView,
                                      GroupLateralMenuFormMixin):
     """
@@ -985,16 +985,21 @@ class UserSupplyMoney(GroupPermissionMixin, UserMixin, FormView,
         return initial
 
 
-class SupplyLydiaSelfView(FormView):
-    form_class = SupplyLydiaSelfForm
-    template_name = 'finances/lydia_self.html'
+class SelfLydiaCreate(GroupPermissionMixin, FormView,
+                      GroupLateralMenuFormMixin):
+    """
+    View to supply himself by Lydia.
 
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Rechargement Lydia auto')
-        return super(SupplyLydiaSelfView, self).get(request, *args, **kwargs)
+    :param kwargs['group_name']: name of the group, mandatory
+    :type kwargs['group_name']: string
+    :raises: Http404 if the group_name doesn't match a group
+    """
+    form_class = SelfLydiaCreateForm
+    template_name = 'finances/self_lydia_create.html'
+    perm_codename = None
 
     def get_form_kwargs(self):
-        kwargs = super(SupplyLydiaSelfView, self).get_form_kwargs()
+        kwargs = super(SelfLydiaCreate, self).get_form_kwargs()
         try:
             kwargs['min_value'] = Setting.objects.get(
                 name='LYDIA_MIN_PRICE').get_value()
@@ -1008,80 +1013,100 @@ class SupplyLydiaSelfView(FormView):
         return kwargs
 
     def form_valid(self, form):
+        """
+        Save the current phone number as default phone number for the user.
+        Render the Lydia button.
+        """
         user = self.request.user
         if user.phone is None:
             user.phone = form.cleaned_data['tel_number']
             user.save()
-        return get_button_lydia(self.request,
-                                form.cleaned_data['amount'],
-                                form.cleaned_data['tel_number'])
+
+        context = super(SelfLydiaCreate, self).get_context_data()
+        context['vendor_token'] = settings.LYDIA_VENDOR_TOKEN
+        context['confirm_url'] = settings.LYDIA_CONFIRM_URL
+        context['callback_url'] = settings.LYDIA_CALLBACK_URL
+        context['amount'] = form.cleaned_data['amount']
+        context['tel_number'] = form.cleaned_data['tel_number']
+        context['message'] = (
+            "Borgia - AE ENSAM - Crédit de "
+            + user.__str__())
+        return render(self.request,
+                      'finances/self_lydia_button.html',
+                      context=context)
 
     def get_initial(self):
-        initial = super(SupplyLydiaSelfView, self).get_initial()
+        initial = super(SelfLydiaCreate, self).get_initial()
         initial['tel_number'] = self.request.user.phone
         return initial
 
 
-def get_button_lydia(request, amount, tel_number):
+class SelfLydiaConfirm(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    View to confirm supply by Lydia.
 
-    vendor_token = settings.LYDIA_VENDOR_TOKEN
-    confirm_url = settings.LYDIA_CONFIRM_URL
-    callback_url = settings.LYDIA_CALLBACK_URL
+    This view is only here to have some indications for the user. It does
+    nothing more and can be "generated" with GET irelevant GET parameters.
 
-    amount = amount
-    tel_number = tel_number
-    message = (
-        "Ajout d'argent compte de"
-        + request.user.__str__()
-        + "Borgia AE ENSAM")
-    return render(request, 'finances/lydia_self_button.html', locals())
+    :note:: transaction and order parameters are given by Lydia but aren't
+    used here.
 
+    :param kwargs['group_name']: name of the group, mandatory
+    :type kwargs['group_name']: string
+    :param GET['transaction']: id of the Lydia transaction, mandatory.
+    :type GET['transaction']: string
+    :param GET['order']: id of the order from Lydia, mandatory.
+    :type GET['order']: string
+    :raises: Http404 if the group_name doesn't match a group
+    """
+    perm_codename = None
+    template_name = 'finances/self_lydia_confirm.html'
 
-class SupplyLydiaSelfConfirmView(View):
+    # TODO: check if a Lydia object exist and if it's from the current day,
+    # else raise Error
     def get(self, request, *args, **kwargs):
-        transaction = self.request.GET.get('transaction')
-        order = self.request.GET.get('order_ref')
-        return render(request, 'finances/lydia_self_confirm.html', locals())
+        context = super(SelfLydiaConfirm, self).get_context_data()
+        context['transaction'] = self.request.GET.get('transaction')
+        context['order'] = self.request.GET.get('order_ref')
+        return render(request, self.template_name, context=context)
 
 
 @csrf_exempt
-def supply_lydia_self_callback(request):
+def self_lydia_callback(request):
     """
-    Fonction qui permet de catch le callback de Lydia après un paiement
-    automatique par carte bancaire.
-    Crée une vente entre celui qui a envoyé un paiement et l'AE ENSAM.
-    C'est une vente de la catégorie 'rechargement'
-    avec comme wording 'rechargement automatique', l'opérateur est l'émetteur
-    du paiement lui-même.
-    :param user_pk: en GET. Pk correspondant à l'utilisateur qui a envoyé le
-    paiement.
-    :param currency: en POST. Sigle représentant la monnaie utilisée, ex :
-    EUR
-    :param request_id: en POST. Id de requete chez Lydia.
-    :param amount: en POST. Montant du paiement, dans la monnaie "currency"
-    :param signed: en POST. ?
-    :param transaction_identifier: en POST. Id de transaction chez Lydia.
-    :param vendor_token: en POST. Token de l'AE ENSAM publique.
-    :param sig: en POST. Signature générée par Lydia avec l'algorithme Lydia
-    :type user_pk: integer strictement positif
-    :type currency: chaîne de caractère
-    :type request_id: chaîne de caractère
-    :type amount: en POST. Montant du paiement, dans la monnaie "currency"
-    :type signed: booleen
-    :type transaction_identifier: chaîne de caractère
-    :type vendor_token: chaîne de caractère
-    :type sig: chaîne de caractère
+    Function to catch the callback from Lydia after a payment.
 
-    Remarque : même si certains paramètres ne sont pas utilisés
-    (signed, request_id), ils ne sont pas pour autant optionnels. Ils sont en
-    effet utilisés pour vérifié la signature.
+    Create all objects needed to have a proper sale in the database, and credit
+    the client.
 
-    :return:
-     Erreur 403 si la signature n'est pas la bonne.
-     300 si l'utilisateur n'existe pas dans notre base ou s'il manque un
-     paramètre.
-     200 si tout s'est bien passé : la signature est identifiée, la vente
-     créée et l'utilisateur crédité.
+    :param GET['user_pk']: pk of the client, mandatory.
+    :param POST['currency']: icon of the currency, for instance EUR, mandatory.
+    :param POST['request_id']: request id from lydia, mandatory.
+    :param POST['amount']: amount of the transaction, in 'currency', mandatory.
+    :param POST['signed']: internal to Lydia ?
+    :param POST['transaction_identifier']: transaction id from Lydia,
+    mandatory.
+    :param POST['vendor_token']: public key of the association, mandatory.
+    :param POST['sig']: signatory generated by Lydia to identify the
+    transaction, mandator.
+    :type GET['user_pk']: positiv integer
+    :type POST['currency']: string
+    :type POST['request_id: string
+    :type POST['amount']: float (decimal)
+    :type POST['signed']: boolean
+    :type POST['transaction_identifier']: string
+    :type POST['vendor_token']: string
+    :type POST['sig']: string
+
+    :note:: Even if some parameters tend to be useless (signed, request_id),
+    they are mandatory because used to generated the signatory and verify the
+    transaction.
+
+    :raises: PermissionDenied if signatory generated is not sig.
+    :returns: 300 if the user_pk doesn't match an user.
+    :returns: 300 if a parameter is missing.
+    :returns: 200 if all's good.
+    :rtype: Http request
     """
     params_dict = {
         "currency": request.POST.get("currency"),
@@ -1092,10 +1117,7 @@ def supply_lydia_self_callback(request):
         "vendor_token": request.POST.get("vendor_token"),
         "sig": request.POST.get("sig")
     }
-
-    # Verification du token
     if verify_token_algo_lydia(params_dict, settings.LYDIA_API_TOKEN) is True:
-
         try:
             sale_recharging(
                 sender=User.objects.get(pk=request.GET.get('user_pk')),
@@ -1108,39 +1130,42 @@ def supply_lydia_self_callback(request):
                     id_from_lydia=params_dict['transaction_identifier'],
                     sender=User.objects.get(pk=request.GET.get('user_pk')),
                     recipient=User.objects.get(username='AE_ENSAM'))])
-
-        except KeyError or ObjectDoesNotExist:
+        except KeyError:
             return HttpResponse('300')
-
+        except ObjectDoesNotExist:
+            return HttpResponse('300')
         return HttpResponse('200')
-
     else:
         raise PermissionDenied
 
 
 def verify_token_algo_lydia(params, token):
     """
-    Fonction qui renvoie Vrai si la requete est valide, c'est à dire si
-    l'algorithme vérifie que la signature est valide
-    C'est qu'elle est basé sur le bon algorithme, et le bon token
-    :param params: dictionnaire des param  tres avec sig dedans
-    :param token: token à comparer
+    Verify request parameters according to Lydia's algorithm.
+
+    If parameters are valid, the request is authenticated to be from Lydia and
+    can be safely used.
+    :note:: sig must be contained in the parameters dictionary.
+
+    :warning:: token is private and must never be revealed.
+
+    :param params: all parameters, including sig, mandatory.
+    :type params: python dictionary
+    :param token: token to be compared, mandatory.
+    :type token: string
+
+    :returns: True if parameters are valid, False else.
+    :rtype: Boolean
     """
-    # FONCTION TESTEE ET VALIDEE AVEC REQUESTBIN
     try:
-        # G  n  ration de l'hypoth  tique signature
         sig = params['sig']
         del params['sig']
         h_sig_table = []
-        # Trie par ordre alphab  tique des noms de param  tres
         sorted_params = sorted(params.items(), key=operator.itemgetter(0))
-        # Concat  nation des param  tres et des valeurs
         for p in sorted_params:
             h_sig_table.append(p[0] + '=' + p[1])
         h_sig = '&'.join(h_sig_table)
-        # Ajout du token api
-        h_sig += '&' + token  # Ce token est priv
-        # Hash md5
+        h_sig += '&' + token
         h_sig_hash = hashlib.md5(h_sig.encode())
         return h_sig_hash.hexdigest() == sig
 

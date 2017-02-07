@@ -1,0 +1,43 @@
+{% extends 'base_sober.html' %}
+{% load static %}
+{% load bootstrap %}
+
+{% block content %}
+<script type="text/javascript" src="{% static 'SDK_JS_JQUERY/LYDIASDK.js' %}"></script>
+
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Crédit du compte avec Lydia
+    </div>
+    <div class="panel-body">
+      <form>
+        <div class="form-group">
+          <label>Montant (€) :</label>
+          <input type="email" class="form-control" disabled="disabled" value="{{ amount }}" />
+        </div>
+        <div class="form-group">
+          <label>Numéro de téléphone </label>
+          <input type="text" class="form-control" disabled="disabled" value="{{ tel_number }}" />
+        </div>
+        <button class="btn btn-warning" href="{% url 'url_self_lydia_create' group_name=group.name %}">Modifier</button>
+      </form>
+      <div role="button" id="lydiaButton" style="margin-top: 10px"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#lydiaButton').payWithLYDIA({
+            amount: {{ amount }},
+            vendor_token: '{{ vendor_token }}',
+            recipient: '{{ tel_number }}', //cellphone or email of your client
+            message : '{{ message }}', //object of the payment
+            render : '<img src="https://lydia-app.com/assets/img/paymentbutton.png" />', //button image
+            // The client will be redirect to this URL after the payment
+            browser_success_url : "{{ confirm_url}}",
+            // This URL will be called by our server after the payment so you can update the order on your database
+            confirm_url : "{{ callback_url }}?user_pk={{ user.pk }}"
+        });
+    });
+</script>
+{% endblock %}

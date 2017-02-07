@@ -128,13 +128,6 @@ urlpatterns = [
     url(r'^user/get/retrieve/(?P<pk>\d+)/$', permission_required('users.list_user', raise_exception=True)
         (get_unique_model), {'model': User}, name='url_get_retrieve_user'),
 
-
-    url(r'^supply/lydia/self/$', SupplyLydiaSelfView.as_view(), name='url_supply_lydia_self'),
-    url(r'^supply/lydia/self/confirm$', SupplyLydiaSelfConfirmView.as_view(), name='url_supply_lydia_self_confirm'),
-    url(r'^supply/lydia/self/callback$', supply_lydia_self_callback, name='url_supply_lydia_self_callback'),
-
-    url(r'^shops/foyer/consumption/$', PurchaseFoyer.as_view(), name='url_purchase_foyer'),
-
     url(r'^(?P<group_name>[\w-]+)/notifications/$',
         NotificationListCompleteView.as_view(), name='url_notification_list'),
     url(r'^(?P<group_name>[\w-]+)/notifications/read_notification/$',
@@ -149,7 +142,6 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/(?P<shop_name>[\w-]+)/selfsale/$',
         SelfSaleShopModuleInterface.as_view(),
         name='url_module_selfsale'),
-
     url(r'^(?P<group_name>[\w-]+)/(?P<shop_name>[\w-]+)/operatorsale/$',
         OperatorSaleShopModuleInterface.as_view(),
         name='url_module_operatorsale'),
@@ -157,7 +149,6 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/shops/$',
         ShopList.as_view(),
         name='url_shop_list'),
-
     url(r'^(?P<group_name>[\w-]+)/shops/create/$',
         ShopCreate.as_view(),
         name='url_shop_create'),
@@ -185,9 +176,15 @@ urlpatterns = [
         SelfTransactionList.as_view(),
         name='url_self_transaction_list'),
 
-    url(r'^supply/lydia/self/$', SupplyLydiaSelfView.as_view(), name='url_supply_lydia_self'),
-    url(r'^supply/lydia/self/confirm$', SupplyLydiaSelfConfirmView.as_view(), name='url_supply_lydia_self_confirm'),
-    url(r'^supply/lydia/self/callback$', supply_lydia_self_callback, name='url_supply_lydia_self_callback'),
+    url(r'^(?P<group_name>[\w-]+)/self/lydias/create/$',
+        SelfLydiaCreate.as_view(),
+        name='url_self_lydia_create'),
+    url(r'^(?P<group_name>[\w-]+)/self/lydias/confirm/$',
+        SelfLydiaConfirm.as_view(),
+        name='url_self_lydia_confirm'),
+    url(r'^(?P<group_name>[\w-]+)/self/lydias/callback/$',
+        self_lydia_callback,
+        name='url_self_lydia_callback'),
 
     url(r'^admin/', admin.site.urls),
     url(r'^local/jsi18n$', jsi18n_catalog),

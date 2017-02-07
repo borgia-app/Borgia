@@ -194,54 +194,36 @@ class UserSupplyMoneyForm(forms.Form):
         return cleaned_data
 
 
-
-
-
-
-
-
-
-
-
-class TransfertCreateForm(forms.Form):
-    recipient = forms.CharField(label='Receveur', max_length=255,
-                                widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
-                                validators=[autocomplete_username_validator])
-    amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
-    justification = forms.CharField(label='Libellé', max_length=255)
-
-    def __init__(self, **kwargs):
-        self.request = kwargs.pop('request')
-        super(TransfertCreateForm, self).__init__(**kwargs)
-
-    def clean(self):
-        cleaned_data = super(TransfertCreateForm, self).clean()
-        try:
-            recipient = cleaned_data['recipient']
-            amount = cleaned_data['amount']
-
-            if User.objects.get(username=recipient) == self.request.user:
-                raise forms.ValidationError('Transfert vers soi-même impossible')
-
-            if amount > self.request.user.balance:
-                raise forms.ValidationError('Le montant doit être inférieur ou égal à ton solde.')
-        except KeyError:
-            pass
-        return cleaned_data
-
-
-class SupplyLydiaSelfForm(forms.Form):
-
+class SelfLydiaCreateForm(forms.Form):
     def __init__(self, **kwargs):
         min_value = kwargs.pop('min_value')
         max_value = kwargs.pop('max_value')
-        super(SupplyLydiaSelfForm, self).__init__(**kwargs)
-        self.fields['amount'] = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9,
-                                                   min_value=min_value,
-                                                   max_value=max_value)
-        self.fields['tel_number'] = forms.CharField(label='Numéro de téléphone',
-                                                    validators=[RegexValidator('^0[0-9]{9}$',
-                                                                              'Le numéro de téléphone doit être du type 0123456789')])
+        super(SelfLydiaCreateForm, self).__init__(**kwargs)
+        self.fields['amount'] = forms.DecimalField(
+            label='Montant (€)', decimal_places=2, max_digits=9,
+            min_value=min_value,
+            max_value=max_value)
+        self.fields['tel_number'] = forms.CharField(
+            label='Numéro de téléphone',
+            validators=[
+                RegexValidator(
+                    '^0[0-9]{9}$',
+                    'Le numéro de téléphone doit être du type 0123456789')
+                ])
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 class RetrieveMoneyForm(forms.Form):
@@ -333,8 +315,3 @@ class SharedEventManageDownloadXlsxForm(forms.Form):
 class SetPriceProductBaseForm(forms.Form):
     is_manual = forms.BooleanField(label='Gestion manuelle du prix', required=False)
     manual_price = forms.DecimalField(label='Prix manuel', decimal_places=2, max_digits=9, min_value=0, required=False)
-
-
-class BankAccountCreateOwnForm(forms.Form):
-    bank = forms.CharField(label='Banque')
-    account = forms.CharField(label='Numéro de compte')

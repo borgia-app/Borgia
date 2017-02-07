@@ -139,7 +139,8 @@ LOGIN_EXEMPT_URLS = [
     '/auth/done/',
     '/ajax/username_from_username_part/',
     '/local/jsi18n',
-    '/admin/'
+    '/admin/',
+    'self_lydia_callback',
 ]
 
 LOGIN_EXEMPT_URL_PATTERNS = []
@@ -157,9 +158,10 @@ MEDIA_URL = '/media/'
 
 # Lydia
 LYDIA_API_TOKEN = '55f18739e5409079915994'
-LYDIA_VENDOR_TOKEN = '55f18739e2c95650506777'
-LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/finances/supply/lydia/self/callback'  # https ou non selon le dns
-LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/finances/supply/lydia/self/confirm'
+LYDIA_VENDOR_TOKEN = '55f18739e2c95650506777'  # Trésorerie
+# Foyer : 57e524da19aba655147763
+LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/self/lydias/callback'  # https ou non selon le dns
+LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/self/lydias/confirm'
 
 # Penser à activer 'autoriser l'acces par les applications moins sécurisées' dans Gmail
 EMAIL_USE_TLS = True
