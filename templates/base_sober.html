@@ -156,39 +156,39 @@
       <div class="col-md-2 col-sm-2 col-xs-12">
           <ul class="list-group list_group_apps">
             <a href="{% url 'url_group_workboard' group_name=group.name %}">
-              <li class="list-group-item purplebg">
+              <li class="list-group-item lightyellow">
                 <img src="{% static 'img/house-outline.svg' %}" />
                 <h3>Accueil</h3>
               </li>
             </a>
               {% for shop in list_selfsalemodule %}
               <a href="{% url 'url_module_selfsale' group_name=group.name shop_name=shop.name %}">
-                <li class="list-group-item list-selfsalemodule">
+                <li class="list-group-item list-selfsalemodule {{ shop.color }}">
                   <img src="{% static 'img/store.svg' %}" />
                   <h3>{{ shop.name|capfirst }}</h3>
                 </li>
               </a>
               {% endfor %}
               <a href="{% url 'url_self_transfert_create' group_name=group.name %}">
-                <li class="list-group-item list-transfert">
+                <li class="list-group-item lightgreen">
                   <img src="{% static 'img/transfer.svg' %}" />
                   <h3>Transfert</h3>
                 </li>
               </a>
+              <a href="{% url 'url_self_transaction_list' group_name=group.name %}">
+                <li class="list-group-item turquoisebg">
+                  <img src="{% static 'img/history.svg' %}" />
+                  <h3>Historique</h3>
+                </li>
+              </a>
               {% if first_job %}
               <a href="{% url 'url_group_workboard' group_name=first_job.name %}">
-                <li class="list-group-item list-bouls">
+                <li class="list-group-item lightbluebg">
                   <img src="{% static 'img/lazy.svg' %}" />
                   <h3>Boul's</h3>
                 </li>
               </a>
               {% endif %}
-              <a href="{% url 'url_self_transaction_list' group_name=group.name %}">
-                <li class="list-group-item lightgreen">
-                  <img src="{% static 'img/history.svg' %}" />
-                  <h3>Historique</h3>
-                </li>
-              </a>
           </ul>
           <style>
             .list_group_apps li {
@@ -196,21 +196,6 @@
               ;
             }
           </style>
-          <script>
-          let colors = [
-            ['#f1c40f', '#f1d462'], ['#e74c3c', '#dc847b'],
-            ['#8e44ad', '#9266a5'], ['#6a93d4', '#a1b6d8'],
-            ['#34495e', '#4e5a65'], ['#2ecc71', '#79af90']
-          ]
-          $(".list-selfsalemodule").each(function(i) {
-            $(this).css("background-color", colors[i][0])
-            $(this).mouseover(function() {
-                $(this).css("background-color", colors[i][1]);
-            }).mouseout(function() {
-                $(this).css("background-color", colors[i][0]);;
-            });
-          })
-          </script>
       </div>
       <div class="col-md-10 col-sm-10 col-xs-12 offset" style="margin-top: 40px">
   {% else %}

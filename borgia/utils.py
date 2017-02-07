@@ -430,7 +430,9 @@ class GroupLateralMenuMixin(ContextMixin):
 
 
 class GroupPermissionMixin(object):
-    #perm_codename = None
+    colors = ['bluebg', 'purplebg', 'redbg', 'orangebg', 'greenbg',
+              'darkbluebg', 'lightbluebg', 'yellowbg', 'lightpinkbg', 'pinkbg',
+              'turquoisebg', 'lightyellow', 'lightgreen', 'purpledarkbg']
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -459,7 +461,7 @@ class GroupPermissionMixin(object):
             try:
                 if self.perm_codename:
                     permission = Permission.objects.get(
-                        codename = self.perm_codename)
+                        codename=self.perm_codename)
                     if permission not in group.permissions.all():
                         raise Http404
                     else:
@@ -494,10 +496,15 @@ class GroupPermissionMixin(object):
             context['first_job'] = self.request.user.groups.all().exclude(
                 pk__in=[1, 5, 6])[0]
         context['list_selfsalemodule'] = []
-        for shop in Shop.objects.all().exclude(pk=1):
+
+        for i, shop in enumerate(Shop.objects.all().exclude(pk=1)):
             try:
                 module = SelfSaleModule.objects.get(shop=shop)
                 if module.state is True:
+                    try:
+                        shop.color = self.colors[i]
+                    except KeyError:
+                        shop.color = self.colors[i-len(self.colors)]
                     context['list_selfsalemodule'].append(shop)
             except ObjectDoesNotExist:
                 pass
