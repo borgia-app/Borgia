@@ -3,6 +3,7 @@ from django import forms
 from modules.models import *
 from shops.models import ProductBase
 from users.models import User
+from django.db.utils import OperationalError
 
 
 class SelfSaleShopModule(forms.Form):
@@ -25,14 +26,17 @@ class SelfSaleShopModule(forms.Form):
 
 
 class OperatorSaleShopModule(SelfSaleShopModule):
-    client = forms.ChoiceField(
-        label='Client',
-        choices=([(None, 'Selectionner un client')] + [(str(user.pk)+'/'+str(user.balance), user.choice_string())
-                 for user in User.objects.all().exclude(groups__pk=1)]),
-        widget=forms.Select(
-            attrs={'class': 'form-control selectpicker',
-                   'data-live-search': 'True'})
-    )
+    try:
+        client = forms.ChoiceField(
+            label='Client',
+            choices=([(None, 'Selectionner un client')] + [(str(user.pk)+'/'+str(user.balance), user.choice_string())
+                     for user in User.objects.all().exclude(groups__pk=1)]),
+            widget=forms.Select(
+                attrs={'class': 'form-control selectpicker',
+                       'data-live-search': 'True'})
+        )
+    except OperationalError:
+        pass
 
 
 class ModuleCategoryForm(forms.Form):
