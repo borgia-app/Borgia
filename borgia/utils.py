@@ -239,6 +239,8 @@ def lateral_menu_model(model, group, faIcon='database'):
     :type id: string or integer
     :type faIcon: string
     """
+    print(model)
+    print(model[0]._meta.model_name)
     model_tree = {
         'label': model[1],
         'icon': faIcon,
@@ -246,30 +248,36 @@ def lateral_menu_model(model, group, faIcon='database'):
         'subs': []
     }
 
-    add_permission = Permission.objects.get(
-        codename='add_' + model[0]._meta.model_name)
-    list_permission = Permission.objects.get(
-        codename='list_' + model[0]._meta.model_name)
+    try:
+        add_permission = Permission.objects.get(
+            codename='add_' + model[0]._meta.model_name)
 
-    if add_permission in group.permissions.all():
-        model_tree['subs'].append({
-            'label': 'Nouveau',
-            'icon': 'plus',
-            'id': 'lm_' + model[0]._meta.model_name + '_create',
-            'url': reverse(
-                'url_' + model[0]._meta.model_name + '_create',
-                kwargs={'group_name': group.name})
-        })
+        if add_permission in group.permissions.all():
+            model_tree['subs'].append({
+                'label': 'Nouveau',
+                'icon': 'plus',
+                'id': 'lm_' + model[0]._meta.model_name + '_create',
+                'url': reverse(
+                    'url_' + model[0]._meta.model_name + '_create',
+                    kwargs={'group_name': group.name})
+            })
+    except ObjectDoesNotExist:
+        pass
+    try:
+        list_permission = Permission.objects.get(
+            codename='list_' + model[0]._meta.model_name)
 
-    if list_permission in group.permissions.all():
-        model_tree['subs'].append({
-            'label': 'Liste',
-            'icon': 'list',
-            'id': 'lm_' + model[0]._meta.model_name + '_list',
-            'url': reverse(
-                'url_' + model[0]._meta.model_name + '_list',
-                kwargs={'group_name': group.name})
-        })
+        if list_permission in group.permissions.all():
+            model_tree['subs'].append({
+                'label': 'Liste',
+                'icon': 'list',
+                'id': 'lm_' + model[0]._meta.model_name + '_list',
+                'url': reverse(
+                    'url_' + model[0]._meta.model_name + '_list',
+                    kwargs={'group_name': group.name})
+            })
+    except ObjectDoesNotExist:
+        pass
 
     if len(model_tree['subs']) > 0:
         return model_tree
