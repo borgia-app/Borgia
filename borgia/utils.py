@@ -239,8 +239,6 @@ def lateral_menu_model(model, group, faIcon='database'):
     :type id: string or integer
     :type faIcon: string
     """
-    print(model)
-    print(model[0]._meta.model_name)
     model_tree = {
         'label': model[1],
         'icon': faIcon,
