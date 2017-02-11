@@ -16,6 +16,13 @@
           Client
         </div>
         <div class="panel-body">
+          {% if form.non_field_errors %}
+          <div class="row">
+            <div class="form-group col-md-12 bg-danger">
+              {{ form.non_field_errors }}
+            </div>
+          </div>
+          {% endif %}
           <div class="row">
             <div class="form-group col-md-12">
               {{ form.client.errors }}

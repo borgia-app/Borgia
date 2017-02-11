@@ -16,6 +16,13 @@
           Client
         </div>
         <div class="panel-body">
+          {% if form.non_field_errors %}
+          <div class="row">
+            <div class="form-group col-md-12 bg-danger">
+              <h3 style="color: white">{{ form.non_field_errors }}</h3>
+            </div>
+          </div>
+          {% endif %}
           <div class="row">
             <div class="col-md-12" id="user">
               {{ user }}

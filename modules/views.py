@@ -174,6 +174,12 @@ class SelfSaleShopModuleInterface(SaleShopModuleInterface):
     module_class = SelfSaleModule
     perm_codename = 'use_selfsalemodule'
 
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(SelfSaleShopModuleInterface,
+                       self).get_form_kwargs(**kwargs)
+        kwargs['client'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
         self.client = self.request.user
         return super(SelfSaleShopModuleInterface, self).form_valid(form)
@@ -187,6 +193,13 @@ class OperatorSaleShopModuleInterface(SaleShopModuleInterface):
     form_class = OperatorSaleShopModule
     module_class = OperatorSaleModule
     perm_codename = 'use_operatorsalemodule'
+    lm_active = 'lm_operatorsale_interface_module'
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(OperatorSaleShopModuleInterface,
+                       self).get_form_kwargs(**kwargs)
+        kwargs['client'] = None
+        return kwargs
 
     def form_valid(self, form):
         client_pk = int(form.cleaned_data['client'].split('/')[0])

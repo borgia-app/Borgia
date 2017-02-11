@@ -210,7 +210,7 @@ def lateral_menu(user, group, active=None):
             nav_tree.append(simple_lateral_link(
                 label='Module vente',
                 faIcon='shopping-basket',
-                id='lm_operatorsale_module',
+                id='lm_operatorsale_interface_module',
                 url=reverse(
                     'url_module_operatorsale',
                     kwargs={'group_name': group.name,
