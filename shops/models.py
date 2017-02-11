@@ -40,7 +40,7 @@ class Shop(models.Model):
         :returns: name attribute
         :rtype: string
         """
-        return self.name
+        return self.name.capitalize()
 
     def list_product_base_single_product(self, status_sold="both"):
         """

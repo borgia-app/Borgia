@@ -37,7 +37,8 @@ class LoginRequiredMiddleware:
     you can copy from your urls.py).
     Requires authentication middleware and template context processors to be
     loaded. You'll get an error if they aren't.
-    Note : ajout de LOGIN_EXEMPT_URL_PATTERNS qui contient des patterns de re plus complexes
+    Note : ajout de LOGIN_EXEMPT_URL_PATTERNS qui contient des patterns de re
+    plus complexes
     """
     def process_request(self, request):
         assert hasattr(request, 'user'), "The Login Required middleware\
@@ -58,67 +59,13 @@ class LoginRequiredMiddleware:
                     return HttpResponseRedirect(settings.LOGIN_URL)
 
 
-def user_logged_in_handler(sender, request, user, **kwargs):
-    """
-    Initialisation du breadcrumbs à la connexion
-    """
-    request.session['breadcrumbs'] = []
-
-
-def user_logged_out_handler(sender, request, user, **kwargs):
-    """
-     Effacement du breadcrumbs à la deconnexion, même si on garde la session
-    """
-    request.session['breadcrumbs'] = []
-
-
-# Connection des signaux aux fonctions initialisation et suppression breadcrumbs
-user_logged_in.connect(user_logged_in_handler)
-user_logged_out.connect(user_logged_out_handler)
-
-
-def add_to_breadcrumbs(request, label):
-    """
-    Ajoute un couple (label, url) au breadcrumb.
-
-    Si on détecte que le label est déjà dans le breadcrumb, alors on ne l'ajoute pas et on se positionne sur cet url.
-    On supprime alors les breadcrumbs qui sont après.
-    Ex: Profil -> workboard X -> Profil devient Profil
-
-    Dans le cas où on boucle sur un même url, le premier est sauvegardé, pas les autres.
-    On garde de cette façon les paramètres GET utiles.
-    Ex: listx?next=blabla est sauvegardé, même si on revient sur listx sans next
-
-    La fonction ne garde que 5 breadcrumbs dans la liste
-    """
-    try:
-        breadcrumbs = request.session['breadcrumbs'][:]
-
-        # Si le lien est déjà dans le breadcrumbs, on ne l'ajoute pas mais on fait comme s'il était celui actif
-
-        in_breadcrumbs = False
-
-        for d in breadcrumbs:
-            if d[0] == label:
-                in_breadcrumbs = breadcrumbs.index(d)
-                break
-
-        if in_breadcrumbs is not False:
-            breadcrumbs = breadcrumbs[0:in_breadcrumbs+1]
-        else:
-            breadcrumbs.append([label, request.get_full_path()])
-
-        # Seulement 5 breadcrumbs
-        # Effacement par le début
-        while len(breadcrumbs) > 5:
-            del breadcrumbs[0]
-
-        request.session['breadcrumbs'] = breadcrumbs
-
-    except KeyError:
-        pass
-    except IndexError:
-        pass
+class SaveLoginUrlMiddleware():
+    def process_view(self, request, view_func, view_args, view_kwargs):
+        try:
+            if view_kwargs['save_login_url'] is True:
+                request.session['save_login_url'] = request.path
+        except KeyError:
+            pass
 
 
 class RedirectLoginProfile:

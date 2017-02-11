@@ -16,8 +16,115 @@ import operator
 
 from borgia.utils import *
 from finances.models import Sale
-from borgia.forms import UserSearchForm
+from borgia.forms import UserSearchForm, LoginForm
 from users.views import UserListView
+
+
+class Login(FormView):
+    template_name = 'login.html'
+    form_class = LoginForm
+    success_url = None
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.shop = Shop.objects.get(name=self.kwargs['shop_name'])
+            self.gadzarts = self.kwargs['gadzarts']
+        except KeyError or ObjectDoesNotExist:
+            pass
+        return super(Login, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self, **kwargs):
+        kwargs = super(Login, self).get_form_kwargs(**kwargs)
+        try:
+            if self.gadzarts:
+                kwargs['module'] = SelfSaleModule.objects.get(
+                    shop=self.shop
+                )
+            else:
+                kwargs['module'] = OperatorSaleModule.objects.get(
+                    shop=self.shop
+                )
+        except AttributeError or ObjectDoesNotExist:
+            kwargs['module'] = None
+        return kwargs
+
+    def get_success_url(self, **kwargs):
+        try:
+            self.shop = Shop.objects.get(name=self.kwargs['shop_name'])
+            self.gadzarts = self.kwargs['gadzarts']
+            if self.gadzarts:
+                self.success_url = self.to_shop_selfsale()
+            else:
+                self.success_url = self.to_shop_operatorsale()
+        except KeyError or ObjectDoesNotExist:
+            pass
+
+        if self.success_url is None:
+            self.success_url = reverse(
+                'url_group_workboard',
+                kwargs={'group_name': 'gadzarts'}
+            )
+        return super(Login, self).get_success_url(**kwargs)
+
+    def form_valid(self, form):
+        user = authenticate(
+            username=form.cleaned_data['username'],
+            password=form.cleaned_data['password']
+        )
+        login(self.request, user)
+        return super(Login, self).form_valid(form)
+
+    def to_shop_selfsale(self):
+        if (Group.objects.get(name='gadzarts')
+                in self.request.user.groups.all()):
+            return reverse(
+                'url_module_selfsale',
+                kwargs={'group_name': 'gadzarts', 'shop_name': self.shop.name}
+            )
+        else:
+            return None
+
+    def to_shop_operatorsale(self):
+        if (Group.objects.get(name='chiefs-'+self.shop.name)
+                in self.request.user.groups.all()):
+            return reverse(
+                'url_module_operatorsale',
+                kwargs={'group_name': 'chiefs-'+self.shop.name,
+                        'shop_name': self.shop.name}
+            )
+        elif (Group.objects.get(name='associates-'+self.shop.name)
+                in self.request.user.groups.all()):
+            return reverse(
+                'url_module_operatorsale',
+                kwargs={'group_name': 'associates-'+self.shop.name,
+                        'shop_name': self.shop.name}
+            )
+        else:
+            return None
+        return success_url
+
+    def get_context_data(self, **kwargs):
+        context = super(Login, self).get_context_data(**kwargs)
+        try:
+            if self.shop:
+                if self.gadzarts:
+                    context['next'] = "Gadz'Arts - " + self.shop.__str__()
+                else:
+                    context['next'] = "opérateur - " + self.shop.__str__()
+        except AttributeError:
+            pass
+        return context
+
+
+class Logout(View):
+    def get(self, request, *args, **kwargs):
+        try:
+            success_url = request.session['save_login_url']
+        except KeyError:
+            success_url = '/auth/login/'
+        if request.user.is_authenticated():
+            logout(request)
+        return redirect(success_url)
 
 
 def jsi18n_catalog(request):

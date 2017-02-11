@@ -18,7 +18,6 @@ from django.core.urlresolvers import reverse
 
 from users.forms import *
 from users.models import User, list_year, ExtendedPermission
-from contrib.models import add_to_breadcrumbs
 from borgia.utils import *
 from notifications.models import notify
 

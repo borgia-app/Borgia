@@ -1,7 +1,6 @@
 #-*- coding: utf-8 -*-
 
 from notifications.models import *
-from contrib.models import add_to_breadcrumbs
 from django.shortcuts import HttpResponseRedirect
 from borgia.models import ListCompleteView
 from notifications.forms import notiftest, NotificationTemplateUpdateViewForm
@@ -201,4 +200,3 @@ def read_notification(request):
             raise PermissionDenied
     except ValueError:
         raise Http404
-

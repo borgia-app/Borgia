@@ -4,7 +4,8 @@ from django.contrib.auth.views import logout, login, password_reset, password_re
     password_change, password_change_done, password_reset_done
 from borgia.views import (
     page_clean, jsi18n_catalog, TestBootstrapSober, GroupWorkboard,
-    get_list_model, get_unique_model, handler403, handler404, handler500
+    get_list_model, get_unique_model, handler403, handler404, handler500,
+    Login, Logout
     )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -188,12 +189,16 @@ urlpatterns = [
     url(r'^$',
         login, {'template_name': 'login.html'},
         name='url_login'),
-    url(r'^auth/login',
-        login, {'template_name': 'login.html'},
-        name='url_login'),
-    url(r'^auth/logout',
-        logout, {'template_name': 'logout.html', 'next_page': login},
+    url(r'^auth/logout/',
+        Logout.as_view(),
         name='url_logout'),
+
+    url(r'^auth/login/$',
+        Login.as_view()),
+    url(r'^auth/gadzarts/(?P<shop_name>[\w-]+)/$',
+        Login.as_view(), {'save_login_url': True, 'gadzarts': True}),
+    url(r'^auth/(?P<shop_name>[\w-]+)/$',
+        Login.as_view(), {'save_login_url': True, 'gadzarts': False}),
 
     url(r'^auth/password_reset/$',
         password_reset,

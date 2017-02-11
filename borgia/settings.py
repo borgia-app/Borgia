@@ -57,6 +57,7 @@ MIDDLEWARE_CLASSES = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'contrib.models.LoginRequiredMiddleware',
     'contrib.models.RedirectLoginProfile',
+    'contrib.models.SaveLoginUrlMiddleware',
 ]
 
 ROOT_URLCONF = 'borgia.urls'
@@ -130,10 +131,10 @@ USE_TZ = True
 # https://docs.djangoproject.com/en²/1.9/howto/static-files/
 AUTH_USER_MODEL = 'users.User'
 LOGIN_REDIRECT_URL = '/gadzarts/'
-LOGIN_URL = '/auth/login'
+LOGIN_URL = '/auth/login/'
 
 LOGIN_EXEMPT_URLS = [
-    '/auth/login',
+    '/auth/login/',
     '/auth/password_reset/',
     '/auth/password_reset/done/',
     '/auth/done/',
@@ -143,7 +144,10 @@ LOGIN_EXEMPT_URLS = [
     'self_lydia_callback',
 ]
 
-LOGIN_EXEMPT_URL_PATTERNS = []
+LOGIN_EXEMPT_URL_PATTERNS = [
+    re.compile('%s[\w-]+%s' % ('/auth/gadzarts/', '/')),
+    re.compile('%s[\w-]+%s' % ('/auth/', '/'))
+    ]
 
 STATIC_URL = '/static/'
 # STATIC_ROOT = 'static/static_root/'

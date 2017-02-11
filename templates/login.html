@@ -1,67 +1,130 @@
-{% extends 'base.html' %}
+{% load staticfiles %}
+{% load notifications_extra %}
+{% load users_extra %}
+{% load bootstrap %}
 
-{% block content %}
-    <footer class="footer">
-        <div class="panel panel-custom">
-            <div class="panel-heading clickable">
-                <p class="panel-title align-center">
-                        WIP - Borgia v2.8.0 - 09/12/2016</p>
-                    <span class="pull-right "><i class="glyphicon glyphicon-minus mobileHide768"></i></span>
-                </div>
-                <div class="panel-body footer-panel">
-                    <style>
-                        .footer-panel{
-                            display: none;
-                            background: #353535;
-                        }
-                        .footer-panel a{
-                            color: lightgray;
-                        }
-                    </style>
-                   <div class="credit">
-                        <div class="col-md-6">
-                            <small>
-                                <a href="http://wikiae.iresam.org/doku.php?id=borgia:historique_version_borgia">Historique des versions</a><br />
-                                    Borgia is an open-source project, developped by Arts et Métiers students.<br/>
-                                    Me214 - Pastys 101-99 & Elek 142<br />
-                                    Me215 - Eyap 53 & Leyphay'ss 87 & SoqCmu 91-40² & Rowsky 144<br />
-                            </small>
-                        </div>
-                        <div class="col-md-6 mobileHide">
-                            <small>
-                                CSS basé sur Twitter Bootstrap 3<br/>
-                                <a href="http://fortawesome.github.io/Font-Awesome/">FontAwesome</a>
-                                <div class="ideas">
-                                    Un bug? Des remarques? Partage les nous! <input type="submit" value="Reporter un bug" id="mailto_report" class="btn-default">
-                                </div>
-                            </small>
-                        </div>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>Borgia - V2.8.0</title>
+    <link rel="stylesheet" href="https://bootswatch.com/slate/bootstrap.min.css" />
+    <link rel="stylesheet" href="{% static 'css/css_local.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.png' %}"/>
+    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
+    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
+    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+    <script src="{% static 'js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'js/widgets.js' %}"></script>
+</head>
+<style>
+  * {
+    text-shadow: inherit!important;
+  }
+  .navbar-inverse {
+    background-color: #222!important;
+    border-color: #080808!important;
+    background-image: inherit!important;
+  }
+</style>
+<body class="body_login">
+<div class="wrapper overlay">
+  <nav class="navbar navbar-inverse navbar-fixed-top">
+    <div class="container-fluid">
+      <div class="navbar-header col-md-2 col-sm-2 col-xs-2 col-xxs-2" style="padding-left: 2px">
+        <a href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
+           <span class="logo-background"></span>
+        </a>
+      </div>
+    </div>
+  </nav>
+</div>
 
-                    </div>
-                </div>
-    <script>
-        document.getElementById("mailto_report").addEventListener('click', function(e) {
-            window = window.open("mailto:support@iresam.org?Subject=Feedback Borgia", 'EmailWindow')
-        }, false);
+<div class='container'>
+  <div class='col-md-6 col-md-offset-3' style='color: white; margin-top: 100px; font-size: 20px'>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Connexion {% if next %}<i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{ next }}{% endif %}
+      </div>
+      <div class="panel-body">
+        <form method='post' autocomplete="off">
+          {% csrf_token %}
+          {{ form|bootstrap }}
+          <button
+          type="submit"
+          class="btn btn-success btn-block"
+          style="font-size: 20px">Valider</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer class="footer">
+      <div class="panel panel-custom">
+          <div class="panel-heading clickable">
+              <p class="panel-title align-center">
+                      WIP - Borgia v4.0 - 11/02/2017</p>
+                  <span class="pull-right "><i class="glyphicon glyphicon-minus mobileHide768"></i></span>
+              </div>
+              <div class="panel-body footer-panel">
+                  <style>
+                      .footer-panel{
+                          display: none;
+                          background: #353535;
+                      }
+                      .footer-panel a{
+                          color: lightgray;
+                      }
+                  </style>
+                 <div class="credit">
+                      <div class="col-md-6">
+                        <small>
+                          Borgia is an open-source project, developped by Arts et Métiers students.<br/>
+                          Me214 - Pastys 101-99 & Elek 142<br />
+                          Me215 - Eyap 53 & Leyphay'ss 87 & SoqCmu 91-40² & Rowsky 144<br />
+                        </small>
+                      </div>
+                      <div class="col-md-6 mobileHide">
+                          <small>
+                              CSS basé sur Twitter Bootstrap 3<br/>
+                              <a href="http://fortawesome.github.io/Font-Awesome/">FontAwesome</a>
+                              <div class="ideas">
+                                  Un bug? Des remarques? Partage les nous! <input type="submit" value="Reporter un bug" id="mailto_report" class="btn btn-default">
+                              </div>
+                          </small>
+                      </div>
+
+                  </div>
+              </div>
+  <script>
+      document.getElementById("mailto_report").addEventListener('click', function(e) {
+          window = window.open("mailto:support@iresam.org?Subject=Feedback Borgia", 'EmailWindow')
+      }, false);
 
 
-            $(document).on('click', '.panel div.clickable', function (e) {
-                if ($(window).width() > 767) {
-                    var $this = $(this);
-                    if (!$this.hasClass('panel-collapsed')) {
-                        $this.parents('.panel').find('.panel-body').slideUp(200);
-                        $this.addClass('panel-collapsed');
-                        $this.find('i').removeClass('glyphicon-minus').addClass('glyphicon-plus');
-                    } else {
-                        $this.parents('.panel').find('.panel-body').slideDown(200);
-                        $this.removeClass('panel-collapsed');
-                        $this.find('i').removeClass('glyphicon-plus').addClass('glyphicon-minus');
-                    }
-                }
-            });
-        $(document).ready(function () {
-            $('.panel div.clickable').click();
-        });
-    </script>
+          $(document).on('click', '.panel div.clickable', function (e) {
+              if ($(window).width() > 767) {
+                  var $this = $(this);
+                  if (!$this.hasClass('panel-collapsed')) {
+                      $this.parents('.panel').find('.panel-body').slideUp(200);
+                      $this.addClass('panel-collapsed');
+                      $this.find('i').removeClass('glyphicon-minus').addClass('glyphicon-plus');
+                  } else {
+                      $this.parents('.panel').find('.panel-body').slideDown(200);
+                      $this.removeClass('panel-collapsed');
+                      $this.find('i').removeClass('glyphicon-plus').addClass('glyphicon-minus');
+                  }
+              }
+          });
+      $(document).ready(function () {
+          $('.panel div.clickable').click();
+      });
+  </script>
 </footer>
-{% endblock %}
+
+</body>
+</html>

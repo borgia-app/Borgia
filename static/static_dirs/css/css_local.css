@@ -16,6 +16,13 @@
     background-origin: content-box;
 }
 
+.body_login {
+  background-image: url("../img/pexels-photo-27892.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-origin: content-box;
+}
+
 .body_sober {
     background-color: #fff;
     font-family: 'source_sans_proregular';
