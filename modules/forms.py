@@ -11,6 +11,19 @@ class SelfSaleShopModule(forms.Form):
         module = kwargs.pop('module')
         super(SelfSaleShopModule, self).__init__(*args,**kwargs)
 
+        for container_case in module.container_cases.all():
+            self.fields[str(container_case.pk) + '-' + 'container_cases'] = forms.IntegerField(
+                label=container_case.product.product_base.sale_name(),
+                widget=forms.NumberInput(
+                    attrs={'data_category_pk': 'container_cases',
+                           'data_container_case_name': container_case.name,
+                           'data_usual_price': container_case.product.product_base.get_moded_usual_price(),
+                           'class': 'form-control',
+                           'pk': str(container_case.product.pk) + '-' + str(container_case.pk) + '-cc'}),
+                initial=0,
+                required=False
+            )
+
         for category in module.categories.all():
             for product in category.product_bases.all():
                 self.fields[str(product.pk) + '-' + str(category.pk)] = forms.IntegerField(
@@ -19,7 +32,7 @@ class SelfSaleShopModule(forms.Form):
                         attrs={'data_category_pk': category.pk,
                                'data_usual_price': product.get_moded_usual_price(),
                                'class': 'form-control',
-                               'pk': product.pk}),
+                               'pk': str(product.pk) + '-' + str(category.pk)}),
                     initial=0,
                     required=False
                 )
@@ -56,7 +69,8 @@ class ModuleCategoryForm(forms.Form):
         self.fields['products'] = forms.ModelMultipleChoiceField(
             label='Produits',
             queryset=ProductBase.objects.filter(shop=shop),
-            widget=forms.SelectMultiple(attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
+            widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
+                                               'data-live-search': 'True'}),
             required=False)
 
 
@@ -65,3 +79,15 @@ class ShopModuleConfigForm(forms.Form):
         label='Etat',
         required=False
     )
+
+
+class ModuleContainerCaseForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        shop = kwargs.pop('shop')
+        super(ModuleContainerCaseForm, self).__init__(*args, **kwargs)
+        self.fields['container_cases'] = forms.ModelMultipleChoiceField(
+            label='Emplacements de vente',
+            queryset=ContainerCase.objects.filter(shop=shop),
+            widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
+                                               'data-live-search': 'True'}),
+            required=False)

@@ -5,7 +5,7 @@ from django.contrib.contenttypes.fields import (
     )
 from django.contrib.contenttypes.models import ContentType
 
-from shops.models import Shop, ProductBase
+from shops.models import Shop, ProductBase, Container, ContainerCase
 
 
 class Category(models.Model):
@@ -44,6 +44,14 @@ class ShopModule(Module):
         Category,
         content_type_field='content_type',
         object_id_field='module_id')
+    container_cases = models.ManyToManyField(ContainerCase)
+
+    def container_pk_in_container_cases(self):
+        list = []
+        for container_case in self.container_cases.all():
+            if container_case.product:
+                list.append(container_case.product.pk)
+        return list
 
 
 class SelfSaleModule(ShopModule):

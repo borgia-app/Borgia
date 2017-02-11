@@ -15,8 +15,11 @@
     <form method="post">
       <div class="row">
         {% csrf_token %}
-        {{ form.management_form }}
-        {% for category_form in form %}
+        <div class="col-md-12">
+          {{ places_form|bootstrap }}
+        </div>
+        {{ cat_form.management_form }}
+        {% for category_form in cat_form %}
           <div class="category_formset col-md-4" style="margin-top: 15px">
             <div class="panel panel-default">
               <div class="panel-body">
@@ -32,6 +35,9 @@
         </div>
       </div>
     </form>
+    <p class="bg-info" style="margin-top: 10px">Remarque : il n'est pas conseillé d'utiliser les produits dans les différentes catégories
+    si ces produits sont déjà utilisés dans des emplacements de ventes actifs. L'utilisateur pourra commander ces produits
+    soit par l'emplacement de vente, soit par la catégorie et la gestion des stocks en sera difficile.</p>
   </div>
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js"></script>

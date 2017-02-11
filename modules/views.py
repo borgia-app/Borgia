@@ -11,7 +11,8 @@ from django.forms.formsets import formset_factory
 from modules.forms import *
 from modules.models import *
 from borgia.utils import *
-from shops.models import ProductBase, SingleProduct, Container, SingleProductFromContainer
+from shops.models import (ProductBase, SingleProduct, Container,
+                          SingleProductFromContainer, ContainerCase)
 from finances.models import Sale, sale_sale
 
 
@@ -62,12 +63,15 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
         for field in form.cleaned_data:
             if field != 'client':
                 invoice = form.cleaned_data[field]
-                product_base_pk = field.split('-')[0]
-                product_base = ProductBase.objects.get(pk=product_base_pk)
-
-                if invoice != 0:
+                if invoice != 0 and isinstance(invoice, int):
+                    product_pk = field.split('-')[0]
+                    if 'container_cases' in field:
+                        element = ContainerCase.objects.get(
+                            pk=product_pk).product
+                    else:
+                        element = ProductBase.objects.get(pk=product_pk)
                     products += self.get_products_with_strategy(
-                        product_base, invoice)
+                        element, invoice)
 
         s = sale_sale(sender=self.client, operator=self.request.user,
                       date=now(), products_list=products,
@@ -75,71 +79,88 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
 
         return redirect(self.success_url)
 
-    def get_products_with_strategy(self, product_base, invoice):
+    def get_products_with_strategy(self, element, invoice):
         """
         Return a list of real products (single products or products from
-        container) knowing what the client want (product base) and how many
+        container) knowing what the client want and how many
         product he want.
 
         This method takes the right product in the queryset of products from
         the product base. In order to choose the product used (sold for a
         single product or consume for a container), the method check if the
-        product base is important regarding the stock or not through the
-        attribute major_stocked.
-
-        :note:: If you buy single product major_stocked, you buy one by one.
+        product is directly a container (from a ContainerCase), then you
+        consumme this container or a productbase and select the right.
 
         Concerning single products:
-            if not major_stocked:
-                Bought products are the firsts in the queryset.
-            if major_stocked:
-                Bought product is the one in the queryset with the right
-                indication attribute.
+            Bought products are the firsts in the queryset.
+
 
         Concerning containers:
-            if not major_stocked:
-                Bought products are consumed from the container with the
-                attribute buffer.
-            if major_stocked:
-                Bought products are consumed from the container with the right
-                indication attribute.
+            Bought products are consumed from the container the first in the
+            queryset, but not in a container place.
 
-        :param product_base: product base the client want,
+        Concerning containers from places:
+            Bought products are consumed from this container.
+
+        :param element: product the client want,
         mandatory.
         :aram invoice: number of products the client want, mandatory.
-        :type product_base: ProductBase instance
+        :type element: ProductBase instance or Container instance
         :type invoice: strictly positiv integer
         """
-        # TODO: indication and major_stocked in model
         products = []
 
-        if (product_base.type == 'single_product'):
-            for i in range(0, invoice):
+        if isinstance(element, Container):
+            product = SingleProductFromContainer.objects.create(
+                container=element,
+                quantity=(element.product_base.product_unit.usual_quantity()
+                          * invoice),
+                sale_price=(element.product_base.get_moded_usual_price()
+                            * invoice)
+            )
+            products.append(product)
+
+        elif isinstance(element, ProductBase):
+            product_base = element
+
+            if (product_base.type == 'single_product'):
+                for i in range(0, invoice):
+                    try:
+                        product = SingleProduct.objects.filter(
+                            product_base=product_base,
+                            is_sold=False)[i]
+                        product.is_sold = True
+                        product.sale_price = product_base.get_moded_usual_price()
+                        product.save()
+                        products.append(product)
+                    except IndexError:
+                        pass
+
+            if (product_base.type == 'container'):
                 try:
-                    product = SingleProduct.objects.filter(
+                    container = Container.objects.filter(
                         product_base=product_base,
-                        is_sold=False)[i]
-                    product.is_sold = True
-                    product.sale_price = product_base.get_moded_usual_price()
-                    product.save()
+                        is_sold=False).exclude(
+                            pk__in=self.module.container_pk_in_container_cases()
+                            )[0]
+
+                    product = SingleProductFromContainer.objects.create(
+                        container=container,
+                        quantity=(product_base.product_unit.usual_quantity()
+                                  * invoice),
+                        sale_price=(product_base.get_moded_usual_price()
+                                    * invoice)
+                    )
                     products.append(product)
+
+                    if container.estimated_quantity_remaining()[0] <= 0:
+                        container.is_sold = True
+                        container.save()
                 except IndexError:
                     pass
 
-        if (product_base.type == 'container'):
-            try:
-                container = Container.objects.filter(
-                    product_base=product_base,
-                    is_sold=False)[0]
-
-                product = SingleProductFromContainer.objects.create(
-                    container=container,
-                    quantity=product_base.product_unit.usual_quantity() * invoice,
-                    sale_price=product_base.get_moded_usual_price() * invoice
-                )
-                products.append(product)
-            except IndexError:
-                pass
+        else:
+            pass
 
         return products
 
@@ -214,8 +235,8 @@ class OperatorSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
 
 
 class ShopModuleCategories(GroupPermissionMixin, ShopFromGroupMixin,
-                                  ShopModuleMixin, FormView,
-                                  GroupLateralMenuFormMixin):
+                                  ShopModuleMixin, View,
+                                  GroupLateralMenuMixin):
     """
     View to manage categories of a self shop module.
 
@@ -252,12 +273,28 @@ class ShopModuleCategories(GroupPermissionMixin, ShopFromGroupMixin,
         return super(ShopModuleCategories,
                      self).dispatch(request, *args, **kwargs)
 
-    def get_initial(self):
-        categories_data = [{'name': c.name, 'products': c.product_bases.all(), 'pk': c.pk}
-            for c in self.module.categories.all()]
-        return categories_data
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        categories_data = [{'name': c.name, 'products': c.product_bases.all(),
+                            'pk': c.pk} for c in self.module.categories.all()]
+        context['cat_form'] = self.form_class(initial=categories_data)
+        context['places_form'] = wraps(ModuleContainerCaseForm)(
+            partial(ModuleContainerCaseForm, shop=self.shop))(
+            initial={'container_cases': self.module.container_cases.all()})
+        return render(request, self.template_name, context=context)
 
-    def form_valid(self, form):
+    def post(self, request, *args, **kwargs):
+        cat_form = self.form_class(request.POST)
+        places_form = wraps(ModuleContainerCaseForm)(
+            partial(ModuleContainerCaseForm, shop=self.shop))(request.POST)
+        if cat_form.is_valid():
+            self.cat_form_valid(cat_form)
+        if places_form.is_valid():
+            self.places_form_valid(places_form)
+
+        return redirect(self.get_success_url())
+
+    def cat_form_valid(self, form):
 
         list_pk = []
         for category_form in form:
@@ -286,7 +323,14 @@ class ShopModuleCategories(GroupPermissionMixin, ShopFromGroupMixin,
             except KeyError:
                 pass
 
-        return super(ShopModuleCategories, self).form_valid(form)
+    def places_form_valid(self, form):
+        self.module.container_cases.clear()
+        print(form.cleaned_data)
+        print(form.cleaned_data['container_cases'])
+        for container_case in form.cleaned_data['container_cases']:
+            self.module.container_cases.add(container_case)
+        self.module.save()
+        print(self.module.container_cases.all())
 
     def get_success_url(self):
         if self.kwargs['module_class'] == SelfSaleModule:

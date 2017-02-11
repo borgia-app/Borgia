@@ -809,3 +809,15 @@ class SingleProductFromContainer(models.Model):
                 + str(self.quantity)
                 + ' '
                 + self.container.product_base.product_unit.get_unit_display())
+
+
+class ContainerCase(models.Model):
+    """
+    """
+    name = models.CharField('Nom', max_length=254)
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    product = models.ForeignKey(
+        Container, on_delete=models.CASCADE, blank=True, null=True)
+
+    def __str__(self):
+        return self.name

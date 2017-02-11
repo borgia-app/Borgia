@@ -60,6 +60,11 @@
         </div>
         <div class="panel-body">
           <ul class="nav nav-tabs" role="tablist" id="tablist">
+            <li role="presentation">
+              <a href="#container_cases" aria-controls="home" role="tab" data-toggle="tab">
+                Emplacements
+              </a>
+            </li>
             {% for category in categories %}
             <li role="presentation">
               <a href="#{{ category.pk }}" aria-controls="home" role="tab" data-toggle="tab">
@@ -69,6 +74,30 @@
             {% endfor %}
           </ul>
           <div class="tab-content" id="tab-content">
+            <div role="tabpanel" class="tab-pane" id="container_cases">
+              <table class="table table-default table-striped table-hover">
+                <thead>
+                  <th>Emplacement</th>
+                  <th>Produit</th>
+                  <th>Commande</th>
+                  <th>Prix unitaire</th>
+                  <th>Sous total</th>
+                </thead>
+                <tbody>
+                  {% for field in form %}
+                    {% if field.field.widget.attrs.data_category_pk == 'container_cases' %}
+                    <tr>
+                      <td>{{ field.field.widget.attrs.data_container_case_name }}</td>
+                      <td>{{ field.errors }}{{ field.label_tag }}</td>
+                      <td>{{ field }}</td>
+                      <td>{{ field.field.widget.attrs.data_usual_price }}</td>
+                      <td id="total_{{ field.field.widget.attrs.pk }}">0.00</td>
+                    </tr>
+                    {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
             {% for category in categories %}
             <div role="tabpanel" class="tab-pane" id="{{ category.pk }}">
               <table class="table table-default table-striped table-hover">
