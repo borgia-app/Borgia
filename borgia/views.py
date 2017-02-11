@@ -37,13 +37,11 @@ class Login(FormView):
         kwargs = super(Login, self).get_form_kwargs(**kwargs)
         try:
             if self.gadzarts:
-                kwargs['module'] = SelfSaleModule.objects.get(
-                    shop=self.shop
-                )
+                kwargs['module'], created = SelfSaleModule.objects.get_or_create(
+                    shop=self.shop)
             else:
-                kwargs['module'] = OperatorSaleModule.objects.get(
-                    shop=self.shop
-                )
+                kwargs['module'], created = OperatorSaleModule.objects.get_or_create(
+                    shop=self.shop)
         except AttributeError or ObjectDoesNotExist:
             kwargs['module'] = None
         return kwargs
@@ -113,6 +111,18 @@ class Login(FormView):
                     context['next'] = "opérateur - " + self.shop.__str__()
         except AttributeError:
             pass
+
+        context['shop_list'] = []
+        for shop in Shop.objects.all().exclude(pk=1):
+            operator_module, created = OperatorSaleModule.objects.get_or_create(
+                shop=shop)
+            self_module, created = SelfSaleModule.objects.get_or_create(
+                shop=shop)
+            context['shop_list'].append({
+                'shop': shop,
+                'operator_module': operator_module,
+                'self_module': self_module
+            })
         return context
 
 

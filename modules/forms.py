@@ -1,5 +1,6 @@
 from django import forms
 from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import MinValueValidator
 
 from modules.models import *
 from shops.models import ProductBase
@@ -30,7 +31,9 @@ class SelfSaleShopModule(forms.Form):
                                + str(container_case.pk)
                                + '-cc')}),
                 initial=0,
-                required=False
+                required=False,
+                validators=[MinValueValidator(0, """La commande doit être
+                                              positive ou nulle""")]
             )
 
         for category in module.categories.all():
@@ -50,8 +53,10 @@ class SelfSaleShopModule(forms.Form):
                                        + '-'
                                        + str(category.pk))}),
                         initial=0,
-                        required=False
-                    )
+                        required=False,
+                        validators=[MinValueValidator(0, """La commande doit être
+                                                      positive ou nulle""")]
+                        )
 
     def clean(self):
         cleaned_data = super(SelfSaleShopModule, self).clean()
