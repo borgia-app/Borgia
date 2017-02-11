@@ -64,8 +64,13 @@ class SaveLoginUrlMiddleware():
         try:
             if view_kwargs['save_login_url'] is True:
                 request.session['save_login_url'] = request.path
+            else:
+                del request.session['save_login_url']
         except KeyError:
-            pass
+            try:
+                del request.session['save_login_url']
+            except KeyError:
+                pass
 
 
 class RedirectLoginProfile:
