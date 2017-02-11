@@ -30,6 +30,7 @@
             <tr>
               <th>Date</th>
               <th>Type</th>
+              <th>Produits</th>
               <th>Montant</th>
             </tr>
           </thead>
@@ -44,6 +45,11 @@
                 {% else %}
                 {{ transaction.wording }}
                 {% endif %}
+              </td>
+              <td>
+                {% if transaction.category == 'sale' %}
+                {{ transaction.string_products }}
+              {% endif %}
               </td>
               <td>{{ price_for }}</td>
             </tr>
