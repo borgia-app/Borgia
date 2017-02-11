@@ -21,10 +21,10 @@ def lateral_menu(user, group, active=None):
     # TODO: try for reverse urls
 
     models_checked = [
-        (User, 'Utilisateurs'),
-        (Shop, 'Magasins'),
-        (Notification, 'Notifications'),
-        (NotificationTemplate, 'Templates notification'),
+        (User, 'Utilisateurs', 'List', 'Add'),
+        (Shop, 'Magasins', 'List', 'Add'),
+        (Notification, 'Notifications', 'List'),
+        (NotificationTemplate, 'Templates notification', 'List', 'Add'),
     ]
 
     nav_tree = []
@@ -260,7 +260,7 @@ def lateral_menu_model(model, group, faIcon='database'):
         'subs': []
     }
 
-    try:
+    if 'Add' in model:
         add_permission = Permission.objects.get(
             codename='add_' + model[0]._meta.model_name)
 
@@ -273,9 +273,8 @@ def lateral_menu_model(model, group, faIcon='database'):
                     'url_' + model[0]._meta.model_name + '_create',
                     kwargs={'group_name': group.name})
             })
-    except ObjectDoesNotExist:
-        pass
-    try:
+
+    if 'List' in model:
         list_permission = Permission.objects.get(
             codename='list_' + model[0]._meta.model_name)
 
@@ -288,8 +287,6 @@ def lateral_menu_model(model, group, faIcon='database'):
                     'url_' + model[0]._meta.model_name + '_list',
                     kwargs={'group_name': group.name})
             })
-    except ObjectDoesNotExist:
-        pass
 
     if len(model_tree['subs']) > 0:
         return model_tree
