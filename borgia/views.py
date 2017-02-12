@@ -7,6 +7,8 @@ from django.db.models import Q
 from functools import reduce
 from operator import or_
 from django.core.serializers import serialize
+from datetime import datetime, timedelta
+from collections import OrderedDict
 
 from users.models import User
 from django.contrib.auth.models import Group, Permission
@@ -451,6 +453,58 @@ class TestBootstrapSober(TemplateView):
             }
         ]
         return context
+
+
+class GadzartsGroupWorkboard(GroupPermissionMixin, View,
+                             GroupLateralMenuMixin):
+    template_name = 'workboards/gadzarts_workboard.html'
+    perm_codename = None
+    lm_active = 'lm_workboard'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['sale_list'] = self.get_sales(request)
+        return render(request, self.template_name, context=context)
+
+    def get_sales(self, request):
+        sales = {}
+        list = request.user.list_sale()
+
+        sales['shops'] = []
+        sales['all'] = list.filter(category='sale')[:5]
+        sales['months'] = self.monthlist(
+            datetime.now() - timedelta(days=365),
+            datetime.now())
+        for shop in Shop.objects.all().exclude(pk=1):
+            list_filtered = list.filter(
+                category='sale', wording='Vente '+shop.name)
+            total = 0
+            for sale in list_filtered:
+                total += sale.price_for(request.user)
+            sales['shops'].append({
+                'shop': shop,
+                'total': -total,
+                'sale_list_short': list_filtered[:5],
+                'data_months': self.data_month(request, list_filtered, sales['months'])
+            })
+        return sales
+
+    def data_month(self, request, list, months):
+        amounts = [0 for i in range(0, len(months))]
+        for object in list:
+            if object.date.strftime("%b-%y") in months:
+                amounts[
+                    months.index(object.date.strftime("%b-%y"))] += (
+                        -object.price_for(request.user))
+        return amounts
+
+    def monthlist(self, start, end):
+        total_months = lambda dt: dt.month + 12 * dt.year
+        mlist = []
+        for tot_m in range(total_months(start)-1, total_months(end)):
+            y, m = divmod(tot_m, 12)
+            mlist.append(datetime(y, m+1, 1).strftime("%b-%y"))
+        return mlist
 
 
 class GroupWorkboard(GroupPermissionMixin, View, GroupLateralMenuMixin):

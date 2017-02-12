@@ -1,0 +1,204 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+{% load finances_extra %}
+
+{% block content %}
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
+
+<div class="row">
+  <div class='col-md-8'>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Derniers achats
+        </div>
+        <div class="panel-body">
+          <div>
+            <ul class="nav nav-tabs" role="tablist">
+              <li role="presentation" class="active"><a href="#all" aria-controls="all" role="tab" data-toggle="tab">Tous</a></li>
+              {% for object in sale_list.shops %}
+              <li role="presentation">
+                <a href="#{{ object.shop.name }}"
+                aria-controls="{{ object.shop.name }}"
+                role="tab" data-toggle="tab">{{ object.shop.name|capfirst }}</a></li>
+              {% endfor %}
+            </ul>
+
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane active" id="all">
+                <table class="table table-default">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Produits</th>
+                      <th>Montant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for sale in sale_list.all %}
+                    <tr>
+                      <td>{{ sale.date|date:"d/m/Y H:i:s" }}</td>
+                      <td>{{ sale.string_products }}</td>
+                      <td>{% price_for sale=sale user=user %} €</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% for object in sale_list.shops %}
+              <div role="tabpanel" class="tab-pane" id="{{ object.shop.name }}">
+                <table class="table table-default">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Produits</th>
+                      <th>Montant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for sale in object.sale_list_short %}
+                    <tr>
+                      <td>{{ sale.date|date:"d/m/Y H:i:s" }}</td>
+                      <td>{{ sale.string_products }}</td>
+                      <td>{% price_for sale=sale user=user %} €</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+    </div>
+  </div>
+  <div class='col-md-4'>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Proportions des magasins
+        </div>
+        <div class="panel-body">
+          <canvas id="PieChart" width="auto" height="196"></canvas>
+        </div>
+    </div>
+  </div>
+</div>
+<script>
+  var ctx = "PieChart";
+  var data = {
+    labels: [
+      {% for object in sale_list.shops %}
+      "{{ object.shop.name }}"
+      {% if not loop.last %}
+      ,
+      {% endif %}
+      {% endfor %}
+    ],
+    datasets: [
+        {
+            data: [
+              {% for object in sale_list.shops %}
+              "{{ object.total }}"
+              {% if not loop.last %}
+              ,
+              {% endif %}
+              {% endfor %}
+            ],
+            backgroundColor: [
+                "#FF6384",
+                "#36A2EB",
+                "#FFCE56"
+            ],
+            hoverBackgroundColor: [
+                "#FF6384",
+                "#36A2EB",
+                "#FFCE56"
+            ]
+        }]
+  };
+  var PieChart = new Chart(ctx, {
+    type: 'pie',
+    data: data,
+    options: {
+      legend: {
+        position: 'left'
+      }
+    }
+  });
+</script>
+<div class="row">
+  <div class='col-md-12'>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Synthèse des consommations
+        </div>
+        <div class="panel-body">
+          <canvas id="LineChart" width="auto" height="100"></canvas>
+        </div>
+    </div>
+  </div>
+</div>
+<script>
+  var ctx = "LineChart";
+  var data = {
+    labels: [
+      {% for month in sale_list.months %}
+      "{{ month }}"
+      {% if not loop.last %}
+      ,
+      {% endif %}
+      {% endfor %}
+    ],
+    datasets: [
+        {% for object in sale_list.shops %}
+        {
+            label: "{{ object.shop.name|capfirst }}",
+            fill: false,
+            lineTension: 0.1,
+            backgroundColor: "rgba(75,192,192,0.4)",
+            borderColor: "rgba(75,192,192,1)",
+            borderCapStyle: 'butt',
+            borderDash: [],
+            borderDashOffset: 0.0,
+            borderJoinStyle: 'miter',
+            pointBorderColor: "rgba(75,192,192,1)",
+            pointBackgroundColor: "#fff",
+            pointBorderWidth: 1,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: "rgba(75,192,192,1)",
+            pointHoverBorderColor: "rgba(220,220,220,1)",
+            pointHoverBorderWidth: 2,
+            pointRadius: 1,
+            pointHitRadius: 10,
+            data: [
+              {% for amount in object.data_months %}
+              {{ amount }}
+              {% if not loop.last %}
+              ,
+              {% endif %}
+              {% endfor %}
+            ],
+            spanGaps: false,
+        }
+        {% if not loop.last %}
+        ,
+        {% endif %}
+        {% endfor %}
+    ]
+  };
+  var LineChart = new Chart(ctx, {
+      type: 'line',
+      data: data,
+      scaleFontColor: "red",
+      options: {
+        scales: {
+          yAxes: [{
+            scaleLabel: {
+              display: true,
+              labelString: 'Consommation (€)'
+            }
+          }]
+        }
+      }
+  });
+</script>
+{% endblock %}
