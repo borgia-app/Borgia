@@ -16,6 +16,13 @@
     background-origin: content-box;
 }
 
+.body_login {
+  background-image: url("../img/pexels-photo-27892.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-origin: content-box;
+}
+
 .body_sober {
     background-color: #fff;
     font-family: 'source_sans_proregular';
@@ -415,22 +422,6 @@ h6 {
     width: 100%;
     height: 100%;
   }
-}
-
-
-.list-foys {
-  background: #9DBA8D;
-  border-radius: 0% !important;
-}
-.list-foys:hover {
-  background: #9DCB8D;
-}
-
-.list-shops {
-  background: #F2C277;
-}
-.list-shops:hover {
-  background: #f3dc66;
 }
 
 .list-transfert {
