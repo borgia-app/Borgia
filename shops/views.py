@@ -341,7 +341,8 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         """
         shop = Shop.objects.create(
             name=form.cleaned_data['name'],
-            description=form.cleaned_data['description'])
+            description=form.cleaned_data['description'],
+            color=form.cleaned_data['color'])
 
         content_type = ContentType.objects.get(app_label='users', model='user')
         manage_chiefs = Permission.objects.create(

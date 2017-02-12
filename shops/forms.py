@@ -139,7 +139,7 @@ class ProductUpdateForm(forms.ModelForm):
 class ShopCreateForm(forms.ModelForm):
     class Meta:
         model = Shop
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'color']
 
 
 class ProductListForm(forms.Form):

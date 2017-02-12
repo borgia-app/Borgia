@@ -163,7 +163,7 @@
             </a>
               {% for shop in list_selfsalemodule %}
               <a href="{% url 'url_module_selfsale' group_name=group.name shop_name=shop.name %}">
-                <li class="list-group-item list-selfsalemodule {{ shop.color }}">
+                <li class="list-group-item list-selfsalemodule" style="background-color: {{ shop.color }}">
                   <img src="{% static 'img/store.svg' %}" />
                   <h3>{{ shop.name|capfirst }}</h3>
                 </li>

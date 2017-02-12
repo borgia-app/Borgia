@@ -32,6 +32,10 @@ class Shop(models.Model):
                                 minuscules, sans espace ni caractère
                                 spécial.""")])
     description = models.TextField('Description')
+    color = models.CharField('Couleur', max_length=255,
+                             validators=[RegexValidator(
+                                 regex='^#[A-Za-z0-9]{6}',
+                                 message='Doit être dans le format #F4FA58')])
 
     def __str__(self):
         """

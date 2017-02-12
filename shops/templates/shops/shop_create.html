@@ -1,7 +1,11 @@
 {% extends 'base_sober.html' %}
 {% load bootstrap %}
+{% load static %}
 
 {% block content %}
+<script src="{% static 'bootstrap-colorpicker-master/js/bootstrap-colorpicker.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'bootstrap-colorpicker-master/css/bootstrap-colorpicker.min.css' %}" />
+
 <div class="panel panel-default">
   <div class="panel-heading">
     Ajout d'un magasin
@@ -14,4 +18,7 @@
     </form>
   </div>
 </div>
+<script>
+  $("#id_color").colorpicker({"align": "left"})
+</script>
 {% endblock %}
