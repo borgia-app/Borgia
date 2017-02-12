@@ -59,6 +59,13 @@ class Login(FormView):
         except KeyError or ObjectDoesNotExist:
             pass
 
+        try:
+            if self.request.session['after_login']:
+                self.success_url = self.request.session['after_login']
+                del self.request.session['after_login']
+        except KeyError:
+            pass
+
         if self.success_url is None:
             self.success_url = reverse(
                 'url_group_workboard',

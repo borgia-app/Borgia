@@ -56,6 +56,7 @@ class LoginRequiredMiddleware:
                         denied = False
                         break
                 if denied is True:
+                    request.session['after_login'] = request.path_info
                     return HttpResponseRedirect(settings.LOGIN_URL)
 
 
