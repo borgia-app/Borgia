@@ -197,7 +197,7 @@ urlpatterns = [
         name='url_logout'),
 
     url(r'^auth/login/$',
-        Login.as_view(),
+        Login.as_view(), {'save_login_url': False},
         name='url_login'),
     url(r'^auth/gadzarts/(?P<shop_name>[\w-]+)/$',
         Login.as_view(), {'save_login_url': True, 'gadzarts': True},

@@ -132,9 +132,12 @@ class Logout(View):
     def get(self, request, *args, **kwargs):
         try:
             success_url = request.session['save_login_url']
-            del request.session['save_login_url']
         except KeyError:
             success_url = '/auth/login/'
+        try:
+            del request.session['save_login_url']
+        except KeyError:
+            pass
         if request.user.is_authenticated():
             logout(request)
         return redirect(success_url)
