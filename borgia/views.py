@@ -29,7 +29,11 @@ class Login(FormView):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.shop = Shop.objects.get(name=self.kwargs['shop_name'])
+            if self.kwargs['shop_name']:
+                try:
+                    self.shop = Shop.objects.get(name=self.kwargs['shop_name'])
+                except ObjectDoesNotExist:
+                    raise Http404
             self.gadzarts = self.kwargs['gadzarts']
         except KeyError or ObjectDoesNotExist:
             pass

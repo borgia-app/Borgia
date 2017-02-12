@@ -199,16 +199,6 @@ urlpatterns = [
         Logout.as_view(),
         name='url_logout'),
 
-    url(r'^auth/login/$',
-        Login.as_view(), {'save_login_url': False},
-        name='url_login'),
-    url(r'^auth/gadzarts/(?P<shop_name>[\w-]+)/$',
-        Login.as_view(), {'save_login_url': True, 'gadzarts': True},
-        name='url_login_direct_module_selfsale'),
-    url(r'^auth/(?P<shop_name>[\w-]+)/$',
-        Login.as_view(), {'save_login_url': True, 'gadzarts': False},
-        name='url_login_direct_module_operatorsale'),
-
     url(r'^auth/password_reset/$',
         password_reset,
         name='reset_password_reset1'),
@@ -226,6 +216,16 @@ urlpatterns = [
         name='password_change'),
     url(r'^auth/password_change_done$',
         password_change_done),
+
+    url(r'^auth/login/$',
+        Login.as_view(), {'save_login_url': False},
+        name='url_login'),
+    url(r'^auth/gadzarts/(?P<shop_name>[\w-]+)/$',
+        Login.as_view(), {'save_login_url': True, 'gadzarts': True},
+        name='url_login_direct_module_selfsale'),
+    url(r'^auth/(?P<shop_name>[\w-]+)/$',
+        Login.as_view(), {'save_login_url': True, 'gadzarts': False},
+        name='url_login_direct_module_operatorsale'),
 
     # Test Bootstrap CSS & components
     url('^tests/bootstrap$',
