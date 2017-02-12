@@ -1,0 +1,24 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+{% load static %}
+
+{% block content %}
+<script src="{% static 'bootstrap-colorpicker-master/js/bootstrap-colorpicker.min.js' %}"></script>
+<link rel="stylesheet" href="{% static 'bootstrap-colorpicker-master/css/bootstrap-colorpicker.min.css' %}" />
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Modification du magasin {{ shop.name|capfirst }}
+  </div>
+  <div class="panel panel-body">
+    <form action= "" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button type="submit" class="btn btn-success">Modifier</button>
+    </form>
+  </div>
+</div>
+<script>
+  $("#id_color").colorpicker({"align": "left"})
+</script>
+{% endblock %}

@@ -17,7 +17,7 @@ from django.contrib.auth.decorators import permission_required
 from users.views import *
 from shops.views import (
     ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
-    ProductUpdate, ShopCreate, ShopList, ShopContainerCases
+    ProductUpdate, ShopCreate, ShopList, ShopContainerCases, ShopUpdate
     )
 from shops.models import ProductBase, ProductUnit
 from finances.views import *
@@ -161,6 +161,9 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/shops/create/$',
         ShopCreate.as_view(),
         name='url_shop_create'),
+    url(r'^(?P<group_name>[\w-]+)/shops/(?P<pk>\d+)/update/$',
+        ShopUpdate.as_view(),
+        name='url_shop_update'),
 
     url(r'^(?P<group_name>[\w-]+)/self/transferts/create/$',
         SelfTransfertCreate.as_view(),

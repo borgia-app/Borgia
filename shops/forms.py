@@ -142,6 +142,12 @@ class ShopCreateForm(forms.ModelForm):
         fields = ['name', 'description', 'color']
 
 
+class ShopUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Shop
+        fields = ['description', 'color']
+
+
 class ProductListForm(forms.Form):
     def __init__(self, **kwargs):
         shop = kwargs.pop('shop')

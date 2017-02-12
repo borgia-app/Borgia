@@ -9,11 +9,15 @@
       <tr>
           <th>Code</th>
           <th>Description</th>
+          <th>Couleur</th>
+          <th>Modifier</th>
       </tr>
       {% for shop in shop_list %}
       <tr>
           <td>{{ shop.name }}</td>
           <td>{{ shop.description }}</td>
+          <td style="background-color: {{ shop.color }}">{{ shop.color }}</td>
+          <td><a href="{% url 'url_shop_update' group_name=group.name pk=shop.pk %}">Modifier</a></td>
       </tr>
       {% endfor %}
     </table>

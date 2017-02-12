@@ -405,6 +405,36 @@ class ShopList(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
+class ShopUpdate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    template_name = 'shops/shop_update.html'
+    perm_codename = 'change_shop'
+    form_class = ShopUpdateForm
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.shop_mod = Shop.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+        return super(ShopUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_initial(self, **kwargs):
+        initial = super(ShopUpdate, self).get_initial(**kwargs)
+        initial['description'] = self.shop_mod.description
+        initial['color'] = self.shop_mod.color
+        return initial
+
+    def form_valid(self, form):
+        self.shop_mod.description = form.cleaned_data['description']
+        self.shop_mod.color = form.cleaned_data['color']
+        self.shop_mod.save()
+
+        self.success_url = reverse(
+            'url_shop_list',
+            kwargs={'group_name': self.group.name}
+        )
+        return super(ShopUpdate, self).form_valid(form)
+
+
 class ShopContainerCases(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                          GroupLateralMenuFormMixin):
     template_name = 'shops/shop_containercases.html'
