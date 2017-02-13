@@ -546,6 +546,10 @@ class ShopMixin(object):
 
 
 class ShopFromGroupMixin(object):
+    """
+    :note:: Be carefull, this mixin doesn't raise 404 if no shop. You must
+    handle the case of no shop with overriden.
+    """
     def dispatch(self, request, *args, **kwargs):
         try:
             self.shop = shop_from_group(self.group)

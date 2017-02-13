@@ -85,10 +85,10 @@ class Sale(models.Model):
     | sale     |           |                | + shop.name    |                |
     +----------+-----------+----------------+----------------+----------------+
     | Sale w/  | False     | 'sale'         | 'Vente '       |                |
-    | operator |           |                |                |                |
+    | operator |           |                | + shop.name    |                |
     +----------+-----------+----------------+----------------+----------------+
     | Online   | False     | 'sale'         | 'Vente '       |                |
-    | sale     |           |                |                |                |
+    | sale     |           |                | + shop.name    |                |
     +----------+-----------+----------------+----------------+----------------+
     | Lydia    | True      | 'recharging'   | 'Rechargement  |                |
     | self     |           |                | automatique'   |                |

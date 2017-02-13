@@ -18,6 +18,7 @@ import operator
 
 from borgia.utils import *
 from finances.models import Sale
+from shops.models import SingleProduct, Container
 from borgia.forms import UserSearchForm, LoginForm
 from users.views import UserListView
 
@@ -499,11 +500,11 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
                 'shop': shop,
                 'total': -total,
                 'sale_list_short': list_filtered[:5],
-                'data_months': self.data_month(request, list_filtered, sales['months'])
+                'data_months': self.data_months(request, list_filtered, sales['months'])
             })
         return sales
 
-    def data_month(self, request, list, months):
+    def data_months(self, request, list, months):
         amounts = [0 for i in range(0, len(months))]
         for object in list:
             if object.date.strftime("%b-%y") in months:
@@ -519,6 +520,92 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
             y, m = divmod(tot_m, 12)
             mlist.append(datetime(y, m+1, 1).strftime("%b-%y"))
         return mlist
+
+
+class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
+                         GroupLateralMenuMixin):
+    perm_codename = None
+    template_name = 'workboards/shop_workboard.html'
+    lm_active = 'lm_workboard'
+
+    def get(self, request, *args, **kwargs):
+        if self.shop is None:
+            raise Http404
+
+        context = self.get_context_data(**kwargs)
+        context['sale_list'] = self.get_sales(request)
+        context['purchase_list'] = self.get_purchases(request)
+        return render(request, self.template_name, context=context)
+
+    def get_sales(self, request):
+        sales = {}
+        list = Sale.objects.filter(wording='Vente '+self.shop.name).order_by(
+            '-date')
+        sales['weeks'] = self.weeklist(
+            datetime.now() - timedelta(days=365),
+            datetime.now())
+        sales['data_weeks'] = self.sale_data_weeks(list, sales['weeks'])[0]
+        sales['total'] = self.sale_data_weeks(list, sales['weeks'])[1]
+        sales['all'] = list[:7]
+        return sales
+
+    def get_purchases(self, request):
+        purchases = {}
+        list_single_products = SingleProduct.objects.filter(
+            product_base__shop=self.shop)
+        list_containers = Container.objects.filter(
+            product_base__shop=self.shop)
+        purchases['weeks'] = self.weeklist(
+            datetime.now() - timedelta(days=365),
+            datetime.now())
+        purchases['data_weeks'] = self.purchase_data_weeks(
+            list_single_products, list_containers, purchases['weeks'])[0]
+        purchases['total'] = self.purchase_data_weeks(
+            list_single_products, list_containers, purchases['weeks'])[1]
+        return purchases
+
+    def purchase_data_weeks(self, list_single_products, list_containers,
+                            weeks):
+        amounts = [0 for i in range(0, len(weeks))]
+        total = 0
+        for object in list_single_products:
+            string = (str(object.purchase_date.isocalendar()[1])
+                      + '-' + str(object.purchase_date.year))
+            if string in weeks:
+                amounts[weeks.index(string)] += object.price
+            total += object.price
+        for object in list_containers:
+            string = (str(object.purchase_date.isocalendar()[1])
+                      + '-' + str(object.purchase_date.year))
+            if string in weeks:
+                amounts[weeks.index(string)] += object.price
+            total += object.price
+        return amounts, total
+
+    def sale_data_weeks(self, list, weeks):
+        amounts = [0 for i in range(0, len(weeks))]
+        total = 0
+        for object in list:
+            string = (str(object.date.isocalendar()[1])
+                      + '-' + str(object.date.year))
+            if string in weeks:
+                amounts[weeks.index(string)] += object.amount
+            total += object.amount
+        return amounts, total
+
+    def weeklist(self, start, end):
+        list = []
+        for i in range(start.year, end.year+1):
+            week_start = 1
+            week_end = 52
+            if i == start.year:
+                week_start = start.isocalendar()[1]
+            if i == end.year:
+                week_end = end.isocalendar()[1]
+            list += [str(j) + '-' + str(i) for j in range(
+                week_start, week_end+1)]
+        return list
+
 
 
 class GroupWorkboard(GroupPermissionMixin, View, GroupLateralMenuMixin):

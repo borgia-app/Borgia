@@ -7,7 +7,7 @@ from django.contrib.auth.views import (
 from borgia.views import (
     page_clean, jsi18n_catalog, TestBootstrapSober, GroupWorkboard,
     get_list_model, get_unique_model, handler403, handler404, handler500,
-    Login, Logout, GadzartsGroupWorkboard
+    Login, Logout, GadzartsGroupWorkboard, ShopGroupWorkboard
     )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -29,13 +29,34 @@ handler404 = handler404
 handler500 = handler500
 
 urlpatterns = [
-    url(r'^(?P<group_name>[\w-]+)/$',
-        GroupWorkboard.as_view(), name='url_group_workboard'),
+    url(r'^presidents/workboard/$',
+        GroupWorkboard.as_view(), {'group_name': 'presidents'},
+        name='url_group_workboard'),
+    url(r'^vice-presidents-internal/workboard/$',
+        GroupWorkboard.as_view(), {'group_name': 'vice-presidents-internal'},
+        name='url_group_workboard'),
+    url(r'^treasurers/workboard/$',
+        GroupWorkboard.as_view(), {'group_name': 'treasurers'},
+        name='url_group_workboard'),
     url(r'^gadzarts/workboard/$',
         GadzartsGroupWorkboard.as_view(), {'group_name': 'gadzarts'},
         name='url_group_workboard'),
+    url(r'^presidents/$',
+        GroupWorkboard.as_view(), {'group_name': 'presidents'},
+        name='url_group_workboard'),
+    url(r'^vice-presidents-internal/$',
+        GroupWorkboard.as_view(), {'group_name': 'vice-presidents-internal'},
+        name='url_group_workboard'),
+    url(r'^treasurers/$',
+        GroupWorkboard.as_view(), {'group_name': 'treasurers'},
+        name='url_group_workboard'),
+    url(r'^gadzarts/$',
+        GadzartsGroupWorkboard.as_view(), {'group_name': 'gadzarts'},
+        name='url_group_workboard'),
+    url(r'^(?P<group_name>[\w-]+)/$',
+        ShopGroupWorkboard.as_view(), name='url_group_workboard'),
     url(r'^(?P<group_name>[\w-]+)/workboard/$',
-        GroupWorkboard.as_view(), name='url_group_workboard'),
+        ShopGroupWorkboard.as_view(), name='url_group_workboard'),
 
     url(r'^(?P<group_name>[\w-]+)/users/create/$',
         UserCreateView.as_view(), name='url_user_create'),

@@ -83,6 +83,8 @@ class SelfSaleShopModule(forms.Form):
                             * invoice)
         if total_price > self.client.balance:
             raise forms.ValidationError('Crédit insuffisant !')
+        if total_price <= 0:
+            raise forms.ValidationError('La commande doit être positive.')
 
 
 class OperatorSaleShopModule(SelfSaleShopModule):
