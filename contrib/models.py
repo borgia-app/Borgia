@@ -1,5 +1,5 @@
-#-*- coding: utf-8 -*-
 from django.shortcuts import redirect
+from django.urls import resolve, Resolver404
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -56,7 +56,14 @@ class LoginRequiredMiddleware:
                         denied = False
                         break
                 if denied is True:
-                    request.session['after_login'] = request.path_info
+                    try:
+                        match = resolve(request.path_info)
+                        request.session['after_login'] = request.path_info
+                    except Resolver404:
+                        try:
+                            del request.session['after_login']
+                        except KeyError:
+                            pass
                     return HttpResponseRedirect(settings.LOGIN_URL)
 
 

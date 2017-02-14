@@ -607,7 +607,6 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
         return list
 
 
-
 class GroupWorkboard(GroupPermissionMixin, View, GroupLateralMenuMixin):
     template_name = 'group_workboard.html'
     perm_codename = None
