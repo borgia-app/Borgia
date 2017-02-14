@@ -3,8 +3,9 @@
 from notifications.models import *
 from django.shortcuts import HttpResponseRedirect
 from borgia.models import ListCompleteView
-from notifications.forms import notiftest, NotificationTemplateUpdateViewForm
+from notifications.forms import notiftest, NotificationTemplateUpdateViewForm, NotificationTemplateCreateViewForm
 from django.views.generic.edit import UpdateView, CreateView
+from django.views.generic.list import ListView
 from borgia.utils import *
 from django.template import Template, Context
 from lxml import etree
@@ -25,11 +26,6 @@ class NotificationListCompleteView(GroupPermissionMixin, ListCompleteView, Group
         'order_by': '-creation_datetime',
         }
     perm_codename = 'list_notification'
-
-    def get(self, request, *args, **kwargs):
-        # Ajout au fil d'ariane
-        add_to_breadcrumbs(request, 'Notifications')
-        return super(NotificationListCompleteView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
 
@@ -70,10 +66,6 @@ class NotificationTemplateListCompleteView(GroupPermissionMixin, ListCompleteVie
     }
     perm_codename = 'list_notificationtemplate'
 
-    def get(self, request, *args, **kwargs):
-        # Ajout au fil d'ariane
-        add_to_breadcrumbs(request, 'Templates de notification')
-        return super(NotificationTemplateListCompleteView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         # Récupération de la liste de templates de notifications
@@ -96,13 +88,8 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
     model = NotificationTemplate
     template_name = 'notifications/notification_template_create.html'
     success_url = '/notifications/templates/'
-    fields = ['notification_class', 'target_users', 'required_permission', 'message', 'category', 'type', 'is_activated']
+    form_class = NotificationTemplateCreateViewForm
     perm_codename = 'add_notificationtemplate'
-
-    def get(self, request, *args, **kwargs):
-        # Ajout au fil d'ariane
-        add_to_breadcrumbs(request, 'Création de template')
-        return super(NotificationTemplateCreateView, self).get(request, *args, **kwargs)
 
     def get_initial(self):
         if self.request.GET.get('notification_class') is not None:
@@ -134,6 +121,11 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
 
         return context
 
+    def form_valid(self, form):
+        response = super(NotificationTemplateCreateView, self).form_valid(form)
+        notify(self.request, 'template_creation')
+        return response
+
 
 class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLateralMenuFormMixin):
     """
@@ -144,11 +136,6 @@ class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLate
     template_name = 'notifications/notification_template_update.html'
     success_url = None
     perm_codename = 'change_notificationtemplate'
-
-    def get(self, request, *args, **kwargs):
-        # Ajout au fil d'ariane
-        add_to_breadcrumbs(request, 'Modification de template')
-        return super(NotificationTemplateUpdateView, self).get(request, *args, **kwargs)
 
     # Here we will add allowed tags to context in order to display it and help users
     def get_context_data(self, **kwargs):
@@ -177,6 +164,47 @@ class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLate
             pass
 
         return context
+
+
+class NotificationGroupListCompleteView(GroupPermissionMixin, ListView, GroupLateralMenuFormMixin):
+    """
+
+    """
+    model = NotificationGroup
+    template_name = 'notifications/notification_group_list_complete.html'
+    success_url = None
+    perm_codename = None
+
+    def get_queryset(self):
+        for group in Group.objects.all().exclude(name='specials'):
+            try:
+                NotificationGroup.objects.get(notificationgroup=group)
+            except ObjectDoesNotExist:
+                NotificationGroup.objects.create(notificationgroup=group)
+        return super(NotificationGroupListCompleteView, self).get_queryset()
+
+
+class NotificationGroupCreateView(GroupPermissionMixin, CreateView, GroupLateralMenuFormMixin):
+    """
+
+    """
+    model = NotificationGroup
+    fields = ['notificationgroup', 'weight']
+    template_name = 'notifications/notification_group_create.html'
+    success_url = None
+    perm_codename = None
+
+
+class NotificationGroupUpdateView(GroupPermissionMixin, UpdateView, GroupLateralMenuFormMixin):
+    """
+
+    """
+    model = NotificationGroup
+    fields = ['weight']
+    template_name = 'notifications/notification_group_update.html'
+    success_url = None
+    perm_codename = None
+
 
 def read_notification(request):
 

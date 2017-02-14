@@ -1,6 +1,6 @@
 from django.contrib.auth.models import Group, Permission
 from users.models import User
-from notifications.models import Notification, NotificationTemplate
+from notifications.models import Notification, NotificationTemplate, NotificationGroup
 from shops.models import ProductBase, Shop
 from django.views.generic.base import ContextMixin
 from django.core.urlresolvers import reverse
@@ -25,6 +25,7 @@ def lateral_menu(user, group, active=None):
         (Shop, 'Magasins', 'List', 'Add'),
         (Notification, 'Notifications', 'List'),
         (NotificationTemplate, 'Templates notification', 'List', 'Add'),
+        (NotificationGroup, 'Groupes', 'List', 'Add'),
     ]
 
     nav_tree = []
