@@ -40,7 +40,7 @@ class NotificationTemplateCreateViewForm(forms.ModelForm):
             queryset=Shop.objects.all(),
             widget=forms.Select(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
-            required=True)
+            required=False)
 
     def clean(self):
         super(NotificationTemplateCreateViewForm, self).clean()
@@ -80,7 +80,7 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
             queryset=Shop.objects.all(),
             widget=forms.Select(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
-            required=True)
+            required=False)
 
     def clean(self):
         super(NotificationTemplateUpdateViewForm, self).clean()

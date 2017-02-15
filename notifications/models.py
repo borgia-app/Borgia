@@ -43,6 +43,8 @@ class Notification(models.Model):
 
     category = models.ForeignKey('shops.Shop', blank=True, null=True)
 
+    group_category = models.ForeignKey('auth.Group', blank=True, null=True)
+
     # type : correspond aux types de messages (par défaut, ceux proposés par middleware message)
 
     TYPE_CHOICES = (
@@ -109,7 +111,7 @@ class NotificationTemplate(models.Model):
     """
     notification_class = models.ForeignKey('NotificationClass',
                                            on_delete=models.CASCADE)
-    message = models.TextField(blank=True, null=True)
+    message = models.TextField(blank=True, null=True, default='Une notification.')
 
     class Meta:
         default_permissions = (
@@ -204,6 +206,7 @@ def notify(request, notification_class_name, recipient=False, action_medium=Fals
                                                                  target_groups=group,
                                                                  target_users='TARGET_GROUPS',
                                                                  is_activated=True),
+                                group.notificationgroup,
                                 action_medium,
                                 target_object)
                             notified_users.append(user)
@@ -240,13 +243,14 @@ def notify(request, notification_class_name, recipient=False, action_medium=Fals
         raise IntegrityError("Le nom de la classe de notifications doit être unique")
 
 
-def create_notification(request, user, notification_template, action_medium=False, target_object=False):
+def create_notification(request, user, notification_template, group=None, action_medium=False, target_object=False):
     """
     Crée des notifications pour un notification_template donné, en veillant à éviter les doublons de notifications pour un
     utilisateur qui aurait plusieurs rôles au sein de l'association
     :param request:
     :param user:
     :param notification_template:
+    :param group:
     :param action_medium:
     :param target_object:
     :return:
@@ -267,6 +271,7 @@ def create_notification(request, user, notification_template, action_medium=Fals
         target_object_type = ContentType.objects.get_for_model(target_object)
 
     Notification.objects.create(category=notification_template.category,
+                                group_category=group,
                                 type=notification_template.type,
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
