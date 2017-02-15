@@ -28,9 +28,9 @@
     <p><a class="s" href="{% url 'url_product_update' group_name=group_name pk=object.pk %}">Modifier les informations</a></p>
     <p><a class="s" href="{% url 'url_product_deactivate' group_name=group_name pk=object.pk %}">
         {% if object.is_active == True %}
-            Désactiver l'utilisateur
+            Désactiver le produit
         {% else %}
-            Activer l'utilisateur
+            Activer le produit
         {% endif %}</a></p>
   </div>
 </div>
