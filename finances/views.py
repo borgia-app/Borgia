@@ -1510,7 +1510,7 @@ class SharedEventList(GroupPermissionMixin, FormView,
                 else:
                     query_shared_event = SharedEvent.objects.filter(date__range=[date_begin, date_end])
         context = self.get_context_data(**kwargs)
-        context['query_shared_event'] = query_shared_event.order_by(order_by)
+        context['query_shared_event'] = query_shared_event.order_by(order_by).order_by('-date')
         return self.render_to_response(context)
 
     def get_initial(self):
@@ -1522,7 +1522,7 @@ class SharedEventList(GroupPermissionMixin, FormView,
 
     def get_context_data(self, **kwargs):
         context = super(SharedEventList, self).get_context_data(**kwargs)
-        context['query_shared_event'] = SharedEvent.objects.filter(done=False)
+        context['query_shared_event'] = SharedEvent.objects.filter(done=False).order_by('-date')
         return context
 
 
