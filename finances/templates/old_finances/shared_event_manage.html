@@ -8,7 +8,7 @@
         {% if done == False %}
             <div class="row">
                 <h3 class="s">Mise à jour de l'événement</h3>
-                <form action='{% url 'url_manage_shared_event' pk=pk %}' method='post'>
+                <form action="{% url 'url_sharedevent_update' pk=pk %}" method='post'>
                     {% csrf_token %}
                     <input type='hidden' name='action' value='update'>
                     <input type=hidden name="state" value="{{ state }}" />
@@ -21,7 +21,7 @@
             </div>
             <div class="row">
                 <h3 class="s">Chargement de fichier</h3>
-                <form enctype="multipart/form-data" action='{% url 'url_manage_shared_event' pk=pk %}' method='post'>
+                <form enctype="multipart/form-data" action="{% url 'url_manage_shared_event' pk=pk %}" method='post'>
                     {% csrf_token %}
                     <input type='hidden' name='action' value='upload_json'>
                     <input type=hidden name="state" value="{{ state }}" />

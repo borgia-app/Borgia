@@ -55,7 +55,12 @@
         ["list_exceptionnal_movement", "finances", "sale"],
         ["add_transfert", "finances", "sale"],
         ["retrieve_transfert", "finances", "sale"],
-        ["list_transfert", "finances", "sale"]
+        ["list_transfert", "finances", "sale"],
+
+        ["add_sharedevent", "finances", "sharedevent"],
+        ["list_sharedevent", "finances", "sharedevent"],
+        ["change_sharedevent", "finances", "sharedevent"],
+        ["proceed_payment_sharedevent", "finances", "sharedevent"]
       ]
     }
   },
@@ -101,7 +106,12 @@
         ["list_exceptionnal_movement", "finances", "sale"],
         ["add_transfert", "finances", "sale"],
         ["retrieve_transfert", "finances", "sale"],
-        ["list_transfert", "finances", "sale"]
+        ["list_transfert", "finances", "sale"],
+
+        ["add_sharedevent", "finances", "sharedevent"],
+        ["list_sharedevent", "finances", "sharedevent"],
+        ["change_sharedevent", "finances", "sharedevent"],
+        ["proceed_payment_sharedevent", "finances", "sharedevent"]
       ]
     }
   },
@@ -153,7 +163,12 @@
         ["change_bankaccount", "finances", "bankaccount"],
         ["list_bankaccount", "finances", "bankaccount"],
         ["delete_bankaccount", "finances", "bankaccount"],
-        ["retrieve_bankaccount", "finances", "bankaccount"]
+        ["retrieve_bankaccount", "finances", "bankaccount"],
+
+        ["add_sharedevent", "finances", "sharedevent"],
+        ["list_sharedevent", "finances", "sharedevent"],
+        ["change_sharedevent", "finances", "sharedevent"],
+        ["proceed_payment_sharedevent", "finances", "sharedevent"]
       ]
     }
   },
@@ -164,7 +179,8 @@
       "name": "gadzarts",
       "permissions": [
         ["use_selfsalemodule", "modules", "selfsalemodule"],
-        ["add_transfert", "finances", "sale"]
+        ["add_transfert", "finances", "sale"],
+        ["add_sharedevent", "finances", "sharedevent"]
       ]
     }
   },

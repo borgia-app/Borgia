@@ -226,25 +226,6 @@ class SelfLydiaCreateForm(forms.Form):
 
 
 
-class RetrieveMoneyForm(forms.Form):
-
-    date_begin = forms.DateField(label='Date de début', widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    date_end = forms.DateField(label='Date de fin', widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    all = forms.BooleanField(label='Selectionner tous les opérateurs', required=False)
-
-    def __init__(self, *args, **kwargs):
-        user_list = kwargs.pop('user_list')
-        super(RetrieveMoneyForm, self).__init__(*args, **kwargs)
-
-        for (i, u) in enumerate(user_list):
-            self.fields['field_user_%s' % i] = forms.BooleanField(label=str(u.username + ' ' + u.__str__()), required=False)
-
-    def user_list_answers(self):
-        for name, value in self.cleaned_data.items():
-            if name.startwith('field_user_'):
-                yield (self.fields[name].label, value)
-
-
 class SharedEventCreateForm(forms.Form):
     description = forms.CharField(label='Description')
     date = forms.DateField(label='Date de l\'événement', widget=forms.DateInput(attrs={'class': 'datepicker'}))
@@ -254,10 +235,10 @@ class SharedEventCreateForm(forms.Form):
 
 
 class SharedEventManageListForm(forms.Form):
-    date_begin = forms.DateField(required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    date_end = forms.DateField(required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
+    date_begin = forms.DateField(label='De', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
+    date_end = forms.DateField(label='A', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
     all = forms.BooleanField(required=False, label='Depuis toujours')
-    done = forms.ChoiceField(choices=((True, 'Terminé'), (False, 'En cours'), ('both', 'Les deux')))
+    done = forms.ChoiceField(label='Etat', choices=((True, 'Terminé'), (False, 'En cours'), ('both', 'Les deux')))
     order_by = forms.ChoiceField(label='Trier par', choices=(('-date', 'Date'), ('manager', 'Opérateur')))
 
 

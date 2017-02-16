@@ -150,6 +150,38 @@ class SupplyUnitedView(FormNextView):
         return initial
 
 
+class SetPriceProductBaseView(FormView):
+    template_name = 'finances/product_base_price.html'
+    form_class = SetPriceProductBaseForm
+
+    def get(self, request, *args, **kwargs):
+        add_to_breadcrumbs(request, 'Modification prix produit')
+        return super(SetPriceProductBaseView, self).get(request, *args, **kwargs)
+
+    def get_initial(self):
+        product_base = ProductBase.objects.get(pk=self.kwargs['pk'])
+        initial = super(SetPriceProductBaseView, self).get_initial()
+        initial['is_manual'] = product_base.is_manual
+        initial['manual_price'] = product_base.manual_price
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(SetPriceProductBaseView, self).get_context_data(**kwargs)
+        context['pk'] = self.kwargs['pk']
+        context['product_base'] = ProductBase.objects.get(pk=self.kwargs['pk'])
+        try:
+            context['margin_profit'] = Setting.objects.get(name='MARGIN_PROFIT').get_value()
+        except ObjectDoesNotExist:
+            pass
+        return context
+
+    def form_valid(self, form):
+        product_base = ProductBase.objects.get(pk=self.kwargs['pk'])
+        product_base.is_manual = form.cleaned_data['is_manual']
+        product_base.manual_price = form.cleaned_data['manual_price']
+        product_base.save()
+        return redirect('url_set_price_product_base', pk=self.kwargs['pk'])
+
 # Used in the supply view
 def bank_account_from_user(request):
     try:
@@ -183,6 +215,10 @@ class SharedEventCreateView(FormNextView):
     def get(self, request, *args, **kwargs):
         add_to_breadcrumbs(request, 'Création événement')
         return super(SharedEventCreateView, self).get(request, *args, **kwargs)
+
+
+
+
 
 
 def shared_event_registration(request):
@@ -494,37 +530,6 @@ class SharedEventManageView(View):
         return render(request, 'finances/shared_event_manage.html', context)
 
 
-class SetPriceProductBaseView(FormView):
-    template_name = 'finances/product_base_price.html'
-    form_class = SetPriceProductBaseForm
-
-    def get(self, request, *args, **kwargs):
-        add_to_breadcrumbs(request, 'Modification prix produit')
-        return super(SetPriceProductBaseView, self).get(request, *args, **kwargs)
-
-    def get_initial(self):
-        product_base = ProductBase.objects.get(pk=self.kwargs['pk'])
-        initial = super(SetPriceProductBaseView, self).get_initial()
-        initial['is_manual'] = product_base.is_manual
-        initial['manual_price'] = product_base.manual_price
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super(SetPriceProductBaseView, self).get_context_data(**kwargs)
-        context['pk'] = self.kwargs['pk']
-        context['product_base'] = ProductBase.objects.get(pk=self.kwargs['pk'])
-        try:
-            context['margin_profit'] = Setting.objects.get(name='MARGIN_PROFIT').get_value()
-        except ObjectDoesNotExist:
-            pass
-        return context
-
-    def form_valid(self, form):
-        product_base = ProductBase.objects.get(pk=self.kwargs['pk'])
-        product_base.is_manual = form.cleaned_data['is_manual']
-        product_base.manual_price = form.cleaned_data['manual_price']
-        product_base.save()
-        return redirect('url_set_price_product_base', pk=self.kwargs['pk'])
 
 
 # Autres
@@ -629,6 +634,10 @@ def change_ponderation_se(request, pk):
         response = 0
 
     return HttpResponse(response)
+
+
+
+
 
 
 def list_base_ponderation_from_file(f):

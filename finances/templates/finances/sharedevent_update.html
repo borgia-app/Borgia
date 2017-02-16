@@ -1,0 +1,284 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+{% load finances_extra %}
+
+{% block content %}
+
+{% if done == False %}
+<div class="row">
+  <div class="col-md-6">
+    <div class="panel panel-default">
+  <div class="panel-heading">
+    Mise à jour de l'événement
+  </div>
+  <div class="panel-body">
+    <form action="{% url 'url_sharedevent_update' pk=pk group_name=group.name %}" method='post' class="form-horizontal">
+        {% csrf_token %}
+        <input type='hidden' name='action' value='update'>
+        <input type=hidden name="state" value="{{ state }}" />
+        <input type=hidden name="order_by" value="{{ order_by }}" />
+        <input type=hidden name="next" value="{{ next }}" />
+        {{ update_form|bootstrap_horizontal }}
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <button type="submit" class="btn btn-success">Mise à jour</button>
+          </div>
+        </div>
+    </form>
+  </div>
+</div>
+  </div>
+  <div class="col-md-6">
+    <div class="panel panel-default">
+  <div class="panel-heading">
+    Chargement d'un fichier
+  </div>
+  <div class="panel-body">
+    <form enctype="multipart/form-data" action="{% url 'url_sharedevent_update' pk=pk group_name=group.name %}"
+    method='post' class="form-horizontal">
+        {% csrf_token %}
+        <input type='hidden' name='action' value='upload_json'>
+        <input type=hidden name="state" value="{{ state }}" />
+        <input type=hidden name="order_by" value="{{ order_by }}" />
+        <input type=hidden name="next" value="{{ next }}" />
+        {{ upload_json_form|bootstrap_horizontal }}
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <button type="submit" class="btn btn-success">Upload</button>
+          </div>
+        </div>
+    </form>
+  </div>
+</div>
+  </div>
+</div>
+{% endif %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Téléchargement de fichiers Excels
+  </div>
+  <div class="panel-body">
+    <form action= "{% url 'url_sharedevent_update' pk=pk group_name=group.name %}" method="post">
+        {% csrf_token %}
+            <span id="list_year">
+                <label>{{ download_xlsx_form.state.label }}</label> {{ download_xlsx_form.state }}
+                <label>Selectionner les années à inclure :</label>
+                {% for f in download_xlsx_form %}
+                    {% if f != download_xlsx_form.state %}
+                        <span class="fieldWrapper">
+                            {{ f.errors }}
+                            {{ f.label }} : {{ f }}
+                        </span>
+                    {% endif %}
+                {% endfor %}
+            </span>
+        <input type='hidden' name='action' value='download_xlsx'>
+        <input type=hidden name="state" value="{{ state }}" />
+        <input type=hidden name="order_by" value="{{ order_by }}" />
+        <input type=hidden name="next" value="{{ next }}" />
+        <input type="submit" value="Télécharger le fichier"/>
+    </form>
+  </div>
+</div>
+{% if perms.finances.proceed_payment_sharedevent %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Payement
+  </div>
+  <div class="panel-body">
+    {{ payment_error }}
+    Etat : {% human_reading done 'shared_event_done' %}
+    {% if done == False %}
+    <a href="{% url 'url_sharedevent_proceed_payment' pk=pk group_name=group.name %}" class="btn btn-danger">Procéder au paiement</a>
+    {% endif %}
+  </div>
+</div>
+{% endif %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Gestion manuelle
+  </div>
+  <div class="panel-body">
+    <form action="{% url 'url_sharedevent_update' pk=pk group_name=group.name %}#table_users" method='post'>
+        {% csrf_token %}
+        <input type='hidden' name='action' value='list_user'>
+        <input type=hidden name="state" value="{{ state }}" />
+        <input type=hidden name="order_by" value="{{ order_by }}" />
+        <input type=hidden name="next" value="{{ next }}" />
+        <p>{{ list_user_form.state.error }}
+          {{ list_user_form.state.label }} : {{ list_user_form.state }}
+            {{ list_user_form.order_by.error }}
+            {{ list_user_form.order_by.label }} : {{ list_user_form.order_by }}
+             <button type='submit' class="btn btn-default">Lister</button></p>
+    </form>
+    {% if done == False %}
+        <form action="{% url 'url_sharedevent_update' pk=pk group_name=group.name %}#table_users" method='post'>
+            {% csrf_token %}
+            <input type='hidden' name='action' value='add_user'>
+            <input type=hidden name="state" value="{{ state }}" />
+            <input type=hidden name="order_by" value="{{ order_by }}" />
+            <input type=hidden name="next" value="{{ next }}" />
+            {{ add_user_form.username.error_messages }} {{ add_user_form.state.error_messages }} {{ add_user_form.ponderation.error_messages }}
+            <p>{{ add_user_form.username.error }}
+              {{ add_user_form.username.label }} : {{ add_user_form.username }}
+              {{ add_user_form.state.error }}{{ add_user_form.state }}
+              <span id="ponderation">{{ add_user_form.ponderation.error }}
+                {{ add_user_form.ponderation.label }} : {{ add_user_form.ponderation }}
+              </span> <button type='submit' class="btn btn-warning">Ajouter</button></p>
+        </form>
+    {% endif %}
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Utilisateurs
+  </div>
+  <div class="panel-body" id="table_users">
+    <p>
+        {% if errors != 0 %}
+            {{ errors }} erreurs de traitement
+        {% endif %}
+    </p>
+    <p>
+        {% if done == False %}
+            {% if state == 'participants' %}
+                <a class="btn btn-danger"
+                href="{% url 'url_sharedevent_rm_participant' group_name=group.name pk=pk participant_pk='ALL' %}">
+                Supprimer tous les participants</a>
+            {% else %}
+                <a class="btn btn-danger"
+                href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk='ALL' %}">
+                Supprimer tous les inscrits</a>
+            {% endif %}
+        {% endif %}
+    </p>
+    <table class="table table-default table-hover table-striped">
+      <thead>
+        <tr>
+            <th>Nom</th>
+            <th>Prénom</th>
+            <th>Bucque</th>
+            <th>Prom'ss</th>
+            <th>Pondération</th>
+            {% if done == False %}<th>Supprimer</th>{% endif %}
+        </tr>
+      </thead>
+      <tbody>
+      {% for u in query_user %}
+          <tr>
+              <td>{{ u.0.last_name }}</td>
+              <td>{{ u.0.first_name }}</td>
+              <td>{{ u.0.surname }}</td>
+              <td>{{ u.0.username }}</td>
+              <td><input id="ponderation_{{ u.0.pk }}" class="form-control" type="number" min="1" value="{{ u.1 }}"/></td>
+              {% if done == False %}<td>
+                  {% if state == 'participants' %}
+                      <a class="btn btn-small btn-danger"
+                      href="{% url 'url_sharedevent_rm_participant' group_name=group.name pk=pk participant_pk=u.0.pk %}">supprimer</a>
+                  {% else %}
+                      <a class="btn btn-small btn-danger"
+                      href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk=u.0.pk %}">supprimer</a>
+                  {% endif %}
+              </td>{% endif %}
+          </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+    // Modification à la volée de la pondération
+    // Apres la modification (blur ou enter), requete ajax pour modifier la pondération
+    {% for u in query_user %}
+        var old_ponderation;
+        $('#ponderation_{{ u.0.pk }}').on('focus', function() {
+            old_ponderation = $(this).val();
+        }).change(function() {
+            if ($(this).val() != old_ponderation) {
+                $.ajax({
+                    method: "GET",
+                    url: "{% url 'url_sharedevent_change_ponderation' group_name=group.name pk=pk participant_pk=u.0.pk %}",
+                    data: {
+                        pond: $(this).val()
+                    },
+                    success: function (response) {
+                        if (response == 0) {
+                            $('#ponderation_{{ u.0.pk }}').val(old_ponderation);
+                        }
+                    },
+                    error: function() {
+                        $('#ponderation_{{ u.0.pk }}').val(old_ponderation);
+                    }
+                })
+            }
+        });
+    {% endfor %}
+
+</script>
+<script>
+    // Masquage de pondération dans le cas d'ajout manuel d'un inscrit
+    display_ponderation();
+
+    $('#id_add_user_form-state').change(function(){
+        display_ponderation();
+    });
+
+    function display_ponderation() {
+        if ($('#id_add_user_form-state').val() == 'registered') {
+            $('#ponderation').hide();
+        }
+        else {
+            $('#ponderation').show();
+        }
+    }
+</script>
+<script>
+    // Bouton "plus" pour la liste des promos
+    list_year_fields = document.getElementById("list_year").getElementsByTagName("span");
+    bouton_plus = document.createElement("input");
+    bouton_plus.setAttribute("type", "button");
+    bouton_plus.setAttribute("value", "afficher plus");
+    affichage_plus = false;
+
+    // Si plus de 5 promos, on ajoute un bouton "plus" qui affiche le reste
+    if (list_year_fields.length > 5) {
+        insertAfter(bouton_plus, list_year_fields[5]);
+    }
+
+    // Masquage de tous les éléments supérieurs à 5
+    afficher_span(list_year_fields, 4, 'None');
+
+    // Affichage du reste des éléments
+    bouton_plus.addEventListener("click", function() {
+        if (affichage_plus == true) {
+            afficher_span(list_year_fields, 4, 'None');
+            affichage_plus = false;
+            bouton_plus.value = "Afficher plus";
+        }
+        else {
+            afficher_span(list_year_fields, 4, '');
+            affichage_plus = true;
+            bouton_plus.value = "Afficher moins";
+        }
+    }, false);
+
+    function afficher_span(liste, debut, afficher) {
+        for (i=0; i<liste.length; i++) {
+            if (i>debut) {
+                liste[i].style.display = afficher;
+            }
+        }
+    }
+    function insertAfter(newElement, afterElement) {
+        var parent = afterElement.parentNode;
+        if (parent.lastChild === afterElement) { // Si le dernier élément est le même que l'élément après lequel on veut insérer, il suffit de faire appendChild()
+            parent.appendChild(newElement);
+        } else { // Dans le cas contraire, on fait un insertBefore() sur l'élément suivant
+            parent.insertBefore(newElement, afterElement.nextSibling);
+        }
+    }
+</script>
+
+{% endblock %}

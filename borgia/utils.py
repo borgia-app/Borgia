@@ -8,6 +8,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.urls import NoReverseMatch
 from modules.models import *
+from finances.models import SharedEvent
 
 
 def lateral_menu(user, group, active=None):
@@ -25,6 +26,7 @@ def lateral_menu(user, group, active=None):
         (Shop, 'Magasins', 'List', 'Add'),
         (Notification, 'Notifications', 'List'),
         (NotificationTemplate, 'Templates notification', 'List', 'Add'),
+        (SharedEvent, 'Evènements', 'List', 'Add'),
         (NotificationGroup, 'Groupes', 'List', 'Add'),
     ]
 

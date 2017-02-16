@@ -175,6 +175,12 @@
                   <h3>Transfert</h3>
                 </li>
               </a>
+              <a href="{% url 'url_self_sharedevent_list' group_name=group.name %}">
+                <li class="list-group-item redbg">
+                  <img src="{% static 'img/event-calendar-symbol.svg' %}" />
+                  <h3>Evènements</h3>
+                </li>
+              </a>
               <a href="{% url 'url_self_transaction_list' group_name=group.name %}">
                 <li class="list-group-item turquoisebg">
                   <img src="{% static 'img/history.svg' %}" />
@@ -192,7 +198,7 @@
           </ul>
           <style>
             .list_group_apps li {
-              height: {% if first_job %}{{ 4|height_ratio:list_selfsalemodule }}{% else %}{{ 3|height_ratio:list_selfsalemodule }}{% endif %}%
+              height: {% if first_job %}{{ 5|height_ratio:list_selfsalemodule }}{% else %}{{ 4|height_ratio:list_selfsalemodule }}{% endif %}%
               ;
             }
           </style>
