@@ -5,7 +5,7 @@ from django.core.validators import MinValueValidator
 from modules.models import *
 from shops.models import ProductBase
 from users.models import User
-from django.db.utils import OperationalError
+from django.db.utils import OperationalError, ProgrammingError
 
 
 class SelfSaleShopModule(forms.Form):
@@ -98,6 +98,8 @@ class OperatorSaleShopModule(SelfSaleShopModule):
                        'data-live-search': 'True'})
         )
     except OperationalError:
+        pass
+    except ProgrammingError:
         pass
 
 
