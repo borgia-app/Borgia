@@ -220,7 +220,7 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/self/lydias/confirm/$',
         SelfLydiaConfirm.as_view(),
         name='url_self_lydia_confirm'),
-    url(r'^(?P<group_name>[\w-]+)/self/lydias/callback/$',
+    url(r'^/self/lydias/callback/$',
         self_lydia_callback,
         name='url_self_lydia_callback'),
 

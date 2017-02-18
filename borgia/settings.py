@@ -141,7 +141,7 @@ LOGIN_EXEMPT_URLS = [
     '/ajax/username_from_username_part/',
     '/local/jsi18n',
     '/admin/',
-    'self_lydia_callback',
+    '/self/lydias/callback/',
 ]
 
 LOGIN_EXEMPT_URL_PATTERNS = [
