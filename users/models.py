@@ -125,6 +125,8 @@ class User(AbstractUser):
             return self.family + self.campus + str(self.year_pg()) + ' ' + self.first_name + ' ' + self.last_name
         except TypeError:
             return 'undefined'
+        except AttributeError:
+            return 'undefined'
 
     def year_pg(self):
         """
