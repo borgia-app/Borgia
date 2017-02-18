@@ -12,6 +12,9 @@ from django import template
 from shops.models import Shop
 from lxml import etree
 from annoying.fields import AutoOneToOneField
+from django.forms import ValidationError
+from django.db.models.signals import m2m_changed
+from django.dispatch import receiver
 
 from django.utils.html import conditional_escape
 
@@ -149,6 +152,17 @@ class NotificationTemplate(models.Model):
     update_date = models.DateTimeField(auto_now=True, editable=False)
     last_call_datetime = models.DateTimeField(blank=True, null=True, editable=False)
     is_activated = models.BooleanField(default=False)
+
+
+@receiver(m2m_changed, sender=NotificationTemplate.target_groups.through)
+def target_groups_changed(sender, instance, action, pk_set, **kwargs):
+    for group in instance.target_groups.all():
+        if NotificationTemplate.objects.filter(notification_class=instance.notification_class,
+                                               target_users='TARGET_GROUPS',
+                                               target_groups=group).exclude(pk=instance.pk).exists():
+            raise ValidationError("L'un des groupes est déjà utilisé pour la même classe", code='Invalid')
+
+
 
 
 class NotificationGroup(models.Model):
