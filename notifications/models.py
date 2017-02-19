@@ -13,7 +13,7 @@ from shops.models import Shop
 from lxml import etree
 from annoying.fields import AutoOneToOneField
 from django.forms import ValidationError
-from django.db.models.signals import m2m_changed
+from django.db.models.signals import m2m_changed, pre_save
 from django.dispatch import receiver
 
 from django.utils.html import conditional_escape
@@ -156,11 +156,30 @@ class NotificationTemplate(models.Model):
 
 @receiver(m2m_changed, sender=NotificationTemplate.target_groups.through)
 def target_groups_changed(sender, instance, action, pk_set, **kwargs):
-    for group in instance.target_groups.all():
+    if instance.target_users == 'TARGET_GROUPS':
+        for group in instance.target_groups.all():
+            if NotificationTemplate.objects.filter(notification_class=instance.notification_class,
+                                                   target_users='TARGET_GROUPS',
+                                                   target_groups=group).\
+                    exclude(pk=instance.pk).exists():
+                raise ValidationError("L'un des groupes est déjà utilisé pour la même classe de notification",
+                                      code='Invalid')
+
+
+@receiver(pre_save, sender=NotificationTemplate)
+def target_users_pre_save(sender, instance, **kwargs):
+    print('aaaaa')
+    if instance.target_users == "ACTOR":
         if NotificationTemplate.objects.filter(notification_class=instance.notification_class,
-                                               target_users='TARGET_GROUPS',
-                                               target_groups=group).exclude(pk=instance.pk).exists():
-            raise ValidationError("L'un des groupes est déjà utilisé pour la même classe", code='Invalid')
+                                               target_users="ACTOR").exists():
+            raise ValidationError("Il existe déjà un template 'Actor' pour la même classe de notification",
+                                  code='Invalid')
+    elif instance.target_users == "RECIPIENT":
+        if NotificationTemplate.objects.filter(notification_class=instance.notification_class,
+                                               target_users="RECIPIENT").exists():
+            raise ValidationError("Il existe déjà un template 'Recipient' pour la même classe de notification",
+                                  code='Invalid')
+
 
 
 

@@ -48,11 +48,29 @@ class NotificationTemplateCreateViewForm(forms.ModelForm):
         if self.cleaned_data.get("target_users") != "TARGET_GROUPS":
             if self.cleaned_data.get("target_groups"):
                 raise forms.ValidationError(
-                    "Target_groups should be None when the target_users key is not TARGET_GROUPS")
+                    "Target_groups should be None when the target_users key is not TARGET_GROUPS", code="Invalid")
         else:
             if not self.cleaned_data.get("target_groups"):
                 raise forms.ValidationError(
-                    "Target_groups should not be None when the target_users key is TARGET_GROUPS")
+                    "Target_groups should not be None when the target_users key is TARGET_GROUPS", code="Invalid")
+
+        if self.cleaned_data.get('target_users') == "TARGET_GROUPS":
+            for group in self.cleaned_data.get("target_groups"):
+                if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
+                                                       target_users="TARGET_GROUPS",
+                                                       target_groups=group).exists():
+                    raise ValidationError("L'un des groupes est déjà utilisé pour la même classe de notification",
+                                          code='Invalid')
+        elif self.cleaned_data.get('target_users') == "ACTOR":
+            if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
+                                                   target_users="ACTOR").exists():
+                raise ValidationError("Il existe déjà un template 'Actor' pour la même classe de notification",
+                                          code='Invalid')
+        elif self.cleaned_data.get('target_users') == "RECIPIENT":
+            if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
+                                                   target_users="RECIPIENT").exists():
+                raise ValidationError("Il existe déjà un template 'Recipient' pour la même classe de notification",
+                                          code='Invalid')
 
 
 class NotificationTemplateUpdateViewForm(forms.ModelForm):
@@ -88,12 +106,26 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
         if self.cleaned_data.get("target_users") != "TARGET_GROUPS":
             if self.cleaned_data.get("target_groups"):
                 raise forms.ValidationError(
-                    "Target_groups should be None when the target_users key is not TARGET_GROUPS")
+                    "Target_groups should be None when the target_users key is not TARGET_GROUPS", code="Invalid")
         else:
             if not self.cleaned_data.get("target_groups"):
                 raise forms.ValidationError(
-                    "Target_groups should not be None when the target_users key is TARGET_GROUPS")
+                    "Target_groups should not be None when the target_users key is TARGET_GROUPS", code="Invalid")
 
-
-
-
+        if self.cleaned_data.get('target_users') == "TARGET_GROUPS":
+            for group in self.cleaned_data.get("target_groups"):
+                if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
+                                                       target_users="TARGET_GROUPS",
+                                                       target_groups=group).exists():
+                    raise ValidationError("L'un des groupes est déjà utilisé pour la même classe de notification",
+                                          code='Invalid')
+        elif self.cleaned_data.get('target_users') == "ACTOR":
+            if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
+                                                   target_users="ACTOR").exists():
+                raise ValidationError("Il existe déjà un template 'Actor' pour la même classe de notification",
+                                          code='Invalid')
+        elif self.cleaned_data.get('target_users') == "RECIPIENT":
+            if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
+                                                   target_users="RECIPIENT").exists():
+                raise ValidationError("Il existe déjà un template 'Recipient' pour la même classe de notification",
+                                          code='Invalid')
