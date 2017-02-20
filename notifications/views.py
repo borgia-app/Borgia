@@ -35,23 +35,9 @@ class NotificationListCompleteView(GroupPermissionMixin, ListCompleteView, Group
             if notification.read_date is None:
                 notification.read_date = now()
                 notification.save()
+
         return super(NotificationListCompleteView, self).get_context_data(**kwargs)
 
-    # Définit la méthode de rendu du template qui sera accessible dans le template avec view
-    def template_rendering_engine(self):
-        for e in self.query:
-            return Template(template_rendering_engine(NotificationTemplate.objects.get(
-                pk=e.notification_template.pk).message)).\
-                render(template.Context
-                (
-                    {
-                        'recipient': e.action_medium_object,
-                        'object': e.action_medium_object,
-                        'actor': e.actor_object,
-                        'group_name': self.kwargs['group_name'],
-                    }
-                )
-                       )
 
 
 class NotificationTemplateListCompleteView(GroupPermissionMixin, ListCompleteView, GroupLateralMenuMixin):
@@ -66,19 +52,18 @@ class NotificationTemplateListCompleteView(GroupPermissionMixin, ListCompleteVie
     }
     perm_codename = 'list_notificationtemplate'
 
-
     def get_context_data(self, **kwargs):
         # Récupération de la liste de templates de notifications
         self.query = NotificationTemplate.objects.all().order_by(self.attr['order_by'])
-        return super(NotificationTemplateListCompleteView, self).get_context_data(**kwargs)
-
-    # Définit la méthode de rendu du template qui sera accessible dans le template avec view
-    def template_rendering_engine(self):
-        for e in self.query:
-            return Template(template_rendering_engine(e.message)).render(template.Context({
-                'group_name': self.kwargs['group_name'],
-                'actor': self.request.user,
-            }))
+        # Call the base implementation first to get a context
+        context = super(NotificationTemplateListCompleteView, self).get_context_data(**kwargs)
+        # Add in the html template
+        for template_object in context['page']:
+            template_object.html_template = Template(template_rendering_engine(template_object.message)).\
+                render(template.Context({
+                    'group_name': self.kwargs['group_name'],
+                    'actor': self.request.user}))
+        return context
 
 
 class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLateralMenuFormMixin):

@@ -30,7 +30,7 @@
             <tr>
                 <td>{{ e.pk }}</td>
                 <td>{{ e.notification_class.name}}</td>
-                <td>{{ view.template_rendering_engine|safe}}</td>
+                <td>{{ e.html_template|safe}}</td>
                 <td>{{ e.target_groups }}</td>
                 <td>{{ e.type }}</td>
                 <td>{{ e.category }}</td>

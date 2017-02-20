@@ -1,5 +1,6 @@
 {% extends 'base_sober.html' %}
 {% load bootstrap %}
+{% load notifications_extra %}
 
 {% block content %}
 
@@ -28,7 +29,7 @@
                 <td>{{ e.category }}</td>
                 <td>{{ e.type }}</td>
                 <td>{{ e.actor_object }}</td>
-                <td>{{ view.template_rendering_engine|safe}}</td>
+                <td>{% html_rendering_tag e %}</td>
                 <td>{{ e.target_user }}</td>
                 <td>{{ e.creation_datetime }}</td>
             </tr>

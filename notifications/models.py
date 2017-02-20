@@ -181,9 +181,6 @@ def target_users_pre_save(sender, instance, **kwargs):
                                   code='Invalid')
 
 
-
-
-
 class NotificationGroup(models.Model):
     """
 
@@ -360,14 +357,11 @@ def get_unread_notifications_for_user(request):
                 # Ajout de la notification au middleware message
                 messages.add_message(request,
                                      message_level,
-                                     template.Template(
-                                         "Le " + str(e.creation_datetime.day) + '/' + str(e.creation_datetime.month) +
-                                         '/' + str(e.creation_datetime.year) + ' à ' + str(e.creation_datetime.hour) +
-                                         ':' + str(e.creation_datetime.minute) + "\n" +
-                                         template_rendering_engine(NotificationTemplate.objects.get(
-                                             pk=e.notification_template.pk).message)).render(template.Context({'recipient': e.action_medium_object,
-                                                                          'object': e.action_medium_object,
-                                                                          'actor': e.actor_object})),
+                                     "Le " + str(e.creation_datetime.day) + '/' + str(e.creation_datetime.month) +
+                                     '/' + str(e.creation_datetime.year) + ' à ' + str(e.creation_datetime.hour) +
+                                     ':' + str(e.creation_datetime.minute) + "\n" +
+                                     template_rendering_engine(NotificationTemplate.objects.get(
+                                         pk=e.notification_template.pk).message),
                                      extra_tags=e.pk)
 
                 # Prise en compte de l'affichage de la notification pour utilisation ultérieure
