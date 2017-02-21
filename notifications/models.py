@@ -46,7 +46,9 @@ class Notification(models.Model):
 
     category = models.ForeignKey('shops.Shop', blank=True, null=True)
 
-    group_category = models.ForeignKey('auth.Group', blank=True, null=True)
+    target_category = models.CharField(max_length=20, default='ACTOR')
+
+    group_category = models.ForeignKey('NotificationGroup', blank=True, null=True)
 
     # type : correspond aux types de messages (par défaut, ceux proposés par middleware message)
 
@@ -66,7 +68,8 @@ class Notification(models.Model):
     actor_object = GenericForeignKey('actor_type', 'actor_id')
 
     # notification_template : template xml qui va permettre de générer la notification
-    notification_template = models.ForeignKey('NotificationTemplate', blank=True, null=True, on_delete=models.CASCADE)
+    notification_class = models.ForeignKey('NotificationClass', blank=True, null=True, on_delete=models.CASCADE)
+
 
     # target_user : user cible de la notification, chez qui elle sera affichée
     target_user = models.ForeignKey('users.User', related_name='notification_target_user', on_delete=models.CASCADE)
@@ -236,7 +239,7 @@ def notify(request, notification_class_name, recipient=False, action_medium=Fals
                                                                  target_groups=group,
                                                                  target_users='TARGET_GROUPS',
                                                                  is_activated=True),
-                                group.notificationgroup,
+                                group,
                                 action_medium,
                                 target_object)
                             notified_users.append(user)
@@ -251,6 +254,7 @@ def notify(request, notification_class_name, recipient=False, action_medium=Fals
                     NotificationTemplate.objects.get(notification_class=notification_class[0],
                                                      target_users='ACTOR',
                                                      is_activated=True),
+                    None,
                     action_medium,
                     target_object)
             except ObjectDoesNotExist:
@@ -264,6 +268,7 @@ def notify(request, notification_class_name, recipient=False, action_medium=Fals
                         NotificationTemplate.objects.get(notification_class=notification_class[0],
                                                          target_users='RECIPIENT',
                                                          is_activated=True),
+                        None,
                         action_medium,
                         target_object)
                 except ObjectDoesNotExist:
@@ -302,10 +307,11 @@ def create_notification(request, user, notification_template, group=None, action
 
     Notification.objects.create(category=notification_template.category,
                                 group_category=group,
+                                target_category=notification_template.target_users,
                                 type=notification_template.type,
                                 actor_id=request.user.pk,
                                 actor_type=ContentType.objects.get(app_label='users', model='user'),
-                                notification_template=notification_template,
+                                notification_class=notification_template.notification_class,
                                 target_user=user,
                                 action_medium_id=action_medium_id,
                                 action_medium_type=action_medium_type,

@@ -39,7 +39,6 @@ class NotificationListCompleteView(GroupPermissionMixin, ListCompleteView, Group
         return super(NotificationListCompleteView, self).get_context_data(**kwargs)
 
 
-
 class NotificationTemplateListCompleteView(GroupPermissionMixin, ListCompleteView, GroupLateralMenuMixin):
     """
 

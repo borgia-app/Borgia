@@ -26,7 +26,13 @@
             {% for e in page %}
             <tr>
                 <td>{{ e.pk }}</td>
-                <td>{{ e.category }}</td>
+                <td>
+                    {% if e.target_category == "TARGET_GROUPS"%}
+                        {{ e.group_category }}
+                    {% else %}
+                        {{ e.target_category }}
+                    {% endif %}
+                </td>
                 <td>{{ e.type }}</td>
                 <td>{{ e.actor_object }}</td>
                 <td>{% html_rendering_tag e %}</td>
