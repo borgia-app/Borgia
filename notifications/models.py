@@ -171,15 +171,14 @@ def target_groups_changed(sender, instance, action, pk_set, **kwargs):
 
 @receiver(pre_save, sender=NotificationTemplate)
 def target_users_pre_save(sender, instance, **kwargs):
-    print('aaaaa')
     if instance.target_users == "ACTOR":
         if NotificationTemplate.objects.filter(notification_class=instance.notification_class,
-                                               target_users="ACTOR").exists():
+                                               target_users="ACTOR").exclude(pk=instance.pk).exists():
             raise ValidationError("Il existe déjà un template 'Actor' pour la même classe de notification",
                                   code='Invalid')
     elif instance.target_users == "RECIPIENT":
         if NotificationTemplate.objects.filter(notification_class=instance.notification_class,
-                                               target_users="RECIPIENT").exists():
+                                               target_users="RECIPIENT").exclude(pk=instance.pk).exists():
             raise ValidationError("Il existe déjà un template 'Recipient' pour la même classe de notification",
                                   code='Invalid')
 

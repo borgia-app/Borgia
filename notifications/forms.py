@@ -116,16 +116,16 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
             for group in self.cleaned_data.get("target_groups"):
                 if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
                                                        target_users="TARGET_GROUPS",
-                                                       target_groups=group).exists():
+                                                       target_groups=group).exclude(pk=self.instance.pk).exists():
                     raise ValidationError("L'un des groupes est déjà utilisé pour la même classe de notification",
                                           code='Invalid')
         elif self.cleaned_data.get('target_users') == "ACTOR":
             if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
-                                                   target_users="ACTOR").exists():
+                                                   target_users="ACTOR").exclude(pk=self.instance.pk).exists():
                 raise ValidationError("Il existe déjà un template 'Actor' pour la même classe de notification",
                                           code='Invalid')
         elif self.cleaned_data.get('target_users') == "RECIPIENT":
             if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
-                                                   target_users="RECIPIENT").exists():
+                                                   target_users="RECIPIENT").exclude(pk=self.instance.pk).exists():
                 raise ValidationError("Il existe déjà un template 'Recipient' pour la même classe de notification",
                                           code='Invalid')

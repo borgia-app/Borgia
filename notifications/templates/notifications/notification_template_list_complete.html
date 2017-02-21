@@ -31,7 +31,15 @@
                 <td>{{ e.pk }}</td>
                 <td>{{ e.notification_class.name}}</td>
                 <td>{{ e.html_template|safe}}</td>
-                <td>{{ e.target_groups }}</td>
+                <td>
+                    {% if e.target_users == "TARGET_GROUPS" %}
+                        {%  for group in e.target_groups.all %}
+                            {{ group }}
+                        {% endfor %}
+                    {% else %}
+                        {{ e.target_users }}
+                    {% endif %}
+                </td>
                 <td>{{ e.type }}</td>
                 <td>{{ e.category }}</td>
                 <td>{{ e.is_activated }}</td>
