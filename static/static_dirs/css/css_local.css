@@ -730,8 +730,26 @@ h6 {
 
 .user-notification:hover{
   background: #878787;
+  cursor: pointer;
 }
 
+ul.scrollable-menu {
+    height: auto;
+    max-height: 200px;
+    width: 400px;
+    overflow-x: hidden;
+}
+
+li.scrollable-menu {
+  width: 100%;
+}
+
+.dropdown-divider {
+    height: 1px;
+    margin: .5rem 0;
+    overflow: hidden;
+    background-color: #eceeef;
+}
 
 @media screen and (max-width: 767px) {
   .user-container {
@@ -1607,6 +1625,8 @@ a.clickable:hover { text-decoration:none; }
 .purpledarkbg:focus:before {
     background: #432051!important;
 }
+
+
 
 /*
 .messages {

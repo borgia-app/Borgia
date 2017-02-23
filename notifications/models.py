@@ -327,57 +327,12 @@ def get_unread_notifications_for_user(request):
     :return: un str vide pour ne pas altérer le html
     """
     try:
-        notifications_for_user = Notification.objects.filter(target_user=request.user,
-                                                             read_date=None) # Filtre la table de notification à la recherche des notifications qui concernent l'utilisateur et qui n'ont pas été affichées
-
-        if notifications_for_user:  # Si la liste n'est pas vide...
-            for e in notifications_for_user:
-                # https://docs.djangoproject.com/fr/1.9/ref/contrib/messages/
-                # Message levels:
-                # DEBUG : 10
-                # INFO : 20
-                # SUCCESS : 25
-                # WARNING : 30
-                # ERROR : 40
-
-                if e.type == "DEBUG":
-                    message_level = 10
-
-                elif e.type == "INFO":
-                    message_level = 20
-
-                elif e.type == "SUCCESS":
-                    message_level = 25
-
-                elif e.type == "WARNING":
-                    message_level = 30
-
-                elif e.type == "ERROR":
-                    message_level = 40
-
-                else:
-                    # Par défaut le message est de type INFO
-                    message_level = 20
-
-                # Ajout de la notification au middleware message
-                messages.add_message(request,
-                                     message_level,
-                                     "Le " + str(e.creation_datetime.day) + '/' + str(e.creation_datetime.month) +
-                                     '/' + str(e.creation_datetime.year) + ' à ' + str(e.creation_datetime.hour) +
-                                     ':' + str(e.creation_datetime.minute) + "\n" +
-                                     template_rendering_engine(NotificationTemplate.objects.get(
-                                         pk=e.notification_template.pk).message),
-                                     extra_tags=e.pk)
-
-                # Prise en compte de l'affichage de la notification pour utilisation ultérieure
-                if e.displayed_date is None:
-                    e.displayed_date = now()
-                    e.save()
+        return Notification.objects.filter(
+            target_user=request.user,
+            read_date=None) # Filtre la table de notification à la recherche des notifications qui concernent l'utilisateur et qui n'ont pas été affichées
 
     except ObjectDoesNotExist:
-        messages.add_message(request, messages.INFO, "Il n'y a pas de notifications associées à cet user ")
-
-    return ""  # Nécessaire sinon retourne un beau none dans le html
+        pass
 
 
 def determine_notification_category(product):

@@ -1608,6 +1608,11 @@ a.clickable:hover { text-decoration:none; }
     background: #432051!important;
 }
 
+.scrollable-menu {
+    height: auto;
+    max-height: 200px;
+    overflow-x: hidden;
+}
 /*
 .messages {
 color: #FFF;
