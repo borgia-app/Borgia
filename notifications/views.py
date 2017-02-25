@@ -31,12 +31,23 @@ class NotificationListCompleteView(GroupPermissionMixin, ListCompleteView, Group
 
         # Récupération de la liste de notifications filtrées de l'user
         self.query = Notification.objects.filter(target_user=self.request.user).order_by(self.attr['order_by'])
+        notification_tab_header = []
+        seen = set(notification_tab_header)
+
         for notification in self.query:
             if notification.read_date is None:
                 notification.read_date = now()
                 notification.save()
 
-        return super(NotificationListCompleteView, self).get_context_data(**kwargs)
+            if notification.group_category not in seen:
+                seen.add(notification.group_category)
+                notification_tab_header.append(notification.group_category)
+
+        context = super(NotificationListCompleteView, self).get_context_data(**kwargs)
+
+        context['notification_tab_header'] = notification_tab_header
+
+        return context
 
 
 class NotificationTemplateListCompleteView(GroupPermissionMixin, ListCompleteView, GroupLateralMenuMixin):
