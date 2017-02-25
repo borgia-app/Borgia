@@ -14,7 +14,7 @@ class UserSearchForm(forms.Form):
 
 class LoginForm(forms.Form):
     username = forms.CharField(
-        label='Username',
+        label="Nom d'utilisateur",
         max_length=255,
         widget=forms.TextInput(attrs={'class': 'autocomplete_username',
                                       'autocomplete': 'off'})
