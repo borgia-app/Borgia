@@ -840,17 +840,18 @@ class SelfTransactionList(GroupPermissionMixin, FormView,
     def form_query(self, query):
         if self.search:
             query = query.filter(
-                Q(wording__contains=self.search)
-                | Q(category__contains=self.search)
+                Q(wording__icontains=self.search)
+                | Q(category__icontains=self.search)
+                | Q(justification__icontains=self.search)
             )
 
         if self.date_begin:
             query = query.filter(
-                date__gte=self.date_begin)
+                date__gte=self.date_begin-timedelta(days=1))
 
         if self.date_end:
             query = query.filter(
-                date__lte=self.date_end)
+                date__lte=self.date_end+timedelta(days=1))
 
         return query
 
