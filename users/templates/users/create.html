@@ -14,4 +14,26 @@
         </form>
     </div>
 </div>
+<script>
+  $("#id_family").change(function() {
+    update_username()
+  })
+  $("#id_campus").change(function() {
+    update_username()
+  })
+  $("#id_year").change(function() {
+    update_username()
+  })
+  String.prototype.capitalize = function() {
+    return this.charAt(0).toUpperCase() + this.slice(1);
+  }
+  function update_username() {
+    let username = ""
+    username = (
+      $("#id_family").val()
+      + $("#id_campus").val().toLowerCase().capitalize()
+      + $("#id_year").val().slice(0, 1) + $("#id_year").val().slice(2, 4))
+    $("#id_username").val(username)
+  }
+</script>
 {% endblock %}
