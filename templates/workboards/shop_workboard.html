@@ -1,8 +1,10 @@
 {% extends 'base_sober.html' %}
 {% load bootstrap %}
 {% load finances_extra %}
+{% load l10n %}
 
 {% block content %}
+{% localize off %}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
 
 <div class="row">
@@ -193,4 +195,5 @@
       }
   });
 </script>
+{% endlocalize %}
 {% endblock %}

@@ -2,6 +2,7 @@
 {% load notifications_extra %}
 {% load users_extra %}
 {% load bootstrap %}
+{% load l10n %}
 
 <!DOCTYPE html>
 <html lang="fr">
@@ -215,7 +216,7 @@
           </ul>
           <style>
             .list_group_apps li {
-              height: {% if first_job %}{{ 5|height_ratio:list_selfsalemodule }}{% else %}{{ 4|height_ratio:list_selfsalemodule }}{% endif %}%
+              height: {% localize off %}{% if first_job %}{{ 5|height_ratio:list_selfsalemodule }}{% else %}{{ 4|height_ratio:list_selfsalemodule }}{% endif %}{% endlocalize %}%
               ;
             }
           </style>
