@@ -35,8 +35,8 @@ class NotificationListCompleteView(GroupPermissionMixin, ListCompleteView, Group
         seen = set(notification_tab_header)
 
         for notification in self.query:
-            if notification.read_date is None:
-                notification.read_date = now()
+            if notification.read_datetime is None:
+                notification.read_datetime = now()
                 notification.save()
 
             if notification.group_category not in seen:
@@ -69,8 +69,8 @@ class NotificationTemplateListCompleteView(GroupPermissionMixin, ListCompleteVie
         context = super(NotificationTemplateListCompleteView, self).get_context_data(**kwargs)
         # Add in the html template
         for template_object in context['page']:
-            template_object.html_template = Template(template_rendering_engine(template_object.message)).\
-                render(template.Context({
+            template_object.html_template = Template(template_rendering_engine(template_object.xml_template)).\
+                render(Context({
                     'group_name': self.kwargs['group_name'],
                     'actor': self.request.user}))
         return context
@@ -118,7 +118,7 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
 
     def form_valid(self, form):
         response = super(NotificationTemplateCreateView, self).form_valid(form)
-        notify(self.request, 'template_creation')
+        notify(notification_class_name='template_creation', actor=self.request.user)
         return response
 
 
@@ -213,8 +213,8 @@ def read_notification(request):
 
         if notification.target_user == request.user:
 
-            if notification.read_date is None:
-                notification.read_date = now()
+            if notification.read_datetime is None:
+                notification.read_datetime = now()
                 notification.save()
 
             return HttpResponseRedirect(reverse('url_login'))

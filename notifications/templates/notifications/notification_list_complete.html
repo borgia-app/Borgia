@@ -1,105 +1,111 @@
+{# We get the base template + some extra stuff #}
 {% extends 'base_sober.html' %}
 {% load bootstrap %}
 {% load notifications_extra %}
 
 {% block content %}
 
-
+{# Main display #}
 <div class="row">
-<div class="panel panel-default">
-    <div class="panel-heading">
-        Notifications
-    </div>
-    <div class="panel-body">
-      <div>
-        <ul class="nav nav-tabs" role="tablist">
-          <li role="presentation" class="active"><a href="#all" aria-controls="all" role="tab" data-toggle="tab">Tous</a></li>
-          {% for group_category in notification_tab_header %}
-          <li role="presentation">
-            <a href="#{% if group_category == None %}autres{% else %}{{ group_category }}{% endif %}"
-            aria-controls="{% if group_category == None %}autres{% else %}{{ group_category }}{% endif %}"
-            role="tab" data-toggle="tab">{% if group_category == None %}Autres{% else %}{{ group_category|capfirst }}{% endif %}</a></li>
-          {% endfor %}
-        </ul>
-
-        <div class="tab-content">
-          <div role="tabpanel" class="tab-pane active" id="all">
-            <table class="table table-default">
-              <thead>
-                <tr>
-                    <th>Id</th>
-                    <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'category'|order_by:request }}&page={{ page.number }}">Catégorie</a></th>
-                    <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
-                    <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'actor_id'|order_by:request }}&page={{ page.number }}">Acteur</a></th>
-                    <th>Verbe</th>
-                    <th>Utilisateur cible</th>
-                    <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
-                 </tr>
-              </thead>
-              <tbody>
-               {% for notification in page %}
-                <tr>
-                    <td>{{ notification.pk }}</td>
-                    <td>
-                        {% if notification.target_category == "TARGET_GROUPS"%}
-                            {{ notification.group_category }}
-                        {% else %}
-                            {{ notification.target_category }}
-                        {% endif %}
-                    </td>
-                    <td>{{ notification.type }}</td>
-                    <td>{{ notification.actor_object }}</td>
-                    <td>{% html_rendering_tag notification %}</td>
-                    <td>{{ notification.target_user }}</td>
-                    <td>{{ notification.creation_datetime }}</td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          {% for group_category in notification_tab_header %}
-          <div role="tabpanel" class="tab-pane" id="{% if group_category == None %}autres{% else %}{{ group_category }}{% endif %}">
-            <table class="table table-default">
-              <thead>
-                <tr>
-                    <th>Id</th>
-                    <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'category'|order_by:request }}&page={{ page.number }}">Catégorie</a></th>
-                    <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
-                    <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'actor_id'|order_by:request }}&page={{ page.number }}">Acteur</a></th>
-                    <th>Verbe</th>
-                    <th>Utilisateur cible</th>
-                    <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
-                 </tr>
-              </thead>
-              <tbody>
-                {% for notification in page %}
-                    {% if notification.group_category == group_category %}
-                        <tr>
-                            <td>{{ notification.pk }}</td>
-                            <td>
-                                {% if notification.target_category == "TARGET_GROUPS"%}
-                                    {{ notification.group_category }}
-                                {% else %}
-                                    {{ notification.target_category }}
-                                {% endif %}
-                            </td>
-                            <td>{{ notification.type }}</td>
-                            <td>{{ notification.actor_object }}</td>
-                            <td>{% html_rendering_tag notification %}</td>
-                            <td>{{ notification.target_user }}</td>
-                            <td>{{ notification.creation_datetime }}</td>
-                        </tr>
-                    {% endif %}
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-          {% endfor %}
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            Notifications
         </div>
-      </div>
+        <div class="panel-body">
+          <div>
+            <ul class="nav nav-tabs" role="tablist">
+            {# The tab panel is populated with a group_category list. This list is built in the view because we want to avoid duplicates#}
+              <li role="presentation" class="active">
+                  <a href="#all" aria-controls="all" role="tab" data-toggle="tab">Tous</a>
+              </li>
+              {% for group_category in notification_tab_header %}
+              <li role="presentation">
+                <a href="#{% if group_category == None %}autres{% else %}{{ group_category }}{% endif %}"
+                aria-controls="{% if group_category == None %}autres{% else %}{{ group_category }}{% endif %}"
+                role="tab" data-toggle="tab">{% if group_category == None %}Autres{% else %}{{ group_category|capfirst }}{% endif %}</a>
+              </li>
+              {% endfor %}
+            </ul>
+            {# This first tab-content aims to populate the "all" panel #}
+            <div class="tab-content">
+              <div role="tabpanel" class="tab-pane active" id="all">
+                <table class="table table-default">
+                  <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'shop_category'|order_by:request }}&page={{ page.number }}">Catégorie</a></th>
+                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
+                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'actor_id'|order_by:request }}&page={{ page.number }}">Acteur</a></th>
+                        <th>Verbe</th>
+                        <th>Utilisateur cible</th>
+                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                   {% for notification in page %}
+                    <tr>
+                        <td>{{ notification.pk }}</td>
+                        <td>
+                            {% if notification.target_category == "TARGET_GROUPS"%}
+                                {{ notification.group_category }}
+                            {% else %}
+                                {{ notification.target_category }}
+                            {% endif %}
+                        </td>
+                        <td>{{ notification.type }}</td>
+                        <td>{{ notification.actor_object }}</td>
+                        <td>{% html_rendering_tag notification %}</td>
+                        <td>{{ notification.target_user }}</td>
+                        <td>{{ notification.creation_datetime }}</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+            {# Now we can populate other panels #}
+              {% for group_category in notification_tab_header %}
+              <div role="tabpanel" class="tab-pane" id="{% if group_category == None %}autres{% else %}{{ group_category }}{% endif %}">
+                <table class="table table-default">
+                  <thead>
+                    <tr>
+                        <th>Id</th>
+                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'shop_category'|order_by:request }}&page={{ page.number }}">Catégorie</a></th>
+                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
+                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'actor_id'|order_by:request }}&page={{ page.number }}">Acteur</a></th>
+                        <th>Verbe</th>
+                        <th>Utilisateur cible</th>
+                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
+                     </tr>
+                  </thead>
+                  <tbody>
+                    {% for notification in page %}
+                        {% if notification.group_category == group_category %}
+                            <tr>
+                                <td>{{ notification.pk }}</td>
+                                <td>
+                                    {% if notification.target_category == "TARGET_GROUPS"%}
+                                        {{ notification.group_category }}
+                                    {% else %}
+                                        {{ notification.target_category }}
+                                    {% endif %}
+                                </td>
+                                <td>{{ notification.type }}</td>
+                                <td>{{ notification.actor_object }}</td>
+                                <td>{% html_rendering_tag notification %}</td>
+                                <td>{{ notification.target_user }}</td>
+                                <td>{{ notification.creation_datetime }}</td>
+                            </tr>
+                        {% endif %}
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
     </div>
-  </div>
-
+</div>
 {% if page.has_other_pages %}
 <nav class="pagination">
     <ul class="pagination">

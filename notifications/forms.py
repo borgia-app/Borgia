@@ -4,9 +4,8 @@ from borgia.validators import *
 from notifications.models import NotificationTemplate, NotificationClass, NotificationGroup
 from django.contrib.auth.models import Group
 from shops.models import Shop
-import re
 
-
+# WIP
 class notiftest(forms.Form):
     recipient = forms.CharField(label='Receveur', max_length=255,
                                 widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
@@ -18,7 +17,7 @@ class notiftest(forms.Form):
 class NotificationTemplateCreateViewForm(forms.ModelForm):
     class Meta:
         model = NotificationTemplate
-        fields = ['notification_class', 'target_users', 'target_groups', 'message', 'category',
+        fields = ['notification_class', 'target_users', 'target_groups', "xml_template", "shop_category",
                   'type', 'is_activated']
 
     def __init__(self, *args, **kwargs):
@@ -36,7 +35,7 @@ class NotificationTemplateCreateViewForm(forms.ModelForm):
             widget=forms.SelectMultiple(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
             required=False)
-        self.fields['category'] = forms.ModelChoiceField(
+        self.fields['shop_category'] = forms.ModelChoiceField(
             queryset=Shop.objects.all(),
             widget=forms.Select(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
@@ -53,7 +52,6 @@ class NotificationTemplateCreateViewForm(forms.ModelForm):
             if not self.cleaned_data.get("target_groups"):
                 raise forms.ValidationError(
                     "Target_groups should not be None when the target_users key is TARGET_GROUPS", code="Invalid")
-
         if self.cleaned_data.get('target_users') == "TARGET_GROUPS":
             for group in self.cleaned_data.get("target_groups"):
                 if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
@@ -76,7 +74,7 @@ class NotificationTemplateCreateViewForm(forms.ModelForm):
 class NotificationTemplateUpdateViewForm(forms.ModelForm):
     class Meta:
         model = NotificationTemplate
-        fields = ['notification_class', 'target_users', 'target_groups', 'message', 'category',
+        fields = ['notification_class', 'target_users', 'target_groups', "xml_template", "shop_category",
                   'type', 'is_activated']
 
     def __init__(self, *args, **kwargs):
@@ -94,7 +92,7 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
             widget=forms.SelectMultiple(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
             required=False)
-        self.fields['category'] = forms.ModelChoiceField(
+        self.fields['shop_category'] = forms.ModelChoiceField(
             queryset=Shop.objects.all(),
             widget=forms.Select(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),

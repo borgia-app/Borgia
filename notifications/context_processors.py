@@ -1,13 +1,14 @@
-from notifications.models import get_unread_notifications_for_user
+from notifications.models import Notification
 
 
 def notifications(request):
     """
-    Returns a lazy 'notifications' context variable.
+    Returns a lazy 'notifications' context variable. It contains a queryset with unread notifications (read_datetime
+    = None).
     """
     if request.user.is_authenticated():
         return {
-            'notifications': get_unread_notifications_for_user(request)
+            'notifications': Notification.objects.filter(target_user=request.user, read_datetime=None)
         }
     else:
         return {}
