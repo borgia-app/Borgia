@@ -59,11 +59,11 @@ class Notification(models.Model):
 
     notification_class = models.ForeignKey('NotificationClass', blank=True, null=True, on_delete=models.CASCADE)
 
-    shop_category = models.ForeignKey('shops.Shop', blank=True, null=True)
+    shop_category = models.ForeignKey('shops.Shop', blank=True, null=True, on_delete=models.CASCADE)
 
     target_category = models.CharField(max_length=20, default='ACTOR')
 
-    group_category = models.ForeignKey('NotificationGroup', blank=True, null=True)
+    group_category = models.ForeignKey('NotificationGroup', blank=True, null=True, on_delete=models.CASCADE)
 
     TYPE_CHOICES = (
         ('DEBUG', 'debug'),
@@ -115,6 +115,8 @@ class NotificationClass(models.Model):
     """
     name = models.CharField(max_length=255, unique=True)
 
+    verbose_name = models.CharField(max_length=255, blank=True, null=True)
+
     description = models.TextField()
 
     creation_datetime = models.DateTimeField(auto_now_add=True, editable=False)
@@ -161,7 +163,7 @@ class NotificationTemplate(models.Model):
             'list',
             'add',
             'change',
-            'delete',
+            'deactivate',
         )
 
     TARGET_USERS_CHOICES = (
@@ -174,7 +176,7 @@ class NotificationTemplate(models.Model):
 
     target_groups = models.ManyToManyField('NotificationGroup', blank=True)
 
-    shop_category = models.ForeignKey('shops.Shop', blank=True, null=True)
+    shop_category = models.ForeignKey('shops.Shop', blank=True, null=True, on_delete=models.CASCADE)
 
     # type : correspond aux types de messages (par défaut, ceux proposés par middleware template)
 
@@ -251,7 +253,7 @@ class NotificationGroup(models.Model):
             'change',
         )
 
-    notificationgroup = AutoOneToOneField('auth.Group', unique=True)
+    notificationgroup = AutoOneToOneField('auth.Group', unique=True, on_delete=models.CASCADE)
     weight = models.IntegerField(default=0)
 
     def __str__(self):

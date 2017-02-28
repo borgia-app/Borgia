@@ -1,0 +1,22 @@
+{% extends 'base_sober.html' %}
+
+{% block content %}
+<div class="panel panel-danger">
+  <div class="panel-heading">
+    Désactivation d'un template de notification
+  </div>
+  <div class="panel-body">
+    <form action="" method="post">
+      {% csrf_token %}
+      <label>{% if object.is_activated == True %}
+            Désactiver
+        {% else %}
+            Activer
+        {% endif %}
+            le template {{ object.notification_class }} ?</label>
+        <input type=hidden name="is_active" value="{{ object.is_active }}" />
+        <button class="btn btn-danger" type="submit">Valider</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

@@ -1,11 +1,12 @@
 #-*- coding: utf-8 -*-
 
 from notifications.models import *
-from django.shortcuts import HttpResponseRedirect
+from django.shortcuts import HttpResponseRedirect, render, redirect, force_text
 from borgia.models import ListCompleteView
 from notifications.forms import notiftest, NotificationTemplateUpdateViewForm, NotificationTemplateCreateViewForm
 from django.views.generic.edit import UpdateView, CreateView
 from django.views.generic.list import ListView
+from django.views.generic import View
 from borgia.utils import *
 from django.template import Template, Context
 from lxml import etree
@@ -82,13 +83,12 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
     """
     model = NotificationTemplate
     template_name = 'notifications/notification_template_create.html'
-    success_url = '/notifications/templates/'
     form_class = NotificationTemplateCreateViewForm
     perm_codename = 'add_notificationtemplate'
 
     def get_initial(self):
-        if self.request.GET.get('notification_class') is not None:
-            return {'notification_class': NotificationClass.objects.get(name=self.request.GET.get('notification_class'))}
+        if self.kwargs['notification_class'] is not None:
+            return {'notification_class': NotificationClass.objects.get(name=self.kwargs['notification_class'])}
 
     # Here we will add allowed tags to context in order to display it and help users
     def get_context_data(self, **kwargs):
@@ -117,9 +117,14 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
         return context
 
     def form_valid(self, form):
-        response = super(NotificationTemplateCreateView, self).form_valid(form)
+
+        self.success_url = reverse(
+            'url_notificationtemplate_list',
+            kwargs={'group_name': self.group.name})
+
+        # We notify
         notify(notification_class_name='template_creation', actor=self.request.user)
-        return response
+        return super(NotificationTemplateCreateView, self).form_valid(form)
 
 
 class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLateralMenuFormMixin):
@@ -160,6 +165,52 @@ class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLate
 
         return context
 
+    def form_valid(self, form):
+
+        self.success_url = reverse(
+            'url_notificationtemplate_change',
+            kwargs={'group_name': self.group.name,
+                    'pk': self.object.pk})
+
+        # We notify
+        notify(notification_class_name='template_update', actor=self.request.user)
+
+        return super(NotificationTemplateUpdateView, self).form_valid(form)
+
+
+class NotificationTemplateDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    Deactivate a notification template and redirect to the notification template list.
+
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
+    template_name = 'notifications/notification_template_deactivate.html'
+    success_url = None
+    perm_codename = 'deactivate_notificationtemplate'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['object'] = NotificationTemplate.objects.get(pk=kwargs['pk'])
+        return render(request, self.template_name, context=context)
+
+    def post(self, request, *args, **kwargs):
+        notification_template = NotificationTemplate.objects.get(pk=kwargs['pk'])
+        if notification_template.is_activated is True:
+            notification_template.is_activated = False
+        else:
+            notification_template.is_activated = True
+        notification_template.save()
+
+        self.success_url = reverse(
+            'url_notificationtemplate_list',
+            kwargs={'group_name': self.group.name})
+
+        # We notify
+        notify(notification_class_name='template_deactivate', actor=self.request.user)
+
+        return redirect(force_text(self.success_url))
+
 
 class NotificationGroupListCompleteView(GroupPermissionMixin, ListView, GroupLateralMenuFormMixin):
     """
@@ -168,7 +219,7 @@ class NotificationGroupListCompleteView(GroupPermissionMixin, ListView, GroupLat
     model = NotificationGroup
     template_name = 'notifications/notification_group_list_complete.html'
     success_url = None
-    perm_codename = None
+    perm_codename = "list_notificationgroup"
 
     def get_queryset(self):
         for group in Group.objects.all().exclude(name='specials'):
@@ -187,7 +238,7 @@ class NotificationGroupCreateView(GroupPermissionMixin, CreateView, GroupLateral
     fields = ['notificationgroup', 'weight']
     template_name = 'notifications/notification_group_create.html'
     success_url = None
-    perm_codename = None
+    perm_codename = "add_notificationgroup"
 
 
 class NotificationGroupUpdateView(GroupPermissionMixin, UpdateView, GroupLateralMenuFormMixin):
@@ -198,7 +249,7 @@ class NotificationGroupUpdateView(GroupPermissionMixin, UpdateView, GroupLateral
     fields = ['weight']
     template_name = 'notifications/notification_group_update.html'
     success_url = None
-    perm_codename = None
+    perm_codename = "change_notificationgroup"
 
 
 def read_notification(request):

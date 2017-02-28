@@ -290,7 +290,7 @@ class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View,
         return render(request, self.template_name, context=context)
 
 
-class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin ,FormView,
+class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin, FormView,
                     GroupLateralMenuFormMixin):
     """
     Update a product and redirect to the workboard of the group.

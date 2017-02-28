@@ -43,8 +43,9 @@
                 <td>{{ e.type }}</td>
                 <td>{{ e.shop_category }}</td>
                 <td>{{ e.is_activated }}</td>
-                <td><a href="{{ e.pk }}/update/">Modifier</a></td>
-                <td><a href="create/?notification_class={{ e.notification_class.name }}">Add</a> </td>
+                <td><a href="{% url 'url_notificationtemplate_change' group_name=group.name pk=e.pk %}">Modifier</a>
+                 ou <a href="{% url 'url_notificationtemplate_deactivate' group_name=group.name pk=e.pk %}">Désactiver </a></td>
+                <td><a href="{% url 'url_notificationtemplate_create' group_name=group.name notification_class=e.notification_class.name %}">Add</a> </td>
             </tr>
             {% endfor %}
         </tbody>

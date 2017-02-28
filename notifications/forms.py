@@ -75,7 +75,7 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
     class Meta:
         model = NotificationTemplate
         fields = ['notification_class', 'target_users', 'target_groups', "xml_template", "shop_category",
-                  'type', 'is_activated']
+                  'type']
 
     def __init__(self, *args, **kwargs):
         super(NotificationTemplateUpdateViewForm, self).__init__(*args, **kwargs)
