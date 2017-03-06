@@ -243,7 +243,6 @@ class UserUpdateAdminView(GroupPermissionMixin, FormView, GroupLateralMenuFormMi
     model = User
     form_class = UserUpdateAdminForm
     template_name = 'users/update_admin.html'
-    success_url = None
     perm_codename = 'change_user'
     modified = False
 
@@ -271,6 +270,12 @@ class UserUpdateAdminView(GroupPermissionMixin, FormView, GroupLateralMenuFormMi
                 self.modified = True
                 setattr(user_modified, k, form.cleaned_data[k])
         user_modified.save()
+
+        self.success_url = reverse(
+            'url_user_retrieve',
+            kwargs={'group_name': self.group.name,
+                    'pk': self.kwargs['pk']})
+
         return super(UserUpdateAdminView, self).form_valid(form)
 
 
@@ -282,7 +287,6 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     :param self.perm_codename: codename of the permission checked.
     """
     template_name = 'users/deactivate.html'
-    success_url = None
     perm_codename = 'delete_user'
 
     def get(self, request, *args, **kwargs):
@@ -298,6 +302,11 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         else:
             user.is_active = True
         user.save()
+
+        self.success_url = reverse(
+            'url_user_retrieve',
+            kwargs={'group_name': self.group.name,
+                    'pk': self.kwargs['pk']})
 
         return redirect(force_text(self.success_url))
 
