@@ -179,6 +179,9 @@ class UserCreateView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
             user.groups.add(Group.objects.get(pk=5))
         user.save()
 
+        # User object is assigned to self.object (so we can access to it in get_success_url)
+        self.object = user
+
         return super(UserCreateView, self).form_valid(form)
 
     def get_initial(self):
@@ -186,6 +189,12 @@ class UserCreateView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial['campus'] = 'Me'
         initial['year'] = 2014
         return initial
+
+    # The success url is set to the created user retrieve
+    def get_success_url(self):
+        return reverse('url_user_retrieve',
+                       kwargs={'group_name': self.group.name,
+                               'pk': self.object.pk})
 
 
 class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
