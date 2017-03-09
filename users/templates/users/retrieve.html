@@ -5,29 +5,29 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     Détails de l'utilisateur
+    {% if perms.users.change_user %}
+        <div class="btn-group" role="group" aria-label="change user">
+            <a class="btn btn-primary" href="{% url 'url_user_update' group_name=group_name pk=object.pk %}">Modifier les informations</a>
+            <a class="btn btn-primary" href="{% url 'url_user_deactivate' group_name=group_name pk=object.pk %}">
+                {% if object.is_active == True %}
+                  Désactiver l'utilisateur
+                {% else %}
+                  Activer l'utilisateur
+                {% endif %}</a>
+            <a class="btn btn-primary" href="{% url 'url_user_exceptionnalmovement_create' group_name=group_name user_pk=object.pk %}">Mouvement exceptionnel</a>
+            <a class="btn btn-primary" href="{% url 'url_user_supplymoney' group_name=group_name user_pk=object.pk %}">Ajout d'argent</a>
+        </div>
+    {% endif %}
   </div>
   <div class="panel-body">
     <div class="col-md-6">
-      {% include "users/retrieve_module.html" %}
+        {% include "users/retrieve_module.html" %}
     </div>
-    {% if perms.users.change_user %}
-    <div class="col-md-6">
-      <p><a class="s" href="{% url 'url_user_update' group_name=group_name pk=object.pk %}">Modifier les informations</a></p>
-      <p><a class="s" href="{% url 'url_user_deactivate' group_name=group_name pk=object.pk %}">
-          {% if object.is_active == True %}
-              Désactiver l'utilisateur
-          {% else %}
-              Activer l'utilisateur
-          {% endif %}</a></p>
-      <p><a class="s" href="{% url 'url_user_exceptionnalmovement_create' group_name=group_name user_pk=object.pk %}">Mouvement exceptionnel</a></p>
-      <p><a class="s" href="{% url 'url_user_supplymoney' group_name=group_name user_pk=object.pk %}">Ajout d'argent</a></p>
-    </div>
-    {% endif %}
   </div>
 </div>
 <div class="panel panel-default">
   <div class="panel-heading">
-    Comptes en banque   <a class="s" href="{% url 'url_user_bankaccount_create' group_name=group_name user_pk=object.pk %}">Ajouter</a>
+    Comptes en banque   <a class="btn btn-primary" href="{% url 'url_user_bankaccount_create' group_name=group_name user_pk=object.pk %}">Ajouter</a>
   </div>
   <table class="table table-default table-striped table-hover">
     <thead>
