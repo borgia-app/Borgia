@@ -25,7 +25,8 @@
   <div class="panel-heading">
     Résultats
   </div>
-  <table class="table table-hover table-striped">
+    {% if user_list %}
+    <table class="table table-hover table-striped">
     <thead>
       <tr>
           <th>Nom</th>
@@ -35,7 +36,7 @@
           <th>Tabagn's</th>
           <th>Prom's</th>
           <th>Solde</th>
-          <th>Est actif</th>
+          <th>Etat</th>
           <th>Détail</th>
       </tr>
     </thead>
@@ -49,13 +50,18 @@
         <td>{{ user.campus }}</td>
         <td>{{ user.year }}</td>
         <td>{{ user.balance }}€</td>
-        <td>{{ user.is_active }}</td>
+        <td>{% if user.is_active %}Activé{% else %}Désactivé{% endif %}</td>
         <td>
           <a href="{% url 'url_user_retrieve' group_name=group_name pk=user.pk %}">Détail</a>
         </td>
       </tr>
       {% endfor %}
     </tbody>
-  </table>
+    </table>
+    {% else %}
+        <div class="panel-body">
+            Aucun utilisateur ne correspond à cette recherche.
+        </div>
+    {% endif %}
 </div>
 {% endblock %}

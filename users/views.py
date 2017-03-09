@@ -357,9 +357,10 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
         if self.search:
             query = query.filter(
-                Q(last_name__contains=self.search)
-                | Q(first_name__contains=self.search)
-                | Q(surname__contains=self.search)
+                Q(last_name__icontains=self.search)
+                | Q(first_name__icontains=self.search)
+                | Q(surname__icontains=self.search)
+                | Q(username__icontains=self.search)
             )
 
         if self.unactive:
