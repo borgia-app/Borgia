@@ -1,5 +1,5 @@
 from django import template
-from django.contrib.auth.models import Group
+from django.contrib.auth.models import Group, Permission
 from django.template.defaultfilters import stringfilter
 
 register = template.Library()
@@ -9,6 +9,18 @@ register = template.Library()
 def has_group(user, group_name):
     group = Group.objects.get(name=group_name)
     return True if group in user.groups.all() else False
+
+
+@register.filter(name='has_group_perm')
+def has_group_perm(group, perm_codename):
+    try:
+        if (Permission.objects.get(codename=perm_codename)
+                in group.permissions.all()):
+            return True
+        else:
+            return False
+    except ObjectDoesNotExist:
+        return False
 
 
 @register.filter(name='height_ratio')

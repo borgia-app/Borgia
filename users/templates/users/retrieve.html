@@ -7,15 +7,23 @@
     Détails de l'utilisateur
     {% if perms.users.change_user %}
         <div class="btn-group" role="group" aria-label="change user">
+          {% if group|has_group_perm:"change_user" %}
             <a class="btn btn-primary" href="{% url 'url_user_update' group_name=group_name pk=object.pk %}">Modifier les informations</a>
+          {% endif %}
+          {% if group|has_group_perm:"delete_user" %}
             <a class="btn btn-primary" href="{% url 'url_user_deactivate' group_name=group_name pk=object.pk %}">
                 {% if object.is_active == True %}
                   Désactiver l'utilisateur
                 {% else %}
                   Activer l'utilisateur
                 {% endif %}</a>
+          {% endif %}
+          {% if group|has_group_perm:"add_exceptionnal_movement" %}
             <a class="btn btn-primary" href="{% url 'url_user_exceptionnalmovement_create' group_name=group_name user_pk=object.pk %}">Mouvement exceptionnel</a>
+          {% endif %}
+          {% if group|has_group_perm:"supply_money_user" %}
             <a class="btn btn-primary" href="{% url 'url_user_supplymoney' group_name=group_name user_pk=object.pk %}">Ajout d'argent</a>
+          {% endif %}
         </div>
     {% endif %}
   </div>
@@ -27,15 +35,22 @@
 </div>
 <div class="panel panel-default">
   <div class="panel-heading">
-    Comptes en banque   <a class="btn btn-primary" href="{% url 'url_user_bankaccount_create' group_name=group_name user_pk=object.pk %}">Ajouter</a>
+    Comptes en banque
+    {% if group|has_group_perm:"add_bankaccount" %}
+      <a class="btn btn-primary" href="{% url 'url_user_bankaccount_create' group_name=group_name user_pk=object.pk %}">Ajouter</a>
+    {% endif %}
   </div>
   <table class="table table-default table-striped table-hover">
     <thead>
       <tr>
         <th>Banque</th>
         <th>Compte</th>
-        <th>Modifier</th>
-        <th>Supprimer</th>
+        {% if group|has_group_perm:"change_bankaccount" %}
+          <th>Modifier</th>
+        {% endif %}
+        {% if group|has_group_perm:"delete_bankaccount" %}
+          <th>Supprimer</th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -43,12 +58,20 @@
       <tr>
         <td>{{ account.bank }}</td>
         <td>{{ account.account }}</td>
-        <td><a
-        href="{% url 'url_user_bankaccount_update' group_name=group_name user_pk=object.pk pk=account.pk %}">Modifier
-        </a></td>
-        <td><a
-        href="{% url 'url_user_bankaccount_delete' group_name=group_name user_pk=object.pk pk=account.pk %}">Supprimer
-        </a></td>
+        {% if group|has_group_perm:"change_bankaccount" %}
+        <td>
+          <a
+          href="{% url 'url_user_bankaccount_update' group_name=group_name user_pk=object.pk pk=account.pk %}">Modifier
+          </a>
+        </td>
+        {% endif %}
+        {% if group|has_group_perm:"delete_bankaccount" %}
+        <td>
+          <a
+          href="{% url 'url_user_bankaccount_delete' group_name=group_name user_pk=object.pk pk=account.pk %}">Supprimer
+          </a>
+        </td>
+        {% endif %}
       </tr>
       {% endfor %}
     </tbody>
@@ -64,11 +87,13 @@
         <th>Date</th>
         <th>Type</th>
         <th>Montant</th>
-        <th>Détail</th>
+        {% if group|has_group_perm:"retrieve_sale" %}
+          <th>Détail</th>
+        {% endif %}
       </tr>
     </thead>
     <tbody>
-      {% for transaction in object.list_sale %}
+      {% for transaction in object.list_sale|slice:":50" %}
       {% price_for sale=transaction user=object as price_for %}
       <tr class="{% if price_for > 0 %}success{% else %}danger{% endif %}">
         <td>{{ transaction.date }}</td>
@@ -80,17 +105,19 @@
           {% endif %}
         </td>
         <td>{{ price_for }}</td>
-        <td><a href="
-          {% if transaction.category == 'sale' %}
-            {% url 'url_sale_retrieve' group_name=group_name pk=transaction.pk %}
-          {% elif transaction.category == 'recharging' %}
-            {% url 'url_recharging_retrieve' group_name=group_name pk=transaction.pk %}
-          {% elif transaction.category == 'transfert' %}
-            {% url 'url_transfert_retrieve' group_name=group_name pk=transaction.pk %}
-          {% elif transaction.category == 'exceptionnal_movement' %}
-            {% url 'url_exceptionnalmovement_retrieve' group_name=group_name pk=transaction.pk %}
+        {% if group|has_group_perm:"retrieve_sale" %}
+          <td><a href="
+            {% if transaction.category == 'sale' %}
+              {% url 'url_sale_retrieve' group_name=group_name pk=transaction.pk %}
+            {% elif transaction.category == 'recharging' %}
+              {% url 'url_recharging_retrieve' group_name=group_name pk=transaction.pk %}
+            {% elif transaction.category == 'transfert' %}
+              {% url 'url_transfert_retrieve' group_name=group_name pk=transaction.pk %}
+            {% elif transaction.category == 'exceptionnal_movement' %}
+              {% url 'url_exceptionnalmovement_retrieve' group_name=group_name pk=transaction.pk %}
+            {% endif %}
+            ">Détail</a></td>
           {% endif %}
-          ">Détail</a></td>
       </tr>
       {% endfor %}
     </tbody>

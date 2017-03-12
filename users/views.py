@@ -209,7 +209,8 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
 
-        if request.user.has_perm('users.retrieve_user') is False and int(kwargs['pk']) != request.user.pk:
+        if (request.user.has_perm('users.retrieve_user') is False
+                and int(kwargs['pk']) != request.user.pk):
             raise PermissionDenied
 
         context = self.get_context_data(**kwargs)
