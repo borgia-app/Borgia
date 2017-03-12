@@ -686,6 +686,122 @@ def group_name_display(group):
         raise ValueError('Unrecognized group name')
 
 
+def human_permission_name(name):
+    """
+    Translate the permission name in french.
+
+    :note:: Be careful of the order in the catalog !
+
+    :params name: permission name
+    :type name: string
+    :returns: translated name
+    """
+    translation_catalog = [
+        ('Add', 'Ajouter'),
+        ('add', 'Ajouter'),
+        ('Change', 'Modifier'),
+        ('change', 'Modifier'),
+        ('Delete', 'Supprimer'),
+        ('delete', 'Supprimer'),
+        ('List', 'Lister'),
+        ('list', 'Lister'),
+        ('Manage', 'Gérer'),
+        ('manage', 'Gérer'),
+        ('Retrieve', 'Afficher'),
+        ('retrieve', 'Afficher'),
+
+        ('group', 'groupe'),
+        ('bankaccount', 'compte en banque'),
+        ('cash', 'payement en espèces'),
+        ('cheque', 'chèque'),
+        ('debitbalance', 'payement par compte'),
+        ('lydia', 'payement lydia'),
+        ('payment', 'payement'),
+        ('exceptionnal movement', 'mouvement exceptionnel'),
+        ('operatorsalemodule', 'module de vente par opérateur'),
+        ('selfsalemodule', 'module de vente en libre service'),
+        ('sale', 'vente'),
+        ('transfert', 'transfert'),
+        ('recharging', 'rechargement'),
+        ('sharedevent', 'évènement'),
+        ('category', 'categorie de produits'),
+        ('notification', 'notification'),
+        ('notificationclass', 'classe de notifications'),
+        ('notificationgroup', 'groupe de notifications'),
+        ('notificationtemplate', 'template de notifications'),
+        ('setting', 'paramètre global'),
+        ('shop', 'magasin'),
+        ('product', 'produits'),
+        ('user', 'utilisateur'),
+
+        ('Use', 'Utiliser'),
+        ('use', 'Utiliser'),
+
+        ('treasurers', 'trésoriers'),
+        ('presidents', 'présidents'),
+        ('vice-presidents-internal', 'vice-présidents vie interne'),
+        ('chiefs-', 'chefs '),
+        ('associates-', 'associés '),
+        ('specials', 'membres spéciaux'),
+        ('gadzarts', 'Gadz\'Arts'),
+        ('honnored', 'membres d\'honneur'),
+
+        ('Supply money', 'Ajouter de l\'argent'),
+    ]
+
+    for e in translation_catalog:
+        name = name.replace(e[0], e[1])
+
+    return name
+
+
+def human_unused_permissions():
+    """
+    """
+    pks = []
+    unused_cud_models = [
+        'logentry',
+        'extendedpermission',
+        'contenttype',
+        'permission',
+        'cash',
+        'lydia',
+        'cheque',
+        'debitbalance',
+        'payment',
+        'session',
+        'container',
+        'containercase',
+        'productbase',
+        'productunit',
+        'singleproduct',
+        'singleproductfromcontainer',
+    ]
+    unused_permissions = [
+    ]
+    for s in unused_cud_models:
+        try:
+            pks.append(
+                Permission.objects.get(codename='add_' + s).pk
+            )
+            pks.append(
+                Permission.objects.get(codename='change_' + s).pk
+            )
+            pks.append(
+                Permission.objects.get(codename='delete_' + s).pk
+            )
+        except ObjectDoesNotExist:
+            pass
+    for s in unused_permissions:
+        try:
+            pks.append(
+                Permission.objects.get(codename=s).pk
+            )
+        except ObjectDoesNotExist:
+            pass
+    return pks
+
+
 def model_from_module_url_name(module_url_name):
     if module_url_name == 'self_sale':
         return SelfSaleModule

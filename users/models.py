@@ -15,9 +15,12 @@ class ExtendedPermission(Permission):
 
     class Meta:
         proxy = True
+        default_permissions = ()
 
     def __str__(self):
-        return self.codename.replace('_', ' ').capitalize()
+        from borgia.utils import human_permission_name
+        return human_permission_name(
+            self.codename.replace('_', ' ').capitalize())
 
 
 class User(AbstractUser):

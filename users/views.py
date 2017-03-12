@@ -51,7 +51,8 @@ class ManageGroupView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin)
         except ObjectDoesNotExist:
             raise Http404
 
-        if permission_to_manage_group(self.group_updated)[0] not in self.group.permissions.all():
+        if (permission_to_manage_group(self.group_updated)[0]
+                not in self.group.permissions.all()):
             raise PermissionDenied
 
         return super(ManageGroupView, self).dispatch(request, *args, **kwargs)
@@ -73,11 +74,14 @@ class ManageGroupView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin)
             kwargs['possible_permissions'] = ExtendedPermission.objects.filter(
                 pk__in=[p.pk for p in Group.objects.get(
                 name=chiefs_group_name).permissions.all().exclude(
-                pk=permission_to_manage_group(self.group_updated)[0].pk)]
+                pk=permission_to_manage_group(self.group_updated)[0].pk).exclude(
+                    pk__in=human_unused_permissions())]
             )
 
         else:
-            kwargs['possible_permissions'] = ExtendedPermission.objects.all()
+            kwargs['possible_permissions'] = ExtendedPermission.objects.all().exclude(
+                pk__in=human_unused_permissions()
+            )
 
         kwargs['possible_members'] = User.objects.all().exclude(
             groups=Group.objects.get(name='specials'))
