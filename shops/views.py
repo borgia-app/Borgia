@@ -393,6 +393,10 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         vice_presidents.save()
         return super(ShopCreate, self).form_valid(form)
 
+    def get_success_url(self):
+        return reverse('url_shop_list',
+                       kwargs={'group_name': self.group.name})
+
 
 class ShopList(GroupPermissionMixin, View, GroupLateralMenuMixin):
     template_name = 'shops/shop_list.html'
@@ -401,7 +405,8 @@ class ShopList(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         context = super(ShopList, self).get_context_data(**kwargs)
-        context['shop_list'] = Shop.objects.all().exclude(pk=1)
+        context['shop_list'] = Shop.objects.all().exclude(pk=1).order_by(
+            'name')
         return render(request, self.template_name, context=context)
 
 
