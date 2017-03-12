@@ -76,18 +76,6 @@ def lateral_menu(user, group, active=None):
         pass
 
     # Functions
-    # Link token to user
-    try:
-        if (Permission.objects.get(codename='link_token_user')
-                in group.permissions.all()):
-            nav_tree.append(simple_lateral_link(
-                'Liaison jeton',
-                'tag',
-                'lm_link_token',
-                reverse('url_user_link_token',
-                        kwargs={'group_name': group.name})))
-    except ObjectDoesNotExist:
-        pass
 
     # Manage products
     if lateral_menu_product(group) is not None:

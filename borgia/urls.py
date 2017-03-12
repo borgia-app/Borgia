@@ -69,8 +69,6 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/users/(?P<pk>\d+)/deactivate/$',
         UserDeactivateView.as_view(), name='url_user_deactivate'),
 
-    url(r'^(?P<group_name>[\w-]+)/users/link_token/$',
-        LinkTokenUserView.as_view(), name='url_user_link_token'),
     url(r'^(?P<group_name>[\w-]+)/groups/(?P<pk>\d+)/update/$',
         ManageGroupView.as_view(), name='url_group_update'),
 

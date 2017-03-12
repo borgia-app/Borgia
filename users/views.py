@@ -22,27 +22,6 @@ from borgia.utils import *
 from notifications.models import notify
 
 
-class LinkTokenUserView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
-    """
-    Link a token id to a User instance and redirect to the workboard of the
-    group.
-
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
-    """
-    form_class = LinkTokenUserForm
-    template_name = 'users/link_token.html'
-    success_url = None
-    perm_codename = 'link_token_user'
-    lm_active = 'lm_link_token'
-
-    def form_valid(self, form):
-        user = User.objects.get(username=form.cleaned_data['username'])
-        user.token_id = form.cleaned_data['token_id']
-        user.save()
-        return super(LinkTokenUserView, self).form_valid(form)
-
-
 class ManageGroupView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     template_name = 'users/group_manage.html'
     success_url = None
