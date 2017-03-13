@@ -738,8 +738,8 @@ def human_permission_name(name):
         ('use', 'Utiliser'),
 
         ('treasurers', 'trésoriers'),
-        ('presidents', 'présidents'),
         ('vice-presidents-internal', 'vice-présidents vie interne'),
+        ('presidents', 'présidents'),
         ('chiefs-', 'chefs '),
         ('associates-', 'associés '),
         ('specials', 'membres spéciaux'),
