@@ -64,8 +64,8 @@ class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                 query = query.filter(shop=self.shop_query)
         if self.search:
             query = query.filter(
-                Q(name__contains=self.search)
-                | Q(description__contains=self.search)
+                Q(name__icontains=self.search)
+                | Q(description__icontains=self.search)
             )
         if self.type:
             query = query.filter(type=self.type)
