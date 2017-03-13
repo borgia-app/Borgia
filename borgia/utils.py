@@ -671,7 +671,7 @@ def group_name_display(group):
     elif group.name == 'presidents':
         return 'présidents'
     elif group.name == 'vice-presidents-internal':
-        return 'vice-présidents vie interne'
+        return 'vice-présidents'
     elif 'chiefs-' in group.name:
         return 'chefs ' + group.name.split('-')[1]
     elif 'associates-' in group.name:
