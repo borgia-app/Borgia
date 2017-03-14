@@ -27,6 +27,7 @@
             <tr>
                 <th>Opérateur</th>
                 <th>Acheteur</th>
+                <th>Date</th>
                 <th>Prix</th>
                 <th>Détail</th>
             </tr>
@@ -34,6 +35,7 @@
             <tr>
                 <td>{{ sale.operator }}</td>
                 <td>{{ sale.sender }}</td>
+                <td>{{ sale.date }}</td>
                 <td>{{ sale.amount }}€</td>
                 <td>
                   <a href="{% url 'url_sale_retrieve' group_name=group_name pk=sale.pk %}">Détail</a>

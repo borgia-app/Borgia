@@ -8,7 +8,7 @@ import hashlib
 import decimal
 from django.shortcuts import render, HttpResponse, force_text, redirect
 from django.shortcuts import Http404
-from django.core import serializers
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import PermissionDenied
 from django.contrib.auth.models import Permission
 from django.db.models import Q
@@ -337,6 +337,9 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     def get_context_data(self, **kwargs):
         context = super(SaleList, self).get_context_data(**kwargs)
+        sales_tab_header = []
+        seen = set(sales_tab_header)
+        page = self.request.POST.get('page', 1)
 
         try:
             context['sale_list'] = Sale.objects.filter(
@@ -348,22 +351,46 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 category='sale'
             ).order_by('-date')
 
-        context['sale_list'] = self.form_query(context['sale_list'])[:100]
+        # The sale_list is paginated by passing the filtered QuerySet to Paginator
+        paginator = Paginator(self.form_query(context['sale_list']), 50)
+        try:
+            # The requested page is grabbed
+            sales = paginator.page(page)
+        except PageNotAnInteger:
+            # If the requested page is not an integer
+            sales = paginator.page(1)
+        except EmptyPage:
+            # If the requested page is out of range, the last page is grabbed
+            sales = paginator.page(paginator.num_pages)
+
+        context['sale_list'] = sales
+
+        for sale in context['sale_list']:
+            if sale.from_shop() not in seen:
+                seen.add(sale.from_shop())
+                sales_tab_header.append(sale.from_shop())
+
+        context['sales_tab_header'] = sales_tab_header
+
+
 
         return context
 
     def form_query(self, query):
         if self.search:
             query = query.filter(
-                Q(operator__last_name__contains=self.search)
-                | Q(operator__first_name__contains=self.search)
-                | Q(operator__surname__contains=self.search)
-                | Q(recipient__last_name__contains=self.search)
-                | Q(recipient__first_name__contains=self.search)
-                | Q(recipient__surname__contains=self.search)
-                | Q(sender__last_name__contains=self.search)
-                | Q(sender__first_name__contains=self.search)
-                | Q(sender__surname__contains=self.search)
+                Q(operator__last_name__icontains=self.search)
+                | Q(operator__first_name__icontains=self.search)
+                | Q(operator__surname__icontains=self.search)
+                | Q(operator__username__icontains=self.search)
+                | Q(recipient__last_name__icontains=self.search)
+                | Q(recipient__first_name__icontains=self.search)
+                | Q(recipient__surname__icontains=self.search)
+                | Q(recipient__username__icontains=self.search)
+                | Q(sender__last_name__icontains=self.search)
+                | Q(sender__first_name__icontains=self.search)
+                | Q(sender__surname__icontains=self.search)
+                | Q(sender__username__icontains=self.search)
             )
 
         if self.date_begin:
