@@ -667,21 +667,21 @@ def group_name_display(group):
     :rtype: string
     """
     if group.name == 'treasurers':
-        return 'trésoriers'
+        return 'Trésoriers'
     elif group.name == 'presidents':
-        return 'présidents'
+        return 'Présidents'
     elif group.name == 'vice-presidents-internal':
-        return 'vice-présidents'
+        return 'Vice-présidents'
     elif 'chiefs-' in group.name:
-        return 'chefs ' + group.name.split('-')[1]
+        return 'Chefs ' + group.name.split('-')[1]
     elif 'associates-' in group.name:
-        return 'associés ' + group.name.split('-')[1]
+        return 'Associés ' + group.name.split('-')[1]
     elif group.name == 'specials':
-        return 'membres spéciaux'
+        return 'Membres spéciaux'
     elif group.name == 'gadzarts':
         return 'Gadz\'Arts'
     elif group.name == 'honnored':
-        return 'membres d\'honneur'
+        return 'Membres d\'honneur'
     else:
         raise ValueError('Unrecognized group name')
 

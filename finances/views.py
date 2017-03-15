@@ -1505,6 +1505,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 class SharedEventList(GroupPermissionMixin, FormView,
                       GroupLateralMenuFormMixin):
     template_name = 'finances/sharedevent_list.html'
+    lm_active = 'lm_sharedevent_list'
     perm_codename = None
     form_class = SharedEventManageListForm
 
