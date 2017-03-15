@@ -17,7 +17,8 @@ from django.contrib.auth.decorators import permission_required
 from users.views import *
 from shops.views import (
     ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
-    ProductUpdate, ShopCreate, ShopList, ShopContainerCases, ShopUpdate
+    ProductUpdate, ShopCreate, ShopList, ShopContainerCases, ShopUpdate,
+    ProductUpdatePrice
     )
 from shops.models import ProductBase, ProductUnit
 from finances.views import *
@@ -86,6 +87,8 @@ urlpatterns = [
         ProductRetrieve.as_view(), name='url_product_retrieve'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/$',
         ProductUpdate.as_view(), name='url_product_update'),
+    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/price/$',
+        ProductUpdatePrice.as_view(), name='url_product_update_price'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
         ProductDeactivate.as_view(), name='url_product_deactivate'),
 

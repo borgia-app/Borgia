@@ -136,6 +136,15 @@ class ProductUpdateForm(forms.ModelForm):
                   'product_unit']
 
 
+class ProductUpdatePriceForm(forms.Form):
+    is_manual = forms.BooleanField(
+        label='Gestion manuelle du prix', required=False)
+    manual_price = forms.DecimalField(label='Prix manuel',
+                                      decimal_places=2,
+                                      max_digits=9, min_value=0,
+                                      required=False)
+
+
 class ShopCreateForm(forms.ModelForm):
     class Meta:
         model = Shop

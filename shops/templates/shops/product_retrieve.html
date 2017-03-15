@@ -14,19 +14,19 @@
       <li>Type : {{ object.get_type_display }}</li>
       <li>Magasin : {{ object.shop }}</li>
       {% if object.product_unit %}
-      <li>Unité de produit : </li>
+      <li>Unité de produit : {{ object.product_unit }}</li>
       {% endif %}
     </ul>
   </div>
 </div>
-{% if perms.users.change_product %}
 <div class="panel panel-warning">
   <div class="panel-heading">
     Administration
   </div>
   <div class="panel-body">
-    <p><a class="s" href="{% url 'url_product_update' group_name=group_name pk=object.pk %}">Modifier les informations</a></p>
-    <p><a class="s" href="{% url 'url_product_deactivate' group_name=group_name pk=object.pk %}">
+    {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update' group_name=group_name pk=object.pk %}">Modifier les informations</a></p>{% endif %}
+    {% if group|has_group_perm:"change_price_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update_price' group_name=group_name pk=object.pk %}">Modifier le prix de vente</a></p> {% endif %}
+    <p><a class="btn btn-default" href="{% url 'url_product_deactivate' group_name=group_name pk=object.pk %}">
         {% if object.is_active == True %}
             Désactiver le produit
         {% else %}
@@ -34,5 +34,4 @@
         {% endif %}</a></p>
   </div>
 </div>
-{% endif %}
 {% endblock %}

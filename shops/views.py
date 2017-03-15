@@ -269,9 +269,11 @@ class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View,
             self.object.is_active = True
         self.object.save()
 
-        return redirect(force_text(self.success_url))
+        return redirect(reverse('url_product_retrieve',
+                        kwargs={'group_name': self.group.name,
+                                'pk': self.object.pk}))
 
-
+    
 class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View,
                       GroupLateralMenuMixin):
     """
@@ -321,6 +323,48 @@ class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin, FormView,
                 setattr(self.object, k, form.cleaned_data[k])
         self.object.save()
         return super(ProductUpdate, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('url_product_retrieve',
+                       kwargs={'group_name': self.group.name,
+                               'pk': self.object.pk})
+
+
+class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
+                         FormView, GroupLateralMenuFormMixin):
+    """
+    """
+    form_class = ProductUpdatePriceForm
+    template_name = 'shops/product_update_price.html'
+    success_url = None
+    perm_codename = 'change_price_product'
+
+    def get_context_data(self, **kwargs):
+        context = super(ProductUpdatePrice, self).get_context_data(**kwargs)
+        context['object'] = self.object
+        try:
+            context['margin_profit'] = Setting.objects.get(
+                name='MARGIN_PROFIT').get_value()
+        except ObjectDoesNotExist:
+            pass
+        return context
+
+    def get_initial(self):
+        initial = super(ProductUpdatePrice, self).get_initial()
+        initial['is_manual'] = self.object.is_manual
+        initial['manual_price'] = self.object.manual_price
+        return initial
+
+    def get_success_url(self):
+        return reverse('url_product_update_price',
+                       kwargs={'group_name': self.group.name,
+                               'pk': self.object.pk})
+
+    def form_valid(self, form):
+        self.object.is_manual = form.cleaned_data['is_manual']
+        self.object.manual_price = form.cleaned_data['manual_price']
+        self.object.save()
+        return super(ProductUpdatePrice, self).form_valid(form)
 
 
 class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):

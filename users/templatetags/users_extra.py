@@ -1,6 +1,7 @@
 from django import template
 from django.contrib.auth.models import Group, Permission
 from django.template.defaultfilters import stringfilter
+from django.core.exceptions import ObjectDoesNotExist
 
 register = template.Library()
 

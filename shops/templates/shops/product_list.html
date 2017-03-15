@@ -29,7 +29,8 @@
               <th>Type</th>
               <th>Stock</th>
               <th>Etat</th>
-              <th>Détail</th>
+              {% if group|has_group_perm:"retrieve_product" %}<th>Détail</th>{% endif %}
+              {% if group|has_group_perm:"change_price_product" %}<th>Gestion du prix</th>{% endif %}
           </tr>
           {% for product in product_list %}
           <tr>
@@ -37,9 +38,12 @@
               <td>{{ product.get_type_display }}</td>
               <td>{{ product.quantity_products_stock }}</td>
               <td>{% if product.is_active %}Activé{% else %}Désactivé{% endif %}</td>
-              <td>
+              {% if group|has_group_perm:"retrieve_product" %}<td>
                 <a href="{% url 'url_product_retrieve' group_name=group_name pk=product.pk %}">Détail</a>
-              </td>
+              </td>{% endif %}
+              {% if group|has_group_perm:"change_price_product" %}<td>
+                {% if product.is_manual %}Manuelle, {% else %}Automatique, {% endif %}<a href="{% url 'url_product_update_price' group_name=group_name pk=product.pk %}">Gestion</a>
+              </td>{% endif %}
           </tr>
           {% endfor %}
         </table>
