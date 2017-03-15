@@ -27,6 +27,8 @@
             <tr>
                 <th>Envoyeur</th>
                 <th>Réceveur</th>
+                <th>Date</th>
+                <th>Heure</th>
                 <th>Montant</th>
                 <th>Détail</th>
             </tr>
@@ -34,6 +36,8 @@
             <tr>
                 <td>{{ transfert.sender }}</td>
                 <td>{{ transfert.recipient }}</td>
+                <td>{{ transfert.date|date:"SHORT_DATE_FORMAT" }}</td>
+                <td>{{ transfert.date|time:"H:i" }}</td>
                 <td>{{ transfert.amount }}€</td>
                 <td>
                   <a href="{% url 'url_transfert_retrieve' group_name=group_name pk=transfert.pk %}">Détail</a>

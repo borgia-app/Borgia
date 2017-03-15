@@ -27,6 +27,8 @@
             <tr>
                 <th>Opérateur</th>
                 <th>Utilisateur</th>
+                <th>Date</th>
+                <th>Heure</th>
                 <th>Montant</th>
                 <th>Type</th>
                 <th>Détail</th>
@@ -35,6 +37,8 @@
             <tr>
                 <td>{{ recharging.operator }}</td>
                 <td>{{ recharging.sender }}</td>
+                <td>{{ recharging.date|date:"SHORT_DATE_FORMAT" }}</td>
+                <td>{{ recharging.date|time:"H:i" }}</td>
                 <td>{{ recharging.amount }}€</td>
                 <td>{{ recharging.wording }}</td>
                 <td>

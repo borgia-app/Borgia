@@ -84,10 +84,17 @@ def lateral_menu(user, group, active=None):
             )
 
     # List sales
+    nav_sale_lists = {
+        'label': 'Ventes',
+        'icon': 'shopping-cart',
+        'id': 'lm_sale_lists',
+        'subs': []
+    }
+
     try:
         if (Permission.objects.get(codename='list_sale')
                 in group.permissions.all()):
-            nav_tree.append(simple_lateral_link(
+            nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Ventes',
                 faIcon='shopping-cart',
                 id='lm_sale_list',
@@ -103,7 +110,7 @@ def lateral_menu(user, group, active=None):
     try:
         if (Permission.objects.get(codename='list_recharging')
                 in group.permissions.all()):
-            nav_tree.append(simple_lateral_link(
+            nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Rechargements',
                 faIcon='money',
                 id='lm_recharging_list',
@@ -119,7 +126,7 @@ def lateral_menu(user, group, active=None):
     try:
         if (Permission.objects.get(codename='list_transfert')
                 in group.permissions.all()):
-            nav_tree.append(simple_lateral_link(
+            nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Transferts',
                 faIcon='exchange',
                 id='lm_transfert_list',
@@ -135,7 +142,7 @@ def lateral_menu(user, group, active=None):
     try:
         if (Permission.objects.get(codename='list_exceptionnal_movement')
                 in group.permissions.all()):
-            nav_tree.append(simple_lateral_link(
+            nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Exceptionnels',
                 faIcon='exclamation-triangle',
                 id='lm_exceptionnalmovement_list',
@@ -145,6 +152,13 @@ def lateral_menu(user, group, active=None):
                 )
             ))
     except ObjectDoesNotExist:
+        pass
+
+    if len(nav_sale_lists['subs']) > 1:
+        nav_tree.append(nav_sale_lists)
+    elif len(nav_sale_lists['subs']) == 1:
+        nav_tree.append(nav_sale_lists['subs'][0])
+    else:
         pass
 
     # containercase of shop

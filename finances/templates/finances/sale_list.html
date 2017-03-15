@@ -46,6 +46,7 @@
                                 <th>Opérateur</th>
                                 <th>Acheteur</th>
                                 <th>Date</th>
+                                <th>Heure</th>
                                 <th>Prix</th>
                                 <th>Magasin</th>
                                 <th>Détail</th>
@@ -56,7 +57,8 @@
                             <tr>
                                 <td>{{ sale.operator }}</td>
                                 <td>{{ sale.sender }}</td>
-                                <td>{{ sale.date }}</td>
+                                <td>{{ sale.date|date:"SHORT_DATE_FORMAT" }}</td>
+                                <td>{{ sale.date|time:"H:i" }}</td>
                                 <td>{{ sale.amount }}€</td>
                                 <td>{{ sale.from_shop }}</td>
                                 <td>
@@ -76,6 +78,7 @@
                                 <th>Opérateur</th>
                                 <th>Acheteur</th>
                                 <th>Date</th>
+                                <th>Heure</th>
                                 <th>Prix</th>
                                 <th>Magasin</th>
                                 <th>Détail</th>
@@ -87,7 +90,8 @@
                                 <tr>
                                     <td>{{ sale.operator }}</td>
                                     <td>{{ sale.sender }}</td>
-                                    <td>{{ sale.date }}</td>
+                                    <td>{{ sale.date|date:"SHORT_DATE_FORMAT" }}</td>
+                                    <td>{{ sale.date|time:"H:i" }}</td>
                                     <td>{{ sale.amount }}€</td>
                                     <td>{{ sale.from_shop }}</td>
                                     <td>

@@ -27,6 +27,8 @@
             <tr>
                 <th>Opérateur</th>
                 <th>Utilisateur</th>
+                <th>Date</th>
+                <th>Heure</th>
                 <th>Montant</th>
                 <th>Type</th>
                 <th>Détail</th>
@@ -35,6 +37,8 @@
             <tr class="{% if exceptionnal_movement.is_credit %}success{% else %}danger{% endif %}">
                 <td>{{ exceptionnal_movement.operator }}</td>
                 <td>{{ exceptionnal_movement.sender }}</td>
+                <td>{{ exceptionnal_movement.date|date:"SHORT_DATE_FORMAT" }}</td>
+                <td>{{ exceptionnal_movement.date|time:"H:i" }}</td>
                 <td>{{ exceptionnal_movement.amount }}€</td>
                 <td>{% if exceptionnal_movement.is_credit %}Crédit{% else %}Débit{% endif %}</td>
                 <td>
