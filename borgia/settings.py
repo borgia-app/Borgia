@@ -143,6 +143,7 @@ LOGIN_EXEMPT_URLS = [
     '/local/jsi18n',
     '/admin/',
     '/self/lydias/callback/',
+    '/arduino/connect/'
 ]
 
 LOGIN_EXEMPT_URL_PATTERNS = [

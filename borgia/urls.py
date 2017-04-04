@@ -24,6 +24,7 @@ from shops.models import ProductBase, ProductUnit
 from finances.views import *
 from modules.views import *
 from notifications.views import *
+from borgia.arduinoRequests import ArduinoConnect
 
 handler403 = handler403
 handler404 = handler404
@@ -303,6 +304,13 @@ urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^local/jsi18n$', jsi18n_catalog),
     url(r'notifications/', include('notifications.urls')),
+
+
+    # SANDBOX for Arduino
+    ## Theses elements are not enought common and cannot be reused in another
+    ## association. However they will be used at ENSAM Metz, be careful.
+    url(r'^arduino/connect/$', ArduinoConnect.as_view())
+
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # Cette ligne permet d'utiliser le dossier MEDIA en
 # dev (en prod c'est automatique)
