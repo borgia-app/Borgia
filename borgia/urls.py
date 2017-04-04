@@ -24,7 +24,9 @@ from shops.models import ProductBase, ProductUnit
 from finances.views import *
 from modules.views import *
 from notifications.views import *
-from borgia.arduinoRequests import ArduinoConnect, ArduinoCheckUser
+from borgia.arduinoRequests import (
+    ArduinoConnect, ArduinoCheckUser, ArduinoCheckVolumeAvailable
+    )
 
 handler403 = handler403
 handler404 = handler404
@@ -310,7 +312,8 @@ urlpatterns = [
     ## Theses elements are not enought common and cannot be reused in another
     ## association. However they will be used at ENSAM Metz, be careful.
     url(r'^arduino/connect/$', ArduinoConnect.as_view()),
-    url(r'^arduino/checkuser/$', ArduinoCheckUser.as_view())
+    url(r'^arduino/checkuser/$', ArduinoCheckUser.as_view()),
+    url(r'^arduino/checkvolumeavailable/$', ArduinoCheckVolumeAvailable.as_view()),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # Cette ligne permet d'utiliser le dossier MEDIA en

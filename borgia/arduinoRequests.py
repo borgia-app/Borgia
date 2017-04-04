@@ -6,9 +6,12 @@ from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 
 from users.models import User
+from shops.models import ContainerCase, Shop
 
 # TODO: right error code, refer to phabricator.iresam.org/T199
 # TODO: right docstrings
+
+## BE CAREFUL: THESES FUNCTIONS ARE NOT COMMON, THEY ARE ONLY USED FOR ENSAM METZ
 
 class ArduinoRequest(object):
     def dispatch(self, request, *args, **kwargs):
@@ -57,4 +60,37 @@ class ArduinoCheckUser(ArduinoRequest, View):
         except KeyError:
             raise Http404
         except ObjectDoesNotExist:
+            raise Http404
+
+
+class ArduinoCheckVolumeAvailable(ArduinoRequest, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            user = User.objects.get(token_id=request.GET['token'])
+            foyer = Shop.objects.get(name='foyer')
+            place = ContainerCase.objects.get(
+                shop=foyer,
+                name="Tireuse " + request.GET['place']
+            )
+            if place.product is None:
+                raise Http404
+            volume_available = round((
+                (place.product.product_base.quantity
+                 * user.balance)
+                / place.product.product_base.get_moded_price()
+            ), 0)
+            if volume_available < 15:
+                volume_available = 15
+            if volume_available > 999:
+                volume_available = 999
+            return JsonResponse({
+                'token': request.GET['token'],
+                'place': request.GET['place'],
+                'volume': volume_available
+                })
+        except KeyError:
+            raise Http404
+        except ObjectDoesNotExist:
+            raise Http404
+        except ValueError:
             raise Http404

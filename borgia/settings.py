@@ -145,6 +145,7 @@ LOGIN_EXEMPT_URLS = [
     '/self/lydias/callback/',
     '/arduino/connect/',
     '/arduino/checkuser/',
+    '/arduino/checkvolumeavailable/',
 ]
 
 LOGIN_EXEMPT_URL_PATTERNS = [
