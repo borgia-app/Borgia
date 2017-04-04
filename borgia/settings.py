@@ -143,7 +143,8 @@ LOGIN_EXEMPT_URLS = [
     '/local/jsi18n',
     '/admin/',
     '/self/lydias/callback/',
-    '/arduino/connect/'
+    '/arduino/connect/',
+    '/arduino/checkuser/',
 ]
 
 LOGIN_EXEMPT_URL_PATTERNS = [
@@ -180,7 +181,7 @@ EMAIL_HOST_PASSWORD = 'Alexandre57'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Electrovanne
-ELECTROVANNE_TOKEN = '80eg11TBAiR13UCI3dJKHWa5e7764KA3'
+ARDUINO_PRIVATE = '80eg11TBAiR13UCI3dJKHWa5e7764KA3'
 
 ADMINS = [('Alexandre', 'a-palo@laposte.net'), ('Guillaume', 'guillaume@broggi.ovh'), ('Wassim', 'wassimbel94@gmail.com'), ('Mael', 'mael.lacour@gadz.org'), ('Vincent', 'vtim@hotmail.fr')]
 
