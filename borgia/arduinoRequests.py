@@ -1,4 +1,5 @@
 import hashlib
+import re
 
 from django.views.generic import View
 from django.http import JsonResponse, Http404
@@ -31,6 +32,53 @@ class ArduinoRequest(object):
         return super(ArduinoRequest, self).dispatch(request, *args, **kwargs)
 
 
+def errorJsonResponse(code, parameter = None):
+    """
+    Return a JsonResponse with the object error giving information about the
+    error code with a message.
+
+    :param code: error code
+    :type code: integer
+    :param parameter: missing parameter for code 2
+    :type parameter: string
+    :returns: JsonResponse object error with code and message
+    """
+    message = None
+    # Miscellaneous
+    if code == 1:
+        message = 'unknown error'
+    if code == 2:
+        message = 'missing parameter ' + parameter
+    # Token 1XX
+    if code == 101:
+        message = 'void token'
+    if code == 102:
+        message = 'linked user not found'
+    # User 2XX
+    if code == 201:
+        message = 'unactiv user'
+    if code == 202:
+        message = 'void balance'
+    # Tap place 3XX
+    if code == 301:
+        message = 'unknown tap number'
+    if code == 302:
+        message = 'no current container for this tap'
+    if code == 303:
+        message = 'empty container for this tap'
+    # Purchase 6XX
+    if code == 601:
+        message = 'void requested volume'
+
+    # Default
+    if message is None:
+        message = 'unknown error'
+    return JsonResponse({'error': {
+        'code': code,
+        'message': message
+    }})
+
+
 class ArduinoConnect(View):
     '''
     Simply send a boolean response to see if the connection is ok or not.
@@ -52,45 +100,73 @@ class ArduinoConnect(View):
 class ArduinoCheckUser(ArduinoRequest, View):
     def get(self, request, *args, **kwargs):
         try:
-            return JsonResponse({
-                'token': request.GET['token'],
-                'balance': User.objects.get(
-                    token_id=request.GET['token']).balance
-                })
+            token = request.GET['token']
+            if not re.match('^[0-9A-Z]{12}$', token):
+                return errorJsonResponse(101)
         except KeyError:
-            raise Http404
+            return errorJsonResponse(2, 'token')
+        try:
+            user = User.objects.get(token_id=token)
         except ObjectDoesNotExist:
-            raise Http404
+            return errorJsonResponse(102)
+        if not user.is_active:
+            return errorJsonResponse(201)
+        if user.balance <= 0:
+            return errorJsonResponse(202)
+
+        return JsonResponse({
+            'token': token,
+            'balance': user.balance
+        })
 
 
 class ArduinoCheckVolumeAvailable(ArduinoRequest, View):
     def get(self, request, *args, **kwargs):
         try:
-            user = User.objects.get(token_id=request.GET['token'])
+            token = request.GET['token']
+            if not re.match('^[0-9A-Z]{12}$', token):
+                return errorJsonResponse(101)
+        except KeyError:
+            return errorJsonResponse(2, 'token')
+        try:
             foyer = Shop.objects.get(name='foyer')
+        except KeyError:
+            return errorJsonResponse(1)
+        try:
+            place_id = request.GET['place']
+        except KeyError:
+            return errorJsonResponse(2, 'place')
+
+        try:
+            user = User.objects.get(token_id=token)
+        except ObjectDoesNotExist:
+            return errorJsonResponse(102)
+        try:
             place = ContainerCase.objects.get(
                 shop=foyer,
-                name="Tireuse " + request.GET['place']
+                name="Tireuse " + place_id
             )
-            if place.product is None:
-                raise Http404
-            volume_available = round((
-                (place.product.product_base.quantity
-                 * user.balance)
-                / place.product.product_base.get_moded_price()
-            ), 0)
-            if volume_available < 15:
-                volume_available = 15
-            if volume_available > 999:
-                volume_available = 999
-            return JsonResponse({
-                'token': request.GET['token'],
-                'place': request.GET['place'],
-                'volume': volume_available
-                })
-        except KeyError:
-            raise Http404
         except ObjectDoesNotExist:
-            raise Http404
-        except ValueError:
-            raise Http404
+            return errorJsonResponse(301)
+        if place.product is None:
+            return errorJsonResponse(302)
+        if place.product.quantity_remaining <= 0:
+            return errorJsonResponse(303)
+
+        volume_available = round((
+            (place.product.product_base.quantity
+             * user.balance)
+            / place.product.product_base.get_moded_price()
+        ), 0)
+        if volume_available > place.product.quantity_remaining:
+            volume_available = quantity_remaining
+        if volume_available < 15:
+            volume_available = 15
+        if volume_available > 999:
+            volume_available = 999
+
+        return JsonResponse({
+            'token': token,
+            'place': place_id,
+            'volume': volume_available
+            })
