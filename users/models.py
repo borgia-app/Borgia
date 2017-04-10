@@ -60,7 +60,7 @@ class User(AbstractUser):
     :type year: string must be in YEAR_CHOICES
     :type campus: string must be in CAMPUS_CHOICES
     :type phone: string must match standard phone number in France ^0[0-9]{9}$
-    :type token_id: string must match ^[0-9A-Z]{6}$
+    :type token_id: string must match ^[0-9A-Z]{12}$
     :type avatar: string path of the image in statics
 
     """
@@ -94,9 +94,9 @@ class User(AbstractUser):
                                                         """Le numéro doit être
                                                         du type
                                                         0123456789""")])
-    token_id = models.CharField('Numéro de jeton lié', max_length=6,
+    token_id = models.CharField('Numéro de jeton lié', max_length=12,
                                 blank=True, null=True,
-                                validators=[RegexValidator('^[0-9A-Z]{6}$',
+                                validators=[RegexValidator('^[0-9A-Z]{12}$',
                                                            """Mauvaise forme de
                                                            numéro de jeton, il
                                                            ne doit contenir que
