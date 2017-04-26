@@ -128,7 +128,7 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                                                        expiry_date=form.cleaned_data['expiry_date'],
                                                        place=form.cleaned_data['place'],
                                                        product_base=form.cleaned_data['product_base'],
-                                                       quantity_remaining=ProductBase.objects.get(pk=form.cleaned_data['product_base']).quantity)
+                                                       quantity_remaining=form.cleaned_data['product_base'].quantity)
         elif form.cleaned_data['product_base'].type == 'single_product':
             for i in range(0, form.cleaned_data['quantity']):
                 product = SingleProduct.objects.create(price=form.cleaned_data['price'],
