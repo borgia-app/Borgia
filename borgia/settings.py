@@ -146,6 +146,7 @@ LOGIN_EXEMPT_URLS = [
     '/arduino/connect/',
     '/arduino/checkuser/',
     '/arduino/checkvolumeavailable/',
+    '/arduino/purchase/',
 ]
 
 LOGIN_EXEMPT_URL_PATTERNS = [

@@ -25,7 +25,7 @@ from finances.views import *
 from modules.views import *
 from notifications.views import *
 from borgia.arduinoRequests import (
-    ArduinoConnect, ArduinoCheckUser, ArduinoCheckVolumeAvailable
+    ArduinoConnect, ArduinoCheckUser, ArduinoCheckVolumeAvailable, ArduinoPurchase
     )
 
 handler403 = handler403
@@ -314,6 +314,7 @@ urlpatterns = [
     url(r'^arduino/connect/$', ArduinoConnect.as_view()),
     url(r'^arduino/checkuser/$', ArduinoCheckUser.as_view()),
     url(r'^arduino/checkvolumeavailable/$', ArduinoCheckVolumeAvailable.as_view()),
+    url(r'^arduino/purchase/$', ArduinoPurchase.as_view()),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # Cette ligne permet d'utiliser le dossier MEDIA en

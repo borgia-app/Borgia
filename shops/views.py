@@ -127,7 +127,8 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                                                        purchase_date=form.cleaned_data['purchase_date'],
                                                        expiry_date=form.cleaned_data['expiry_date'],
                                                        place=form.cleaned_data['place'],
-                                                       product_base=form.cleaned_data['product_base'])
+                                                       product_base=form.cleaned_data['product_base'],
+                                                       quantity_remaining=ProductBase.objects.get(pk=form.cleaned_data['product_base']).quantity)
         elif form.cleaned_data['product_base'].type == 'single_product':
             for i in range(0, form.cleaned_data['quantity']):
                 product = SingleProduct.objects.create(price=form.cleaned_data['price'],
@@ -273,7 +274,7 @@ class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View,
                         kwargs={'group_name': self.group.name,
                                 'pk': self.object.pk}))
 
-    
+
 class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View,
                       GroupLateralMenuMixin):
     """
@@ -520,9 +521,9 @@ class ShopContainerCases(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         return containercases_data
 
     def form_valid(self, form):
-
         list_pk = []
         for containercase_form in form:
+            print(containercase_form)
             try:
                 list_pk.append(containercase_form.cleaned_data['pk'])
             except KeyError:
@@ -534,7 +535,6 @@ class ShopContainerCases(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         for containercase_form in form:
             new_base = containercase_form.cleaned_data[
                 'base_container']
-
             if containercase_form.cleaned_data['pk'] is not None:
                 containercase = ContainerCase.objects.get(
                     pk=containercase_form.cleaned_data['pk'])

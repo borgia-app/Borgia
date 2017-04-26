@@ -5,9 +5,11 @@ from django.views.generic import View
 from django.http import JsonResponse, Http404
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils.timezone import now
 
 from users.models import User
-from shops.models import ContainerCase, Shop
+from shops.models import ContainerCase, Shop, SingleProductFromContainer
+from finances.models import sale_sale
 
 # TODO: right error code, refer to phabricator.iresam.org/T199
 # TODO: right docstrings
@@ -169,4 +171,71 @@ class ArduinoCheckVolumeAvailable(ArduinoRequest, View):
             'token': token,
             'place': place_id,
             'volume': volume_available
+            })
+
+
+class ArduinoPurchase(ArduinoRequest, View):
+    def get(self, request, *args, **kwargs):
+        try:
+            token = request.GET['token']
+            if not re.match('^[0-9A-Z]{12}$', token):
+                return errorJsonResponse(101)
+        except KeyError:
+            return errorJsonResponse(2, 'token')
+        try:
+            foyer = Shop.objects.get(name='foyer')
+        except KeyError:
+            return errorJsonResponse(1)
+        try:
+            place_id = request.GET['place']
+        except KeyError:
+            return errorJsonResponse(2, 'place')
+
+        try:
+            user = User.objects.get(token_id=token)
+        except ObjectDoesNotExist:
+            return errorJsonResponse(102)
+        try:
+            place = ContainerCase.objects.get(
+                shop=foyer,
+                name="Tireuse " + place_id
+            )
+        except ObjectDoesNotExist:
+            return errorJsonResponse(301)
+        if place.product is None:
+            return errorJsonResponse(302)
+        if place.product.quantity_remaining <= 0:
+            return errorJsonResponse(303)
+
+        try:
+            volume = request.GET['volume']
+        except KeyError:
+            return errorJsonResponse(2, 'volume')
+
+        try:
+            volume = int(volume)
+        except ValueError:
+            return errorJsonResponse(601)
+
+        spfc = SingleProductFromContainer.objects.create(
+                    container=place.product,
+                    quantity=volume,
+                    sale_price=((place.product.product_base.get_moded_usual_price()
+                                * volume) / place.product.product_base.product_unit.usual_quantity())
+                )
+
+        sale = sale_sale(
+            sender=user,
+            operator=user,
+            date=now(),
+            wording='Vente foyer',
+            products_list=[spfc],
+            to_return=True
+        )
+
+        return JsonResponse({
+            'token': token,
+            'place': place_id,
+            'volume': volume,
+            'amount': sale.amount
             })
