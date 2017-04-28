@@ -161,7 +161,7 @@ class ArduinoCheckVolumeAvailable(ArduinoRequest, View):
             / place.product.product_base.get_moded_price()
         ), 0)
         if volume_available > place.product.quantity_remaining:
-            volume_available = quantity_remaining
+            volume_available = place.product.quantity_remaining
         if volume_available < 15:
             volume_available = 15
         if volume_available > 999:
