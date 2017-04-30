@@ -20,9 +20,17 @@
               {% for object in sale_list.shops %}
               <li role="presentation">
                 <a href="#{{ object.shop.name }}"
-                aria-controls="{{ object.shop.name }}"
-                role="tab" data-toggle="tab">{{ object.shop.name|capfirst }}</a></li>
+                  aria-controls="{{ object.shop.name }}"
+                  role="tab" data-toggle="tab">{{ object.shop.name|capfirst }}
+                </a>
+              </li>
               {% endfor %}
+              <li role="presentation">
+                <a href="#transferts"
+                  aria-controles="transferts"
+                  role="tab" data-toggle="tab">Transferts
+                </a>
+              </li>
             </ul>
 
             <div class="tab-content">
@@ -39,7 +47,12 @@
                     {% for sale in sale_list.all %}
                     <tr>
                       <td>{{ sale.date|date:"d/m/Y H:i:s" }}</td>
-                      <td>{{ sale.string_products }}</td>
+                      <td>{% if sale.category == 'transfert' %}
+                        {% if sale.sender == user %} vers {{ sale.recipient }}{% else %} depuis {{ sale.sender}}{% endif %}
+                        {% else %}
+                        {{ sale.string_products }}
+                        {% endif %}
+                      </td>
                       <td>{% price_for sale=sale user=user %} €</td>
                     </tr>
                     {% endfor %}
@@ -68,6 +81,27 @@
                 </table>
               </div>
               {% endfor %}
+              <div role="tabpanel" class="tab-pane" id="transferts">
+                <table class="table table-default">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Justification</th>
+                      <th>Montant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for sale in sale_list.transferts.sale_list_short %}
+                    <tr>
+                      <td>{{ sale.date|date:"d/m/Y H:i:s" }}</td>
+                      <td>{{ sale.justification }}
+                      {% if sale.sender == user %} vers {{ sale.recipient }}{% else %} depuis {{ sale.sender}}{% endif %}</td>
+                      <td>{% price_for sale=sale user=user %} €</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         </div>

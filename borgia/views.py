@@ -484,12 +484,13 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
     def get_sales(self, request):
         sales = {}
         list = request.user.list_sale()
-
-        sales['shops'] = []
-        sales['all'] = list.filter(category='sale')[:5]
         sales['months'] = self.monthlist(
             datetime.now() - timedelta(days=365),
             datetime.now())
+
+        # Shops sales
+        sales['shops'] = []
+        sales['all'] = list[:5]
         for shop in Shop.objects.all().exclude(pk=1):
             list_filtered = list.filter(
                 category='sale', wording='Vente '+shop.name)
@@ -502,6 +503,11 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
                 'sale_list_short': list_filtered[:5],
                 'data_months': self.data_months(request, list_filtered, sales['months'])
             })
+
+        # Transferts
+        sales['transferts'] = {
+            'sale_list_short': list.filter(category='transfert')[:5]
+        }
         return sales
 
     def data_months(self, request, list, months):
@@ -509,8 +515,8 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
         for object in list:
             if object.date.strftime("%b-%y") in months:
                 amounts[
-                    months.index(object.date.strftime("%b-%y"))] += (
-                        -object.price_for(request.user))
+                    months.index(object.date.strftime("%b-%y"))] +=\
+                        abs(object.price_for(request.user))
         return amounts
 
     def monthlist(self, start, end):
