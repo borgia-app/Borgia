@@ -214,6 +214,11 @@ class SelfUserUpdate(GroupPermissionMixin, FormView,
         initial['avatar'] = self.request.user.avatar
         return initial
 
+    def get_form_kwargs(self):
+        kwargs = super(SelfUserUpdate, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
     def form_valid(self, form):
         self.request.user.email = form.cleaned_data['email']
         self.request.user.phone = form.cleaned_data['phone']

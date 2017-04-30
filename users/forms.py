@@ -49,6 +49,18 @@ class SelfUserUpdateForm(forms.ModelForm):
         model = User
         fields = ['email', 'phone', 'avatar']
 
+    def __init__(self, **kwargs):
+        self.user = kwargs.pop('user')
+        super(SelfUserUpdateForm, self).__init__(**kwargs)
+
+    def clean_email(self):
+        data = self.cleaned_data['email']
+        if data == '':
+            raise ValidationError('Ce champ ne peut pas être vide')
+        if User.objects.filter(email=data).exclude(pk=self.user.pk).exists():
+            raise ValidationError('Un autre utilisateur existe avec cet email')
+        return data
+
 
 class UserUpdateAdminForm(forms.Form):
     first_name = forms.CharField(label='Prenom', max_length=255)
@@ -80,7 +92,7 @@ class UserUpdateAdminForm(forms.Form):
         if data == '':
             raise ValidationError('Ce champ ne peut pas être vide')
         if User.objects.filter(email=data).exclude(pk=self.user_modified.pk).exists():
-            raise ValidationError('Un autre user existe avec cet email')
+            raise ValidationError('Un autre utilisateur existe avec cet email')
         return data
 
 
