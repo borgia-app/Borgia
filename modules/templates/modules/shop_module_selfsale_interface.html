@@ -1,4 +1,5 @@
 {% extends 'base_sober.html' %}
+{% load l10n %}
 {% load bootstrap %}
 {% load modules_extra %}
 
@@ -32,11 +33,11 @@
             </div>
           </div>
           <div class="row" id="figures">
-            <div class="col-md-2" id="initial">{{ user.balance }}</div>
+            <div class="col-md-2"><span id="initial">{{ user.balance|unlocalize }}</span>€</div>
             <div class="col-md-2">-</div>
-            <div class="col-md-2" id="total">0.00</div>
+            <div class="col-md-2"><span id="total">0.00</span>€</div>
             <div class="col-md-2">=</div>
-            <div class="col-md-4" id="result">{{ user.balance }}</div>
+            <div class="col-md-4"><span id="result">{{ user.balance|unlocalize }}</span>€</div>
           </div>
           <div class="row">
             <div class="col-md-12">
@@ -68,11 +69,13 @@
         </div>
         <div class="panel-body">
           <ul class="nav nav-tabs" role="tablist" id="tablist">
+            {% if form|containerCasesFieldsCount != 0 %}
             <li role="presentation">
               <a href="#container_cases" aria-controls="home" role="tab" data-toggle="tab">
                 Emplacements
               </a>
             </li>
+            {% endif %}
             {% for category in categories %}
             <li role="presentation">
               <a href="#{{ category.pk }}" aria-controls="home" role="tab" data-toggle="tab">
@@ -82,6 +85,7 @@
             {% endfor %}
           </ul>
           <div class="tab-content" id="tab-content">
+            {% if form|containerCasesFieldsCount != 0 %}
             <div role="tabpanel" class="tab-pane" id="container_cases">
               <table class="table table-default table-striped table-hover">
                 <thead>
@@ -98,14 +102,15 @@
                       <td>{{ field.field.widget.attrs.data_container_case_name }}</td>
                       <td>{{ field.errors }}{{ field.label_tag }}</td>
                       <td>{{ field }}</td>
-                      <td>{{ field.field.widget.attrs.data_usual_price }}</td>
-                      <td id="total_{{ field.field.widget.attrs.pk }}">0.00</td>
+                      <td>{{ field.field.widget.attrs.data_usual_price|unlocalize }}€</td>
+                      <td><span id="total_{{ field.field.widget.attrs.pk }}">0.00</span>€</td>
                     </tr>
                     {% endif %}
                   {% endfor %}
                 </tbody>
               </table>
             </div>
+            {% endif %}
             {% for category in categories %}
             <div role="tabpanel" class="tab-pane" id="{{ category.pk }}">
               <table class="table table-default table-striped table-hover">
@@ -121,8 +126,8 @@
                     <tr>
                       <td>{{ field.errors }}{{ field.label_tag }}</td>
                       <td>{{ field }}</td>
-                      <td>{{ field.field.widget.attrs.data_usual_price }}</td>
-                      <td id="total_{{ field.field.widget.attrs.pk }}">0.00</td>
+                      <td>{{ field.field.widget.attrs.data_usual_price|unlocalize }}€</td>
+                      <td><span id="total_{{ field.field.widget.attrs.pk }}">0.00</span>€</td>
                     </tr>
                     {% endif %}
                   {% endfor %}
@@ -143,6 +148,7 @@
   }
   #figures {
     margin-bottom: 10px;
+    color: white;
   }
   #user {
     font-size: 30px;
@@ -179,6 +185,13 @@
       $("#result").attr("class", 'col-md-4')
     }
   }
+
+  // First iteration (in case of form errors)
+  $("input[id^='id_']").each(function() {
+    console.log(this)
+    $(this).trigger('change')
+  })
+
   $("div[role='tabpanel']").first().attr('class', 'tab-pane active')
   $("li[role='presentation']").first().attr('class', 'active')
 </script>
