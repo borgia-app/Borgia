@@ -1,6 +1,5 @@
 from django.db import models
 from django.utils.timezone import now
-from datetime import datetime
 from decimal import Decimal
 import json
 
@@ -8,7 +7,8 @@ from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, RegexValidator
 from django.core.exceptions import ObjectDoesNotExist
 
-from shops.models import SingleProduct, SingleProductFromContainer, Container, Shop
+from shops.models import (SingleProduct, SingleProductFromContainer, Container,
+                          Shop)
 
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).

@@ -1,8 +1,10 @@
+import datetime
+import re
+
+from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.edit import FormView
 from django.views.generic import CreateView
 from django.shortcuts import force_text
-import datetime, re
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 
 
 class FormNextView(FormView):
@@ -131,4 +133,3 @@ class ListCompleteView(FormView):
                 page_links.append(page_number)
         context['page_links'] = page_links
         return context
-

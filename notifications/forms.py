@@ -1,9 +1,9 @@
-#-*- coding: utf-8 -*-
 from django import forms
 from borgia.validators import *
 from notifications.models import NotificationTemplate, NotificationClass, NotificationGroup
 from django.contrib.auth.models import Group
 from shops.models import Shop
+
 
 # WIP
 class notiftest(forms.Form):

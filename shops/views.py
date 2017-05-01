@@ -1,21 +1,15 @@
-from django.core import serializers
-from math import ceil
 from functools import partial, wraps
 
-from django.shortcuts import render, force_text, HttpResponseRedirect, redirect
-from django.shortcuts import HttpResponse, Http404
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import ListView, DetailView, FormView, View
-from django.contrib.auth import logout
+from django.shortcuts import render, redirect
+from django.shortcuts import Http404
+from django.views.generic import FormView, View
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.forms.formsets import formset_factory
 
 from shops.models import *
 from shops.forms import *
-from users.models import User
 from finances.models import *
-from notifications.models import notify
 from borgia.utils import *
 
 

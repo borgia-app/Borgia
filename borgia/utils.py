@@ -1,12 +1,13 @@
-from django.contrib.auth.models import Group, Permission
-from users.models import User
-from notifications.models import Notification, NotificationTemplate, NotificationGroup
-from shops.models import ProductBase, Shop
 from django.views.generic.base import ContextMixin
 from django.core.urlresolvers import reverse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.urls import NoReverseMatch
+
+from django.contrib.auth.models import Group, Permission
+from users.models import User
+from notifications.models import Notification, NotificationTemplate, NotificationGroup
+from shops.models import ProductBase, Shop
 from modules.models import *
 from finances.models import SharedEvent
 

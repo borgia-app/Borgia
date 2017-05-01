@@ -1,5 +1,4 @@
 from django.http import HttpResponse
-import csv
 import xlsxwriter
 import json
 

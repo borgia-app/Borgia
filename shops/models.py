@@ -1,11 +1,7 @@
-from django.db.models import Q
-from django.db.models import Model
-from contrib.models import TimeStampedDescription
 from django.utils.timezone import now
 
 from decimal import Decimal, InvalidOperation
 from django.core.exceptions import ObjectDoesNotExist
-from django.conf import settings
 from django.core.validators import RegexValidator
 
 from finances.models import *

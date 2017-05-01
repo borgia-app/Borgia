@@ -1,8 +1,4 @@
 import json
-import time
-import re
-import csv
-import xlsxwriter
 import operator
 import hashlib
 import decimal
@@ -10,21 +6,17 @@ from django.shortcuts import render, HttpResponse, force_text, redirect
 from django.shortcuts import Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import PermissionDenied
-from django.contrib.auth.models import Permission
 from django.db.models import Q
 from datetime import timedelta
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 
-from django.views.generic.edit import CreateView, UpdateView, DeleteView
-from django.views.generic import ListView, DetailView, FormView, View
+from django.views.generic import FormView, View
 from django.contrib.auth.models import Group
 from django.conf import settings
-from django.http import HttpResponse
 
 from finances.forms import *
 from finances.models import *
-from shops.models import Container, ProductBase
 from borgia.utils import *
 from settings_data.models import Setting
 from finances.utils import *

@@ -1,10 +1,9 @@
-#-*- coding: utf-8 -*-
 from django import forms
-from users.models import User, list_year
 from django.forms.widgets import PasswordInput
 from django.core.exceptions import ObjectDoesNotExist
-
 from borgia.validators import *
+
+from users.models import User, list_year
 
 
 class UserCreationCustomForm(forms.Form):

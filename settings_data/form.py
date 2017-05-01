@@ -1,5 +1,4 @@
 from django import forms
-from django.forms.widgets import TextInput, Textarea
 from django.core.exceptions import ValidationError
 
 

@@ -1,21 +1,21 @@
-#-*- coding: utf-8 -*-
+from lxml import etree
 
-from notifications.models import *
+
 from django.shortcuts import HttpResponseRedirect, render, redirect, force_text
-from borgia.models import ListCompleteView
-from notifications.forms import notiftest, NotificationTemplateUpdateViewForm, NotificationTemplateCreateViewForm
 from django.views.generic.edit import UpdateView, CreateView
 from django.views.generic.list import ListView
 from django.views.generic import View
-from borgia.utils import *
 from django.template import Template, Context
-from lxml import etree
+from borgia.utils import *
+
+from borgia.models import ListCompleteView
+from notifications.forms import (notiftest, NotificationTemplateUpdateViewForm,
+                                 NotificationTemplateCreateViewForm)
+from notifications.models import *
+
 
 # CRUD modèle notification
-
 # List
-
-
 class NotificationListCompleteView(GroupPermissionMixin, ListCompleteView, GroupLateralMenuMixin):
     """
 

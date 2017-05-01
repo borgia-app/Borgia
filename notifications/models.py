@@ -1,15 +1,11 @@
-#-*- coding: utf-8 -*-
+from lxml import etree
+from annoying.fields import AutoOneToOneField
+
 from django.db import models, IntegrityError
-from django.db.models import Model
-from contrib.models import TimeStampedDescription
 from django.utils.timezone import now
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.auth.models import Group, Permission
-from shops.models import Shop
-from lxml import etree
-from annoying.fields import AutoOneToOneField
 from django.forms import ValidationError
 from django.db.models.signals import m2m_changed, pre_save
 from django.dispatch import receiver

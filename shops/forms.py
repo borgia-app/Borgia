@@ -1,15 +1,7 @@
 from django import forms
-from django.db.models import Q
-
-from django.forms.widgets import Textarea, PasswordInput
-from django.contrib.auth import authenticate
-from django.core.exceptions import ObjectDoesNotExist
 from django.forms.models import ModelChoiceField
-from django.contrib.auth.models import Group
 
-from shops.models import (Shop, Container, ProductBase, ProductUnit,
-                          ContainerCase)
-from users.models import User
+from shops.models import (Shop, Container, ProductBase, ProductUnit)
 from borgia.validators import autocomplete_username_validator
 
 

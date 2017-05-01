@@ -1,20 +1,18 @@
 from django.conf.urls import url, include
 from django.contrib import admin
 from django.contrib.auth.views import (
-    logout, login, password_reset, password_reset_complete,
+    password_reset, password_reset_complete,
     password_reset_confirm, password_change, password_change_done,
     password_reset_done)
 from borgia.views import (
-    page_clean, jsi18n_catalog, TestBootstrapSober,
-    get_list_model, get_unique_model, handler403, handler404, handler500,
+    jsi18n_catalog, TestBootstrapSober,
+    handler403, handler404, handler500,
     Login, Logout, GadzartsGroupWorkboard, ShopGroupWorkboard,
     PresidentsGroupWorkboard, VicePresidentsInternalGroupWorkboard,
     TreasurersGroupWorkboard
     )
 from django.conf import settings
 from django.conf.urls.static import static
-from django.views.generic import TemplateView
-from django.contrib.auth.decorators import permission_required
 
 from users.views import *
 from shops.views import (
@@ -307,7 +305,6 @@ urlpatterns = [
 
     url(r'^admin/', admin.site.urls),
     url(r'^local/jsi18n$', jsi18n_catalog),
-    url(r'notifications/', include('notifications.urls')),
 
 
     # SANDBOX for Arduino

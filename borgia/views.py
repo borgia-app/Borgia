@@ -1,26 +1,20 @@
 from django.views.generic import FormView, TemplateView, View
 from django.shortcuts import render, redirect, HttpResponse
 from django.contrib.auth import login, authenticate, logout
-from django.contrib.auth.forms import AuthenticationForm
-from django.forms import BooleanField
 from django.db.models import Q
 from functools import reduce
-from operator import or_
 from django.core.serializers import serialize
 from datetime import datetime, timedelta
-from collections import OrderedDict
 
 from users.models import User
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group
 import json
 from django.core.exceptions import ObjectDoesNotExist
-import operator
 
 from borgia.utils import *
 from finances.models import Sale, SharedEvent
 from shops.models import SingleProduct, Container
-from borgia.forms import UserSearchForm, LoginForm
-from users.views import UserListView
+from borgia.forms import LoginForm
 
 
 class Login(FormView):

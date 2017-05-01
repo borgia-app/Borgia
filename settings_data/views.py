@@ -1,7 +1,6 @@
 from django.shortcuts import render
 from django.views.generic.base import View
 from settings_data.models import Setting
-from django.forms.models import model_to_dict
 
 from contrib.models import add_to_breadcrumbs
 from borgia.models import FormNextView

@@ -1,8 +1,6 @@
 import unittest
 from django.test import TestCase
 
-from django.core.exceptions import ObjectDoesNotExist
-
 from users.models import User
 from django.contrib.auth.models import Permission, Group
 from borgia.utils import *

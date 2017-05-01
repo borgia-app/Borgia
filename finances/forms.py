@@ -1,15 +1,12 @@
 from django import forms
 from django.contrib.auth import authenticate
-from django.forms import ModelForm
-from django.forms.widgets import PasswordInput, DateInput, TextInput
-from django.core.exceptions import ObjectDoesNotExist
+from django.forms.widgets import PasswordInput
 from django.core.validators import RegexValidator
-from django.utils.timezone import now
 import re
 
 from users.models import User
 from shops.models import Shop
-from finances.models import Cheque, Cash, Lydia, BankAccount, SharedEvent, Sale
+from finances.models import BankAccount
 from borgia.validators import *
 
 

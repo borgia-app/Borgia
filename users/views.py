@@ -1,28 +1,19 @@
 import json
-import datetime
-import re
 
 from django.shortcuts import render, HttpResponse, force_text, redirect
-from django.shortcuts import Http404, HttpResponseRedirect
-from django.views.generic.edit import CreateView, UpdateView, ModelFormMixin
-from django.views.generic.edit import DeleteView
-from django.views.generic import ListView, DetailView, FormView, View
-from django.contrib.messages.views import SuccessMessageMixin
-from django.core import serializers
-from django.contrib.auth.models import Group, Permission
+from django.views.generic import FormView, View
+from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
-from django.db.models import BooleanField
-from django.forms import ChoiceField
 from django.db.models import Q
 from django.core.urlresolvers import reverse
 
 from users.forms import *
-from users.models import User, list_year, ExtendedPermission
+from users.models import User, ExtendedPermission
 from borgia.utils import *
-from notifications.models import notify
 
 
-class ManageGroupView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class ManageGroupView(GroupPermissionMixin, FormView,
+                      GroupLateralMenuFormMixin):
     template_name = 'users/group_manage.html'
     success_url = None
     form_class = ManageGroupForm

@@ -3,9 +3,6 @@ from decimal import Decimal
 import random
 from django.test import TestCase
 
-from django.core.exceptions import ObjectDoesNotExist
-
-from users.models import User
 from shops.models import *
 from settings_data.models import Setting
 
