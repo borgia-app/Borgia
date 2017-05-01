@@ -53,6 +53,11 @@ class ProductBaseCreateForm(forms.Form):
         super(ProductBaseCreateForm, self).__init__(**kwargs)
 
         if shop:
+            self.fields['type'] = forms.ChoiceField(
+                label='Type de produit',
+                choices=(('container', 'Conteneur'),
+                         ('single_product', 'Produit unitaire'))
+            )
             self.fields['product_unit'] = forms.ModelChoiceField(
                 label='Unité de produit',
                 queryset=ProductUnit.objects.filter(
@@ -60,7 +65,8 @@ class ProductBaseCreateForm(forms.Form):
                 required=False,
                 widget=forms.Select(
                     attrs={'class': 'selectpicker form-control',
-                           'data-live-search': 'true'}))
+                           'data-live-search': 'true'})
+            )
         else:
             self.fields['shop'] = forms.ModelChoiceField(
                 label='Magasin',
@@ -78,11 +84,13 @@ class ProductBaseCreateForm(forms.Form):
                 required=False,
                 widget=forms.Select(
                     attrs={'class': 'selectpicker form-control',
-                           'data-live-search': 'true'}))
+                           'data-live-search': 'true'})
+            )
         self.fields['quantity'] = forms.IntegerField(
             label='Quantité de produit unitaire (g, cl ...)',
             min_value=0,
-            required=False)
+            required=False
+        )
         self.fields['name'] = forms.CharField(
             label='Nom',
             max_length=254,
@@ -90,7 +98,6 @@ class ProductBaseCreateForm(forms.Form):
         )
         self.fields['brand'] = forms.CharField(max_length=255,
                                                label='Marque')
-
 
 
     def clean(self):
