@@ -17,7 +17,7 @@ from django.core.exceptions import ObjectDoesNotExist
 import operator
 
 from borgia.utils import *
-from finances.models import Sale
+from finances.models import Sale, SharedEvent
 from shops.models import SingleProduct, Container
 from borgia.forms import UserSearchForm, LoginForm
 from users.views import UserListView
@@ -630,6 +630,12 @@ class PresidentsGroupWorkboard(GroupPermissionMixin, View,
         context['sale_list'] = Sale.objects.filter(
             category='sale'
         ).order_by('-date')[:5]
+        context['events'] = []
+        for event in SharedEvent.objects.all():
+            context['events'].append({
+                'title': event.description,
+                'start': event.date
+            })
         return render(request, self.template_name, context=context)
 
 
@@ -644,6 +650,12 @@ class VicePresidentsInternalGroupWorkboard(GroupPermissionMixin, View,
         context['sale_list'] = Sale.objects.filter(
             category='sale'
         ).order_by('-date')[:5]
+        context['events'] = []
+        for event in SharedEvent.objects.all():
+            context['events'].append({
+                'title': event.description,
+                'start': event.date
+            })
         return render(request, self.template_name, context=context)
 
 
@@ -658,4 +670,10 @@ class TreasurersGroupWorkboard(GroupPermissionMixin, View,
         context['sale_list'] = Sale.objects.filter(
             category='sale'
         ).order_by('-date')[:5]
+        context['events'] = []
+        for event in SharedEvent.objects.all():
+            context['events'].append({
+                'title': event.description,
+                'start': event.date
+            })
         return render(request, self.template_name, context=context)

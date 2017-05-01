@@ -98,7 +98,15 @@
   $(document).ready(function() {
       $('#calendar').fullCalendar({
           locale: 'fr',
-          height: 500
+          height: 500,
+          events: [
+            {% for e in events %}
+            {
+               title: '{{ e.title }}',
+               start: '{{ e.start|date:"Y-m-d" }}',
+            },
+            {% endfor %}
+          ]
       })
   });
 </script>
