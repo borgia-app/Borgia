@@ -12,6 +12,7 @@ from shops.models import SingleProduct, SingleProductFromContainer, Container, S
 
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
+# TODO: shared_event line in tables users, products/payments and function.
 
 
 class Sale(models.Model):
@@ -76,6 +77,8 @@ class Sale(models.Model):
     +----------+------------------+----------------------+--------------------+
     |Transfert | User debited     | User credited        | User debited       |
     +----------+------------------+----------------------+--------------------+
+    | Event    |     TODO         |      TODO            |   TODO             |
+    +----------+------------------+----------------------+--------------------+
 
                             === Table 2: CATEGORIES ===
     +----------+-----------+----------------+----------------+----------------+
@@ -107,6 +110,8 @@ class Sale(models.Model):
     | credit   |           |                |                |                |
     +----------+-----------+----------------+----------------+----------------+
     |Transfert | False     | 'transfert'    | ''             | Justification  |
+    +----------+-----------+----------------+----------------+----------------+
+    | Event    | False     | 'shared_event' |the description |                |
     +----------+-----------+----------------+----------------+----------------+
 
                        === Table 3: PRODUCTS & PAYMENTS ===
@@ -141,6 +146,8 @@ class Sale(models.Model):
     +----------+------------------------------+-------------------------------+
     |Transfert | SPFC of money                | DebitBalance                  |
     +----------+------------------------------+-------------------------------+
+    |Event     |              TODO            | TODO                          |
+    +----------+------------------------------+-------------------------------+
 
                              === Table 4: FUNCTIONS ===
     :note:: To fill parameters of such functions, please refer to tables 1 to
@@ -174,6 +181,8 @@ class Sale(models.Model):
     | credit   |                                                              |
     +----------+--------------------------------------------------------------+
     |Transfert | sale_transfert                                               |
+    +----------+--------------------------------------------------------------+
+    | Event    | TODO                                                         |
     +----------+--------------------------------------------------------------+
     """
     # TODO: define the list of possible wordings.

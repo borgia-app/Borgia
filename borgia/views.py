@@ -508,6 +508,12 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
         sales['transferts'] = {
             'sale_list_short': list.filter(category='transfert')[:5]
         }
+
+        # Shared events
+        sales['shared_events'] = {
+            'sale_list_short': list.filter(category='shared_event')[:5]
+        }
+
         return sales
 
     def data_months(self, request, list, months):
