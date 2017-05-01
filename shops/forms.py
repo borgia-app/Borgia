@@ -51,11 +51,7 @@ class ProductBaseCreateForm(forms.Form):
     def __init__(self, **kwargs):
         shop = kwargs.pop('shop')
         super(ProductBaseCreateForm, self).__init__(**kwargs)
-        self.fields['name'] = forms.CharField(
-            label='Nom',
-            max_length=254,
-            required=False
-        )
+
         if shop:
             self.fields['product_unit'] = forms.ModelChoiceField(
                 label='Unité de produit',
@@ -66,6 +62,15 @@ class ProductBaseCreateForm(forms.Form):
                     attrs={'class': 'selectpicker form-control',
                            'data-live-search': 'true'}))
         else:
+            self.fields['shop'] = forms.ModelChoiceField(
+                label='Magasin',
+                queryset=Shop.objects.all().exclude(pk=1)
+            )
+            self.fields['type'] = forms.ChoiceField(
+                label='Type de produit',
+                choices=(('container', 'Conteneur'),
+                         ('single_product', 'Produit unitaire'))
+            )
             self.fields['product_unit'] = forms.ModelChoiceField(
                 label='Unité de produit',
                 queryset=ProductUnit.objects.filter(
@@ -78,18 +83,15 @@ class ProductBaseCreateForm(forms.Form):
             label='Quantité de produit unitaire (g, cl ...)',
             min_value=0,
             required=False)
+        self.fields['name'] = forms.CharField(
+            label='Nom',
+            max_length=254,
+            required=False
+        )
         self.fields['brand'] = forms.CharField(max_length=255,
                                                label='Marque')
-        self.fields['type'] = forms.ChoiceField(
-            label='Type de produit',
-            choices=(('container', 'Conteneur'),
-                     ('single_product', 'Produit unitaire'))
-        )
-        if shop is None:
-            self.fields['shop'] = forms.ModelChoiceField(
-                label='Magasin',
-                queryset=Shop.objects.all().exclude(pk=1)
-            )
+
+
 
     def clean(self):
         cleaned_data = super(ProductBaseCreateForm, self).clean()
