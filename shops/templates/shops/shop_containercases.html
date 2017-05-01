@@ -1,4 +1,5 @@
 {% extends 'base_sober.html' %}
+{% load l10n %}
 {% load static %}
 {% load bootstrap %}
 
@@ -24,11 +25,11 @@
                 {% if containercase_form.percentage.value %}
                 <div class="progress">
                   <div class="progress-bar" role="progressbar"
-                    aria-valuenow="{{ containercase_form.percentage.value }}"
+                    aria-valuenow="{{ containercase_form.percentage.value|unlocalize }}"
                     aria-valuemin="0"
                     aria-valuemax="100"
-                    style="width: {{ containercase_form.percentage.value }}%;">
-                    <span class="sr-only">{{ containercase_form.percentage.value }}% Complete</span>
+                    style="width: {{ containercase_form.percentage.value|unlocalize }}%;">
+                    <span class="sr-only">{{ containercase_form.percentage.value|unlocalize }}% Complete</span>
                   </div>
                 </div>
                 {% endif %}

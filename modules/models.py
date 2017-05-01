@@ -64,6 +64,9 @@ class SelfSaleModule(ShopModule):
              'Consommer aux magasins par libre service'),
         )
 
+    def __str__(self):
+        return 'module de vente en libre service du magasin ' + self.shop.__str__()
+
 
 class OperatorSaleModule(ShopModule):
     """
@@ -74,3 +77,6 @@ class OperatorSaleModule(ShopModule):
             ('use_operatorsalemodule',
              'Consommer aux magasins avec un opérateur'),
         )
+
+    def __str__(self):
+        return 'module de vente par opérateur du magasin ' + self.shop.__str__()

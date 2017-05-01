@@ -20,6 +20,22 @@
   </div>
   <div class="panel-body">
     <div class="row">
+      {% if module.container_cases.count > 0 %}
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            Emplacements
+          </div>
+          <div class="panel-body">
+            <ul>
+              {% for container_case in module.container_cases.all %}
+              <li>{{ container_case.name }} : {{ container_case.product }}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% endif %}
       {% for category in module.categories.all %}
       <div class="col-md-4">
         <div class="panel panel-default">

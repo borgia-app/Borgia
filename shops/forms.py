@@ -188,7 +188,7 @@ class ShopContainerCaseForm(forms.Form):
         widget=forms.HiddenInput(),
         required=False
     )
-    percentage = forms.IntegerField(
+    percentage = forms.FloatField(
         label='percentage',
         widget=forms.HiddenInput(),
         required=False
