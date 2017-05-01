@@ -110,7 +110,8 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
             self.success_url = reverse(
                 'url_productbase_create', kwargs={'group_name': self.group.name}
             )
-        return super(ProductCreate, self).form_valid(form)
+        return redirect(reverse('url_product_list',
+                        kwargs={'group_name': self.group.name}))
 
     def form_valid_instance(self, form):
         if form.cleaned_data['product_base'].type == 'container':
