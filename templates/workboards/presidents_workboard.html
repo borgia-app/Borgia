@@ -59,6 +59,9 @@
     <div class="panel panel-default">
         <div class="panel-heading">
             Recherche rapide d'un utilisateur
+            <a class="btn btn-info btn-xs pull-right" href="{% url 'url_user_list' group_name=group_name %}">
+                Accéder à la liste des utilisateurs
+            </a>
         </div>
         <div class="panel-body">
             <input type="text" class="form-control" id="input_search" />
