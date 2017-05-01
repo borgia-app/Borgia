@@ -46,7 +46,7 @@
                   <th>Vente libre service</th>
                   <th>Vente par opérateur</th>
                 </tr>
-              <body>
+              <tbody>
                 {% for object in shop_list %}
                 <tr>
                   <td>{{ object.shop.name|capfirst }}</td>
@@ -58,7 +58,7 @@
                     {% if object.operator_module.state %}btn-success{% else %}btn-danger{% endif %}">Lien direct</a></td>
                 </tr>
                 {% endfor %}
-              </body>
+              </tbody>
             </table>
             <p>Les liens en vert correspondent à des modules de vente activés, les rouges à des modules inactifs.</p>
           </div>
