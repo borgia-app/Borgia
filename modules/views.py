@@ -1,19 +1,23 @@
 from django.utils.timezone import now
-from django.shortcuts import render, HttpResponse, force_text, redirect, Http404
-from django.core.exceptions import PermissionDenied
-from django.db.models import Q
+from django.shortcuts import render, redirect, Http404, reverse
 from functools import partial, wraps
 
-from django.contrib.auth.models import Permission, Group
+from django.contrib.auth.models import Group
 from django.views.generic import FormView, View
 from django.forms.formsets import formset_factory
+from django.core.exceptions import ObjectDoesNotExist
 
-from modules.forms import *
-from modules.models import *
-from borgia.utils import *
+from modules.forms import (OperatorSaleShopModule, SelfSaleShopModule,
+                           ModuleCategoryForm, ModuleContainerCaseForm,
+                           ShopModuleConfigForm)
+from modules.models import OperatorSaleModule, SelfSaleModule, Category
+from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
+                          ShopFromGroupMixin, ShopModuleMixin,
+                          GroupLateralMenuMixin, shop_from_group)
 from shops.models import (ProductBase, SingleProduct, Container,
-                          SingleProductFromContainer, ContainerCase)
-from finances.models import Sale, sale_sale
+                          SingleProductFromContainer, ContainerCase, Shop)
+from finances.models import sale_sale
+from users.models import User
 
 
 class SaleShopModuleInterface(GroupPermissionMixin, FormView,
@@ -73,9 +77,9 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
                     products += self.get_products_with_strategy(
                         element, invoice)
 
-        s = sale_sale(sender=self.client, operator=self.request.user,
-                      date=now(), products_list=products,
-                      wording='Vente '+self.shop.name, to_return=True)
+        sale_sale(sender=self.client, operator=self.request.user,
+                  date=now(), products_list=products,
+                  wording='Vente '+self.shop.name)
 
         return redirect(self.success_url)
 
@@ -228,8 +232,8 @@ class SelfSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
 
 
 class OperatorSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
-                                  ShopModuleMixin, View,
-                                  GroupLateralMenuMixin):
+                                      ShopModuleMixin, View,
+                                      GroupLateralMenuMixin):
     """
     View of the workboard of an OperatorSale module of a shop.
 
@@ -248,8 +252,8 @@ class OperatorSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
 
 
 class ShopModuleCategories(GroupPermissionMixin, ShopFromGroupMixin,
-                                  ShopModuleMixin, View,
-                                  GroupLateralMenuMixin):
+                           ShopModuleMixin, View,
+                           GroupLateralMenuMixin):
     """
     View to manage categories of a self shop module.
 

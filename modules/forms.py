@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator
 
-from modules.models import *
+from modules.models import ContainerCase
 from shops.models import ProductBase
 from users.models import User
 from django.db.utils import OperationalError, ProgrammingError

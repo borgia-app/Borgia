@@ -5,7 +5,7 @@ from django.contrib.contenttypes.fields import (
     )
 from django.contrib.contenttypes.models import ContentType
 
-from shops.models import Shop, ProductBase, Container, ContainerCase
+from shops.models import ContainerCase
 
 
 class Category(models.Model):

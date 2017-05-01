@@ -39,7 +39,7 @@
             <div class="col-md-2">-</div>
             <div class="col-md-2"><span id="total">0.00</span>€</div>
             <div class="col-md-2">=</div>
-            <div class="col-md-4"><span id="result">0.00</span>€</div>
+            <div class="col-md-4" id="result_line"><span id="result">0.00</span>€</div>
           </div>
           <div class="row">
             <div class="col-md-12">
@@ -150,6 +150,8 @@
   }
   #figures {
     margin-bottom: 10px;
+    padding-left: 15px;
+    padding-right: 15px;
   }
 </style>
 <script>
@@ -175,11 +177,11 @@
     $("#total").text(total.toFixed(2))
     $("#result").text((Number($("#initial").text()) - total.toFixed(2)).toFixed(2))
     if (Number($("#result").text()) < 0) {
-      $("#result").attr("class", "col-md-4 bg-danger")
+      $("#result_line").attr("class", "col-md-4 bg-danger")
     } else if (Number($("#result").text()) > 0) {
-      $("#result").attr("class", "col-md-4 bg-success")
+      $("#result_line").attr("class", "col-md-4 bg-success")
     } else {
-      $("#result").attr("class", 'col-md-4')
+      $("#result_line").attr("class", 'col-md-4')
     }
   }
 
