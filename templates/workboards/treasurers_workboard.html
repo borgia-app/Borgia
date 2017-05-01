@@ -83,12 +83,18 @@
             style="margin-top: 5px"
             href="{% url 'url_user_list' group_name=group_name %}">Rechercher</a>
             <script>
-              let base_list_url = "{% url 'url_user_list' group_name=group_name %}"
-              $("#input_search").change(function () {
+                let base_list_url = "{% url 'url_user_list' group_name=group_name %}";
+                $("#input_search").change(function () {
                   $("#search").attr(
                     'href',
                     base_list_url + '?search=' + $(this).val())
-              })
+                });
+                $("#input_search").keypress(function (event) {
+                    if (event.which == 13){
+                        $("#input_search").trigger('change');
+                        $("#search")[0].click();
+                    }
+                })
             </script>
         </div>
     </div>

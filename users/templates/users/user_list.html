@@ -9,7 +9,7 @@
     Recherche
   </div>
   <div class="panel-body">
-    <form action="" method="post" class="form-horizontal">
+    <form action="{% url 'url_user_list' group_name=group_name %}" method="post" class="form-horizontal">
       {% csrf_token %}
       {{ form|bootstrap_horizontal }}
       <div class="form-group">
