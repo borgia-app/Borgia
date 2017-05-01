@@ -619,28 +619,43 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
         return list
 
 
-class GroupWorkboard(GroupPermissionMixin, View, GroupLateralMenuMixin):
-    template_name = 'group_workboard.html'
+class PresidentsGroupWorkboard(GroupPermissionMixin, View,
+                               GroupLateralMenuMixin):
+    template_name = 'workboards/presidents_workboard.html'
     perm_codename = None
     lm_active = 'lm_workboard'
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        if (Permission.objects.get(codename='list_user')
-                in self.group.permissions.all()):
-            context['user_search_form'] = UserSearchForm()
-            context['module_search_user'] = True
-        if (Permission.objects.get(codename='list_sale')
-                in self.group.permissions.all()):
-            try:
-                shop = shop_from_group(self.group)
-                context['sale_list'] = Sale.objects.filter(
-                    category='sale',
-                    wording='Vente '+shop.name
-                ).order_by('-date')[:5]
-            except ValueError:
-                context['sale_list'] = Sale.objects.filter(
-                    category='sale'
-                ).order_by('-date')[:5]
-            context['module_list_sale'] = True
+        context['sale_list'] = Sale.objects.filter(
+            category='sale'
+        ).order_by('-date')[:5]
+        return render(request, self.template_name, context=context)
+
+
+class VicePresidentsInternalGroupWorkboard(GroupPermissionMixin, View,
+                                   GroupLateralMenuMixin):
+    template_name = 'workboards/vice-presidents-internal_workboard.html'
+    perm_codename = None
+    lm_active = 'lm_workboard'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['sale_list'] = Sale.objects.filter(
+            category='sale'
+        ).order_by('-date')[:5]
+        return render(request, self.template_name, context=context)
+
+
+class TreasurersGroupWorkboard(GroupPermissionMixin, View,
+                               GroupLateralMenuMixin):
+    template_name = 'workboards/treasurers_workboard.html'
+    perm_codename = None
+    lm_active = 'lm_workboard'
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['sale_list'] = Sale.objects.filter(
+            category='sale'
+        ).order_by('-date')[:5]
         return render(request, self.template_name, context=context)

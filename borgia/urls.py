@@ -5,9 +5,11 @@ from django.contrib.auth.views import (
     password_reset_confirm, password_change, password_change_done,
     password_reset_done)
 from borgia.views import (
-    page_clean, jsi18n_catalog, TestBootstrapSober, GroupWorkboard,
+    page_clean, jsi18n_catalog, TestBootstrapSober,
     get_list_model, get_unique_model, handler403, handler404, handler500,
-    Login, Logout, GadzartsGroupWorkboard, ShopGroupWorkboard
+    Login, Logout, GadzartsGroupWorkboard, ShopGroupWorkboard,
+    PresidentsGroupWorkboard, VicePresidentsInternalGroupWorkboard,
+    TreasurersGroupWorkboard
     )
 from django.conf import settings
 from django.conf.urls.static import static
@@ -34,25 +36,25 @@ handler500 = handler500
 
 urlpatterns = [
     url(r'^presidents/workboard/$',
-        GroupWorkboard.as_view(), {'group_name': 'presidents'},
+        PresidentsGroupWorkboard.as_view(), {'group_name': 'presidents'},
         name='url_group_workboard'),
     url(r'^vice-presidents-internal/workboard/$',
-        GroupWorkboard.as_view(), {'group_name': 'vice-presidents-internal'},
+        VicePresidentsInternalGroupWorkboard.as_view(), {'group_name': 'vice-presidents-internal'},
         name='url_group_workboard'),
     url(r'^treasurers/workboard/$',
-        GroupWorkboard.as_view(), {'group_name': 'treasurers'},
+        TreasurersGroupWorkboard.as_view(), {'group_name': 'treasurers'},
         name='url_group_workboard'),
     url(r'^gadzarts/workboard/$',
         GadzartsGroupWorkboard.as_view(), {'group_name': 'gadzarts'},
         name='url_group_workboard'),
     url(r'^presidents/$',
-        GroupWorkboard.as_view(), {'group_name': 'presidents'},
+        PresidentsGroupWorkboard.as_view(), {'group_name': 'presidents'},
         name='url_group_workboard'),
     url(r'^vice-presidents-internal/$',
-        GroupWorkboard.as_view(), {'group_name': 'vice-presidents-internal'},
+        VicePresidentsInternalGroupWorkboard.as_view(), {'group_name': 'vice-presidents-internal'},
         name='url_group_workboard'),
     url(r'^treasurers/$',
-        GroupWorkboard.as_view(), {'group_name': 'treasurers'},
+        TreasurersGroupWorkboard.as_view(), {'group_name': 'treasurers'},
         name='url_group_workboard'),
     url(r'^gadzarts/$',
         GadzartsGroupWorkboard.as_view(), {'group_name': 'gadzarts'},
