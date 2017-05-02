@@ -16,6 +16,8 @@ from django.conf.urls.static import static
 from django.views.generic import TemplateView
 from django.contrib.auth.decorators import permission_required
 
+from graphene_django.views import GraphQLView
+
 from users.views import *
 from shops.views import (
     ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
@@ -29,6 +31,7 @@ from notifications.views import *
 from borgia.arduinoRequests import (
     ArduinoConnect, ArduinoCheckUser, ArduinoCheckVolumeAvailable, ArduinoPurchase
     )
+from api.Schema.main import schema
 
 handler403 = handler403
 handler404 = handler404
@@ -309,6 +312,7 @@ urlpatterns = [
     url(r'^local/jsi18n$', jsi18n_catalog),
     url(r'notifications/', include('notifications.urls')),
 
+    url(r'^graphql', GraphQLView.as_view(graphiql=True, schema=schema)),
 
     # SANDBOX for Arduino
     ## Theses elements are not enought common and cannot be reused in another
