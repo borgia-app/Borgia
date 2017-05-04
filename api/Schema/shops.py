@@ -1,7 +1,7 @@
 import graphene
 from graphene_django.types import DjangoObjectType, ObjectType
 
-from shops.models import (Shop, ContainerCase)
+from shops.models import Shop
 
 
 class ShopType(DjangoObjectType):
