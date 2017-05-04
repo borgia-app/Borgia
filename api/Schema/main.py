@@ -1,11 +1,13 @@
 import graphene
 
-import api.Schema.shops
+from api.Schema.shops import ShopsQuery
+from api.Schema.modules import ModulesQuery
 
 
-class Query(api.Schema.shops.Query, graphene.ObjectType):
-    # This class will inherit from multiple Queries
-    # as we begin to add more apps to our project
+class Query(ShopsQuery,
+            ModulesQuery,
+            graphene.ObjectType):
     pass
+
 
 schema = graphene.Schema(query=Query)

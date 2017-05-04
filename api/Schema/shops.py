@@ -1,8 +1,7 @@
 import graphene
 from graphene_django.types import DjangoObjectType, ObjectType
 
-from shops.models import (Shop, ContainerCase, ProductBase, ProductUnit,
-                          Container, SingleProduct)
+from shops.models import (Shop, ContainerCase)
 
 
 class ShopType(DjangoObjectType):
@@ -10,33 +9,66 @@ class ShopType(DjangoObjectType):
         model = Shop
 
 
-class ContainerCase(DjangoObjectType):
-    class Meta:
-        model = ContainerCase
+class ProductBaseType(ObjectType):
+    pk = graphene.ID()
+    name = graphene.String()
+    is_single_product = graphene.Boolean()
+    usual_price = graphene.Float()
+    usual_quantity = graphene.Float()
 
-class ProductBase(DjangoObjectType):
-    class Meta:
-        model = ProductBase
+    def resolve_pk(self, args, context, info):
+        return self.pk
 
-class ProductUnit(DjangoObjectType):
-    class Meta:
-        model = ProductUnit
+    def resolve_name(self, args, context, info):
+        return self.__str__()
 
-class Container(DjangoObjectType):
-    class Meta:
-        model = Container
+    def resolve_is_single_product(self, args, context, info):
+        if self.product_unit:
+            return False
+        return True
 
-class SingleProduct(DjangoObjectType):
-    class Meta:
-        model = SingleProduct
+    def resolve_usual_price(self, args, context, info):
+        return self.get_moded_usual_price()
 
-class Query(graphene.AbstractType):
-    all_shops = graphene.List(ShopType)
-    shop = graphene.Field(ShopType, id=graphene.ID(),
-                          description='The shop according to the ID')
+    def resolve_usual_quantity(self, args, context, info):
+        if self.product_unit:
+            return self.product_unit.usual_quantity()
+        return None
 
-    def resolve_all_shops(self, args, context, info):
-        return Shop.objects.all()
 
-    def resolve_shop(self, args, context, info):
-        return Shop.objects.get(pk=args.get('id'))
+class ContainerType(ObjectType):
+    pk = graphene.ID()
+    name = graphene.String()
+    usual_price = graphene.Float()
+    usual_quantity = graphene.Float()
+
+    def resolve_pk(self, args, context, info):
+        return self.pk
+
+    def resolve_name(self, args, context, info):
+        return self.product_base.__str__()
+
+    def resolve_usual_price(self, args, context, info):
+        return self.product_base.get_moded_usual_price()
+
+    def resolve_usual_quantity(self, args, context, info):
+        return self.product_base.product_unit.usual_quantity()
+
+
+class ContainerCaseType(ObjectType):
+    pk = graphene.ID()
+    name = graphene.String()
+    container = graphene.Field(ContainerType)
+
+    def resolve_pk(self, args, context, info):
+        return self.pk
+
+    def resolve_name(self, args, context, info):
+        return self.__str__()
+
+    def resolve_container(self, args, context, info):
+        return self.product
+
+
+class ShopsQuery(graphene.AbstractType):
+    pass
