@@ -14,8 +14,6 @@ from borgia.views import (
 from django.conf import settings
 from django.conf.urls.static import static
 
-from graphene_django.views import GraphQLView
-
 from users.views import *
 from shops.views import (
     ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
@@ -30,12 +28,19 @@ from borgia.arduinoRequests import (
     ArduinoConnect, ArduinoCheckUser, ArduinoCheckVolumeAvailable, ArduinoPurchase
     )
 from api.Schema.main import schema
+from graphene_django.views import GraphQLView
 
 handler403 = handler403
 handler404 = handler404
 handler500 = handler500
 
 urlpatterns = [
+    # GraphQL endpoint
+    url(r'^graphql', GraphQLView.as_view(graphiql=True, schema=schema)),
+    # Token auth backend
+    url(r'^tokenAuth/', include('tokenapi.urls')),
+
+
     url(r'^presidents/workboard/$',
         PresidentsGroupWorkboard.as_view(), {'group_name': 'presidents'},
         name='url_group_workboard'),
@@ -308,8 +313,6 @@ urlpatterns = [
 
     url(r'^admin/', admin.site.urls),
     url(r'^local/jsi18n$', jsi18n_catalog),
-
-    url(r'^graphql', GraphQLView.as_view(graphiql=True, schema=schema)),
 
     # SANDBOX for Arduino
     ## Theses elements are not enought common and cannot be reused in another
