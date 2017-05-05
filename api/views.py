@@ -48,6 +48,11 @@ class AuthVerifyJWT(View):
     def get(self, request, *args, **kwargs):
         pk = int(kwargs['pk'])
         token = kwargs['token']
+        if verifyJwt.valid:
+            return JsonResponse({
+                'valid': True,
+                'user': userObject(User.objects.get(pk=pk))
+            })
         return JsonResponse(verifyJwt(token, pk))
 
 
@@ -88,7 +93,7 @@ def verifyJwt(token, user_pk):
     if int(format(user.jwt_iat, 'U')) != decoded['iat']:
         return { 'valid': False, 'message': 'Token expired'}
 
-    return { 'valid': True, 'user': userObject(user) }
+    return { 'valid': True, 'message': None }
 
 
 def userObject(user):
