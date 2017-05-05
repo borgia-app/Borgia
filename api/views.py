@@ -12,6 +12,7 @@ from django.utils.dateformat import format
 from django.utils import timezone
 from django.core import serializers
 from graphene_django.views import GraphQLView
+from django.conf import settings
 
 
 class GraphQLJwtProtectedView(GraphQLView):
@@ -71,6 +72,23 @@ class AuthVerifyJWT(View):
         return JsonResponse(verifyJwt(token, pk))
 
 
+@method_decorator(csrf_exempt, name='dispatch')
+class AuthInvalidateJWT(View):
+    def get(self, request, *args, **kwargs):
+        pk = int(kwargs['pk'])
+        token = kwargs['token']
+        verified = verifyJwt(token, pk)
+        if verified['valid']:
+            # Invalidate the last token by changing the jwt_iat
+            user = User.objects.get(pk=pk)
+            user.jwt_iat = timezone.now()
+            user.save()
+            return JsonResponse({
+                'valid': True
+            })
+        return JsonResponse(verified)
+
+
 def generateJwt(user):
     # Save the last iat posix time
     user.jwt_iat = timezone.now()
@@ -81,16 +99,16 @@ def generateJwt(user):
         'pk': user.pk,
         'iat': user.jwt_iat
     }
-    secret = 'kcr,i4kij&hbb02yiy=63rd!+2lw^0!!7p6niv6c4t6cixkohnd_mnjnrn'
-    algorithm = 'HS256'
+    secret = settings.MOBILE_SECRET_KEY
+    algorithm = settings.JWT_ALGORITHM
 
     token = jwt.encode(payload, secret, algorithm)
     return token.decode('utf-8')
 
 
 def verifyJwt(token, user_pk):
-    secret = 'kcr,i4kij&hbb02yiy=63rd!+2lw^0!!7p6niv6c4t6cixkohnd_mnjnrn'
-    algorithm = 'HS256'
+    secret = settings.MOBILE_SECRET_KEY
+    algorithm = settings.JWT_ALGORITHM
 
     try:
         decoded = jwt.decode(token, secret, algorithm)

@@ -29,7 +29,7 @@ from borgia.arduinoRequests import (
     )
 from api.Schema.main import schema
 from graphene_django.views import GraphQLView
-from api.views import AuthGenerateJWT, AuthVerifyJWT, GraphQLJwtProtectedView
+from api.views import AuthGenerateJWT, AuthVerifyJWT, AuthInvalidateJWT, GraphQLJwtProtectedView
 
 handler403 = handler403
 handler404 = handler404
@@ -41,6 +41,7 @@ urlpatterns = [
     # JWT auth backend
     url(r'^jwt/new.json$', AuthGenerateJWT.as_view()),
     url(r'^jwt/token/(?P<token>.+)/(?P<pk>\d+).json$', AuthVerifyJWT.as_view()),
+    url(r'^jwt/invalidate/(?P<token>.+)/(?P<pk>\d+).json$', AuthInvalidateJWT.as_view()),
 
     url(r'^presidents/workboard/$',
         PresidentsGroupWorkboard.as_view(), {'group_name': 'presidents'},
