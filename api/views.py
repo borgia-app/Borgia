@@ -11,6 +11,21 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.utils.dateformat import format
 from django.utils import timezone
 from django.core import serializers
+from graphene_django.views import GraphQLView
+
+
+class GraphQLJwtProtectedView(GraphQLView):
+    def dispatch(self, request, *args, **kwargs):
+        if (verifyJwt(
+                request.META['HTTP_AUTHORIZATION'],
+                int(request.META['HTTP_USER']))['valid']):
+                return super(GraphQLJwtProtectedView,
+                            self).dispatch(request, *args, **kwargs)
+        else:
+            return JsonResponse({
+                'error': True,
+                'message': 'Access denied'
+            })
 
 
 @method_decorator(csrf_exempt, name='dispatch')
