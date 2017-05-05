@@ -210,6 +210,7 @@ SESSION_COOKIE_AGE = 7200
 # Mobile application
 MOBILE_SECRET_KEY = 'kcr,i4kij&hbb02yiy=63rd!+2lw^0!!7p6niv6c4t6cixkohnd_mnjnrn'
 JWT_ALGORITHM = 'HS256'
+JWT_TOKEN_TIMEOUT = 7  # days
 
 # Les paramètres modifiables sont des objets Settings de l'app settings_data
 # A modifier directement dans l'application

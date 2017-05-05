@@ -2,7 +2,7 @@ from django.views.generic import View
 from django.http import JsonResponse
 import jwt
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
@@ -97,7 +97,8 @@ def generateJwt(user):
     # Generate token based on this iat
     payload = {
         'pk': user.pk,
-        'iat': user.jwt_iat
+        'iat': user.jwt_iat,
+        'exp': (user.jwt_iat + timedelta(days=settings.JWT_TOKEN_TIMEOUT))
     }
     secret = settings.MOBILE_SECRET_KEY
     algorithm = settings.JWT_ALGORITHM
@@ -112,19 +113,21 @@ def verifyJwt(token, user_pk):
 
     try:
         decoded = jwt.decode(token, secret, algorithm)
+    except jwt.ExpiredSignatureError:
+        return { 'valid': False, 'message': 'Expired token' }
     except jwt.InvalidTokenError:
-        return { 'valid': False, 'message': 'Invalid signature'}
+        return { 'valid': False, 'message': 'Invalid signature' }
 
     if user_pk != decoded['pk']:
-        return { 'valid': False, 'message': 'Not the right user'}
+        return { 'valid': False, 'message': 'Not the right user' }
 
     try:
         user = User.objects.get(pk=decoded['pk'])
     except ObjectDoesNotExist:
-        return { 'valid': False, 'message': 'Unknown user'}
+        return { 'valid': False, 'message': 'Unknown user' }
 
     if int(format(user.jwt_iat, 'U')) != decoded['iat']:
-        return { 'valid': False, 'message': 'Token expired'}
+        return { 'valid': False, 'message': 'Invalid token' }
 
     return { 'valid': True, 'message': None }
 
