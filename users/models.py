@@ -106,6 +106,8 @@ class User(AbstractUser):
     avatar = models.ImageField('Avatar', upload_to='img/avatars/',
                                default=None, blank=True, null=True)
 
+    jwt_iat = models.CharField('Jwt iat', max_length=500, null=True, blank=True)
+
     def __str__(self):
         """
         Return the common string representing an instance of the class User.

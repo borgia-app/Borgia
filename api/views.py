@@ -27,6 +27,7 @@ class AuthGenerateJWT(View):
             return JsonResponse({
                 'error': False,
                 'user': user.pk,
+                'iat': user.jwt_iat,
                 'token': generateJwt(user)
             })
         return JsonResponse({
@@ -36,9 +37,14 @@ class AuthGenerateJWT(View):
 
 
 def generateJwt(user):
+    # Save the last iat posix time
+    user.jwt_iat = str(time.time())
+    user.save()
+
+    # Generate token based on this iat
     payload = {
         'pk': user.pk,
-        'iat': time.time()
+        'iat': user.jwt_iat
     }
     secret = 'kcr,i4kij&hbb02yiy=63rd!+2lw^0!!7p6niv6c4t6cixkohnd_mnjnrn'
     algorithm = 'HS256'
