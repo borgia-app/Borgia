@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'settings_data',
     'modules',
     'graphene_django',
-    'tokenapi',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -101,8 +100,7 @@ DATABASES = {
 # https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'tokenapi.backends.TokenBackend',
+    'django.contrib.auth.backends.ModelBackend'
 ]
 
 # Token auth backend
@@ -164,8 +162,8 @@ LOGIN_EXEMPT_URL_PATTERNS = [
     re.compile('%s[\w-]+%s' % ('/auth/gadzarts/', '/')),
     re.compile('%s[\w-]+%s' % ('/auth/', '/')),
     re.compile('^%s$' % ('/graphql')),
-    re.compile('^%s[\w-]+%s[\d]+%s$' % ('/tokenAuth/token/', '/', '.json')),
-    re.compile('^%s$' % ('/tokenAuth/token/new.json'))
+    re.compile('^%s[\w-]+%s[\d]+%s$' % ('/jwt/token/', '/', '.json')),
+    re.compile('^%s$' % ('/jwt/new.json'))
     ]
 
 STATIC_URL = '/static/'
