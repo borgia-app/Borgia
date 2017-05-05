@@ -162,8 +162,9 @@ LOGIN_EXEMPT_URL_PATTERNS = [
     re.compile('%s[\w-]+%s' % ('/auth/gadzarts/', '/')),
     re.compile('%s[\w-]+%s' % ('/auth/', '/')),
     re.compile('^%s$' % ('/graphql')),
-    re.compile('^%s[\w-]+%s[\d]+%s$' % ('/jwt/token/', '/', '.json')),
-    re.compile('^%s$' % ('/jwt/new.json'))
+    re.compile('^%s.+%s[\d]+%s$' % ('/jwt/token/', '/', '.json')),
+    re.compile('^%s$' % ('/jwt/new.json')),
+    re.compile('^%s.+$' % ('/media/img/avatars/')),
     ]
 
 STATIC_URL = '/static/'

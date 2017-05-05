@@ -1,11 +1,12 @@
 from datetime import datetime
 from decimal import Decimal
+import re
 
 from django.db import models
 from django.db.models import Q
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
-import re
+from django.utils import timezone
 
 from django.contrib.auth.models import AbstractUser, Permission
 from finances.models import Sale, BankAccount, SharedEvent
@@ -106,7 +107,7 @@ class User(AbstractUser):
     avatar = models.ImageField('Avatar', upload_to='img/avatars/',
                                default=None, blank=True, null=True)
 
-    jwt_iat = models.CharField('Jwt iat', max_length=500, null=True, blank=True)
+    jwt_iat = models.DateTimeField('Jwt iat', default=timezone.now)
 
     def __str__(self):
         """
