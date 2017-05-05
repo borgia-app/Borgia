@@ -48,7 +48,7 @@ class AuthVerifyJWT(View):
     def get(self, request, *args, **kwargs):
         pk = int(kwargs['pk'])
         token = kwargs['token']
-        if verifyJwt.valid:
+        if verifyJwt(token, pk)['valid']:
             return JsonResponse({
                 'valid': True,
                 'user': userObject(User.objects.get(pk=pk))
