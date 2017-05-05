@@ -143,5 +143,5 @@ def userObject(user):
         'family': user.family,
         'campus': user.campus,
         'year': user.year,
-        'balance': user.balance
+        'balance': float(user.balance)
     }
