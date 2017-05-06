@@ -52,10 +52,10 @@
                   <td>{{ object.shop.name|capfirst }}</td>
                   <td><a href="{% url 'url_login_direct_module_selfsale' shop_name=object.shop.name %}"
                     class="btn btn-xs btn-block
-                    {% if object.self_module.state %}btn-success{% else %}btn-danger{% endif %}">Lien direct</a></td>
+                    {% if object.self_module.state %}btn-success{% else %}btn-danger disabled{% endif %}">Lien direct</a></td>
                   <td><a href="{% url 'url_login_direct_module_operatorsale' shop_name=object.shop.name %}"
                     class="btn btn-xs btn-block
-                    {% if object.operator_module.state %}btn-success{% else %}btn-danger{% endif %}">Lien direct</a></td>
+                    {% if object.operator_module.state %}btn-success{% else %}btn-danger disabled{% endif %}">Lien direct</a></td>
                 </tr>
                 {% endfor %}
               </tbody>
