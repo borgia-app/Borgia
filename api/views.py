@@ -20,10 +20,17 @@ from users.models import User
 class GraphQLJwtProtectedView(GraphQLView):
     def dispatch(self, request, *args, **kwargs):
         try:
-            if (verifyJwt(request.META['HTTP_AUTHORIZATION'])['valid']):
+            auth_type = request.META['HTTP_AUTHORIZATION'].split(' ')[0]
+            token = request.META['HTTP_AUTHORIZATION'].split(' ')[1]
+            if (auth_type == 'Bearer' and verifyJwt(token)['valid']):
                     return super(GraphQLJwtProtectedView,
                                 self).dispatch(request, *args, **kwargs)
         except KeyError:
+            return JsonResponse({
+                'error': True,
+                'message': 'Access denied'
+            })
+        except IndexError:
             return JsonResponse({
                 'error': True,
                 'message': 'Access denied'
