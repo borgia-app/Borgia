@@ -1,12 +1,12 @@
-from django.views.generic import View
-from django.http import JsonResponse
 import jwt
 import time
 from datetime import datetime, timedelta
+
+from django.views.generic import View
+from django.http import JsonResponse
 from django.contrib.auth import authenticate
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from users.models import User
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.dateformat import format
 from django.utils import timezone
@@ -14,19 +14,24 @@ from django.core import serializers
 from graphene_django.views import GraphQLView
 from django.conf import settings
 
+from users.models import User
+
 
 class GraphQLJwtProtectedView(GraphQLView):
     def dispatch(self, request, *args, **kwargs):
-        if (verifyJwt(
-                request.META['HTTP_AUTHORIZATION'],
-                int(request.META['HTTP_USER']))['valid']):
-                return super(GraphQLJwtProtectedView,
-                            self).dispatch(request, *args, **kwargs)
-        else:
+        try:
+            if (verifyJwt(request.META['HTTP_AUTHORIZATION'])['valid']):
+                    return super(GraphQLJwtProtectedView,
+                                self).dispatch(request, *args, **kwargs)
+        except KeyError:
             return JsonResponse({
                 'error': True,
                 'message': 'Access denied'
             })
+        return JsonResponse({
+            'error': True,
+            'message': 'Access denied'
+        })
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -107,7 +112,7 @@ def generateJwt(user):
     return token.decode('utf-8')
 
 
-def verifyJwt(token, user_pk):
+def verifyJwt(token):
     secret = settings.MOBILE_SECRET_KEY
     algorithm = settings.JWT_ALGORITHM
 
@@ -118,8 +123,8 @@ def verifyJwt(token, user_pk):
     except jwt.InvalidTokenError:
         return { 'valid': False, 'message': 'Invalid signature' }
 
-    if user_pk != decoded['pk']:
-        return { 'valid': False, 'message': 'Not the right user' }
+    #if user_pk != decoded['pk']:
+    #    return { 'valid': False, 'message': 'Not the right user' }
 
     try:
         user = User.objects.get(pk=decoded['pk'])
