@@ -10,11 +10,11 @@ from django.db.utils import OperationalError, ProgrammingError
 
 class SelfSaleShopModule(forms.Form):
     def __init__(self, *args, **kwargs):
-        module = kwargs.pop('module')
+        self.module = kwargs.pop('module')
         self.client = kwargs.pop('client')
         super(SelfSaleShopModule, self).__init__(*args, **kwargs)
 
-        for container_case in module.container_cases.all():
+        for container_case in self.module.container_cases.all():
             self.fields[(
                 str(container_case.pk)
                 + '-'
@@ -36,7 +36,7 @@ class SelfSaleShopModule(forms.Form):
                                               positive ou nulle""")]
             )
 
-        for category in module.categories.all():
+        for category in self.module.categories.all():
             for product in category.product_bases.all():
                 if (product.quantity_products_stock() > 0
                         and product.get_moded_usual_price() > 0):
@@ -83,6 +83,9 @@ class SelfSaleShopModule(forms.Form):
                             * invoice)
         if total_price > self.client.balance:
             raise forms.ValidationError('Crédit insuffisant !')
+        if self.module.limit_purchase:
+            if total_price > self.module.limit_purchase:
+                raise forms.ValidationError('Le montant est supérieur à la limite.')
         if total_price <= 0:
             raise forms.ValidationError('La commande doit être positive.')
 
@@ -127,10 +130,26 @@ class ModuleCategoryForm(forms.Form):
 
 class ShopModuleConfigForm(forms.Form):
     state = forms.BooleanField(
-        label='Etat',
+        label='Activé',
         required=False
     )
-
+    logout_post_purchase = forms.BooleanField(
+        label='Déconnexion après une vente',
+        required=False
+    )
+    limit_purchase = forms.DecimalField(label='Montant limite de commande',
+                                        decimal_places=2, max_digits=9,
+                                        validators=[
+                                          MinValueValidator(0, 'Le montant doit être positif')],
+                                        required=False)
+    infinite_delay_post_purchase = forms.BooleanField(
+        label="Durée d'affichage du résumé de commande infini",
+        required=False
+    )
+    delay_post_purchase = forms.IntegerField(label="Durée (en secondes)",
+                                              validators=[
+                                                MinValueValidator(0, 'La durée doit être positive')],
+                                            required=False)
 
 class ModuleContainerCaseForm(forms.Form):
     def __init__(self, *args, **kwargs):

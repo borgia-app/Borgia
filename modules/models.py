@@ -1,9 +1,11 @@
 from django.db import models
+from decimal import Decimal
 
 from django.contrib.contenttypes.fields import (
     GenericForeignKey, GenericRelation
     )
 from django.contrib.contenttypes.models import ContentType
+from django.core.validators import MinValueValidator
 
 from shops.models import ContainerCase
 
@@ -33,6 +35,18 @@ class Module(models.Model):
 
 
 class ShopModule(Module):
+    """
+
+    :param delay_post_purchase: Delay the resume of the sale will be displayed.
+    If the delay is null, the resume is not display. In seconds, positiv.
+    :param limit_purchase: Limit of amount for a sale through this module,
+    If null, there is no limit. Positiv.
+    :param logout_post_purchase: If True, the user will be logout after the
+    sale, mandatory.
+    :type delay_post_purchase: Integer, in seconds.
+    :type limit_purchase: Float (Decimal).
+    :type logout_post_purchase: Boolean.
+    """
     class Meta:
         abstract = True
 
@@ -45,6 +59,17 @@ class ShopModule(Module):
         content_type_field='content_type',
         object_id_field='module_id')
     container_cases = models.ManyToManyField(ContainerCase)
+    delay_post_purchase = models.IntegerField("Durée d'affichage du résumé de commande",
+                                              validators=[
+                                                MinValueValidator(Decimal(0))],
+                                              blank=True, null=True)
+    limit_purchase = models.DecimalField('Montant limite de commande',
+                                         decimal_places=2, max_digits=9,
+                                         validators=[
+                                           MinValueValidator(Decimal(0))],
+                                         blank=True, null=True)
+    logout_post_purchase = models.BooleanField('Deconnexion après une vente',
+                                               default=False)
 
     def container_pk_in_container_cases(self):
         list = []

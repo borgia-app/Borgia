@@ -187,7 +187,6 @@
 
   // First iteration (in case of form errors)
   $("input[id^='id_']").each(function() {
-    console.log(this)
     $(this).trigger('change')
   })
 

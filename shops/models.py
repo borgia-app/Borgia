@@ -18,8 +18,10 @@ class Shop(models.Model):
 
     :param name: Display name, mandatory.
     :param description: Description, mandatory.
+    :param color: Color, mandatory.
     :type name: string
     :type description: string
+    :type color: string
     """
     name = models.CharField('Code', max_length=255,
                             validators=[RegexValidator(

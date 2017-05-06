@@ -14,4 +14,17 @@
     </form>
   </div>
 </div>
+
+<script>
+  $("#id_infinite_delay_post_purchase").change(function() {
+    if ($(this).is(":checked")) {
+      $("#id_delay_post_purchase").hide()
+      $("label[for='id_delay_post_purchase']").hide()
+    } else {
+      $("#id_delay_post_purchase").show()
+      $("label[for='id_delay_post_purchase']").show()
+    }
+  })
+  $("#id_infinite_delay_post_purchase").trigger("change")
+</script>
 {% endblock %}

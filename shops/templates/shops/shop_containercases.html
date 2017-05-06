@@ -56,7 +56,6 @@
         deleteCssClass: 'delete-row',
         added: function(row) {
           $(row).find('select').each(function() {
-            console.log($(this).val())
             $(this).val('')
           });
           $(row).find('.selectpicker').each(function() {

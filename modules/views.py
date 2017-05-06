@@ -13,7 +13,8 @@ from modules.forms import (OperatorSaleShopModule, SelfSaleShopModule,
 from modules.models import OperatorSaleModule, SelfSaleModule, Category
 from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           ShopFromGroupMixin, ShopModuleMixin,
-                          GroupLateralMenuMixin, shop_from_group)
+                          GroupLateralMenuMixin, shop_from_group,
+                          lateral_menu)
 from shops.models import (ProductBase, SingleProduct, Container,
                           SingleProductFromContainer, ContainerCase, Shop)
 from finances.models import sale_sale
@@ -77,11 +78,12 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
                     products += self.get_products_with_strategy(
                         element, invoice)
 
-        sale_sale(sender=self.client, operator=self.request.user,
-                  date=now(), products_list=products,
-                  wording='Vente '+self.shop.name)
+        sale = sale_sale(sender=self.client, operator=self.request.user,
+                         date=now(), products_list=products,
+                         wording='Vente '+self.shop.name, to_return=True)
 
-        return redirect(self.success_url)
+        return sale_shop_module_resume(self.request, sale, self.group,
+                                       self.shop, self.module, self.success_url)
 
     def get_products_with_strategy(self, element, invoice):
         """
@@ -186,6 +188,13 @@ class SelfSaleShopModuleInterface(SaleShopModuleInterface):
 
     def form_valid(self, form):
         self.client = self.request.user
+        self.success_url = reverse(
+            'url_module_selfsale',
+            kwargs={
+                'group_name': self.group.name,
+                'shop_name': self.shop.name
+            }
+        )
         return super(SelfSaleShopModuleInterface, self).form_valid(form)
 
 
@@ -208,7 +217,82 @@ class OperatorSaleShopModuleInterface(SaleShopModuleInterface):
     def form_valid(self, form):
         client_pk = int(form.cleaned_data['client'].split('/')[0])
         self.client = User.objects.get(pk=client_pk)
+        self.success_url = reverse(
+            'url_module_operatorsale',
+            kwargs={
+                'group_name': self.group.name,
+                'shop_name': self.shop.name
+            }
+        )
         return super(OperatorSaleShopModuleInterface, self).form_valid(form)
+
+
+def sale_shop_module_resume(request, sale, group, shop, module, success_url):
+    template_name = 'modules/shop_module_sale_resume.html'
+
+    # Context construction, based on LateralMenuViewMixin and
+    # GroupPermissionMixin in borgia.utils
+    context = {
+        'group': group,
+        'shop': shop,
+        'module': module,
+        'sale': sale,
+        'delay': module.delay_post_purchase,
+        'success_url': success_url
+    }
+    context['nav_tree'] = lateral_menu(
+        request.user,
+        group,
+        None)
+    if (request.user.groups.all().exclude(
+            pk__in=[1, 5, 6]).count() > 0):
+        context['first_job'] = request.user.groups.all().exclude(
+            pk__in=[1, 5, 6])[0]
+    context['list_selfsalemodule'] = []
+    for s in Shop.objects.all().exclude(pk=1):
+        try:
+            m = SelfSaleModule.objects.get(shop=s)
+            if m.state is True:
+                context['list_selfsalemodule'].append(s)
+        except ObjectDoesNotExist:
+            pass
+
+    # Check if you should logout after sale
+    if module.logout_post_purchase:
+        context['success_url'] = reverse('url_logout')
+
+    return render(request, template_name, context=context)
+
+
+class SaleShopModuleResume(GroupPermissionMixin, View,GroupLateralMenuMixin):
+    sale = None
+    delay = None
+    success_url = None
+    context = None
+    template_name = 'modules/shop_module_sale_resume.html'
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.sale = kwargs['sale_pk']
+        except KeyError:
+            raise Http404
+        try:
+            self.delay = kwargs['delay']
+        except KeyError:
+            pass
+        try:
+            self.success_url = kwargs['success_url']
+        except KeyError:
+            pass
+        return super(SaleShopModuleResume,
+                     self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['sale'] = self.sale
+        context['delay'] = self.delay
+        context['success_url'] = self.success_url
+        return render(request, self.template_name, context=context)
 
 
 class SelfSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
@@ -380,9 +464,22 @@ class ShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
     def get_initial(self):
         initial = super(ShopModuleConfig, self).get_initial()
         initial['state'] = self.module.state
+        initial['logout_post_purchase'] = self.module.logout_post_purchase
+        initial['limit_purchase'] = self.module.limit_purchase
+        if self.module.delay_post_purchase:
+            initial['infinite_delay_post_purchase'] = False
+        else:
+            initial['infinite_delay_post_purchase'] = True
+        initial['delay_post_purchase'] = self.module.delay_post_purchase
         return initial
 
     def form_valid(self, form):
         self.module.state = form.cleaned_data['state']
+        self.module.logout_post_purchase = form.cleaned_data['logout_post_purchase']
+        self.module.limit_purchase = form.cleaned_data['limit_purchase']
+        if form.cleaned_data['infinite_delay_post_purchase'] is True:
+            self.module.delay_post_purchase = None
+        else:
+            self.module.delay_post_purchase = form.cleaned_data['delay_post_purchase']
         self.module.save()
         return super(ShopModuleConfig, self).form_valid(form)

@@ -7,9 +7,23 @@
     Accueil du module de vente libre service pour le magasin {{ shop }}
   </div>
   <div class="panel-body">
-    <h3 class="{% if module.state == True %}bg-success text-success{% else %}bg-danger text-danger{% endif %}"
-    style="padding: 5px">
-    Etat : {{ module.state|yesno:"activé, désactivé, peut-être"}}</h3>
+    <ul class="list-group">
+      <li class="list-group-item list-group-item-{% if module.state == True %}success{% else %}danger{% endif %}">
+        Etat : {{ module.state|yesno:"activé, désactivé, peut-être"}}
+      </li>
+      <li class="list-group-item">
+        Déconnexion après la vente :
+        {{ module.logout_post_purchase|yesno:"oui, non, non" }}
+      </li>
+      <li class="list-group-item">
+        Montant limite de commande :
+        {% if module.limit_purchase %}{{ module.limit_purchase }} €{% else %}aucune{% endif %}
+      </li>
+      <li class="list-group-item">
+        Durée de l'affichage du résumé de commande :
+        {% if module.delay_post_purchase %}{{ module.delay_post_purchase }} secondes{% else %}pas de résumé{% endif %}
+      </li>
+    </ul>
     <a href="{% url 'url_module_selfsale_config' group_name=group_name %}" class="btn btn-default">Modifier</a>
   </div>
 </div>
