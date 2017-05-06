@@ -189,6 +189,11 @@
   $("input[id^='id_']").each(function() {
     $(this).trigger('change')
   })
+  // Trigger change does not work here ... (???)
+  $("#id_client").val($("#id_client").val())
+  if ($("#id_client").val() != '') {
+    $("#initial").text(Number($("#id_client").val().split('/')[1]))
+  }
 
   $("div[role='tabpanel']").first().attr('class', 'tab-pane active')
   $("li[role='presentation']").first().attr('class', 'active')
