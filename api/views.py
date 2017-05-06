@@ -15,6 +15,7 @@ from graphene_django.views import GraphQLView
 from django.conf import settings
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class GraphQLJwtProtectedView(GraphQLView):
     def dispatch(self, request, *args, **kwargs):
         if (verifyJwt(
