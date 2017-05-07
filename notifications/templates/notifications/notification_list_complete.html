@@ -32,30 +32,16 @@
                 <table class="table table-default">
                   <thead>
                     <tr>
-                        <th>Id</th>
-                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'shop_category'|order_by:request }}&page={{ page.number }}">Catégorie</a></th>
-                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
-                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'actor_id'|order_by:request }}&page={{ page.number }}">Acteur</a></th>
-                        <th>Verbe</th>
-                        <th>Utilisateur cible</th>
-                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
+                        <th><a href="{% url 'url_notification_list' group_name=group_name %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
+                        <th>Message</th>
+                        <th><a href="{% url 'url_notification_list' group_name=group_name %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
                      </tr>
                   </thead>
                   <tbody>
                    {% for notification in page %}
                     <tr>
-                        <td>{{ notification.pk }}</td>
-                        <td>
-                            {% if notification.target_category == "TARGET_GROUPS"%}
-                                {{ notification.group_category }}
-                            {% else %}
-                                {{ notification.target_category }}
-                            {% endif %}
-                        </td>
                         <td>{{ notification.type }}</td>
-                        <td>{{ notification.actor_object }}</td>
                         <td>{% html_rendering_tag notification %}</td>
-                        <td>{{ notification.target_user }}</td>
                         <td>{{ notification.creation_datetime }}</td>
                     </tr>
                     {% endfor %}
@@ -68,31 +54,17 @@
                 <table class="table table-default">
                   <thead>
                     <tr>
-                        <th>Id</th>
-                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'shop_category'|order_by:request }}&page={{ page.number }}">Catégorie</a></th>
-                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
-                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'actor_id'|order_by:request }}&page={{ page.number }}">Acteur</a></th>
-                        <th>Verbe</th>
-                        <th>Utilisateur cible</th>
-                        <th><a href="{% url 'url_list_complete_notification' %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
+                        <th><a href="{% url 'url_notification_list' group_name=group_name %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
+                        <th>Message</th>
+                        <th><a href="{% url 'url_notification_list' group_name=group_name %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
                      </tr>
                   </thead>
                   <tbody>
                     {% for notification in page %}
                         {% if notification.group_category == group_category %}
                             <tr>
-                                <td>{{ notification.pk }}</td>
-                                <td>
-                                    {% if notification.target_category == "TARGET_GROUPS"%}
-                                        {{ notification.group_category }}
-                                    {% else %}
-                                        {{ notification.target_category }}
-                                    {% endif %}
-                                </td>
                                 <td>{{ notification.type }}</td>
-                                <td>{{ notification.actor_object }}</td>
                                 <td>{% html_rendering_tag notification %}</td>
-                                <td>{{ notification.target_user }}</td>
                                 <td>{{ notification.creation_datetime }}</td>
                             </tr>
                         {% endif %}

@@ -21,6 +21,7 @@ from borgia.utils import *
 from settings_data.models import Setting
 from finances.utils import *
 from users.models import list_year
+from notifications.models import notify
 
 
 class UserBankAccountCreate(GroupPermissionMixin, UserMixin, FormView,
@@ -45,11 +46,17 @@ class UserBankAccountCreate(GroupPermissionMixin, UserMixin, FormView,
         """
         Create a bank account for the user.
         """
-        BankAccount.objects.create(
+        bank_account = BankAccount.objects.create(
             bank=form.cleaned_data['bank'],
             account=form.cleaned_data['account'],
             owner=self.user
         )
+        # We notify
+        notify(notification_class_name='user_bank_account_creation',
+               actor=self.request.user,
+               recipient=bank_account.owner,
+               target_object=bank_account
+               )
         return super(UserBankAccountCreate, self).form_valid(form)
 
 
@@ -137,6 +144,12 @@ class UserBankAccountUpdate(GroupPermissionMixin, UserMixin, FormView,
         self.object.bank = form.cleaned_data['bank']
         self.object.account = form.cleaned_data['account']
         self.object.save()
+        # We notify
+        notify(notification_class_name='user_bank_account_update',
+               actor=self.request.user,
+               recipient=self.object.owner,
+               target_object=self.object
+               )
         return super(UserBankAccountUpdate, self).form_valid(form)
 
 

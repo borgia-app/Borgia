@@ -25,17 +25,20 @@ class NotificationTemplateCreateViewForm(forms.ModelForm):
 
         # Some fields are improved with a search tools and a better display (thanks to bootstrap)
         self.fields['notification_class'] = forms.ModelChoiceField(
+            label='Action déclenchant la notification',
             queryset=NotificationClass.objects.all(),
             widget=forms.Select(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
             required=True)
         self.fields['target_groups'] = forms.ModelMultipleChoiceField(
+            label='Groupe d\'utilisateurs destinataire de la notification',
             queryset=NotificationGroup.objects.all().exclude(
                 notificationgroup=Group.objects.get(name='specials')),
             widget=forms.SelectMultiple(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
             required=False)
         self.fields['shop_category'] = forms.ModelChoiceField(
+            label='Magasin concerné par la notification',
             queryset=Shop.objects.all(),
             widget=forms.Select(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
@@ -82,17 +85,20 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
 
         # Some fields are improved with a search tools and a better display (thanks to bootstrap)
         self.fields['notification_class'] = forms.ModelChoiceField(
+            label='Action déclenchant la notification',
             queryset=NotificationClass.objects.all(),
             widget=forms.Select(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
             required=True)
         self.fields['target_groups'] = forms.ModelMultipleChoiceField(
+            label='Groupe d\'utilisateurs destinataire de la notification',
             queryset=NotificationGroup.objects.all().exclude(
                 notificationgroup=Group.objects.get(name='specials')),
             widget=forms.SelectMultiple(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
             required=False)
         self.fields['shop_category'] = forms.ModelChoiceField(
+            label='Magasin concerné par la notification',
             queryset=Shop.objects.all(),
             widget=forms.Select(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),

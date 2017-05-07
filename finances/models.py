@@ -10,6 +10,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from shops.models import (SingleProduct, SingleProductFromContainer, Container,
                           Shop)
 
+from notifications.models import notify
+
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
 # TODO: shared_event line in tables users, products/payments and function.
@@ -1068,6 +1070,13 @@ def sale_transfert(sender, recipient, amount, date, justification):
     s.done = True
     s.save()
 
+    # We notify
+    notify(notification_class_name='transfer_creation',
+           actor=s.operator,
+           recipient=s.recipient,
+           target_object=s
+           )
+
 
 def sale_recharging(sender, operator, date, wording, category='recharging',
                     justification=None,
@@ -1142,6 +1151,14 @@ def sale_recharging(sender, operator, date, wording, category='recharging',
 
     s.done = True
     s.save()
+
+    # We notify
+    notify(notification_class_name='recharging_creation',
+           actor=s.operator,
+           # The sender is the user who is recharged, then it's him who should receive a notification
+           recipient=s.sender,
+           target_object=s
+           )
 
 
 def sale_sale(sender, operator, date, wording, category='sale',

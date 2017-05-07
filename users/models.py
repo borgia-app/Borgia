@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from django.contrib.auth.models import AbstractUser, Permission
 from finances.models import Sale, BankAccount, SharedEvent
+from notifications.models import notify
 
 
 class ExtendedPermission(Permission):
@@ -162,43 +163,51 @@ class User(AbstractUser):
         :param amount: float or integer amount of money in euro, max 2 decimal
         places, must be superior to 0
         :returns: nothing
-        :raise: ValueError if the amount is negativ or null or if not a float
+        :raise: ValueError if the amount is negative or null or if not a float
         or int
         """
         if (not isinstance(amount, int)) and (not isinstance(amount, float)) and (not isinstance(amount, Decimal)):
             raise ValueError('The amount is not a number')
         if amount <= 0:
-            raise ValueError('The amount must be positiv')
+            raise ValueError('The amount must be positive')
 
         self.balance += amount
         self.save()
 
     def debit(self, amount):
         """
-        Debit the user of a certain amount of money.
+        Debit the user of a certain amount of money. If the balance is negative, a notification is created.
 
-        note:: In both credit and debit cases, the amount must be positiv.
-        There is no function allowed to credit or debit a negativ amount.
+        note:: In both credit and debit cases, the amount must be positive.
+        There is no function allowed to credit or debit a negative amount.
 
         :param amount: float or integer amount of money in euro, max 2 decimal
         places, must be superior to 0
         :returns: nothing
-        :raise: ValueError if the amount is negativ or null or if not a float
+        :raise: ValueError if the amount is negative or null or if not a float
         or int
         """
         if (not isinstance(amount, int)) and (not isinstance(amount, float)) and (not isinstance(amount, Decimal)):
             raise ValueError('The amount is not a number')
         if amount <= 0:
-            raise ValueError('The amount must be positiv')
+            raise ValueError('The amount must be positive')
 
         self.balance -= amount
         self.save()
+
+        # We notify if the balance is negative
+        if self.balance < 0:
+            notify(notification_class_name='negative_balance',
+                   actor=User.objects.get(pk=1),
+                   recipient=self)
+
+
 
     def list_sale(self):
         """
         Return the list of sales concerning the user.
 
-        In order to find all concerned sales of the user, several posibilities
+        In order to find all concerned sales of the user, several possibilities
         are explored. First, possibilities we want to list:
         - buying himself a product -> self is sender,
         - creditting himself money by Lydia -> self is sender,

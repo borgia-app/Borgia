@@ -96,6 +96,7 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
         context = super(NotificationTemplateCreateView, self).get_context_data(**kwargs)
         # Next, we add variables used to render tags
         context['actor'] = self.request.user
+        context['target_object'] = self.request.user
 
         # Finally, we add allowed tags
         try:
@@ -123,7 +124,7 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
             kwargs={'group_name': self.group.name})
 
         # We notify
-        notify(notification_class_name='template_creation', actor=self.request.user)
+        notify(notification_class_name='notification_template_creation', actor=self.request.user)
         return super(NotificationTemplateCreateView, self).form_valid(form)
 
 
@@ -143,6 +144,7 @@ class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLate
         context = super(NotificationTemplateUpdateView, self).get_context_data(**kwargs)
         # Next, we add variables used to render tags
         context['actor'] = self.request.user
+        context['target_object'] = self.request.user
 
         # Finally, we add allowed tags
         try:
@@ -173,7 +175,7 @@ class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLate
                     'pk': self.object.pk})
 
         # We notify
-        notify(notification_class_name='template_update', actor=self.request.user)
+        notify(notification_class_name='notification_template_update', actor=self.request.user)
 
         return super(NotificationTemplateUpdateView, self).form_valid(form)
 
@@ -207,7 +209,7 @@ class NotificationTemplateDeactivateView(GroupPermissionMixin, View, GroupLatera
             kwargs={'group_name': self.group.name})
 
         # We notify
-        notify(notification_class_name='template_deactivate', actor=self.request.user)
+        notify(notification_class_name='notification_template_deactivation', actor=self.request.user)
 
         return redirect(force_text(self.success_url))
 

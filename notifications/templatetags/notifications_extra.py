@@ -24,6 +24,7 @@ def html_rendering_tag(context, notification):
                 'recipient': notification.action_medium_object,
                 'object': notification.action_medium_object,
                 'actor': notification.actor_object,
+                'target_object': notification.target_object,
                 'group_name': context['group_name'],
             }))
         elif context['user'] in User.objects.filter(groups=notification.group_category.notificationgroup):
@@ -31,6 +32,7 @@ def html_rendering_tag(context, notification):
                                 'recipient': notification.action_medium_object,
                                 'object': notification.action_medium_object,
                                 'actor':   notification.actor_object,
+                                'target_object': notification.target_object,
                                 'group_name': context['group_name'],
                                 }))
         else:

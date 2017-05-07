@@ -10,7 +10,7 @@ from django.forms import ValidationError
 from django.db.models.signals import m2m_changed, pre_save
 from django.dispatch import receiver
 from django.utils.html import conditional_escape
-from users.models import User
+from users.models import *
 
 # Classes
 
@@ -150,9 +150,14 @@ class NotificationTemplate(models.Model):
     :param last_call_datetime : used to see when this template was last used
     :param is_activated : True if the notification template is activated (and used)
     """
-    notification_class = models.ForeignKey('NotificationClass', on_delete=models.CASCADE)
+    notification_class = models.ForeignKey('NotificationClass',
+                                           verbose_name='Action déclenchant la notification',
+                                           on_delete=models.CASCADE)
 
-    xml_template = models.TextField(blank=True, null=True, default='Une notification.')
+    xml_template = models.TextField(blank=True,
+                                    null=True,
+                                    verbose_name='Template XML',
+                                    default='Une notification.')
 
     class Meta:
         default_permissions = (
@@ -163,16 +168,25 @@ class NotificationTemplate(models.Model):
         )
 
     TARGET_USERS_CHOICES = (
-        ('ACTOR', 'actor'),
-        ('RECIPIENT', 'recipient'),
-        ('TARGET_GROUPS', 'one or many target groups'),
+        ('ACTOR', 'Acteur de l\'action'),
+        ('RECIPIENT', 'Utilisateur cible de l\'action'),
+        ('TARGET_GROUPS', 'Un ou plusieurs groupes d\'utilisateurs'),
     )
 
-    target_users = models.CharField(choices=TARGET_USERS_CHOICES, max_length=20, default='ACTOR')
+    target_users = models.CharField(choices=TARGET_USERS_CHOICES,
+                                    verbose_name='Utilisateur destinataire de la notification',
+                                    max_length=20,
+                                    default='ACTOR')
 
-    target_groups = models.ManyToManyField('NotificationGroup', blank=True)
+    target_groups = models.ManyToManyField('NotificationGroup',
+                                           verbose_name='Groupe d\'utilisateurs destinataire de la notification',
+                                           blank=True)
 
-    shop_category = models.ForeignKey('shops.Shop', blank=True, null=True, on_delete=models.CASCADE)
+    shop_category = models.ForeignKey('shops.Shop',
+                                      verbose_name='Magasin concerné par la notification',
+                                      blank=True,
+                                      null=True,
+                                      on_delete=models.CASCADE)
 
     # type : correspond aux types de messages (par défaut, ceux proposés par middleware template)
 
@@ -184,13 +198,17 @@ class NotificationTemplate(models.Model):
         ('ERROR', 'error'),
     )
 
-    type = models.CharField(choices=TYPE_CHOICES, max_length=10, default='INFO')
+    type = models.CharField(choices=TYPE_CHOICES,
+                            verbose_name='Type',
+                            max_length=10,
+                            default='INFO')
 
     creation_datetime = models.DateTimeField(auto_now_add=True, editable=False)
     update_datetime = models.DateTimeField(auto_now=True, editable=False)
     last_call_datetime = models.DateTimeField(blank=True, null=True, editable=False)
 
-    is_activated = models.BooleanField(default=False)
+    is_activated = models.BooleanField(default=False,
+                                       verbose_name='Template activé')
 
 
 @receiver(m2m_changed, sender=NotificationTemplate.target_groups.through)
@@ -490,6 +508,9 @@ def get_allowed_tags():
     tag_dictionary = {'bold': ('<strong>', '</strong>'),
                       'actor': ('<a href="{% url "url_user_retrieve" pk=actor.pk group_name=group_name %}">'
                                 '{{actor}}</a>', ''),
+                      'target_object': ('{{target_object}}',''),
+                      'transfer.amount' : ('{{target_object.amount}}',''),
+                      'transfer.justification': ('{{target_object.justification}}', ''),
                       '#text': ('', ''),
                       'bcode': ('<div class="bcode">', '</div>')}
 

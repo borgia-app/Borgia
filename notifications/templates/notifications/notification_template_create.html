@@ -13,7 +13,15 @@
         <div class="panel-body">
             <form action="" method="post">
                 {% csrf_token %}
-                {{ form|bootstrap }}
+                {% for field in form %}
+                    {% if field == form.target_groups %}
+                        <div id="target_groups">
+                            {{ field|bootstrap }}
+                        </div>
+                    {% else %}
+                        {{ field|bootstrap }}
+                    {% endif %}
+                {% endfor %}
                 <button class="btn btn-success" type="submit">Ajouter</button>
             </form>
         </div>
@@ -45,4 +53,15 @@
             <p>Se reporter à la documentation pour plus de détails.</p>
         </div>
     </div>
+    <script>
+        $("#id_target_users").change(function() {
+            if ($(this).val() == 'ACTOR' || $(this).val() == 'RECIPIENT') {
+                $("#target_groups").hide()
+            }
+            else if ($(this).val() == 'TARGET_GROUPS') {
+                $("#target_groups").show()
+            }
+        })
+        $("#id_target_users").trigger("change")
+    </script>
 {% endblock %}
