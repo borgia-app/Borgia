@@ -66,6 +66,8 @@ class SelfSaleShopModule(forms.Form):
                     pk=cleaned_data['client'].split('/')[0])
             except ObjectDoesNotExist:
                 raise forms.ValidationError('Utilisateur inconnu')
+            except KeyError:
+                raise forms.ValidationError('Utilisateur non sélectionné')
         total_price = 0
         for field in cleaned_data:
             if field != 'client':
