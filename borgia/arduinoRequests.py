@@ -3,7 +3,7 @@ import re
 from collections import OrderedDict
 
 from django.views.generic import View
-from django.http import JsonResponse, Http404
+from django.http import JsonResponse, Http404, HttpResponse
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
 from django.utils.timezone import now
@@ -76,10 +76,10 @@ def errorJsonResponse(code, parameter = None):
     # Default
     if message is None:
         message = 'unknown error'
-    return JsonResponse(OrderedDict({'error': {
-        'code': code,
-        'message': message
-    }}))
+
+    return HttpResponse(
+        """{"code": "%s", "message": "%s"}""" % (code, message)
+    )
 
 
 class ArduinoConnect(View):
@@ -167,12 +167,9 @@ class ArduinoCheckVolumeAvailable(ArduinoRequest, View):
             return errorJsonResponse(202)
         if volume_available > 999:
             volume_available = 999
-
-        return JsonResponse(OrderedDict({
-            'token': token,
-            'place': place_id,
-            'volume': volume_available
-            }))
+        return HttpResponse(
+            """{"token": "%s", "place": "%s", "volume": %s}""" % (token, place_id, volume_available)
+        )
 
 
 class ArduinoPurchase(ArduinoRequest, View):
@@ -235,10 +232,6 @@ class ArduinoPurchase(ArduinoRequest, View):
             products_list=[spfc],
             to_return=True
         )
-
-        return JsonResponse(OrderedDict({
-            'token': token,
-            'place': place_id,
-            'volume': volume,
-            'amount': sale.amount
-            }))
+        return HttpResponse(
+            """{"token": "%s", "place": "%s", "volume": %s, "amount": "%s"}""" % (token, place_id, volume, sale.amount)
+        )
