@@ -60,7 +60,9 @@
         ["add_sharedevent", "finances", "sharedevent"],
         ["list_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"],
-        ["proceed_payment_sharedevent", "finances", "sharedevent"]
+        ["proceed_payment_sharedevent", "finances", "sharedevent"],
+
+        ["list_notification", "notifications", "notification"]
       ]
     }
   },
@@ -111,7 +113,9 @@
         ["add_sharedevent", "finances", "sharedevent"],
         ["list_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"],
-        ["proceed_payment_sharedevent", "finances", "sharedevent"]
+        ["proceed_payment_sharedevent", "finances", "sharedevent"],
+
+        ["list_notification", "notifications", "notification"]
       ]
     }
   },
@@ -168,7 +172,9 @@
         ["add_sharedevent", "finances", "sharedevent"],
         ["list_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"],
-        ["proceed_payment_sharedevent", "finances", "sharedevent"]
+        ["proceed_payment_sharedevent", "finances", "sharedevent"],
+
+        ["list_notification", "notifications", "notification"]
       ]
     }
   },
@@ -180,7 +186,9 @@
       "permissions": [
         ["use_selfsalemodule", "modules", "selfsalemodule"],
         ["add_transfert", "finances", "sale"],
-        ["add_sharedevent", "finances", "sharedevent"]
+        ["add_sharedevent", "finances", "sharedevent"],
+
+        ["list_notification", "notifications", "notification"]
       ]
     }
   },
@@ -191,7 +199,9 @@
       "name": "honnored",
       "permissions": [
         ["use_selfsalemodule", "modules", "selfsalemodule"],
-        ["add_transfert", "finances", "sale"]
+        ["add_transfert", "finances", "sale"],
+
+        ["list_notification", "notifications", "notification"]
       ]
     }
   },
