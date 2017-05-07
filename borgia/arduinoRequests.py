@@ -1,5 +1,6 @@
 import hashlib
 import re
+from collections import OrderedDict
 
 from django.views.generic import View
 from django.http import JsonResponse, Http404
@@ -75,10 +76,10 @@ def errorJsonResponse(code, parameter = None):
     # Default
     if message is None:
         message = 'unknown error'
-    return JsonResponse({'error': {
+    return JsonResponse(OrderedDict({'error': {
         'code': code,
         'message': message
-    }})
+    }}))
 
 
 class ArduinoConnect(View):
@@ -163,15 +164,15 @@ class ArduinoCheckVolumeAvailable(ArduinoRequest, View):
         if volume_available > place.product.quantity_remaining:
             volume_available = place.product.quantity_remaining
         if volume_available < 15:
-            volume_available = 15
+            return errorJsonResponse(202)
         if volume_available > 999:
             volume_available = 999
 
-        return JsonResponse({
+        return JsonResponse(OrderedDict({
             'token': token,
             'place': place_id,
             'volume': volume_available
-            })
+            }))
 
 
 class ArduinoPurchase(ArduinoRequest, View):
@@ -216,6 +217,8 @@ class ArduinoPurchase(ArduinoRequest, View):
             volume = int(volume)
         except ValueError:
             return errorJsonResponse(601)
+        if volume > place.product.quantity_remaining:
+            return errorJsonResponse(601)
 
         spfc = SingleProductFromContainer.objects.create(
                     container=place.product,
@@ -233,9 +236,9 @@ class ArduinoPurchase(ArduinoRequest, View):
             to_return=True
         )
 
-        return JsonResponse({
+        return JsonResponse(OrderedDict({
             'token': token,
             'place': place_id,
             'volume': volume,
             'amount': sale.amount
-            })
+            }))
