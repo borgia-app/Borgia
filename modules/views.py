@@ -133,6 +133,7 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
             product_base = element
 
             if (product_base.type == 'single_product'):
+                current_price = product_base.get_moded_usual_price()  # A least one ...
                 for i in range(0, invoice):
                     try:
                         product = SingleProduct.objects.filter(
@@ -147,8 +148,8 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
                             SingleProduct.objects.create(
                                 product_base=product_base,
                                 is_sold=True,
-                                sale_price=product_base.get_moded_usual_price(),
-                                price=product_base.get_moded_usual_price(),
+                                sale_price=current_price,
+                                price=current_price,
                                 purchase_date=now(),
                                 place='vente directe pour régulation'
                             )
