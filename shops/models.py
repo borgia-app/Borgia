@@ -234,6 +234,13 @@ class Shop(models.Model):
                     )
         return list_product_base_container
 
+    def container_pk_in_container_cases(self):
+        list = []
+        for container_case in ContainerCase.objects.filter(shop=self):
+            if container_case.product:
+                list.append(container_case.product.pk)
+        return list
+
     class Meta:
         """
         Define Permissions for Shop.

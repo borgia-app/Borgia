@@ -43,7 +43,7 @@
           <div class="panel-body">
             <ul>
               {% for container_case in module.container_cases.all %}
-              <li>{{ container_case.name }} : {{ container_case.product }}</li>
+              <li>{{ container_case.name }} : {% if container_case.product %}{{ container_case.product }}{% else %}pas de produit{% endif %}</li>
               {% endfor %}
             </ul>
           </div>

@@ -128,7 +128,7 @@
                   {% for field in form %}
                     {% if field.field.widget.attrs.data_category_pk == category.pk %}
                     <tr>
-                      <td class="F"></td
+                      <td class="F"></td>
                       <td>{{ field.errors }}{{ field.label_tag }}</td>
                       <td>{{ field }}</td>
                       <td>{{ field.field.widget.attrs.data_usual_price|unlocalize }}€</td>

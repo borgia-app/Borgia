@@ -78,9 +78,12 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
                     products += self.get_products_with_strategy(
                         element, invoice)
 
-        sale = sale_sale(sender=self.client, operator=self.request.user,
-                         date=now(), products_list=products,
-                         wording='Vente '+self.shop.name, to_return=True)
+        if len(products) > 0:
+            sale = sale_sale(sender=self.client, operator=self.request.user,
+                             date=now(), products_list=products,
+                             wording='Vente '+self.shop.name, to_return=True)
+        else:
+            return redirect(self.success_url)
 
         return sale_shop_module_resume(self.request, sale, self.group,
                                        self.shop, self.module, self.success_url)
@@ -140,14 +143,23 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
                         product.save()
                         products.append(product)
                     except IndexError:
-                        pass
+                        products.append(
+                            SingleProduct.objects.create(
+                                product_base=product_base,
+                                is_sold=True,
+                                sale_price=product_base.get_moded_usual_price(),
+                                price=product_base.get_moded_usual_price(),
+                                purchase_date=now(),
+                                place='vente directe pour régulation'
+                            )
+                        )
 
             if (product_base.type == 'container'):
                 try:
                     container = Container.objects.filter(
                         product_base=product_base,
                         is_sold=False).exclude(
-                            pk__in=self.module.container_pk_in_container_cases()
+                            pk__in=self.module.shop.container_pk_in_container_cases()
                             )[0]
 
                     product = SingleProductFromContainer.objects.create(

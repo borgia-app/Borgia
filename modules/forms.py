@@ -14,7 +14,7 @@ class SelfSaleShopModule(forms.Form):
         self.client = kwargs.pop('client')
         super(SelfSaleShopModule, self).__init__(*args, **kwargs)
 
-        for container_case in self.module.container_cases.all():
+        for container_case in self.module.container_cases.all().exclude(product__isnull=True):
             self.fields[(
                 str(container_case.pk)
                 + '-'
@@ -152,6 +152,7 @@ class ShopModuleConfigForm(forms.Form):
                                               validators=[
                                                 MinValueValidator(0, 'La durée doit être positive')],
                                             required=False)
+
 
 class ModuleContainerCaseForm(forms.Form):
     def __init__(self, *args, **kwargs):

@@ -6,6 +6,7 @@ from django.views.generic import FormView, View
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.forms.formsets import formset_factory
+from django.db.models import Q
 
 from shops.models import *
 from shops.forms import *
@@ -110,7 +111,7 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
     def form_valid_instance(self, form):
         if form.cleaned_data['product_base'].type == 'container':
             if form.cleaned_data['product_base'].product_unit.type in ['meat', 'cheese']:
-                product = Container.objects.create(price=(form.cleaned_data['price'] *1000/ form.cleaned_data['quantity'])*form.cleaned_data['product_base'].quantity,
+                product = Container.objects.create(price=(form.cleaned_data['price'] *1000/ form.cleaned_data['quantity']),
                                                    quantity_remaining=form.cleaned_data['quantity'],
                                                    purchase_date=form.cleaned_data['purchase_date'],
                                                    expiry_date=form.cleaned_data['expiry_date'],
@@ -517,11 +518,17 @@ class ShopContainerCases(GroupPermissionMixin, ShopFromGroupMixin, FormView,
 
     def form_valid(self, form):
         list_pk = []
+        list_product_pk = []
         for containercase_form in form:
-            print(containercase_form)
             try:
                 list_pk.append(containercase_form.cleaned_data['pk'])
+                if containercase_form.cleaned_data['base_container']:
+                    list_product_pk.append(ContainerCase.objects.get(pk=containercase_form.cleaned_data['pk']).product.pk)
             except KeyError:
+                pass
+            except AttributeError:
+                pass
+            except ObjectDoesNotExist:
                 pass
         for containercase in ContainerCase.objects.filter(shop=self.shop):
             if containercase.pk not in list_pk:
@@ -537,25 +544,33 @@ class ShopContainerCases(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                     'name']
 
                 old = containercase.product
-                try:
-                    old_base = containercase.product.product_base
-                    if (old_base != new_base):
-                        if old:
+
+                if old:
+                    if new_base:
+                        if new_base != old.product_base:
                             old.is_sold = containercase_form.cleaned_data[
                                 'is_sold']
                             old.save()
-                except AttributeError:
-                    pass
-                if new_base:
-                    try:
+                            containercase.product = Container.objects.filter(
+                                product_base=new_base,
+                                is_sold=False).exclude(pk__in=list_product_pk)[0]
+                            containercase.save()
+                        else:
+                            pass
+                    else:
+                        old.is_sold = containercase_form.cleaned_data[
+                            'is_sold']
+                        old.save()
+                        containercase.product = None
+                        containercase.save()
+                else:
+                    if new_base:
                         containercase.product = Container.objects.filter(
                             product_base=new_base,
-                            is_sold=False)[0]
-                    except KeyError:
-                        containercase.product = None
-                else:
-                    containercase.product = None
-                containercase.save()
+                            is_sold=False).exclude(pk__in=list_product_pk)[0]
+                        containercase.save()
+                    else:
+                        pass
 
             else:
                 containercase = ContainerCase.objects.create(
@@ -566,7 +581,7 @@ class ShopContainerCases(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                     try:
                         containercase.product = Container.objects.filter(
                             product_base=new_base,
-                            is_sold=False)[0]
+                            is_sold=False).exclude(pk__in=list_product_pk)[0]
                     except KeyError:
                         containercase.product = None
                 containercase.save()

@@ -9,7 +9,7 @@
     <ul>
       <li>Nom : {{ object.name }}</li>
       <li>Description : {{ object.description }}</li>
-      <li>Prix de vente actuel : {{ object.calculated_price }}</li>
+      <li>Prix de vente actuel : {% if object.get_moded_price != 0 %}{{ object.get_moded_price }}€{% else %}indéfini{% endif %}</li>
       <li>Marque : {{ object.brand }}</li>
       <li>Type : {{ object.get_type_display }}</li>
       <li>Magasin : {{ object.shop }}</li>
