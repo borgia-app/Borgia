@@ -37,11 +37,12 @@
                     {% endif %}
                 </td>
                 <td>{{ e.type }}</td>
-                <td>{{ e.shop_category }}</td>
-                <td>{{ e.is_activated }}</td>
+                <td>{% if e.shop_category %}{{ e.shop_category }}{% else %}Aucune{% endif %}</td>
+                <td>{{ e.is_activated|yesno:'Oui, Non, Non' }}</td>
                 <td><a href="{% url 'url_notificationtemplate_change' group_name=group.name pk=e.pk %}">Modifier</a>
-                 ou <a href="{% url 'url_notificationtemplate_deactivate' group_name=group.name pk=e.pk %}">Désactiver </a></td>
-                <td><a href="{% url 'url_notificationtemplate_create' group_name=group.name notification_class=e.notification_class.name %}">Add</a> </td>
+                 ou <a href="{% url 'url_notificationtemplate_deactivate' group_name=group.name pk=e.pk %}">
+                   {% if e.is_activated %}Désactiver{% else %}Activer{% endif %}</a></td>
+                <td><a href="{% url 'url_notificationtemplate_create' group_name=group.name notification_class=e.notification_class.name %}">Ajouter</a> </td>
             </tr>
             {% endfor %}
         </tbody>

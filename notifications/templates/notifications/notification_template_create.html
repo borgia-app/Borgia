@@ -12,13 +12,16 @@
         </div>
         <div class="panel-body">
             <form action="" method="post">
+                {% form.non_field_errors %}
                 {% csrf_token %}
                 {% for field in form %}
                     {% if field == form.target_groups %}
                         <div id="target_groups">
+                            {{ field.errors }}
                             {{ field|bootstrap }}
                         </div>
                     {% else %}
+                        {{ field.errors }}
                         {{ field|bootstrap }}
                     {% endif %}
                 {% endfor %}
