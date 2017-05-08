@@ -181,7 +181,7 @@ MEDIA_URL = '/media/'
 
 # Lydia
 LYDIA_API_TOKEN = '55f18739e5409079915994'
-LYDIA_VENDOR_TOKEN = '55f18739e2c95650506777'  # Trésorerie
+LYDIA_VENDOR_TOKEN = '57e524da19aba655147763'  # Trésorerie
 # Foyer : 57e524da19aba655147763
 LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/self/lydias/callback/'  # https ou non selon le dns
 LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/self/lydias/confirm/'
