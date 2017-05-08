@@ -308,7 +308,8 @@
       "verbose_name": null,
       "description": "",
       "creation_datetime": "2017-05-07T09:31:43.907Z",
-      "last_call_datetime": "2017-05-07T09:31:43.905Z"}
+      "last_call_datetime": "2017-05-07T09:31:43.905Z"
+    }
   },
   {
     "model": "notifications.notificationclass",
@@ -318,7 +319,8 @@
       "verbose_name": null,
       "description": "",
       "creation_datetime": "2017-05-07T09:35:20.860Z",
-      "last_call_datetime": "2017-05-07T09:35:20.859Z"}
+      "last_call_datetime": "2017-05-07T09:35:20.859Z"
+    }
   },
   {
     "model": "notifications.notificationclass",
@@ -328,7 +330,8 @@
       "verbose_name": null,
       "description": "",
       "creation_datetime": "2017-05-07T09:36:59.801Z",
-      "last_call_datetime": "2017-05-07T09:36:59.799Z"}
+      "last_call_datetime": "2017-05-07T09:36:59.799Z"
+    }
   },
   {
     "model": "notifications.notificationclass",
@@ -338,7 +341,8 @@
       "verbose_name": null,
       "description": "",
       "creation_datetime": "2017-05-07T13:20:04.642Z",
-      "last_call_datetime": "2017-05-07T13:20:04.642Z"}
+      "last_call_datetime": "2017-05-07T13:20:04.642Z"
+    }
   },
   {
     "model": "notifications.notificationclass",
@@ -348,17 +352,19 @@
       "verbose_name": null,
       "description": "",
       "creation_datetime": "2017-05-07T13:22:40.728Z",
-      "last_call_datetime": "2017-05-07T13:22:40.728Z"}
+      "last_call_datetime": "2017-05-07T13:22:40.728Z"
+    }
   },
   {
     "model": "notifications.notificationclass",
     "pk": 6,
     "fields": {
-      "name": "user_bank_account_creation"
+      "name": "user_bank_account_creation",
       "verbose_name": null,
       "description": "",
       "creation_datetime": "2017-05-07T18:07:24.427Z",
-      "last_call_datetime": "2017-05-07T18:07:24.425Z"}
+      "last_call_datetime": "2017-05-07T18:07:24.425Z"
+    }
   },
   {
     "model": "notifications.notificationclass",
@@ -368,7 +374,8 @@
       "verbose_name": null,
       "description": "",
       "creation_datetime": "2017-05-07T18:07:32.281Z",
-      "last_call_datetime": "2017-05-07T18:07:32.280Z"}
+      "last_call_datetime": "2017-05-07T18:07:32.280Z"
+    }
   },
   {
     "model": "notifications.notificationclass",
