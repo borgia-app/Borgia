@@ -88,5 +88,4 @@ Afin de quitter le résumé, il suffit de cliquer sur le bouton "Continuer". En 
 
 Il reste ici par exemple 9 secondes avant la redirection automatique.
 
-## FAQ
 > Dernière mise à jour par Alexandre Palo, Past'ys 101-99Me214 le 08/05/2017 à 16h30.
