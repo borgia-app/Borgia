@@ -537,6 +537,7 @@ class Payment(models.Model):
         else:
             return None
 
+
 class DebitBalance(models.Model):
     """
     Define a type of payment by the account saved by the association.

@@ -2,6 +2,8 @@ import json
 import operator
 import hashlib
 import decimal
+from datetime import timedelta
+
 from django.shortcuts import render, HttpResponse, force_text, redirect
 from django.shortcuts import Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -503,8 +505,8 @@ class RechargingList(GroupPermissionMixin, FormView,
     form_class = RechargingListForm
 
     search = None
-    date_begin = None
-    date_end = None
+    date_end = now() + timedelta(days=1)
+    date_begin = now() - timedelta(days=7)
     operators = None
 
     def get_context_data(self, **kwargs):
@@ -517,10 +519,16 @@ class RechargingList(GroupPermissionMixin, FormView,
         context['recharging_list'] = self.form_query(
             context['recharging_list'])[:100]
 
-        context['info'] = self.info_operators(context['recharging_list'])
+        context['info'] = self.info(context['recharging_list'])
         return context
 
-    def info_operators(self, query):
+    def get_initial(self, **kwargs):
+        initial = super(RechargingList, self).get_initial(**kwargs)
+        initial['date_begin'] = self.date_begin
+        initial['date_end'] = self.date_end
+        return initial
+
+    def info(self, query):
         info = {
             'cash': {
                 'total': 0,
@@ -528,7 +536,8 @@ class RechargingList(GroupPermissionMixin, FormView,
             },
             'cheque': {
                 'total': 0,
-                'nb': 0
+                'nb': 0,
+                'ids': Cheque.objects.none()
             },
             'lydia_face2face': {
                 'total': 0,
@@ -536,7 +545,8 @@ class RechargingList(GroupPermissionMixin, FormView,
             },
             'lydia_auto': {
                 'total': 0,
-                'nb': 0
+                'nb': 0,
+                'ids': Lydia.objects.none()
             },
             'total': {
                 'total': 0,
@@ -550,6 +560,7 @@ class RechargingList(GroupPermissionMixin, FormView,
                 if type == 'cheque':
                     info['cheque']['total'] += r.amount
                     info['cheque']['nb'] += 1
+                    info['cheque']['ids'] |= r.payment.list_cheque()[0]
                 if type == 'cash':
                     info['cash']['total'] += r.amount
                     info['cash']['nb'] += 1
@@ -559,6 +570,7 @@ class RechargingList(GroupPermissionMixin, FormView,
                 if type == 'lydia_auto':
                     info['lydia_auto']['total'] += r.amount
                     info['lydia_auto']['nb'] += 1
+                    info['lydia_auto']['ids'] |= r.payment.list_lydia()[0]
         info['total']['total'] = (
             info['cheque']['total'] + info['cash']['total'] + info['lydia_face2face']['total'] + info['lydia_auto']['total']
         )
