@@ -541,7 +541,8 @@ class RechargingList(GroupPermissionMixin, FormView,
             },
             'lydia_face2face': {
                 'total': 0,
-                'nb': 0
+                'nb': 0,
+                'ids': Lydia.objects.none()
             },
             'lydia_auto': {
                 'total': 0,
@@ -567,6 +568,7 @@ class RechargingList(GroupPermissionMixin, FormView,
                 if type == 'lydia_face2face':
                     info['lydia_face2face']['total'] += r.amount
                     info['lydia_face2face']['nb'] += 1
+                    info['lydia_face2face']['ids'] |= r.payment.list_lydia()[0]
                 if type == 'lydia_auto':
                     info['lydia_auto']['total'] += r.amount
                     info['lydia_auto']['nb'] += 1

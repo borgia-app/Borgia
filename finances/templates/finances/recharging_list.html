@@ -59,7 +59,13 @@
             <div class="col-md-2">
               <h4>Lydia face à face</h4>
               <ul>
-                <li>Nombre : {{ info.lydia_face2face.nb }}</li>
+                <li>Nombre : {{ info.lydia_face2face.nb }}
+                  {% if info.lydia_face2face.nb %}
+                  <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#list_lydia_face2face">
+                    Détails
+                  </button>
+                  {% endif %}
+                </li>
                 <li>Total : {{ info.lydia_face2face.total }}€</li>
               </ul>
             </div>
@@ -134,6 +140,7 @@
                 <td>{{ c.amount }}€</td>
                 <td>{{ c.sender }}</td>
                 <td>{{ c.signature_date }}</td>
+                <td>{{ c.recipient }}</td>
               </tr>
             {% endfor %}
           </tbody>
@@ -166,6 +173,43 @@
           </thead>
           <tbody>
             {% for ly in info.lydia_auto.ids %}
+              <tr>
+                <td>{{ ly.id_from_lydia }}</td>
+                <td>{{ ly.amount }}€</td>
+                <td>{{ ly.sender }}</td>
+                <td>{{ ly.date_operation }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="list_lydia_face2face" tabindex="-1" role="dialog" aria-labelledby="Liste des Lydia en face à face">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Liste des Lydia en face à face</h4>
+      </div>
+      <div class="modal-body">
+        <table class="table table-default table-hover">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Montant</th>
+              <th>Payeur</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ly in info.lydia_face2face.ids %}
               <tr>
                 <td>{{ ly.id_from_lydia }}</td>
                 <td>{{ ly.amount }}€</td>
