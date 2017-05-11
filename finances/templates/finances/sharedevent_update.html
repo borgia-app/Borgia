@@ -1,6 +1,7 @@
 {% extends 'base_sober.html' %}
 {% load bootstrap %}
 {% load finances_extra %}
+{% load l10n %}
 
 {% block content %}
 
@@ -22,6 +23,8 @@
         <div class="form-group">
           <div class="col-sm-10 col-sm-offset-2">
             <button type="submit" class="btn btn-success">Mise à jour</button>
+            <a href="{% url 'url_sharedevent_finish' group_name=group.name pk=pk %}" role="button" class="btn btn-warning">Terminer</a>
+            <a href="{% url 'url_sharedevent_delete' group_name=group.name pk=pk %}" role="button" class="btn btn-danger">Supprimer</a>
           </div>
         </div>
     </form>
@@ -87,7 +90,7 @@
   </div>
   <div class="panel-body">
     {{ payment_error }}
-    Etat : {% human_reading done 'shared_event_done' %}
+    Etat : {% human_reading done 'shared_event_done' %}. {% if done %}{{ remark }}{% endif %}
     {% if done == False %}
     <a href="{% url 'url_sharedevent_proceed_payment' pk=pk group_name=group.name %}" class="btn btn-danger">Procéder au paiement</a>
     {% endif %}
@@ -161,6 +164,7 @@
             <th>Bucque</th>
             <th>Prom'ss</th>
             <th>Pondération</th>
+            <th>Prix</th>
             {% if done == False %}<th>Supprimer</th>{% endif %}
         </tr>
       </thead>
@@ -171,7 +175,14 @@
               <td>{{ u.0.first_name }}</td>
               <td>{{ u.0.surname }}</td>
               <td>{{ u.0.username }}</td>
-              <td><input id="ponderation_{{ u.0.pk }}" class="form-control" type="number" min="1" value="{{ u.1 }}"/></td>
+              <td>
+                {% if done %}
+                <span id="ponderation_{{ u.0.pk }}">{{ u.1 }}</span>
+                {% else %}
+                <input id="ponderation_{{ u.0.pk }}" class="form-control" type="number" min="1" value="{{ u.1 }}"/>
+                {% endif %}
+              </td>
+              <td id="price_{{ u.0.pk }}">{% if price %}{% else %}indéfini{% endif %}</td>
               {% if done == False %}<td>
                   {% if state == 'participants' %}
                       <a class="btn btn-small btn-danger"
@@ -188,6 +199,7 @@
   </div>
 </div>
 
+{% if done == False %}
 <script>
     // Modification à la volée de la pondération
     // Apres la modification (blur ou enter), requete ajax pour modifier la pondération
@@ -217,6 +229,63 @@
     {% endfor %}
 
 </script>
+{% endif %}
+
+<script>
+{% if price %}
+  {% if done %}
+    set_prices_txt()
+  {% else %}
+  set_prices_input()
+  $("[id^='ponderation_']").change(function() {
+    set_prices_input()
+  })
+  {% endif %}
+{% endif %}
+
+  function total_ponderation_txt () {
+    var total_ponderation = 0
+    $("[id^='ponderation_']").each(function() {
+      var id = $(this).attr('id').split('_')[1]
+      total_ponderation += Number($('#ponderation_' + id).text())
+    })
+    return total_ponderation
+  }
+
+  function price_per_ponderation_txt () {
+    return Math.round(({{ price|unlocalize }} / total_ponderation_txt()) * 100) / 100
+  }
+
+  function total_ponderation_input () {
+    var total_ponderation = 0
+    $("[id^='ponderation_']").each(function() {
+      var id = $(this).attr('id').split('_')[1]
+      total_ponderation += Number($('#ponderation_' + id).val())
+    })
+    return total_ponderation
+  }
+
+  function price_per_ponderation_input () {
+    return Math.round(({{ price|unlocalize }} / total_ponderation_input()) * 100) / 100
+  }
+
+  function set_prices_txt () {
+    $("[id^='ponderation_']").each(function() {
+      var id = $(this).attr('id').split('_')[1]
+      var ponderation = Number($(this).text())
+      $("#price_" + id).text(Number(ponderation * price_per_ponderation_txt()) + '€')
+    })
+  }
+
+  function set_prices_input () {
+    $("[id^='ponderation_']").each(function() {
+      var id = $(this).attr('id').split('_')[1]
+      var ponderation = $(this).val()
+      $("#price_" + id).text(Number(ponderation * price_per_ponderation_input()) + '€')
+    })
+  }
+</script>
+
 <script>
     // Masquage de pondération dans le cas d'ajout manuel d'un inscrit
     display_ponderation();

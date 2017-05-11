@@ -854,10 +854,12 @@ class SharedEvent(models.Model):
     bills = models.CharField('Facture(s)', max_length=254, null=True,
                              blank=True)
     done = models.BooleanField('Terminé', default=False)
+    remark = models.CharField('Remarque', max_length=254, null=True,
+                             blank=True)
     manager = models.ForeignKey('users.User', related_name='manager',
-    on_delete=models.CASCADE)
+        on_delete=models.CASCADE)
     sale = models.ForeignKey('Sale', null=True, blank=True,
-    on_delete=models.CASCADE)
+        on_delete=models.CASCADE)
     participants = models.ManyToManyField('users.User', blank=True,
                                           related_name='participants')
     registered = models.ManyToManyField('users.User', blank=True,
@@ -1005,6 +1007,7 @@ class SharedEvent(models.Model):
         sale.save()
 
         self.done = True
+        self.remark = 'Paiement par Borgia'
         self.save()
 
     class Meta:

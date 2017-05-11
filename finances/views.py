@@ -1270,6 +1270,118 @@ class SharedEventCreate(GroupPermissionMixin, FormView,
         return super(SharedEventCreate, self).form_valid(form)
 
 
+class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    Delete a sharedevent and redirect to the list of sharedevents.
+
+    :param kwargs['group_name']: name of the group used.
+    :param kwargs['pk']: pk of the event
+    :param self.perm_codename: codename of the permission checked.
+    """
+    template_name = 'finances/sharedevent_delete.html'
+    success_url = None
+    perm_codename = None  # Checked in dispatch
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.se = SharedEvent.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+
+        # Permissions
+        try:
+            group = Group.objects.get(name=kwargs['group_name'])
+        except ObjectDoesNotExist:
+            raise Http404
+        try:
+            if Permission.objects.get(codename='manage_sharedevent') not in group.permissions.all():
+                if request.user != self.se.manager:
+                    raise PermissionDenied
+        except ObjectDoesNotExist:
+            raise Http404
+        if self.se.done:
+            raise PermissionDenied
+
+        return super(SharedEventDelete, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['object'] = self.se
+        return render(request, self.template_name, context=context)
+
+    def post(self, request, *args, **kwargs):
+        self.se.delete()
+        if self.group.name == 'gadzarts':
+            return redirect(
+                reverse(
+                    'url_self_sharedevent_list',
+                    kwargs={'group_name': self.group.name}
+                    ))
+        return redirect(
+            reverse(
+                'url_sharedevent_list',
+                kwargs={'group_name': self.group.name}
+                ))
+
+
+class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    """
+    Finish a sharedevent and redirect to the list of sharedevents.
+    This command is used when you want to keep the event in the database, but
+    you don't want to pay in Borgia (for instance paid with real money).
+
+    :param kwargs['group_name']: name of the group used.
+    :param kwargs['pk']: pk of the event
+    :param self.perm_codename: codename of the permission checked.
+    """
+    form_class = SharedEventFinishForm
+    template_name = 'finances/sharedevent_finish.html'
+    success_url = None
+    perm_codename = None  # Checked in dispatch
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.se = SharedEvent.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+
+        # Permissions
+        try:
+            group = Group.objects.get(name=kwargs['group_name'])
+        except ObjectDoesNotExist:
+            raise Http404
+        try:
+            if Permission.objects.get(codename='manage_sharedevent') not in group.permissions.all():
+                if request.user != self.se.manager:
+                    raise PermissionDenied
+        except ObjectDoesNotExist:
+            raise Http404
+        if self.se.done:
+            raise PermissionDenied
+
+        return super(SharedEventFinish, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SharedEventFinish, self).get_context_data(**kwargs)
+        context['object'] = self.se
+        return context
+
+    def form_valid(self, form):
+        self.se.done = True
+        self.se.remark = form.cleaned_data['remark']
+        self.se.save()
+        if self.group.name == 'gadzarts':
+            return redirect(
+                reverse(
+                    'url_self_sharedevent_list',
+                    kwargs={'group_name': self.group.name}
+                    ))
+        return redirect(
+            reverse(
+                'url_sharedevent_list',
+                kwargs={'group_name': self.group.name}
+                ))
+
 
 class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
     template_name = 'finances/sharedevent_update.html'
@@ -1301,10 +1413,12 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         # Vérification des permissions
         # Si on a la perm on peut voir toujours (mais plus tout faire, cf les autres fonctions)
         # Si on est juste manager, on ne peux plus voir si done=True
-        if request.user.has_perm('finances.manage_sharedevent') is False:
-            if request.user == se.manager:
-                if se.done:
+        try:
+            if Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all():
+                if request.user != se.manager:
                     raise PermissionDenied
+        except ObjectDoesNotExist:
+            raise Http404
 
         # Si on impose un state directement en GET (en venant d'un lien remove par exemple)
         if self.request.GET.get('state') is not None:
@@ -1362,7 +1476,8 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context['order_by'] = 'last_name'
         context['done'] = se.done
         context['payment_error'] = payment_error
-        context['next'] = request.GET.get('next')
+        context['remark'] = se.remark
+        context['price'] = se.price
 
         return render(request, self.template_name, context=context)
 
@@ -1418,7 +1533,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
             upload_json_form = SharedEventManageUploadJSONForm(request.POST, request.FILES,  prefix='upload_json_form')
             if upload_json_form.is_valid():
                 lists = list_user_ponderation_errors_from_list(request.FILES['upload_json_form-file'],
-                                                               upload_json_form.cleaned_data['token'])
+                                                               False)
                 # Enregistrement des participants/inscrits et des pondérations
                 if upload_json_form.cleaned_data['state'] == 'participants':
                     for i, u in enumerate(lists[0]):
@@ -1502,7 +1617,8 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context['state'] = state
         context['order_by'] = order_by
         context['done'] = se.done
-        context['next'] = request.POST.get('next')
+        context['remark'] = se.remark
+        context['price'] = se.price
 
         return render(request, self.template_name, context=context)
 
@@ -1511,7 +1627,7 @@ class SharedEventList(GroupPermissionMixin, FormView,
                       GroupLateralMenuFormMixin):
     template_name = 'finances/sharedevent_list.html'
     lm_active = 'lm_sharedevent_list'
-    perm_codename = None
+    perm_codename = 'list_sharedevent'
     form_class = SharedEventManageListForm
 
     def form_valid(self, form, **kwargs):

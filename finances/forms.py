@@ -246,9 +246,13 @@ class SharedEventManageUserListForm(forms.Form):
 
 class SharedEventManageUploadJSONForm(forms.Form):
     file = forms.FileField(label='Fichier de données')
-    token = forms.ChoiceField(label='Le fichier contient des :', choices=((True, 'Numéros de jetons'),
-                                                                          (False, 'Noms d\'utilisateurs')))
-    state = forms.ChoiceField(choices=(('registered', 'Inscrit'), ('participants', 'Participant')))
+    state = forms.ChoiceField(
+        label='Etat',
+        choices=(('registered', 'Inscrit'), ('participants', 'Participant')))
+
+
+class SharedEventFinishForm(forms.Form):
+    remark = forms.CharField(label='Pourquoi finir l\'événement ?')
 
 
 class SharedEventManageUpdateForm(forms.Form):

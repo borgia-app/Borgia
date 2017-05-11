@@ -61,6 +61,7 @@
         ["list_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"],
         ["proceed_payment_sharedevent", "finances", "sharedevent"],
+        ["manage_sharedevent", "finances", "sharedevent"],
 
         ["list_notification", "notifications", "notification"]
       ]
@@ -114,6 +115,7 @@
         ["list_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"],
         ["proceed_payment_sharedevent", "finances", "sharedevent"],
+        ["manage_sharedevent", "finances", "sharedevent"],
 
         ["list_notification", "notifications", "notification"]
       ]
@@ -173,6 +175,7 @@
         ["list_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"],
         ["proceed_payment_sharedevent", "finances", "sharedevent"],
+        ["manage_sharedevent", "finances", "sharedevent"],
 
         ["list_notification", "notifications", "notification"]
       ]

@@ -33,7 +33,7 @@
             </td>
             <td>
                 {% if user == sharedevent.manager %}
-                    <a href="">Gérer</a>
+                    <a href="{% url 'url_sharedevent_update' group_name=group.name pk=sharedevent.pk %}">Gérer</a>
                 {% endif %}
             </td>
           </tr>
