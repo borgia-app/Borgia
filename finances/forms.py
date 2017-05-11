@@ -1,8 +1,11 @@
+import re
+
 from django import forms
 from django.contrib.auth import authenticate
 from django.forms.widgets import PasswordInput
 from django.core.validators import RegexValidator
-import re
+from django.db.models import Q
+from django.contrib.auth.models import Permission
 
 from users.models import User
 from shops.models import Shop
@@ -75,6 +78,23 @@ class SaleListSearchDateForm(forms.Form):
         input_formats=['%d/%m/%Y'],
         widget=forms.DateInput(attrs={'class': 'datepicker'}),
         required=False)
+
+
+class RechargingListForm(GenericListSearchDateForm):
+    def __init__(self, *args, **kwargs):
+        super(RechargingListForm, self).__init__(*args, **kwargs)
+        try:
+            perm = Permission.objects.get(codename='supply_money_user')
+            queryset = User.objects.filter(groups__permissions=perm).distinct()
+        except ObjectDoesNotExist:
+            queryset = User.objects.none()
+
+        self.fields['operators'] = forms.ModelMultipleChoiceField(
+            label='Opérateurs',
+            queryset=queryset,
+            widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
+                                               'data-live-search': 'True'}),
+            required=False)
 
 
 class ExceptionnalMovementForm(forms.Form):

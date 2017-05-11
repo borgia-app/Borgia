@@ -11,6 +11,14 @@
       <li>Acheteur : {{ object.sender }}</li>
       <li>Date : {{ object.date }}</li>
       <li>Montant : {{ object.amount }}€</li>
+      <li>Type : {{ object.payment.unique_payment_type_display }}
+      {% if object.payment.unique_payment_type == "cheque" %}
+        ({{ object.payment.list_cheque.0.0}})
+      {% elif object.payment.unique_payment_type == "lydia_auto"  %}
+        ({{ object.payment.list_lydia.0.0}})
+      {% elif object.payment.unique_payment_type == "lydia_face2face"  %}
+        ({{ object.payment.list_lydia.0.0}})
+      {% endif %}
     </ul>
   </div>
 </div>

@@ -2,6 +2,10 @@
 {% load bootstrap %}
 
 {% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/i18n/defaults-fr_FR.min.js"></script>
+
     <div class="panel panel-primary">
         <div class="panel-heading">
           Recherche de rechargements
@@ -17,6 +21,50 @@
               </div>
             </div>
           </form>
+        </div>
+      </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+          Synthèse
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-4">
+              <h4>Total</h4>
+              <ul>
+                <li>Nombre : {{ info.total.nb }}</li>
+                <li>Total : {{ info.total.total }}€</li>
+              </ul>
+            </div>
+            <div class="col-md-2">
+              <h4>Espèces</h4>
+              <ul>
+                <li>Nombre : {{ info.cash.nb }}</li>
+                <li>Total : {{ info.cash.total }}€</li>
+              </ul>
+            </div>
+            <div class="col-md-2">
+              <h4>Chèques</h4>
+              <ul>
+                <li>Nombre : {{ info.cheque.nb }}</li>
+                <li>Total : {{ info.cheque.total }}€</li>
+              </ul>
+            </div>
+            <div class="col-md-2">
+              <h4>Lydia face à face</h4>
+              <ul>
+                <li>Nombre : {{ info.lydia_face2face.nb }}</li>
+                <li>Total : {{ info.lydia_face2face.total }}€</li>
+              </ul>
+            </div>
+            <div class="col-md-2">
+              <h4>Lydia automatique</h4>
+              <ul>
+                <li>Nombre : {{ info.lydia_auto.nb }}</li>
+                <li>Total : {{ info.lydia_auto.total }}€</li>
+              </ul>
+            </div>
+          </div>
         </div>
       </div>
       <div class="panel panel-default">
@@ -40,7 +88,7 @@
                 <td>{{ recharging.date|date:"SHORT_DATE_FORMAT" }}</td>
                 <td>{{ recharging.date|time:"H:i" }}</td>
                 <td>{{ recharging.amount }}€</td>
-                <td>{{ recharging.wording }}</td>
+                <td>{{ recharging.payment.unique_payment_type_display }}</td>
                 <td>
                   <a href="{% url 'url_recharging_retrieve' group_name=group_name pk=recharging.pk %}">Détail</a>
                 </td>

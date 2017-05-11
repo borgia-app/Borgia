@@ -498,6 +498,44 @@ class Payment(models.Model):
             payments_used.append('Compte foyer')
         return payments_used
 
+    def unique_payment_type(self):
+        """
+        In the case of a simple payment, the type of payment is unique.
+        If there is two or more type of payment, this function cannot be used.
+
+        :rtype: payment type or None if more than 1
+        """
+        if len(self.payments_used()) != 1:
+            return None
+
+        if 'Cheque' in self.payments_used():
+            return 'cheque'
+        if 'Espèces' in self.payments_used():
+            return 'cash'
+        if 'Lydia' in self.payments_used():
+            try:
+                sale = Sale.objects.get(payment=self)
+            except ObjectDoesNotExist:
+                return None
+            if sale.wording == 'Rechargement automatique':
+                return 'lydia_auto'
+            if sale.wording == 'Rechargement manuel':
+                return 'lydia_face2face'
+            return None
+
+    def unique_payment_type_display(self):
+        type = self.unique_payment_type()
+        if type:
+            if type == 'cheque':
+                return 'Chèque'
+            if type == 'cash':
+                return 'Esèces'
+            if type == 'lydia_face2face':
+                return 'Lydia manuel'
+            if type == 'lydia_auto':
+                return 'Lydia automatique'
+        else:
+            return None
 
 class DebitBalance(models.Model):
     """
@@ -803,7 +841,9 @@ class Lydia(models.Model):
                 + self.sender.first_name
                 + ' '
                 + str(self.amount)
-                + '€')
+                + '€'
+                + ' '
+                + self.id_from_lydia)
 
     def list_transaction(self):
         """

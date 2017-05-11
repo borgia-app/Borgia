@@ -500,11 +500,12 @@ class RechargingList(GroupPermissionMixin, FormView,
     template_name = 'finances/recharging_list.html'
     perm_codename = 'list_recharging'
     lm_active = 'lm_recharging_list'
-    form_class = GenericListSearchDateForm
+    form_class = RechargingListForm
 
     search = None
     date_begin = None
     date_end = None
+    operators = None
 
     def get_context_data(self, **kwargs):
         context = super(RechargingList, self).get_context_data(**kwargs)
@@ -516,7 +517,55 @@ class RechargingList(GroupPermissionMixin, FormView,
         context['recharging_list'] = self.form_query(
             context['recharging_list'])[:100]
 
+        context['info'] = self.info_operators(context['recharging_list'])
         return context
+
+    def info_operators(self, query):
+        info = {
+            'cash': {
+                'total': 0,
+                'nb': 0
+            },
+            'cheque': {
+                'total': 0,
+                'nb': 0
+            },
+            'lydia_face2face': {
+                'total': 0,
+                'nb': 0
+            },
+            'lydia_auto': {
+                'total': 0,
+                'nb': 0
+            },
+            'total': {
+                'total': 0,
+                'nb': 0
+            }
+        }
+
+        for r in query:
+            type = r.payment.unique_payment_type()
+            if type:
+                if type == 'cheque':
+                    info['cheque']['total'] += r.amount
+                    info['cheque']['nb'] += 1
+                if type == 'cash':
+                    info['cash']['total'] += r.amount
+                    info['cash']['nb'] += 1
+                if type == 'lydia_face2face':
+                    info['lydia_face2face']['total'] += r.amount
+                    info['lydia_face2face']['nb'] += 1
+                if type == 'lydia_auto':
+                    info['lydia_auto']['total'] += r.amount
+                    info['lydia_auto']['nb'] += 1
+        info['total']['total'] = (
+            info['cheque']['total'] + info['cash']['total'] + info['lydia_face2face']['total'] + info['lydia_auto']['total']
+        )
+        info['total']['nb'] = (
+            info['cheque']['nb'] + info['cash']['nb'] + info['lydia_face2face']['nb'] + info['lydia_auto']['nb']
+        )
+        return info
 
     def form_query(self, query):
         if self.search:
@@ -540,6 +589,9 @@ class RechargingList(GroupPermissionMixin, FormView,
             query = query.filter(
                 date__lte=self.date_end)
 
+        if self.operators:
+            query = query.filter(operator__in=self.operators)
+
         return query
 
     def form_valid(self, form):
@@ -551,6 +603,9 @@ class RechargingList(GroupPermissionMixin, FormView,
 
         if form.cleaned_data['date_end'] != '':
             self.date_end = form.cleaned_data['date_end']
+
+        if form.cleaned_data['operators']:
+            self.operators = form.cleaned_data['operators']
 
         context = self.get_context_data()
         return self.get(self.request, self.args, self.kwargs)
