@@ -103,14 +103,14 @@ context['nav_tree'] = nav_tree = [
 <script>
   $("#root a[data-has-subs]").each(function() {
     $(this).click(function() {
-      let id = $(this).attr('id')
+      var id = $(this).attr('id')
       $('#root').hide()
       $('div[data-parent-id='+id+']').show()
       $('div[data-parent-id='+id+']').addClass('animated fadeIn');
     })
   })
   $('a[data-parent-id]').each(function() {
-    let parent_id = $(this).attr('data-parent-id')
+    var parent_id = $(this).attr('data-parent-id')
     $(this).click(function() {
       $('div[data-parent-id='+parent_id+']').hide()
       $('#root').show()

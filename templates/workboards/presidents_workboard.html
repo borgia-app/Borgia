@@ -81,7 +81,7 @@
             style="margin-top: 5px"
             href="{% url 'url_user_list' group_name=group_name %}">Rechercher</a>
             <script>
-                let base_list_url = "{% url 'url_user_list' group_name=group_name %}";
+                var base_list_url = "{% url 'url_user_list' group_name=group_name %}";
                 $("#input_search").change(function () {
                   $("#search").attr(
                     'href',

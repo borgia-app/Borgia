@@ -62,8 +62,8 @@
       + decimalToHex(255 -  hexToDecimal(colour.substr(4,2)));
   }
 
-  let shop_color_hex = "{{ shop.color }}".substring(1, "{{ shop.color }}".length)
-  let opposite_shop_color_hex = "#" + returnOpposite(shop_color_hex)
+  var shop_color_hex = "{{ shop.color }}".substring(1, "{{ shop.color }}".length)
+  var opposite_shop_color_hex = "#" + returnOpposite(shop_color_hex)
 
   var ctx = "PieChart";
   var data = {

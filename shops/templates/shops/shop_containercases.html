@@ -75,7 +75,7 @@
     $(this).parent().hide()
   })
   $('[id*=base_container]').change(function() {
-    let parent = $('#id_form-'+$(this).attr('id').split('-')[1]+'-is_sold').parent()
+    var parent = $('#id_form-'+$(this).attr('id').split('-')[1]+'-is_sold').parent()
     parent.attr('class', 'bg-danger')
     if (parent.children().length !== 3) {
       parent.append(

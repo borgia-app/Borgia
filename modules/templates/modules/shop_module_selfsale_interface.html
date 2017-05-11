@@ -165,17 +165,17 @@
 </style>
 <script>
   $("input[id^='id_']").change(function() {
-    let pk = $(this).attr('pk')
-    let usual_price = $(this).attr('data_usual_price')
+    var pk = $(this).attr('pk')
+    var usual_price = $(this).attr('data_usual_price')
     $("#total_"+pk).text((Number(usual_price) * $(this).val()).toFixed(2))
     total()
   })
   function total () {
-    let total = 0
+    var total = 0
     $("#invoice").empty()
     $("input[id^='id_']").each(function() {
-      let pk = $(this).attr('pk')
-      let product = $("label[for='"+$(this).attr('id')+"']").text().substring(0, $("label[for='"+$(this).attr('id')+"']").text().length-1)
+      var pk = $(this).attr('pk')
+      var product = $("label[for='"+$(this).attr('id')+"']").text().substring(0, $("label[for='"+$(this).attr('id')+"']").text().length-1)
       total += Number($("#total_"+pk).text())
       if ($(this).val() > 0) {
         $("#invoice").append(
@@ -208,7 +208,7 @@
   // Ajout des informations de touches
   {% if form|containerCasesFieldsCount != 0 %}
   $("#container_cases :input").each(function(index) {
-    let td = $(this).closest('tr').find('.F')
+    var td = $(this).closest('tr').find('.F')
     if ((index + 1) <= 12) {
       $(td).text("F" + (index + 1))
     }
@@ -216,7 +216,7 @@
   {% endif %}
   {% for category in categories %}
     $("#{{ category.pk }} :input").each(function(index) {
-      let td = $(this).closest('tr').find('.F')
+      var td = $(this).closest('tr').find('.F')
       if ((index + 1) <= 12) {
         $(td).text("F" + (index + 1))
       }
@@ -289,7 +289,7 @@
         currentPane = $(this)
       }
     })
-    let tr = $(currentPane).find('tr')[index]
+    var tr = $(currentPane).find('tr')[index]
     if (tr) {
       $(tr).find('input').val(Number($(tr).find('input').val()) + 1)
       $(tr).find('input').trigger("change")
