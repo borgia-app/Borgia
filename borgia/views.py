@@ -164,6 +164,18 @@ def handler403(request):
         group_name = request.path.split('/')[1]
         context['group'] = Group.objects.get(name=group_name)
         context['group_name'] = group_name
+        if (request.user.groups.all().exclude(
+                pk__in=[1, 5, 6]).count() > 0):
+            context['first_job'] = request.user.groups.all().exclude(
+                pk__in=[1, 5, 6])[0]
+        context['list_selfsalemodule'] = []
+        for shop in Shop.objects.all().exclude(pk=1):
+            try:
+                module = SelfSaleModule.objects.get(shop=shop)
+                if module.state is True:
+                    context['list_selfsalemodule'].append(shop)
+            except ObjectDoesNotExist:
+                pass
     except IndexError:
         pass
     except ObjectDoesNotExist:
@@ -182,6 +194,18 @@ def handler404(request):
         group_name = request.path.split('/')[1]
         context['group'] = Group.objects.get(name=group_name)
         context['group_name'] = group_name
+        if (request.user.groups.all().exclude(
+                pk__in=[1, 5, 6]).count() > 0):
+            context['first_job'] = request.user.groups.all().exclude(
+                pk__in=[1, 5, 6])[0]
+        context['list_selfsalemodule'] = []
+        for shop in Shop.objects.all().exclude(pk=1):
+            try:
+                module = SelfSaleModule.objects.get(shop=shop)
+                if module.state is True:
+                    context['list_selfsalemodule'].append(shop)
+            except ObjectDoesNotExist:
+                pass
     except IndexError:
         pass
     except ObjectDoesNotExist:

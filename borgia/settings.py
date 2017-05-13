@@ -166,6 +166,7 @@ LOGIN_EXEMPT_URL_PATTERNS = [
     re.compile('^%s.+%s[\d]+%s$' % ('/jwt/invalidate/', '/', '.json')),
     re.compile('^%s$' % ('/jwt/new.json')),
     re.compile('^%s.+$' % ('/media/img/avatars/')),
+    re.compile('^%s.+$' % ('/static/media/img/'))
     ]
 
 STATIC_URL = '/static/'

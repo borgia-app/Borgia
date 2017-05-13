@@ -607,7 +607,7 @@ class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         try:
             self.shop_mod = Shop.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
-            raise PermissionDenied
+            raise Http404
         return super(ShopCheckup, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
