@@ -7,6 +7,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.forms.formsets import formset_factory
 from django.db.models import Q
+from django.core.exceptions import PermissionDenied
 
 from shops.models import *
 from shops.forms import *
@@ -585,6 +586,191 @@ class ShopUpdate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
             kwargs={'group_name': self.group.name}
         )
         return super(ShopUpdate, self).form_valid(form)
+
+
+class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
+                    GroupLateralMenuFormMixin):
+    """
+    You can see checkup of your group from shop only.
+    If you're not from a group from shop, you need the permission 'list_shop'
+    """
+    template_name = 'shops/shop_checkup.html'
+    perm_codename = None
+    lm_active = 'lm_shop_list'
+    form_class = ShopCheckupSearchForm
+
+    date_begin = None
+    date_end = None
+    products = None
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.shop_mod = Shop.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise PermissionDenied
+        return super(ShopCheckup, self).dispatch(request, *args, **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        if self.shop:
+            if self.shop != self.shop_mod:
+                raise PermissionDenied
+            self.lm_active = 'lm_shop_checkup'
+        else:
+            try:
+                p = Permission.objects.get(codename='list_shop')
+                if p not in self.group.permissions.all():
+                    raise PermissionDenied
+            except ObjectDoesNotExist:
+                raise Http404
+        return super(ShopCheckup, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+        if self.shop:
+            if self.shop != self.shop_mod:
+                raise Http404
+            self.lm_active = 'lm_shop_checkup'
+        else:
+            try:
+                p = Permission.objects.get(codename='list_shop')
+                if p not in self.group.permissions.all():
+                    raise PermissionDenied
+            except ObjectDoesNotExist:
+                raise Http404
+        return super(ShopCheckup, self).post(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(ShopCheckup, self).get_context_data(**kwargs)
+        context['stock'] = self.info_stock()
+        context['transaction'] = self.info_transaction()
+        context['info'] = self.info_checkup()
+        context['shop_mod'] = self.shop_mod
+        return context
+
+    def get_form_kwargs(self):
+        kwargs_form = super(ShopCheckup, self).get_form_kwargs()
+        kwargs_form['shop'] = self.shop_mod
+        return kwargs_form
+
+    def form_valid(self, form):
+        self.date_begin = form.cleaned_data['date_begin']
+        self.date_end = form.cleaned_data['date_end']
+        self.products = form.cleaned_data['products']
+        return self.get(self.request, self.args, self.kwargs)
+
+    def info_stock(self):
+        q_container = Container.objects.filter(product_base__shop=self.shop_mod, is_sold=False)
+        value_container = sum(c.price for c in q_container)
+        nb_container = q_container.count()
+        q_single_product = SingleProduct.objects.filter(product_base__shop=self.shop_mod, is_sold=False)
+        value_single_product = sum(sp.price for sp in q_single_product)
+        nb_single_product = q_single_product.count()
+        return {
+            'value': value_container + value_single_product,
+            'nb': nb_container + nb_single_product
+        }
+
+    def info_transaction(self):
+        # All
+        q_sales = Sale.objects.filter(
+            category='sale',
+            wording='Vente '+self.shop_mod.name
+        )
+        value = sum(s.amount for s in q_sales)
+        nb = q_sales.count()
+        try:
+            mean = round(value / nb, 2)
+        except ZeroDivisionError:
+            mean = 0
+        return {
+            'value': value,
+            'nb': nb,
+            'mean': mean
+        }
+
+    def info_checkup(self):
+        ## Buy
+        # Containers
+        q_buy_container = Container.objects.filter(product_base__shop=self.shop_mod)
+        if self.products:
+            q_buy_container = q_buy_container.filter(product_base__pk__in=[c.pk for c in self.products])
+        if self.date_begin:
+            q_buy_container = q_buy_container.filter(purchase_date__gte=self.date_begin)
+        if self.date_end:
+            q_buy_container = q_buy_container.filter(purchase_date__lte=self.date_end)
+
+
+        # Single products
+        q_buy_single_product = SingleProduct.objects.filter(product_base__shop=self.shop_mod)
+        if self.products:
+            q_buy_single_product = q_buy_single_product.filter(product_base__pk__in=[c.pk for c in self.products])
+        if self.date_begin:
+            q_buy_single_product = q_buy_single_product.filter(purchase_date__gte=self.date_begin)
+        if self.date_end:
+            q_buy_single_product = q_buy_single_product.filter(purchase_date__lte=self.date_end)
+
+        # Info
+        buy_value_container = sum(c.price for c in q_buy_container)
+        buy_nb_container = q_buy_container.count()
+        buy_value_single_product = sum(sp.price for sp in q_buy_single_product)
+        buy_nb_single_product = q_buy_single_product.count()
+
+
+        ## Sale
+        # From containers
+        q_sale_container = SingleProductFromContainer.objects.filter(
+            container__product_base__shop=self.shop_mod)
+        if self.products:
+            q_sale_container = q_sale_container.filter(
+                container__product_base__pk__in=[c.pk for c in self.products])
+        if self.date_begin:
+            q_sale_container = q_sale_container.filter(
+                sale__date__gte=self.date_begin)
+        if self.date_end:
+            q_sale_container = q_sale_container.filter(
+                sale__date__lte=self.date_end)
+
+        # Single products
+        q_sale_single_product = SingleProduct.objects.filter(product_base__shop=self.shop_mod, is_sold=True)
+        if self.products:
+            q_sale_single_product = q_sale_single_product.filter(product_base__pk__in=[c.pk for c in self.products])
+        if self.date_begin:
+            q_sale_single_product = q_sale_single_product.filter(sale__date__gte=self.date_begin)
+        if self.date_end:
+            q_sale_single_product = q_sale_single_product.filter(sale__date__lte=self.date_end)
+
+
+        # Info
+        sale_value_from_container = sum(spfc.sale_price for spfc in q_sale_container)
+        sale_nb_from_container = q_sale_container.count()
+        sale_value_single_product = sum(sp.sale_price for sp in q_sale_single_product)
+        sale_nb_single_product = q_sale_single_product.count()
+
+        return {
+            'buy': {
+                'container': {
+                    'value': buy_value_container,
+                    'nb': buy_nb_container
+                },
+                'single_product': {
+                    'value': buy_value_single_product,
+                    'nb': buy_nb_single_product
+                },
+                'value': buy_value_container + buy_value_single_product,
+                'nb': buy_nb_container + buy_nb_single_product
+            },
+            'sale': {
+                'container': {
+                    'value': sale_value_from_container,
+                    'nb': sale_nb_from_container
+                },
+                'single_product': {
+                    'value': sale_value_single_product,
+                    'nb': sale_nb_single_product
+                },
+                'value': sale_value_from_container + sale_value_single_product,
+                'nb': sale_nb_from_container + sale_nb_single_product
+            }
+        }
 
 
 class ShopContainerCases(GroupPermissionMixin, ShopFromGroupMixin, FormView,

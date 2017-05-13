@@ -225,6 +225,22 @@ def lateral_menu(user, group, active=None):
     except ValueError:
         pass
 
+    # Shop checkup
+    try:
+        shop = shop_from_group(group)
+        nav_tree.append(simple_lateral_link(
+            label='Bilan de santé',
+            faIcon='hospital-o',
+            id='lm_shop_checkup',
+            url=reverse(
+                'url_shop_checkup',
+                kwargs={'group_name': group.name,
+                        'pk': shop.pk})
+        ))
+
+    except ValueError:
+        pass
+
     if active is not None:
         for link in nav_tree:
             try:

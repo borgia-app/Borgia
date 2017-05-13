@@ -226,6 +226,29 @@ class ShopUpdateForm(forms.ModelForm):
         fields = ['description', 'color']
 
 
+class ShopCheckupSearchForm(forms.Form):
+    date_begin = forms.DateField(
+        label='Date de début',
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+        required=False)
+    date_end = forms.DateField(
+        label='Date de fin',
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+        required=False)
+
+    def __init__(self, **kwargs):
+        shop = kwargs.pop('shop')
+        super(ShopCheckupSearchForm, self).__init__(**kwargs)
+        self.fields['products'] = forms.ModelMultipleChoiceField(
+            label='Produits',
+            queryset=ProductBase.objects.filter(shop=shop),
+            widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
+                                               'data-live-search': 'True'}),
+            required=False)
+
+
 class ProductListForm(forms.Form):
     def __init__(self, **kwargs):
         shop = kwargs.pop('shop')

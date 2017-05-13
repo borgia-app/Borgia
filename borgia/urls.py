@@ -18,7 +18,7 @@ from users.views import *
 from shops.views import (
     ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
     ProductUpdate, ShopCreate, ShopList, ShopContainerCases, ShopUpdate,
-    ProductUpdatePrice, ProductStockRegularisation
+    ProductUpdatePrice, ProductStockRegularisation, ShopCheckup
     )
 from shops.models import ProductBase, ProductUnit
 from finances.views import *
@@ -213,6 +213,9 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/shops/(?P<pk>\d+)/update/$',
         ShopUpdate.as_view(),
         name='url_shop_update'),
+    url(r'^(?P<group_name>[\w-]+)/shops/(?P<pk>\d+)/checkup/$',
+        ShopCheckup.as_view(),
+        name='url_shop_checkup'),
 
     url(r'^(?P<group_name>[\w-]+)/self/transferts/create/$',
         SelfTransfertCreate.as_view(),

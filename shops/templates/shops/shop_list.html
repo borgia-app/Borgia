@@ -11,6 +11,7 @@
           <th>Description</th>
           <th>Couleur</th>
           <th>Modifier</th>
+          <th>Bilan</th>
       </tr>
       {% for shop in shop_list %}
       <tr>
@@ -18,6 +19,7 @@
           <td>{{ shop.description }}</td>
           <td style="background-color: {{ shop.color }}">{{ shop.color }}</td>
           <td><a href="{% url 'url_shop_update' group_name=group.name pk=shop.pk %}">Modifier</a></td>
+          <td><a href="{% url 'url_shop_checkup' group_name=group.name pk=shop.pk %}">Bilan</a></td>
       </tr>
       {% endfor %}
     </table>
