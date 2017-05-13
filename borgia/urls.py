@@ -18,7 +18,7 @@ from users.views import *
 from shops.views import (
     ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
     ProductUpdate, ShopCreate, ShopList, ShopContainerCases, ShopUpdate,
-    ProductUpdatePrice
+    ProductUpdatePrice, ProductStockRegularisation
     )
 from shops.models import ProductBase, ProductUnit
 from finances.views import *
@@ -102,6 +102,8 @@ urlpatterns = [
         ProductUpdate.as_view(), name='url_product_update'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/price/$',
         ProductUpdatePrice.as_view(), name='url_product_update_price'),
+    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/stock/$',
+        ProductStockRegularisation.as_view(), name='url_product_update_stock'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
         ProductDeactivate.as_view(), name='url_product_deactivate'),
 

@@ -38,6 +38,7 @@
         ["retrieve_product", "shops", "shop"],
         ["list_product", "shops", "shop"],
         ["change_price_product", "shops", "shop"],
+        ["change_stock_product", "shops", "shop"],
 
         ["add_setting", "settings_data", "setting"],
         ["change_setting", "settings_data", "setting"],
@@ -92,6 +93,7 @@
         ["retrieve_product", "shops", "shop"],
         ["list_product", "shops", "shop"],
         ["change_price_product", "shops", "shop"],
+        ["change_stock_product", "shops", "shop"],
 
         ["add_setting", "settings_data", "setting"],
         ["change_setting", "settings_data", "setting"],
@@ -146,6 +148,7 @@
         ["retrieve_product", "shops", "shop"],
         ["list_product", "shops", "shop"],
         ["change_price_product", "shops", "shop"],
+        ["change_stock_product", "shops", "shop"],
 
         ["add_setting", "settings_data", "setting"],
         ["change_setting", "settings_data", "setting"],
@@ -226,6 +229,7 @@
       "year": null,
       "campus": null,
       "phone": null,
+      "jwt_iat": "2016-02-15T13:32:56.781Z",
       "groups": [1],
       "user_permissions": []
     }

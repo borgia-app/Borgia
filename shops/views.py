@@ -364,6 +364,112 @@ class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
         return super(ProductUpdatePrice, self).form_valid(form)
 
 
+class ProductStockRegularisation(GroupPermissionMixin, ProductShopFromGroupMixin,
+                                 FormView, GroupLateralMenuFormMixin):
+    """
+    """
+    form_class = ProductStockRegularisationForm
+    template_name = 'shops/product_update_stock.html'
+    success_url = None
+    perm_codename = 'change_stock_product'
+
+    def get_context_data(self, **kwargs):
+        context = super(ProductStockRegularisation, self).get_context_data(**kwargs)
+        context['object'] = self.object
+        return context
+
+    def get_form_kwargs(self):
+        kwargs_form = super(ProductStockRegularisation, self).get_form_kwargs()
+        kwargs_form['product_base'] = self.object
+        return kwargs_form
+
+    def get_initial(self):
+        initial = super(ProductStockRegularisation, self).get_initial()
+        initial['number'] = 1
+        initial['type'] = 'out'
+        return initial
+
+    def get_success_url(self):
+        return reverse('url_product_retrieve',
+                       kwargs={'group_name': self.group.name,
+                               'pk': self.object.pk})
+
+    def form_valid(self, form):
+        # 'in' -> add products to stock, specify it's a regulation
+        # Inventory
+        if form.cleaned_data['type'] == 'in':
+            if self.object.get_moded_price() != 0:
+                price = self.object.get_moded_price()
+            else:
+                try:
+                    if self.object.type == 'container':
+                        price = Container.objects.filter(
+                            product_base=self.object
+                        )[0].price
+                    else:
+                        price = SingleProduct.objects.filter(
+                            product_base=self.object
+                        )[0].price
+                except KeyError:
+                    pass  # managed in the form !
+            justification_regularisation = 'add inventory'
+
+            for i in range(0, form.cleaned_data['number']):
+                if self.object.type == 'container':
+                    Container.objects.create(
+                        price=price,
+                        purchase_date=now(),
+                        place='stock',
+                        quantity_remaining=self.object.quantity,
+                        product_base=self.object,
+                        stock_regularisation=True,
+                        justification_regularisation=justification_regularisation
+                    )
+                else:
+                    SingleProduct.objects.create(
+                        price=price,
+                        purchase_date=now(),
+                        place='stock',
+                        product_base=self.object,
+                        stock_regularisation=True,
+                        justification_regularisation=justification_regularisation
+                    )
+
+        # 'out' -> remove products to stock, specify it's a regulation
+        else:
+            # Sell to someone
+            if form.cleaned_data['occasion'] == 'sell':
+                sell_price = form.cleaned_data['sell_price']
+                justification_regularisation = form.cleaned_data['justification']
+            # Inventory
+            else:
+                sell_price = self.object.get_moded_price()
+                justification_regularisation = 'remove inventory'
+
+            if self.object.type == 'container':
+                list = Container.objects.filter(
+                    product_base=self.object,
+                    is_sold=False
+                ).reverse()
+            else:
+                list = SingleProduct.objects.filter(
+                    product_base=self.object,
+                    is_sold=False
+                ).reverse()
+            for i in range(0, form.cleaned_data['number']):
+                try:
+                    c = list[i]
+                    c.sell_price=sell_price
+                    c.stock_regularisation=True
+                    c.justification_regularisation=justification_regularisation
+                    c.is_sold=True
+                    c.save()
+                except IndexError:
+                    pass
+
+        return super(ProductStockRegularisation, self).form_valid(form)
+
+
 class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     template_name = 'shops/shop_create.html'
     perm_codename = 'add_shop'

@@ -80,6 +80,7 @@
     <div class="panel panel-body">
     <form action= "" method="post">
         {% csrf_token %}
+        {{ form.non_field_errors }}
         {% for field in form %}
           {% if field == form.product_unit %}
           <div class="row" id="product_unit">

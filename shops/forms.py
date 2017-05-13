@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.models import ModelChoiceField
 
-from shops.models import (Shop, Container, ProductBase, ProductUnit)
+from shops.models import (Shop, Container, ProductBase, ProductUnit, SingleProduct)
 from modules.models import ContainerCase
 from borgia.validators import autocomplete_username_validator
 
@@ -98,6 +98,7 @@ class ProductBaseCreateForm(forms.Form):
         type = cleaned_data.get('type')
         product_unit = cleaned_data.get('product_unit')
         quantity = cleaned_data.get('quantity')
+        name = cleaned_data.get('name')
         if type == 'container':
             if product_unit is None:
                 raise forms.ValidationError(
@@ -106,6 +107,11 @@ class ProductBaseCreateForm(forms.Form):
             if quantity is None:
                 raise forms.ValidationError(
                     'Une quantité d\'unité de produit est exigée pour un conteneur'
+                )
+        else:
+            if name is None or name == '':
+                raise forms.ValidationError(
+                    """Un nom est obligatoire pour un produit unitaire"""
                 )
 
 
@@ -145,6 +151,67 @@ class ProductUpdatePriceForm(forms.Form):
                                       decimal_places=2,
                                       max_digits=9, min_value=0,
                                       required=False)
+
+
+class ProductStockRegularisationForm(forms.Form):
+    def __init__(self, **kwargs):
+        product_base = kwargs.pop('product_base')
+        self.product_base = product_base
+        super(ProductStockRegularisationForm, self).__init__(**kwargs)
+        self.fields['number'] = forms.IntegerField(
+            label='Nombre de régularisation(s)',
+            min_value=1
+            )
+        self.fields['type'] = forms.ChoiceField(
+            label='Type de régularisation',
+            choices=(('out', 'Sortie du stock'),
+                     ('in', 'Entrée au stock')))
+        self.fields['occasion'] = forms.ChoiceField(
+            label="""A l'occasion de""",
+            choices=(('sell', "Vente externe à l'association"),
+                     ('inventory', 'Inventaire du stock')),
+            required=False)
+        self.fields['sell_price'] = forms.DecimalField(
+                    label="""Prix de vente en €""",
+                    decimal_places=2, max_digits=9, min_value=0,
+                    required=False)
+        self.fields['justification'] = forms.CharField(max_length=255,
+                                                label='justification',
+                                                required=False)
+
+    def clean(self):
+        cleaned_data = super(ProductStockRegularisationForm, self).clean()
+        type = cleaned_data.get('type')
+        number = cleaned_data.get('number')
+        quantity = cleaned_data.get('quantity')
+        occasion = cleaned_data.get('occasion')
+        sell_price = cleaned_data.get('sell_price')
+        justification = cleaned_data.get('justification')
+        if type == 'out':
+            if number > self.product_base.quantity_products_stock():
+                raise forms.ValidationError(
+                    """Vous essayez de sortir plus de produits que le nombre en stock actuellement."""
+                )
+            if not sell_price and occasion == 'sell':
+                raise forms.ValidationError(
+                    """Le prix de vente est obligatoire."""
+                )
+            if not justification and occasion == 'sell':
+                raise forms.ValidationError(
+                    """La justification est obligatoire."""
+                )
+        else:
+            if self.product_base.get_moded_price() == 0:
+                if self.product_base.type == 'container':
+                    if Container.objects.filter(product_base=self.product_base).count() == 0:
+                        raise forms.ValidationError(
+                            """Il n'y a jamais eu de produits en vente de ce type, Borgia ne peut pas déterminer le prix de vente usuel."""
+                        )
+                else:
+                    if SingleProduct.objects.filter(product_base=self.product_base).count() == 0:
+                        raise forms.ValidationError(
+                            """Il n'y a jamais eu de produits en vente de ce type, Borgia ne peut pas déterminer le prix de vente usuel."""
+                        )
 
 
 class ShopCreateForm(forms.ModelForm):

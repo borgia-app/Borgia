@@ -4,18 +4,27 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     Détails du produit
+    <a class="btn btn-default btn-xs" href="{% url 'url_product_list' group_name=group.name %}">Liste</a>
   </div>
   <div class="panel-body">
     <ul>
       <li>Nom : {{ object.name }}</li>
       <li>Description : {{ object.description }}</li>
+      {% if object.product_unit %}
+        <li>Prix de vente actuel du conteneur de {{ object.quantity }} {{ object.product_unit.get_unit_display }} :
+          {% if object.get_moded_price != 0 %}{{ object.get_moded_price }}€{% else %}indéfini{% endif %}</li>
+        <li>Prix actuel pour {{ object.product_unit.usual_quantity }} {{ object.product_unit.get_unit_display }} :
+          {% if object.get_moded_usual_price != 0 %}{{ object.get_moded_usual_price }}€{% else %}indéfini{% endif %}</li>
+      {% else %}
       <li>Prix de vente actuel : {% if object.get_moded_price != 0 %}{{ object.get_moded_price }}€{% else %}indéfini{% endif %}</li>
+      {% endif %}
       <li>Marque : {{ object.brand }}</li>
       <li>Type : {{ object.get_type_display }}</li>
       <li>Magasin : {{ object.shop }}</li>
       {% if object.product_unit %}
       <li>Unité de produit : {{ object.product_unit }}</li>
       {% endif %}
+      <li>En stock : {{ object.quantity_products_stock }}</li>
     </ul>
   </div>
 </div>
@@ -26,6 +35,7 @@
   <div class="panel-body">
     {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update' group_name=group_name pk=object.pk %}">Modifier les informations</a></p>{% endif %}
     {% if group|has_group_perm:"change_price_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update_price' group_name=group_name pk=object.pk %}">Modifier le prix de vente</a></p> {% endif %}
+    {% if group|has_group_perm:"change_stock_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update_stock' group_name=group_name pk=object.pk %}">Régulariser le stock</a></p> {% endif %}
     <p><a class="btn btn-default" href="{% url 'url_product_deactivate' group_name=group_name pk=object.pk %}">
         {% if object.is_active == True %}
             Désactiver le produit

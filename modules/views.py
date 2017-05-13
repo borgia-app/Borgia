@@ -251,6 +251,7 @@ def sale_shop_module_resume(request, sale, group, shop, module, success_url):
         'module': module,
         'sale': sale,
         'delay': module.delay_post_purchase,
+        'group_name': group.name,
         'success_url': success_url
     }
     context['nav_tree'] = lateral_menu(

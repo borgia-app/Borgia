@@ -262,6 +262,7 @@ class Shop(models.Model):
             ('list_product', 'Lister les produits'),
             ('retrieve_product', 'Afficher les détails d\'un produit'),
             ('change_price_product', 'Changer le prix d\'un produit'),
+            ('change_stock_product', 'Régulariser le stock d\'un produit'),
         )
 
 
@@ -580,6 +581,11 @@ class SingleProduct(models.Model):
         on_delete=models.CASCADE)
     sale = models.ForeignKey('finances.Sale', null=True, blank=True,
                              on_delete=models.CASCADE)
+    stock_regularisation = models.BooleanField('Régularisation du stock',
+                                               default=False)
+    justification_regularisation = models.CharField('Justification régularisation',
+                                                    max_length=255, blank=True,
+                                                    null=True)
 
     def __str__(self):
         """
@@ -649,6 +655,11 @@ class Container(models.Model):
     product_base = models.ForeignKey('ProductBase',
                                      related_name='product_base_container',
                                      on_delete=models.CASCADE)
+    stock_regularisation = models.BooleanField('Régularisation du stock',
+                                               default=False)
+    justification_regularisation = models.CharField('Justification régularisation',
+                                                    max_length=255, blank=True,
+                                                    null=True)
 
     def __str__(self):
         """
