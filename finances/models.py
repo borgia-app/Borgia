@@ -529,7 +529,7 @@ class Payment(models.Model):
             if type == 'cheque':
                 return 'Chèque'
             if type == 'cash':
-                return 'Esèces'
+                return 'Espèces'
             if type == 'lydia_face2face':
                 return 'Lydia manuel'
             if type == 'lydia_auto':
