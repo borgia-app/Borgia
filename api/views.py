@@ -82,7 +82,7 @@ class AuthVerifyJWT(View):
                 'valid': True,
                 'user': userObject(User.objects.get(pk=pk))
             })
-        return JsonResponse(verifyJwt(token, pk))
+        return JsonResponse(verifyJwt(token))
 
 
 @method_decorator(csrf_exempt, name='dispatch')
