@@ -821,8 +821,7 @@ class Lydia(models.Model):
     amount = models.DecimalField('Montant', default=0, decimal_places=2,
                                  max_digits=9,
                                  validators=[MinValueValidator(Decimal(0))])
-    id_from_lydia = models.CharField('Numéro unique', max_length=255,
-                                     unique=True)
+    id_from_lydia = models.CharField('Numéro unique', max_length=255)
     sender = models.ForeignKey('users.User', related_name='lydia_sender',
     on_delete=models.CASCADE)
     recipient = models.ForeignKey('users.User', related_name='lydia_recipient',
