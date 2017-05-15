@@ -257,7 +257,7 @@
     "model": "shops.productbase",
     "pk": 1,
     "fields": {
-      "name": "fictional money",
+      "name": "Monnaie virtuelle",
       "description": "",
       "product_unit": 1,
       "brand": "AE ENSAM",
