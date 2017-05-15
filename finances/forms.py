@@ -216,8 +216,8 @@ class SelfLydiaCreateForm(forms.Form):
         min_value = kwargs.pop('min_value')
         max_value = kwargs.pop('max_value')
         super(SelfLydiaCreateForm, self).__init__(**kwargs)
-        self.fields['amount'] = forms.DecimalField(
-            label='Montant (€)', decimal_places=2, max_digits=9,
+        self.fields['amount'] = forms.IntegerField(
+            label='Montant (€)',
             min_value=min_value,
             max_value=max_value)
         self.fields['tel_number'] = forms.CharField(
