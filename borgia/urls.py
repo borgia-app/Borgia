@@ -36,6 +36,10 @@ handler404 = handler404
 handler500 = handler500
 
 urlpatterns = [
+    url(r'^self/lydias/callback/$',
+        self_lydia_callback,
+        name='url_self_lydia_callback'),
+
     # GraphQL endpoint
     url(r'^graphql', GraphQLJwtProtectedView.as_view(graphiql=True, schema=schema)),
     # JWT auth backend
@@ -242,9 +246,6 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/self/lydias/confirm/$',
         SelfLydiaConfirm.as_view(),
         name='url_self_lydia_confirm'),
-    url(r'^/self/lydias/callback/$',
-        self_lydia_callback,
-        name='url_self_lydia_callback'),
 
     url(r'^(?P<group_name>[\w-]+)/self/shared_events/$',
         SelfSharedEventList.as_view(),

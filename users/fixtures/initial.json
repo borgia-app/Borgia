@@ -246,7 +246,7 @@
     "model": "shops.productunit",
     "pk": 1,
     "fields": {
-      "name": "fictional money",
+      "name": "Monnaie virtuelle",
       "description": "",
       "unit": "CENT",
       "type": "fictional_money",

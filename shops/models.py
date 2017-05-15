@@ -727,7 +727,7 @@ class ProductUnit(models.Model):
     :type is_active: boolean
 
     """
-    UNIT_CHOICES = (('CL', 'cl'), ('G', 'g'), ('CENT', 'cent'))
+    UNIT_CHOICES = (('CL', 'cl'), ('G', 'g'), ('CENT', 'ct'))
     TYPE_CHOICES = (('keg', 'fût'), ('liquor', 'alcool fort'),
                     ('syrup', 'sirop'), ('soft', 'soft'),
                     ('food', 'alimentaire'), ('meat', 'viande'),
