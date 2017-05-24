@@ -1,6 +1,9 @@
-from django.http import HttpResponse
 import xlsxwriter
 import json
+
+from django.http import HttpResponse
+from django.core.exceptions import ObjectDoesNotExist
+from users.models import User
 
 
 def worksheet_write_line(workbook, worksheet, data, bold=False, init_column=0,
