@@ -253,7 +253,7 @@
   }
 
   function price_per_ponderation_txt () {
-    return Math.round(({{ price|unlocalize }} / total_ponderation_txt()) * 100) / 100
+    return {{ price|unlocalize }} / total_ponderation_txt()
   }
 
   function total_ponderation_input () {
@@ -266,14 +266,15 @@
   }
 
   function price_per_ponderation_input () {
-    return Math.round(({{ price|unlocalize }} / total_ponderation_input()) * 100) / 100
+    return {{ price|unlocalize }} / total_ponderation_input()
   }
 
   function set_prices_txt () {
     $("[id^='ponderation_']").each(function() {
       var id = $(this).attr('id').split('_')[1]
       var ponderation = Number($(this).text())
-      $("#price_" + id).text(Number(ponderation * price_per_ponderation_txt()) + '€')
+      var r_price = Math.round(Number(ponderation * price_per_ponderation_txt()*100))/100
+      $("#price_" + id).text(r_price + '€')
     })
   }
 
@@ -281,7 +282,8 @@
     $("[id^='ponderation_']").each(function() {
       var id = $(this).attr('id').split('_')[1]
       var ponderation = $(this).val()
-      $("#price_" + id).text(Number(ponderation * price_per_ponderation_input()) + '€')
+      var r_price = Math.round(Number(ponderation * price_per_ponderation_input()*100))/100
+      $("#price_" + id).text(r_price + '€')
     })
   }
 </script>
