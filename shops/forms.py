@@ -2,7 +2,6 @@ from django import forms
 from django.forms.models import ModelChoiceField
 
 from shops.models import (Shop, Container, ProductBase, ProductUnit, SingleProduct)
-from modules.models import ContainerCase
 from borgia.validators import autocomplete_username_validator
 
 
@@ -268,56 +267,3 @@ class ProductListForm(forms.Form):
             choices=(('container', 'Conteneur'),
                      ('single_product', 'Produit unitaire')),
             required=False)
-
-
-class ShopContainerCaseForm(forms.Form):
-    name = forms.CharField(
-        label='Nom',
-        max_length=254
-    )
-    pk = forms.IntegerField(
-        label='Pk',
-        widget=forms.HiddenInput(),
-        required=False
-    )
-    percentage = forms.FloatField(
-        label='percentage',
-        widget=forms.HiddenInput(),
-        required=False
-    )
-
-    def __init__(self, *args, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ShopContainerCaseForm, self).__init__(*args, **kwargs)
-        q = ProductBase.objects.filter(shop=shop, type='container')
-        q_ids = [o.id for o in q if (o.quantity_products_stock() != 0)]
-        q = q.filter(id__in=q_ids)
-        self.fields['base_container'] = ModelChoiceFieldContainerWithQuantity(
-            label='Conteneur',
-            queryset=q,
-            widget=forms.Select(attrs={'class': 'selectpicker',
-                                       'data-live-search': 'True'}),
-            required=False)
-        self.fields['is_sold'] = forms.BooleanField(
-            label='Le fût changé était vide ?',
-            initial=False,
-            required=False)
-
-
-class ModelChoiceFieldContainerWithQuantity(ModelChoiceField):
-    """
-    """
-
-    def label_from_instance(self, obj):
-        # Count stock
-        list_container = Container.objects.filter(
-            product_base=obj, is_sold=False)
-        # Remove container at container_cases
-        in_container_cases = 0
-        for container_case in ContainerCase.objects.all():
-            if container_case.product:
-                if (container_case.product.product_base == obj):
-                    in_container_cases += 1
-        # Remove quantity at container_cases
-        quantity_in_stock = list_container.count() - in_container_cases
-        return obj.__str__() + ' (' + str(quantity_in_stock) + ')'

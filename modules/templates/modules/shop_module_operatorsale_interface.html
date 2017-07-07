@@ -70,13 +70,6 @@
         </div>
         <div class="panel-body">
           <ul class="nav nav-tabs" role="tablist" id="tablist">
-            {% if form|containerCasesFieldsCount != 0 %}
-            <li role="presentation">
-              <a href="#container_cases" aria-controls="home" role="tab" data-toggle="tab">
-                Emplacements
-              </a>
-            </li>
-            {% endif %}
             {% for category in categories %}
             <li role="presentation">
               <a href="#{{ category.pk }}" aria-controls="home" role="tab" data-toggle="tab">
@@ -86,34 +79,6 @@
             {% endfor %}
           </ul>
           <div class="tab-content" id="tab-content">
-            {% if form|containerCasesFieldsCount != 0 %}
-            <div role="tabpanel" class="tab-pane" id="container_cases">
-              <table class="table table-default table-striped table-hover">
-                <thead>
-                  <th></th>
-                  <th>Emplacement</th>
-                  <th>Produit</th>
-                  <th>Commande</th>
-                  <th>Prix unitaire</th>
-                  <th>Sous total</th>
-                </thead>
-                <tbody>
-                  {% for field in form %}
-                    {% if field.field.widget.attrs.data_category_pk == 'container_cases' %}
-                    <tr>
-                      <td class="F"></td>
-                      <td>{{ field.field.widget.attrs.data_container_case_name }}</td>
-                      <td>{{ field.errors }}{{ field.label_tag }}</td>
-                      <td>{{ field }}</td>
-                      <td>{{ field.field.widget.attrs.data_usual_price|unlocalize }}€</td>
-                      <td><span id="total_{{ field.field.widget.attrs.pk }}">0.00</span>€</td>
-                    </tr>
-                    {% endif %}
-                  {% endfor %}
-                </tbody>
-              </table>
-            </div>
-            {% endif %}
             {% for category in categories %}
             <div role="tabpanel" class="tab-pane" id="{{ category.pk }}">
               <table class="table table-default table-striped table-hover">
@@ -158,122 +123,117 @@
   }
 </style>
 <script>
-  $("input[id^='id_']").change(function() {
-    var pk = $(this).attr('pk')
-    var usual_price = $(this).attr('data_usual_price')
-    $("#total_"+pk).text((Number(usual_price) * $(this).val()).toFixed(2))
-    total()
-  })
-  function total () {
-    var total = 0
-    $("#invoice").empty()
-    $("input[id^='id_']").each(function() {
-      var pk = $(this).attr('pk')
-      var product = $("label[for='"+$(this).attr('id')+"']").text().substring(0, $("label[for='"+$(this).attr('id')+"']").text().length-1)
-      total += Number($("#total_"+pk).text())
-      if ($(this).val() > 0) {
-        $("#invoice").append(
-          "<li>" + product + " x" + $(this).val() + "</li>"
-        )
-      }
-    })
-    $("#total").text(total.toFixed(2))
-    $("#result").text((Number($("#initial").text()) - total.toFixed(2)).toFixed(2))
-    if (Number($("#result").text()) < 0) {
-      $("#result_line").attr("class", "col-md-4 bg-danger")
-    } else if (Number($("#result").text()) > 0) {
-      $("#result_line").attr("class", "col-md-4 bg-success")
-    } else {
-      $("#result_line").attr("class", 'col-md-4')
-    }
-  }
-
-  // First iteration (in case of form errors)
+$("input[id^='id_']").change(function() {
+  var pk = $(this).attr('pk')
+  var usual_price = $(this).attr('data_usual_price')
+  $('#total_' + pk).text((Number(usual_price) * $(this).val()).toFixed(2))
+  total()
+})
+function total() {
+  var total = 0
+  $('#invoice').empty()
   $("input[id^='id_']").each(function() {
-    $(this).trigger('change')
-  })
-  // Trigger change does not work here ... (???)
-  $("#id_client").val($("#id_client").val())
-  if ($("#id_client").val() != '') {
-    $("#initial").text(Number($("#id_client").val().split('/')[1]))
-  }
-
-  $("div[role='tabpanel']").first().attr('class', 'tab-pane active')
-  $("li[role='presentation']").first().attr('class', 'active')
-
-  $("#id_client").change(function() {
-    if ($(this).val() == '') {
-      $("#initial").text(Number(0.00))
-    } else {
-      $("#initial").text(Number($(this).val().split('/')[1]))
+    var pk = $(this).attr('pk')
+    var product = $("label[for='" + $(this).attr('id') + "']")
+      .text()
+      .substring(
+        0,
+        $("label[for='" + $(this).attr('id') + "']").text().length - 1
+      )
+    total += Number($('#total_' + pk).text())
+    if ($(this).val() > 0) {
+      $('#invoice').append('<li>' + product + ' x' + $(this).val() + '</li>')
     }
-    total()
   })
+  $('#total').text(total.toFixed(2))
+  $('#result').text(
+    (Number($('#initial').text()) - total.toFixed(2)).toFixed(2)
+  )
+  if (Number($('#result').text()) < 0) {
+    $('#result_line').attr('class', 'col-md-4 bg-danger')
+  } else if (Number($('#result').text()) > 0) {
+    $('#result_line').attr('class', 'col-md-4 bg-success')
+  } else {
+    $('#result_line').attr('class', 'col-md-4')
+  }
+}
+
+// First iteration (in case of form errors)
+$("input[id^='id_']").each(function() {
+  $(this).trigger('change')
+})
+// Trigger change does not work here ... (???)
+$('#id_client').val($('#id_client').val())
+if ($('#id_client').val() != '') {
+  $('#initial').text(Number($('#id_client').val().split('/')[1]))
+}
+
+$("div[role='tabpanel']").first().attr('class', 'tab-pane active')
+$("li[role='presentation']").first().attr('class', 'active')
+
+$('#id_client').change(function() {
+  if ($(this).val() == '') {
+    $('#initial').text(Number(0.0))
+  } else {
+    $('#initial').text(Number($(this).val().split('/')[1]))
+  }
+  total()
+})
 </script>
 <script>
-  // Navigation script
-  $(document).keydown(function(e) {
-    // Right arrow
-    if (e.which == 39) {
-      moveTab('next')
-    }
+// Navigation script
+$(document).keydown(function(e) {
+  // Right arrow
+  if (e.which == 39) {
+    moveTab('next')
+  }
 
-    // Left arrow
-    if (e.which == 37) {
-      moveTab('previous')
-    }
+  // Left arrow
+  if (e.which == 37) {
+    moveTab('previous')
+  }
 
-    // Enter (numeric included)
-    if (e.which == 13) {
-      $("#sale_form").submit()
+  // Enter (numeric included)
+  if (e.which == 13) {
+    $('#sale_form').submit()
+  }
+})
+
+function moveTab(nextOrPrev) {
+  var currentTab = ''
+  var currentPane = ''
+  $('.nav-tabs li').each(function() {
+    if ($(this).hasClass('active')) {
+      currentTab = $(this)
+    }
+  })
+  $('.tab-content div').each(function() {
+    if ($(this).hasClass('active')) {
+      currentPane = $(this)
     }
   })
 
-  function moveTab(nextOrPrev) {
-    var currentTab = ""
-    var currentPane = ""
-    $('.nav-tabs li').each(function () {
-      if ($(this).hasClass('active')) {
-        currentTab = $(this)
-      }
-    })
-    $('.tab-content div').each(function () {
-      if ($(this).hasClass('active')) {
-        currentPane = $(this)
-      }
-    })
-
-   if (nextOrPrev == "next") {
-      if (currentTab.next().length)
-      {
-         currentTab.removeClass('active')
-         currentTab.next().addClass('active')
-         currentPane.removeClass('active')
-         currentPane.next().addClass('active')
-      }
-    } else {
-      if (currentTab.prev().length)
-      {
-        currentTab.removeClass('active')
-        currentTab.prev().addClass('active')
-        currentPane.removeClass('active')
-        currentPane.prev().addClass('active')
-      }
+  if (nextOrPrev == 'next') {
+    if (currentTab.next().length) {
+      currentTab.removeClass('active')
+      currentTab.next().addClass('active')
+      currentPane.removeClass('active')
+      currentPane.next().addClass('active')
+    }
+  } else {
+    if (currentTab.prev().length) {
+      currentTab.removeClass('active')
+      currentTab.prev().addClass('active')
+      currentPane.removeClass('active')
+      currentPane.prev().addClass('active')
     }
   }
+}
 </script>
 <script>
   // Navigation script
 
   // Ajout des informations de touches
-  {% if form|containerCasesFieldsCount != 0 %}
-  $("#container_cases :input").each(function(index) {
-    var td = $(this).closest('tr').find('.F')
-    if ((index + 1) <= 12) {
-      $(td).text("F" + (index + 1))
-    }
-  })
-  {% endif %}
   {% for category in categories %}
     $("#{{ category.pk }} :input").each(function(index) {
       var td = $(this).closest('tr').find('.F')

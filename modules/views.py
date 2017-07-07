@@ -8,7 +8,7 @@ from django.forms.formsets import formset_factory
 from django.core.exceptions import ObjectDoesNotExist
 
 from modules.forms import (OperatorSaleShopModule, SelfSaleShopModule,
-                           ModuleCategoryForm, ModuleContainerCaseForm,
+                           ModuleCategoryForm,
                            ShopModuleConfigForm)
 from modules.models import OperatorSaleModule, SelfSaleModule, Category
 from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
@@ -16,7 +16,7 @@ from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           GroupLateralMenuMixin, shop_from_group,
                           lateral_menu)
 from shops.models import (ProductBase, SingleProduct, Container,
-                          SingleProductFromContainer, ContainerCase, Shop)
+                          SingleProductFromContainer, Shop)
 from finances.models import sale_sale
 from users.models import User
 
@@ -70,11 +70,7 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
                 invoice = form.cleaned_data[field]
                 if invoice != 0 and isinstance(invoice, int):
                     product_pk = field.split('-')[0]
-                    if 'container_cases' in field:
-                        element = ContainerCase.objects.get(
-                            pk=product_pk).product
-                    else:
-                        element = ProductBase.objects.get(pk=product_pk)
+                    element = ProductBase.objects.get(pk=product_pk)
                     products += self.get_products_with_strategy(
                         element, invoice)
 
@@ -96,8 +92,7 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
 
         This method takes the right product in the queryset of products from
         the product base. In order to choose the product used (sold for a
-        single product or consume for a container), the method check if the
-        product is directly a container (from a ContainerCase), then you
+        single product or consume for a container), then you
         consumme this container or a productbase and select the right.
 
         Concerning single products:
@@ -107,9 +102,6 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
         Concerning containers:
             Bought products are consumed from the container the first in the
             queryset, but not in a container place.
-
-        Concerning containers from places:
-            Bought products are consumed from this container.
 
         :param element: product the client want,
         mandatory.
@@ -393,19 +385,12 @@ class ShopModuleCategories(GroupPermissionMixin, ShopFromGroupMixin,
         categories_data = [{'name': c.name, 'products': c.product_bases.all(),
                             'pk': c.pk} for c in self.module.categories.all()]
         context['cat_form'] = self.form_class(initial=categories_data)
-        context['places_form'] = wraps(ModuleContainerCaseForm)(
-            partial(ModuleContainerCaseForm, shop=self.shop))(
-            initial={'container_cases': self.module.container_cases.all()})
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
         cat_form = self.form_class(request.POST)
-        places_form = wraps(ModuleContainerCaseForm)(
-            partial(ModuleContainerCaseForm, shop=self.shop))(request.POST)
         if cat_form.is_valid():
             self.cat_form_valid(cat_form)
-        if places_form.is_valid():
-            self.places_form_valid(places_form)
 
         return redirect(self.get_success_url())
 
@@ -437,15 +422,6 @@ class ShopModuleCategories(GroupPermissionMixin, ShopFromGroupMixin,
                 category.save()
             except KeyError:
                 pass
-
-    def places_form_valid(self, form):
-        self.module.container_cases.clear()
-        print(form.cleaned_data)
-        print(form.cleaned_data['container_cases'])
-        for container_case in form.cleaned_data['container_cases']:
-            self.module.container_cases.add(container_case)
-        self.module.save()
-        print(self.module.container_cases.all())
 
     def get_success_url(self):
         if self.kwargs['module_class'] == SelfSaleModule:

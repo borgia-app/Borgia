@@ -162,20 +162,6 @@ def lateral_menu(user, group, active=None):
     else:
         pass
 
-    # containercase of shop
-    try:
-        shop = shop_from_group(group)
-        nav_tree.append(simple_lateral_link(
-            label='Emplacements de vente',
-            faIcon='star-half-o',
-            id='lm_containercases',
-            url=reverse(
-                'url_shop_containercases',
-                kwargs={'group_name': group.name}
-            )
-        ))
-    except ValueError:
-        pass
     # module of shop
     try:
         shop = shop_from_group(group)
@@ -802,7 +788,6 @@ def human_unused_permissions():
         'payment',
         'session',
         'container',
-        'containercase',
         'productbase',
         'productunit',
         'singleproduct',

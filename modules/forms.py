@@ -2,7 +2,6 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator
 
-from modules.models import ContainerCase
 from shops.models import ProductBase
 from users.models import User
 from django.db.utils import OperationalError, ProgrammingError
@@ -74,15 +73,9 @@ class SelfSaleShopModule(forms.Form):
                 invoice = cleaned_data[field]
                 if invoice != 0 and isinstance(invoice, int):
                     product_pk = field.split('-')[0]
-                    if 'container_cases' in field:
-                        total_price += (
-                            ContainerCase.objects.get(
-                                pk=product_pk).product.product_base.get_moded_usual_price()
-                            * invoice)
-                    else:
-                        total_price += (
-                            ProductBase.objects.get(pk=product_pk).get_moded_usual_price()
-                            * invoice)
+                    total_price += (
+                        ProductBase.objects.get(pk=product_pk).get_moded_usual_price()
+                        * invoice)
         if total_price > self.client.balance:
             raise forms.ValidationError('Crédit insuffisant !')
         if self.module.limit_purchase:
@@ -152,15 +145,3 @@ class ShopModuleConfigForm(forms.Form):
                                               validators=[
                                                 MinValueValidator(0, 'La durée doit être positive')],
                                             required=False)
-
-
-class ModuleContainerCaseForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ModuleContainerCaseForm, self).__init__(*args, **kwargs)
-        self.fields['container_cases'] = forms.ModelMultipleChoiceField(
-            label='Emplacements de vente',
-            queryset=ContainerCase.objects.filter(shop=shop),
-            widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
-                                               'data-live-search': 'True'}),
-            required=False)

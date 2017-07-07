@@ -7,8 +7,6 @@ from django.contrib.contenttypes.fields import (
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 
-from shops.models import ContainerCase
-
 
 class Category(models.Model):
     """
@@ -58,7 +56,6 @@ class ShopModule(Module):
         Category,
         content_type_field='content_type',
         object_id_field='module_id')
-    container_cases = models.ManyToManyField(ContainerCase)
     delay_post_purchase = models.IntegerField("Durée d'affichage du résumé de commande",
                                               validators=[
                                                 MinValueValidator(Decimal(0))],

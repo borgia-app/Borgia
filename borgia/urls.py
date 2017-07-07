@@ -17,16 +17,13 @@ from django.conf.urls.static import static
 from users.views import *
 from shops.views import (
     ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
-    ProductUpdate, ShopCreate, ShopList, ShopContainerCases, ShopUpdate,
+    ProductUpdate, ShopCreate, ShopList, ShopUpdate,
     ProductUpdatePrice, ProductStockRegularisation, ShopCheckup
     )
 from shops.models import ProductBase, ProductUnit
 from finances.views import *
 from modules.views import *
 from notifications.views import *
-from borgia.arduinoRequests import (
-    ArduinoConnect, ArduinoCheckUser, ArduinoCheckVolumeAvailable, ArduinoPurchase
-    )
 from api.Schema.main import schema
 from graphene_django.views import GraphQLView
 from api.views import AuthGenerateJWT, AuthVerifyJWT, AuthInvalidateJWT, GraphQLJwtProtectedView
@@ -110,9 +107,6 @@ urlpatterns = [
         ProductStockRegularisation.as_view(), name='url_product_update_stock'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
         ProductDeactivate.as_view(), name='url_product_deactivate'),
-
-    url(r'^(?P<group_name>[\w-]+)/container_cases/$',
-        ShopContainerCases.as_view(), name='url_shop_containercases'),
 
     url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/bank_accounts/create/$',
         UserBankAccountCreate.as_view(), name='url_user_bankaccount_create'),
@@ -327,14 +321,6 @@ urlpatterns = [
 
     url(r'^admin/', admin.site.urls),
     url(r'^local/jsi18n$', jsi18n_catalog),
-
-    # SANDBOX for Arduino
-    ## Theses elements are not enought common and cannot be reused in another
-    ## association. However they will be used at ENSAM Metz, be careful.
-    url(r'^arduino/connect/$', ArduinoConnect.as_view()),
-    url(r'^arduino/checkuser/$', ArduinoCheckUser.as_view()),
-    url(r'^arduino/checkvolumeavailable/$', ArduinoCheckVolumeAvailable.as_view()),
-    url(r'^arduino/purchase/$', ArduinoPurchase.as_view()),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # Cette ligne permet d'utiliser le dossier MEDIA en

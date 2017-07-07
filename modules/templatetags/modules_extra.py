@@ -30,24 +30,3 @@ def get(dictionnary, key):
     :type key: string
     """
     return dictionnary[key]
-
-@register.filter
-def containerCasesFieldsCount(form):
-    """
-    Return the number of fields related to a container case in the form.
-
-    This method is used to know if there is or not container cases active for
-    the shop in self sale module or operator sale module interfaces.
-
-    :param form: the form to be displayed, mandatory.
-    :type form: Django Form
-    :rtype: integer
-    """
-    count = 0
-    for field in form:
-        try:
-            if field.field.widget.attrs['data_category_pk'] == 'container_cases':
-                count += 1
-        except KeyError:
-            pass
-    return count

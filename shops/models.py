@@ -234,13 +234,6 @@ class Shop(models.Model):
                     )
         return list_product_base_container
 
-    def container_pk_in_container_cases(self):
-        list = []
-        for container_case in ContainerCase.objects.filter(shop=self):
-            if container_case.product:
-                list.append(container_case.product.pk)
-        return list
-
     class Meta:
         """
         Define Permissions for Shop.
@@ -829,15 +822,3 @@ class SingleProductFromContainer(models.Model):
                 + str(self.quantity)
                 + ' '
                 + self.container.product_base.product_unit.get_unit_display())
-
-
-class ContainerCase(models.Model):
-    """
-    """
-    name = models.CharField('Nom', max_length=254)
-    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
-    product = models.ForeignKey(
-        Container, on_delete=models.CASCADE, blank=True, null=True)
-
-    def __str__(self):
-        return self.name
