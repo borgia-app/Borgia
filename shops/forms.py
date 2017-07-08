@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.models import ModelChoiceField
 
-from shops.models import (Shop, Container, ProductBase, ProductUnit, SingleProduct)
+from shops.models import Shop, Product
 from borgia.validators import autocomplete_username_validator
 
 
@@ -9,138 +9,39 @@ class ProductCreateForm(forms.Form):
     def __init__(self, **kwargs):
         shop = kwargs.pop('shop')
         super(ProductCreateForm, self).__init__(**kwargs)
-        if shop:
-            self.fields['product_base'] = forms.ModelChoiceField(
-                label='Base produit', queryset=ProductBase.objects.filter(
-                    shop=shop, is_active=True).exclude(pk=1).order_by('name'),
-                widget=forms.Select(
-                    attrs={'class': 'selectpicker form-control',
-                           'data-live-search': 'True'}))
-        else:
-            self.fields['product_base'] = forms.ModelChoiceField(
-                label='Base produit', queryset=ProductBase.objects.filter(
-                    is_active=True).exclude(pk=1).order_by('name'),
-                widget=forms.Select(
-                    attrs={'class': 'selectpicker form-control',
-                           'data-live-search': 'True'}))
-        self.fields['quantity'] = forms.IntegerField(
-            label="""Quantité à ajouter (de Fût, en KG, ou de bouteille). Attention, dans le cas de viande ou de fromage, la quantité correspond au poids (en gr) du produit acheté, exemple: un morceau de Brie de 1500 gr.""",
-            min_value=0, max_value=5000)
-        self.fields['price'] = forms.DecimalField(
-            label="""Prix d'achat TTC (par Fût, KG, bouteille). Attention, dans le cas de viande ou de fromage, le prix de vente est le prix du morceau total dont le poids est entré plus haut, exemple: 120€ pour un morceau de Brie de 1500gr.""",
-            decimal_places=2, max_digits=9, min_value=0)
-        self.fields['purchase_date'] = forms.DateField(
-            label='Date d\'achat',
-            widget=forms.DateInput(attrs={'class': 'datepicker'}))
-        self.fields['expiry_date'] = forms.DateField(
-            label='Date d\'expiration', required=False,
-            widget=forms.DateInput(attrs={'class': 'datepicker'}))
-        self.fields['place'] = forms.CharField(max_length=255,
-                                               label='Lieu de stockage')
 
-
-class ProductBaseCreateForm(forms.Form):
-    def __init__(self, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ProductBaseCreateForm, self).__init__(**kwargs)
-
-        if shop:
-            self.fields['type'] = forms.ChoiceField(
-                label='Type de produit',
-                choices=(('container', 'Conteneur'),
-                         ('single_product', 'Produit unitaire'))
-            )
-            self.fields['product_unit'] = forms.ModelChoiceField(
-                label='Unité de produit',
-                queryset=ProductUnit.objects.filter(
-                    shop=shop, is_active=True).exclude(pk=1),
-                required=False,
-                widget=forms.Select(
-                    attrs={'class': 'selectpicker form-control',
-                           'data-live-search': 'true'})
-            )
-        else:
-            self.fields['shop'] = forms.ModelChoiceField(
-                label='Magasin',
-                queryset=Shop.objects.all().exclude(pk=1)
-            )
-            self.fields['type'] = forms.ChoiceField(
-                label='Type de produit',
-                choices=(('container', 'Conteneur'),
-                         ('single_product', 'Produit unitaire'))
-            )
-            self.fields['product_unit'] = forms.ModelChoiceField(
-                label='Unité de produit',
-                queryset=ProductUnit.objects.filter(
-                    is_active=True).exclude(pk=1),
-                required=False,
-                widget=forms.Select(
-                    attrs={'class': 'selectpicker form-control',
-                           'data-live-search': 'true'})
-            )
-        self.fields['quantity'] = forms.IntegerField(
-            label='Quantité de produit unitaire (g, cl ...). Attention, dans le cas de viande ou de fromage, la quantité doit toujours être 1000.',
-            min_value=0,
-            required=False
+        self.fields['shop'] = forms.ModelChoiceField(
+            label='Magasin',
+            queryset=Shop.objects.all().exclude(pk=1)
         )
         self.fields['name'] = forms.CharField(
             label='Nom',
-            max_length=254,
-            required=False
+            max_length=254
         )
-        self.fields['brand'] = forms.CharField(max_length=255,
-                                               label='Marque')
+        self.fields['on_quantity'] = forms.BooleanField(
+            label='Produit vendu à la quantité',
+            required=False)
+        self.fields['unit'] = forms.ChoiceField(
+            label='Unité de calcul',
+            choices=(('CL', 'cl'), ('G', 'g')),
+            required=False)
 
 
     def clean(self):
         cleaned_data = super(ProductBaseCreateForm, self).clean()
-        type = cleaned_data.get('type')
-        product_unit = cleaned_data.get('product_unit')
-        quantity = cleaned_data.get('quantity')
-        name = cleaned_data.get('name')
-        if type == 'container':
-            if product_unit is None:
+        on_quantity = cleaned_data.get('on_quantity')
+        unit = cleaned_data.get('unit')
+        if on_quantity:
+            if unit is None:
                 raise forms.ValidationError(
-                    'Une unité de produit est exigée pour un conteneur'
+                    'Une unité de vente est nécessaire pour un produit en vente à la quantité'
                 )
-            if quantity is None:
-                raise forms.ValidationError(
-                    'Une quantité d\'unité de produit est exigée pour un conteneur'
-                )
-        else:
-            if name is None or name == '':
-                raise forms.ValidationError(
-                    """Un nom est obligatoire pour un produit unitaire"""
-                )
-
-
-class ProductUnitCreateForm(forms.Form):
-    def __init__(self, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ProductUnitCreateForm, self).__init__(**kwargs)
-        self.fields['name'] = forms.CharField(max_length=255,
-                                              label='Nom')
-        self.fields['unit'] = forms.ChoiceField(
-            label='Unité de calcul',
-            choices=(('CL', 'cl'), ('G', 'g')))
-        self.fields['type'] = forms.ChoiceField(
-            label='Catégorie de produit',
-            choices=(('keg', 'fût'), ('liquor', 'alcool fort'),
-                     ('syrup', 'sirop'), ('soft', 'soft'),
-                     ('food', 'alimentaire'), ('meat', 'viande'),
-                     ('cheese', 'fromage'), ('side', 'accompagnement')))
-        if shop is None:
-            self.fields['shop'] = forms.ModelChoiceField(
-                label='Magasin',
-                queryset=Shop.objects.all().exclude(pk=1)
-            )
 
 
 class ProductUpdateForm(forms.ModelForm):
     class Meta:
-        model = ProductBase
-        fields = ['name', 'description', 'brand', 'type', 'quantity',
-                  'product_unit']
+        model = Product
+        fields = ['name']
 
 
 class ProductUpdatePriceForm(forms.Form):
@@ -152,65 +53,20 @@ class ProductUpdatePriceForm(forms.Form):
                                       required=False)
 
 
-class ProductStockRegularisationForm(forms.Form):
+class ProductListForm(forms.Form):
     def __init__(self, **kwargs):
-        product_base = kwargs.pop('product_base')
-        self.product_base = product_base
-        super(ProductStockRegularisationForm, self).__init__(**kwargs)
-        self.fields['number'] = forms.IntegerField(
-            label='Nombre de régularisation(s)',
-            min_value=1
+        shop = kwargs.pop('shop')
+        super(ProductListForm, self).__init__(**kwargs)
+        if shop is None:
+            self.fields['shop'] = forms.ModelChoiceField(
+                label='Magasin',
+                queryset=Shop.objects.all().exclude(pk=1),
+                required=False
             )
-        self.fields['type'] = forms.ChoiceField(
-            label='Type de régularisation',
-            choices=(('out', 'Sortie du stock'),
-                     ('in', 'Entrée au stock')))
-        self.fields['occasion'] = forms.ChoiceField(
-            label="""A l'occasion de""",
-            choices=(('sell', "Vente externe à l'association"),
-                     ('inventory', 'Inventaire du stock')),
+        self.fields['search'] = forms.CharField(
+            label='Recherche',
+            max_length=255,
             required=False)
-        self.fields['sell_price'] = forms.DecimalField(
-                    label="""Prix de vente en €""",
-                    decimal_places=2, max_digits=9, min_value=0,
-                    required=False)
-        self.fields['justification'] = forms.CharField(max_length=255,
-                                                label='justification',
-                                                required=False)
-
-    def clean(self):
-        cleaned_data = super(ProductStockRegularisationForm, self).clean()
-        type = cleaned_data.get('type')
-        number = cleaned_data.get('number')
-        quantity = cleaned_data.get('quantity')
-        occasion = cleaned_data.get('occasion')
-        sell_price = cleaned_data.get('sell_price')
-        justification = cleaned_data.get('justification')
-        if type == 'out':
-            if number > self.product_base.quantity_products_stock():
-                raise forms.ValidationError(
-                    """Vous essayez de sortir plus de produits que le nombre en stock actuellement."""
-                )
-            if not sell_price and occasion == 'sell':
-                raise forms.ValidationError(
-                    """Le prix de vente est obligatoire."""
-                )
-            if not justification and occasion == 'sell':
-                raise forms.ValidationError(
-                    """La justification est obligatoire."""
-                )
-        else:
-            if self.product_base.get_moded_price() == 0:
-                if self.product_base.type == 'container':
-                    if Container.objects.filter(product_base=self.product_base).count() == 0:
-                        raise forms.ValidationError(
-                            """Il n'y a jamais eu de produits en vente de ce type, Borgia ne peut pas déterminer le prix de vente usuel."""
-                        )
-                else:
-                    if SingleProduct.objects.filter(product_base=self.product_base).count() == 0:
-                        raise forms.ValidationError(
-                            """Il n'y a jamais eu de produits en vente de ce type, Borgia ne peut pas déterminer le prix de vente usuel."""
-                        )
 
 
 class ShopCreateForm(forms.ModelForm):
@@ -245,25 +101,4 @@ class ShopCheckupSearchForm(forms.Form):
             queryset=ProductBase.objects.filter(shop=shop),
             widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
                                                'data-live-search': 'True'}),
-            required=False)
-
-
-class ProductListForm(forms.Form):
-    def __init__(self, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ProductListForm, self).__init__(**kwargs)
-        if shop is None:
-            self.fields['shop'] = forms.ModelChoiceField(
-                label='Magasin',
-                queryset=Shop.objects.all().exclude(pk=1),
-                required=False
-            )
-        self.fields['search'] = forms.CharField(
-            label='Recherche',
-            max_length=255,
-            required=False)
-        self.fields['type'] = forms.ChoiceField(
-            label='Type de produit',
-            choices=(('container', 'Conteneur'),
-                     ('single_product', 'Produit unitaire')),
             required=False)

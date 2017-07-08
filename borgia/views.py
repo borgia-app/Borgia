@@ -13,7 +13,7 @@ from django.core.exceptions import ObjectDoesNotExist
 
 from borgia.utils import *
 from finances.models import Sale, SharedEvent
-from shops.models import SingleProduct, Container
+from shops.models import Product
 from borgia.forms import LoginForm
 
 
@@ -552,6 +552,7 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
         return mlist
 
 
+# TODO: infos
 class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
                          GroupLateralMenuMixin):
     perm_codename = None
@@ -569,58 +570,25 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
 
     def get_sales(self, request):
         sales = {}
-        list = Sale.objects.filter(wording='Vente '+self.shop.name).order_by(
-            '-date')
-        sales['weeks'] = self.weeklist(
-            datetime.now() - timedelta(days=365),
-            datetime.now())
-        sales['data_weeks'] = self.sale_data_weeks(list, sales['weeks'])[0]
-        sales['total'] = self.sale_data_weeks(list, sales['weeks'])[1]
-        sales['all'] = list[:7]
+
         return sales
 
     def get_purchases(self, request):
         purchases = {}
-        list_single_products = SingleProduct.objects.filter(
-            product_base__shop=self.shop)
-        list_containers = Container.objects.filter(
-            product_base__shop=self.shop)
-        purchases['weeks'] = self.weeklist(
-            datetime.now() - timedelta(days=365),
-            datetime.now())
-        purchases['data_weeks'] = self.purchase_data_weeks(
-            list_single_products, list_containers, purchases['weeks'])[0]
-        purchases['total'] = self.purchase_data_weeks(
-            list_single_products, list_containers, purchases['weeks'])[1]
+
         return purchases
 
     def purchase_data_weeks(self, list_single_products, list_containers,
                             weeks):
         amounts = [0 for i in range(0, len(weeks))]
         total = 0
-        for object in list_single_products:
-            string = (str(object.purchase_date.isocalendar()[1])
-                      + '-' + str(object.purchase_date.year))
-            if string in weeks:
-                amounts[weeks.index(string)] += object.price
-            total += object.price
-        for object in list_containers:
-            string = (str(object.purchase_date.isocalendar()[1])
-                      + '-' + str(object.purchase_date.year))
-            if string in weeks:
-                amounts[weeks.index(string)] += object.price
-            total += object.price
+
         return amounts, total
 
     def sale_data_weeks(self, list, weeks):
         amounts = [0 for i in range(0, len(weeks))]
         total = 0
-        for object in list:
-            string = (str(object.date.isocalendar()[1])
-                      + '-' + str(object.date.year))
-            if string in weeks:
-                amounts[weeks.index(string)] += object.amount
-            total += object.amount
+
         return amounts, total
 
     def weeklist(self, start, end):

@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator
 
-from shops.models import ProductBase
+from shops.models import Product
 from users.models import User
 from django.db.utils import OperationalError, ProgrammingError
 
@@ -12,28 +12,6 @@ class SelfSaleShopModule(forms.Form):
         self.module = kwargs.pop('module')
         self.client = kwargs.pop('client')
         super(SelfSaleShopModule, self).__init__(*args, **kwargs)
-
-        for container_case in self.module.container_cases.all().exclude(product__isnull=True):
-            self.fields[(
-                str(container_case.pk)
-                + '-'
-                + 'container_cases')] = forms.IntegerField(
-                label=container_case.product.product_base.sale_name(),
-                widget=forms.NumberInput(
-                    attrs={'data_category_pk': 'container_cases',
-                           'data_container_case_name': container_case.name,
-                           'data_usual_price': container_case.product.product_base.get_moded_usual_price(),
-                           'class': 'form-control',
-                           'pk': (
-                               str(container_case.product.pk)
-                               + '-'
-                               + str(container_case.pk)
-                               + '-cc')}),
-                initial=0,
-                required=False,
-                validators=[MinValueValidator(0, """La commande doit être
-                                              positive ou nulle""")]
-            )
 
         for category in self.module.categories.all():
             for product in category.product_bases.all():

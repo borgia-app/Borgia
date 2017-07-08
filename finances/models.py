@@ -11,8 +11,7 @@ from django.contrib.contenttypes.fields import (
     )
 from django.contrib.contenttypes.models import ContentType
 
-from shops.models import (SingleProduct, SingleProductFromContainer, Container,
-                          Shop)
+from shops.models import Shop, Product
 
 from notifications.models import notify
 
@@ -89,7 +88,7 @@ class Sale(models.Model):
 
 class SaleProduct(models.Model):
     sale = models.ForeignKey('Sale', on_delete=models.CASCADE)
-    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
 
 

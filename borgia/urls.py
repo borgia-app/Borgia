@@ -18,9 +18,9 @@ from users.views import *
 from shops.views import (
     ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
     ProductUpdate, ShopCreate, ShopList, ShopUpdate,
-    ProductUpdatePrice, ProductStockRegularisation, ShopCheckup
+    ProductUpdatePrice, ShopCheckup
     )
-from shops.models import ProductBase, ProductUnit
+from shops.models import Product
 from finances.views import *
 from modules.views import *
 from notifications.views import *
@@ -91,20 +91,12 @@ urlpatterns = [
         ProductList.as_view(), name='url_product_list'),
     url(r'^(?P<group_name>[\w-]+)/products/create/$',
         ProductCreate.as_view(), name='url_product_create'),
-    url(r'^(?P<group_name>[\w-]+)/products/product_bases/create/$',
-        ProductCreate.as_view(), name='url_productbase_create',
-        kwargs={'product_class': ProductBase}),
-    url(r'^(?P<group_name>[\w-]+)/products/product_bases/product_units/create/$',
-        ProductCreate.as_view(), name='url_productunit_create',
-        kwargs={'product_class': ProductUnit}),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/$',
         ProductRetrieve.as_view(), name='url_product_retrieve'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/$',
         ProductUpdate.as_view(), name='url_product_update'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/price/$',
         ProductUpdatePrice.as_view(), name='url_product_update_price'),
-    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/stock/$',
-        ProductStockRegularisation.as_view(), name='url_product_update_stock'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
         ProductDeactivate.as_view(), name='url_product_deactivate'),
 

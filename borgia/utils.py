@@ -7,7 +7,7 @@ from django.urls import NoReverseMatch
 from django.contrib.auth.models import Group, Permission
 from users.models import User
 from notifications.models import Notification, NotificationTemplate, NotificationGroup
-from shops.models import ProductBase, Shop
+from shops.models import Product, Shop
 from modules.models import *
 from finances.models import SharedEvent
 
@@ -579,7 +579,7 @@ class ProductShopFromGroupMixin(object):
         except ValueError:
             self.shop = None
         try:
-            self.object = ProductBase.objects.get(pk=self.kwargs['pk'])
+            self.object = Product.objects.get(pk=self.kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
         if self.shop:

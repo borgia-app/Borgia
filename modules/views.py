@@ -15,8 +15,7 @@ from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           ShopFromGroupMixin, ShopModuleMixin,
                           GroupLateralMenuMixin, shop_from_group,
                           lateral_menu)
-from shops.models import (ProductBase, SingleProduct, Container,
-                          SingleProductFromContainer, Shop)
+from shops.models import Shop, Product
 from finances.models import Sale
 from users.models import User
 
@@ -88,98 +87,6 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
 
         return sale_shop_module_resume(self.request, sale, self.group,
                                        self.shop, self.module, self.success_url)
-
-    def get_products_with_strategy(self, element, invoice):
-        """
-        Return a list of real products (single products or products from
-        container) knowing what the client want and how many
-        product he want.
-
-        This method takes the right product in the queryset of products from
-        the product base. In order to choose the product used (sold for a
-        single product or consume for a container), then you
-        consumme this container or a productbase and select the right.
-
-        Concerning single products:
-            Bought products are the firsts in the queryset.
-
-
-        Concerning containers:
-            Bought products are consumed from the container the first in the
-            queryset, but not in a container place.
-
-        :param element: product the client want,
-        mandatory.
-        :aram invoice: number of products the client want, mandatory.
-        :type element: ProductBase instance or Container instance
-        :type invoice: strictly positiv integer
-        """
-        products = []
-
-        if isinstance(element, Container):
-            product = SingleProductFromContainer.objects.create(
-                container=element,
-                quantity=(element.product_base.product_unit.usual_quantity()
-                          * invoice),
-                sale_price=(element.product_base.get_moded_usual_price()
-                            * invoice)
-            )
-            products.append(product)
-
-        elif isinstance(element, ProductBase):
-            product_base = element
-
-            if (product_base.type == 'single_product'):
-                current_price = product_base.get_moded_usual_price()  # A least one ...
-                for i in range(0, invoice):
-                    try:
-                        product = SingleProduct.objects.filter(
-                            product_base=product_base,
-                            is_sold=False)[i]
-                        product.is_sold = True
-                        product.sale_price = product_base.get_moded_usual_price()
-                        product.save()
-                        products.append(product)
-                    except IndexError:
-                        products.append(
-                            SingleProduct.objects.create(
-                                product_base=product_base,
-                                is_sold=True,
-                                sale_price=current_price,
-                                price=current_price,
-                                purchase_date=now(),
-                                place='vente directe pour régulation'
-                            )
-                        )
-
-            if (product_base.type == 'container'):
-                try:
-                    container = Container.objects.filter(
-                        product_base=product_base,
-                        is_sold=False).exclude(
-                            pk__in=self.module.shop.container_pk_in_container_cases()
-                            )[0]
-
-                    product = SingleProductFromContainer.objects.create(
-                        container=container,
-                        quantity=(product_base.product_unit.usual_quantity()
-                                  * invoice),
-                        sale_price=(product_base.get_moded_usual_price()
-                                    * invoice)
-                    )
-                    products.append(product)
-
-                    if container.estimated_quantity_remaining()[0] <= 0:
-                        container.is_sold = True
-                        container.save()
-                except IndexError:
-                    pass
-
-        else:
-            pass
-
-        return products
-
 
 class SelfSaleShopModuleInterface(SaleShopModuleInterface):
     """

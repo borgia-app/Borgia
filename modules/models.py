@@ -22,7 +22,13 @@ class Category(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     module_id = models.PositiveIntegerField()
     module = GenericForeignKey('content_type', 'module_id')
-    product_bases = models.ManyToManyField('shops.ProductBase')
+    products = models.ManyToManyField('shops.Product', through='CategoryProduct')
+
+
+class CategoryProduct(models.Model):
+    category = models.ForeignKey('Category', on_delete=models.CASCADE)
+    product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
 
 
 class Module(models.Model):
@@ -67,13 +73,6 @@ class ShopModule(Module):
                                          blank=True, null=True)
     logout_post_purchase = models.BooleanField('Deconnexion après une vente',
                                                default=False)
-
-    def container_pk_in_container_cases(self):
-        list = []
-        for container_case in self.container_cases.all():
-            if container_case.product:
-                list.append(container_case.product.pk)
-        return list
 
 
 class SelfSaleModule(ShopModule):
