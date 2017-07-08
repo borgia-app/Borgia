@@ -348,15 +348,11 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         seen = set(sales_tab_header)
         page = self.request.POST.get('page', 1)
 
+        # TODO: error here with reverse generic relation
         try:
-            context['sale_list'] = Sale.objects.filter(
-                category='sale',
-                wording='Vente '+self.shop.name
-            ).order_by('-date')
+            context['sale_list'] = Sale.objects.filter(module__shop=self.shop).order_by('-datetime')
         except AttributeError:
-            context['sale_list'] = Sale.objects.filter(
-                category='sale'
-            ).order_by('-date')
+            context['sale_list'] = Sale.objects.all().order_by('-datetime')
 
         # The sale_list is paginated by passing the filtered QuerySet to Paginator
         paginator = Paginator(self.form_query(context['sale_list']), 50)
@@ -379,8 +375,6 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
         context['sales_tab_header'] = sales_tab_header
 
-
-
         return context
 
     def form_query(self, query):
@@ -402,16 +396,14 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
         if self.date_begin:
             query = query.filter(
-                date__gte=self.date_begin)
+                datetime__gte=self.date_begin)
 
         if self.date_end:
             query = query.filter(
-                date__lte=self.date_end)
+                datetime__lte=self.date_end)
 
         if self.query_shop:
-            query = query.filter(
-                wording='Vente '+self.query_shop.name
-            )
+            query = query.filter(module__shop=self.query_shop)
 
         return query
 
@@ -512,9 +504,7 @@ class RechargingList(GroupPermissionMixin, FormView,
     def get_context_data(self, **kwargs):
         context = super(RechargingList, self).get_context_data(**kwargs)
 
-        context['recharging_list'] = Sale.objects.filter(
-            category='recharging'
-        ).order_by('-date')
+        context['recharging_list'] = Recharging.objects.all().order_by('-datetime')
 
         context['recharging_list'] = self.form_query(
             context['recharging_list'])[:100]
@@ -528,6 +518,7 @@ class RechargingList(GroupPermissionMixin, FormView,
         initial['date_end'] = self.date_end
         return initial
 
+    # TODO: info
     def info(self, query):
         info = {
             'cash': {
@@ -542,12 +533,12 @@ class RechargingList(GroupPermissionMixin, FormView,
             'lydia_face2face': {
                 'total': 0,
                 'nb': 0,
-                'ids': Lydia.objects.none()
+                'ids': LydiaFaceToFace.objects.none()
             },
             'lydia_auto': {
                 'total': 0,
                 'nb': 0,
-                'ids': Lydia.objects.none()
+                'ids': LydiaOnline.objects.none()
             },
             'total': {
                 'total': 0,
@@ -555,30 +546,6 @@ class RechargingList(GroupPermissionMixin, FormView,
             }
         }
 
-        for r in query:
-            type = r.payment.unique_payment_type()
-            if type:
-                if type == 'cheque':
-                    info['cheque']['total'] += r.amount
-                    info['cheque']['nb'] += 1
-                    info['cheque']['ids'] |= r.payment.list_cheque()[0]
-                if type == 'cash':
-                    info['cash']['total'] += r.amount
-                    info['cash']['nb'] += 1
-                if type == 'lydia_face2face':
-                    info['lydia_face2face']['total'] += r.amount
-                    info['lydia_face2face']['nb'] += 1
-                    info['lydia_face2face']['ids'] |= r.payment.list_lydia()[0]
-                if type == 'lydia_auto':
-                    info['lydia_auto']['total'] += r.amount
-                    info['lydia_auto']['nb'] += 1
-                    info['lydia_auto']['ids'] |= r.payment.list_lydia()[0]
-        info['total']['total'] = (
-            info['cheque']['total'] + info['cash']['total'] + info['lydia_face2face']['total'] + info['lydia_auto']['total']
-        )
-        info['total']['nb'] = (
-            info['cheque']['nb'] + info['cash']['nb'] + info['lydia_face2face']['nb'] + info['lydia_auto']['nb']
-        )
         return info
 
     def form_query(self, query):
@@ -587,9 +554,6 @@ class RechargingList(GroupPermissionMixin, FormView,
                 Q(operator__last_name__contains=self.search)
                 | Q(operator__first_name__contains=self.search)
                 | Q(operator__surname__contains=self.search)
-                | Q(recipient__last_name__contains=self.search)
-                | Q(recipient__first_name__contains=self.search)
-                | Q(recipient__surname__contains=self.search)
                 | Q(sender__last_name__contains=self.search)
                 | Q(sender__first_name__contains=self.search)
                 | Q(sender__surname__contains=self.search)
@@ -597,11 +561,11 @@ class RechargingList(GroupPermissionMixin, FormView,
 
         if self.date_begin:
             query = query.filter(
-                date__gte=self.date_begin)
+                datetime__gte=self.date_begin)
 
         if self.date_end:
             query = query.filter(
-                date__lte=self.date_end)
+                datetime__lte=self.date_end)
 
         if self.operators:
             query = query.filter(operator__in=self.operators)
@@ -647,11 +611,8 @@ class RechargingRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.object = Sale.objects.get(pk=kwargs['pk'])
+            self.object = Recharging.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
-            raise Http404
-
-        if self.object.category != 'recharging':
             raise Http404
 
         return super(RechargingRetrieve, self).dispatch(request, *args,
@@ -690,9 +651,7 @@ class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     def get_context_data(self, **kwargs):
         context = super(TransfertList, self).get_context_data(**kwargs)
 
-        context['transfert_list'] = Sale.objects.filter(
-            category='transfert'
-        ).order_by('-date')
+        context['transfert_list'] = Transfert.objects.all().order_by('-datetime')
 
         context['transfert_list'] = self.form_query(
             context['transfert_list'])[:100]
@@ -702,9 +661,6 @@ class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     def form_query(self, query):
         if self.search:
             query = query.filter(
-                Q(operator__last_name__contains=self.search)
-                | Q(operator__first_name__contains=self.search)
-                | Q(operator__surname__contains=self.search)
                 | Q(recipient__last_name__contains=self.search)
                 | Q(recipient__first_name__contains=self.search)
                 | Q(recipient__surname__contains=self.search)
@@ -715,11 +671,11 @@ class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
         if self.date_begin:
             query = query.filter(
-                date__gte=self.date_begin)
+                datetime__gte=self.date_begin)
 
         if self.date_end:
             query = query.filter(
-                date__lte=self.date_end)
+                datetime__lte=self.date_end)
 
         return query
 
@@ -759,11 +715,8 @@ class TransfertRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.object = Sale.objects.get(pk=kwargs['pk'])
+            self.object = Transfert.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
-            raise Http404
-
-        if self.object.category != 'transfert':
             raise Http404
 
         return super(TransfertRetrieve, self).dispatch(request, *args,
@@ -828,9 +781,7 @@ class ExceptionnalMovementList(GroupPermissionMixin, FormView,
         context = super(ExceptionnalMovementList, self).get_context_data(
             **kwargs)
 
-        context['exceptionnalmovement_list'] = Sale.objects.filter(
-            category='exceptionnal_movement'
-        ).order_by('-date')
+        context['exceptionnalmovement_list'] = ExceptionnalMovement.objects.all().order_by('-datetim')
 
         context['exceptionnalmovement_list'] = self.form_query(
             context['exceptionnalmovement_list'])[:100]
@@ -846,18 +797,15 @@ class ExceptionnalMovementList(GroupPermissionMixin, FormView,
                 | Q(recipient__last_name__contains=self.search)
                 | Q(recipient__first_name__contains=self.search)
                 | Q(recipient__surname__contains=self.search)
-                | Q(sender__last_name__contains=self.search)
-                | Q(sender__first_name__contains=self.search)
-                | Q(sender__surname__contains=self.search)
             )
 
         if self.date_begin:
             query = query.filter(
-                date__gte=self.date_begin)
+                datetime__gte=self.date_begin)
 
         if self.date_end:
             query = query.filter(
-                date__lte=self.date_end)
+                datetime__lte=self.date_end)
 
         return query
 
@@ -902,9 +850,6 @@ class ExceptionnalMovementRetrieve(GroupPermissionMixin, View,
         except ObjectDoesNotExist:
             raise Http404
 
-        if self.object.category != 'exceptionnal_movement':
-            raise Http404
-
         return super(ExceptionnalMovementRetrieve, self).dispatch(
             request, *args, **kwargs)
 
@@ -939,22 +884,8 @@ class SelfTransactionList(GroupPermissionMixin, FormView,
             self.request.user.list_transaction())[:100]
         return context
 
+    # TODO: form to be used
     def form_query(self, query):
-        if self.search:
-            query = query.filter(
-                Q(wording__icontains=self.search)
-                | Q(category__icontains=self.search)
-                | Q(justification__icontains=self.search)
-            )
-
-        if self.date_begin:
-            query = query.filter(
-                date__gte=self.date_begin-timedelta(days=1))
-
-        if self.date_end:
-            query = query.filter(
-                date__lte=self.date_end+timedelta(days=1))
-
         return query
 
     def form_valid(self, form):

@@ -62,6 +62,11 @@ class ShopModule(Module):
         Category,
         content_type_field='content_type',
         object_id_field='module_id')
+    sales = GenericRelation(
+        'finances.Sale',
+        content_type_field='content_type',
+        object_id_field='module_id',
+        related_query_name='module')
     delay_post_purchase = models.IntegerField("Durée d'affichage du résumé de commande",
                                               validators=[
                                                 MinValueValidator(Decimal(0))],
