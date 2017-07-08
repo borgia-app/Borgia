@@ -69,19 +69,29 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
     form_class = ProductCreateForm
 
     def form_valid(self, form):
-        Product.objects.create(
-            name=form.cleaned_data['name'],
-            shop=self.shop,
-            unit=form.cleaned_data['unit']
-        )
+        print(form.cleaned_data['on_quantity'])
+        if self.shop:
+            shop = self.shop
+        else:
+            shop=form.cleaned_data['shop']
+        if form.cleaned_data['on_quantity']:
+            Product.objects.create(
+                name=form.cleaned_data['name'],
+                shop=shop,
+                unit=form.cleaned_data['unit']
+            )
+        else:
+            Product.objects.create(
+                name=form.cleaned_data['name'],
+                shop=self.shop
+            )
         return redirect(reverse('url_product_list',
                         kwargs={'group_name': self.group.name}))
 
     def get_initial(self):
         initial = super(ProductCreate, self).get_initial()
-        if self.product_class is None:
-            initial['purchase_date'] = now
-            initial['on_quantity'] = False
+        initial['purchase_date'] = now
+        initial['on_quantity'] = False
         return initial
 
     def get_context_data(self, **kwargs):

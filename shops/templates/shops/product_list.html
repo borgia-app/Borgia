@@ -35,7 +35,7 @@
           {% for product in product_list %}
           <tr>
               <td>{{ product }}</td>
-              <td>{{ product.get_type_display }}</td>
+              <td>{{ product.get_display_type }}</td>
               <td>{{ product.quantity_products_stock }}</td>
               <td>{% if product.is_active %}Activé{% else %}Désactivé{% endif %}</td>
               {% if group|has_group_perm:"retrieve_product" %}<td>

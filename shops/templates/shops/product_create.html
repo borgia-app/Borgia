@@ -18,5 +18,16 @@
     </form>
     </div>
 </div>
-
+<script>
+$('#id_on_quantity').change(function() {
+  if ($(this).is(':checked')) {
+    $('#id_unit').show()
+    $("label[for='id_unit']").show()
+  } else {
+    $('#id_unit').hide()
+    $("label[for='id_unit']").hide()
+  }
+})
+$('#id_on_quantity').trigger('change')
+</script>
 {% endblock %}

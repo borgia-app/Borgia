@@ -9,11 +9,11 @@ class ProductCreateForm(forms.Form):
     def __init__(self, **kwargs):
         shop = kwargs.pop('shop')
         super(ProductCreateForm, self).__init__(**kwargs)
-
-        self.fields['shop'] = forms.ModelChoiceField(
-            label='Magasin',
-            queryset=Shop.objects.all().exclude(pk=1)
-        )
+        if shop is None:
+            self.fields['shop'] = forms.ModelChoiceField(
+                label='Magasin',
+                queryset=Shop.objects.all().exclude(pk=1)
+            )
         self.fields['name'] = forms.CharField(
             label='Nom',
             max_length=254
@@ -22,13 +22,13 @@ class ProductCreateForm(forms.Form):
             label='Produit vendu à la quantité',
             required=False)
         self.fields['unit'] = forms.ChoiceField(
-            label='Unité de calcul',
+            label='Unité de vente',
             choices=(('CL', 'cl'), ('G', 'g')),
             required=False)
 
 
     def clean(self):
-        cleaned_data = super(ProductBaseCreateForm, self).clean()
+        cleaned_data = super(ProductCreateForm, self).clean()
         on_quantity = cleaned_data.get('on_quantity')
         unit = cleaned_data.get('unit')
         if on_quantity:

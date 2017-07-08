@@ -9,22 +9,10 @@
   <div class="panel-body">
     <ul>
       <li>Nom : {{ object.name }}</li>
-      <li>Description : {{ object.description }}</li>
-      {% if object.product_unit %}
-        <li>Prix de vente actuel du conteneur de {{ object.quantity }} {{ object.product_unit.get_unit_display }} :
-          {% if object.get_moded_price != 0 %}{{ object.get_moded_price }}€{% else %}indéfini{% endif %}</li>
-        <li>Prix actuel pour {{ object.product_unit.usual_quantity }} {{ object.product_unit.get_unit_display }} :
-          {% if object.get_moded_usual_price != 0 %}{{ object.get_moded_usual_price }}€{% else %}indéfini{% endif %}</li>
-      {% else %}
-      <li>Prix de vente actuel : {% if object.get_moded_price != 0 %}{{ object.get_moded_price }}€{% else %}indéfini{% endif %}</li>
-      {% endif %}
-      <li>Marque : {{ object.brand }}</li>
-      <li>Type : {{ object.get_type_display }}</li>
+      <li>Prix de vente actuel : </li>
+      <li>Type : {{ object.get_display_type }}</li>
       <li>Magasin : {{ object.shop }}</li>
-      {% if object.product_unit %}
-      <li>Unité de produit : {{ object.product_unit }}</li>
-      {% endif %}
-      <li>En stock : {{ object.quantity_products_stock }}</li>
+      <li>En stock : </li>
     </ul>
   </div>
 </div>

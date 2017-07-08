@@ -79,5 +79,14 @@ class Product(models.Model):
         related_name='%(app_label)s_%(class)s_shop',
         on_delete=models.CASCADE)
     is_active = models.BooleanField('Actif', default=True)
-    unit = models.CharField('Unité', max_length=255, choices=UNIT_CHOICES,
-                            default=UNIT_CHOICES[0][0])
+    unit = models.CharField('Unité', max_length=255, choices=UNIT_CHOICES, blank=True, null=True)
+
+    def __str__(self):
+        return self.name
+
+    def get_display_type(self):
+        print(self.unit)
+        if self.unit is not None:
+            return 'Vente au ' + self.get_unit_display()
+        else:
+            return 'Vente à l\'unité'
