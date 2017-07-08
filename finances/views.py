@@ -1080,7 +1080,7 @@ class UserSupplyMoney(GroupPermissionMixin, UserMixin, FormView,
         recharging = Recharging.objects.create(
             sender=sender,
             operator=operator,
-            payment_solution=payment.payment_solution
+            payment_solution=payment
         )
         recharging.pay()
 

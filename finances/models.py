@@ -42,6 +42,9 @@ class Sale(models.Model):
         """
         return 'Achat n°' + str(self.pk)
 
+    def wording(self):
+        return 'Achat ' + self.module.name + ', ' + self.string_products()
+
     def string_products(self):
         """
         Return a formated string concerning all products in this Sale.
@@ -108,6 +111,12 @@ class Recharging(models.Model):
     on_delete=models.CASCADE)
     payment_solution = models.ForeignKey('PaymentSolution', on_delete=models.CASCADE)
 
+    def wording(self):
+        return 'Rechargement'
+
+    def amount(self):
+        return self.payment_solution.amount
+
     def pay(self):
         self.sender.credit(self.payment_solution.amount)
 
@@ -159,7 +168,7 @@ class Cheque(PaymentSolution):
         )
 
 
-class BankAccount(PaymentSolution):
+class BankAccount(models.Model):
     """
     Define a bank account owned by an User.
 
@@ -285,6 +294,10 @@ class Transfert(models.Model):
                                  max_digits=9,
                                  validators=[MinValueValidator(Decimal(0))])
 
+    def wording(self):
+        return 'Transfert de ' + self.sender + ', ' + self.justification
+
+
     def pay(self):
         self.sender.debit(self.amount)
         self.recipient.credit(self.amount)
@@ -301,6 +314,9 @@ class ExceptionnalMovement(models.Model):
                                  max_digits=9,
                                  validators=[MinValueValidator(Decimal(0))])
     is_credit = models.BooleanField(default=False)
+
+    def wording(self):
+        return 'Mouvement exceptionnel: ' + self.justification
 
     def pay(self):
         if self.is_credit:

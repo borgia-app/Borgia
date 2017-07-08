@@ -29,51 +29,18 @@
           <thead>
             <tr>
               <th>Date</th>
-              <th>Type</th>
-              <th>Objets</th>
+              <th>Libellé</th>
               <th>Montant</th>
             </tr>
           </thead>
           <tbody>
             {% for transaction in transaction_list %}
-            {% price_for sale=transaction user=user as price_for %}
             <tr class="{% if price_for > 0 %}success{% else %}danger{% endif %}">
               <td>{{ transaction.date|date:"d/m/Y H:i:s" }}</td>
               <td>
-                {% if transaction.category == 'transfert' %}
-                  Transfert {% if transaction.sender == user %}vers {{ transaction.recipient }}{% else %}de {{ transaction.sender}}{% endif %}
-                {% elif transaction.category == 'exceptionnal_movement' %}
-                  Mouvement exceptionnel
-                {% elif transaction.category == 'recharging' %}
-                  Rechargement
-                {% elif transaction.category == 'sale' %}
-                  {{ transaction.wording }}
-                {% elif transaction.category == 'shared_event' %}
-                  Evènement
-                {% else %}
-                  {{ transaction.wording }}
-                {% endif %}
+                {{ transaction.wording }}
               </td>
-              <td>
-                {% if transaction.category == 'transfert' %}
-                  {{ transaction.justification }}
-                {% elif transaction.category == 'exceptionnal_movement' %}
-                  {{ transaction.justification }}
-                {% elif transaction.category == 'recharging' %}
-                  {% if transaction.wording == 'Rechargement automatique' %}
-                  Avec Lydia
-                  {% else %}
-                  En manuel
-                  {% endif %}
-                {% elif transaction.category == 'sale' %}
-                  {{ transaction.string_products }}
-                {% elif transaction.category == 'shared_event' %}
-                  {{ transaction.wording }}
-                {% else %}
-                  {{ transaction.wording }}
-                {% endif %}
-              </td>
-              <td>{{ price_for }}€</td>
+              <td>{{ transaction.amount }}€</td>
             </tr>
             {% endfor %}
           </tbody>
