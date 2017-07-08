@@ -85,8 +85,34 @@ class Product(models.Model):
         return self.name
 
     def get_display_type(self):
-        print(self.unit)
         if self.unit is not None:
             return 'Vente au ' + self.get_unit_display()
         else:
             return 'Vente à l\'unité'
+
+    def get_automatic_price(self):
+        return Decimal(0)
+
+    def get_price(self):
+        if self.is_manual:
+            return self.manual_price
+        else:
+            return self.get_automatic_price()
+
+    def get_display_price(self):
+        if self.unit:
+            return str(self.get_price()) + '€ / ' + self.upper_quantity()
+        else:
+            return str(self.get_price()) + '€ / produit'
+
+    def get_display_price_with_strategy(self):
+        if self.is_manual:
+            return self.get_display_price() + ' (manuel)'
+        else:
+            return self.get_display_price() + ' (automatique)'
+
+    def upper_quantity(self):
+        if self.unit == 'G':
+            return 'kg'
+        elif self.unit == 'CL':
+            return 'l'
