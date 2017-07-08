@@ -348,9 +348,8 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         seen = set(sales_tab_header)
         page = self.request.POST.get('page', 1)
 
-        # TODO: error here with reverse generic relation
         try:
-            context['sale_list'] = Sale.objects.filter(module__shop=self.shop).order_by('-datetime')
+            context['sale_list'] = Sale.objects.filter(shop=self.shop).order_by('-datetime')
         except AttributeError:
             context['sale_list'] = Sale.objects.all().order_by('-datetime')
 
@@ -403,7 +402,7 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 datetime__lte=self.date_end)
 
         if self.query_shop:
-            query = query.filter(module__shop=self.query_shop)
+            query = query.filter(shop=self.query_shop)
 
         return query
 
@@ -518,7 +517,6 @@ class RechargingList(GroupPermissionMixin, FormView,
         initial['date_end'] = self.date_end
         return initial
 
-    # TODO: info
     def info(self, query):
         info = {
             'cash': {
@@ -535,7 +533,7 @@ class RechargingList(GroupPermissionMixin, FormView,
                 'nb': 0,
                 'ids': LydiaFaceToFace.objects.none()
             },
-            'lydia_auto': {
+            'lydia_online': {
                 'total': 0,
                 'nb': 0,
                 'ids': LydiaOnline.objects.none()
@@ -546,6 +544,25 @@ class RechargingList(GroupPermissionMixin, FormView,
             }
         }
 
+        for r in query:
+            if r.payment_solution.get_type() == 'cash':
+                info['cash']['total'] += r.payment_solution.amount
+                info['cash']['nb'] += 1
+            if r.payment_solution.get_type() == 'cheque':
+                info['cheque']['total'] += r.payment_solution.amount
+                info['cheque']['nb'] += 1
+                info['cheque']['ids'] |= [r.payment_solution.cheque]
+                print(info['cheque']['ids'][0])
+            if r.payment_solution.get_type() == 'lydiafacetoface':
+                info['lydia_face2face']['total'] += r.payment_solution.amount
+                info['lydia_face2face']['nb'] += 1
+                info['lydia_face2face']['ids'] |= [r.payment_solution.lydiafacetoface]
+            if r.payment_solution.get_type() == 'lydiaonline':
+                info['lydia_online']['total'] += r.payment_solution.amount
+                info['lydia_online']['nb'] += 1
+                info['lydia_online']['ids'] |= [r.payment_solution.lydiaonline]
+            info['total']['total'] += r.payment_solution.amount
+            info['total']['nb'] += 1
         return info
 
     def form_query(self, query):
@@ -661,7 +678,7 @@ class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     def form_query(self, query):
         if self.search:
             query = query.filter(
-                | Q(recipient__last_name__contains=self.search)
+                Q(recipient__last_name__contains=self.search)
                 | Q(recipient__first_name__contains=self.search)
                 | Q(recipient__surname__contains=self.search)
                 | Q(sender__last_name__contains=self.search)
@@ -781,7 +798,7 @@ class ExceptionnalMovementList(GroupPermissionMixin, FormView,
         context = super(ExceptionnalMovementList, self).get_context_data(
             **kwargs)
 
-        context['exceptionnalmovement_list'] = ExceptionnalMovement.objects.all().order_by('-datetim')
+        context['exceptionnalmovement_list'] = ExceptionnalMovement.objects.all().order_by('-datetime')
 
         context['exceptionnalmovement_list'] = self.form_query(
             context['exceptionnalmovement_list'])[:100]
@@ -846,7 +863,7 @@ class ExceptionnalMovementRetrieve(GroupPermissionMixin, View,
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.object = Sale.objects.get(pk=kwargs['pk'])
+            self.object = ExceptionnalMovement.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
 

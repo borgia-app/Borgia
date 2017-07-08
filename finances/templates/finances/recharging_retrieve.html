@@ -10,15 +10,15 @@
     <ul>
       <li>Opérateur : {{ object.operator }}</li>
       <li>Acheteur : {{ object.sender }}</li>
-      <li>Date : {{ object.date }}</li>
-      <li>Montant : {{ object.amount }}€</li>
-      <li>Type : {{ object.payment.unique_payment_type_display }}
-      {% if object.payment.unique_payment_type == "cheque" %}
-        ({{ object.payment.list_cheque.0.0}})
-      {% elif object.payment.unique_payment_type == "lydia_auto"  %}
-        ({{ object.payment.list_lydia.0.0}})
-      {% elif object.payment.unique_payment_type == "lydia_face2face"  %}
-        ({{ object.payment.list_lydia.0.0}})
+      <li>Date & heure : {{ object.datetime }}</li>
+      <li>Montant : {{ object.payment_solution.amount }}€</li>
+      <li>Type : {{ object.payment_solution.get_display_type|title }}
+      {% if object.payment_solution.get_type == "cheque" %}
+        ({{ object.payment_solution.cheque }})
+      {% elif object.payment_solution.get_type == "lydiaonline"  %}
+        ({{ object.payment_solution.lydiaonline }})
+      {% elif object.payment_solution.get_type == "lydiafacetoface"  %}
+        ({{ object.payment_solution.lydiafacetoface }})
       {% endif %}
     </ul>
   </div>

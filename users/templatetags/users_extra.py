@@ -29,6 +29,11 @@ def height_ratio(base, list_selfsalemodule):
     return 100 / (len(list_selfsalemodule) + base)
 
 
+@register.filter(name='get_transaction_model')
+def get_transaction_model(transaction):
+    return transaction.__class__.__name__
+
+
 @register.inclusion_tag('breadcrumbs.html', takes_context=True)
 def breadcrumbs(context):
     try:

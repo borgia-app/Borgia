@@ -31,6 +31,7 @@ class Sale(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     module_id = models.PositiveIntegerField()
     module = GenericForeignKey('content_type', 'module_id')
+    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE)
     products = models.ManyToManyField('shops.Product', through='SaleProduct')
 
     def __str__(self):
@@ -112,7 +113,14 @@ class Recharging(models.Model):
     payment_solution = models.ForeignKey('PaymentSolution', on_delete=models.CASCADE)
 
     def wording(self):
-        return 'Rechargement'
+        if self.payment_solution.get_type() == 'cash':
+            return 'Rechargement par espèces'
+        if self.payment_solution.get_type() == 'cheque':
+            return 'Rechargement par chèque'
+        if self.payment_solution.get_type() == 'lydiafacetoface':
+            return 'Rechargement par Lydia en face à face'
+        if self.payment_solution.get_type() == 'lydiaonline':
+            return 'Rechargement par Lydia en ligne'
 
     def amount(self):
         return self.payment_solution.amount
@@ -130,6 +138,37 @@ class PaymentSolution(models.Model):
     amount = models.DecimalField('Montant', default=0, decimal_places=2,
                                  max_digits=9,
                                  validators=[MinValueValidator(Decimal(0))])
+
+    def get_type(self):
+        try:
+            self.cash
+            return 'cash'
+        except ObjectDoesNotExist:
+            try:
+                self.cheque
+                return 'cheque'
+            except ObjectDoesNotExist:
+                try:
+                    self.lydiafacetoface
+                    return 'lydiafacetoface'
+                except ObjectDoesNotExist:
+                    try:
+                        self.lydiaonline
+                        return 'lydiaonline'
+                    except ObjectDoesNotExist:
+                        return None
+
+    def get_display_type(self):
+        type = self.get_type()
+        if type == 'cash':
+            return 'espèces'
+        if type == 'cheque':
+            return 'chèque'
+        if type == 'lydiafacetoface':
+            return 'lydia face à face'
+        if type == 'lydiaonline':
+            return 'lydia en ligne'
+        return None
 
 
 class Cheque(PaymentSolution):
@@ -160,6 +199,10 @@ class Cheque(PaymentSolution):
     bank_account = models.ForeignKey('BankAccount',
                                      related_name='cheque_bank_account',
                                      on_delete=models.CASCADE)
+
+    def __str__(self):
+        return 'Cheque n°' + self.cheque_number
+
     class Meta:
         """
         Define Permissions for Cheque.
@@ -246,6 +289,9 @@ class LydiaFaceToFace(PaymentSolution):
     banked = models.BooleanField('Est encaissé', default=False)
     date_banked = models.DateField('Date encaissement', blank=True, null=True)
 
+    def __str__(self):
+        return 'Payement Lydia n°' + self.id_from_lydia
+
     class Meta:
         """
         Define Permissions for Lydia.
@@ -275,6 +321,9 @@ class LydiaOnline(PaymentSolution):
     banked = models.BooleanField('Est encaissé', default=False)
     date_banked = models.DateField('Date encaissement', blank=True, null=True)
 
+    def __str__(self):
+        return 'Payement Lydia n°' + self.id_from_lydia
+
     class Meta:
         """
         Define Permissions for Lydia.
@@ -295,7 +344,7 @@ class Transfert(models.Model):
                                  validators=[MinValueValidator(Decimal(0))])
 
     def wording(self):
-        return 'Transfert de ' + self.sender + ', ' + self.justification
+        return 'Transfert de ' + self.sender.__str__() + ', ' + self.justification
 
 
     def pay(self):
@@ -316,7 +365,7 @@ class ExceptionnalMovement(models.Model):
     is_credit = models.BooleanField(default=False)
 
     def wording(self):
-        return 'Mouvement exceptionnel: ' + self.justification
+        return 'Mouvement exceptionnel, ' + self.justification
 
     def pay(self):
         if self.is_credit:
