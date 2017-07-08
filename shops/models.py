@@ -59,9 +59,6 @@ class Shop(models.Model):
             ('retrieve_shop', 'Afficher les détails d\'un magasin'),
 
             # Product management
-            ('add_product', 'Ajouter un produit'),
-            ('change_product', 'Modifier un produit'),
-            ('delete_product', 'Supprimer un produit'),
             ('list_product', 'Lister les produits'),
             ('retrieve_product', 'Afficher les détails d\'un produit'),
             ('change_price_product', 'Changer le prix d\'un produit'),

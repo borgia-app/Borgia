@@ -65,6 +65,12 @@ class Sale(models.Model):
         except IndexError:
             return None
 
+    def amount(self):
+        amount = 0
+        for p in self.products:
+            amount += p.price
+        return amount
+
     class Meta:
         """
         Define Permissions for Sale.
@@ -74,7 +80,6 @@ class Sale(models.Model):
             ('list_sale', 'Lister les ventes'),
             ('retrieve_recharging', 'Afficher un rechargement'),
             ('list_recharging', 'Lister les rechargements'),
-            ('add_transfert', 'Effectuer un transfert d\'argent'),
             ('retrieve_transfert', 'Afficher un transfert'),
             ('list_transfert', 'Lister les transferts'),
             ('add_exceptionnal_movement',
@@ -90,6 +95,9 @@ class SaleProduct(models.Model):
     sale = models.ForeignKey('Sale', on_delete=models.CASCADE)
     product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+    price = models.DecimalField('Prix', default=0, decimal_places=2,
+                                 max_digits=9,
+                                 validators=[MinValueValidator(Decimal(0))])
 
 
 class Recharging(models.Model):

@@ -1,6 +1,7 @@
 from datetime import datetime
 from decimal import Decimal
 import re
+from itertools import chain
 
 from django.db import models
 from django.db.models import Q
@@ -9,7 +10,7 @@ from django.core.validators import RegexValidator
 from django.utils import timezone
 
 from django.contrib.auth.models import AbstractUser, Permission
-from finances.models import Sale, BankAccount, SharedEvent
+from finances.models import Sale, BankAccount, SharedEvent, Transfert, Recharging, ExceptionnalMovement
 from notifications.models import notify
 
 
@@ -203,46 +204,24 @@ class User(AbstractUser):
 
 
 
-    def list_sale(self):
+    def list_transaction(self):
         """
         Return the list of sales concerning the user.
 
-        In order to find all concerned sales of the user, several possibilities
-        are explored. First, possibilities we want to list:
-        - buying himself a product -> self is sender,
-        - creditting himself money by Lydia -> self is sender,
-        - transferring money to another user -> self is sender,
-        - participying to an event -> self is recipient,
-        - buying a product by a seller -> self is recipient,
-        - receiving money from another user -> self is recipient,
-        - receiving or paying something by an exceptionnal movement -> self is
-        recipient.
-        Then sales where the user might appears but not wanted to be listed:
-        - selling a product for the association -> self is the operator,
-        - managing an event -> self is the manager (but can be participant at
-        the same time).
-
-        :returns: list of Sale objects
+        :returns: list of objects
         """
+        # TODO; shared event
+        sales = Sale.objects.filter(sender=self)
+        transferts = Transfert.objects.filter(Q(sender=self) | Q(recipient=self))
+        rechargings = Recharging.objects.filter(sender=self)
+        exceptionnal_movements = ExceptionnalMovement.objects.filter(recipient=self)
 
-        # In order to find all sales, the function first list all sales in
-        # which the user is sender, recipient or participant and then remove
-        # sale listed before.
+        list_transaction = sorted(
+            list(chain(sales, transferts, rechargings, exceptionnal_movements)),
+            key=lambda instance: instance.datetime
+        )
 
-        # As a sender, recipient or participant
-        list_sale = Sale.objects.filter(Q(sender=self) | Q(recipient=self)) |\
-        Sale.objects.filter(sharedevent__participants=self)
-
-        # Manager of the event, but not participant
-        for s in list_sale:
-            try:
-                se = SharedEvent.objects.get(sale=s)
-                if self not in se.participants.all():
-                    list_sale = list_sale.exclude(pk=s.pk)
-            except ObjectDoesNotExist:
-                pass
-
-        return list_sale.order_by('-date').distinct()
+        return list_transaction
 
     def list_bank_account(self):
         """

@@ -91,7 +91,7 @@
       </tr>
     </thead>
     <tbody>
-      {% for transaction in object.list_sale|slice:":50" %}
+      {% for transaction in object.list_transaction|slice:":50" %}
       {% price_for sale=transaction user=object as price_for %}
       <tr class="{% if price_for > 0 %}success{% else %}danger{% endif %}">
         <td>{{ transaction.date }}</td>

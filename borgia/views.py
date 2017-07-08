@@ -12,7 +12,7 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 
 from borgia.utils import *
-from finances.models import Sale, SharedEvent
+from finances.models import Sale, SharedEvent, Transfert
 from shops.models import Product
 from borgia.forms import LoginForm
 
@@ -501,20 +501,19 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
 
     def get_sales(self, request):
         sales = {}
-        list = request.user.list_sale()
         sales['months'] = self.monthlist(
             datetime.now() - timedelta(days=365),
             datetime.now())
 
         # Shops sales
+        sale_list = Sale.objects.filter(sender=self.request.user)
         sales['shops'] = []
-        sales['all'] = list[:5]
+        sales['all'] = sale_list[:5]
         for shop in Shop.objects.all().exclude(pk=1):
-            list_filtered = list.filter(
-                category='sale', wording='Vente '+shop.name)
+            list_filtered = sale_list.filter(shop=shop)
             total = 0
             for sale in list_filtered:
-                total += sale.price_for(request.user)
+                total += sale.amount()
             sales['shops'].append({
                 'shop': shop,
                 'total': -total,
@@ -523,15 +522,14 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
             })
 
         # Transferts
+        transfert_list = Transfert.objects.filter(
+            Q(sender=self.request.user) | Q(recipient=self.request.user)
+        )
         sales['transferts'] = {
-            'sale_list_short': list.filter(category='transfert')[:5]
+            'sale_list_short': transfert_list[:5]
         }
 
-        # Shared events
-        sales['shared_events'] = {
-            'sale_list_short': list.filter(category='shared_event')[:5]
-        }
-
+        #TODO: shared event
         return sales
 
     def data_months(self, request, list, months):
@@ -613,9 +611,7 @@ class PresidentsGroupWorkboard(GroupPermissionMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['sale_list'] = Sale.objects.filter(
-            category='sale'
-        ).order_by('-date')[:5]
+        context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
         context['events'] = []
         for event in SharedEvent.objects.all():
             context['events'].append({
@@ -633,9 +629,7 @@ class VicePresidentsInternalGroupWorkboard(GroupPermissionMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['sale_list'] = Sale.objects.filter(
-            category='sale'
-        ).order_by('-date')[:5]
+        context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
         context['events'] = []
         for event in SharedEvent.objects.all():
             context['events'].append({
@@ -653,9 +647,7 @@ class TreasurersGroupWorkboard(GroupPermissionMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['sale_list'] = Sale.objects.filter(
-            category='sale'
-        ).order_by('-date')[:5]
+        context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
         context['events'] = []
         for event in SharedEvent.objects.all():
             context['events'].append({

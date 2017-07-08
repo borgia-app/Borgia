@@ -936,7 +936,7 @@ class SelfTransactionList(GroupPermissionMixin, FormView,
         context = super(SelfTransactionList, self).get_context_data(**kwargs)
 
         context['transaction_list'] = self.form_query(
-            self.request.user.list_sale())[:100]
+            self.request.user.list_transaction())[:100]
         return context
 
     def form_query(self, query):

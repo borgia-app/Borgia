@@ -32,9 +32,9 @@
         ["delete_shop", "shops", "shop"],
         ["retrieve_shop", "shops", "shop"],
         ["list_shop", "shops", "shop"],
-        ["add_product", "shops", "shop"],
-        ["change_product", "shops", "shop"],
-        ["delete_product", "shops", "shop"],
+        ["add_product", "shops", "product"],
+        ["change_product", "shops", "product"],
+        ["delete_product", "shops", "product"],
         ["retrieve_product", "shops", "shop"],
         ["list_product", "shops", "shop"],
         ["change_price_product", "shops", "shop"],
@@ -54,7 +54,7 @@
         ["add_exceptionnal_movement", "finances", "sale"],
         ["retrieve_exceptionnal_movement", "finances", "sale"],
         ["list_exceptionnal_movement", "finances", "sale"],
-        ["add_transfert", "finances", "sale"],
+        ["add_transfert", "finances", "transfert"],
         ["retrieve_transfert", "finances", "sale"],
         ["list_transfert", "finances", "sale"],
 
@@ -87,9 +87,9 @@
         ["delete_shop", "shops", "shop"],
         ["retrieve_shop", "shops", "shop"],
         ["list_shop", "shops", "shop"],
-        ["add_product", "shops", "shop"],
-        ["change_product", "shops", "shop"],
-        ["delete_product", "shops", "shop"],
+        ["add_product", "shops", "product"],
+        ["change_product", "shops", "product"],
+        ["delete_product", "shops", "product"],
         ["retrieve_product", "shops", "shop"],
         ["list_product", "shops", "shop"],
         ["change_price_product", "shops", "shop"],
@@ -109,7 +109,7 @@
         ["add_exceptionnal_movement", "finances", "sale"],
         ["retrieve_exceptionnal_movement", "finances", "sale"],
         ["list_exceptionnal_movement", "finances", "sale"],
-        ["add_transfert", "finances", "sale"],
+        ["add_transfert", "finances", "transfert"],
         ["retrieve_transfert", "finances", "sale"],
         ["list_transfert", "finances", "sale"],
 
@@ -142,9 +142,9 @@
         ["delete_shop", "shops", "shop"],
         ["retrieve_shop", "shops", "shop"],
         ["list_shop", "shops", "shop"],
-        ["add_product", "shops", "shop"],
-        ["change_product", "shops", "shop"],
-        ["delete_product", "shops", "shop"],
+        ["add_product", "shops", "product"],
+        ["change_product", "shops", "product"],
+        ["delete_product", "shops", "product"],
         ["retrieve_product", "shops", "shop"],
         ["list_product", "shops", "shop"],
         ["change_price_product", "shops", "shop"],
@@ -164,7 +164,7 @@
         ["add_exceptionnal_movement", "finances", "sale"],
         ["retrieve_exceptionnal_movement", "finances", "sale"],
         ["list_exceptionnal_movement", "finances", "sale"],
-        ["add_transfert", "finances", "sale"],
+        ["add_transfert", "finances", "transfert"],
         ["retrieve_transfert", "finances", "sale"],
         ["list_transfert", "finances", "sale"],
 
@@ -191,7 +191,7 @@
       "name": "gadzarts",
       "permissions": [
         ["use_selfsalemodule", "modules", "selfsalemodule"],
-        ["add_transfert", "finances", "sale"],
+        ["add_transfert", "finances", "transfert"],
         ["add_sharedevent", "finances", "sharedevent"],
 
         ["list_notification", "notifications", "notification"]
@@ -205,7 +205,7 @@
       "name": "honnored",
       "permissions": [
         ["use_selfsalemodule", "modules", "selfsalemodule"],
-        ["add_transfert", "finances", "sale"],
+        ["add_transfert", "finances", "transfert"],
 
         ["list_notification", "notifications", "notification"]
       ]
@@ -240,41 +240,6 @@
     "fields": {
       "name": "association",
       "description": "generic association"
-    }
-  },
-  {
-    "model": "shops.productunit",
-    "pk": 1,
-    "fields": {
-      "name": "Monnaie virtuelle",
-      "description": "",
-      "unit": "CENT",
-      "type": "fictional_money",
-      "shop": 1
-    }
-  },
-  {
-    "model": "shops.productbase",
-    "pk": 1,
-    "fields": {
-      "name": "Monnaie virtuelle",
-      "description": "",
-      "product_unit": 1,
-      "brand": "AE ENSAM",
-      "type": "container",
-      "shop": 1
-    }
-  },
-  {
-    "model": "shops.container",
-    "pk": 1,
-    "fields": {
-      "price": 0,
-      "purchase_date": "2016-02-15",
-      "expiry_date": null,
-      "place": "",
-      "is_sold": false,
-      "product_base": 1
     }
   },
   {
