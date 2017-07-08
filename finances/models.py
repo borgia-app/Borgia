@@ -18,175 +18,6 @@ from notifications.models import notify
 
 
 class Sale(models.Model):
-    """
-    Define a Sale between two users.
-
-    The transaction is managed by an operator (which can the the sender
-    directly if the sell is direct). Most of sale are between an User and the
-    association (represented by the special User with username 'AE ENSAM').
-
-    :param amount: consolidated amount of the sale, mandatory.
-    :param date: date of sell, mandatory.
-    :param done: true if the sell is closed, mandatory.
-    :param is_credit: true when the objective is to give money the sender,
-    mandatory.
-    :param category: category of the sale, mandatory.
-    :param wording: description of the sale, mandatory.
-    :param justification: justification in case of exceptionnal movement.
-    :param sender: sender of the sale, mandatory.
-    :param recipient: recipient of the sale, mandatory.
-    :param operator: operator of the sale, mandatory.
-    :param payment: payement used by the sender to conclude the sale.
-    :type amount: float (Decimal), default 0
-    :type date: date string, default now
-    :type done: boolean, default False
-    :type is_credit: boolean, default False
-    :type category: string, must be in CATEGORY_CHOICES, default 'sale'
-    :type wording: string, must be in a specific list (to be defined)
-    :type justification: string
-    :type sender: User object
-    :type recipient: User object
-    :type operator: User object
-    :type payment: Payment object
-                              === Table 1: USER ===
-    +----------+------------------+----------------------+--------------------+
-    |   Type   |     Sender       |       Recipient      |      Operator      |
-    +==========+==================+======================+====================+
-    | Direct   | Buyer            | Association          | Buyer              |
-    | sale     |                  |                      |                    |
-    +----------+------------------+----------------------+--------------------+
-    | Sale w/  | Buyer            | Association          | An operator        |
-    | operator |                  |                      |                    |
-    +----------+------------------+----------------------+--------------------+
-    | Online   | Buyer            | Association          | Buyer              |
-    | sale     |                  |                      |                    |
-    +----------+------------------+----------------------+--------------------+
-    | Lydia    | User             | Association          | User               |
-    | self     |                  |                      |                    |
-    | recharge |                  |                      |                    |
-    +----------+------------------+----------------------+--------------------+
-    | Recharge | User             | Association          | An operator        |
-    | with an  |                  |                      |                    |
-    | operator |                  |                      |                    |
-    +----------+------------------+----------------------+--------------------+
-    | Except-  | User debited     | Association          | An operator        |
-    | ionnal   |                  | WARNING              |                    |
-    | debit    |                  |                      |                    |
-    +----------+------------------+----------------------+--------------------+
-    | Except-  | User credited    | Association          | An operator        |
-    | ionnal   |                  | WARNING              |                    |
-    | credit   |                  |                      |                    |
-    +----------+------------------+----------------------+--------------------+
-    |Transfert | User debited     | User credited        | User debited       |
-    +----------+------------------+----------------------+--------------------+
-    | Event    |     TODO         |      TODO            |   TODO             |
-    +----------+------------------+----------------------+--------------------+
-
-                            === Table 2: CATEGORIES ===
-    +----------+-----------+----------------+----------------+----------------+
-    |   Type   | is_credit |    Category    |     Wording    |  Justification |
-    +==========+===========+================+================+================+
-    | Direct   | False     | 'sale'         | 'Vente '       |                |
-    | sale     |           |                | + shop.name    |                |
-    +----------+-----------+----------------+----------------+----------------+
-    | Sale w/  | False     | 'sale'         | 'Vente '       |                |
-    | operator |           |                | + shop.name    |                |
-    +----------+-----------+----------------+----------------+----------------+
-    | Online   | False     | 'sale'         | 'Vente '       |                |
-    | sale     |           |                | + shop.name    |                |
-    +----------+-----------+----------------+----------------+----------------+
-    | Lydia    | True      | 'recharging'   | 'Rechargement  |                |
-    | self     |           |                | automatique'   |                |
-    | recharge |           |                |                |                |
-    +----------+-----------+----------------+----------------+----------------+
-    | Recharge | True      | 'recharging'   | 'Rechargement  |                |
-    | with an  |           |                | manuel'        |                |
-    | operator |           |                |                |                |
-    +----------+-----------+----------------+----------------+----------------+
-    | Except-  | False     | 'exceptionnal_ | 'Mouvement     | Justification  |
-    | ionnal   |           |  movement'     | exceptionnel'  |                |
-    | debit    |           |                |                |                |
-    +----------+-----------+----------------+----------------+----------------+
-    | Except-  | True      | 'exceptionnal_ | 'Mouvement     | Justification  |
-    | ionnal   |           |  movement'     | exceptionnel'  |                |
-    | credit   |           |                |                |                |
-    +----------+-----------+----------------+----------------+----------------+
-    |Transfert | False     | 'transfert'    | ''             | Justification  |
-    +----------+-----------+----------------+----------------+----------------+
-    | Event    | False     | 'shared_event' |the description |                |
-    +----------+-----------+----------------+----------------+----------------+
-
-                       === Table 3: PRODUCTS & PAYMENTS ===
-    :note:: SP = SingleProduct, SPFC = SingleProductFromContainer
-    +----------+------------------------------+-------------------------------+
-    |   Type   |           Products           |          Payments             |
-    +==========+==============================+===============================+
-    | Direct   | List of bought products      | DebitBalance                  |
-    | sale     | SP or SPFC                   |                               |
-    +----------+------------------------------+-------------------------------+
-    | Sale w/  | List of bought products      | DebitBalance                  |
-    | operator | SP or SPFC                   |                               |
-    +----------+------------------------------+-------------------------------+
-    | Online   | List of bought products      | DebitBalance                  |
-    | sale     | SP or SPFC                   |                               |
-    +----------+------------------------------+-------------------------------+
-    | Lydia    | SPFC of money                | Lydia                         |
-    | self     |                              |                               |
-    | recharge |                              |                               |
-    +----------+------------------------------+-------------------------------+
-    | Recharge | SPFC of money                | Lydia, Cash or Cheque         |
-    | with an  |                              |                               |
-    | operator |                              |                               |
-    +----------+------------------------------+-------------------------------+
-    | Except-  | SPFC of money                | DebitBalance                  |
-    | ionnal   |                              |                               |
-    | debit    |                              |                               |
-    +----------+------------------------------+-------------------------------+
-    | Except-  | SPFC of money                | None, but still a Payment     |
-    | ionnal   |                              | with manually set amount      |
-    | credit   |                              |                               |
-    +----------+------------------------------+-------------------------------+
-    |Transfert | SPFC of money                | DebitBalance                  |
-    +----------+------------------------------+-------------------------------+
-    |Event     |              TODO            | TODO                          |
-    +----------+------------------------------+-------------------------------+
-
-                             === Table 4: FUNCTIONS ===
-    :note:: To fill parameters of such functions, please refer to tables 1 to
-    3.
-    +----------+--------------------------------------------------------------+
-    |   Type   |                         Function                             |
-    +==========+==============================================================+
-    | Direct   | sale_sale                                                    |
-    | sale     |                                                              |
-    +----------+--------------------------------------------------------------+
-    | Sale w/  | sale_sale                                                    |
-    | operator |                                                              |
-    +----------+--------------------------------------------------------------+
-    | Online   | sale_sale                                                    |
-    | sale     |                                                              |
-    +----------+--------------------------------------------------------------+
-    | Lydia    | sale_recharging                                              |
-    | self     |                                                              |
-    | recharge |                                                              |
-    +----------+--------------------------------------------------------------+
-    | Recharge | sale_recharging                                              |
-    | with an  |                                                              |
-    | operator |                                                              |
-    +----------+--------------------------------------------------------------+
-    | Except-  | sale_exceptionnal_movement (sale_sale)                       |
-    | ionnal   |                                                              |
-    | debit    |                                                              |
-    +----------+--------------------------------------------------------------+
-    | Except-  | sale_exceptionnal_movement (sale_recharging)                 |
-    | ionnal   |                                                              |
-    | credit   |                                                              |
-    +----------+--------------------------------------------------------------+
-    |Transfert | sale_transfert                                               |
-    +----------+--------------------------------------------------------------+
-    | Event    | TODO                                                         |
-    +----------+--------------------------------------------------------------+
-    """
     # TODO: define the list of possible wordings.
 
     CATEGORY_CHOICES = (('transfert', 'Transfert'),
@@ -368,261 +199,47 @@ class Sale(models.Model):
         )
 
 
-class Payment(models.Model):
-    """
-    Define a Payment used in a Sale.
+class Recharging(models.Model):
+    datetime = models.DateTimeField('Date', default=now)
+    sender = models.ForeignKey('users.User', related_name='sender_recharging',
+    on_delete=models.CASCADE)
+    operator = models.ForeignKey('users.User', related_name='operator_recharging',
+    on_delete=models.CASCADE)
+    payment_solution = models.ForeignKey('PaymentSolution', on_delete=models.CASCADE)
 
-    This class only regroups kinds of payment (Cash, Lydia, Cheque, Balance)
-    in order to have only one foreign key in the Sale.
-
-    :param amount: consolidated amount of money payed by the Payment,
-    mandatory.
-    :param cheques: list of Cheque objects used in this Payment.
-    :param cashs: list of Cash objects used in this Payment.
-    :param lydias: list of Lydia objects used in this Payment.
-    :param debit_balance: list of DebitBalance objects used in this Payment.
-
-    :note:: There is always only one Payment for a Sale. However, each sub
-    objects (Lydia, Cash, ...) a related to a specific User and can be
-    multiple.
-    """
-    amount = models.DecimalField('Montant', default=0, decimal_places=2,
-                                 max_digits=9,
-                                 validators=[MinValueValidator(Decimal(0))])
-    cheques = models.ManyToManyField('Cheque', blank=True)
-    cashs = models.ManyToManyField('Cash', blank=True)
-    lydias = models.ManyToManyField('Lydia', blank=True)
-    debit_balance = models.ManyToManyField('DebitBalance', blank=True)
-
-    def __str__(self):
-        """
-        Return the display name of the Payment.
-
-        :returns: 'payement' and the pk
-        :rtype: string
-        """
-        return 'payement n°' + str(self.pk)
-
-    def list_cheque(self):
-        """
-        Return the list of Cheque objects used in this Payment.
-
-        :returns: list of Cheque objects (index 0), total amount (index 1)
-        :rtype: list of Cheque objects (index 0), float (Decimal) (index 1)
-        """
-        list_cheque = Cheque.objects.filter(payment__cheques__payment=self)
-        total_cheque = 0
-        for e in list_cheque:
-            total_cheque += e.amount
-        return list_cheque, total_cheque
-
-    def list_lydia(self):
-        """
-        Return the list of Lydia objects used in this Payment.
-
-        :returns: list of Lydia objects (index 0), total amount (index 1)
-        :rtype: list of Lydia objects (index 0), float (Decimal) (index 1)
-        """
-        list_lydia = Lydia.objects.filter(payment__lydias__payment=self)
-        total_lydia = 0
-        for e in list_lydia:
-            total_lydia += e.amount
-        return list_lydia, total_lydia
-
-    def list_cash(self):
-        """
-        Return the list of Cash objects used in this Payment.
-
-        :returns: list of Cash objects (index 0), total amount (index 1)
-        :rtype: list of Cash objects (index 0), float (Decimal) (index 1)
-        """
-        list_cash = Cash.objects.filter(payment__cashs__payment=self)
-        total_cash = 0
-        for e in list_cash:
-            total_cash += e.amount
-        return list_cash, total_cash
-
-    def list_debit_balance(self):
-        """
-        Return the list of DebitBalance objects used in this Payment.
-
-        :returns: list of DebitBalance objects (index 0), total amount
-        (index 1)
-        :rtype: list of DebitBalance objects (index 0), float (Decimal)
-        (index 1)
-        """
-        list_debit_balance = DebitBalance.objects.filter(
-            payment__debit_balance__payment=self).distinct()
-        total_debit_balance = 0
-        for e in list_debit_balance:
-            total_debit_balance += e.amount
-        return list_debit_balance, total_debit_balance
-
-    def maj_amount(self):
-        """
-        Set the amount attribute of the Payment to the right amount regarding
-        sub payment.
-
-        This attribute is here only to compute once in order to consolidate
-        the database.
-
-        :note:: This attribute is the total amount of the Sale. This amount
-        can be payed by several Users at the same time. To know what each User
-        pays, please refer to the method price_for of related Sale or each
-        models (Cash, Lydia, ...) related to a specific User directly.
-        """
-        self.amount = (self.list_cheque()[1]
-                       + self.list_lydia()[1]
-                       + self.list_cash()[1]
-                       + self.list_debit_balance()[1])
-        self.save()
-
-    def payments_used(self):
-        """
-        Return a list of string for each type of payment used.
-
-        :returns: list of string of used payment
-        :rtype: list of string
-
-        :example:: If there is a cheque and 2 cashs, this function returns:
-        ['Cheque', 'Lydia']
-        """
-        payments_used = []
-        if self.list_cheque()[1] != 0:
-            payments_used.append('Cheque')
-        if self.list_cash()[1] != 0:
-            payments_used.append('Espèces')
-        if self.list_lydia()[1] != 0:
-            payments_used.append('Lydia')
-        if self.list_debit_balance()[1] != 0:
-            payments_used.append('Compte foyer')
-        return payments_used
-
-    def unique_payment_type(self):
-        """
-        In the case of a simple payment, the type of payment is unique.
-        If there is two or more type of payment, this function cannot be used.
-
-        :rtype: payment type or None if more than 1
-        """
-        if len(self.payments_used()) != 1:
-            return None
-
-        if 'Cheque' in self.payments_used():
-            return 'cheque'
-        if 'Espèces' in self.payments_used():
-            return 'cash'
-        if 'Lydia' in self.payments_used():
-            try:
-                sale = Sale.objects.get(payment=self)
-            except ObjectDoesNotExist:
-                return None
-            if sale.wording == 'Rechargement automatique':
-                return 'lydia_auto'
-            if sale.wording == 'Rechargement manuel':
-                return 'lydia_face2face'
-            return None
-
-    def unique_payment_type_display(self):
-        type = self.unique_payment_type()
-        if type:
-            if type == 'cheque':
-                return 'Chèque'
-            if type == 'cash':
-                return 'Espèces'
-            if type == 'lydia_face2face':
-                return 'Lydia manuel'
-            if type == 'lydia_auto':
-                return 'Lydia automatique'
-        else:
-            return None
+    def pay(self):
+        self.sender.credit(self.payment_solution.amount)
 
 
-class DebitBalance(models.Model):
-    """
-    Define a type of payment by the account saved by the association.
-
-    :note:: Related to a unique User.
-
-    :param amount: amount of the payment, mandatory.
-    :param date: date of the payment, mandatory.
-    :param sender: sender of the payment, mandatory.
-    :param recipient: recipient of the payment, mandatory.
-    :type amount: float (Decimal), default 0
-    :type date: date string, default now
-    :type sender: User object
-    :type recipient: User object
-    """
-    amount = models.DecimalField('Montant', default=0, decimal_places=2,
-                                 max_digits=9,
-                                 validators=[MinValueValidator(Decimal(0))])
-    date = models.DateTimeField('Date', default=now)
-    sender = models.ForeignKey('users.User',
-                               related_name='sender_debit_balance',
-                               on_delete=models.CASCADE)
+class PaymentSolution(models.Model):
+    sender = models.ForeignKey('users.User', related_name='payment_sender',
+    on_delete=models.CASCADE)
     recipient = models.ForeignKey('users.User',
-                                  related_name='recipient_debit_balance',
+                                  related_name='payment_recipient',
                                   on_delete=models.CASCADE)
-
-    def __str__(self):
-        """
-        Return the display name of a DebitBalance.
-
-        :returns: amount and date of the DebitBalance
-        :rtype: string
-        """
-        return str(self.amount) + '€ ' + str(self.date)
-
-    def set_movement(self):
-        """
-        Debit / credit the sender of the DebitBalance of the amount.
-
-        :note:: In practics amount is always > 0 regarding the sender.
-
-        :warning:: DANGEROUS FUNCTION. This function should be deprecated.
-
-        :warning:: This function must be used only in specific cases !
-        For the general cases, use User object method credit and debit.
-        """
-        self.sender.balance -= self.amount
-        self.sender.save()
-
-    class Meta:
-        """
-        Define Permissions for DebitBalance.
-        """
-        permissions = (
-        )
+    amount = models.DecimalField('Montant', default=0, decimal_places=2,
+                                 max_digits=9,
+                                 validators=[MinValueValidator(Decimal(0))])
 
 
-class Cheque(models.Model):
+class Cheque(PaymentSolution):
     """
     Define a type of payment made by a bank cheque.
 
     :note:: Related to a unique User.
 
-    :param amount: amount of the cheque (written on the paper), mandatory.
     :param is_cashed: true if the cheque is cashed by treasurers, mandatory.
     :param signature_date: signature date of the cheque (written on the paper),
     mandatory.
     :param cheque_number: number of the cheque (written on the paper),
     mandatory.
-    :param sender: sender of the cheque (written on the paper), mandatory.
-    :param recipient: recipient of the cheque (written on the paper),
-    mandatory.
     :param bank_account: bank account of the cheque (written on the paper),
     mandatory.
-    :type amount: float (Decimal), default 0
     :type is_cashed: boolean, default False
     :type signature_date: date string, default now
     :type cheque_number: string, must match ^[0-9]{7}$
-    :type sender: User object
-    :type recipient: User object
     :type bank_account: BankAccount object
     """
-    amount = models.DecimalField('Montant', default=0, decimal_places=2,
-                                 max_digits=9,
-                                 validators=[MinValueValidator(Decimal(0))])
     is_cashed = models.BooleanField('Est encaissé', default=False)
     signature_date = models.DateField('Date de signature', default=now)
     cheque_number = models.CharField('Numéro de chèque', max_length=7,
@@ -630,55 +247,9 @@ class Cheque(models.Model):
                                          RegexValidator('^[0-9]{7}$',
                                                         '''Numéro de chèque
                                                         invalide''')])
-    sender = models.ForeignKey('users.User', related_name='cheque_sender',
-    on_delete=models.CASCADE)
-    recipient = models.ForeignKey('users.User',
-                                  related_name='cheque_recipient',
-                                  on_delete=models.CASCADE)
     bank_account = models.ForeignKey('BankAccount',
                                      related_name='cheque_bank_account',
                                      on_delete=models.CASCADE)
-
-    def __str__(self):
-        """
-        Return the display name of the Cheque.
-
-        :returns: last and first name of the sender, amount and cheque number
-        :rtype: string
-        """
-        return (self.sender.last_name
-                + ' '
-                + self.sender.first_name
-                + ' '
-                + str(self.amount)
-                + '€ n°'
-                + self.cheque_number)
-
-    def list_payments(self):
-        """
-        Return the list of the Payment where this cheque is used.
-
-        :note:: Theorically, a cheque can be used in several Payment. However,
-        at time where these lines are written, it's not the case.
-
-        :returns: list of Payment objects related to this cheque.
-        :rtype: list of Payment objects
-        """
-        return Payment.objects.filter(cheques__payment__cheques=self)
-
-    def list_sale(self):
-        """
-        Return the list of the Sale where this cheque is used, by Payment.
-
-        :note:: Theorically, a cheque can be used in several Payment, thus in
-        several Sale objects. However, at time where these lines are written,
-        it's not the case.
-
-        :returns: list of Sale objects related to this cheque.
-        :rtype: list of Sale objects
-        """
-        return Sale.objects.filter(payment__cheques=self)
-
     class Meta:
         """
         Define Permissions for Cheque.
@@ -687,7 +258,7 @@ class Cheque(models.Model):
         )
 
 
-class BankAccount(models.Model):
+class BankAccount(PaymentSolution):
     """
     Define a bank account owned by an User.
 
@@ -727,65 +298,14 @@ class BankAccount(models.Model):
         )
 
 
-class Cash(models.Model):
+class Cash(PaymentSolution):
     """
     Define a type of payment made by a phycial money (cash).
 
     :note:: Related to a unique User.
 
-    :param amount: amount of cash.
-    :param sender: sender of cash.
-    :param recipient: recipient of the cheque (written on the paper).
-    :type amount: float (Decimal), default 0
-    :type sender: User object
-    :type recipient: User object
     """
-    amount = models.DecimalField('Montant', default=0, decimal_places=2,
-                                 max_digits=9,
-                                 validators=[MinValueValidator(Decimal(0))])
-    sender = models.ForeignKey('users.User', related_name='cash_sender',
-    on_delete=models.CASCADE)
-    recipient = models.ForeignKey('users.User', related_name='cash_recipient',
-    on_delete=models.CASCADE)
-
-    def __str__(self):
-        """
-        Return the display name of a Cash.
-
-        :returns: sender's last and first name and amount
-        :rtype: string
-        """
-        return (self.sender.last_name
-                + ' '
-                + self.sender.first_name
-                + ' '
-                + str(self.amount)
-                + '€')
-
-    def list_sale(self):
-        """
-        Return the list of the Sale where this Cash is used, by Payment.
-
-        :note:: Theorically, a cash can be used in several Payment, thus in
-        several Sale objects. However, at time where these lines are written,
-        it's not the case.
-
-        :returns: list of Sale objects related to this cash.
-        :rtype: list of Sale objects
-        """
-        return Sale.objects.filter(payment__cashs=self)
-
-    def list_payment(self):
-        """
-        Return the list of the Payment where this Cash is used.
-
-        :note:: Theorically, a cash can be used in several Payment. However,
-        at time where these lines are written, it's not the case.
-
-        :returns: list of Payment objects related to this cash.
-        :rtype: list of Payment objects
-        """
-        return Payment.objects.filter(cashs__payment__cashs=self)
+    pass
 
     class Meta:
         """
@@ -795,70 +315,26 @@ class Cash(models.Model):
         )
 
 
-class Lydia(models.Model):
+class LydiaFaceToFace(PaymentSolution):
     """
     Define a transaction by the provider Lydia.
 
     :note:: Related to an unique User.
 
     :param date_operation: date of transaction, mandatory.
-    :param amount: money in transaction, mandatory.
     :param id_from_lydia: unique number given by the provider for each
     transaction, mandatory. Must be unique.
-    :param sender: sender of the money, mandatory.
-    :param recipient: recipient of the money, mandatory.
     :param banked: true if the money was banked by treasurer, mandatory.
     :param date_banked: only if banked is true.
     :type date_operation: date string, default now
-    :type amount: float (Decimal), default 0
     :type id_from_lydia: string
-    :type sender: User object
-    :type recipient: user object
     :type banked: boolean, default False
     :type date_banked: fate string
     """
     date_operation = models.DateField('Date', default=now)
-    amount = models.DecimalField('Montant', default=0, decimal_places=2,
-                                 max_digits=9,
-                                 validators=[MinValueValidator(Decimal(0))])
     id_from_lydia = models.CharField('Numéro unique', max_length=255)
-    sender = models.ForeignKey('users.User', related_name='lydia_sender',
-    on_delete=models.CASCADE)
-    recipient = models.ForeignKey('users.User', related_name='lydia_recipient',
-    on_delete=models.CASCADE)
     banked = models.BooleanField('Est encaissé', default=False)
     date_banked = models.DateField('Date encaissement', blank=True, null=True)
-
-    def __str__(self):
-        """
-        Return the display name of a Lydia transaction.
-
-        :returns: sender's last name, first name and amount.
-        :rtype: string
-        """
-        return (self.sender.last_name
-                + ' '
-                + self.sender.first_name
-                + ' '
-                + str(self.amount)
-                + '€'
-                + ' '
-                + self.id_from_lydia)
-
-    def list_transaction(self):
-        """
-        Return the list of the Sale where this Lydia is used, by Payment.
-
-        :note:: Theorically, a cheque can be used in several Payment, thus in
-        several Sale objects. However, at time where these lines are written,
-        it's not the case.
-
-        :returns: list of Sale objects related to this Lydia.
-        :rtype: list of Sale objects
-
-        :note:: Should be named list_sale as in Cash and Cheque model.
-        """
-        return Sale.objects.filter(payment__lydias=self)
 
     class Meta:
         """
@@ -866,6 +342,70 @@ class Lydia(models.Model):
         """
         permissions = (
         )
+
+
+class LydiaOnline(PaymentSolution):
+    """
+    Define a transaction by the provider Lydia, online.
+
+    :note:: Related to an unique User.
+
+    :param date_operation: date of transaction, mandatory.
+    :param id_from_lydia: unique number given by the provider for each
+    transaction, mandatory. Must be unique.
+    :param banked: true if the money was banked by treasurer, mandatory.
+    :param date_banked: only if banked is true.
+    :type date_operation: date string, default now
+    :type id_from_lydia: string
+    :type banked: boolean, default False
+    :type date_banked: fate string
+    """
+    date_operation = models.DateField('Date', default=now)
+    id_from_lydia = models.CharField('Numéro unique', max_length=255)
+    banked = models.BooleanField('Est encaissé', default=False)
+    date_banked = models.DateField('Date encaissement', blank=True, null=True)
+
+    class Meta:
+        """
+        Define Permissions for Lydia.
+        """
+        permissions = (
+        )
+
+
+class Transfert(models.Model):
+    datetime = models.DateTimeField('Date', default=now)
+    justification = models.TextField('Justification', null=True, blank=True)
+    sender = models.ForeignKey('users.User', related_name='sender_transfert',
+    on_delete=models.CASCADE)
+    recipient = models.ForeignKey('users.User', related_name='recipient_transfert',
+    on_delete=models.CASCADE)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2,
+                                 max_digits=9,
+                                 validators=[MinValueValidator(Decimal(0))])
+
+    def pay(self):
+        self.sender.debit(self.amount)
+        self.recipient.credit(self.amount)
+
+
+class ExceptionnalMovement(models.Model):
+    datetime = models.DateTimeField('Date', default=now)
+    justification = models.TextField('Justification', null=True, blank=True)
+    operator = models.ForeignKey('users.User', related_name='sender_exceptionnal_movement',
+    on_delete=models.CASCADE)
+    recipient = models.ForeignKey('users.User', related_name='recipient_exceptionnal_movement',
+    on_delete=models.CASCADE)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2,
+                                 max_digits=9,
+                                 validators=[MinValueValidator(Decimal(0))])
+    is_credit = models.BooleanField(default=False)
+
+    def pay(self):
+        if self.is_credit:
+            self.recipient.credit(self.amount)
+        else:
+            self.recipient.debit(self.amount)
 
 
 class SharedEvent(models.Model):
@@ -1063,147 +603,6 @@ class SharedEvent(models.Model):
         )
 
 
-def sale_transfert(sender, recipient, amount, date, justification):
-    """
-    Create a Sale object for a transfert from an account to another account.
-
-    This function is used for transferts only. Refer to other sale functions
-    for other cases.
-
-    :param sender: sender of the transfert, the debited user. Mandatory.
-    :param recipient: recipient of the transfert, the credited user.
-    Mandatory.
-    :param amount: amount of the transfert, mandatory.
-    :param date: date of the transfert, mandatory.
-    :param justification: description of the transfert, mandatory.
-    :type sender: User object
-    :type recipient: User object
-    :type amount: float (Decimal)
-    :type date: date string
-    :type justification: string
-
-    This function creates a DebitBalance object, links it to a new Payment and
-    links it to a new Sale object. The sender is debited of amount and the
-    recipient credited of the amount.
-    """
-
-    d_b = DebitBalance.objects.create(amount=amount, sender=sender,
-                                      recipient=recipient)
-
-    p = Payment.objects.create()
-    p.debit_balance.add(d_b)
-    p.save()
-    p.maj_amount()
-
-    s = Sale.objects.create(date=date, sender=sender, operator=sender,
-                            recipient=recipient, payment=p,
-                            category='transfert', justification=justification)
-
-    SingleProductFromContainer.objects.create(
-        container=Container.objects.get(pk=1),
-        quantity=amount*100,
-        sale_price=amount,
-        sale=s)
-
-    s.maj_amount()
-
-    sender.debit(s.amount)
-    recipient.credit(s.amount)
-
-    s.done = True
-    s.save()
-
-    # We notify
-    notify(notification_class_name='transfer_creation',
-           actor=s.operator,
-           recipient=s.recipient,
-           target_object=s
-           )
-
-
-def sale_recharging(sender, operator, date, wording, category='recharging',
-                    justification=None,
-                    payments_list=None, amount=None):
-    """
-    Create a Sale for recharging an User.
-
-    This function can be used to supply money to an User object when it give
-    money to the association (it is then just a trade, the account of the user
-    is supplied). In this case payment methods (Cash, Lydia, Cheque) must be
-    defined before calling the application and list them in payments_list. This
-    function will create a Payment object, grouping all payment.
-    Moreover this function can be used to supply an User object for an
-    exceptionnal movement, for instance to repay someone after an error. Then,
-    no money is given to the association and payments_list is None.
-
-    :param sender: user who want to be recharged, mandatory. In both case, it's
-    the user who is recharged, even if the proper sender is not himself for
-    the case of exceptionnal movement for instance.
-    :param operator: user who supply money by the account of the association,
-    mandatory.
-    :param date: date of the recharge, mandatory.
-    :param wording: subtype of the recharge, mandatory.
-    :param category: category of the recharge. Could be 'exceptionnal_movement'
-    :param justification: justification in the case of exceptionnal movement.
-    :param payments_list: list of payment objects in the case of regular
-    recharge (Cash, Lydia or Cheque).
-    :param amount: amount of the recharge, only for exceptionnal movement. If
-    not the amount is calculated from payment objects.
-    :type sender: User object
-    :type operator: User object
-    :type date: date string
-    :type wording: string
-    :type category: string, default 'recharging'
-    :type justification: string, default None
-    :type payments_list: list of Cash, Lydia or Cheque objects, default None
-    :type amount: amount of the exceptionnal movement, default None
-
-    :note:: We should debit the association.
-    """
-    from users.models import User
-
-    p = Payment.objects.create()
-
-    if payments_list is None:
-        p.amount = amount
-        p.save()
-    else:
-        for payment in payments_list:
-            if isinstance(payment, Cash):
-                p.cashs.add(payment)
-            if isinstance(payment, Cheque):
-                p.cheques.add(payment)
-            if isinstance(payment, Lydia):
-                p.lydias.add(payment)
-        p.save()
-        p.maj_amount()
-
-    s = Sale.objects.create(date=date, sender=sender, operator=operator,
-                            recipient=User.objects.get(username='AE_ENSAM'),
-                            payment=p, is_credit=True,
-                            category=category, wording=wording,
-                            justification=justification)
-
-    SingleProductFromContainer.objects.create(
-        container=Container.objects.get(pk=1),
-        quantity=p.amount * 100,
-        sale_price=p.amount, sale=s)
-    s.maj_amount()
-
-    sender.credit(s.amount)
-
-    s.done = True
-    s.save()
-
-    # We notify
-    notify(notification_class_name='recharging_creation',
-           actor=s.operator,
-           # The sender is the user who is recharged, then it's him who should receive a notification
-           recipient=s.sender,
-           target_object=s
-           )
-
-
 def sale_sale(sender, operator, date, wording, category='sale',
               justification=None, payments_list=None, products_list=None,
               amount=None, to_return=None):
@@ -1305,39 +704,3 @@ def sale_sale(sender, operator, date, wording, category='sale',
 
     if to_return is True:
         return s
-
-
-def sale_exceptionnal_movement(operator, affected, is_credit, amount, date,
-                               justification):
-    """
-    Create a Sale for an exceptionnal credit or debit.
-
-    :param operator: manager of the exceptionnal movement, mandatory.
-    :param affected: user who is debited or credited, mandatory.
-    :param is_credit: true if the user if credited, mandatory.
-    :param amount: amount of the credit / debit, mandatory. Must be always
-    strictly positiv. Is_credit define it it's a credit or not.
-    :param date: date of the movement, mandatory.
-    :param justification: justification to use an exceptionnal movement,
-    mandatory.
-    :type operator: User object
-    :type affected: User object
-    :type is_credit: boolean
-    :type amount: float (Decimal), strictly positiv.
-    :type date: date string
-    :type justification: string
-
-    :note:: In the case of credit, this function uses the function
-    sale_recharging. In the case of debit, it uses a regular sale, function
-    sale_sale.
-    """
-    if is_credit is True:
-        sale_recharging(sender=affected, operator=operator, date=date,
-                        amount=amount, category='exceptionnal_movement',
-                        wording='Mouvement exceptionnel',
-                        justification=justification)
-    else:
-        sale_sale(sender=affected, operator=operator, date=date, amount=amount,
-                  category='exceptionnal_movement',
-                  wording='Mouvement exceptionnel',
-                  justification=justification)

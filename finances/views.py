@@ -788,12 +788,13 @@ class SelfTransfertCreate(GroupPermissionMixin, FormView,
         return kwargs
 
     def form_valid(self, form):
-        sale_transfert(
+        transfert = Transfert.objects.create(
             sender=self.request.user,
             recipient=form.cleaned_data['recipient'],
             amount=form.cleaned_data['amount'],
-            date=now(),
-            justification=form.cleaned_data['justification'])
+            justification=form.cleaned_data['justification']
+        )
+        transfert.pay()
         return super(SelfTransfertCreate, self).form_valid(form)
 
 
@@ -1007,11 +1008,14 @@ class UserExceptionnalMovementCreate(GroupPermissionMixin, UserMixin, FormView,
         if form.cleaned_data['type_movement'] == 'credit':
             is_credit = True
 
-        sale_exceptionnal_movement(
-            operator=operator, affected=self.user,
-            is_credit=is_credit, amount=amount,
-            date=now(),
-            justification=form.cleaned_data['justification'])
+        exceptionnal_movement = ExceptionnalMovement.objects.create(
+            justification=form.cleaned_data['justification'],
+            operator=operator,
+            recipient=self.user,
+            is_credit=is_credit,
+            amount=amount
+        )
+        exceptionnal_movement.pay()
 
         return super(UserExceptionnalMovementCreate, self).form_valid(form)
 
@@ -1055,27 +1059,30 @@ class UserSupplyMoney(GroupPermissionMixin, UserMixin, FormView,
                 sender=sender,
                 recipient=User.objects.get(username='AE_ENSAM'),
                 bank_account=form.cleaned_data['bank_account'])
-            payment.append(cheque)
+            payment = cheque
 
         elif form.cleaned_data['type'] == 'cash':
             cash = Cash.objects.create(
                 sender=sender,
                 recipient=User.objects.get(username='AE_ENSAM'),
                 amount=form.cleaned_data['amount'])
-            payment.append(cash)
+            payment = cash
 
         elif form.cleaned_data['type'] == 'lydia':
-            lydia = Lydia.objects.create(
+            lydia = LydiaFaceToFace.objects.create(
                 date_operation=form.cleaned_data['signature_date'],
                 id_from_lydia=form.cleaned_data['unique_number'],
                 sender=sender,
                 recipient=User.objects.get(username='AE_ENSAM'),
                 amount=form.cleaned_data['amount'])
-            payment.append(lydia)
+            payment = lydia
 
-        sale_recharging(sender=sender, operator=operator,
-                        payments_list=payment, date=now(),
-                        wording='Rechargement manuel')
+        recharging = Recharging.objects.create(
+            sender=sender,
+            operator=operator,
+            payment_solution=payment.payment_solution
+        )
+        recharging.pay()
 
         return super(UserSupplyMoney, self).form_valid(form)
 
@@ -1224,17 +1231,18 @@ def self_lydia_callback(request):
     }
     if verify_token_algo_lydia(params_dict, settings.LYDIA_API_TOKEN) is True:
         try:
-            sale_recharging(
+            lydia = LydiaOnline.objects.create(
+                sender=User.objects.get(pk=request.GET.get('user_pk')),
+                recipient=User.objects.get(username='AE_ENSAM'),
+                amount=decimal.Decimal(params_dict['amount']),
+                id_from_lydia=params_dict['transaction_identifier']
+            )
+            recharging = Recharging.objects.create(
                 sender=User.objects.get(pk=request.GET.get('user_pk')),
                 operator=User.objects.get(pk=request.GET.get('user_pk')),
-                date=now(),
-                wording='Rechargement automatique',
-                payments_list=[Lydia.objects.create(
-                    date_operation=now(),
-                    amount=decimal.Decimal(params_dict['amount']),
-                    id_from_lydia=params_dict['transaction_identifier'],
-                    sender=User.objects.get(pk=request.GET.get('user_pk')),
-                    recipient=User.objects.get(username='AE_ENSAM'))])
+                payment_solution=lydia.payment_solution
+            )
+            recharging.pay()
         except KeyError:
             return HttpResponse('300')
         except ObjectDoesNotExist:
