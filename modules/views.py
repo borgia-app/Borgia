@@ -17,7 +17,7 @@ from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           lateral_menu)
 from shops.models import (ProductBase, SingleProduct, Container,
                           SingleProductFromContainer, Shop)
-from finances.models import sale_sale
+from finances.models import Sale
 from users.models import User
 
 
@@ -63,22 +63,27 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
 
     def form_valid(self, form):
 
-        products = []
+        sale = Sale.objects.create(
+            sender=self.client,
+            recipient=User.objects.get(username='AE_ENSAM'),
+            operator=self.request.user,
+            module=self.module
+        )
 
         for field in form.cleaned_data:
             if field != 'client':
                 invoice = form.cleaned_data[field]
                 if invoice != 0 and isinstance(invoice, int):
                     product_pk = field.split('-')[0]
-                    element = ProductBase.objects.get(pk=product_pk)
-                    products += self.get_products_with_strategy(
-                        element, invoice)
+                    product = Product.objects.get(pk=product_pk)
+                    sp = SaleProduct.objects.create(
+                        sale=sale,
+                        product=product,
+                        quantity=invoice
+                    )
 
-        if len(products) > 0:
-            sale = sale_sale(sender=self.client, operator=self.request.user,
-                             date=now(), products_list=products,
-                             wording='Vente '+self.shop.name, to_return=True)
-        else:
+        if sale.products.all().count() == 0:
+            sale.delete()
             return redirect(self.success_url)
 
         return sale_shop_module_resume(self.request, sale, self.group,

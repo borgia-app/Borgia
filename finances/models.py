@@ -6,6 +6,10 @@ import json
 from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, RegexValidator
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.contenttypes.fields import (
+    GenericForeignKey, GenericRelation
+    )
+from django.contrib.contenttypes.models import ContentType
 
 from shops.models import (SingleProduct, SingleProductFromContainer, Container,
                           Shop)
@@ -18,30 +22,17 @@ from notifications.models import notify
 
 
 class Sale(models.Model):
-    # TODO: define the list of possible wordings.
-
-    CATEGORY_CHOICES = (('transfert', 'Transfert'),
-                        ('recharging', 'Rechargement'), ('sale', 'Vente'),
-                        ('exceptionnal_movement', 'Mouvement exceptionnel'),
-                        ('shared_event', 'Evénement'))
-    amount = models.DecimalField('Montant', default=0, decimal_places=2,
-                                 max_digits=9,
-                                 validators=[MinValueValidator(Decimal(0))])
-    date = models.DateTimeField('Date', default=now)
-    done = models.BooleanField('Terminée', default=False)
-    is_credit = models.BooleanField('Est un crédit', default=False)
-    category = models.CharField('Catégorie', choices=CATEGORY_CHOICES,
-                                default='sale', max_length=50)
-    wording = models.CharField('Libellé', default='', max_length=254)
-    justification = models.TextField('Justification', null=True, blank=True)
+    datetime = models.DateTimeField('Date', default=now)
     sender = models.ForeignKey('users.User', related_name='sender_sale',
     on_delete=models.CASCADE)
     recipient = models.ForeignKey('users.User', related_name='recipient_sale',
     on_delete=models.CASCADE)
     operator = models.ForeignKey('users.User', related_name='operator_sale',
     on_delete=models.CASCADE)
-    payment = models.ForeignKey('Payment', blank=True, null=True,
-    on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    module_id = models.PositiveIntegerField()
+    module = GenericForeignKey('content_type', 'module_id')
+    products = models.ManyToManyField('shops.Product', through='SaleProduct')
 
     def __str__(self):
         """
@@ -51,107 +42,6 @@ class Sale(models.Model):
         :rtype: string
         """
         return 'Achat n°' + str(self.pk)
-
-    def list_single_products(self):
-        """
-        Return the list of SingleProduct objects bought in this Sale.
-
-        :returns: List of SingleProduct objects (index 0) and total price of
-        these products (index 1)
-        :rtype: List of SingleProduct objects (index 0), float (Decimal)
-        (index 1)
-        """
-        list_single_product = SingleProduct.objects.filter(sale=self)
-        total_sale_price = 0
-        for e in list_single_product:
-            total_sale_price += e.sale_price
-        return list_single_product, total_sale_price
-
-    def list_single_products_from_container(self):
-        """
-        Return the list of SingleProductFromContainer objects bought in this
-        Sale.
-
-        :returns: List of SingleProductFromContainer objects (index 0) and
-        total price of these products (index 1)
-        :rtype: List of SingleProductFromContainer objects (index 0), float
-        (Decimal) (index 1)
-        """
-        list_single_product_from_container = (
-            SingleProductFromContainer.objects.filter(sale=self))
-        total_sale_price = 0
-        for e in list_single_product_from_container:
-            total_sale_price += e.sale_price
-        return list_single_product_from_container, total_sale_price
-
-    def list_shared_events(self):
-        """
-        Return the list of SharedEvent objects bought in this Sale.
-
-        :returns: List of SharedEvent objects (index 0) and total price of
-        these products (index 1)
-        :rtype: List of SharedEvent objects (index 0), float (Decimal)
-        (index 1)
-        """
-        list_shared_event = SharedEvent.objects.filter(sale=self)
-        total_sale_price = 0
-        for e in list_shared_event:
-            total_sale_price += e.price
-        return list_shared_event, total_sale_price
-
-    def maj_amount(self):
-        """
-        Set the amount attribute of the Sale to the right amount regarding
-        bought products.
-
-        This attribute is here only to compute once in order to consolidate
-        the database.
-
-        :note:: This attribute is the total amount of the Sale. This amount
-        can be payed by several Users at the same time. To know what each User
-        pays, please refer to the method price_for.
-        """
-        self.amount = (self.list_single_products()[1]
-                       + self.list_single_products_from_container()[1]
-                       + self.list_shared_events()[1])
-        self.save()
-
-    def price_for(self, user):
-        """
-        Return the sale price for an User.
-
-        In several cases, multiply users can be related to the same Sale. This
-        is the case for SharedEvent by definition. Thus this function let you
-        know the amount payed by a specific User, which is different of the
-        amount attrite of the Sale. It's based on Payement objects managed by
-        the User.
-
-        :returns: the price the User payed for this Sale.
-        :rtype: float (Decimal)
-
-        :note:: In the case of debit of the User, the returned amount is
-        negativ, positiv in the case of credit.
-        """
-        price_for = 0
-        # Cas des crédits
-        if self.is_credit is True or self.recipient == user:
-            price_for = self.amount
-        # Cas des débit
-        else:
-            for e in self.payment.list_lydia()[0]:
-                if e.sender == user:
-                    price_for += e.amount
-            for e in self.payment.list_cash()[0]:
-                if e.sender == user:
-                    price_for += e.amount
-            for e in self.payment.list_cheque()[0]:
-                if e.sender == user:
-                    price_for += e.amount
-            for e in self.payment.list_debit_balance()[0]:
-                if e.sender == user:
-                    price_for += e.amount
-            price_for = -price_for
-        return price_for
 
     def string_products(self):
         """
@@ -163,16 +53,14 @@ class Sale(models.Model):
         :note:: Why do SharedEvents are excluded ?
         """
         string = ''
-        for p in self.list_single_products()[0]:
-            string += p.__str__() + ', '
-        for p in self.list_single_products_from_container()[0]:
+        for p in self.products()[0]:
             string += p.__str__() + ', '
         string = string[0: len(string)-2]
         return string
 
     def from_shop(self):
         try:
-            return Shop.objects.get(name=self.wording.split(' ')[1])
+            return self.module.shop
         except ObjectDoesNotExist:
             return None
         except IndexError:
@@ -197,6 +85,12 @@ class Sale(models.Model):
             ('list_exceptionnal_movement',
              'Lister les mouvements exceptionnels')
         )
+
+
+class SaleProduct(models.Model):
+    sale = models.ForeignKey('Sale', on_delete=models.CASCADE)
+    product = models.ForeignKey('Product', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
 
 
 class Recharging(models.Model):
@@ -601,106 +495,3 @@ class SharedEvent(models.Model):
             ('proceed_payment_sharedevent',
              'Procéder au paiement des événements communs'),
         )
-
-
-def sale_sale(sender, operator, date, wording, category='sale',
-              justification=None, payments_list=None, products_list=None,
-              amount=None, to_return=None):
-    """
-    Create a Sale for a regular sale between a member and the association.
-
-    This function is used when the association sells something to a member.
-    Moreover it could be used for an exceptionnal debit (please refer to
-    sale_recharging for exceptionnal credit). This case is considered to be
-    a sale of an object not in the database.
-
-    :param sender: user who buy something, mandatory. For exceptionnal debit
-    it is the user who is debited.
-    :param operator: user who manage the sell. Some modules let the buyer
-    manage himself the sell (direct sell for instance). Mandatory.
-    :param date: date of the sale, mandatory.
-    :param wording: subtype of the sell, mandatory.
-    :param category: category of the sell. Could be 'exceptionnal_movement'.
-    :param justification: justification in the case of exceptionnal movement.
-    :param payments_list: list of payment objects used (Cash, Lydia or Cheque).
-    If not it indicates that the user want to pay with DebitBalance.
-    :param products_list: list of products bought by the user. If None it's an
-    exceptionnal movement.
-    :param amount: amount of the sale, only for exceptionnal movement. If
-    not the amount is calculated from products objects.
-    :param to_return: if true the function return the created Sale.
-    :type sender: User object
-    :type operator: User object
-    :type date: date string
-    :type wording: string
-    :type category: string, default 'sale'
-    :type justification: string, default None
-    :type payments_list: list of payment objects (Cash, Lydia or Cheque),
-    default None
-    :type products_list: list of products objects (SingleProduct or
-    SingleProductFromContainer)
-    :type amount: float (Decimal), default None
-    :type to_return: boolean, default False
-
-    :returns: the created Sale if to_return is True only, nothing instead.
-    :type: Sale object if to_return is True only, nothing instead.
-
-    :note:: We should debit the association.
-    :note:: Product must be sent without sale but with a sale_price. For
-    SingleProduct is_sold should be True.
-    :note:: Setting attributes such as sale_price and is_sold should be made
-    inside this function directly. Thus, products sent are clean.
-    """
-    from users.models import User
-
-    p = Payment.objects.create()
-
-    db = None
-    if payments_list is None:
-        db = DebitBalance.objects.create(sender=sender,
-                                         recipient=User.objects.get(
-                                             username='AE_ENSAM'))
-        p.debit_balance.add(db)
-        p.save()
-    else:
-        for payment in payments_list:
-            if isinstance(payment, Cash):
-                p.cashs.add(payment)
-            if isinstance(payment, Cheque):
-                p.cheques.add(payment)
-            if isinstance(payment, Lydia):
-                p.lydias.add(payment)
-        p.save()
-        p.maj_amount()
-
-    s = Sale.objects.create(date=date, sender=sender, operator=operator,
-                            recipient=User.objects.get(username='AE_ENSAM'),
-                            payment=p, category=category, wording=wording,
-                            justification=justification)
-
-    if products_list is None:
-        SingleProductFromContainer.objects.create(
-            container=Container.objects.get(pk=1),
-            quantity=amount * 100,
-            sale_price=amount,
-            sale=s)
-        s.maj_amount()
-    else:
-        for product in products_list:
-            product.sale = s
-            product.is_sold = True
-            product.save()
-        s.maj_amount()
-
-    if payments_list is None:
-        db.amount = s.amount
-        db.save()
-        p.maj_amount()
-
-    sender.debit(s.amount)
-
-    s.done = True
-    s.save()
-
-    if to_return is True:
-        return s
