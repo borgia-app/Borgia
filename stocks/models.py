@@ -13,7 +13,7 @@ class StockEntry(models.Model):
 
 class StockEntryProduct(models.Model):
     """
-    price -> price for the whole quantity
+    price -> price for the whole quantity (even if price for L/KG is possible in the form)
     """
     stockentry = models.ForeignKey('StockEntry', on_delete=models.CASCADE)
     product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)

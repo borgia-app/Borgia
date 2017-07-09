@@ -24,6 +24,7 @@ from shops.models import Product
 from finances.views import *
 from modules.views import *
 from notifications.views import *
+from stocks.views import *
 from api.Schema.main import schema
 from graphene_django.views import GraphQLView
 from api.views import AuthGenerateJWT, AuthVerifyJWT, AuthInvalidateJWT, GraphQLJwtProtectedView
@@ -99,6 +100,9 @@ urlpatterns = [
         ProductUpdatePrice.as_view(), name='url_product_update_price'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
         ProductDeactivate.as_view(), name='url_product_deactivate'),
+
+    url(r'^(?P<group_name>[\w-]+)/stocks/entry/$',
+        ShopStockEntryCreate.as_view(), name='url_stock_entry_create'),
 
     url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/bank_accounts/create/$',
         UserBankAccountCreate.as_view(), name='url_user_bankaccount_create'),
