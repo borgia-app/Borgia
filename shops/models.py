@@ -80,6 +80,7 @@ class Product(models.Model):
         on_delete=models.CASCADE)
     is_active = models.BooleanField('Actif', default=True)
     unit = models.CharField('Unité', max_length=255, choices=UNIT_CHOICES, blank=True, null=True)
+    correcting_factor = models.PositiveIntegerField()
 
     def __str__(self):
         return self.name

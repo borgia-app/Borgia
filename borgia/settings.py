@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'finances',
     'settings_data',
     'modules',
-    'graphene_django',
+    'stocks',
+    'graphene_django'
 ]
 
 MIDDLEWARE_CLASSES = [
