@@ -102,10 +102,10 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
             except ZeroDivisionError:
                 pass
 
-            return redirect(
-                reverse('url_stock_entry_list',
-                               kwargs={'group_name': self.group.name})
-                        )
+        return redirect(
+            reverse('url_stock_entry_list',
+                           kwargs={'group_name': self.group.name})
+                    )
 
 
 class StockEntryList(GroupPermissionMixin, ShopFromGroupMixin, FormView,

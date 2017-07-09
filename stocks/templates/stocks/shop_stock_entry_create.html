@@ -56,7 +56,7 @@ $('.category_formset').formset({
     $("[id$='product']").change(function(e) {
       update_units.bind(this)(e)
     })
-    $("[id$='product']").trigger('change')
+    $(row).find('.selectpicker').trigger('change')
   }
 })
 $("[id$='product']").change(function(e) {

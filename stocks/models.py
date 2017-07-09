@@ -13,6 +13,9 @@ class StockEntry(models.Model):
 
     def total(self):
         total = sum(sep.price for sep in self.stockentryproduct_set.all())
+        for sep in self.stockentryproduct_set.all():
+            print(sep.price)
+            print(sep.quantity)
         return total
 
     def string_products(self):
