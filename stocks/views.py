@@ -1,5 +1,6 @@
 from django.shortcuts import render, redirect, Http404, reverse
 from functools import partial, wraps
+from decimal import Decimal
 
 from django.views.generic import FormView, View
 from django.forms.formsets import formset_factory
@@ -11,6 +12,7 @@ from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           GroupLateralMenuMixin, shop_from_group,
                           lateral_menu)
 from stocks.forms import StockEntryProductForm
+from shops.models import Product
 
 
 class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
@@ -40,5 +42,61 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
-        print('post')
-        pass
+        stockentry = StockEntry.objects.create(operator=request.user)
+
+        stockentry_form = self.form_class(request.POST)
+        for form in stockentry_form.cleaned_data:
+            """
+            Even if html and js verify and ensure entries, you verify again here.
+            """
+            try:
+                product = Product.objects.get(pk=form['product'].split('/')[0])
+                if product.unit:
+                    # Container
+                    if product.unit == 'G':
+                        if form['unit_quantity'] == 'G':
+                            quantity = Decimal(form['quantity'])
+                            if form['unit_amount'] == 'PACKAGE':
+                                price = Decimal(form['amount'])
+                            elif form['unit_amount'] == 'KG':
+                                price = Decimal(form['amount'] * Decimal(form['quantity'] / 1000))
+                        elif form['unit_quantity'] == 'KG':
+                            quantity = Decimal(form['quantity'] * 1000)
+                            if form['unit_amount'] == 'PACKAGE':
+                                price = Decimal(form['amount'])
+                            elif form['unit_amount'] == 'KG':
+                                price = Decimal(form['amount'] * form['quantity'])
+                    elif product.unit == 'CL':
+                        if form['unit_quantity'] == 'CL':
+                            quantity = Decimal(form['quantity'])
+                            if form['unit_amount'] == 'PACKAGE':
+                                price = Decimal(form['amount'])
+                            elif form['unit_amount'] == 'L':
+                                price = Decimal(form['amount'] * Decimal(form['quantity'] / 100))
+                        elif form['unit_quantity'] == 'L':
+                            quantity = Decimal(form['quantity'] * 100)
+                            if form['unit_amount'] == 'PACKAGE':
+                                price = Decimal(form['amount'])
+                            elif form['unit_amount'] == 'L':
+                                price = Decimal(form['amount'] * form['quantity'])
+                else:
+                    # Single product
+                    quantity = form['quantity']
+                    if form['unit_amount'] == 'UNIT':
+                        price = Decimal(form['amount'] * form['quantity'])
+                    elif form['unit_amount'] == 'PACKAGE':
+                        price = Decimal(form['amount'])
+
+                StockEntryProduct.objects.create(
+                    stockentry=stockentry,
+                    product=product,
+                    quantity=quantity,
+                    price=amount
+                )
+
+            except ObjectDoesNotExist:
+                pass
+            except ZeroDivisionError:
+                pass
+
+            return self.get(request, *args, **kwargs)

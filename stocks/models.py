@@ -13,6 +13,7 @@ class StockEntry(models.Model):
 
 class StockEntryProduct(models.Model):
     """
+    quantity -> in CL/G (even if L/KG is possible in the form)
     price -> price for the whole quantity (even if price for L/KG is possible in the form)
     """
     stockentry = models.ForeignKey('StockEntry', on_delete=models.CASCADE)

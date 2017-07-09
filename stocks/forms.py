@@ -13,7 +13,7 @@ class StockEntryProductForm(forms.Form):
                      for product in Product.objects.filter(shop=shop)]),
             widget=forms.Select(
                 attrs={'class': 'form-control selectpicker',
-                       'data-live-search': 'True'})
+                       'data-live-search': 'True', 'required':'required'})
         )
     quantity = forms.IntegerField(
         label='En vente',
@@ -21,14 +21,14 @@ class StockEntryProductForm(forms.Form):
         widget=forms.NumberInput(
             attrs={'class': 'form-control centered_input quantity',
                     'placeholder': 'Quantité',
-                    'min':1}
+                    'min':1, 'required':'required'}
         )
     )
     unit_quantity = forms.ChoiceField(
         label='Unité quantité',
         choices=([('UNIT', 'produits'), ('CL', 'cl'), ('L', 'L'), ('G', 'g'), ('KG', 'kg')]),
         widget=forms.Select(
-            attrs={'class': 'form-control selectpicker unit_quantity'}),
+            attrs={'class': 'form-control selectpicker unit_quantity', 'required': 'required'}),
         required=False
     )
     amount = forms.DecimalField(
@@ -38,13 +38,13 @@ class StockEntryProductForm(forms.Form):
         widget=forms.NumberInput(
             attrs={'class': 'form-control centered_input amount',
                     'placeholder': 'Montant',
-                    'min':0}
+                    'min':0, 'required':'required'}
         ))
     unit_amount = forms.ChoiceField(
         label='Unité montant',
         choices=([('UNIT', '€ / unité'), ('PACKAGE', '€ / lot'), ('L', '€ / L'), ('KG', '€ / kg')]),
         widget=forms.Select(
-            attrs={'class': 'form-control selectpicker unit_amount'}),
+            attrs={'class': 'form-control selectpicker unit_amount', 'required':'required'}),
         required=False
     )
 
