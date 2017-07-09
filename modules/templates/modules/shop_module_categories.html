@@ -15,9 +15,6 @@
     <form method="post">
       <div class="row">
         {% csrf_token %}
-        <div class="col-md-12">
-          {{ places_form|bootstrap }}
-        </div>
         {{ cat_form.management_form }}
         {% for category_form in cat_form %}
           <div class="category_formset col-md-4" style="margin-top: 15px">
@@ -43,17 +40,17 @@
 </div>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js"></script>
 <script>
-    $('.category_formset').formset({
-        addText: 'Nouvelle catégorie',
-        deleteText: 'Supprimer',
-        addCssClass: 'add-row btn btn-success btn-sm',
-        deleteCssClass: 'delete-row',
-        added: function(row) {
-          $(row).find('.selectpicker').each(function() {
-            $(this).selectpicker();
-          })
-        }
-    });
+$('.category_formset').formset({
+  addText: 'Nouvelle catégorie',
+  deleteText: 'Supprimer',
+  addCssClass: 'add-row btn btn-success btn-sm',
+  deleteCssClass: 'delete-row',
+  added: function(row) {
+    $(row).find('.selectpicker').each(function() {
+      $(this).selectpicker()
+    })
+  }
+})
 </script>
 <style>
   .add-row {

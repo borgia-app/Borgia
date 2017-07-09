@@ -28,7 +28,7 @@ class Category(models.Model):
 class CategoryProduct(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField()
+    quantity = models.PositiveIntegerField(blank=True, null=True)
 
 
 class Module(models.Model):

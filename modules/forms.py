@@ -95,10 +95,45 @@ class ModuleCategoryForm(forms.Form):
         super(ModuleCategoryForm, self).__init__(*args, **kwargs)
         self.fields['products'] = forms.ModelMultipleChoiceField(
             label='Produits',
-            queryset=ProductBase.objects.filter(shop=shop),
+            queryset=Product.objects.filter(shop=shop),
             widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
                                                'data-live-search': 'True'}),
             required=False)
+
+
+class ModuleCategoryCreateForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        shop = kwargs.pop('shop')
+        super(ModuleCategoryCreateForm, self).__init__(*args, **kwargs)
+        self.fields['product'] = forms.ChoiceField(
+            label='Produit',
+            choices=([(None, 'Sélectionner un produit')] + [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
+                     for product in Product.objects.filter(shop=shop)]),
+            widget=forms.Select(
+                attrs={'class': 'form-control selectpicker',
+                       'data-live-search': 'True'})
+        )
+    quantity = forms.IntegerField(
+        label='En vente',
+        required=False,
+        widget=forms.NumberInput(
+            attrs={'class': 'form-control centered_input quantity',
+                    'placeholder': 'En vente',
+                    'min':1}
+        )
+    )
+
+    def clean(self):
+        cleaned_data = super(ModuleCategoryCreateForm, self).clean()
+        # Validation direct in html
+
+
+
+class ModuleCategoryCreateNameForm(forms.Form):
+    name = forms.CharField(
+        label='Nom',
+        max_length=254
+    )
 
 
 class ShopModuleConfigForm(forms.Form):
