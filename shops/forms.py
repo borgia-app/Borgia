@@ -1,5 +1,6 @@
 from django import forms
 from django.forms.models import ModelChoiceField
+from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from shops.models import Shop, Product
 from borgia.validators import autocomplete_username_validator
@@ -74,6 +75,15 @@ class ShopCreateForm(forms.ModelForm):
         model = Shop
         fields = ['name', 'description', 'color']
 
+    def clean(self):
+        cleaned_data = super(ShopCreateForm, self).clean()
+        try:
+            Shop.objects.get(name=cleaned_data['name'])
+            raise forms.ValidationError('Le code de magasin est déjà utilisé')
+        except MultipleObjectsReturned:
+            raise forms.ValidationError('Le code de magasin est déjà utilisé')
+        except ObjectDoesNotExist:
+            pass
 
 class ShopUpdateForm(forms.ModelForm):
     class Meta:
