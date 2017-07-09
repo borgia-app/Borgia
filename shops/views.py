@@ -420,7 +420,34 @@ class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         return {}
 
     def info_transaction(self):
-        return {}
+        # All
+        q_sales = Sale.objects.filter(shop=self.shop_mod)
+        value = sum(s.amount() for s in q_sales)
+        nb = q_sales.count()
+        try:
+            mean = round(value / nb, 2)
+        except ZeroDivisionError:
+            mean = 0
+        return {
+            'value': value,
+            'nb': nb,
+            'mean': mean
+        }
 
     def info_checkup(self):
-        return {}
+        q_sale = Sale.objects.filter(shop=self.shop_mod)
+        if self.products:
+            q_sale = q_sale.filter(products__pk__in=[p.pk for p in self.products])
+        if self.date_begin:
+            q_sale = q_sale.filter(datetime__gte=self.date_begin)
+        if self.date_end:
+            q_sale = q_sale.filter(datetime__lte=self.date_end)
+        sale_value = sum(s.amount() for s in q_sale)
+        sale_nb = q_sale.count()
+        print(sale_value)
+        return {
+            'sale': {
+                'value': sale_value,
+                'nb': sale_nb
+            }
+        }

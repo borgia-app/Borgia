@@ -98,7 +98,7 @@ class ShopCheckupSearchForm(forms.Form):
         super(ShopCheckupSearchForm, self).__init__(**kwargs)
         self.fields['products'] = forms.ModelMultipleChoiceField(
             label='Produits',
-            queryset=ProductBase.objects.filter(shop=shop),
+            queryset=Product.objects.filter(shop=shop),
             widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
                                                'data-live-search': 'True'}),
             required=False)
