@@ -564,7 +564,6 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
         return mlist
 
 
-# TODO: infos
 class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
                          GroupLateralMenuMixin):
     perm_codename = None
@@ -582,14 +581,21 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
 
     def get_sales(self, request):
         sales = {}
-
+        list = Sale.objects.filter(shop=self.shop).order_by('-datetime')
+        sales['weeks'] = self.weeklist(
+            datetime.now() - timedelta(days=365),
+        datetime.now())
+        sales['data_weeks'] = self.sale_data_weeks(list, sales['weeks'])[0]
+        sales['total'] = self.sale_data_weeks(list, sales['weeks'])[1]
+        sales['all'] = list[:7]
         return sales
 
+    # TODO: purchases with stock
     def get_purchases(self, request):
         purchases = {}
-
         return purchases
 
+    # TODO: purchases with stock
     def purchase_data_weeks(self, list_single_products, list_containers,
                             weeks):
         amounts = [0 for i in range(0, len(weeks))]
@@ -600,7 +606,12 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
     def sale_data_weeks(self, list, weeks):
         amounts = [0 for i in range(0, len(weeks))]
         total = 0
-
+        for object in list:
+            string = (str(object.datetime.isocalendar()[1])
+                      + '-' + str(object.datetime.year))
+            if string in weeks:
+                amounts[weeks.index(string)] += object.amount()
+                total += object.amount()
         return amounts, total
 
     def weeklist(self, start, end):

@@ -28,10 +28,10 @@
           <tbody>
             {% for sale in sale_list.all %}
             <tr>
-              <td>{{ sale.date|date:"d/m/Y H:i:s" }}</td>
+              <td>{{ sale.datetime|date:"d/m/Y H:i:s" }}</td>
               <td>{{ sale.sender }}</td>
               <td>{{ sale.string_products }}</td>
-              <td>{{ sale.amount }} €</td>
+              <td>{{ sale.amount }}€</td>
             </tr>
             {% endfor %}
           </tbody>
@@ -50,52 +50,45 @@
   </div>
 </div>
 <script>
-  function decimalToHex(decimal) {
-    var hex = decimal.toString(16);
-    if (hex.length == 1) hex = '0' + hex;
-    return hex;
-  }
-  function hexToDecimal(hex) {return parseInt(hex,16);}
-  function returnOpposite(colour) {
-    return decimalToHex(255 - hexToDecimal(colour.substr(0,2)))
-      + decimalToHex(255 - hexToDecimal(colour.substr(2,2)))
-      + decimalToHex(255 -  hexToDecimal(colour.substr(4,2)));
-  }
+function decimalToHex(decimal) {
+  var hex = decimal.toString(16)
+  if (hex.length == 1) hex = '0' + hex
+  return hex
+}
+function hexToDecimal(hex) {
+  return parseInt(hex, 16)
+}
+function returnOpposite(colour) {
+  return (
+    decimalToHex(255 - hexToDecimal(colour.substr(0, 2))) +
+    decimalToHex(255 - hexToDecimal(colour.substr(2, 2))) +
+    decimalToHex(255 - hexToDecimal(colour.substr(4, 2)))
+  )
+}
 
-  var shop_color_hex = "{{ shop.color }}".substring(1, "{{ shop.color }}".length)
-  var opposite_shop_color_hex = "#" + returnOpposite(shop_color_hex)
+var shop_color_hex = '{{ shop.color }}'.substring(1, '{{ shop.color }}'.length)
+var opposite_shop_color_hex = '#' + returnOpposite(shop_color_hex)
 
-  var ctx = "PieChart";
-  var data = {
-    labels: [
-      "Ventes",
-      "Achats"
-    ],
-    datasets: [
-        {
-            data: [
-              "{{ sale_list.total }}",
-              "{{ purchase_list.total }}"
-            ],
-            backgroundColor: [
-              "{{ shop.color }}",
-              opposite_shop_color_hex
-            ],
-            hoverBackgroundColor: [
-              "{{ shop.color }}",
-              opposite_shop_color_hex
-            ]
-        }]
-  };
-  var PieChart = new Chart(ctx, {
-    type: 'pie',
-    data: data,
-    options: {
-      legend: {
-        position: 'left'
-      }
+var ctx = 'PieChart'
+var data = {
+  labels: ['Ventes', 'Achats'],
+  datasets: [
+    {
+      data: ['{{ sale_list.total }}', '{{ purchase_list.total }}'],
+      backgroundColor: ['{{ shop.color }}', opposite_shop_color_hex],
+      hoverBackgroundColor: ['{{ shop.color }}', opposite_shop_color_hex]
     }
-  });
+  ]
+}
+var PieChart = new Chart(ctx, {
+  type: 'pie',
+  data: data,
+  options: {
+    legend: {
+      position: 'left'
+    }
+  }
+})
 </script>
 <div class="row">
   <div class='col-md-12'>
