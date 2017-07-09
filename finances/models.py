@@ -43,6 +43,9 @@ class Sale(models.Model):
         """
         return 'Achat n°' + str(self.pk)
 
+    def pay(self):
+        self.sender.debit(self.amount())
+
     def wording(self):
         return 'Achat ' + self.shop.__str__() + ', ' + self.string_products()
 

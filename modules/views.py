@@ -85,6 +85,7 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
                         )
                     except ObjectDoesNotExist:
                         pass
+        sale.pay()
         return sale_shop_module_resume(
             self.request, sale, self.group, self.shop, self.module, self.success_url
         )
