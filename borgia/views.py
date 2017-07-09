@@ -12,7 +12,7 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 
 from borgia.utils import *
-from finances.models import Sale, SharedEvent, Transfert
+from finances.models import Sale, SharedEvent, Transfert, Recharging, ExceptionnalMovement
 from shops.models import Product
 from borgia.forms import LoginForm
 
@@ -496,49 +496,63 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['sale_list'] = self.get_sales(request)
+        context['transaction_list'] = self.get_transactions(request)
         return render(request, self.template_name, context=context)
 
-    def get_sales(self, request):
-        sales = {}
-        sales['months'] = self.monthlist(
+    def get_transactions(self, request):
+        transactions = {}
+        transactions['months'] = self.monthlist(
             datetime.now() - timedelta(days=365),
             datetime.now())
 
+        transactions['all'] = self.request.user.list_transaction()[:5]
+
         # Shops sales
-        sale_list = Sale.objects.filter(sender=self.request.user)
-        sales['shops'] = []
-        sales['all'] = sale_list[:5]
+        sale_list = Sale.objects.filter(sender=self.request.user).order_by('-datetime')
+        transactions['shops'] = []
         for shop in Shop.objects.all().exclude(pk=1):
             list_filtered = sale_list.filter(shop=shop)
             total = 0
             for sale in list_filtered:
                 total += sale.amount()
-            sales['shops'].append({
+            transactions['shops'].append({
                 'shop': shop,
-                'total': -total,
+                'total': total,
                 'sale_list_short': list_filtered[:5],
-                'data_months': self.data_months(request, list_filtered, sales['months'])
+                'data_months': self.data_months(request, list_filtered, transactions['months'])
             })
 
         # Transferts
         transfert_list = Transfert.objects.filter(
             Q(sender=self.request.user) | Q(recipient=self.request.user)
-        )
-        sales['transferts'] = {
-            'sale_list_short': transfert_list[:5]
+        ).order_by('-datetime')
+        transactions['transferts'] = {
+            'transfert_list_short': transfert_list[:5]
+        }
+
+        # Rechargings
+        rechargings_list = Recharging.objects.filter(sender=self.request.user).order_by('-datetime')
+        transactions['rechargings'] = {
+            'recharging_list_short': rechargings_list[:5]
+        }
+
+        # ExceptionnalMovements
+        exceptionnalmovements_list = ExceptionnalMovement.objects.filter(recipient=self.request.user).order_by('-datetime')
+        print(exceptionnalmovements_list)
+        transactions['exceptionnalmovements'] = {
+            'exceptionnalmovement_list_short': exceptionnalmovements_list[:5]
         }
 
         #TODO: shared event
-        return sales
+        return transactions
 
     def data_months(self, request, list, months):
         amounts = [0 for i in range(0, len(months))]
         for object in list:
-            if object.date.strftime("%b-%y") in months:
+            if object.datetime.strftime("%b-%y") in months:
                 amounts[
-                    months.index(object.date.strftime("%b-%y"))] +=\
-                        abs(object.price_for(request.user))
+                    months.index(object.datetime.strftime("%b-%y"))] +=\
+                        abs(object.amount())
         return amounts
 
     def monthlist(self, start, end):

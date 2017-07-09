@@ -11,13 +11,13 @@
   <div class='col-md-8'>
     <div class="panel panel-default">
         <div class="panel-heading">
-            Derniers achats
+            Dernières transactions
         </div>
         <div class="panel-body">
           <div>
             <ul class="nav nav-tabs" role="tablist">
               <li role="presentation" class="active"><a href="#all" aria-controls="all" role="tab" data-toggle="tab">Tous</a></li>
-              {% for object in sale_list.shops %}
+              {% for object in transaction_list.shops %}
               <li role="presentation">
                 <a href="#{{ object.shop.name }}"
                   aria-controls="{{ object.shop.name }}"
@@ -29,6 +29,18 @@
                 <a href="#transferts"
                   aria-controles="transferts"
                   role="tab" data-toggle="tab">Transferts
+                </a>
+              </li>
+              <li role="presentation">
+                <a href="#rechargings"
+                  aria-controles="rechargements"
+                  role="tab" data-toggle="tab">Rechargements
+                </a>
+              </li>
+              <li role="presentation">
+                <a href="#exceptionnalmovements"
+                  aria-controles="mouvements exceptionnels"
+                  role="tab" data-toggle="tab">Exceptionnels
                 </a>
               </li>
               <li role="presentation">
@@ -45,30 +57,40 @@
                   <thead>
                     <tr>
                       <th>Date</th>
-                      <th>Produits</th>
+                      <th>Libellé</th>
                       <th>Montant</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {% for sale in sale_list.all %}
+                    {% for transaction in transaction_list.all %}
                     <tr>
-                      <td>{{ sale.date|date:"d/m/Y H:i:s" }}</td>
-                      <td>{% if sale.category == 'transfert' %}
-                        {{ sale.justification }}
-                        {% if sale.sender == user %} vers {{ sale.recipient }}{% else %} depuis {{ sale.sender}}{% endif %}
-                        {% elif sale.category == 'shared_event' %}
-                        {{ sale.wording }}
+                      <td>{{ transaction.datetime|date:"d/m/Y H:i:s" }}</td>
+                      <td>{{ transaction.wording }}</td>
+                      <td>
+                        {% if transaction|get_transaction_model == 'Sale' %}
+                          -{{ transaction.amount }}€
+                        {% elif transaction|get_transaction_model == 'ExceptionnalMovement' %}
+                          {% if transaction.is_credit %}
+                            {{ transaction.amount }}€
+                          {% else %}
+                            -{{ transaction.amount }}€
+                          {% endif %}
+                        {% elif transaction|get_transaction_model == 'Transfert' %}
+                          {% if transaction.sender.recipient == user %}
+                            {{ transaction.amount }}€
+                          {% else %}
+                            -{{ transaction.amount }}€
+                          {% endif %}
                         {% else %}
-                        {{ sale.string_products }}
+                          {{ transaction.amount }}€
                         {% endif %}
                       </td>
-                      <td>{% price_for sale=sale user=user %} €</td>
                     </tr>
                     {% endfor %}
                   </tbody>
                 </table>
               </div>
-              {% for object in sale_list.shops %}
+              {% for object in transaction_list.shops %}
               <div role="tabpanel" class="tab-pane" id="{{ object.shop.name }}">
                 <table class="table table-default">
                   <thead>
@@ -79,11 +101,11 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for sale in object.sale_list_short %}
+                    {% for transaction in object.sale_list_short %}
                     <tr>
-                      <td>{{ sale.date|date:"d/m/Y H:i:s" }}</td>
-                      <td>{{ sale.string_products }}</td>
-                      <td>{% price_for sale=sale user=user %} €</td>
+                      <td>{{ transaction.datetime|date:"d/m/Y H:i:s" }}</td>
+                      <td>{{ transaction.string_products }}</td>
+                      <td>-{{ transaction.amount }}€</td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -100,12 +122,66 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for sale in sale_list.transferts.sale_list_short %}
+                    {% for transfert in transaction_list.transferts.transfert_list_short %}
                     <tr>
-                      <td>{{ sale.date|date:"d/m/Y H:i:s" }}</td>
-                      <td>{{ sale.justification }}
-                      {% if sale.sender == user %} vers {{ sale.recipient }}{% else %} depuis {{ sale.sender}}{% endif %}</td>
-                      <td>{% price_for sale=sale user=user %} €</td>
+                      <td>{{ transfert.datetime|date:"d/m/Y H:i:s" }}</td>
+                      <td>{{ transfert.justification }}
+                      {% if transfert.sender == user %} vers {{ transfert.recipient }}{% else %} depuis {{ transfert.sender}}{% endif %}</td>
+                      <td>
+                        {% if transfert.sender == user %}
+                          -{{ transfert.amount }}
+                        {% else %}
+                          {{ transfert.amount }}
+                        {% endif %}
+                        €
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div role="tabpanel" class="tab-pane" id="rechargings">
+                <table class="table table-default">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Libellé</th>
+                      <th>Montant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for recharging in transaction_list.rechargings.recharging_list_short %}
+                    <tr>
+                      <td>{{ recharging.datetime|date:"d/m/Y H:i:s" }}</td>
+                      <td>{{ recharging.wording }}</td>
+                      <td>{{ recharging.amount }}€</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <div role="tabpanel" class="tab-pane" id="exceptionnalmovements">
+                <table class="table table-default">
+                  <thead>
+                    <tr>
+                      <th>Date</th>
+                      <th>Justification</th>
+                      <th>Montant</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for exceptionnalmovement in transaction_list.exceptionnalmovements.exceptionnalmovement_list_short %}
+                    <tr>
+                      <td>{{ exceptionnalmovement.datetime|date:"d/m/Y H:i:s" }}</td>
+                      <td>{{ exceptionnalmovement.justification }}</td>
+                      <td>
+                        {% if exceptionnalmovement.is_credit %}
+                          {{ exceptionnalmovement.amount }}
+                        {% else %}
+                          -{{ exceptionnalmovement.amount }}
+                        {% endif %}
+                        €
+                      </td>
                     </tr>
                     {% endfor %}
                   </tbody>
@@ -151,7 +227,7 @@
   var ctx = "PieChart";
   var data = {
     labels: [
-      {% for object in sale_list.shops %}
+      {% for object in transaction_list.shops %}
       "{{ object.shop.name }}"
       {% if not loop.last %}
       ,
@@ -161,7 +237,7 @@
     datasets: [
         {
             data: [
-              {% for object in sale_list.shops %}
+              {% for object in transaction_list.shops %}
               "{{ object.total }}"
               {% if not loop.last %}
               ,
@@ -169,7 +245,7 @@
               {% endfor %}
             ],
             backgroundColor: [
-              {% for object in sale_list.shops %}
+              {% for object in transaction_list.shops %}
               "{{ object.shop.color }}"
               {% if not loop.last %}
               ,
@@ -177,7 +253,7 @@
               {% endfor %}
             ],
             hoverBackgroundColor: [
-              {% for object in sale_list.shops %}
+              {% for object in transaction_list.shops %}
               "{{ object.shop.color }}"
               {% if not loop.last %}
               ,
@@ -212,7 +288,7 @@
   var ctx = "LineChart";
   var data = {
     labels: [
-      {% for month in sale_list.months %}
+      {% for month in transaction_list.months %}
       "{{ month }}"
       {% if not loop.last %}
       ,
@@ -220,7 +296,7 @@
       {% endfor %}
     ],
     datasets: [
-        {% for object in sale_list.shops %}
+        {% for object in transaction_list.shops %}
         {
             label: "{{ object.shop.name|capfirst }}",
             fill: false,

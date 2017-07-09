@@ -218,7 +218,7 @@ class User(AbstractUser):
 
         list_transaction = sorted(
             list(chain(sales, transferts, rechargings, exceptionnal_movements)),
-            key=lambda instance: instance.datetime
+            key=lambda instance: instance.datetime, reverse=True
         )
 
         return list_transaction

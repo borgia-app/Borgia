@@ -44,7 +44,7 @@ class Sale(models.Model):
         return 'Achat n°' + str(self.pk)
 
     def wording(self):
-        return 'Achat ' + self.module.name + ', ' + self.string_products()
+        return 'Achat ' + self.shop.__str__() + ', ' + self.string_products()
 
     def string_products(self):
         """
