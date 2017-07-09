@@ -51,3 +51,26 @@ class StockEntryProductForm(forms.Form):
     def clean(self):
         cleaned_data = super(StockEntryProductForm, self).clean()
         # Validation direct in html
+
+
+class StockEntryListDateForm(forms.Form):
+    def __init__(self, **kwargs):
+        shop = kwargs.pop('shop')
+        super(StockEntryListDateForm, self).__init__(**kwargs)
+        if shop is None:
+            self.fields['shop'] = forms.ModelChoiceField(
+                label='Magasin',
+                queryset=Shop.objects.all().exclude(pk=1),
+                empty_label='Tous',
+                required=False
+            )
+    date_begin = forms.DateField(
+        label='Date de début',
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+        required=False)
+    date_end = forms.DateField(
+        label='Date de fin',
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+        required=False)

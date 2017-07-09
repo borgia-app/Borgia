@@ -11,7 +11,8 @@ from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           ShopFromGroupMixin, ShopModuleMixin,
                           GroupLateralMenuMixin, shop_from_group,
                           lateral_menu)
-from stocks.forms import StockEntryProductForm
+from stocks.forms import StockEntryProductForm, StockEntryListDateForm
+from stocks.models import StockEntry, StockEntryProduct
 from shops.models import Product
 
 
@@ -28,6 +29,8 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
         try:
             self.group = Group.objects.get(name=kwargs['group_name'])
             self.shop = shop_from_group(self.group)
+            if self.shop is None:
+                raise Http404
         except ObjectDoesNotExist:
             raise Http404
         except ValueError:
@@ -42,7 +45,7 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
-        stockentry = StockEntry.objects.create(operator=request.user)
+        stockentry = StockEntry.objects.create(operator=request.user, shop=self.shop)
 
         stockentry_form = self.form_class(request.POST)
         for form in stockentry_form.cleaned_data:
@@ -91,7 +94,7 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                     stockentry=stockentry,
                     product=product,
                     quantity=quantity,
-                    price=amount
+                    price=price
                 )
 
             except ObjectDoesNotExist:
@@ -99,4 +102,62 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
             except ZeroDivisionError:
                 pass
 
-            return self.get(request, *args, **kwargs)
+            return redirect(
+                reverse('url_stock_entry_list',
+                               kwargs={'group_name': self.group.name})
+                        )
+
+
+class StockEntryList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
+                  GroupLateralMenuFormMixin):
+    template_name = 'stocks/stockentry_list.html'
+    perm_codename = None
+    lm_active = 'lm_stockentry_list'
+    form_class = StockEntryListDateForm
+
+    shop_query = None
+    date_begin = None
+    date_end = None
+
+    def get_context_data(self, **kwargs):
+        context = super(StockEntryList, self).get_context_data(**kwargs)
+        context['stockentry_list'] = self.form_query(
+            StockEntry.objects.all())
+        return context
+
+    def get_form_kwargs(self):
+        kwargs_form = super(StockEntryList, self).get_form_kwargs()
+        kwargs_form['shop'] = self.shop
+        return kwargs_form
+
+    def form_valid(self, form):
+        if form.cleaned_data['date_begin']:
+            self.date_begin = form.cleaned_data['date_begin']
+
+        if form.cleaned_data['date_end']:
+            self.date_end = form.cleaned_data['date_end']
+
+        try:
+            if form.cleaned_data['shop']:
+                self.shop_query = form.cleaned_data['shop']
+        except KeyError:
+            pass
+
+        return self.get(self.request, self.args, self.kwargs)
+
+    def form_query(self, query):
+        if self.date_begin:
+            query = query.filter(
+                datetime__gte=self.date_begin)
+
+        if self.date_end:
+            query = query.filter(
+                datetime__lte=self.date_end)
+
+        if self.shop:
+            query = query.filter(shop=self.shop)
+        else:
+            if self.shop_query:
+                query = query.filter(shop=self.shop_query)
+
+        return query

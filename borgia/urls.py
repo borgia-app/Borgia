@@ -101,8 +101,10 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
         ProductDeactivate.as_view(), name='url_product_deactivate'),
 
-    url(r'^(?P<group_name>[\w-]+)/stocks/entry/$',
+    url(r'^(?P<group_name>[\w-]+)/stocks/entries/create$',
         ShopStockEntryCreate.as_view(), name='url_stock_entry_create'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/entries/$',
+        StockEntryList.as_view(), name='url_stock_entry_list'),
 
     url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/bank_accounts/create/$',
         UserBankAccountCreate.as_view(), name='url_user_bankaccount_create'),

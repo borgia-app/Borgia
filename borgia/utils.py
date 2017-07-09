@@ -84,6 +84,12 @@ def lateral_menu(user, group, active=None):
             lateral_menu_product(group)
             )
 
+    # Manage stocks
+    if lateral_menu_stock(group) is not None:
+        nav_tree.append(
+            lateral_menu_stock(group)
+        )
+
     # List sales
     nav_sale_lists = {
         'label': 'Ventes',
@@ -341,6 +347,48 @@ def lateral_menu_product(group):
         return product_tree
     else:
         return None
+
+
+def lateral_menu_stock(group):
+    """
+    """
+    product_tree = {
+        'label': 'Stocks',
+        'icon': 'stack-overflow',
+        'id': 'lm_stock',
+        'subs': []
+    }
+
+    add_permission = Permission.objects.get(
+        codename='add_stockentry')
+    list_permission = Permission.objects.get(
+        codename='list_stockentry')
+
+    if add_permission in group.permissions.all():
+        product_tree['subs'].append({
+            'label': 'Nouveau',
+            'icon': 'plus',
+            'id': 'lm_stock_entry_create',
+            'url': reverse(
+                'url_stock_entry_create',
+                kwargs={'group_name': group.name})
+        })
+
+    if list_permission in group.permissions.all():
+        product_tree['subs'].append({
+            'label': 'Liste',
+            'icon': 'list',
+            'id': 'lm_stockentry_list',
+            'url': reverse(
+                'url_stock_entry_list',
+                kwargs={'group_name': group.name})
+        })
+
+    if len(product_tree['subs']) > 0:
+        return product_tree
+    else:
+        return None
+
 
 
 def lateral_menu_user_groups(user):

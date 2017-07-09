@@ -420,7 +420,7 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 self.query_shop = form.cleaned_data['shop']
         except KeyError:
             pass
-        context = self.get_context_data()
+
         return self.get(self.request, self.args, self.kwargs)
 
 
