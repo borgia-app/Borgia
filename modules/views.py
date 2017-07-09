@@ -16,7 +16,7 @@ from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           GroupLateralMenuMixin, shop_from_group,
                           lateral_menu)
 from shops.models import Shop, Product
-from finances.models import Sale
+from finances.models import Sale, SaleProduct
 from users.models import User
 
 
@@ -61,32 +61,33 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
         return context
 
     def form_valid(self, form):
-
+        """
+        Create a sale and like all products via SaleProduct objects.
+        """
         sale = Sale.objects.create(
-            sender=self.client,
-            recipient=User.objects.get(username='AE_ENSAM'),
             operator=self.request.user,
-            module=self.module
+            sender=self.client,
+            recipient=User.objects.get(pk=1),
+            module=self.module,
+            shop=self.shop
         )
-
         for field in form.cleaned_data:
             if field != 'client':
                 invoice = form.cleaned_data[field]
-                if invoice != 0 and isinstance(invoice, int):
-                    product_pk = field.split('-')[0]
-                    product = Product.objects.get(pk=product_pk)
-                    sp = SaleProduct.objects.create(
-                        sale=sale,
-                        product=product,
-                        quantity=invoice
-                    )
-
-        if sale.products.all().count() == 0:
-            sale.delete()
-            return redirect(self.success_url)
-
-        return sale_shop_module_resume(self.request, sale, self.group,
-                                       self.shop, self.module, self.success_url)
+                if invoice > 0 and isinstance(invoice, int):
+                    try:
+                        category_product = CategoryProduct.objects.get(pk=field.split('-')[0])
+                        SaleProduct.objects.create(
+                            sale=sale,
+                            product=category_product.product,
+                            quantity=category_product.quantity * invoice,
+                            price=category_product.get_price() * invoice
+                        )
+                    except ObjectDoesNotExist:
+                        pass
+        return sale_shop_module_resume(
+            self.request, sale, self.group, self.shop, self.module, self.success_url
+        )
 
 
 class SelfSaleShopModuleInterface(SaleShopModuleInterface):
@@ -460,7 +461,7 @@ class ShopModuleCategoryDelete(GroupPermissionMixin, ShopFromGroupMixin,
                 'url_module_operatorsale_workboard', kwargs={
                 'group_name': self.kwargs['group_name']})
         return self.success_url
-        
+
 
 class ShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
                        ShopModuleMixin, FormView,

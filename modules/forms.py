@@ -3,6 +3,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator
 
 from shops.models import Product
+from modules.models import CategoryProduct
 from users.models import User
 from django.db.utils import OperationalError, ProgrammingError
 
@@ -16,9 +17,9 @@ class SelfSaleShopModule(forms.Form):
         for category in self.module.categories.all():
             for category_product in category.categoryproduct_set.all():
                 if category_product.get_price() > 0:
-                    self.fields[(str(category_product.product.pk)
+                    self.fields[str(category_product.pk)
                                  + '-' + str(category.pk)
-                                 )] = forms.IntegerField(
+                                 ] = forms.IntegerField(
                         label=category_product.__str__(),
                         widget=forms.NumberInput(
                             attrs={'data_category_pk': category.pk,
@@ -48,11 +49,12 @@ class SelfSaleShopModule(forms.Form):
         for field in cleaned_data:
             if field != 'client':
                 invoice = cleaned_data[field]
-                if invoice != 0 and isinstance(invoice, int):
-                    product_pk = field.split('-')[0]
-                    total_price += (
-                        ProductBase.objects.get(pk=product_pk).get_moded_usual_price()
-                        * invoice)
+                if invoice > 0 and isinstance(invoice, int):
+                    try:
+                        category_product_pk = field.split('-')[0]
+                        total_price += (CategoryProduct.objects.get(pk=category_product_pk).get_price() * invoice)
+                    except ObjectDoesNotExist:
+                        pass
         if total_price > self.client.balance:
             raise forms.ValidationError('Crédit insuffisant !')
         if self.module.limit_purchase:

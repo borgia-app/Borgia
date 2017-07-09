@@ -56,8 +56,8 @@ class Sale(models.Model):
         :note:: Why do SharedEvents are excluded ?
         """
         string = ''
-        for p in self.products()[0]:
-            string += p.__str__() + ', '
+        for sp in self.saleproduct_set.all():
+            string += sp.__str__() + ', '
         string = string[0: len(string)-2]
         return string
 
@@ -71,8 +71,8 @@ class Sale(models.Model):
 
     def amount(self):
         amount = 0
-        for p in self.products:
-            amount += p.price
+        for sp in self.saleproduct_set.all():
+            amount += sp.price
         return amount
 
     class Meta:
@@ -102,6 +102,15 @@ class SaleProduct(models.Model):
     price = models.DecimalField('Prix', default=0, decimal_places=2,
                                  max_digits=9,
                                  validators=[MinValueValidator(Decimal(0))])
+
+    def __str__(self):
+        if self.product.unit:
+            return self.product.__str__() + ' x ' + str(self.quantity) + self.product.get_unit_display()
+        else:
+            if self.quantity > 1:
+                return self.product.__str__() + ' x ' + str(self.quantity)
+            else:
+                return self.product.__str__()
 
 
 class Recharging(models.Model):

@@ -45,8 +45,6 @@ class CategoryProduct(models.Model):
                 - price for a L, quantity in cl
                 - price for a kg, quantity in kg
                 """
-                print(self.product.get_price())
-                print(self.quantity)
                 if self.product.unit == 'CL':
                     return Decimal(self.quantity * self.product.get_price() /  100)
                 if self.product.unit == 'G':
@@ -55,7 +53,6 @@ class CategoryProduct(models.Model):
                 return Decimal(self.product.get_price())
         except ZeroDivisionError:
             return Decimal(0)
-
 
 
 class Module(models.Model):
@@ -89,11 +86,6 @@ class ShopModule(Module):
         Category,
         content_type_field='content_type',
         object_id_field='module_id')
-    sales = GenericRelation(
-        'finances.Sale',
-        content_type_field='content_type',
-        object_id_field='module_id',
-        related_query_name='module')
     delay_post_purchase = models.IntegerField("Durée d'affichage du résumé de commande",
                                               validators=[
                                                 MinValueValidator(Decimal(0))],
