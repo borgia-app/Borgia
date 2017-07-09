@@ -65,7 +65,6 @@ def workboot_init(workbook_name, macro=None, button_caption=None):
         workbook.add_vba_project('vbaProject.bin')
         # Ajout de la macro
         worksheet = workbook.add_worksheet()
-        print(len(button_caption))
         worksheet.insert_button('F3', {'macro': macro,
                                        'caption': button_caption,
                                        'width': len(button_caption)*10,

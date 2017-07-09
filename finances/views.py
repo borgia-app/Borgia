@@ -552,7 +552,6 @@ class RechargingList(GroupPermissionMixin, FormView,
                 info['cheque']['total'] += r.payment_solution.amount
                 info['cheque']['nb'] += 1
                 info['cheque']['ids'] |= [r.payment_solution.cheque]
-                print(info['cheque']['ids'][0])
             if r.payment_solution.get_type() == 'lydiafacetoface':
                 info['lydia_face2face']['total'] += r.payment_solution.amount
                 info['lydia_face2face']['nb'] += 1

@@ -538,7 +538,6 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
 
         # ExceptionnalMovements
         exceptionnalmovements_list = ExceptionnalMovement.objects.filter(recipient=self.request.user).order_by('-datetime')
-        print(exceptionnalmovements_list)
         transactions['exceptionnalmovements'] = {
             'exceptionnalmovement_list_short': exceptionnalmovements_list[:5]
         }

@@ -69,7 +69,6 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
     form_class = ProductCreateForm
 
     def form_valid(self, form):
-        print(form.cleaned_data['on_quantity'])
         if self.shop:
             shop = self.shop
         else:
@@ -444,7 +443,6 @@ class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
             q_sale = q_sale.filter(datetime__lte=self.date_end)
         sale_value = sum(s.amount() for s in q_sale)
         sale_nb = q_sale.count()
-        print(sale_value)
         return {
             'sale': {
                 'value': sale_value,
