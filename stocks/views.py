@@ -122,7 +122,7 @@ class StockEntryList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
     def get_context_data(self, **kwargs):
         context = super(StockEntryList, self).get_context_data(**kwargs)
         context['stockentry_list'] = self.form_query(
-            StockEntry.objects.all())
+            StockEntry.objects.all().order_by('-datetime'))
         return context
 
     def get_form_kwargs(self):
