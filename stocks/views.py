@@ -22,8 +22,8 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
     """
     template_name = 'stocks/shop_stock_entry_create.html'
     form_class = None
-    perm_codename = None
-    lm_active = None
+    perm_codename = 'add_stockentry'
+    lm_active = 'lm_stockentry_create'
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -111,7 +111,7 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
 class StockEntryList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                   GroupLateralMenuFormMixin):
     template_name = 'stocks/stockentry_list.html'
-    perm_codename = None
+    perm_codename = 'list_stockentry'
     lm_active = 'lm_stockentry_list'
     form_class = StockEntryListDateForm
 
@@ -161,3 +161,23 @@ class StockEntryList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                 query = query.filter(shop=self.shop_query)
 
         return query
+
+
+class StockEntryRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    template_name = 'stocks/stockentry_retrieve.html'
+    perm_codename = 'retrieve_stockentry'
+    lm_active = 'lm_stockentry_list'
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.object = StockEntry.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+
+        return super(StockEntryRetrieve, self).dispatch(request, *args,
+                                                       **kwargs)
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['object'] = self.object
+        return render(request, self.template_name, context=context)

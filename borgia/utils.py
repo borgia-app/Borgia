@@ -368,7 +368,7 @@ def lateral_menu_stock(group):
         product_tree['subs'].append({
             'label': 'Nouveau',
             'icon': 'plus',
-            'id': 'lm_stock_entry_create',
+            'id': 'lm_stockentry_create',
             'url': reverse(
                 'url_stock_entry_create',
                 kwargs={'group_name': group.name})

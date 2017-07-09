@@ -30,7 +30,7 @@
               <th>Opérateur</th>
               <th>Produits</th>
               <th>Montant total</th>
-              <th>Détails</th>
+              <th>Détail</th>
           </tr>
           {% for stockentry in stockentry_list %}
           <tr>
@@ -39,7 +39,7 @@
             <td>{{ stockentry.operator }}</td>
             <td>{{ stockentry.string_products }}</td>
             <td>{{ stockentry.total }}€</td>
-            <td>Détail</td>
+            <td><a href="{% url 'url_stock_entry_retrieve' group_name=group.name pk=stockentry.pk %}">Détail</a></td>
           </tr>
           {% endfor %}
         </table>

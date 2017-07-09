@@ -1,0 +1,18 @@
+{% extends 'base_sober.html' %}
+
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Détails d'une entrée de stock du magasin {{ object.shop }}
+  </div>
+  <div class="panel-body">
+    <ul>
+      <li>Magasin : {{ object.shop }}</li>
+      <li>Opérateur : {{ object.operator }}</li>
+      <li>Date : {{ object.datetime }}</li>
+      <li>Montant : {{ object.total }}€</li>
+      <li>Achats : {{ object.string_products }}</li>
+    </ul>
+  </div>
+</div>
+{% endblock %}
