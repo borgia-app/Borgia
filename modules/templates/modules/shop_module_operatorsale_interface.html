@@ -96,7 +96,7 @@
                       <td class="F"></td>
                       <td>{{ field.errors }}{{ field.label_tag }}</td>
                       <td>{{ field }}</td>
-                      <td>{{ field.field.widget.attrs.data_usual_price|unlocalize }}€</td>
+                      <td>{{ field.field.widget.attrs.data_price|unlocalize }}€</td>
                       <td><span id="total_{{ field.field.widget.attrs.pk }}">0.00</span>€</td>
                     </tr>
                     {% endif %}
@@ -125,7 +125,7 @@
 <script>
 $("input[id^='id_']").change(function() {
   var pk = $(this).attr('pk')
-  var usual_price = $(this).attr('data_usual_price')
+  var usual_price = $(this).attr('data_price')
   $('#total_' + pk).text((Number(usual_price) * $(this).val()).toFixed(2))
   total()
 })

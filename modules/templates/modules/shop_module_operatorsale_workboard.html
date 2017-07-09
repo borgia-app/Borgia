@@ -30,6 +30,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     En vente au module
+    <a href="{% url 'url_module_operatorsale_categories_create' group_name=group.name %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Ajouter une catégorie</a>
   </div>
   <div class="panel-body">
     {% if module.categories.all.count == 0 %}
@@ -41,8 +42,8 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             {{ category.name }}
-            <a href="{% url 'url_module_selfsale_categories_update' group_name=group.name pk=category.pk %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Modifier</a>
-            <a href="{% url 'url_module_selfsale_categories_delete' group_name=group.name pk=category.pk %}"role="button" class="btn btn-xs btn-danger" style='margin-left: 10px'>Supprimer</a>
+            <a href="{% url 'url_module_operatorsale_categories_update' group_name=group.name pk=category.pk %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Modifier</a>
+            <a href="{% url 'url_module_operatorsale_categories_delete' group_name=group.name pk=category.pk %}"role="button" class="btn btn-xs btn-danger" style='margin-left: 10px'>Supprimer</a>
           </div>
           <div class="panel-body">
             <ul>

@@ -30,6 +30,33 @@ class CategoryProduct(models.Model):
     product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField(blank=True, null=True)
 
+    def __str__(self):
+        if self.quantity:
+            return self.product.name + ' / ' + str(self.quantity) + self.product.get_unit_display()
+        return self.product.name
+
+    def get_price(self):
+        """
+        Return the price for the quantity.
+        """
+        try:
+            if self.product.unit:
+                """
+                - price for a L, quantity in cl
+                - price for a kg, quantity in kg
+                """
+                print(self.product.get_price())
+                print(self.quantity)
+                if self.product.unit == 'CL':
+                    return Decimal(self.quantity * self.product.get_price() /  100)
+                if self.product.unit == 'G':
+                    return Decimal(self.quantity * self.product.get_price() / 1000)
+            else:
+                return Decimal(self.product.get_price())
+        except ZeroDivisionError:
+            return Decimal(0)
+
+
 
 class Module(models.Model):
     class Meta:

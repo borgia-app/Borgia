@@ -14,19 +14,18 @@ class SelfSaleShopModule(forms.Form):
         super(SelfSaleShopModule, self).__init__(*args, **kwargs)
 
         for category in self.module.categories.all():
-            for product in category.product_bases.all():
-                if (product.quantity_products_stock() > 0
-                        and product.get_moded_usual_price() > 0):
-                    self.fields[(str(product.pk)
+            for category_product in category.categoryproduct_set.all():
+                if category_product.get_price() > 0:
+                    self.fields[(str(category_product.product.pk)
                                  + '-' + str(category.pk)
                                  )] = forms.IntegerField(
-                        label=product.sale_name(),
+                        label=category_product.__str__(),
                         widget=forms.NumberInput(
                             attrs={'data_category_pk': category.pk,
-                                   'data_usual_price': product.get_moded_usual_price(),
+                                   'data_price': category_product.get_price(),
                                    'class': 'form-control',
                                    'pk': (
-                                       str(product.pk)
+                                       str(category_product.product.pk)
                                        + '-'
                                        + str(category.pk))}),
                         initial=0,
