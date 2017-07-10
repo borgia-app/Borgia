@@ -359,14 +359,18 @@ def lateral_menu_stock(group):
         'subs': []
     }
 
-    add_permission = Permission.objects.get(
+    add_permission_stockentry = Permission.objects.get(
         codename='add_stockentry')
-    list_permission = Permission.objects.get(
+    list_permission_stockentry = Permission.objects.get(
         codename='list_stockentry')
+    add_permission_inventory = Permission.objects.get(
+        codename='add_inventory')
+    list_permission_inventory = Permission.objects.get(
+        codename='list_inventory')
 
-    if add_permission in group.permissions.all():
+    if add_permission_stockentry in group.permissions.all():
         product_tree['subs'].append({
-            'label': 'Nouveau',
+            'label': 'Nouvelle entrée de stock',
             'icon': 'plus',
             'id': 'lm_stockentry_create',
             'url': reverse(
@@ -374,13 +378,33 @@ def lateral_menu_stock(group):
                 kwargs={'group_name': group.name})
         })
 
-    if list_permission in group.permissions.all():
+    if list_permission_stockentry in group.permissions.all():
         product_tree['subs'].append({
-            'label': 'Liste',
+            'label': 'Liste des entrées de stock',
             'icon': 'list',
             'id': 'lm_stockentry_list',
             'url': reverse(
                 'url_stock_entry_list',
+                kwargs={'group_name': group.name})
+        })
+
+    if add_permission_inventory in group.permissions.all():
+        product_tree['subs'].append({
+            'label': 'Nouvel inventaire',
+            'icon': 'plus',
+            'id': 'lm_inventory_create',
+            'url': reverse(
+                'url_inventory_create',
+                kwargs={'group_name': group.name})
+        })
+
+    if list_permission_inventory in group.permissions.all():
+        product_tree['subs'].append({
+            'label': 'Liste des inventaires',
+            'icon': 'list',
+            'id': 'lm_inventory_list',
+            'url': reverse(
+                'url_inventory_list',
                 kwargs={'group_name': group.name})
         })
 

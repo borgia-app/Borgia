@@ -3,31 +3,28 @@
 {% block content %}
 <div class="panel panel-default">
   <div class="panel-heading">
-    Détails d'une entrée de stock du magasin {{ object.shop }}
+    Détails d'un inventaire du stock du magasin {{ object.shop }}
   </div>
   <div class="panel-body">
     <ul>
       <li>Magasin : {{ object.shop }}</li>
       <li>Opérateur : {{ object.operator }}</li>
       <li>Date : {{ object.datetime }}</li>
-      <li>Montant total : {{ object.total }}€</li>
     </ul>
     <table class="table table-hover table-striped">
       <tr>
         <th>Produit</th>
         <th>Quantité</th>
-        <th>Sous total</th>
       </tr>
-      {% for stockentryproduct in object.stockentryproduct_set.all %}
+      {% for inventoryproduct in object.inventoryproduct_set.all %}
       <tr>
-        <td>{{ stockentryproduct.product }}</td>
+        <td>{{ inventoryproduct.product }}</td>
         <td>
-          {{ stockentryproduct.quantity }}
-          {% if stockentryproduct.product.unit %}
-          {{ stockentryproduct.product.get_unit_display }}
+          {{ inventoryproduct.quantity }}
+          {% if inventoryproduct.product.unit %}
+          {{ inventoryproduct.product.get_unit_display }}
           {% endif %}
         </td>
-        <td>{{ stockentryproduct.price }}€</td>
       </tr>
       {% endfor %}
     </table>

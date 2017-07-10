@@ -13,9 +13,6 @@ class StockEntry(models.Model):
 
     def total(self):
         total = sum(sep.price for sep in self.stockentryproduct_set.all())
-        for sep in self.stockentryproduct_set.all():
-            print(sep.price)
-            print(sep.quantity)
         return total
 
     def string_products(self):
@@ -30,6 +27,7 @@ class StockEntry(models.Model):
             ('list_stockentry', 'Lister les entrées de stock'),
             ('retrieve_stockentry', 'Afficher les entrées de stock'),
         )
+
 
 class StockEntryProduct(models.Model):
     """
@@ -51,8 +49,22 @@ class StockEntryProduct(models.Model):
 
 
 class Inventory(models.Model):
-    pass
+    datetime = models.DateTimeField('Date', default=now)
+    operator = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    products = models.ManyToManyField('shops.Product', through='InventoryProduct')
+    shop = models.ForeignKey('shops.Shop',on_delete=models.CASCADE)
+
+    class Meta:
+        permissions = (
+            ('list_inventory', 'Lister les inventaires de stock'),
+            ('retrieve_inventory', 'Afficher les inventaires de stock'),
+        )
 
 
 class InventoryProduct(models.Model):
-    pass
+    """
+    quantity -> in CL/G (even if L/KG is possible in the form)
+    """
+    inventory = models.ForeignKey('Inventory', on_delete=models.CASCADE)
+    product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()

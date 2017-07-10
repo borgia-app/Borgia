@@ -107,6 +107,12 @@ urlpatterns = [
         StockEntryList.as_view(), name='url_stock_entry_list'),
     url(r'^(?P<group_name>[\w-]+)/stocks/entries/(?P<pk>\d+)/$',
         StockEntryRetrieve.as_view(), name='url_stock_entry_retrieve'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/create/$',
+        ShopInventoryCreate.as_view(), name='url_inventory_create'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/$',
+        InventoryList.as_view(), name='url_inventory_list'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/(?P<pk>\d+)/$',
+        InventoryRetrieve.as_view(), name='url_inventory_retrieve'),
 
     url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/bank_accounts/create/$',
         UserBankAccountCreate.as_view(), name='url_user_bankaccount_create'),
