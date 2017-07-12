@@ -11,7 +11,6 @@ from django.utils import timezone
 
 from django.contrib.auth.models import AbstractUser, Permission
 from finances.models import Sale, BankAccount, SharedEvent, Transfert, Recharging, ExceptionnalMovement
-from notifications.models import notify
 
 
 class ExtendedPermission(Permission):
@@ -195,13 +194,6 @@ class User(AbstractUser):
 
         self.balance -= amount
         self.save()
-
-        # We notify if the balance is negative
-        if self.balance < 0:
-            notify(notification_class_name='negative_balance',
-                   actor=User.objects.get(pk=1),
-                   recipient=self)
-
 
 
     def list_transaction(self):

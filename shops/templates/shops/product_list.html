@@ -28,6 +28,7 @@
               <th>Nom</th>
               <th>Type</th>
               <th>Stock</th>
+              <th>Facteur de correction</th>
               <th>Prix de vente</th>
               <th>Etat</th>
               {% if group|has_group_perm:"retrieve_product" %}<th>Détail</th>{% endif %}
@@ -37,7 +38,8 @@
           <tr>
               <td>{{ product }}</td>
               <td>{{ product.get_display_type }}</td>
-              <td>{{ product.quantity_products_stock }}</td>
+              <td>{{ product.get_current_stock_estimated_display }}</td>
+              <td>{{ product.correcting_factor }}</td>
               <td>{{ product.get_display_price_with_strategy }}</td>
               <td>{% if product.is_active %}Activé{% else %}Désactivé{% endif %}</td>
               {% if group|has_group_perm:"retrieve_product" %}<td>

@@ -305,7 +305,7 @@ class ShopModuleCategoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                 if product.unit:
                     quantity = int(product_form['quantity'])
                 else:
-                    quantity = None
+                    quantity = 1
                 CategoryProduct.objects.create(
                     category=category,
                     product=product,
@@ -385,7 +385,7 @@ class ShopModuleCategoryUpdate(GroupPermissionMixin, ShopFromGroupMixin,
                 if product.unit:
                     quantity = int(product_form['quantity'])
                 else:
-                    quantity = None
+                    quantity = 1
                 CategoryProduct.objects.create(
                     category=self.category,
                     product=product,

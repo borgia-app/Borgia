@@ -11,10 +11,6 @@ from django.contrib.contenttypes.fields import (
     )
 from django.contrib.contenttypes.models import ContentType
 
-from shops.models import Shop, Product
-
-from notifications.models import notify
-
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
 # TODO: shared_event line in tables users, products/payments and function.

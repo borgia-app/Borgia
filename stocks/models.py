@@ -60,6 +60,10 @@ class Inventory(models.Model):
             ('retrieve_inventory', 'Afficher les inventaires de stock'),
         )
 
+    def update_correcting_factors(self):
+        for inventoryproduct in self.inventoryproduct_set.all():
+            inventoryproduct.product.update_correcting_factor(inventoryproduct.quantity)
+
 
 class InventoryProduct(models.Model):
     """
@@ -68,3 +72,6 @@ class InventoryProduct(models.Model):
     inventory = models.ForeignKey('Inventory', on_delete=models.CASCADE)
     product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+
+    def get_quantity_display(self):
+        return self.product.get_quantity_display(self.quantity)

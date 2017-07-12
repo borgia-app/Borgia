@@ -28,10 +28,10 @@ class Category(models.Model):
 class CategoryProduct(models.Model):
     category = models.ForeignKey('Category', on_delete=models.CASCADE)
     product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
-    quantity = models.PositiveIntegerField(blank=True, null=True)
+    quantity = models.PositiveIntegerField()
 
     def __str__(self):
-        if self.quantity:
+        if self.product.unit:
             return self.product.name + ' / ' + str(self.quantity) + self.product.get_unit_display()
         return self.product.name
 

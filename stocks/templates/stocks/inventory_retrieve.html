@@ -20,10 +20,7 @@
       <tr>
         <td>{{ inventoryproduct.product }}</td>
         <td>
-          {{ inventoryproduct.quantity }}
-          {% if inventoryproduct.product.unit %}
-          {{ inventoryproduct.product.get_unit_display }}
-          {% endif %}
+          {{ inventoryproduct.get_quantity_display }}
         </td>
       </tr>
       {% endfor %}

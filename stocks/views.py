@@ -249,6 +249,8 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
             except ZeroDivisionError:
                 pass
 
+        inventory.update_correcting_factors()
+
         return redirect(
             reverse('url_inventory_list',
                            kwargs={'group_name': self.group.name})
