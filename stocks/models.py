@@ -47,6 +47,15 @@ class StockEntryProduct(models.Model):
         else:
             return self.product.__str__() + ' x ' + str(self.quantity)
 
+    def unit_price(self):
+        if self.product.unit:
+            if self.product.unit == 'G':
+                return Decimal(1000 * self.price / self.quantity)
+            if self.product.unit == 'CL':
+                return Decimal(100 * self.price / self.quantity)
+        else:
+            return Decimal(self.price / self.quantity)
+
 
 class Inventory(models.Model):
     datetime = models.DateTimeField('Date', default=now)

@@ -96,8 +96,20 @@ class Product(models.Model):
         else:
             return 'Vente à l\'unité'
 
-    # TODO: automatic price
     def get_automatic_price(self):
+        """
+        Return the price calculated over the last stockentry concerning the product.
+        """
+        try:
+            try:
+                margin_profit = Setting.objects.get(
+                    name='MARGIN_PROFIT').get_value()
+            except ObjectDoesNotExist:
+                margin_profit = 0
+            last_stockentry = sorted(StockEntryProduct.objects.filter(product=self), key=lambda x: x.stockentry.datetime, reverse=True)[0]
+            return round(Decimal(last_stockentry.unit_price() * Decimal(1 + margin_profit / 100)), 4)
+        except IndexError:
+            pass
         return Decimal(0)
 
     def get_price(self):
@@ -190,7 +202,6 @@ class Product(models.Model):
         """
         current_stock_estimated = self.current_stock_estimated(offset)
         return self.get_quantity_display(current_stock_estimated)
-
 
     def get_quantity_display(self, value):
         if self.unit:
