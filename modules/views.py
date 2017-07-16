@@ -99,11 +99,14 @@ class SelfSaleShopModuleInterface(SaleShopModuleInterface):
     form_class = SelfSaleShopModule
     module_class = SelfSaleModule
     perm_codename = 'use_selfsalemodule'
+    lm_active = None
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super(SelfSaleShopModuleInterface,
                        self).get_form_kwargs(**kwargs)
         kwargs['client'] = self.request.user
+
+        self.lm_active = 'lm_selfsale_interface_module_' + self.shop.name
         return kwargs
 
     def form_valid(self, form):

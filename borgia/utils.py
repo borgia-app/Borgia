@@ -33,6 +33,10 @@ def lateral_menu(user, group, active=None):
 
     nav_tree = []
 
+    # If Gadzart, simplify the menu
+    if group.name == 'gadzarts':
+        return lateral_menu_gadz(user, group, active)
+
     # Groups of the user
     if lateral_menu_user_groups(user) is not None:
         nav_tree.append(
@@ -248,6 +252,85 @@ def lateral_menu(user, group, active=None):
     return nav_tree
 
 
+def lateral_menu_gadz(user, group, active=None):
+    nav_tree = []
+
+    """
+    - Groups
+    - List of self sale modules
+    - Lydia credit
+    - History of transactions
+    - Transferts
+    - Shared events
+    """
+
+    list_selfsalemodule = []
+    for shop in Shop.objects.all().exclude(pk=1):
+        try:
+            module = SelfSaleModule.objects.get(shop=shop)
+            if module.state is True:
+                list_selfsalemodule.append(shop)
+        except ObjectDoesNotExist:
+            pass
+
+    # Groups of the user
+    if lateral_menu_user_groups(user) is not None:
+        nav_tree.append(
+            lateral_menu_user_groups(user)
+        )
+
+    nav_tree.append(
+        simple_lateral_link(
+            'Accueil ' + group_name_display(group),
+            'briefcase',
+            'lm_workboard',
+            reverse('url_group_workboard', kwargs={'group_name': group.name})))
+
+    for shop in list_selfsalemodule:
+        nav_tree.append(
+            simple_lateral_link(
+                'Vente directe ' + shop.name.title(),
+                'shopping-basket',
+                'lm_selfsale_interface_module_' + shop.name, # Not currently used in modules.view
+                reverse('url_module_selfsale', kwargs={'group_name': group.name, 'shop_name': shop.name})
+            ))
+
+    nav_tree.append(
+        simple_lateral_link(
+            'Transfert',
+            'exchange',
+            'lm_self_transfert_create',
+            reverse('url_self_transfert_create', kwargs={'group_name': group.name})))
+
+    nav_tree.append(
+        simple_lateral_link(
+            'Historique des transactions',
+            'history',
+            'lm_self_transaction_list',
+            reverse('url_self_transaction_list', kwargs={'group_name': group.name})))
+
+    nav_tree.append(
+        simple_lateral_link(
+            'Evènements',
+            'calendar',
+            'lm_self_sharedevent_list',
+            reverse('url_self_sharedevent_list', kwargs={'group_name': group.name})))
+
+    if active is not None:
+        for link in nav_tree:
+            try:
+                for sub in link['subs']:
+                    if sub['id'] == active:
+                        sub['active'] = True
+                        break
+            except KeyError:
+                if link['id'] == active:
+                    link['active'] = True
+                    break
+
+    return nav_tree
+
+
 def lateral_menu_model(model, group, faIcon='database'):
     """
     Build the object tree related to a model used to generate the lateral menu
@@ -414,7 +497,6 @@ def lateral_menu_stock(group):
         return None
 
 
-
 def lateral_menu_user_groups(user):
     """
     """
@@ -444,7 +526,7 @@ def lateral_menu_shop_sale(group, shop):
     """
     """
     shop_tree = {
-        'label': shop.name,
+        'label': shop.name.title(),
         'icon': 'cube',
         'id': 'lm_shop_' + shop.name,
         'subs': []

@@ -748,7 +748,7 @@ class SelfTransfertCreate(GroupPermissionMixin, FormView,
                           GroupLateralMenuFormMixin):
     template_name = 'finances/self_transfert_create.html'
     perm_codename = 'add_transfert'
-    lm_active = None
+    lm_active = 'lm_self_transfert_create'
     form_class = SelfTransfertCreate
 
     def get_form_kwargs(self, **kwargs):
@@ -886,7 +886,7 @@ class SelfTransactionList(GroupPermissionMixin, FormView,
     """
     template_name = 'finances/self_transaction_list.html'
     perm_codename = None
-    lm_active = None
+    lm_active = 'lm_self_transaction_list'
     form_class = GenericListSearchDateForm
 
     search = None
@@ -1236,6 +1236,7 @@ def verify_token_algo_lydia(params, token):
 class SelfSharedEventList(GroupPermissionMixin, View, GroupLateralMenuMixin):
     perm_codename = None
     template_name = 'finances/self_sharedevent_list.html'
+    lm_active = 'lm_self_sharedevent_list'
 
     def get(self, request, *args, **kwargs):
         context = super(SelfSharedEventList, self).get_context_data(**kwargs)
