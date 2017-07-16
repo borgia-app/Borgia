@@ -6,6 +6,13 @@ body {
   padding-bottom: 65px;
 }
 
+.body-clean {
+  background-image: url("../img/pexels-photo-27892.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-origin: content-box;
+}
+
 .navbar-brand {
   padding-top: 2.5px;
   padding-bottom: 2.5px;
@@ -31,4 +38,16 @@ canvas {
   border-radius: 25px;
   height: 45px;
   width: 45px;
+}
+
+.login-form {
+  width: 33%;
+  height: 200px;
+  position: absolute;
+  top: -250px;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  font-size: 12pt;
 }
