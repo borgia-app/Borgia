@@ -22,3 +22,13 @@ canvas {
   -ms-user-select: none; /* Internet Explorer/Edge */
   user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
 }
+
+.navbar-text-avatar {
+  margin-top: 2.5px;
+  margin-bottom: 2.5px;
+}
+.user-avatar {
+  border-radius: 25px;
+  height: 45px;
+  width: 45px;
+}

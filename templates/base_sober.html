@@ -32,6 +32,9 @@
       </div>
       <div class="navbar-right">
         <ul class="nav navbar-nav">
+          <li><p class="navbar-text navbar-text-avatar">
+            <img src="{{ user.avatar.url }}" class="user-avatar"/>
+          </p></li>
           <li><p class="navbar-text">{{ user }}</p></li>
           <li><p class="navbar-text">{{ user.surname}}{{ user.get_campus_display }}{{ user.year_pg }}</p></li>
           <li><p class="navbar-text">
@@ -61,113 +64,6 @@
       </div>
     </div>
   </nav>
-{% comment %}
-{% url 'url_page_clean' as url_clean %}
-  <div class="wrapper overlay">
-    <nav class="navbar navbar-inverse navbar-fixed-top">
-        <div class="container-fluid">
-             <div class="navbar-header col-md-2 col-sm-2 col-xs-2 col-xxs-2" style="padding-left: 2px">
-                <a href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
-                   <img src="{% static 'img/borgia-logo.png' %}" class="borgia-logo"></img>
-                </a>
-             </div>
-             {% if user.is_authenticated %}
-              <div class="hidden-lg hidden-md hidden-sm hidden-xs col-xxs-5 mobileShow568">
-                  <span class="user-balance-mobile {% if user.balance >= 0 %}posits-color {% else %}negats-color {% endif %}">{{ user.balance }} €</span>
-              </div>
-              <div id="wrapper-user-menu" class="col-md-3 col-sm-3 col-xs-3 col-xxs-5">
-                <ul class="user-menu">
-                      <li><a href="{% url 'url_self_lydia_create' group_name=group.name %}" title="Crédit Lydia"><div class="lydia"><span class="lydia-logo"></span><span class="lydia-text">Crédit compte</span></div></a></li>
-                      <li class="hidden-lg hidden-md hidden-sm hidden-xs mobileShow568">
-                          <span class="user-notification" data-toggle="dropdown">
-                              <i class="fa fa-bell" aria-hidden="true"></i>
-                          </span>
-                          <ul class="dropdown-menu scrollable-menu" role="menu">
-                              {% if messages %}
-                                  {% for message in messages %}
-                                   <li class="scrollable-menu"><a href="#">{{ message }}</a></li>
-                                  {% endfor %}
-                              {%  else %}
-                                  <li class="scrollable-menu"><a href="#">Pas de nouvelle notification</a></li>
-                              {% endif %}
-                          </ul>
-                      </li>
-                      <button type="button" class="navbar-toggle hidden-xs mobileShow568" data-toggle="collapse" data-target="#navbar-collapse-1" aria-expanded="false">
-                          <span class="sr-only">Toggle navigation</span>
-                          <span class="icon-bar"></span>
-                          <span class="icon-bar"></span>
-                          <span class="icon-bar"></span>
-                      </button>
-              </ul>
-              </div>
-
-             <div id="wrapper-user" class="col-md-7 col-sm-7 col-xs-7 mobileHide568">
-
-                    <span class="user-container mobileHide568">
-                        <h2 class="user-username">{{ user.surname }} {{ user.username }}</h2>
-                        <span class="user-balance {% if user.balance >= 0 %}posits {% else %}negats {% endif %}">{{ user.balance }} €</span>
-                    </span>
-                    <div class="row">
-                        <ul class="user-menu pull-right" style="position:absolute; right: 0;">
-                            <li>
-                              <span class="user-connexion">
-                                <a href="{% url 'url_logout' %}" title="Déconnexion">
-                                  <i class="fa fa-power-off" aria-hidden="true"></i>
-                                </a>
-                              </span>
-                            </li>
-                            <li>
-                              <span class="user-edition">
-                                <a style="height: 23px;"
-                                href="
-                                {% if group %}
-                                {% url 'url_self_user_update' group_name=group.name %}
-                                {% endif %}"
-                                title="Édition">
-                                  <i class="fa fa-pencil" aria-hidden="true"></i>
-                                </a>
-                              </span>
-                            </li>
-                            <li>
-                                <span class="user-notification" data-toggle="dropdown">
-                                    <i class="fa fa-bell" aria-hidden="true"></i>
-                                </span>
-                                <ul class="dropdown-menu dropdown-menu-right scrollable-menu" role="menu">
-                                    {% if notifications %}
-                                        {% for notification in notifications %}
-                                         <li class="dropdown-item scrollable-menu"><a href="#">{% html_rendering_tag notification %}</a></li>
-                                            <li class="dropdown-divider scrollable-menu"></li>
-                                        {% endfor %}
-                                    {%  else %}
-                                        <li class="dropdown-item scrollable-menu"><a href="#">Pas de nouvelle notification</a></li>
-                                        <li class="dropdown-divider scrollable-menu"></li>
-                                    {% endif %}
-                                    <li class="scrollable-menu">
-                                        <a href="{% if group %}{% url 'url_notification_list' group_name=group.name %}{% endif %}">
-                                            Voir tout {{ test42 }}
-                                        </a>
-                                    </li>
-
-                                </ul>
-                            </li>
-                        </ul>
-                    </div>
-             </div>
-             <div class="col-xxs-12 navbar-collapse collapse" id="navbar-collapse-1" aria-expanded="false" style="height: 2px;">
-                <ul class="navbar-nav nav navbar-collapse-menu">
-                    <li class="align-center" style="padding-top:3px; background: #000;">{{ user.surname }} {{ user.username }}</li>
-                    <li><a href="
-                      {% if group %}
-                      {% url 'url_self_user_update' group_name=group.name %}
-                      {% endif %}">Édition du profil</a></li>
-                    <li><a href="{% url 'url_logout' %}">Déconnexion</a></li>
-                </ul>
-              </div>
-              {% endif %}
-        </div>
-    </nav>
-  </div>
-{% endcomment %}
 
   {% if nav_tree %}
   <div class="container-fluid">
@@ -185,18 +81,6 @@
   </div>
 
 </body>
-
-{% if user.is_authenticated %}
-    {% if user.avatar %}
-        <style>
-            .user-container:before {
-                background: url('{{ user.avatar.url }}') no-repeat 0 0;
-                background-size: 100%;
-                content: "";
-            }
-        </style>
-    {% endif %}
-{% endif %}
 
 <nav class="navbar navbar-default navbar-fixed-bottom">
   <div class="container-fluid">
