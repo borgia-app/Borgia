@@ -40,6 +40,12 @@ canvas {
   width: 45px;
 }
 
+.navbar-text-center {
+  margin-top: 10px;
+  margin-bottom: auto;
+  font-size: 14pt;
+}
+
 .login-form {
   width: 33%;
   height: 200px;

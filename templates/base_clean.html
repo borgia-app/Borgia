@@ -32,6 +32,7 @@
         <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
            <img src="{% static 'img/borgia-logo.png' %}" class="logo"/>
         </a>
+        <p class="navbar-text navbar-text-center">{% if center_name %}{{ center_name }}{% else %}Borgia{% endif %}</p>
       </div>
     </div>
   </nav>
