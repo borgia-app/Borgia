@@ -259,8 +259,8 @@ def lateral_menu_gadz(user, group, active=None):
     - Groups
     - List of self sale modules
     - Lydia credit
-    - History of transactions
     - Transferts
+    - History of transactions
     - Shared events
     """
 
@@ -294,6 +294,13 @@ def lateral_menu_gadz(user, group, active=None):
                 'lm_selfsale_interface_module_' + shop.name, # Not currently used in modules.view
                 reverse('url_module_selfsale', kwargs={'group_name': group.name, 'shop_name': shop.name})
             ))
+
+    nav_tree.append(
+        simple_lateral_link(
+            'Rechargement de compte',
+            'credit-card',
+            'lm_self_lydia_create',
+            reverse('url_self_lydia_create', kwargs={'group_name': group.name})))
 
     nav_tree.append(
         simple_lateral_link(

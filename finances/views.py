@@ -1056,6 +1056,7 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
     form_class = SelfLydiaCreateForm
     template_name = 'finances/self_lydia_create.html'
     perm_codename = None
+    lm_active = 'lm_self_lydia_create'
 
     def get_form_kwargs(self):
         kwargs = super(SelfLydiaCreate, self).get_form_kwargs()
