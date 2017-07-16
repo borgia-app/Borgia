@@ -83,7 +83,7 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         else:
             Product.objects.create(
                 name=form.cleaned_data['name'],
-                shop=self.shop,
+                shop=shop,
                 correcting_factor=1
             )
         return redirect(reverse('url_product_list',
