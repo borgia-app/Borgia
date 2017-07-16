@@ -68,3 +68,12 @@ button.list-group-item-info:hover {
   background-color: #efe7e8;
   color: inherit;
 }
+
+.panel-primary {
+  border-color: #efe7e8;
+}
+.panel-primary > .panel-heading {
+  background-color: #efe7e8;
+  border-color: #efe7e8;
+  color: #333;
+}
