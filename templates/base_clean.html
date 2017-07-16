@@ -9,10 +9,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <title>Borgia - Siber'ss</title>
+    <link href="https://fonts.googleapis.com/css?family=Lato|Roboto:300" rel="stylesheet"> 
     <link rel="stylesheet" href="https://bootswatch.com/slate/bootstrap.min.css" />
-    <link rel="stylesheet" href="{% static 'css/css_local.css' %}" />
+    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
     <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
-    <link rel="shortcut icon" type="image/png" href="{% static 'img/fav_borgia.png' %}"/>
+    <link rel="shortcut icon" type="image/png" href="{% static 'img/borgia-logo.png' %}"/>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
@@ -36,7 +37,7 @@
     <div class="container-fluid">
       <div class="navbar-header col-md-2 col-sm-2 col-xs-2 col-xxs-2" style="padding-left: 2px">
         <a href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% else %}{% url 'url_login' %}{% endif %}">
-           <span class="logo-background"></span>
+           <img src="{% static 'img/borgia-logo.png' %}" class="borgia-logo"></img>
         </a>
       </div>
     </div>
@@ -95,29 +96,35 @@
                   </div>
               </div>
   <script>
-      document.getElementById("mailto_report").addEventListener('click', function(e) {
-          window = window.open("mailto:support@iresam.org?Subject=Feedback Borgia", 'EmailWindow')
-      }, false);
+  document.getElementById('mailto_report').addEventListener(
+  'click',
+  function(e) {
+    window = window.open(
+      'mailto:support@iresam.org?Subject=Feedback Borgia',
+      'EmailWindow'
+    )
+  },
+  false
+)
 
-
-          $(document).on('click', '.panel div.clickable', function (e) {
-              if ($(window).width() > 767) {
-                  var $this = $(this);
-                  if (!$this.hasClass('panel-collapsed')) {
-                      $this.parents('.panel').find('.panel-body').slideUp(200);
-                      $this.addClass('panel-collapsed');
-                      $this.find('i').removeClass('glyphicon-minus').addClass('glyphicon-plus');
-                  } else {
-                      $this.parents('.panel').find('.panel-body').slideDown(200);
-                      $this.removeClass('panel-collapsed');
-                      $this.find('i').removeClass('glyphicon-plus').addClass('glyphicon-minus');
-                  }
-              }
-          });
-      $(document).ready(function () {
-          $('.panel div.clickable').click();
-      });
-  </script>
+$(document).on('click', '.panel div.clickable', function(e) {
+  if ($(window).width() > 767) {
+    var $this = $(this)
+    if (!$this.hasClass('panel-collapsed')) {
+      $this.parents('.panel').find('.panel-body').slideUp(200)
+      $this.addClass('panel-collapsed')
+      $this.find('i').removeClass('glyphicon-minus').addClass('glyphicon-plus')
+    } else {
+      $this.parents('.panel').find('.panel-body').slideDown(200)
+      $this.removeClass('panel-collapsed')
+      $this.find('i').removeClass('glyphicon-plus').addClass('glyphicon-minus')
+    }
+  }
+})
+$(document).ready(function() {
+  $('.panel div.clickable').click()
+})
+</script>
 </footer>
 
 </body>
