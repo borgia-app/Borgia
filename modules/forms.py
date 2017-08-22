@@ -28,7 +28,8 @@ class SelfSaleShopModule(forms.Form):
                                    'pk': (
                                        str(category_product.product.pk)
                                        + '-'
-                                       + str(category.pk))}),
+                                       + str(category.pk)),
+									'min': 0}),
                         initial=0,
                         required=False,
                         validators=[MinValueValidator(0, """La commande doit être
