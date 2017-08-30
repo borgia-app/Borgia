@@ -1,3 +1,4 @@
+{% load compile_static %}
 {% load staticfiles %}
 {% load notifications_extra %}
 {% load users_extra %}
@@ -15,8 +16,12 @@
     </title>
     <link href="https://fonts.googleapis.com/css?family=Lato|Roboto" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
-    <link rel="stylesheet" href="{% static 'css/styles.css' %}" />
     <link rel="stylesheet" href="{% static 'css/font-awesome.css' %}"/>
+	{% if user.theme and user.theme == 'dark' %}
+		<link rel="stylesheet" href="{% static 'css/dark.less'|compile %}" />
+	{% else %}
+		<link rel="stylesheet" href="{% static 'css/light.less'|compile %}" />
+	{% endif %}
     <link rel="shortcut icon" type="image/png" href="{% static 'img/borgia-label-less.png' %}"/>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
@@ -30,7 +35,11 @@
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
-           <img src="{% static 'img/borgia-logo.png' %}" class="logo"/>
+            {% if user.theme and user.theme == 'dark' %}
+                <img src="{% static 'img/borgia-logo-dark.png' %}" class="logo"/>
+            {% else %}
+                <img src="{% static 'img/borgia-logo.png' %}" class="logo"/>
+            {% endif %}
         </a>
         <p class="navbar-text navbar-text-center">{% if center_name %}{{ center_name }}{% else %}Borgia{% endif %}</p>
       </div>
@@ -92,9 +101,9 @@
       <p class="navbar-text">Borgia is a software developed by Borgia-App.</p>
       <p class="navbar-text">Originally developed and supported by Arts & Métiers french students, please support.</p>
     </div>
-	<div class="col-xs-2">
+    <div class="col-xs-2">
       <p class="navbar-text pull-right">Build 4.1</p>
-	</div>
+    </div>
   </div>
 </footer>
 

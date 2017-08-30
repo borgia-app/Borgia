@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'settings_data',
     'modules',
     'stocks',
-    'graphene_django'
+    'graphene_django',
+	'static_precompiler'
 ]
 
 MIDDLEWARE_CLASSES = [

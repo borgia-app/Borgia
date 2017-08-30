@@ -46,7 +46,7 @@ class UserCreationCustomForm(forms.Form):
 class SelfUserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['email', 'phone', 'avatar']
+        fields = ['email', 'phone', 'avatar','theme']
 
     def __init__(self, **kwargs):
         self.user = kwargs.pop('user')

@@ -203,6 +203,7 @@ class SelfUserUpdate(GroupPermissionMixin, FormView,
         initial['email'] = self.request.user.email
         initial['phone'] = self.request.user.phone
         initial['avatar'] = self.request.user.avatar
+        initial['theme'] = self.request.user.theme
         return initial
 
     def get_form_kwargs(self):
@@ -213,6 +214,7 @@ class SelfUserUpdate(GroupPermissionMixin, FormView,
     def form_valid(self, form):
         self.request.user.email = form.cleaned_data['email']
         self.request.user.phone = form.cleaned_data['phone']
+        self.request.user.theme = form.cleaned_data['theme']
         if form.cleaned_data['avatar'] is not False:
             setattr(self.request.user, 'avatar', form.cleaned_data['avatar'])
         else:
