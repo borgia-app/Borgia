@@ -33,7 +33,8 @@ class SelfSaleShopModule(forms.Form):
                                    'pk': (
                                        str(category_product.product.pk)
                                        + '-'
-                                       + str(category.pk))}),
+                                       + str(category.pk)),
+									'min': 0}),
                         initial=0,
                         required=False,
                         validators=[MinValueValidator(0, """La commande doit être
@@ -55,7 +56,7 @@ class SelfSaleShopModule(forms.Form):
         for field in cleaned_data:
             if field != 'client':
                 invoice = cleaned_data[field]
-                if invoice > 0 and isinstance(invoice, int):
+                if isinstance(invoice, int) and invoice > 0 :
                     try:
                         category_product_pk = field.split('-')[0]
                         total_price += (CategoryProduct.objects.get(pk=category_product_pk).get_price() * invoice)
