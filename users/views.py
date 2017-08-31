@@ -164,11 +164,28 @@ class UserCreateView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial['year'] = 2014
         return initial
 
-    # The success url is set to the created user retrieve
+    """
+    If can retrieve user: go to the user.
+    If not, if can list user: go to the list of users.
+    If not, go to the workboard of the group.
+    """
     def get_success_url(self):
-        return reverse('url_user_retrieve',
-                       kwargs={'group_name': self.group.name,
-                               'pk': self.object.pk})
+        try:
+            if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
+                return reverse('url_user_retrieve',
+                               kwargs={'group_name': self.group.name,
+                                       'pk': self.object.pk})
+            else:
+                if Permission.objects.get(codename='list_user') in self.group.permissions.all():
+                    return reverse('url_user_list',
+                                    kwargs={'group_name': self.group.name})
+                else:
+                    return reverse('url_group_workboard',
+                                    kwargs={'group_name': self.group.name})
+        except ObjectDoesNotExist:
+            return reverse('url_workboard',
+                            kwargs={'group_name': self.group.name})
+            raise PermissionDenied
 
 
 class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
