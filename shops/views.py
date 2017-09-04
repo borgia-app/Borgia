@@ -235,11 +235,11 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     perm_codename = 'add_shop'
     lm_active = 'lm_shop_create'
     form_class = ShopCreateForm
-    perm_chiefs = ['add_user', 'supply_money_user', 'add_product',
+    perm_chiefs = ['add_user', 'retrieve_user', 'list_user', 'supply_money_user', 'add_product',
                    'change_product', 'retrieve_product', 'list_product',
                    'list_sale', 'retrieve_sale', 'use_operatorsalemodule',
                    'add_stockentry', 'retrieve_stockentry', 'list_stockentry']
-    perm_associates = ['add_user', 'supply_money_user', 'add_product',
+    perm_associates = ['add_user', 'retrieve_user', 'list_user', 'supply_money_user', 'add_product',
                        'change_product', 'retrieve_product', 'list_product',
                        'list_sale', 'retrieve_sale', 'use_operatorsalemodule',
                        'add_stockentry', 'retrieve_stockentry', 'list_stockentry']
