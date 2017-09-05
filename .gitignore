@@ -3,7 +3,7 @@ venv
 unit.xml
 /**/.phutil_module_cache
 /static/media/img/
-/static/static_root/admin/
+/static/static_root/
 /static/static_dirs/admin/
 
 
