@@ -15,9 +15,10 @@
       {% if center_name %}Borgia - {{ center_name }}{% else %}Borgia{% endif %}
     </title>
     <link href="https://fonts.googleapis.com/css?family=Lato|Roboto" rel="stylesheet">
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
     <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
-    <link rel="stylesheet" href="{% static 'css/light.less'|compile %}" />
+
+    <link rel="stylesheet" href="{% static 'less/_bootstrap-light.less'|compile %}" />
+
     <link rel="shortcut icon" type="image/png" href="{% static 'img/borgia-label-less.png' %}"/>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
