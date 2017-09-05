@@ -37,3 +37,14 @@ python manage.py loaddata initial
 
  - Une fois ça épuré, réaliser le fichier less proprement dit. voir le lien :
  https://openclassrooms.com/courses/prenez-en-main-bootstrap/configurer-bootstrap
+
+## Fonctionnement Graphique:
+
+ Le nouveau fonctionnement est le suivant : on génère un fichier "bootstrap" modifié, en utilisant LESS :
+ Les variables de bootstrap sont définies pour obtenir le template.
+ Si-besoin, on ajoute un fichier de style en LESS (ici main). Cici nous permet de changer facilement de template.
+ De plus ce fichier est moins volumineux, car on supprime les modules de bootstrap non-utilisés.
+
+ Le sous-dossier less/less contient les fichiers originaux de bootstrap non-modifiés.
+
+ Le fichier LESS est compilé dans static_dirs actuellement. __En prod, il faut changer le setting correspondant.__

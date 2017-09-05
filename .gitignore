@@ -5,6 +5,7 @@ unit.xml
 /static/media/img/
 /static/static_root/
 /static/static_dirs/admin/
+/static/static_dirs/COMPILED/
 
 
 # Dump v3
