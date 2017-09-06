@@ -14,6 +14,11 @@ class SelfSaleShopModule(forms.Form):
         self.client = kwargs.pop('client')
         super(SelfSaleShopModule, self).__init__(*args, **kwargs)
 
+        try:
+            self.fields['client'] = self.get_client_field()
+        except AttributeError:
+            pass
+
         for category in self.module.categories.all():
             for category_product in category.categoryproduct_set.all():
                 if category_product.get_price() > 0:
@@ -35,6 +40,7 @@ class SelfSaleShopModule(forms.Form):
                         validators=[MinValueValidator(0, """La commande doit être
                                                       positive ou nulle""")]
                         )
+
 
     def clean(self):
         cleaned_data = super(SelfSaleShopModule, self).clean()
@@ -66,20 +72,20 @@ class SelfSaleShopModule(forms.Form):
 
 
 class OperatorSaleShopModule(SelfSaleShopModule):
-    try:
-        client = forms.ChoiceField(
-            label='Client',
-            choices=([(None, 'Selectionner un client')] + [(str(u.pk)+'/'+str(u.balance), u.choice_string())
-                     for u in User.objects.all().exclude(groups__pk=1)]),
-            widget=forms.Select(
-                attrs={'class': 'form-control selectpicker',
-                       'data-live-search': 'True'})
-        )
-    except OperationalError:
-        pass
-    except ProgrammingError:
-        pass
-
+    def get_client_field(self):
+        try:
+            return forms.ChoiceField(
+                label='Client',
+                choices=([(None, 'Selectionner un client')] + [(str(u.pk)+'/'+str(u.balance), u.choice_string())
+                         for u in User.objects.all().exclude(groups__pk=1)]),
+                widget=forms.Select(
+                    attrs={'class': 'form-control selectpicker',
+                           'data-live-search': 'True'})
+            )
+        except OperationalError:
+            pass
+        except ProgrammingError:
+            pass
 
 class ModuleCategoryForm(forms.Form):
     name = forms.CharField(
