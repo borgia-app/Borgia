@@ -1,0 +1,8 @@
+{
+  "name": "Borgia",
+  "version": "4.1.0",
+  "author": "Borgia-app",
+  "dependencies": {
+    "less": "^2.7.2"
+  }
+}
