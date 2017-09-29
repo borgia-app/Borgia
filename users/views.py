@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from django.shortcuts import render, HttpResponse, force_text, redirect
 from django.views.generic import FormView, View
@@ -161,7 +162,7 @@ class UserCreateView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     def get_initial(self):
         initial = super(UserCreateView, self).get_initial()
         initial['campus'] = 'Me'
-        initial['year'] = 2014
+        initial['year'] = datetime.now().year - 1
         return initial
 
     """
