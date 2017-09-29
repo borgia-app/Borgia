@@ -73,7 +73,6 @@ class User(AbstractUser):
         ('ME', 'Me'),
         ('AN', 'An'),
         ('CH', 'Ch'),
-        ('AI', 'Ai'),
         ('BO', 'Bo'),
         ('LI', 'Li'),
         ('CL', 'Cl'),
@@ -97,7 +96,7 @@ class User(AbstractUser):
     year = models.IntegerField('Prom\'ss', choices=YEAR_CHOICES, blank=True,
                                null=True)
     campus = models.CharField('Tabagn\'ss', choices=CAMPUS_CHOICES,
-                              max_length=2, blank=True, null=True)
+                              max_length=3, blank=True, null=True)
     phone = models.CharField('Numéro de téléphone', max_length=255,
                              blank=True, null=True,
                              validators=[RegexValidator('^0[0-9]{9}$',
