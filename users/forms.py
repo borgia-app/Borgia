@@ -13,7 +13,7 @@ class UserCreationCustomForm(forms.Form):
     surname = forms.CharField(label='Buque', max_length=255, required=False)
     family = forms.CharField(label='Fam\'ss', max_length=255, required=False)
     campus = forms.ChoiceField(label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
-    year = forms.ChoiceField(label='Prom\'ss', choices=User.YEAR_CHOICES, required=False)
+    year = forms.ChoiceField(label='Prom\'ss', choices=User.YEAR_CHOICES[::-1], required=False)
     username = forms.CharField(label='Username', max_length=255)
     honnor_member = forms.BooleanField(label='Membre d\'honneur', required=False)
     password = forms.CharField(label='Mot de passe', widget=PasswordInput)
