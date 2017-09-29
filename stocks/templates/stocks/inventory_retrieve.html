@@ -1,0 +1,30 @@
+{% extends 'base_sober.html' %}
+
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Détails d'un inventaire du stock du magasin {{ object.shop }}
+  </div>
+  <div class="panel-body">
+    <ul>
+      <li>Magasin : {{ object.shop }}</li>
+      <li>Opérateur : {{ object.operator }}</li>
+      <li>Date : {{ object.datetime }}</li>
+    </ul>
+    <table class="table table-hover table-striped">
+      <tr>
+        <th>Produit</th>
+        <th>Quantité</th>
+      </tr>
+      {% for inventoryproduct in object.inventoryproduct_set.all %}
+      <tr>
+        <td>{{ inventoryproduct.product }}</td>
+        <td>
+          {{ inventoryproduct.get_quantity_display }}
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</div>
+{% endblock %}

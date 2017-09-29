@@ -1,0 +1,101 @@
+{% extends 'base_sober.html' %}
+{% load static %}
+{% load bootstrap %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/i18n/defaults-fr_FR.min.js"></script>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Nouvelle catégorie de vente au {{ module }}
+  </div>
+  <div class="panel-body">
+    <form method="post">
+      {% csrf_token %}
+      <div class="row">
+          <div class="col-md-9" style="margin-bottom: 20px">
+            {{ cat_name_form|bootstrap_horizontal }}
+          </div>
+      </div>
+      {{ cat_form.management_form }}
+      {% for product_form in cat_form %}
+        <div class="category_formset row" style="margin-bottom: 15px">
+          <div class="col-md-6">
+              {{ product_form.product }}
+            </div>
+            <div class="col-md-3 quantity_unit">
+              <div class="input-group">
+                {{ product_form.quantity }}
+                <div class="input-group-addon unit"></div>
+              </div>
+            </div>
+        </div>
+      {% endfor %}
+      <button class="btn btn-success" type="submit">Valider</button>
+    </form>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js"></script>
+<script>
+$('.category_formset').formset({
+  addText: 'Nouveau produit',
+  deleteText: 'Supprimer',
+  addCssClass: 'add-row btn btn-success btn-sm',
+  deleteCssClass: 'delete-row',
+  added: function(row) {
+    $(row).find('.selectpicker').each(function() {
+      $(this).selectpicker()
+    })
+    $(row).find('.quantity_unit').hide()
+    $("[id$='product']").change(function(e) {
+      if (e.target.value) {
+        var unit = e.target.value.split('/')[1]
+        if (unit !== 'None') {
+          $(this).closest('.row').find('.unit').html(unit)
+          $(this).closest('.row').find('.quantity_unit').show()
+          $(this).closest('.row').find('.quantity').attr('required', true)
+        } else {
+          $(this).closest('.row').find('.quantity_unit').hide()
+          $(this).closest('.row').find('.quantity').attr('required', false)
+        }
+      } else {
+        $(this).closest('.row').find('.quantity_unit').hide()
+        $(this).closest('.row').find('.quantity').attr('required', false)
+      }
+    })
+  }
+})
+</script>
+<script>
+$("[id$='product']").change(function(e) {
+  if (e.target.value) {
+    var unit = e.target.value.split('/')[1]
+    if (unit !== 'None') {
+      $(this).closest('.row').find('.unit').html(unit)
+      $(this).closest('.row').find('.quantity_unit').show()
+      $(this).closest('.row').find('.quantity').attr('required', true)
+    } else {
+      $(this).closest('.row').find('.quantity_unit').hide()
+      $(this).closest('.row').find('.quantity').attr('required', false)
+    }
+  } else {
+    $(this).closest('.row').find('.quantity_unit').hide()
+    $(this).closest('.row').find('.quantity').attr('required', false)
+  }
+})
+$("[id$='product']").trigger('change')
+</script>
+<style>
+  .add-row {
+    margin: 15px;
+  }
+  .centered_input {
+    text-align: center;
+  }
+  .delete_row {
+    margin-top: 10px;
+  }
+</style>
+{% endblock %}

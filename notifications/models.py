@@ -10,7 +10,7 @@ from django.forms import ValidationError
 from django.db.models.signals import m2m_changed, pre_save
 from django.dispatch import receiver
 from django.utils.html import conditional_escape
-from users.models import *
+from users.models import User
 
 # Classes
 

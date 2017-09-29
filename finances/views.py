@@ -349,14 +349,9 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         page = self.request.POST.get('page', 1)
 
         try:
-            context['sale_list'] = Sale.objects.filter(
-                category='sale',
-                wording='Vente '+self.shop.name
-            ).order_by('-date')
+            context['sale_list'] = Sale.objects.filter(shop=self.shop).order_by('-datetime')
         except AttributeError:
-            context['sale_list'] = Sale.objects.filter(
-                category='sale'
-            ).order_by('-date')
+            context['sale_list'] = Sale.objects.all().order_by('-datetime')
 
         # The sale_list is paginated by passing the filtered QuerySet to Paginator
         paginator = Paginator(self.form_query(context['sale_list']), 50)
@@ -379,8 +374,6 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
         context['sales_tab_header'] = sales_tab_header
 
-
-
         return context
 
     def form_query(self, query):
@@ -402,16 +395,14 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
         if self.date_begin:
             query = query.filter(
-                date__gte=self.date_begin)
+                datetime__gte=self.date_begin)
 
         if self.date_end:
             query = query.filter(
-                date__lte=self.date_end)
+                datetime__lte=self.date_end)
 
         if self.query_shop:
-            query = query.filter(
-                wording='Vente '+self.query_shop.name
-            )
+            query = query.filter(shop=self.query_shop)
 
         return query
 
@@ -429,7 +420,7 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 self.query_shop = form.cleaned_data['shop']
         except KeyError:
             pass
-        context = self.get_context_data()
+
         return self.get(self.request, self.args, self.kwargs)
 
 
@@ -512,9 +503,7 @@ class RechargingList(GroupPermissionMixin, FormView,
     def get_context_data(self, **kwargs):
         context = super(RechargingList, self).get_context_data(**kwargs)
 
-        context['recharging_list'] = Sale.objects.filter(
-            category='recharging'
-        ).order_by('-date')
+        context['recharging_list'] = Recharging.objects.all().order_by('-datetime')
 
         context['recharging_list'] = self.form_query(
             context['recharging_list'])[:100]
@@ -542,12 +531,12 @@ class RechargingList(GroupPermissionMixin, FormView,
             'lydia_face2face': {
                 'total': 0,
                 'nb': 0,
-                'ids': Lydia.objects.none()
+                'ids': LydiaFaceToFace.objects.none()
             },
-            'lydia_auto': {
+            'lydia_online': {
                 'total': 0,
                 'nb': 0,
-                'ids': Lydia.objects.none()
+                'ids': LydiaOnline.objects.none()
             },
             'total': {
                 'total': 0,
@@ -556,29 +545,23 @@ class RechargingList(GroupPermissionMixin, FormView,
         }
 
         for r in query:
-            type = r.payment.unique_payment_type()
-            if type:
-                if type == 'cheque':
-                    info['cheque']['total'] += r.amount
-                    info['cheque']['nb'] += 1
-                    info['cheque']['ids'] |= r.payment.list_cheque()[0]
-                if type == 'cash':
-                    info['cash']['total'] += r.amount
-                    info['cash']['nb'] += 1
-                if type == 'lydia_face2face':
-                    info['lydia_face2face']['total'] += r.amount
-                    info['lydia_face2face']['nb'] += 1
-                    info['lydia_face2face']['ids'] |= r.payment.list_lydia()[0]
-                if type == 'lydia_auto':
-                    info['lydia_auto']['total'] += r.amount
-                    info['lydia_auto']['nb'] += 1
-                    info['lydia_auto']['ids'] |= r.payment.list_lydia()[0]
-        info['total']['total'] = (
-            info['cheque']['total'] + info['cash']['total'] + info['lydia_face2face']['total'] + info['lydia_auto']['total']
-        )
-        info['total']['nb'] = (
-            info['cheque']['nb'] + info['cash']['nb'] + info['lydia_face2face']['nb'] + info['lydia_auto']['nb']
-        )
+            if r.payment_solution.get_type() == 'cash':
+                info['cash']['total'] += r.payment_solution.amount
+                info['cash']['nb'] += 1
+            if r.payment_solution.get_type() == 'cheque':
+                info['cheque']['total'] += r.payment_solution.amount
+                info['cheque']['nb'] += 1
+                info['cheque']['ids'] |= [r.payment_solution.cheque]
+            if r.payment_solution.get_type() == 'lydiafacetoface':
+                info['lydia_face2face']['total'] += r.payment_solution.amount
+                info['lydia_face2face']['nb'] += 1
+                info['lydia_face2face']['ids'] |= [r.payment_solution.lydiafacetoface]
+            if r.payment_solution.get_type() == 'lydiaonline':
+                info['lydia_online']['total'] += r.payment_solution.amount
+                info['lydia_online']['nb'] += 1
+                info['lydia_online']['ids'] |= [r.payment_solution.lydiaonline]
+            info['total']['total'] += r.payment_solution.amount
+            info['total']['nb'] += 1
         return info
 
     def form_query(self, query):
@@ -587,9 +570,6 @@ class RechargingList(GroupPermissionMixin, FormView,
                 Q(operator__last_name__contains=self.search)
                 | Q(operator__first_name__contains=self.search)
                 | Q(operator__surname__contains=self.search)
-                | Q(recipient__last_name__contains=self.search)
-                | Q(recipient__first_name__contains=self.search)
-                | Q(recipient__surname__contains=self.search)
                 | Q(sender__last_name__contains=self.search)
                 | Q(sender__first_name__contains=self.search)
                 | Q(sender__surname__contains=self.search)
@@ -597,11 +577,11 @@ class RechargingList(GroupPermissionMixin, FormView,
 
         if self.date_begin:
             query = query.filter(
-                date__gte=self.date_begin)
+                datetime__gte=self.date_begin)
 
         if self.date_end:
             query = query.filter(
-                date__lte=self.date_end)
+                datetime__lte=self.date_end)
 
         if self.operators:
             query = query.filter(operator__in=self.operators)
@@ -647,11 +627,8 @@ class RechargingRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.object = Sale.objects.get(pk=kwargs['pk'])
+            self.object = Recharging.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
-            raise Http404
-
-        if self.object.category != 'recharging':
             raise Http404
 
         return super(RechargingRetrieve, self).dispatch(request, *args,
@@ -690,9 +667,7 @@ class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     def get_context_data(self, **kwargs):
         context = super(TransfertList, self).get_context_data(**kwargs)
 
-        context['transfert_list'] = Sale.objects.filter(
-            category='transfert'
-        ).order_by('-date')
+        context['transfert_list'] = Transfert.objects.all().order_by('-datetime')
 
         context['transfert_list'] = self.form_query(
             context['transfert_list'])[:100]
@@ -702,10 +677,7 @@ class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     def form_query(self, query):
         if self.search:
             query = query.filter(
-                Q(operator__last_name__contains=self.search)
-                | Q(operator__first_name__contains=self.search)
-                | Q(operator__surname__contains=self.search)
-                | Q(recipient__last_name__contains=self.search)
+                Q(recipient__last_name__contains=self.search)
                 | Q(recipient__first_name__contains=self.search)
                 | Q(recipient__surname__contains=self.search)
                 | Q(sender__last_name__contains=self.search)
@@ -715,11 +687,11 @@ class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
         if self.date_begin:
             query = query.filter(
-                date__gte=self.date_begin)
+                datetime__gte=self.date_begin)
 
         if self.date_end:
             query = query.filter(
-                date__lte=self.date_end)
+                datetime__lte=self.date_end)
 
         return query
 
@@ -759,11 +731,8 @@ class TransfertRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.object = Sale.objects.get(pk=kwargs['pk'])
+            self.object = Transfert.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
-            raise Http404
-
-        if self.object.category != 'transfert':
             raise Http404
 
         return super(TransfertRetrieve, self).dispatch(request, *args,
@@ -779,7 +748,7 @@ class SelfTransfertCreate(GroupPermissionMixin, FormView,
                           GroupLateralMenuFormMixin):
     template_name = 'finances/self_transfert_create.html'
     perm_codename = 'add_transfert'
-    lm_active = None
+    lm_active = 'lm_self_transfert_create'
     form_class = SelfTransfertCreate
 
     def get_form_kwargs(self, **kwargs):
@@ -788,12 +757,13 @@ class SelfTransfertCreate(GroupPermissionMixin, FormView,
         return kwargs
 
     def form_valid(self, form):
-        sale_transfert(
+        transfert = Transfert.objects.create(
             sender=self.request.user,
             recipient=form.cleaned_data['recipient'],
             amount=form.cleaned_data['amount'],
-            date=now(),
-            justification=form.cleaned_data['justification'])
+            justification=form.cleaned_data['justification']
+        )
+        transfert.pay()
         return super(SelfTransfertCreate, self).form_valid(form)
 
 
@@ -827,9 +797,7 @@ class ExceptionnalMovementList(GroupPermissionMixin, FormView,
         context = super(ExceptionnalMovementList, self).get_context_data(
             **kwargs)
 
-        context['exceptionnalmovement_list'] = Sale.objects.filter(
-            category='exceptionnal_movement'
-        ).order_by('-date')
+        context['exceptionnalmovement_list'] = ExceptionnalMovement.objects.all().order_by('-datetime')
 
         context['exceptionnalmovement_list'] = self.form_query(
             context['exceptionnalmovement_list'])[:100]
@@ -845,18 +813,15 @@ class ExceptionnalMovementList(GroupPermissionMixin, FormView,
                 | Q(recipient__last_name__contains=self.search)
                 | Q(recipient__first_name__contains=self.search)
                 | Q(recipient__surname__contains=self.search)
-                | Q(sender__last_name__contains=self.search)
-                | Q(sender__first_name__contains=self.search)
-                | Q(sender__surname__contains=self.search)
             )
 
         if self.date_begin:
             query = query.filter(
-                date__gte=self.date_begin)
+                datetime__gte=self.date_begin)
 
         if self.date_end:
             query = query.filter(
-                date__lte=self.date_end)
+                datetime__lte=self.date_end)
 
         return query
 
@@ -897,11 +862,8 @@ class ExceptionnalMovementRetrieve(GroupPermissionMixin, View,
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.object = Sale.objects.get(pk=kwargs['pk'])
+            self.object = ExceptionnalMovement.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
-            raise Http404
-
-        if self.object.category != 'exceptionnal_movement':
             raise Http404
 
         return super(ExceptionnalMovementRetrieve, self).dispatch(
@@ -924,7 +886,7 @@ class SelfTransactionList(GroupPermissionMixin, FormView,
     """
     template_name = 'finances/self_transaction_list.html'
     perm_codename = None
-    lm_active = None
+    lm_active = 'lm_self_transaction_list'
     form_class = GenericListSearchDateForm
 
     search = None
@@ -935,25 +897,11 @@ class SelfTransactionList(GroupPermissionMixin, FormView,
         context = super(SelfTransactionList, self).get_context_data(**kwargs)
 
         context['transaction_list'] = self.form_query(
-            self.request.user.list_sale())[:100]
+            self.request.user.list_transaction())[:100]
         return context
 
+    # TODO: form to be used
     def form_query(self, query):
-        if self.search:
-            query = query.filter(
-                Q(wording__icontains=self.search)
-                | Q(category__icontains=self.search)
-                | Q(justification__icontains=self.search)
-            )
-
-        if self.date_begin:
-            query = query.filter(
-                date__gte=self.date_begin-timedelta(days=1))
-
-        if self.date_end:
-            query = query.filter(
-                date__lte=self.date_end+timedelta(days=1))
-
         return query
 
     def form_valid(self, form):
@@ -1007,11 +955,14 @@ class UserExceptionnalMovementCreate(GroupPermissionMixin, UserMixin, FormView,
         if form.cleaned_data['type_movement'] == 'credit':
             is_credit = True
 
-        sale_exceptionnal_movement(
-            operator=operator, affected=self.user,
-            is_credit=is_credit, amount=amount,
-            date=now(),
-            justification=form.cleaned_data['justification'])
+        exceptionnal_movement = ExceptionnalMovement.objects.create(
+            justification=form.cleaned_data['justification'],
+            operator=operator,
+            recipient=self.user,
+            is_credit=is_credit,
+            amount=amount
+        )
+        exceptionnal_movement.pay()
 
         return super(UserExceptionnalMovementCreate, self).form_valid(form)
 
@@ -1055,27 +1006,30 @@ class UserSupplyMoney(GroupPermissionMixin, UserMixin, FormView,
                 sender=sender,
                 recipient=User.objects.get(username='AE_ENSAM'),
                 bank_account=form.cleaned_data['bank_account'])
-            payment.append(cheque)
+            payment = cheque
 
         elif form.cleaned_data['type'] == 'cash':
             cash = Cash.objects.create(
                 sender=sender,
                 recipient=User.objects.get(username='AE_ENSAM'),
                 amount=form.cleaned_data['amount'])
-            payment.append(cash)
+            payment = cash
 
         elif form.cleaned_data['type'] == 'lydia':
-            lydia = Lydia.objects.create(
+            lydia = LydiaFaceToFace.objects.create(
                 date_operation=form.cleaned_data['signature_date'],
                 id_from_lydia=form.cleaned_data['unique_number'],
                 sender=sender,
                 recipient=User.objects.get(username='AE_ENSAM'),
                 amount=form.cleaned_data['amount'])
-            payment.append(lydia)
+            payment = lydia
 
-        sale_recharging(sender=sender, operator=operator,
-                        payments_list=payment, date=now(),
-                        wording='Rechargement manuel')
+        recharging = Recharging.objects.create(
+            sender=sender,
+            operator=operator,
+            payment_solution=payment
+        )
+        recharging.pay()
 
         return super(UserSupplyMoney, self).form_valid(form)
 
@@ -1102,6 +1056,7 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
     form_class = SelfLydiaCreateForm
     template_name = 'finances/self_lydia_create.html'
     perm_codename = None
+    lm_active = 'lm_self_lydia_create'
 
     def get_form_kwargs(self):
         kwargs = super(SelfLydiaCreate, self).get_form_kwargs()
@@ -1224,17 +1179,18 @@ def self_lydia_callback(request):
     }
     if verify_token_algo_lydia(params_dict, settings.LYDIA_API_TOKEN) is True:
         try:
-            sale_recharging(
+            lydia = LydiaOnline.objects.create(
+                sender=User.objects.get(pk=request.GET.get('user_pk')),
+                recipient=User.objects.get(username='AE_ENSAM'),
+                amount=decimal.Decimal(params_dict['amount']),
+                id_from_lydia=params_dict['transaction_identifier']
+            )
+            recharging = Recharging.objects.create(
                 sender=User.objects.get(pk=request.GET.get('user_pk')),
                 operator=User.objects.get(pk=request.GET.get('user_pk')),
-                date=now(),
-                wording='Rechargement automatique',
-                payments_list=[Lydia.objects.create(
-                    date_operation=now(),
-                    amount=decimal.Decimal(params_dict['amount']),
-                    id_from_lydia=params_dict['transaction_identifier'],
-                    sender=User.objects.get(pk=request.GET.get('user_pk')),
-                    recipient=User.objects.get(username='AE_ENSAM'))])
+                payment_solution=lydia.payment_solution
+            )
+            recharging.pay()
         except KeyError:
             return HttpResponse('300')
         except ObjectDoesNotExist:
@@ -1281,6 +1237,7 @@ def verify_token_algo_lydia(params, token):
 class SelfSharedEventList(GroupPermissionMixin, View, GroupLateralMenuMixin):
     perm_codename = None
     template_name = 'finances/self_sharedevent_list.html'
+    lm_active = 'lm_self_sharedevent_list'
 
     def get(self, request, *args, **kwargs):
         context = super(SelfSharedEventList, self).get_context_data(**kwargs)

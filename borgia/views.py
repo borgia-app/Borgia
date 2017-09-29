@@ -12,8 +12,8 @@ import json
 from django.core.exceptions import ObjectDoesNotExist
 
 from borgia.utils import *
-from finances.models import Sale, SharedEvent
-from shops.models import SingleProduct, Container
+from finances.models import Sale, SharedEvent, Transfert, Recharging, ExceptionnalMovement
+from shops.models import Product
 from borgia.forms import LoginForm
 
 
@@ -496,51 +496,62 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['sale_list'] = self.get_sales(request)
+        context['transaction_list'] = self.get_transactions(request)
         return render(request, self.template_name, context=context)
 
-    def get_sales(self, request):
-        sales = {}
-        list = request.user.list_sale()
-        sales['months'] = self.monthlist(
+    def get_transactions(self, request):
+        transactions = {}
+        transactions['months'] = self.monthlist(
             datetime.now() - timedelta(days=365),
             datetime.now())
 
+        transactions['all'] = self.request.user.list_transaction()[:5]
+
         # Shops sales
-        sales['shops'] = []
-        sales['all'] = list[:5]
+        sale_list = Sale.objects.filter(sender=self.request.user).order_by('-datetime')
+        transactions['shops'] = []
         for shop in Shop.objects.all().exclude(pk=1):
-            list_filtered = list.filter(
-                category='sale', wording='Vente '+shop.name)
+            list_filtered = sale_list.filter(shop=shop)
             total = 0
             for sale in list_filtered:
-                total += sale.price_for(request.user)
-            sales['shops'].append({
+                total += sale.amount()
+            transactions['shops'].append({
                 'shop': shop,
-                'total': -total,
+                'total': total,
                 'sale_list_short': list_filtered[:5],
-                'data_months': self.data_months(request, list_filtered, sales['months'])
+                'data_months': self.data_months(request, list_filtered, transactions['months'])
             })
 
         # Transferts
-        sales['transferts'] = {
-            'sale_list_short': list.filter(category='transfert')[:5]
+        transfert_list = Transfert.objects.filter(
+            Q(sender=self.request.user) | Q(recipient=self.request.user)
+        ).order_by('-datetime')
+        transactions['transferts'] = {
+            'transfert_list_short': transfert_list[:5]
         }
 
-        # Shared events
-        sales['shared_events'] = {
-            'sale_list_short': list.filter(category='shared_event')[:5]
+        # Rechargings
+        rechargings_list = Recharging.objects.filter(sender=self.request.user).order_by('-datetime')
+        transactions['rechargings'] = {
+            'recharging_list_short': rechargings_list[:5]
         }
 
-        return sales
+        # ExceptionnalMovements
+        exceptionnalmovements_list = ExceptionnalMovement.objects.filter(recipient=self.request.user).order_by('-datetime')
+        transactions['exceptionnalmovements'] = {
+            'exceptionnalmovement_list_short': exceptionnalmovements_list[:5]
+        }
+
+        #TODO: shared event
+        return transactions
 
     def data_months(self, request, list, months):
         amounts = [0 for i in range(0, len(months))]
         for object in list:
-            if object.date.strftime("%b-%y") in months:
+            if object.datetime.strftime("%b-%y") in months:
                 amounts[
-                    months.index(object.date.strftime("%b-%y"))] +=\
-                        abs(object.price_for(request.user))
+                    months.index(object.datetime.strftime("%b-%y"))] +=\
+                        abs(object.amount())
         return amounts
 
     def monthlist(self, start, end):
@@ -569,58 +580,37 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
 
     def get_sales(self, request):
         sales = {}
-        list = Sale.objects.filter(wording='Vente '+self.shop.name).order_by(
-            '-date')
+        list = Sale.objects.filter(shop=self.shop).order_by('-datetime')
         sales['weeks'] = self.weeklist(
             datetime.now() - timedelta(days=365),
-            datetime.now())
+        datetime.now())
         sales['data_weeks'] = self.sale_data_weeks(list, sales['weeks'])[0]
         sales['total'] = self.sale_data_weeks(list, sales['weeks'])[1]
         sales['all'] = list[:7]
         return sales
 
+    # TODO: purchases with stock
     def get_purchases(self, request):
         purchases = {}
-        list_single_products = SingleProduct.objects.filter(
-            product_base__shop=self.shop)
-        list_containers = Container.objects.filter(
-            product_base__shop=self.shop)
-        purchases['weeks'] = self.weeklist(
-            datetime.now() - timedelta(days=365),
-            datetime.now())
-        purchases['data_weeks'] = self.purchase_data_weeks(
-            list_single_products, list_containers, purchases['weeks'])[0]
-        purchases['total'] = self.purchase_data_weeks(
-            list_single_products, list_containers, purchases['weeks'])[1]
         return purchases
 
+    # TODO: purchases with stock
     def purchase_data_weeks(self, list_single_products, list_containers,
                             weeks):
         amounts = [0 for i in range(0, len(weeks))]
         total = 0
-        for object in list_single_products:
-            string = (str(object.purchase_date.isocalendar()[1])
-                      + '-' + str(object.purchase_date.year))
-            if string in weeks:
-                amounts[weeks.index(string)] += object.price
-            total += object.price
-        for object in list_containers:
-            string = (str(object.purchase_date.isocalendar()[1])
-                      + '-' + str(object.purchase_date.year))
-            if string in weeks:
-                amounts[weeks.index(string)] += object.price
-            total += object.price
+
         return amounts, total
 
     def sale_data_weeks(self, list, weeks):
         amounts = [0 for i in range(0, len(weeks))]
         total = 0
         for object in list:
-            string = (str(object.date.isocalendar()[1])
-                      + '-' + str(object.date.year))
+            string = (str(object.datetime.isocalendar()[1])
+                      + '-' + str(object.datetime.year))
             if string in weeks:
-                amounts[weeks.index(string)] += object.amount
-            total += object.amount
+                amounts[weeks.index(string)] += object.amount()
+                total += object.amount()
         return amounts, total
 
     def weeklist(self, start, end):
@@ -645,9 +635,7 @@ class PresidentsGroupWorkboard(GroupPermissionMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['sale_list'] = Sale.objects.filter(
-            category='sale'
-        ).order_by('-date')[:5]
+        context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
         context['events'] = []
         for event in SharedEvent.objects.all():
             context['events'].append({
@@ -665,9 +653,7 @@ class VicePresidentsInternalGroupWorkboard(GroupPermissionMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['sale_list'] = Sale.objects.filter(
-            category='sale'
-        ).order_by('-date')[:5]
+        context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
         context['events'] = []
         for event in SharedEvent.objects.all():
             context['events'].append({
@@ -685,9 +671,7 @@ class TreasurersGroupWorkboard(GroupPermissionMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['sale_list'] = Sale.objects.filter(
-            category='sale'
-        ).order_by('-date')[:5]
+        context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
         context['events'] = []
         for event in SharedEvent.objects.all():
             context['events'].append({

@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'finances',
     'settings_data',
     'modules',
-    'graphene_django',
+    'stocks',
+    'graphene_django'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -216,3 +217,5 @@ JWT_TOKEN_TIMEOUT = 7  # days
 # Les paramètres modifiables sont des objets Settings de l'app settings_data
 # A modifier directement dans l'application
 # [LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, MARGIN_PROFIT]
+
+CENTER_NAME = "AE ENSAM Metz"

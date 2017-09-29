@@ -2,8 +2,8 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator
 
-from modules.models import ContainerCase
-from shops.models import ProductBase
+from shops.models import Product
+from modules.models import CategoryProduct
 from users.models import User
 from django.db.utils import OperationalError, ProgrammingError
 
@@ -14,53 +14,33 @@ class SelfSaleShopModule(forms.Form):
         self.client = kwargs.pop('client')
         super(SelfSaleShopModule, self).__init__(*args, **kwargs)
 
-        for container_case in self.module.container_cases.all().exclude(product__isnull=True):
-            self.fields[(
-                str(container_case.pk)
-                + '-'
-                + 'container_cases')] = forms.IntegerField(
-                label=container_case.product.product_base.sale_name(),
-                widget=forms.NumberInput(
-                    attrs={'data_category_pk': 'container_cases',
-                           'data_container_case_name': container_case.name,
-                           'data_usual_price': container_case.product.product_base.get_moded_usual_price(),
-                           'class': 'form-control',
-                           'pk': (
-                               str(container_case.product.pk)
-                               + '-'
-                               + str(container_case.pk)
-                               + '-cc'),
-							'min': '0'
-							}),
-                initial=0,
-                required=False,
-                validators=[MinValueValidator(0, """La commande doit être
-                                              positive ou nulle""")]
-            )
+        try:
+            self.fields['client'] = self.get_client_field()
+        except AttributeError:
+            pass
 
         for category in self.module.categories.all():
-            for product in category.product_bases.all():
-                if (product.quantity_products_stock() > 0
-                        and product.get_moded_usual_price() > 0):
-                    self.fields[(str(product.pk)
+            for category_product in category.categoryproduct_set.all():
+                if category_product.get_price() > 0:
+                    self.fields[str(category_product.pk)
                                  + '-' + str(category.pk)
-                                 )] = forms.IntegerField(
-                        label=product.sale_name(),
+                                 ] = forms.IntegerField(
+                        label=category_product.__str__(),
                         widget=forms.NumberInput(
                             attrs={'data_category_pk': category.pk,
-                                   'data_usual_price': product.get_moded_usual_price(),
+                                   'data_price': category_product.get_price(),
                                    'class': 'form-control',
                                    'pk': (
-                                       str(product.pk)
+                                       str(category_product.product.pk)
                                        + '-'
                                        + str(category.pk)),
-									'min': '0'}
-									),
+									'min': 0}),
                         initial=0,
                         required=False,
                         validators=[MinValueValidator(0, """La commande doit être
                                                       positive ou nulle""")]
                         )
+
 
     def clean(self):
         cleaned_data = super(SelfSaleShopModule, self).clean()
@@ -76,17 +56,12 @@ class SelfSaleShopModule(forms.Form):
         for field in cleaned_data:
             if field != 'client':
                 invoice = cleaned_data[field]
-                if invoice != 0 and isinstance(invoice, int):
-                    product_pk = field.split('-')[0]
-                    if 'container_cases' in field:
-                        total_price += (
-                            ContainerCase.objects.get(
-                                pk=product_pk).product.product_base.get_moded_usual_price()
-                            * invoice)
-                    else:
-                        total_price += (
-                            ProductBase.objects.get(pk=product_pk).get_moded_usual_price()
-                            * invoice)
+                if isinstance(invoice, int) and invoice > 0 :
+                    try:
+                        category_product_pk = field.split('-')[0]
+                        total_price += (CategoryProduct.objects.get(pk=category_product_pk).get_price() * invoice)
+                    except ObjectDoesNotExist:
+                        pass
         if total_price > self.client.balance:
             raise forms.ValidationError('Crédit insuffisant !')
         if self.module.limit_purchase:
@@ -97,20 +72,20 @@ class SelfSaleShopModule(forms.Form):
 
 
 class OperatorSaleShopModule(SelfSaleShopModule):
-    try:
-        client = forms.ChoiceField(
-            label='Client',
-            choices=([(None, 'Selectionner un client')] + [(str(user.pk)+'/'+str(user.balance), user.choice_string())
-                     for user in User.objects.all().exclude(groups__pk=1)]),
-            widget=forms.Select(
-                attrs={'class': 'form-control selectpicker',
-                       'data-live-search': 'True'})
-        )
-    except OperationalError:
-        pass
-    except ProgrammingError:
-        pass
-
+    def get_client_field(self):
+        try:
+            return forms.ChoiceField(
+                label='Client',
+                choices=([(None, 'Selectionner un client')] + [(str(u.pk)+'/'+str(u.balance), u.choice_string())
+                         for u in User.objects.all().exclude(groups__pk=1)]),
+                widget=forms.Select(
+                    attrs={'class': 'form-control selectpicker',
+                           'data-live-search': 'True'})
+            )
+        except OperationalError:
+            pass
+        except ProgrammingError:
+            pass
 
 class ModuleCategoryForm(forms.Form):
     name = forms.CharField(
@@ -128,10 +103,45 @@ class ModuleCategoryForm(forms.Form):
         super(ModuleCategoryForm, self).__init__(*args, **kwargs)
         self.fields['products'] = forms.ModelMultipleChoiceField(
             label='Produits',
-            queryset=ProductBase.objects.filter(shop=shop),
+            queryset=Product.objects.filter(shop=shop),
             widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
                                                'data-live-search': 'True'}),
             required=False)
+
+
+class ModuleCategoryCreateForm(forms.Form):
+    def __init__(self, *args, **kwargs):
+        shop = kwargs.pop('shop')
+        super(ModuleCategoryCreateForm, self).__init__(*args, **kwargs)
+        self.fields['product'] = forms.ChoiceField(
+            label='Produit',
+            choices=([(None, 'Sélectionner un produit')] + [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
+                     for product in Product.objects.filter(shop=shop)]),
+            widget=forms.Select(
+                attrs={'class': 'form-control selectpicker',
+                       'data-live-search': 'True'})
+        )
+    quantity = forms.IntegerField(
+        label='En vente',
+        required=False,
+        widget=forms.NumberInput(
+            attrs={'class': 'form-control centered_input quantity',
+                    'placeholder': 'En vente',
+                    'min':1}
+        )
+    )
+
+    def clean(self):
+        cleaned_data = super(ModuleCategoryCreateForm, self).clean()
+        # Validation direct in html
+
+
+
+class ModuleCategoryCreateNameForm(forms.Form):
+    name = forms.CharField(
+        label='Nom',
+        max_length=254
+    )
 
 
 class ShopModuleConfigForm(forms.Form):
@@ -156,15 +166,3 @@ class ShopModuleConfigForm(forms.Form):
                                               validators=[
                                                 MinValueValidator(0, 'La durée doit être positive')],
                                             required=False)
-
-
-class ModuleContainerCaseForm(forms.Form):
-    def __init__(self, *args, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ModuleContainerCaseForm, self).__init__(*args, **kwargs)
-        self.fields['container_cases'] = forms.ModelMultipleChoiceField(
-            label='Emplacements de vente',
-            queryset=ContainerCase.objects.filter(shop=shop),
-            widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
-                                               'data-live-search': 'True'}),
-            required=False)

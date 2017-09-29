@@ -13,7 +13,7 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         Transactions
-        <a class="btn btn-default btn-xs" href="{% url 'url_sale_list' group_name=group.name %}">Liste complète des ventes</a>
+        <a class="btn btn-info btn-xs" href="{% url 'url_sale_list' group_name=group.name %}">Liste complète des ventes</a>
       </div>
       <div class="panel-body">
         <ul>
@@ -28,7 +28,8 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         Stocks
-        <a class="btn btn-default btn-xs" href="{% url 'url_product_list' group_name=group.name %}">Liste complète des produits</a>
+        <a class="btn btn-info btn-xs" href="{% url 'url_product_list' group_name=group.name %}">Liste complète des produits</a>
+        <a class="btn btn-info btn-xs" href="{% url 'url_stock_entry_list' group_name=group.name %}">Liste complète des entrées de stock</a>
       </div>
       <div class="panel-body">
         <ul>
@@ -71,17 +72,7 @@
 <script>
   var ctx = "horizontalBar";
   var data = {
-      labels: [
-        {% if info.buy.container.value == 0 and info.sale.container.value == 0 %}
-        "Achats", "Ventes",
-        {% elif info.buy.single_product.value == 0 and info.sale.single_product.value == 0 %}
-        "Achats", "Ventes",
-        {% else %}
-        "Achats totaux", "Ventes totales",
-        "Achats de conteneurs", "Ventes depuis conteneurs",
-        "Achats de produits unitaires", "Ventes de produits unitaires"
-        {% endif %}
-      ],
+      labels: ["Achats", "Ventes"],
       datasets: [
           {
               label: "Synthèse",
@@ -103,9 +94,7 @@
               ],
               borderWidth: 1,
               data: [
-                {{ info.buy.value|unlocalize }}, {{ info.sale.value|unlocalize }},
-                {{ info.buy.container.value|unlocalize}}, {{ info.sale.container.value|unlocalize }},
-                {{ info.buy.single_product.value|unlocalize}}, {{ info.sale.single_product.value|unlocalize }}
+                {{ info.buy.value|unlocalize }}, {{ info.sale.value|unlocalize }}
               ],
           }
       ]

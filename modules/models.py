@@ -7,8 +7,6 @@ from django.contrib.contenttypes.fields import (
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 
-from shops.models import ContainerCase
-
 
 class Category(models.Model):
     """
@@ -24,7 +22,37 @@ class Category(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     module_id = models.PositiveIntegerField()
     module = GenericForeignKey('content_type', 'module_id')
-    product_bases = models.ManyToManyField('shops.ProductBase')
+    products = models.ManyToManyField('shops.Product', through='CategoryProduct')
+
+
+class CategoryProduct(models.Model):
+    category = models.ForeignKey('Category', on_delete=models.CASCADE)
+    product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+
+    def __str__(self):
+        if self.product.unit:
+            return self.product.name + ' / ' + str(self.quantity) + self.product.get_unit_display()
+        return self.product.name
+
+    def get_price(self):
+        """
+        Return the price for the quantity.
+        """
+        try:
+            if self.product.unit:
+                """
+                - price for a L, quantity in cl
+                - price for a kg, quantity in kg
+                """
+                if self.product.unit == 'CL':
+                    return Decimal(self.quantity * self.product.get_price() /  100)
+                if self.product.unit == 'G':
+                    return Decimal(self.quantity * self.product.get_price() / 1000)
+            else:
+                return Decimal(self.product.get_price())
+        except ZeroDivisionError:
+            return Decimal(0)
 
 
 class Module(models.Model):
@@ -58,7 +86,6 @@ class ShopModule(Module):
         Category,
         content_type_field='content_type',
         object_id_field='module_id')
-    container_cases = models.ManyToManyField(ContainerCase)
     delay_post_purchase = models.IntegerField("Durée d'affichage du résumé de commande",
                                               validators=[
                                                 MinValueValidator(Decimal(0))],
@@ -70,13 +97,6 @@ class ShopModule(Module):
                                          blank=True, null=True)
     logout_post_purchase = models.BooleanField('Deconnexion après une vente',
                                                default=False)
-
-    def container_pk_in_container_cases(self):
-        list = []
-        for container_case in self.container_cases.all():
-            if container_case.product:
-                list.append(container_case.product.pk)
-        return list
 
 
 class SelfSaleModule(ShopModule):

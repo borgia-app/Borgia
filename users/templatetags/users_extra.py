@@ -2,6 +2,7 @@ from django import template
 from django.contrib.auth.models import Group, Permission
 from django.template.defaultfilters import stringfilter
 from django.core.exceptions import ObjectDoesNotExist
+from django.conf import settings
 
 register = template.Library()
 
@@ -24,9 +25,9 @@ def has_group_perm(group, perm_codename):
         return False
 
 
-@register.filter(name='height_ratio')
-def height_ratio(base, list_selfsalemodule):
-    return 100 / (len(list_selfsalemodule) + base)
+@register.filter(name='get_transaction_model')
+def get_transaction_model(transaction):
+    return transaction.__class__.__name__
 
 
 @register.inclusion_tag('breadcrumbs.html', takes_context=True)
@@ -54,3 +55,9 @@ def order_by(attr, request):
         return '-' + attr
     else:
         return attr
+
+
+
+@register.simple_tag
+def center_name():
+    return getattr(settings, "CENTER_NAME", None)

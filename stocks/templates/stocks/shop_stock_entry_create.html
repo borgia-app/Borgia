@@ -1,0 +1,210 @@
+{% extends 'base_sober.html' %}
+{% load static %}
+{% load bootstrap %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/i18n/defaults-fr_FR.min.js"></script>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Ajout de produits au stock du magasin {{ shop }}
+  </div>
+  <div class="panel-body">
+    <form method="post">
+      {% csrf_token %}
+      {{ stockentry_form.management_form }}
+      {% for form in stockentry_form %}
+        <div class="category_formset row" style="margin-bottom: 15px">
+          <div class="col-md-5">
+              {{ form.product }}
+            </div>
+            <div class="col-md-3 quantity_unit">
+              <div class="input-group">
+                {{ form.quantity }}
+                <span class="input-group-btn">
+                  {{ form.unit_quantity }}
+                </span>
+              </div>
+            </div>
+            <div class="col-md-3 amount_amount_unit">
+              <div class="input-group">
+                {{ form.amount }}
+                <span class="input-group-btn">
+                  {{ form.unit_amount }}
+                </span>
+              </div>
+            </div>
+        </div>
+      {% endfor %}
+      <button class="btn btn-success" type="submit">Valider</button>
+    </form>
+  </div>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.formset/1.2.2/jquery.formset.min.js"></script>
+<script>
+$('.category_formset').formset({
+  addText: 'Nouveau produit',
+  deleteText: 'Supprimer',
+  addCssClass: 'add-row btn btn-success btn-sm',
+  deleteCssClass: 'delete-row',
+  added: function(row) {
+    $(row).find('.selectpicker').each(function() {
+      $(this).selectpicker()
+    })
+    $("[id$='product']").change(function(e) {
+      update_units.bind(this)(e)
+    })
+    $(row).find('.selectpicker').trigger('change')
+  }
+})
+$("[id$='product']").change(function(e) {
+  update_units.bind(this)(e)
+})
+$("[id$='product']").trigger('change')
+function update_units(e) {
+  if (e.target.value) {
+    var unit = e.target.value.split('/')[1]
+    if (unit !== 'None') {
+      if (unit == 'cl') {
+        $(this)
+          .closest('.row')
+          .find('.unit_quantity')
+          .find(
+            'select option[value="UNIT"], option[value="G"], option[value="KG"]'
+          )
+          .hide()
+        $(this)
+          .closest('.row')
+          .find('.unit_amount')
+          .find('select option[value="UNIT"], option[value="KG"]')
+          .hide()
+        $(this)
+          .closest('.row')
+          .find('.unit_quantity')
+          .find('select option[value="CL"], option[value="L"]')
+          .show()
+        $(this)
+          .closest('.row')
+          .find('.unit_amount')
+          .find('select option[value="PACKAGE"], option[value="L"]')
+          .show()
+        $(this).closest('.row').find('.unit_quantity').prop('disabled', false)
+        $(this).closest('.row').find('.unit_amount').prop('disabled', false)
+        $(this).closest('.row').find('.unit_quantity').selectpicker('refresh')
+        $(this).closest('.row').find('.unit_amount').selectpicker('refresh')
+        $(this).closest('.row').find('.unit_quantity').selectpicker('val', 'L')
+        $(this).closest('.row').find('.unit_amount').selectpicker('val', 'L')
+      }
+      if (unit == 'g') {
+        $(this)
+          .closest('.row')
+          .find('.unit_quantity')
+          .find(
+            'select option[value="UNIT"], option[value="CL"], option[value="L"]'
+          )
+          .hide()
+        $(this)
+          .closest('.row')
+          .find('.unit_amount')
+          .find('select option[value="UNIT"], option[value="L"]')
+          .hide()
+        $(this)
+          .closest('.row')
+          .find('.unit_quantity')
+          .find('select option[value="G"], option[value="KG"]')
+          .show()
+        $(this)
+          .closest('.row')
+          .find('.unit_amount')
+          .find('select option[value="PACKAGE"], option[value="KG"]')
+          .show()
+        $(this).closest('.row').find('.unit_quantity').prop('disabled', false)
+        $(this).closest('.row').find('.unit_amount').prop('disabled', false)
+        $(this).closest('.row').find('.unit_quantity').selectpicker('refresh')
+        $(this).closest('.row').find('.unit_amount').selectpicker('refresh')
+        $(this).closest('.row').find('.unit_quantity').selectpicker('val', 'KG')
+        $(this).closest('.row').find('.unit_amount').selectpicker('val', 'KG')
+      }
+    } else {
+      $(this)
+        .closest('.row')
+        .find('.unit_quantity')
+        .find(
+          'select option[value="CL"], option[value="G"], option[value="KG"], option[value="L"]'
+        )
+        .hide()
+      $(this)
+        .closest('.row')
+        .find('.unit_amount')
+        .find('select option[value="KG"], option[value="L"]')
+        .hide()
+      $(this)
+        .closest('.row')
+        .find('.unit_quantity')
+        .find('select option[value="UNIT"]')
+        .show()
+      $(this)
+        .closest('.row')
+        .find('.unit_amount')
+        .find('select option[value="UNIT"], option[value="PACKAGE"]')
+        .show()
+      $(this).closest('.row').find('.unit_quantity').prop('disabled', false)
+      $(this).closest('.row').find('.unit_amount').prop('disabled', false)
+      $(this).closest('.row').find('.unit_quantity').selectpicker('refresh')
+      $(this).closest('.row').find('.unit_amount').selectpicker('refresh')
+      $(this).closest('.row').find('.unit_quantity').selectpicker('val', 'UNIT')
+      $(this)
+        .closest('.row')
+        .find('.unit_amount')
+        .selectpicker('val', 'PACKAGE')
+    }
+  } else {
+    $(this)
+      .closest('.row')
+      .find('.unit_quantity')
+      .find(
+        'select option[value="UNIT"], option[value="CL"], option[value="G"], option[value="KG"], option[value="L"]'
+      )
+      .hide()
+    $(this)
+      .closest('.row')
+      .find('.unit_amount')
+      .find(
+        'select option[value="UNIT"], option[value="PACKAGE"], option[value="CL"], option[value="G"], option[value="KG"], option[value="L"]'
+      )
+      .hide()
+    $(this).closest('.row').find('.unit_quantity').prop('disabled', true)
+    $(this).closest('.row').find('.unit_amount').prop('disabled', true)
+    $(this).closest('.row').find('.unit_quantity').selectpicker('refresh')
+    $(this).closest('.row').find('.unit_amount').selectpicker('refresh')
+    $(this).closest('.row').find('.unit_quantity').selectpicker('val', '')
+    $(this).closest('.row').find('.unit_amount').selectpicker('val', '')
+  }
+}
+</script>
+<style>
+  .add-row {
+    margin: 15px;
+  }
+  .centered_input {
+    text-align: center;
+  }
+  .delete_row {
+    margin-top: 10px;
+  }
+  .unit_quantity {
+    width: 60px;
+  }
+  .unit_amount {
+    width: 100px;
+  }
+  .input-group-btn > div > button {
+    background-color: #eee;
+  }
+  .input-group .bootstrap-select.form-control {
+    z-index: inherit;
+  }
+</style>
+{% endblock %}

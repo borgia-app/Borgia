@@ -7,7 +7,7 @@ from django.urls import NoReverseMatch
 from django.contrib.auth.models import Group, Permission
 from users.models import User
 from notifications.models import Notification, NotificationTemplate, NotificationGroup
-from shops.models import ProductBase, Shop
+from shops.models import Product, Shop
 from modules.models import *
 from finances.models import SharedEvent
 
@@ -32,6 +32,10 @@ def lateral_menu(user, group, active=None):
     ]
 
     nav_tree = []
+
+    # If Gadzart, simplify the menu
+    if group.name == 'gadzarts':
+        return lateral_menu_gadz(user, group, active)
 
     # Groups of the user
     if lateral_menu_user_groups(user) is not None:
@@ -83,6 +87,12 @@ def lateral_menu(user, group, active=None):
         nav_tree.append(
             lateral_menu_product(group)
             )
+
+    # Manage stocks
+    if lateral_menu_stock(group) is not None:
+        nav_tree.append(
+            lateral_menu_stock(group)
+        )
 
     # List sales
     nav_sale_lists = {
@@ -162,20 +172,6 @@ def lateral_menu(user, group, active=None):
     else:
         pass
 
-    # containercase of shop
-    try:
-        shop = shop_from_group(group)
-        nav_tree.append(simple_lateral_link(
-            label='Emplacements de vente',
-            faIcon='star-half-o',
-            id='lm_containercases',
-            url=reverse(
-                'url_shop_containercases',
-                kwargs={'group_name': group.name}
-            )
-        ))
-    except ValueError:
-        pass
     # module of shop
     try:
         shop = shop_from_group(group)
@@ -240,6 +236,92 @@ def lateral_menu(user, group, active=None):
 
     except ValueError:
         pass
+
+    if active is not None:
+        for link in nav_tree:
+            try:
+                for sub in link['subs']:
+                    if sub['id'] == active:
+                        sub['active'] = True
+                        break
+            except KeyError:
+                if link['id'] == active:
+                    link['active'] = True
+                    break
+
+    return nav_tree
+
+
+def lateral_menu_gadz(user, group, active=None):
+    nav_tree = []
+
+    """
+    - Groups
+    - List of self sale modules
+    - Lydia credit
+    - Transferts
+    - History of transactions
+    - Shared events
+    """
+
+    list_selfsalemodule = []
+    for shop in Shop.objects.all().exclude(pk=1):
+        try:
+            module = SelfSaleModule.objects.get(shop=shop)
+            if module.state is True:
+                list_selfsalemodule.append(shop)
+        except ObjectDoesNotExist:
+            pass
+
+    # Groups of the user
+    if lateral_menu_user_groups(user) is not None:
+        nav_tree.append(
+            lateral_menu_user_groups(user)
+        )
+
+    nav_tree.append(
+        simple_lateral_link(
+            'Accueil ' + group_name_display(group),
+            'briefcase',
+            'lm_workboard',
+            reverse('url_group_workboard', kwargs={'group_name': group.name})))
+
+    for shop in list_selfsalemodule:
+        nav_tree.append(
+            simple_lateral_link(
+                'Vente directe ' + shop.name.title(),
+                'shopping-basket',
+                'lm_selfsale_interface_module_' + shop.name, # Not currently used in modules.view
+                reverse('url_module_selfsale', kwargs={'group_name': group.name, 'shop_name': shop.name})
+            ))
+
+    nav_tree.append(
+        simple_lateral_link(
+            'Rechargement de compte',
+            'credit-card',
+            'lm_self_lydia_create',
+            reverse('url_self_lydia_create', kwargs={'group_name': group.name})))
+
+    nav_tree.append(
+        simple_lateral_link(
+            'Transfert',
+            'exchange',
+            'lm_self_transfert_create',
+            reverse('url_self_transfert_create', kwargs={'group_name': group.name})))
+
+    nav_tree.append(
+        simple_lateral_link(
+            'Historique des transactions',
+            'history',
+            'lm_self_transaction_list',
+            reverse('url_self_transaction_list', kwargs={'group_name': group.name})))
+
+    nav_tree.append(
+        simple_lateral_link(
+            'Evènements',
+            'calendar',
+            'lm_self_sharedevent_list',
+            reverse('url_self_sharedevent_list', kwargs={'group_name': group.name})))
 
     if active is not None:
         for link in nav_tree:
@@ -357,6 +439,71 @@ def lateral_menu_product(group):
         return None
 
 
+def lateral_menu_stock(group):
+    """
+    """
+    product_tree = {
+        'label': 'Stocks',
+        'icon': 'stack-overflow',
+        'id': 'lm_stock',
+        'subs': []
+    }
+
+    add_permission_stockentry = Permission.objects.get(
+        codename='add_stockentry')
+    list_permission_stockentry = Permission.objects.get(
+        codename='list_stockentry')
+    add_permission_inventory = Permission.objects.get(
+        codename='add_inventory')
+    list_permission_inventory = Permission.objects.get(
+        codename='list_inventory')
+
+    if add_permission_stockentry in group.permissions.all():
+        product_tree['subs'].append({
+            'label': 'Nouvelle entrée de stock',
+            'icon': 'plus',
+            'id': 'lm_stockentry_create',
+            'url': reverse(
+                'url_stock_entry_create',
+                kwargs={'group_name': group.name})
+        })
+
+    if list_permission_stockentry in group.permissions.all():
+        product_tree['subs'].append({
+            'label': 'Liste des entrées de stock',
+            'icon': 'list',
+            'id': 'lm_stockentry_list',
+            'url': reverse(
+                'url_stock_entry_list',
+                kwargs={'group_name': group.name})
+        })
+
+    if add_permission_inventory in group.permissions.all():
+        product_tree['subs'].append({
+            'label': 'Nouvel inventaire',
+            'icon': 'plus',
+            'id': 'lm_inventory_create',
+            'url': reverse(
+                'url_inventory_create',
+                kwargs={'group_name': group.name})
+        })
+
+    if list_permission_inventory in group.permissions.all():
+        product_tree['subs'].append({
+            'label': 'Liste des inventaires',
+            'icon': 'list',
+            'id': 'lm_inventory_list',
+            'url': reverse(
+                'url_inventory_list',
+                kwargs={'group_name': group.name})
+        })
+
+    if len(product_tree['subs']) > 0:
+        return product_tree
+    else:
+        return None
+
+
 def lateral_menu_user_groups(user):
     """
     """
@@ -386,7 +533,7 @@ def lateral_menu_shop_sale(group, shop):
     """
     """
     shop_tree = {
-        'label': shop.name,
+        'label': shop.name.title(),
         'icon': 'cube',
         'id': 'lm_shop_' + shop.name,
         'subs': []
@@ -593,7 +740,7 @@ class ProductShopFromGroupMixin(object):
         except ValueError:
             self.shop = None
         try:
-            self.object = ProductBase.objects.get(pk=self.kwargs['pk'])
+            self.object = Product.objects.get(pk=self.kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
         if self.shop:
@@ -802,7 +949,6 @@ def human_unused_permissions():
         'payment',
         'session',
         'container',
-        'containercase',
         'productbase',
         'productunit',
         'singleproduct',

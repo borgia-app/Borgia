@@ -36,9 +36,9 @@
             {% for exceptionnal_movement in exceptionnalmovement_list %}
             <tr class="{% if exceptionnal_movement.is_credit %}success{% else %}danger{% endif %}">
                 <td>{{ exceptionnal_movement.operator }}</td>
-                <td>{{ exceptionnal_movement.sender }}</td>
-                <td>{{ exceptionnal_movement.date|date:"SHORT_DATE_FORMAT" }}</td>
-                <td>{{ exceptionnal_movement.date|time:"H:i" }}</td>
+                <td>{{ exceptionnal_movement.recipient }}</td>
+                <td>{{ exceptionnal_movement.datetime|date:"SHORT_DATE_FORMAT" }}</td>
+                <td>{{ exceptionnal_movement.datetime|time:"H:i" }}</td>
                 <td>{{ exceptionnal_movement.amount }}€</td>
                 <td>{% if exceptionnal_movement.is_credit %}Crédit{% else %}Débit{% endif %}</td>
                 <td>

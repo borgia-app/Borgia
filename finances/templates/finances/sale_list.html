@@ -41,8 +41,8 @@
                             <tr>
                                 <td>{{ sale.operator }}</td>
                                 <td>{{ sale.sender }}</td>
-                                <td>{{ sale.date|date:"SHORT_DATE_FORMAT" }}</td>
-                                <td>{{ sale.date|time:"H:i" }}</td>
+                                <td>{{ sale.datetime|date:"SHORT_DATE_FORMAT" }}</td>
+                                <td>{{ sale.datetime|time:"H:i" }}</td>
                                 <td>{{ sale.amount }}€</td>
                                 <td>{{ sale.from_shop }}</td>
                                 <td>

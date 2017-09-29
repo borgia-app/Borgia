@@ -9,22 +9,12 @@
   <div class="panel-body">
     <ul>
       <li>Nom : {{ object.name }}</li>
-      <li>Description : {{ object.description }}</li>
-      {% if object.product_unit %}
-        <li>Prix de vente actuel du conteneur de {{ object.quantity }} {{ object.product_unit.get_unit_display }} :
-          {% if object.get_moded_price != 0 %}{{ object.get_moded_price }}€{% else %}indéfini{% endif %}</li>
-        <li>Prix actuel pour {{ object.product_unit.usual_quantity }} {{ object.product_unit.get_unit_display }} :
-          {% if object.get_moded_usual_price != 0 %}{{ object.get_moded_usual_price }}€{% else %}indéfini{% endif %}</li>
-      {% else %}
-      <li>Prix de vente actuel : {% if object.get_moded_price != 0 %}{{ object.get_moded_price }}€{% else %}indéfini{% endif %}</li>
-      {% endif %}
-      <li>Marque : {{ object.brand }}</li>
-      <li>Type : {{ object.get_type_display }}</li>
+      <li>Prix de vente actuel : {{ object.get_display_price_with_strategy }}</li>
+      <li>Type : {{ object.get_display_type }}</li>
       <li>Magasin : {{ object.shop }}</li>
-      {% if object.product_unit %}
-      <li>Unité de produit : {{ object.product_unit }}</li>
-      {% endif %}
-      <li>En stock : {{ object.quantity_products_stock }}</li>
+      <li>En stock : {{ object.get_current_stock_estimated_display }} </li>
+      <li>Facteur de correction des ventes : {{ object.correcting_factor }} <i class="fa fa-question-circle" aria-hidden="true" data-toggle="modal" data-target="#myModal"></i>
+</li>
     </ul>
   </div>
 </div>
@@ -35,13 +25,31 @@
   <div class="panel-body">
     {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update' group_name=group_name pk=object.pk %}">Modifier les informations</a></p>{% endif %}
     {% if group|has_group_perm:"change_price_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update_price' group_name=group_name pk=object.pk %}">Modifier le prix de vente</a></p> {% endif %}
-    {% if group|has_group_perm:"change_stock_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update_stock' group_name=group_name pk=object.pk %}">Régulariser le stock</a></p> {% endif %}
     <p><a class="btn btn-default" href="{% url 'url_product_deactivate' group_name=group_name pk=object.pk %}">
         {% if object.is_active == True %}
             Désactiver le produit
         {% else %}
             Activer le produit
         {% endif %}</a></p>
+  </div>
+</div>
+
+<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Facteur de correction des ventes</h4>
+      </div>
+      <div class="modal-body">
+        <p>Le facteur de correction des ventes est un outil mathématique permettant d'ajuster le stock calculé d'un produit.</p>
+        <p>Un facteur proche de 1 signifie que l'ensemble des produits vendus l'est effectivement.</p>
+        <p>Un facteur supérieur à 1 indique une perte lors des ventes : une partie des consommations n'est pas enregistrée par Borgia et n'est donc pas payée.</p>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Compris</button>
+      </div>
+    </div>
   </div>
 </div>
 {% endblock %}

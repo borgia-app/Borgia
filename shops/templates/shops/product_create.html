@@ -6,140 +6,28 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/i18n/defaults-fr_FR.min.js"></script>
 
-<div class="panel panel-info">
-    <div class="panel-heading">
-        <i class="fa fa-info-circle" aria-hidden="true"></i>
-        Mode opératoire
-    </div>
-    <div class="panel-body">
-        {% if product_class == 'productbase' %}
-            <p>
-                La base produit correspond à la forme sous laquelle se présente le produit. Par exemple, la base produit
-                de la bière pourra être un fût de 5000cL ou encore une canette de 33cL.
-            </p>
-            <p>
-                Une distinction est faite entre le fût, qui est un contenant dont le contenu sera vendu au détail (20cL
-                pour un verre par exemple), et une canette de 33cL qui est un produit unitaire destiné à être vendu de
-                entier.
-            </p>
-            <p>
-                Le contenant contient une certaine quantité d'une unité de produit qui est la plus petite unité indivisible
-                de produit vendable. Exemple: 1 g de parmesan, 1 cL de bière, etc.
-            </p>
-        {% elif product_class == 'productunit'%}
-            <p>
-                Attention à ne pas ressaisir la catégorie dans le nom, sinon cela crée un double. Par exemple, il n'est
-                pas nécessaire de saisir "sirop de fraise" pour un sirop car cela donnera "sirop sirop de fraise".
-                Autrement dit, le nom est composé du champ nom et d'un préfixe qui est la catégorie.
-            </p>
-        {% else %}
-            <p>
-                La création de produit(s) permet de faire entrer au stock une instance d'un modèle de produit, appelé "base produit".
-                Un produit est donc identifié de manière unique dans la base de données ce qui permet une bonne gestion des stocks
-            </p>
-            <p>
-                Attention, à utiliser la bonne base. Par exemple une bouteille de cola de 75cL n'utilise pas le même modèle qu'une bouteille de 1,5L.
-                Si le modèle n'existe pas, en créer un nouveau.
-            </p>
-            <p>
-                Pour créer un nouveau modèle de produit, ajouter une base produit.
-            </p>
-        {% endif %}
-    </div>
-</div>
 <div class="panel panel-default">
     <div class="panel-heading">
-        {% if product_class == 'productbase' %}
-            {% if shop %}
-                <h3>Ajout d'une base de produit pour le magasin {{ shop }}</h3>
-            {% else %}
-                <h3>Ajout d'une base de produit</h3>
-            {% endif %}
-            <a class="btn btn-warning"
-               href="{% url 'url_product_create' group_name=group.name %}">
-                Retour à la création de produits
-            </a>
-        {% elif product_class == 'productunit' %}
-            {% if shop %}
-                <h3>Ajout d'une unité de produit pour le magasin {{ shop }}</h3>
-            {% else %}
-                <h3>Ajout d'une unité de produit</h3>
-            {% endif %}
-            <a class="btn btn-warning"
-               href="{% url 'url_productbase_create' group_name=group.name %}">
-                Retour à la création d'une base de produit
-            </a>
-        {% else %}
-            {% if shop %}
-                <h3>Ajout de produits pour le magasin {{ shop }}</h3>
-            {% else %}
-                <h3>Ajout de produits</h3>
-            {% endif %}
-        {% endif %}
+      <h3>Création d'un nouveau produit</h3>
     </div>
     <div class="panel panel-body">
     <form action= "" method="post">
         {% csrf_token %}
-        {{ form.non_field_errors }}
-        {% for field in form %}
-          {% if field == form.product_unit %}
-          <div class="row" id="product_unit">
-            <div class="form-group col-md-6">
-              <label for="id_product_unit">{{ field.label }}</label>
-              {{ field }}
-            </div>
-            <div class="form-group col-md-6">
-              <a
-              class="btn btn-default"
-              style="margin-top: 30px"
-              href="{% url 'url_productunit_create' group_name=group.name %}">
-                Ajouter une unité de produit</a>
-            </div>
-          </div>
-          {% elif field == form.product_base %}
-          <div class="row" id="product_base">
-            <div class="form-group col-md-6">
-              {{ field|bootstrap }}
-            </div>
-            <div class="form-group col-md-6">
-              <a
-              class="btn btn-default"
-              style="margin-top: 30px"
-              href="{% url 'url_productbase_create' group_name=group.name %}">
-                Ajouter une base de produit</a>
-            </div>
-          </div>
-          {% elif field == form.quantity %}
-          <div id="quantity">
-            {{ field|bootstrap }}
-          </div>
-          {% elif field == form.name %}
-          <div id="name">
-            {{ field|bootstrap }}
-          </div>
-          {% else %}
-            {{ field|bootstrap }}
-          {% endif %}
-        {% endfor %}
+        {{ form|bootstrap }}
         <button type="submit" class="btn btn-success">Ajouter</button>
     </form>
     </div>
 </div>
-
-{% if product_class == 'productbase' %}
 <script>
-  $("#id_type").change(function() {
-    if ($(this).val() == 'single_product') {
-      $("#name").show()
-      $("#product_unit").hide()
-      $("#quantity").hide()
-    } else if ($(this).val() == 'container') {
-      $("#name").hide()
-      $("#product_unit").show()
-      $("#quantity").show()
-    }
-  })
-  $("#id_type").trigger('change')
+$('#id_on_quantity').change(function() {
+  if ($(this).is(':checked')) {
+    $('#id_unit').show()
+    $("label[for='id_unit']").show()
+  } else {
+    $('#id_unit').hide()
+    $("label[for='id_unit']").hide()
+  }
+})
+$('#id_on_quantity').trigger('change')
 </script>
-{% endif %}
 {% endblock %}

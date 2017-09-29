@@ -17,16 +17,14 @@ from django.conf.urls.static import static
 from users.views import *
 from shops.views import (
     ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
-    ProductUpdate, ShopCreate, ShopList, ShopContainerCases, ShopUpdate,
-    ProductUpdatePrice, ProductStockRegularisation, ShopCheckup
+    ProductUpdate, ShopCreate, ShopList, ShopUpdate,
+    ProductUpdatePrice, ShopCheckup
     )
-from shops.models import ProductBase, ProductUnit
+from shops.models import Product
 from finances.views import *
 from modules.views import *
 from notifications.views import *
-from borgia.arduinoRequests import (
-    ArduinoConnect, ArduinoCheckUser, ArduinoCheckVolumeAvailable, ArduinoPurchase
-    )
+from stocks.views import *
 from api.Schema.main import schema
 from graphene_django.views import GraphQLView
 from api.views import AuthGenerateJWT, AuthVerifyJWT, AuthInvalidateJWT, GraphQLJwtProtectedView
@@ -94,25 +92,27 @@ urlpatterns = [
         ProductList.as_view(), name='url_product_list'),
     url(r'^(?P<group_name>[\w-]+)/products/create/$',
         ProductCreate.as_view(), name='url_product_create'),
-    url(r'^(?P<group_name>[\w-]+)/products/product_bases/create/$',
-        ProductCreate.as_view(), name='url_productbase_create',
-        kwargs={'product_class': ProductBase}),
-    url(r'^(?P<group_name>[\w-]+)/products/product_bases/product_units/create/$',
-        ProductCreate.as_view(), name='url_productunit_create',
-        kwargs={'product_class': ProductUnit}),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/$',
         ProductRetrieve.as_view(), name='url_product_retrieve'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/$',
         ProductUpdate.as_view(), name='url_product_update'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/price/$',
         ProductUpdatePrice.as_view(), name='url_product_update_price'),
-    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/stock/$',
-        ProductStockRegularisation.as_view(), name='url_product_update_stock'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
         ProductDeactivate.as_view(), name='url_product_deactivate'),
 
-    url(r'^(?P<group_name>[\w-]+)/container_cases/$',
-        ShopContainerCases.as_view(), name='url_shop_containercases'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/entries/create/$',
+        ShopStockEntryCreate.as_view(), name='url_stock_entry_create'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/entries/$',
+        StockEntryList.as_view(), name='url_stock_entry_list'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/entries/(?P<pk>\d+)/$',
+        StockEntryRetrieve.as_view(), name='url_stock_entry_retrieve'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/create/$',
+        ShopInventoryCreate.as_view(), name='url_inventory_create'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/$',
+        InventoryList.as_view(), name='url_inventory_list'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/(?P<pk>\d+)/$',
+        InventoryRetrieve.as_view(), name='url_inventory_retrieve'),
 
     url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/bank_accounts/create/$',
         UserBankAccountCreate.as_view(), name='url_user_bankaccount_create'),
@@ -148,13 +148,29 @@ urlpatterns = [
         ExceptionnalMovementRetrieve.as_view(),
         name='url_exceptionnalmovement_retrieve'),
 
-    url(r'^(?P<group_name>[\w-]+)/modules/self_sale/categories/$',
-        ShopModuleCategories.as_view(),
-        name='url_module_selfsale_categories',
+    url(r'^(?P<group_name>[\w-]+)/modules/self_sale/categories/create/$',
+        ShopModuleCategoryCreate.as_view(),
+        name='url_module_selfsale_categories_create',
         kwargs={'module_class': SelfSaleModule}),
-    url(r'^(?P<group_name>[\w-]+)/modules/operator_sale/categories/$',
-        ShopModuleCategories.as_view(),
-        name='url_module_operatorsale_categories',
+    url(r'^(?P<group_name>[\w-]+)/modules/operator_sale/categories/create/$',
+        ShopModuleCategoryCreate.as_view(),
+        name='url_module_operatorsale_categories_create',
+        kwargs={'module_class': OperatorSaleModule}),
+    url(r'^(?P<group_name>[\w-]+)/modules/self_sale/categories/(?P<pk>\d+)/update/$',
+        ShopModuleCategoryUpdate.as_view(),
+        name='url_module_selfsale_categories_update',
+        kwargs={'module_class': SelfSaleModule}),
+    url(r'^(?P<group_name>[\w-]+)/modules/operator_sale/categories/(?P<pk>\d+)/update/$',
+        ShopModuleCategoryUpdate.as_view(),
+        name='url_module_operatorsale_categories_update',
+        kwargs={'module_class': OperatorSaleModule}),
+    url(r'^(?P<group_name>[\w-]+)/modules/self_sale/categories/(?P<pk>\d+)/delete/$',
+        ShopModuleCategoryDelete.as_view(),
+        name='url_module_selfsale_categories_delete',
+        kwargs={'module_class': SelfSaleModule}),
+    url(r'^(?P<group_name>[\w-]+)/modules/operator_sale/categories/(?P<pk>\d+)/delete/$',
+        ShopModuleCategoryDelete.as_view(),
+        name='url_module_operatorsale_categories_delete',
         kwargs={'module_class': OperatorSaleModule}),
 
     url(r'^(?P<group_name>[\w-]+)/modules/self_sale/$',
@@ -327,14 +343,6 @@ urlpatterns = [
 
     url(r'^admin/', admin.site.urls),
     url(r'^local/jsi18n$', jsi18n_catalog),
-
-    # SANDBOX for Arduino
-    ## Theses elements are not enought common and cannot be reused in another
-    ## association. However they will be used at ENSAM Metz, be careful.
-    url(r'^arduino/connect/$', ArduinoConnect.as_view()),
-    url(r'^arduino/checkuser/$', ArduinoCheckUser.as_view()),
-    url(r'^arduino/checkvolumeavailable/$', ArduinoCheckVolumeAvailable.as_view()),
-    url(r'^arduino/purchase/$', ArduinoPurchase.as_view()),
 
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 # Cette ligne permet d'utiliser le dossier MEDIA en
