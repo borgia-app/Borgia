@@ -49,8 +49,7 @@
             <img src="{{ user.avatar.url }}" class="user-avatar"/>
           </p></li>
           {% endif %}
-          <li><p class="navbar-text">{{ user }}</p></li>
-          <li><p class="navbar-text">{{ user.surname}}{{ user.get_campus_display }}{{ user.year_pg }}</p></li>
+          <li><p class="navbar-text">{{ user.display_name_navbar }}</p></li>
           <li><p class="navbar-text">
             <span
               style="font-weight: bold"

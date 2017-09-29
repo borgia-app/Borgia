@@ -65,7 +65,7 @@ class User(AbstractUser):
     :type phone: string must match standard phone number in France ^0[0-9]{9}$
     :type token_id: string must match ^[0-9A-Z]{12}$
     :type avatar: string path of the image in statics
-    :param theme
+    :type theme: string must be in THEME_CHOICES
 
     """
 
@@ -87,8 +87,7 @@ class User(AbstractUser):
         ('light','Light'),
         ('dark','Dark')
     )
-    
-    
+
     surname = models.CharField('Bucque', max_length=255, blank=True, null=True)
     family = models.CharField('Fam\'ss', max_length=255, blank=True, null=True)
     balance = models.DecimalField('Solde', default=0, max_digits=9,
@@ -144,6 +143,21 @@ class User(AbstractUser):
             return 'undefined'
         except AttributeError:
             return 'undefined'
+
+    def display_name_navbar(self):
+      """
+      Return the name displayed in the navbar
+
+      """
+      if not self.first_name or not self.last_name:
+         return 'undefined'
+      try:
+         if not self.surname or not self.family:
+           return self.first_name + ' ' + self.last_name
+         else:
+           return self.surname + ' ' + self.family+self.campus+str(self.year_pg())
+      except AttributeError:
+         return 'undefined'
 
     def year_pg(self):
         """
