@@ -1,7 +1,7 @@
-## Fork Borgia
+# Borgia-demo
 Fork of Borgia-app repo. Demo Version
 
-# Get started : initial commands
+## Get started : initial commands
 
 * S'assurer que LESS est installé (avec ``npm install -g less``)
 
@@ -19,7 +19,7 @@ Fork of Borgia-app repo. Demo Version
     * ``python manage.py loaddata initial``
 
 
-## Update requirements.txt
+### Update requirements.txt
 Ce fichier contient tout les modules python nécessaires pour l'execution de borgia.
 Celui-ci peut être mis à jour en théorie avec la commande suivante :
 
@@ -27,20 +27,20 @@ Celui-ci peut être mis à jour en théorie avec la commande suivante :
 
 Cependant, ceci ajoute TOUT les modules installés par pip. Donc également les éventuels modules ajoutés pour d'autres projet.
 
-## Installer les modules avec le fichier requirements.txt
+### Installer les modules avec le fichier requirements.txt
 
 Pour installer les modules, il suffit d'effectuer la commande :
 
 ``pip install -r requirements.txt``
 
 
-# Note pour Linux (et mac ??):
+## Note pour Linux (et mac ??):
 
 Python est installé par défaut avec deux version : 2 et 3. 2 étant la version par défaut.
 Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes manip (notamment celle ci-dessus), il faut utiliser ``python3``. De même, il faudra utiliser ``pip3``
 
 
-# Fonctionnement Graphique:
+## Fonctionnement Graphique:
 
  Le nouveau fonctionnement est le suivant : on génère un fichier "bootstrap" modifié, en utilisant LESS :
  Les variables de bootstrap sont définies pour obtenir le template.
