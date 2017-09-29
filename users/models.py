@@ -48,6 +48,7 @@ class User(AbstractUser):
     :param phone: phone number of the user (currently not used)
     :param token_id: id of the linked token to the user
     :param avatar: image of the user
+    :param theme: preference of css for the user
     :type id: integer superior to 0
     :type username: string only alpha numeric warning:: must be unique
     :type last_name: string
@@ -64,6 +65,7 @@ class User(AbstractUser):
     :type phone: string must match standard phone number in France ^0[0-9]{9}$
     :type token_id: string must match ^[0-9A-Z]{12}$
     :type avatar: string path of the image in statics
+    :param theme
 
     """
 
@@ -81,7 +83,13 @@ class User(AbstractUser):
     YEAR_CHOICES = []
     for i in range(1953, datetime.now().year + 1):
         YEAR_CHOICES.append((i, i))
-
+        
+    THEME_CHOICES = (
+        ('light','Light'),
+        ('dark','Dark')
+    )
+    
+    
     surname = models.CharField('Bucque', max_length=255, blank=True, null=True)
     family = models.CharField('Fam\'ss', max_length=255, blank=True, null=True)
     balance = models.DecimalField('Solde', default=0, max_digits=9,
@@ -107,8 +115,11 @@ class User(AbstractUser):
                                                            majuscules""")])
     avatar = models.ImageField('Avatar', upload_to='img/avatars/',
                                default=None, blank=True, null=True)
-
+    theme = models.CharField('Préférence de theme graphique', choices=THEME_CHOICES,
+                                max_length=15, default='light', blank=True, null=True)
+							   
     jwt_iat = models.DateTimeField('Jwt iat', default=timezone.now)
+    
 
     def __str__(self):
         """
