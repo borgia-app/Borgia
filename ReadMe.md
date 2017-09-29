@@ -1,34 +1,33 @@
-# borgia-app
-Borgia private repository
+## Fork Borgia
+Fork of Borgia-app repo. Demo Version
 
 # Get started : initial commands
 
--- s'assurer que LESS est installé (npm install -g less)
+* S'assurer que LESS est installé (avec ``npm install -g less``)
 
-__load data and create a admin user :__
+* Charger les db et dumps :
+    * ``python manage.py makemigrations users shops finances modules settings_data notifications stocks``
+    * ``python manage.py migrate``
+* Changer le mdp admin :
+    * ``python manage.py loaddata first_member``
+    * ``python manage.py shell``
+    * ``from users.models import User``
+    * ``u = User.objects.get(pk=2)``
+    * ``u.set_password('admin')``
+    * ``u.save()``
+* Puis :
+    * ``python manage.py loaddata initial``
 
--- python manage.py makemigrations users shops finances modules settings_data notifications stocks
--- python manage.py migrate
 
--- python manage.py loaddata first_member
--- python manage.py shell
--- from users.models import User
--- u = User.objects.get(pk=2)
--- u.set_password('admin')
--- u.save()
-
--- python manage.py loaddata initial
-
-
-# Update requirements.txt
-Ce fichier contient tout les modules pytohn nécessaires pour l'execution de borgia.
+## Update requirements.txt
+Ce fichier contient tout les modules python nécessaires pour l'execution de borgia.
 Celui-ci peut être mis à jour en théorie avec la commande suivante :
 
-pip freeze -r devel-req.txt > stable-req.txt
+* ``pip freeze -r devel-req.txt > stable-req.txt``
 
 Cependant, ceci ajoute TOUT les modules installés par pip. Donc également les éventuels modules ajoutés pour d'autres projet.
 
-# Installer les modules avec le fichier requirements.txt
+## Installer les modules avec le fichier requirements.txt
 
 Pour installer les modules, il suffit d'effectuer la commande :
 
@@ -41,7 +40,7 @@ Python est installé par défaut avec deux version : 2 et 3. 2 étant la version
 Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes manip (notamment celle ci-dessus), il faut utiliser ``python3``. De même, il faudra utiliser ``pip3``
 
 
-## Fonctionnement Graphique:
+# Fonctionnement Graphique:
 
  Le nouveau fonctionnement est le suivant : on génère un fichier "bootstrap" modifié, en utilisant LESS :
  Les variables de bootstrap sont définies pour obtenir le template.
