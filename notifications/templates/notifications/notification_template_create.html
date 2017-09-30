@@ -12,7 +12,7 @@
         </div>
         <div class="panel-body">
             <form action="" method="post">
-                {% form.non_field_errors %}
+                {{ form.non_field_errors }}
                 {% csrf_token %}
                 {% for field in form %}
                     {% if field == form.target_groups %}
@@ -25,7 +25,8 @@
                         {{ field|bootstrap }}
                     {% endif %}
                 {% endfor %}
-                <button class="btn btn-success" type="submit">Ajouter</button>
+                <button class="btn btn-success" 
+type="submit">Ajouter</button>
             </form>
         </div>
     </div>

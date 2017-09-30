@@ -278,7 +278,6 @@ class NotificationGroup(models.Model):
         """
         return self.notificationgroup.name
 
-
 # Methods
 
 def notify(notification_class_name, actor, recipient=False, action_medium=False, target_object=False):
@@ -512,6 +511,6 @@ def get_allowed_tags():
                       'transfer.amount' : ('{{target_object.amount}}',''),
                       'transfer.justification': ('{{target_object.justification}}', ''),
                       '#text': ('', ''),
-                      'bcode': ('<div class="bcode">', '</div>')}
+                      'bcode': ('<span class="bcode">', '</span>')}
 
     return tag_dictionary

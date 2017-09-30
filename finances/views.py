@@ -764,6 +764,11 @@ class SelfTransfertCreate(GroupPermissionMixin, FormView,
             justification=form.cleaned_data['justification']
         )
         transfert.pay()
+        # We notify
+        notify(notification_class_name= 'transfer_creation',
+               actor=self.request.user, 
+               recipient= form.cleaned_data['recipient'],
+               target_object=transfert)
         return super(SelfTransfertCreate, self).form_valid(form)
 
 
