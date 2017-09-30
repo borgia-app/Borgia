@@ -44,12 +44,10 @@
       </div>
       <div class="navbar-right">
         <ul class="nav navbar-nav">
-          {% if user.avatar %}
-          <li><p class="navbar-text navbar-text-avatar">
-            <img src="{{ user.avatar.url }}" class="user-avatar"/>
-          </p></li>
-          {% endif %}
-          <li><p class="navbar-text">{{ user.display_name_navbar }}</p></li>
+          <li>{% if user.avatar %}
+              <span class="navbar-text-avatar" style="float: left;"><img src="{{ user.avatar.url }}" class="user-avatar"/></span>
+              {% endif %}          
+              <p class="navbar-text">{{ user.display_name_navbar }}</p></li>
           <li><p class="navbar-text">
             <span
               style="font-weight: bold"
