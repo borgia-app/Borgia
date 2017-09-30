@@ -82,10 +82,11 @@ class User(AbstractUser):
     YEAR_CHOICES = []
     for i in range(1953, datetime.now().year + 1):
         YEAR_CHOICES.append((i, i))
-        
+
     THEME_CHOICES = (
         ('light','Light'),
-        ('dark','Dark')
+        ('dark','Dark'),
+        ('birse','Birse')
     )
 
     surname = models.CharField('Bucque', max_length=255, blank=True, null=True)
@@ -115,9 +116,9 @@ class User(AbstractUser):
                                default=None, blank=True, null=True)
     theme = models.CharField('Préférence de theme graphique', choices=THEME_CHOICES,
                                 max_length=15, default='light', blank=True, null=True)
-							   
+
     jwt_iat = models.DateTimeField('Jwt iat', default=timezone.now)
-    
+
 
     def __str__(self):
         """
