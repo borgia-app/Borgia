@@ -192,7 +192,7 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/notifications/$',
         NotificationListCompleteView.as_view(),
         name='url_notification_list'),
-    url(r'^(?P<group_name>[\w-]+)/notifications/read_notification/$',
+    url(r'^ajax/notifications/read_notification/$',
         read_notification,
         name='url_read_notification'),
     url(r'^(?P<group_name>[\w-]+)/notifications/templates/$',

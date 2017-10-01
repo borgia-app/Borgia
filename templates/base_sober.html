@@ -60,7 +60,7 @@
             </p></li>
           <li class="notification">
             <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" >
-               <i class="fa fa-bell" aria-hidden="true"></i>{% if notifications %}<span class="badge">{{ notifications.count }}</span>{% endif %}
+               <i class="fa fa-bell" aria-hidden="true"></i>{% if notifications %}<span class="badge" id="notif-count">{{ notifications.count }}</span>{% endif %}
             </a>
             <ul class="dropdown-menu dropdown-menu-right scrollable-menu" role="menu">
                                     {% if notifications %}
@@ -70,9 +70,8 @@
                                         {% endfor %}
                                     {%  else %}
                                         <li class="dropdown-item scrollable-menu"><a href="#">Pas de nouvelle notification</a></li>
-                                        <li class="dropdown-divider scrollable-menu"></li>
+                                        <li role="separator" class="divider"></li>
                                     {% endif %}
-                                    <li role="separator" class="divider"></li>
                                     <li class="scrollable-menu text-center">
                                         <a href="{% if group %}{% url 'url_notification_list' group_name=group.name %}{% endif %}">
                                             Voir tout {{ test42 }}
@@ -132,7 +131,23 @@
 </footer>
 
 <script>
-
+ $(".navbar li.notification").click(function() {
+   $("#notif-count").text('0')
+   if ($(".navbar li.notification.open").length > 0) {
+     {% for notification in notifications %}
+          {% if notification.read_datetime is None %}
+             $.ajax({
+                  url: "{% url 'url_read_notification' %}",
+                  dataType: "json",
+                  data: {
+                      notification_id: {{ notification.pk }}
+                  }
+               })
+          {% endif %}
+      {% endfor %}
+      $("#notif-count").text('0')
+   }
+ })
 </script>
 </body>
 </html>
