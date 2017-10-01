@@ -435,7 +435,8 @@ class SharedEvent(models.Model):
     proprement.
     """
     description = models.CharField('Description', max_length=254)
-    date = models.DateField('Date', default=now)
+    date = models.DateField('Date Evenement', default=now)
+    datetime = models.DateTimeField('Date Paiement', default=now)
     price = models.DecimalField('Prix', decimal_places=2, max_digits=9,
                                 null=True, blank=True,
                                 validators=[MinValueValidator(Decimal(0))])
@@ -577,7 +578,7 @@ class SharedEvent(models.Model):
         # self.sale = sale
         # self.save()
 
-        # Calcul du prix par
+        # Calcul du prix par ponderation
         total_ponderation = 0
         for e in self.list_of_participants_ponderation():
             total_ponderation += e[1]
@@ -600,6 +601,7 @@ class SharedEvent(models.Model):
             u[0].debit(price_per_ponderation*u[1])
 
         self.done = True
+        self.datetime = now()
         self.save()
 
 

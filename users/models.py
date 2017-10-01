@@ -232,9 +232,10 @@ class User(AbstractUser):
         transferts = Transfert.objects.filter(Q(sender=self) | Q(recipient=self))
         rechargings = Recharging.objects.filter(sender=self)
         exceptionnal_movements = ExceptionnalMovement.objects.filter(recipient=self)
+        shared_events = SharedEvent.objects.filter(participants=self)
 
         list_transaction = sorted(
-            list(chain(sales, transferts, rechargings, exceptionnal_movements)),
+            list(chain(sales, transferts, rechargings, exceptionnal_movements, shared_events)),
             key=lambda instance: instance.datetime, reverse=True
         )
 

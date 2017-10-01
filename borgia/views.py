@@ -542,7 +542,12 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
             'exceptionnalmovement_list_short': exceptionnalmovements_list[:5]
         }
 
-        #TODO: shared event
+        # Shared event
+        sharedevents_list = SharedEvent.objects.filter(participants=self.request.user).order_by('-datetime')
+        transactions['sharedevents'] = {
+            'sharedevent_list_short': sharedevents_list[:5]
+        }
+
         return transactions
 
     def data_months(self, request, list, months):
