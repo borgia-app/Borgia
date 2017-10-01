@@ -1,15 +1,59 @@
-        <li>Username : {{ object.username }}</li>
-        <li>Prénom : {{ object.first_name }}</li>
-        <li>Nom : {{ object.last_name }}</li>
-        <li>Buque : {{ object.surname }}</li>
-        <li>Num'ss : {{ object.family }}</li>
-        <li>Prom'ss : {{ object.campus }}{{ object.year_pg }}</li>
-        <li>Solde : {{ object.balance }} €</li>
-        <li>Est actif : {{ object.is_active|yesno:'oui, non, non' }}</li>
-        <li>Groupes :
+<div class="col-md-3 col-lg-3 " align="center">
+  {% if object.avatar %}
+       <img src="{{ object.avatar.url }}" class="user-avatar-big"/>
+  {% endif %}
+</div>
+<div class=" col-md-9 col-lg-9 "> 
+   <table class="table table-user-information">
+     <tbody>
+       <tr>
+          <td>Username :</td>
+          <td>{{ object.username }}</td>
+       </tr>
+       <tr>
+          <td>Prénom :</td>
+          <td>{{ object.first_name }}</td>
+       </tr>
+       <tr>
+          <td>Nom :</td>
+          <td>{{ object.last_name }}</td>
+       </tr>
+       <tr>
+          <td>E-mail :</td>
+          <td>{{ object.email }}</td>
+       </tr>
+       <tr>
+          <td>Bucque :</td>
+          <td>{{ object.surname }}</td>
+       </tr>
+       <tr>
+          <td>Num'ss :</td> 
+          <td>{{ object.family }}</td>
+       </tr>
+       <tr>
+          <td>Prom'ss :</td> 
+          <td>{{ object.campus }}{{ object.year_pg }}</td>
+       </tr>
+       {% if group|has_group_perm:"retrieve_more_user_info" %}
+       <tr>
+          <td>Solde :</td> 
+          <td>{{ object.balance }} €</td>
+       </tr>
+       <tr>
+          <td>Est actif :</td> 
+          <td>{{ object.is_active|yesno:'oui, non, non' }}</td>
+       </tr>
+       <tr>
+          <td>Groupes :</td>
+          <td>
             <ul>
                 {% for g in object.groups.all %}
                     <li>{{ g.name }}</li>
                 {% endfor %}
             </ul>
-        </li>
+          </td>
+       </tr>
+       {% endif %}
+     </tbody>
+   </table>
+</div>

@@ -23,6 +23,7 @@
         ["change_user", "users", "user"],
         ["delete_user", "users", "user"],
         ["retrieve_user", "users", "user"],
+        ["retrieve_more_user_info", "users", "user"],
         ["list_user", "users", "user"],
         ["supply_money_user", "users", "user"],
         ["link_token_user", "users", "user"],
@@ -79,6 +80,7 @@
         ["change_user", "users", "user"],
         ["delete_user", "users", "user"],
         ["retrieve_user", "users", "user"],
+        ["retrieve_more_user_info", "users", "user"],
         ["list_user", "users", "user"],
         ["supply_money_user", "users", "user"],
         ["link_token_user", "users", "user"],
@@ -135,6 +137,7 @@
         ["change_user", "users", "user"],
         ["delete_user", "users", "user"],
         ["retrieve_user", "users", "user"],
+        ["retrieve_more_user_info", "users", "user"],
         ["list_user", "users", "user"],
         ["supply_money_user", "users", "user"],
         ["link_token_user", "users", "user"],
@@ -196,6 +199,7 @@
         ["use_selfsalemodule", "modules", "selfsalemodule"],
         ["add_transfert", "finances", "transfert"],
         ["add_sharedevent", "finances", "sharedevent"],
+        ["retrieve_user", "users", "user"],
 
         ["list_notification", "notifications", "notification"]
       ]

@@ -280,6 +280,7 @@ class User(AbstractUser):
             # delete_user
             ('list_user', 'Lister les users'),
             ('retrieve_user', 'Afficher les users'),
+            ('retrieve_more_user_info', "Afficher plus d'info sur les users"),
 
             # Miscellaneous
             ('supply_money_user', 'Ajouter de l\'argent à un utilisateur'),

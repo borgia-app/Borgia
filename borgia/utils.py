@@ -925,6 +925,8 @@ def human_permission_name(name):
         ('honnored', 'membres d\'honneur'),
 
         ('Supply money', 'Ajouter de l\'argent'),
+
+        ('more', 'plus')
     ]
 
     for e in translation_catalog:

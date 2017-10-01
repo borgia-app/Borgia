@@ -26,11 +26,12 @@
       </div>
   </div>
   <div class="panel-body">
-    <div class="col-md-6">
+    <div class="row">
         {% include "users/retrieve_module.html" %}
     </div>
   </div>
 </div>
+{% if group|has_group_perm:"retrieve_more_user_info" %}
 <div class="panel panel-default">
   <div class="panel-heading">
     Comptes en banque
@@ -117,4 +118,5 @@
     </tbody>
   </table>
 </div>
+{% endif %}
 {% endblock %}
