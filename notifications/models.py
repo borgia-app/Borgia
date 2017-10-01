@@ -505,8 +505,8 @@ def get_allowed_tags():
     :rtype : dict
     """
     tag_dictionary = {'bold': ('<strong>', '</strong>'),
-                      'actor': ('<a href="{% url "url_user_retrieve" pk=actor.pk group_name=group_name %}">'
-                                '{{actor}}</a>', ''),
+                      'actor': ('<span class="notification-actor" data-link="{% url "url_user_retrieve" pk=actor.pk group_name=group_name %}">'
+                                '{{actor}}</span>', ''),
                       'target_object': ('{{target_object}}',''),
                       'transfer.amount' : ('{{target_object.amount}}',''),
                       'transfer.justification': ('{{target_object.justification}}', ''),

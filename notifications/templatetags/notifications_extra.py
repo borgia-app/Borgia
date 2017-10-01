@@ -42,4 +42,19 @@ def html_rendering_tag(context, notification):
         return "Il devrait y avoir une notification ici," \
                " elle a été désactivée ou son public a été modifié"
 
+@register.simple_tag(takes_context=True)
+def notification_icon(context, notification):
+    """
+    A tag to generate font awesome icon depending on notification's type.
+    :param notification: a notification object
+    :return: a string (icon class)
+    """
 
+    if (notification.type == "SUCCESS"):
+        return "fa-check-circle"
+    elif notification.type == "WARNING":
+        return "fa-exclamation-circle"
+    elif notification.type == "DANGER":
+        return "fa-ban"
+    else:
+        return "fa-info-circle"

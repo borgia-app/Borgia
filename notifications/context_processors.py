@@ -8,7 +8,7 @@ def notifications(request):
     """
     if request.user.is_authenticated():
         return {
-            'notifications': Notification.objects.filter(target_user=request.user, read_datetime=None)
+            'notifications': Notification.objects.filter(target_user=request.user, read_datetime=None).order_by('-creation_datetime')
         }
     else:
         return {}
