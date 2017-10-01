@@ -443,14 +443,8 @@ class SharedEvent(models.Model):
     bills = models.CharField('Facture(s)', max_length=254, null=True,
                              blank=True)
     done = models.BooleanField('Terminé', default=False)
-    # remark = models.CharField('Remarque', max_length=254, null=True,
-    #                       blank=True)
     manager = models.ForeignKey('users.User', related_name='manager',
         on_delete=models.CASCADE)
-
-    # sale = models.ForeignKey('Sale', null=True, blank=True,
-    #     on_delete=models.CASCADE)
-
     participants = models.ManyToManyField('users.User', blank=True,
                                           related_name='participants')
     registered = models.ManyToManyField('users.User', blank=True,
@@ -458,6 +452,9 @@ class SharedEvent(models.Model):
     ponderation = models.CharField(
         'Liste ordonnée participants - pondérations',
         max_length=10000, default='[]')
+    final_price_per_ponderation = models.DecimalField('Prix par ponderation', decimal_places=2, max_digits=9,
+                                null=True, blank=True,
+                                validators=[MinValueValidator(Decimal(0))])
 
     def __str__(self):
         """
@@ -557,6 +554,13 @@ class SharedEvent(models.Model):
             list_u_p.append([u, 1])
         return list_u_p
 
+    def get_price_of_user(self, user):
+        for u in self.get_ponderation():
+            if u[0] == user.pk:
+                ponderation_of_user = u[1]
+
+                return self.final_price_per_ponderation * ponderation_of_user
+
     def pay(self, operator, recipient):
         """
         Procède au paiement de l'évenement par les participants.
@@ -567,55 +571,19 @@ class SharedEvent(models.Model):
         :return:
         """
 
-        # NOT USED ANYMORE
-        # sale = Sale.objects.create(datetime=now(),
-        #                            sender=operator,
-        #                            recipient=recipient,
-        #                            operator=operator,
-        #                            category='shared_event')
-        #
-        # # Liaison de l'événement commun
-        # self.sale = sale
-        # self.save()
-
         # Calcul du prix par ponderation
         total_ponderation = 0
         for e in self.list_of_participants_ponderation():
             total_ponderation += e[1]
-        price_per_ponderation = round(self.price / total_ponderation, 2)
-
-        # Créations paiements par compte foyer
-        # payment = Payment.objects.create()
-
-        # for u in self.list_of_participants_ponderation():
-        #     d_b = DebitBalance.objects.create(
-        #         amount=price_per_participant*u[1],
-        #         date=now(),
-        #         sender=u[0],
-        #         recipient=sale.recipient)
-        #     # Paiement
-        #     payment.debit_balance.add(d_b)
-        #     d_b.set_movement()
+        self.final_price_per_ponderation = round(self.price / total_ponderation, 2)
+        self.save()
 
         for u in self.list_of_participants_ponderation():
-            u[0].debit(price_per_ponderation*u[1])
+            u[0].debit(self.final_price_per_ponderation*u[1])
 
         self.done = True
         self.datetime = now()
         self.save()
-
-
-
-        # payment.save()
-        # payment.maj_amount()
-        #
-        # sale.payment = payment
-        # sale.maj_amount()
-        # sale.save()
-        #
-        # self.done = True
-        # self.remark = 'Paiement par Borgia'
-        # self.save()
 
     def wording(self):
         return 'Evenement ' + self.description + ' ' + str(self.date)
