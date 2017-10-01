@@ -17,6 +17,40 @@ from django.contrib.contenttypes.models import ContentType
 
 
 class Sale(models.Model):
+    """
+    Define a Sale between two users.
+
+    The transaction is managed by an operator (which can the the sender
+    directly if the sell is direct). Most of sale are between an User and the
+    association (represented by the special User with username 'AE ENSAM').
+
+    :param datetime: date of sell, mandatory.
+    :param sender: sender of the sale, mandatory.
+    :param recipient: recipient of the sale, mandatory.
+    :param operator: operator of the sale, mandatory.
+
+    NEW IMPLMENTATION
+    :param content_type:
+    :param module_id:
+    :param module:
+    :param shop:
+    :param products:
+
+
+    :type datetime: date string, default now
+    :type sender: User object
+    :type recipient: User object
+    :type operator: User object
+
+    NEW IMPLMENTATION
+    :type content_type:
+    :type module_id:
+    :type module:
+    :type shop: Shop object
+    :type products: Product object
+
+
+    """
     datetime = models.DateTimeField('Date', default=now)
     sender = models.ForeignKey('users.User', related_name='sender_sale',
     on_delete=models.CASCADE)
@@ -408,12 +442,14 @@ class SharedEvent(models.Model):
     bills = models.CharField('Facture(s)', max_length=254, null=True,
                              blank=True)
     done = models.BooleanField('Terminé', default=False)
-    remark = models.CharField('Remarque', max_length=254, null=True,
-                             blank=True)
+    # remark = models.CharField('Remarque', max_length=254, null=True,
+    #                       blank=True)
     manager = models.ForeignKey('users.User', related_name='manager',
         on_delete=models.CASCADE)
-    sale = models.ForeignKey('Sale', null=True, blank=True,
-        on_delete=models.CASCADE)
+
+    # sale = models.ForeignKey('Sale', null=True, blank=True,
+    #     on_delete=models.CASCADE)
+
     participants = models.ManyToManyField('users.User', blank=True,
                                           related_name='participants')
     registered = models.ManyToManyField('users.User', blank=True,
@@ -423,6 +459,12 @@ class SharedEvent(models.Model):
         max_length=10000, default='[]')
 
     def __str__(self):
+        """
+        Return the display name of the SharedEvent.
+
+        :returns: Description and Date
+        :rtype: string
+        """
         return self.description + ' ' + str(self.date)
 
     def set_ponderation(self, x):
@@ -523,46 +565,58 @@ class SharedEvent(models.Model):
         :param recipient: user qui recoit les paiements (AE_ENSAM)
         :return:
         """
-        sale = Sale.objects.create(date=now(),
-                                   sender=operator,
-                                   recipient=recipient,
-                                   operator=operator,
-                                   category='shared_event',
-                                   wording=self.description)
 
-        # Liaison de l'événement commun
-        self.sale = sale
-        self.save()
+        # NOT USED ANYMORE
+        # sale = Sale.objects.create(datetime=now(),
+        #                            sender=operator,
+        #                            recipient=recipient,
+        #                            operator=operator,
+        #                            category='shared_event')
+        #
+        # # Liaison de l'événement commun
+        # self.sale = sale
+        # self.save()
 
         # Calcul du prix par
         total_ponderation = 0
         for e in self.list_of_participants_ponderation():
             total_ponderation += e[1]
-        price_per_participant = round(self.price / total_ponderation, 2)
+        price_per_ponderation = round(self.price / total_ponderation, 2)
 
         # Créations paiements par compte foyer
-        payment = Payment.objects.create()
+        # payment = Payment.objects.create()
+
+        # for u in self.list_of_participants_ponderation():
+        #     d_b = DebitBalance.objects.create(
+        #         amount=price_per_participant*u[1],
+        #         date=now(),
+        #         sender=u[0],
+        #         recipient=sale.recipient)
+        #     # Paiement
+        #     payment.debit_balance.add(d_b)
+        #     d_b.set_movement()
 
         for u in self.list_of_participants_ponderation():
-            d_b = DebitBalance.objects.create(
-                amount=price_per_participant*u[1],
-                date=now(),
-                sender=u[0],
-                recipient=sale.recipient)
-            # Paiement
-            payment.debit_balance.add(d_b)
-            d_b.set_movement()
-
-        payment.save()
-        payment.maj_amount()
-
-        sale.payment = payment
-        sale.maj_amount()
-        sale.save()
+            u[0].debit(price_per_ponderation*u[1])
 
         self.done = True
-        self.remark = 'Paiement par Borgia'
         self.save()
+
+
+
+        # payment.save()
+        # payment.maj_amount()
+        #
+        # sale.payment = payment
+        # sale.maj_amount()
+        # sale.save()
+        #
+        # self.done = True
+        # self.remark = 'Paiement par Borgia'
+        # self.save()
+
+    def wording(self):
+        return 'Evenement ' + self.description + ' ' + str(self.date)
 
     class Meta:
         """

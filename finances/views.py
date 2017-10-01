@@ -766,7 +766,7 @@ class SelfTransfertCreate(GroupPermissionMixin, FormView,
         transfert.pay()
         # We notify
         notify(notification_class_name= 'transfer_creation',
-               actor=self.request.user, 
+               actor=self.request.user,
                recipient= form.cleaned_data['recipient'],
                target_object=transfert)
         return super(SelfTransfertCreate, self).form_valid(form)
@@ -1399,7 +1399,7 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
 
     def form_valid(self, form):
         self.se.done = True
-        self.se.remark = form.cleaned_data['remark']
+        # self.se.remark = form.cleaned_data['remark']
         self.se.save()
         if self.group.name == 'gadzarts':
             return redirect(
@@ -1507,7 +1507,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context['order_by'] = 'last_name'
         context['done'] = se.done
         context['payment_error'] = payment_error
-        context['remark'] = se.remark
+        # context['remark'] = se.remark
         context['price'] = se.price
 
         return render(request, self.template_name, context=context)
@@ -1648,7 +1648,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context['state'] = state
         context['order_by'] = order_by
         context['done'] = se.done
-        context['remark'] = se.remark
+        # context['remark'] = se.remark
         context['price'] = se.price
 
         return render(request, self.template_name, context=context)
