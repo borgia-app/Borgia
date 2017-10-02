@@ -65,3 +65,7 @@ def center_name():
 @register.simple_tag
 def default_template():
     return 'less/_bootstrap-' + getattr(settings, "DEFAULT_TEMPLATE", None) + '.less'
+
+@register.simple_tag
+def default_brand():
+    return 'img/borgia-logo-' + getattr(settings, "DEFAULT_TEMPLATE", None) + '.png'

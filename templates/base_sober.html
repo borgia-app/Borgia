@@ -47,7 +47,12 @@
             {% elif request.user.theme and request.user.theme == 'birse' %}
                 <img src="{% static 'img/borgia-logo-birse.png' %}" class="logo"/>
             {% else %}
-                <img src="{% static 'img/borgia-logo.png' %}" class="logo"/>
+              {% default_brand as default_brand %}
+              {% if default_brand %}
+                <img src="{% static default_brand %}" class="logo"/>
+              {% else %}
+                <img src="{% static 'img/borgia-logo-light.png' %}" class="logo"/>
+              {% endif %}
             {% endif %}
         </a>
         <p class="navbar-text navbar-text-center">{% if center_name %}{{ center_name }}{% else %}Borgia{% endif %}</p>
