@@ -1487,7 +1487,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
             payment_error = 'Veuillez renseigner le prix de l\'événement ! '
         
         if request.GET.get('no_participant') == 'True':
-            payment_error = 'Veuillez renseigner le prix de l\'événement ! '
+            payment_error = 'Veuillez ajouter au moins un participant à l\'événement ! '
 
         # Création des forms
         list_user_form = SharedEventManageUserListForm(prefix='list_user_form', initial=initial_list_user_form)
