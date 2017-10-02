@@ -444,6 +444,7 @@ class SharedEvent(models.Model):
     bills = models.CharField('Facture(s)', max_length=254, null=True,
                              blank=True)
     done = models.BooleanField('Terminé', default=False)
+    remark = models.CharField('Remarque', max_length=254, null=True, blank=True)
     manager = models.ForeignKey('users.User', related_name='manager',
         on_delete=models.CASCADE)
     participants = models.ManyToManyField('users.User', blank=True,
@@ -589,12 +590,13 @@ class SharedEvent(models.Model):
                    recipient=u[0],
                    target_object=self
                 )
-              
-              
+
+
         self.done = True
         self.datetime = now()
+        self.remark = 'Paiement par Borgia'
         self.save()
-		
+
     def wording(self):
         return 'Evenement ' + self.description + ' ' + str(self.date)
 
