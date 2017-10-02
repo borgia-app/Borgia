@@ -43,8 +43,8 @@
     <tbody>
       {% for user in user_list %}
       <tr class="{% if user.balance >= 0 %}success{% else %}danger{% endif %}">
-        <td>{{ user.first_name }}</td>
         <td>{{ user.last_name }}</td>
+        <td>{{ user.first_name }}</td>
         <td>{{ user.surname }}</td>
         <td>{{ user.family }}</td>
         <td>{{ user.campus }}</td>
