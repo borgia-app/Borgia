@@ -1483,7 +1483,10 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
             'bills': se.bills,
         }
 
-        if request.GET.get('payment_error') == 'True':
+        if request.GET.get('no_price') == 'True':
+            payment_error = 'Veuillez renseigner le prix de l\'événement ! '
+        
+        if request.GET.get('no_participant') == 'True':
             payment_error = 'Veuillez renseigner le prix de l\'événement ! '
 
         # Création des forms
@@ -1782,17 +1785,23 @@ class SharedEventProceedPayment(GroupPermissionMixin, View):
         if se.done is True:
             raise PermissionDenied
         if se.price is not None:
-            se.pay(request.user, User.objects.get(pk=1))
-            return redirect(reverse(
+            if se.participants.count() > 0:
+              se.pay(request.user, User.objects.get(pk=1))
+              return redirect(reverse(
                 'url_sharedevent_update',
                 kwargs={'group_name': self.group.name, 'pk': se.pk}
-            ))
+              ))
+            else:
+              return redirect(reverse(
+                'url_sharedevent_update',
+                kwargs={'group_name': self.group.name, 'pk': se.pk}
+              ) + '?no_participant=True')   
+            
         else:
             return redirect(reverse(
                 'url_sharedevent_update',
                 kwargs={'group_name': self.group.name, 'pk': se.pk}
-            ) + '?payment_error=True')
-
+            ) + '?no_price=True')
 
 class SharedEventChangePonderation(GroupPermissionMixin, View):
     perm_codename = None

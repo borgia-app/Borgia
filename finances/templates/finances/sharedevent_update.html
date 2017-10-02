@@ -86,10 +86,12 @@
 {% if perms.finances.proceed_payment_sharedevent %}
 <div class="panel panel-default">
   <div class="panel-heading">
-    Payement
+    Paiement
   </div>
   <div class="panel-body">
-    {{ payment_error }}
+    {% if payment_error %}
+      <div class="alert alert-danger"><a class="close" data-dismiss="alert">×</a>{{ payment_error }}</div>
+	{% endif %}
     Etat : {% human_reading done 'shared_event_done' %}. {% if done %}{{ remark }}{% endif %}
     {% if done == False %}
     <a href="{% url 'url_sharedevent_proceed_payment' pk=pk group_name=group.name %}" class="btn btn-danger">Procéder au paiement</a>
