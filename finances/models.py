@@ -10,6 +10,7 @@ from django.contrib.contenttypes.fields import (
     GenericForeignKey, GenericRelation
     )
 from django.contrib.contenttypes.models import ContentType
+from notifications.models import notify
 
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
@@ -580,11 +581,20 @@ class SharedEvent(models.Model):
 
         for u in self.list_of_participants_ponderation():
             u[0].debit(self.final_price_per_ponderation*u[1])
-
+            if (u[0].balance < 0):
+			    # If negative balance after event
+		        # We notify
+                notify(notification_class_name='negative_balance',
+                   actor=operator,
+                   recipient=u[0],
+                   target_object=self
+                )
+              
+              
         self.done = True
         self.datetime = now()
         self.save()
-
+		
     def wording(self):
         return 'Evenement ' + self.description + ' ' + str(self.date)
 

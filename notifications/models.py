@@ -10,7 +10,8 @@ from django.forms import ValidationError
 from django.db.models.signals import m2m_changed, pre_save
 from django.dispatch import receiver
 from django.utils.html import conditional_escape
-from users.models import User
+from django.contrib.auth.models import User
+#TODO: make it work with users.models
 
 # Classes
 
