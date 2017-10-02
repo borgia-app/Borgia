@@ -61,3 +61,7 @@ def order_by(attr, request):
 @register.simple_tag
 def center_name():
     return getattr(settings, "CENTER_NAME", None)
+
+@register.simple_tag
+def default_template():
+    return 'less/_bootstrap-' + getattr(settings, "DEFAULT_TEMPLATE", None) + '.less'

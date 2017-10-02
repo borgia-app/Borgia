@@ -21,8 +21,13 @@
 	{% elif request.user.theme and request.user.theme == 'birse' %}
 		<link rel="stylesheet" href="{% static 'less/_bootstrap-birse.less'|compile %}" />
   {% else %}
-    <link rel="stylesheet" href="{% static 'less/_bootstrap-light.less'|compile %}" />
-	{% endif %}
+    {% default_template as default_template %}
+    {% if default_template %}
+      <link rel="stylesheet" href="{% static default_template|compile %}" />
+    {% else %}
+      <link rel="stylesheet" href="{% static 'less/_bootstrap-light.less'|compile %}" />
+	  {% endif %}
+  {% endif %}
     <link rel="shortcut icon" type="image/png" href="{% static 'img/borgia-label-less.png' %}"/>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
