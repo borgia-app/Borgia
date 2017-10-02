@@ -527,12 +527,15 @@ class SharedEvent(models.Model):
             new_ponderation.append(e)
             if e[0] == user.pk:
                 in_list = True
+                # Mais on lui rajoute la ponderation
+                e[1]+=ponderation
 
         # Si pas dans la liste, on l'ajoute
         if in_list is False:
             new_ponderation.append([user.pk, ponderation])
             self.participants.add(user)
-            self.set_ponderation(new_ponderation)
+        # MAJ
+        self.set_ponderation(new_ponderation)
 
     def list_of_participants_ponderation(self):
         """
