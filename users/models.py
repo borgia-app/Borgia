@@ -233,6 +233,8 @@ class User(AbstractUser):
         rechargings = Recharging.objects.filter(sender=self)
         exceptionnal_movements = ExceptionnalMovement.objects.filter(recipient=self)
         shared_events = SharedEvent.objects.filter(participants=self)
+        for e in shared_events:
+            e.amount = e.get_price_of_user(self)
 
         list_transaction = sorted(
             list(chain(sales, transferts, rechargings, exceptionnal_movements, shared_events)),

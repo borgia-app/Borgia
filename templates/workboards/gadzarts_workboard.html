@@ -84,6 +84,8 @@
                           {% else %}
                             -{{ transaction.amount }}€
                           {% endif %}
+                        {% elif transaction|get_transaction_model == 'SharedEvent' %}
+                          -{{ transaction.amount }}€
                         {% else %}
                           {{ transaction.amount }}€
                         {% endif %}
@@ -200,11 +202,11 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for sale in sale_list.shared_events.sale_list_short %}
+                    {% for sale in transaction_list.sharedevents.sharedevent_list_short %}
                     <tr>
-                      <td>{{ sale.date|date:"d/m/Y H:i:s" }}</td>
+                      <td>{{ sale.datetime|date:"d/m/Y H:i:s" }}</td>
                       <td>{{ sale.wording }}</td>
-                      <td>{% price_for sale=sale user=user %} €</td>
+                      <td>-{{ sale.amount }}€</td>
                     </tr>
                     {% endfor %}
                   </tbody>
