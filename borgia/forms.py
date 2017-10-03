@@ -18,6 +18,7 @@ class LoginForm(forms.Form):
         max_length=255,
         widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
                                       'autocomplete': 'off',
+									  'autofocus': 'true',
 									  'placeholder': "Nom d'utilisateur"})
     )
     password = forms.CharField(
