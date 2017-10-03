@@ -115,7 +115,7 @@ class User(AbstractUser):
     avatar = models.ImageField('Avatar', upload_to='img/avatars/',
                                default=None, blank=True, null=True)
     theme = models.CharField('Préférence de theme graphique', choices=THEME_CHOICES,
-                                max_length=15, default='light', blank=True, null=True)
+                                max_length=15, blank=True, null=True)
 
     jwt_iat = models.DateTimeField('Jwt iat', default=timezone.now)
 
