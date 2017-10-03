@@ -16,8 +16,8 @@
     </title>
     <link href="https://fonts.googleapis.com/css?family=Lato|Roboto" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
-
-    <link rel="stylesheet" href="{% static 'less/_bootstrap-light.less'|compile %}" />
+    {% set_template request.user.theme as template %}
+    <link rel="stylesheet" href="{% static template|compile %}" />
 
     <link rel="shortcut icon" type="image/png" href="{% static 'img/borgia-label-less.png' %}"/>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>

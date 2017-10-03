@@ -16,13 +16,10 @@
     </title>
     <link href="https://fonts.googleapis.com/css?family=Lato|Roboto" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
-	{% if request.user.theme and request.user.theme == 'dark' %}
-		<link rel="stylesheet" href="{% static 'less/_bootstrap-dark.less'|compile %}" />
-	{% elif request.user.theme and request.user.theme == 'birse' %}
-		<link rel="stylesheet" href="{% static 'less/_bootstrap-birse.less'|compile %}" />
-  {% else %}
-    <link rel="stylesheet" href="{% static 'less/_bootstrap-light.less'|compile %}" />
-	{% endif %}
+
+    {% set_template request.user.theme as template %}
+    <link rel="stylesheet" href="{% static template|compile %}" />
+
     <link rel="shortcut icon" type="image/png" href="{% static 'img/borgia-label-less.png' %}"/>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
@@ -37,13 +34,9 @@
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
-            {% if request.user.theme and request.user.theme == 'dark' %}
-                <img src="{% static 'img/borgia-logo-dark.png' %}" class="logo"/>
-            {% elif request.user.theme and request.user.theme == 'birse' %}
-                <img src="{% static 'img/borgia-logo-birse.png' %}" class="logo"/>
-            {% else %}
-                <img src="{% static 'img/borgia-logo.png' %}" class="logo"/>
-            {% endif %}
+          {% set_brand request.user.theme as brand %}
+          <img src="{% static brand %}" class="logo"/>
+
         </a>
         <p class="navbar-text navbar-text-center">{% if center_name %}{{ center_name }}{% else %}Borgia{% endif %}</p>
       </div>
