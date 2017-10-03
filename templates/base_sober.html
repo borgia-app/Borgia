@@ -42,10 +42,11 @@
       </div>
       <div class="navbar-right">
         <ul class="nav navbar-nav">
-          <li>{% if request.user.avatar %}
+          <li class="user-profile-link"><a href="{% url 'url_user_retrieve' group_name=group_name pk=request.user.pk %}" style="padding:0;">
+		      {% if request.user.avatar %}
               <span class="navbar-text-avatar" style="float: left;"><img src="{{ request.user.avatar.url }}" class="user-avatar"/></span>
               {% endif %}
-              <p class="navbar-text">{{ request.user.display_name_navbar }}</p></li>
+              <p class="navbar-text">{{ request.user.display_name_navbar }}</p></a></li>
           <li><p class="navbar-text">
             <span
               style="font-weight: bold"

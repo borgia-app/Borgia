@@ -198,10 +198,14 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
     template_name = 'users/retrieve.html'
     perm_codename = 'retrieve_user'
-
+    
     def get(self, request, *args, **kwargs):
+        user = User.objects.get(pk=self.kwargs['pk'])
+        #Update forecast balance
+        user.forecast_balance()
+
         context = self.get_context_data(**kwargs)
-        context['object'] = User.objects.get(pk=self.kwargs['pk'])
+        context['object'] = user
         return render(request, self.template_name, context=context)
 
 

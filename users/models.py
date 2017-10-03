@@ -93,6 +93,8 @@ class User(AbstractUser):
     family = models.CharField('Fam\'ss', max_length=255, blank=True, null=True)
     balance = models.DecimalField('Solde', default=0, max_digits=9,
                                   decimal_places=2)
+    virtual_balance = models.DecimalField('Solde prévisionnel', default=0, max_digits=9,
+                                  decimal_places=2)
     year = models.IntegerField('Prom\'ss', choices=YEAR_CHOICES, blank=True,
                                null=True)
     campus = models.CharField('Tabagn\'ss', choices=CAMPUS_CHOICES,
@@ -160,6 +162,16 @@ class User(AbstractUser):
       except AttributeError:
          return 'undefined'
 
+    def forecast_balance(self):
+      # Get all undone shared events where user is involved as participant
+      shared_events = SharedEvent.objects.filter(participants__username__contains= self.username, done=False)
+      solde_prev = 0
+      for se in shared_events:
+        solde_prev += se.get_price_of_user(self)
+      self.virtual_balance = self.balance - solde_prev
+	  #TODO: notify if forecast balance is negative
+      self.save()
+		 
     def year_pg(self):
         """
         Return the promotion's year of the user, under the Gadz'Art standard.

@@ -34,10 +34,16 @@
           <td>Prom'ss :</td> 
           <td>{{ object.campus }}{{ object.year_pg }}</td>
        </tr>
-       {% if group|has_group_perm:"retrieve_more_user_info" %}
+       {% if group|has_group_perm:"retrieve_more_user_info" or object == request.user %}
        <tr>
           <td>Solde :</td> 
-          <td>{{ object.balance }} €</td>
+          <td style="font-weight: bold"
+              class="{% if object.balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ object.balance }} €</td>
+       </tr>
+	   <tr>
+          <td>Solde prévisionnel:</td> 
+          <td style="font-weight: bold"
+              class="{% if object.virtual_balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ object.virtual_balance }} €</td>
        </tr>
        <tr>
           <td>Est actif :</td> 

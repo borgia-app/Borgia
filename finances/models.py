@@ -560,12 +560,18 @@ class SharedEvent(models.Model):
         return list_u_p
 
     def get_price_of_user(self, user):
+	    # Calcul du prix par ponderation
+        total_ponderation = 0
+        for e in self.list_of_participants_ponderation():
+            total_ponderation += e[1]
+        self.final_price_per_ponderation = round(self.price / total_ponderation, 2)
+		
         for u in self.get_ponderation():
             if u[0] == user.pk:
                 ponderation_of_user = u[1]
 
                 return self.final_price_per_ponderation * ponderation_of_user
-
+	
     def pay(self, operator, recipient):
         """
         Procède au paiement de l'évenement par les participants.
