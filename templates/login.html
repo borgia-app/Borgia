@@ -11,11 +11,11 @@
 				{% if default_theme == 'dark' %}
 				    <img src="{% static 'img/borgia-logo-dark.png' %}" class="logo img-responsive"/>
 				{% else %}
-					<img src="{% static 'img/borgia-logo.png' %}" class="logo img-responsive"/>
+					<img src="{% static 'img/borgia-logo-light.png' %}" class="logo img-responsive"/>
 				{% endif %}
 				{% csrf_token %}
-				{% for field in form %}				 
-				  <div class="form-group">			
+				{% for field in form %}
+				  <div class="form-group">
 				    {{ field }}
 					{% if field.name == 'username' %}
 					  <span class="glyphicon glyphicon-user"></span>
