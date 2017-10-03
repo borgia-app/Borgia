@@ -15,6 +15,7 @@ from borgia.utils import *
 from finances.models import Sale, SharedEvent, Transfert, Recharging, ExceptionnalMovement
 from shops.models import Product
 from borgia.forms import LoginForm
+from django.conf import settings
 
 
 class Login(FormView):
@@ -111,6 +112,7 @@ class Login(FormView):
 
     def get_context_data(self, **kwargs):
         context = super(Login, self).get_context_data(**kwargs)
+        context['default_theme'] = settings.DEFAULT_TEMPLATE
         try:
             if self.shop:
                 if self.gadzarts:

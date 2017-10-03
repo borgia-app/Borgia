@@ -224,4 +224,4 @@ JWT_TOKEN_TIMEOUT = 7  # days
 # [LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, MARGIN_PROFIT]
 
 CENTER_NAME = "AE ENSAM Metz"
-DEFAULT_TEMPLATE = "dark" #Default template, en minuscule
+DEFAULT_TEMPLATE = "birse" #Default template, en minuscule

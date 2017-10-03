@@ -8,7 +8,11 @@
     <section class="form-section">
 		<section>
 			<form method='post' autocomplete="off" role="login">
-				<img src="{% static 'img/borgia-logo.png' %}" class="logo img-responsive"/>
+				{% if default_theme == 'dark' %}
+				    <img src="{% static 'img/borgia-logo-dark.png' %}" class="logo img-responsive"/>
+				{% else %}
+					<img src="{% static 'img/borgia-logo.png' %}" class="logo img-responsive"/>
+				{% endif %}
 				{% csrf_token %}
 				{% for field in form %}				 
 				  <div class="form-group">
@@ -21,7 +25,7 @@
 					{% endif %}
 				  </div>
 				{% endfor %}
-				<p class="text-right">
+				<p class="text-right" style="margin-top: -20px; margin-bottom: 35px;">
 				  <a class="btn btn-warning btn-xs" href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
 				</p>
 				<button
