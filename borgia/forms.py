@@ -14,15 +14,17 @@ class UserSearchForm(forms.Form):
 
 class LoginForm(forms.Form):
     username = forms.CharField(
-        label="Nom d'utilisateur",
+		label="Nom d'utilisateur",
         max_length=255,
-        widget=forms.TextInput(attrs={'class': 'autocomplete_username',
-                                      'autocomplete': 'off'})
+        widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
+                                      'autocomplete': 'off',
+									  'placeholder': "Nom d'utilisateur"})
     )
     password = forms.CharField(
         label='Mot de passe',
         max_length=255,
-        widget=forms.PasswordInput()
+        widget=forms.PasswordInput(attrs={'class': 'form-control',
+										  'placeholder': "Mot de passe"})
     )
 
     def __init__(self, **kwargs):

@@ -1,26 +1,46 @@
 {% extends 'base_clean.html' %}
+{% load staticfiles %}
 {% load bootstrap %}
 
 {% block content %}
 <div class="panel panel-default">
-  <div class="panel-heading">
-    Connexion {% if next %}<i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{ next }}{% endif %}
-    {% if shop_list|length > 0 %}
-    <button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#direct_links">
-      Liens directs
-    </button>
-    {% endif %}
-    <a class="btn btn-warning btn-xs pull-right" href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
-  </div>
   <div class="panel-body">
-    <form method='post' autocomplete="off">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <button
-      type="submit"
-      class="btn btn-success btn-block"
-      style="font-size: 20px">Valider</button>
-    </form>
+    <section class="form-section">
+		<section>
+			<form method='post' autocomplete="off" role="login">
+				<img src="{% static 'img/borgia-logo.png' %}" class="logo img-responsive"/>
+				{% csrf_token %}
+				{% for field in form %}				 
+				  <div class="form-group">
+					
+				    {{ field }}
+					{% if field.name == 'username' %}
+					  <span class="glyphicon glyphicon-user"></span>
+					{% elif field.name == 'password' %}
+					  <span class="glyphicon glyphicon-lock"></span>
+					{% endif %}
+				  </div>
+				{% endfor %}
+				<p class="text-right">
+				  <a class="btn btn-warning btn-xs" href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
+				</p>
+				<button
+					type="submit"
+					class="btn btn-grenat btn-block"
+					style="font-size: 20px; margin-top: 10px;">Se connecter</button>
+			</form>
+		</section>
+	</section>
+  </div>
+  <div class="panel-footer">
+	<p class="text-left login-footer-text">
+		{% if next %}<i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{ next }}{% endif %}
+		{% if shop_list|length > 0 %}
+		<button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#direct_links">
+		Liens directs
+		</button>
+		{% endif %}
+	</p>
   </div>
 </div>
 

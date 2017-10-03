@@ -51,8 +51,8 @@ canvas {
   font-size: 14pt;
 }
 
+// Login Form
 .login-form {
-  width: 33%;
   height: 200px;
   position: absolute;
   top: -250px;
@@ -61,6 +61,53 @@ canvas {
   right: 0;
   margin: auto;
   font-size: 12pt;
+  text-align: center;
+  max-width: 460px;
+
+  img {
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 55px;
+  }
+}
+.login-footer-text {
+  font-size: 10pt;
+}
+
+.login-form .glyphicon {
+    position: absolute;
+    left: 0;  
+    padding: 11px 0 0 13px;
+    font-size: 15px;
+    color: #757575;
+}
+.glyphicon::after {
+		content: '';
+		position: absolute;
+		right: -11px;
+		top: 4px;
+		bottom: -10px;
+		width: 1px;
+		opacity: .5;
+		background-color: rgba(212,212,212,0);
+		background-image: -webkit-linear-gradient(bottom,rgba(212,212,212,0) 0,#d4d4d4 30%,#b4b4b4 70%,rgba(212,212,212,0) 100%);
+		background-image: linear-gradient(to top,rgba(212,212,212,0) 0,#d4d4d4 30%,#b4b4b4 70%,rgba(212,212,212,0) 100%);
+}
+
+form[role=login] > div {
+    margin: 30px 0;
+    position: relative;
+}
+
+form[role=login] input {
+    padding: 12px 48px;
+	height: 40px;
+}
+
+form[role=login] .form-control:focus {
+	border-color: #880000;
+    outline: 0;
+	box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(101,19,25,0.6);
 }
 
 .notification-actor {
@@ -72,3 +119,4 @@ canvas {
       transition: color 0.8s;
   }
 }
+
