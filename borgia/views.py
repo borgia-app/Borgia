@@ -17,7 +17,6 @@ from shops.models import Product
 from borgia.forms import LoginForm
 from django.conf import settings
 
-
 class Login(FormView):
     template_name = 'login.html'
     form_class = LoginForm
@@ -55,7 +54,7 @@ class Login(FormView):
             if self.gadzarts:
                 self.success_url = self.to_shop_selfsale()
             else:
-                self.success_url = self.to_shop_operatorsale()
+                self.success_url	 = self.to_shop_operatorsale()
         except KeyError or ObjectDoesNotExist:
             pass
 
@@ -79,6 +78,8 @@ class Login(FormView):
             password=form.cleaned_data['password']
         )
         login(self.request, user)
+		# Update forecast_balance on login
+        user.forecast_balance()
         return super(Login, self).form_valid(form)
 
     def to_shop_selfsale(self):
