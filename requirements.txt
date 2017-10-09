@@ -1,5 +1,5 @@
 cffi==1.10.0
-cryptography==1.7.2
+cryptography==1.9
 Django==1.11.4
 django-annoying==0.10.3
 django-bootstrap-form==3.3
