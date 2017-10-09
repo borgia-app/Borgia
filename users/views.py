@@ -334,12 +334,21 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     search = None
     unactive = None
     year = None
-
+    headers = {'first_name':'asc',
+         'last_name':'asc',
+         'surname':'asc',
+         'family':'asc',
+         'campus':'asc',
+         'year':'asc',
+         'balance':'asc',}
+    sort = None
+	
     def get(self, request, *args, **kwargs):
         """
         Used to pass search through workboard.
         """
         try:
+            self.sort = request.GET['sort']
             self.search = request.GET['search']
         except KeyError:
             pass
@@ -348,8 +357,18 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
         context['group'] = self.group
-        context['user_list'] = self.form_query(
-            User.objects.all().exclude(groups=1))
+        if self.sort is not None:
+          if self.headers[self.sort] == "des":
+            context['user_list'] = self.form_query(
+                User.objects.all().exclude(groups=1).order_by(self.sort).reverse())
+            self.headers[self.sort] = "asc"
+          else:
+            context['user_list'] = self.form_query(
+                User.objects.all().exclude(groups=1).order_by(self.sort))
+            self.headers[self.sort] = "des"
+        else:
+            context['user_list'] = self.form_query(
+              User.objects.all().exclude(groups=1))
         return context
 
     def form_query(self, query):
@@ -389,8 +408,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial = super(UserListView, self).get_initial()
         initial['search'] = self.search
         return initial
-
-
+		
 def username_from_username_part(request):
     data = []
 
