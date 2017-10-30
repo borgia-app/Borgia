@@ -198,6 +198,8 @@
       "permissions": [
         ["use_selfsalemodule", "modules", "selfsalemodule"],
         ["add_transfert", "finances", "transfert"],
+
+        ["list_sharedevent", "finances", "sharedevent"],
         ["add_sharedevent", "finances", "sharedevent"],
         ["retrieve_user", "users", "user"],
 
