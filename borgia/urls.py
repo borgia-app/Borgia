@@ -45,35 +45,45 @@ urlpatterns = [
     url(r'^jwt/token/(?P<token>.+)/(?P<pk>\d+).json$', AuthVerifyJWT.as_view()),
     url(r'^jwt/invalidate/(?P<token>.+)/(?P<pk>\d+).json$', AuthInvalidateJWT.as_view()),
 
+        #####################
+        #     WORKBOARDS    #
+        #####################
+    url(r'^presidents/$',
+        PresidentsGroupWorkboard.as_view(), {'group_name': 'presidents'},
+        name='url_group_workboard'),
     url(r'^presidents/workboard/$',
         PresidentsGroupWorkboard.as_view(), {'group_name': 'presidents'},
+        name='url_group_workboard'),
+
+    url(r'^vice-presidents-internal/$',
+        VicePresidentsInternalGroupWorkboard.as_view(), {'group_name': 'vice-presidents-internal'},
         name='url_group_workboard'),
     url(r'^vice-presidents-internal/workboard/$',
         VicePresidentsInternalGroupWorkboard.as_view(), {'group_name': 'vice-presidents-internal'},
         name='url_group_workboard'),
+
+    url(r'^treasurers/$',
+        TreasurersGroupWorkboard.as_view(), {'group_name': 'treasurers'},
+        name='url_group_workboard'),
     url(r'^treasurers/workboard/$',
         TreasurersGroupWorkboard.as_view(), {'group_name': 'treasurers'},
+        name='url_group_workboard'),
+
+    url(r'^gadzarts/$',
+        GadzartsGroupWorkboard.as_view(), {'group_name': 'gadzarts'},
         name='url_group_workboard'),
     url(r'^gadzarts/workboard/$',
         GadzartsGroupWorkboard.as_view(), {'group_name': 'gadzarts'},
         name='url_group_workboard'),
-    url(r'^presidents/$',
-        PresidentsGroupWorkboard.as_view(), {'group_name': 'presidents'},
-        name='url_group_workboard'),
-    url(r'^vice-presidents-internal/$',
-        VicePresidentsInternalGroupWorkboard.as_view(), {'group_name': 'vice-presidents-internal'},
-        name='url_group_workboard'),
-    url(r'^treasurers/$',
-        TreasurersGroupWorkboard.as_view(), {'group_name': 'treasurers'},
-        name='url_group_workboard'),
-    url(r'^gadzarts/$',
-        GadzartsGroupWorkboard.as_view(), {'group_name': 'gadzarts'},
-        name='url_group_workboard'),
+
     url(r'^(?P<group_name>[\w-]+)/$',
         ShopGroupWorkboard.as_view(), name='url_group_workboard'),
     url(r'^(?P<group_name>[\w-]+)/workboard/$',
         ShopGroupWorkboard.as_view(), name='url_group_workboard'),
 
+        #####################
+        #       USERS       #
+        #####################
     url(r'^(?P<group_name>[\w-]+)/users/create/$',
         UserCreateView.as_view(), name='url_user_create'),
     url(r'^(?P<group_name>[\w-]+)/users/$',
@@ -84,35 +94,6 @@ urlpatterns = [
         UserUpdateAdminView.as_view(), name='url_user_update'),
     url(r'^(?P<group_name>[\w-]+)/users/(?P<pk>\d+)/deactivate/$',
         UserDeactivateView.as_view(), name='url_user_deactivate'),
-
-    url(r'^(?P<group_name>[\w-]+)/groups/(?P<pk>\d+)/update/$',
-        ManageGroupView.as_view(), name='url_group_update'),
-
-    url(r'^(?P<group_name>[\w-]+)/products/$',
-        ProductList.as_view(), name='url_product_list'),
-    url(r'^(?P<group_name>[\w-]+)/products/create/$',
-        ProductCreate.as_view(), name='url_product_create'),
-    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/$',
-        ProductRetrieve.as_view(), name='url_product_retrieve'),
-    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/$',
-        ProductUpdate.as_view(), name='url_product_update'),
-    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/price/$',
-        ProductUpdatePrice.as_view(), name='url_product_update_price'),
-    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
-        ProductDeactivate.as_view(), name='url_product_deactivate'),
-
-    url(r'^(?P<group_name>[\w-]+)/stocks/entries/create/$',
-        ShopStockEntryCreate.as_view(), name='url_stock_entry_create'),
-    url(r'^(?P<group_name>[\w-]+)/stocks/entries/$',
-        StockEntryList.as_view(), name='url_stock_entry_list'),
-    url(r'^(?P<group_name>[\w-]+)/stocks/entries/(?P<pk>\d+)/$',
-        StockEntryRetrieve.as_view(), name='url_stock_entry_retrieve'),
-    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/create/$',
-        ShopInventoryCreate.as_view(), name='url_inventory_create'),
-    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/$',
-        InventoryList.as_view(), name='url_inventory_list'),
-    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/(?P<pk>\d+)/$',
-        InventoryRetrieve.as_view(), name='url_inventory_retrieve'),
 
     url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/bank_accounts/create/$',
         UserBankAccountCreate.as_view(), name='url_user_bankaccount_create'),
@@ -126,6 +107,49 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/supply_money/$',
         UserSupplyMoney.as_view(), name='url_user_supplymoney'),
 
+
+        #####################
+        #      GROUPS       #
+        #####################
+    url(r'^(?P<group_name>[\w-]+)/groups/(?P<pk>\d+)/update/$',
+        ManageGroupView.as_view(), name='url_group_update'),
+
+
+        #####################
+        #     PRODUCTS      #
+        #####################
+    url(r'^(?P<group_name>[\w-]+)/products/$',
+        ProductList.as_view(), name='url_product_list'),
+    url(r'^(?P<group_name>[\w-]+)/products/create/$',
+        ProductCreate.as_view(), name='url_product_create'),
+    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/$',
+        ProductRetrieve.as_view(), name='url_product_retrieve'),
+    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/$',
+        ProductUpdate.as_view(), name='url_product_update'),
+    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/update/price/$',
+        ProductUpdatePrice.as_view(), name='url_product_update_price'),
+    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
+        ProductDeactivate.as_view(), name='url_product_deactivate'),
+
+        #####################
+        #      STOCKS       #
+        #####################
+    url(r'^(?P<group_name>[\w-]+)/stocks/entries/create/$',
+        ShopStockEntryCreate.as_view(), name='url_stock_entry_create'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/entries/$',
+        StockEntryList.as_view(), name='url_stock_entry_list'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/entries/(?P<pk>\d+)/$',
+        StockEntryRetrieve.as_view(), name='url_stock_entry_retrieve'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/create/$',
+        ShopInventoryCreate.as_view(), name='url_inventory_create'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/$',
+        InventoryList.as_view(), name='url_inventory_list'),
+    url(r'^(?P<group_name>[\w-]+)/stocks/inventories/(?P<pk>\d+)/$',
+        InventoryRetrieve.as_view(), name='url_inventory_retrieve'),
+
+        #####################
+        #     FINANCES      #
+        #####################
     url(r'^(?P<group_name>[\w-]+)/sales/$',
         SaleList.as_view(), name='url_sale_list'),
     url(r'^(?P<group_name>[\w-]+)/sales/(?P<pk>\d+)/$',
@@ -148,6 +172,9 @@ urlpatterns = [
         ExceptionnalMovementRetrieve.as_view(),
         name='url_exceptionnalmovement_retrieve'),
 
+        #####################
+        #      MODULES      #
+        #####################
     url(r'^(?P<group_name>[\w-]+)/modules/self_sale/categories/create/$',
         ShopModuleCategoryCreate.as_view(),
         name='url_module_selfsale_categories_create',
@@ -189,6 +216,17 @@ urlpatterns = [
         name='url_module_operatorsale_config',
         kwargs={'module_class': OperatorSaleModule}),
 
+    url(r'^(?P<group_name>[\w-]+)/(?P<shop_name>[\w-]+)/selfsale/$',
+        SelfSaleShopModuleInterface.as_view(),
+        name='url_module_selfsale'),
+    url(r'^(?P<group_name>[\w-]+)/(?P<shop_name>[\w-]+)/operatorsale/$',
+        OperatorSaleShopModuleInterface.as_view(),
+        name='url_module_operatorsale'),
+
+
+        #####################
+        #   NOTIFICATIONS   #
+        #####################
     url(r'^(?P<group_name>[\w-]+)/notifications/$',
         NotificationListCompleteView.as_view(),
         name='url_notification_list'),
@@ -217,13 +255,10 @@ urlpatterns = [
         NotificationGroupUpdateView.as_view(),
         name='url_notificationgroup_update'),
 
-    url(r'^(?P<group_name>[\w-]+)/(?P<shop_name>[\w-]+)/selfsale/$',
-        SelfSaleShopModuleInterface.as_view(),
-        name='url_module_selfsale'),
-    url(r'^(?P<group_name>[\w-]+)/(?P<shop_name>[\w-]+)/operatorsale/$',
-        OperatorSaleShopModuleInterface.as_view(),
-        name='url_module_operatorsale'),
 
+        #####################
+        #       SHOPS       #
+        #####################
     url(r'^(?P<group_name>[\w-]+)/shops/$',
         ShopList.as_view(),
         name='url_shop_list'),
@@ -237,6 +272,9 @@ urlpatterns = [
         ShopCheckup.as_view(),
         name='url_shop_checkup'),
 
+        #####################
+        #  SELF OPERATIONS  #
+        #####################
     url(r'^(?P<group_name>[\w-]+)/self/transferts/create/$',
         SelfTransfertCreate.as_view(),
         name='url_self_transfert_create'),
@@ -263,6 +301,9 @@ urlpatterns = [
         SelfLydiaConfirm.as_view(),
         name='url_self_lydia_confirm'),
 
+        #####################
+        #   SHAREDEVENTS    #
+        #####################
     url(r'^(?P<group_name>[\w-]+)/self/shared_events/$',
         SelfSharedEventList.as_view(),
         name='url_self_sharedevent_list'),
@@ -298,6 +339,9 @@ urlpatterns = [
         SharedEventProceedPayment.as_view(),
         name='url_sharedevent_proceed_payment'),
 
+        #####################
+        #   CONNECTIONS     #
+        #####################
     url(r'^$', Login.as_view()),
     url(r'^auth/logout/',
         Logout.as_view(),
