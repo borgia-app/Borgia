@@ -65,7 +65,7 @@
         {% else %}
             $("#new_price_usual").text(String(Math.round(this.value*100)/100).replace('.', ','));
         {% endif %}
-        var new_deviating_price = Math.round((this.value - Number("{{ object.set_calculated_price_mean }}".replace(',', '.'))) / Number("{{ object.set_calculated_price_mean }}".replace(',', '.'))*100);
+        var new_deviating_price = Math.round((this.value - Number("{{ object.get_automatic_price }}".replace(',', '.'))) / Number("{{ object.get_automatic_price }}".replace(',', '.'))*100);
         $("#new_deviating_price").text(String(new_deviating_price).replace('.', ','));
     });
 </script>

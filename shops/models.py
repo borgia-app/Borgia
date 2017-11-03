@@ -112,6 +112,9 @@ class Product(models.Model):
             pass
         return Decimal(0)
 
+    def deviating_price_from_auto(self):
+      return round(((self.manual_price- self.get_automatic_price())/self.get_automatic_price())*100 ,4)
+	
     def get_price(self):
         if self.is_manual:
             return self.manual_price
