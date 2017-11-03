@@ -1193,7 +1193,7 @@ def self_lydia_callback(request):
             recharging = Recharging.objects.create(
                 sender=User.objects.get(pk=request.GET.get('user_pk')),
                 operator=User.objects.get(pk=request.GET.get('user_pk')),
-                payment_solution=lydia.payment_solution
+                payment_solution=lydia.paymentsolution_ptr
             )
             recharging.pay()
         except KeyError:
@@ -1240,7 +1240,7 @@ def verify_token_algo_lydia(params, token):
 
 
 class SelfSharedEventList(GroupPermissionMixin, View, GroupLateralMenuMixin):
-    perm_codename = 'list_sharedevent'
+    perm_codename = None
     template_name = 'finances/self_sharedevent_list.html'
     lm_active = 'lm_self_sharedevent_list'
 
@@ -1278,7 +1278,7 @@ class SharedEventCreate(GroupPermissionMixin, FormView,
     form_class = SharedEventCreateForm
     template_name = 'finances/sharedevent_create.html'
     success_url = None
-    perm_codename = 'add_sharedevent'
+    perm_codename = None
     lm_active = 'lm_sharedevent_create'
 
     def form_valid(self, form):
