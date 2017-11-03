@@ -45,7 +45,7 @@
       </tr>
       <tr{% if object.is_manual %} class="success" {% endif %}>
         <td>Manuel</td>
-        <td>{{ object.manual_price_usual }} €<span class="changed_price"> <i class="fa fa-long-arrow-right"></i> <span id="new_price_usual"></span> €</span></td>
+        <td>{{ object.manual_price }} €<span class="changed_price"> <i class="fa fa-long-arrow-right"></i> <span id="new_price_usual"></span> €</span></td>
         {% if object.type == 'container' %}
             <td>{{ object.manual_price }} €<span class="changed_price"> <i class="fa fa-long-arrow-right"></i> <span id="new_price_container"></span> €</span></td>
         {% endif %}
