@@ -37,7 +37,7 @@
       </tr>
       <tr{% if not object.is_manual %} class="success" {% endif %}>
         <td>Automatique (marge {% if margin_profit %}{{ margin_profit }}%{% else %}non définie{% endif %})</td>
-        <td>{{ object.calculated_price_usual }} €</td>
+        <td>{{ object.get_automatic_price() }} €</td>
       {% if object.type == 'container' %}
           <td>{{ object.set_calculated_price_mean }} €</td>
       {% endif %}
