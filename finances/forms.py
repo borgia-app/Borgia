@@ -229,20 +229,6 @@ class SelfLydiaCreateForm(forms.Form):
                 ])
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 class SharedEventCreateForm(forms.Form):
     description = forms.CharField(label='Description')
     date = forms.DateField(label='Date de l\'événement', widget=forms.DateInput(attrs={'class': 'datepicker'}))

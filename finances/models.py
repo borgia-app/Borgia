@@ -419,13 +419,15 @@ class ExceptionnalMovement(models.Model):
 
 class SharedEvent(models.Model):
     """
-    Une évènement partagé et payé par plusieurs personnes
+    Une évènement partagé et payé par plusieurs personnes (users)
     ex: un repas
 
     Remarque :
-    les participants sont dans la relation m2m participants.
+    les participants sont dans la relation m2m users.
     Cependant, cette liste n'est pas ordonnée et deux demande de query peuvent
     renvoyer deux querys ordonnés différement
+
+    --- OLD ---
     Du coup on stocke le duo [participant_pk, ponderation] dans une liste
     dumpé
     JSON dans le string "ponderation"
@@ -434,6 +436,7 @@ class SharedEvent(models.Model):
     Lors de la suppression / ajout il faut utiliser les méthodes
     add_participant et remove_participant pour faire ca
     proprement.
+    --- ---
     """
     description = models.CharField('Description', max_length=254)
     date = models.DateField('Date Evenement', default=now)
@@ -447,17 +450,11 @@ class SharedEvent(models.Model):
     remark = models.CharField('Remarque', max_length=254, null=True, blank=True)
     manager = models.ForeignKey('users.User', related_name='manager',
         on_delete=models.CASCADE)
-    participants = models.ManyToManyField('users.User', blank=True,
-                                          related_name='participants')
+    users = models.ManyToManyField('users.User',
+                                    through='PonderationsUser',
+                                    #related_name='people'
+                                    )
     allow_self_registeration = models.BooleanField('Autoriser la self-préinscription', default=True)
-    registered = models.ManyToManyField('users.User', blank=True,
-                                        related_name='registered')
-    ponderation = models.CharField(
-        'Liste ordonnée participants - pondérations',
-        max_length=10000, default='[]')
-    final_price_per_ponderation = models.DecimalField('Prix par ponderation', decimal_places=2, max_digits=9,
-                                null=True, blank=True,
-                                validators=[MinValueValidator(Decimal(0))])
 
     def __str__(self):
         """
@@ -468,115 +465,44 @@ class SharedEvent(models.Model):
         """
         return self.description + ' ' + str(self.date)
 
-    def set_ponderation(self, x):
-        """
-        Transforme la liste x en string JSON qui est stocké dans ponderation
-        :param x: liste [[user_pk, ponderation], [user_pk, ponderation], ...]
-        :return:
-        """
-        self.ponderation = json.dumps(x)
-        if self.ponderation == 'null':
-            self.ponderation = '[]'
-        self.save()
-
-    def get_ponderation(self):
-        """
-        Transforme le string JSON ponderation en une liste
-        :return: liste ponderation [[user_pk, ponderation], [user_pk,
-        ponderation], ...]
-        """
-        list_ponderation = []
-        for e in json.loads(self.ponderation):
-            list_ponderation.append(e)
-        return list_ponderation
-
     def remove_participant(self, user):
         """
-        Suppresion propre d'un participant (m2m participants et ponderation)
+        Suppresion des ponderations d'un participants. Supprime simplement l'utilisateur si celui-ci n'est pas inscrit.
         :param user: user à supprimer
         :return:
         """
-        # Suppresion de l'user dans participants
-        self.participants.remove(user)
+
+        # Suppresion de l'user dans users.
+        self.users.remove(user)
         self.save()
 
-        # Suppresion du premier élément de pondération qui correspond à
-        # l'user_pk
-        for e in self.get_ponderation():
-            if e[0] == user.pk:
-                new_ponderation = self.get_ponderation()
-                new_ponderation.remove(e)
-                self.set_ponderation(new_ponderation)
-                break
 
+    # NEED TO BE CHANGED
     def add_participant(self, user, ponderation):
         """
-        Ajout propre d'un participant (m2m participant et ponderation)
-        :param user: user à ajouter
-        :param ponderation: ponderation liée à user
+        Ajout d'un nombre de ponderation à l'utilisateur.
+        :param user: user associé
+        :param ponderation: ponderation à ajouter
         :return:
         """
 
-        # Enregistrement dans une nouvelle liste (le traitement direct sur
-        # get_ponderation() ne semble pas fonctionner)
-        old_ponderation = self.get_ponderation()
-        new_ponderation = []
+        # if the user doesn't exist in the event already
+        if user not in self.users.all():
+            self.users.add(user)
 
-        # Si l'user est déjà dans la liste, on ne l'ajoute pas
-        in_list = False
-        for e in old_ponderation:
-            new_ponderation.append(e)
-            if e[0] == user.pk:
-                in_list = True
-                # Mais on lui rajoute la ponderation
-                e[1]+=ponderation
+        self.users.get(user).ponderations_participation += ponderation
 
-        # Si pas dans la liste, on l'ajoute
-        if in_list is False:
-            new_ponderation.append([user.pk, ponderation])
-            self.participants.add(user)
-        # MAJ
-        self.set_ponderation(new_ponderation)
-
-    def list_of_participants_ponderation(self):
-        """
-        Forme une liste des participants [[user, ponderation],
-        [user, ponderation]] à partir de la liste ponderation
-        :return: liste_u_p [[user, ponderation], [user, ponderation]]
-        """
-        list_u_p = []
-        for e in self.get_ponderation():
-            list_u_p.append([get_user_model().objects.get(pk=e[0]), e[1]])
-        return list_u_p
-
-    def list_of_registered_ponderation(self):
-        """
-        Forme une liste des préinscrits [[user, 1], [user, 1]] à partir des
-        préinscrits. La pondération d'un préinscrit est toujours de 1
-        :return: liste_u_p [[user, 1], [user, 1]]
-        """
-        list_u_p = []
-        for u in self.registered.all():
-            list_u_p.append([u, 1])
-        return list_u_p
-
+    # NEED TO BE CHANGED
     def get_price_of_user(self, user):
 	    # Calcul du prix par ponderation
         if isinstance(self.price, Decimal):
-            total_ponderation = 0
-            for e in self.list_of_participants_ponderation():
-                total_ponderation += e[1]
-            self.final_price_per_ponderation = round(self.price / total_ponderation, 2)
-
-            for u in self.get_ponderation():
-                if u[0] == user.pk:
-                    ponderation_of_user = u[1]
-
-                    return self.final_price_per_ponderation * ponderation_of_user
+            total_ponderations_participants = self.get_total_ponderations_participants
+            return round(self.price / total_ponderations_participants * ponderation_of_user,2)
 
         else:
              return 0
 
+    # NEED TO BE CHANGED
     def pay(self, operator, recipient):
         """
         Procède au paiement de l'évenement par les participants.
@@ -614,6 +540,13 @@ class SharedEvent(models.Model):
     def wording(self):
         return 'Evenement ' + self.description + ' ' + str(self.date)
 
+    def get_total_ponderations_participants(self):
+        total = 0
+        for e in self.ponderationsuser_set.all():
+            total += e.ponderations_participation
+        return total
+
+
     class Meta:
         """
         Define Permissions for SharedEvent.
@@ -625,3 +558,13 @@ class SharedEvent(models.Model):
             ('proceed_payment_sharedevent',
              'Procéder au paiement des événements communs'),
         )
+
+
+class PonderationsUser(models.Model):
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE) # Supprime la ponderation si l'utilisateur est supprimé
+    shared_event = models.ForeignKey(SharedEvent, on_delete=models.CASCADE) # Supprime la ponderation si l'event est supprimé
+    ponderations_registeration = models.IntegerField(default=0)
+    ponderations_participation = models.IntegerField(default=0)
+
+    def __unicode__(self):
+        return "%s possede %s parts dans l'événement %s" % (self.user, self.ponderations_participation, self.shared_event)
