@@ -171,7 +171,7 @@ class User(AbstractUser):
       self.virtual_balance = self.balance - solde_prev
 	  #TODO: notify if forecast balance is negative
       self.save()
-		 
+
     def year_pg(self):
         """
         Return the promotion's year of the user, under the Gadz'Art standard.
@@ -239,12 +239,12 @@ class User(AbstractUser):
 
         :returns: list of objects
         """
-        # TODO; shared event
+
         sales = Sale.objects.filter(sender=self)
         transferts = Transfert.objects.filter(Q(sender=self) | Q(recipient=self))
         rechargings = Recharging.objects.filter(sender=self)
         exceptionnal_movements = ExceptionnalMovement.objects.filter(recipient=self)
-        shared_events = SharedEvent.objects.filter(participants=self)
+        shared_events = SharedEvent.objects.filter(done=True, participants=self)
         for e in shared_events:
             e.amount = e.get_price_of_user(self)
 

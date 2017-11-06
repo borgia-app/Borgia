@@ -546,7 +546,7 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
         }
 
         # Shared event
-        sharedevents_list = SharedEvent.objects.filter(participants=self.request.user).order_by('-datetime')
+        sharedevents_list = SharedEvent.objects.filter(done=True, participants=self.request.user).order_by('-datetime')
         for obj in sharedevents_list:
             obj.amount = obj.get_price_of_user(self.request.user)
 
