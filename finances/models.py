@@ -449,6 +449,7 @@ class SharedEvent(models.Model):
         on_delete=models.CASCADE)
     participants = models.ManyToManyField('users.User', blank=True,
                                           related_name='participants')
+    allow_self_registeration = models.BooleanField('Autoriser la self-préinscription', default=True)
     registered = models.ManyToManyField('users.User', blank=True,
                                         related_name='registered')
     ponderation = models.CharField(

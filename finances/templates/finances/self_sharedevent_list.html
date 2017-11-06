@@ -28,10 +28,12 @@
                 {% if user in sharedevent.registered.all %}
                     Oui
                 {% else %}
-                    Non,
-                    <a
-                    href="{% url 'url_self_sharedevent_registration' group_name=group.name pk=sharedevent.pk %}"
-                    class="btn btn-xs">se préinscrire</a>
+                    Non
+                    {% if e.allow_self_registeration %},
+                      <a
+                      href="{% url 'url_self_sharedevent_registration' group_name=group.name pk=sharedevent.pk %}"
+                      class="btn btn-xs">se préinscrire</a>
+                    {% endif %}
                 {% endif %}
             </td>
             <td>

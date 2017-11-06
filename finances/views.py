@@ -1257,9 +1257,10 @@ class SelfSharedEventRegistration(GroupPermissionMixin, View):
     def get(self, request, *args, **kwargs):
         try:
             se = SharedEvent.objects.get(pk=kwargs['pk'])
-            if request.user not in se.registered.all():
-                se.registered.add(request.user)
-                se.save()
+            if se.allow_self_registeration:
+                if request.user not in se.registered.all():
+                    se.registered.add(request.user)
+                    se.save()
         except ObjectDoesNotExist:
             pass
         try:
@@ -1286,6 +1287,7 @@ class SharedEventCreate(GroupPermissionMixin, FormView,
         se = SharedEvent.objects.create(
             description=form.cleaned_data['description'],
             date=form.cleaned_data['date'],
+            allow_self_registeration=form.cleaned_data['allow_self_registeration'],
             manager=self.request.user)
         if form.cleaned_data['price']:
             se.price = form.cleaned_data['price']

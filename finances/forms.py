@@ -249,6 +249,7 @@ class SharedEventCreateForm(forms.Form):
     price = forms.DecimalField(label='Prix total (vide si pas encore connu)', decimal_places=2, max_digits=9,
                                required=False, min_value=0)
     bills = forms.CharField(label='Factures liées (vide si pas encore connu)', required=False)
+    allow_self_registeration = forms.BooleanField(label='Autoriser la self préinscription', initial=True, required=False)
 
 
 class SharedEventManageListForm(forms.Form):
