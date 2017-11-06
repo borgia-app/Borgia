@@ -1469,7 +1469,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
                 state = 'registered'
 
         # Sinon on choisit en fonction de la date de l'event
-        # S'il est passé, on liste les participants par défaut, sinon on liste les inscrits
+        # S'il est passé, on liste les participants par défaut, sinon on liste les préinscrits
         else:
             initial_list_user_form = {
                 'state': 'participants',
@@ -1485,7 +1485,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
         if request.GET.get('no_price') == 'True':
             payment_error = 'Veuillez renseigner le prix de l\'événement ! '
-        
+
         if request.GET.get('no_participant') == 'True':
             payment_error = 'Veuillez ajouter au moins un participant à l\'événement ! '
 
@@ -1568,7 +1568,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
             if upload_json_form.is_valid():
                 lists = list_user_ponderation_errors_from_list(request.FILES['upload_json_form-file'],
                                                                False)
-                # Enregistrement des participants/inscrits et des pondérations
+                # Enregistrement des participants/préinscrits et des pondérations
                 if upload_json_form.cleaned_data['state'] == 'participants':
                     for i, u in enumerate(lists[0]):
                         try:
@@ -1752,7 +1752,7 @@ class SharedEventRmRegistered(GroupPermissionMixin, View):
         # Même en ayant la permission, on ne modifie plus une event terminé
         elif se.done is True:
             raise PermissionDenied
-        # Si la date est passé et que le payment n'est pas fait, on ne modifie plus les inscrits
+        # Si la date est passé et que le payment n'est pas fait, on ne modifie plus les préinscrits
         elif datetime.date(now()) > se.date:
             raise PermissionDenied
 
@@ -1795,8 +1795,8 @@ class SharedEventProceedPayment(GroupPermissionMixin, View):
               return redirect(reverse(
                 'url_sharedevent_update',
                 kwargs={'group_name': self.group.name, 'pk': se.pk}
-              ) + '?no_participant=True')   
-            
+              ) + '?no_participant=True')
+
         else:
             return redirect(reverse(
                 'url_sharedevent_update',

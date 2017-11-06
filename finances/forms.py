@@ -261,14 +261,14 @@ class SharedEventManageListForm(forms.Form):
 
 class SharedEventManageUserListForm(forms.Form):
     order_by = forms.ChoiceField(label='Trier par', choices=(('last_name', 'Nom'), ('surname', 'Bucque')))
-    state = forms.ChoiceField(label='Lister les', choices=(('registered', 'Inscrits'), ('participants', 'Participants')))
+    state = forms.ChoiceField(label='Lister les', choices=(('registered', 'Préinscrits'), ('participants', 'Participants')))
 
 
 class SharedEventManageUploadJSONForm(forms.Form):
     file = forms.FileField(label='Fichier de données')
     state = forms.ChoiceField(
         label='Etat',
-        choices=(('registered', 'Inscrit'), ('participants', 'Participant')))
+        choices=(('registered', 'Préinscrit'), ('participants', 'Participant')))
 
 
 class SharedEventFinishForm(forms.Form):
@@ -283,7 +283,7 @@ class SharedEventManageUpdateForm(forms.Form):
 class SharedEventManageAddForm(forms.Form):
     username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
                                validators=[autocomplete_username_validator])
-    state = forms.ChoiceField(choices=(('registered', 'Inscrit'), ('participant', 'Participant')))
+    state = forms.ChoiceField(choices=(('registered', 'Préinscrit'), ('participant', 'Participant')))
     ponderation = forms.IntegerField(label='Pondération', min_value=0, required=False)
 
     def clean_ponderation(self):
@@ -298,7 +298,7 @@ class SharedEventManageAddForm(forms.Form):
 
 class SharedEventManageDownloadXlsxForm(forms.Form):
     state = forms.ChoiceField(label='Selection',
-                              choices=(('year', 'Listes de promotions'), ('registered', 'Inscrits'),
+                              choices=(('year', 'Listes de promotions'), ('registered', 'Préinscrit'),
                                        ('participants', 'Participants')))
 
     def __init__(self, *args, **kwargs):

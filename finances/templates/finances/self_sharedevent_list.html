@@ -4,7 +4,7 @@
 {% block content %}
       <div class="panel panel-default">
         <div class="panel-heading">
-          Liste 
+          Liste
           {% if group|has_group_perm:"add_sharedevent" %}
             <a class="btn btn-xs btn-success" href="{% url 'url_sharedevent_create' group_name=group.name %}">Nouveau</a>
           {% endif %}
@@ -14,8 +14,8 @@
             <th>Date</th>
             <th>Description</th>
             <th>Gestionnaire</th>
-            <th>Inscrits / Participants</th>
-            <th>Inscrit</th>
+            <th>Préinscrits / Participants</th>
+            <th>Préinscrit</th>
             <th>Gestion</th>
           </tr>
           {% for sharedevent in sharedevent_list %}
@@ -31,7 +31,7 @@
                     Non,
                     <a
                     href="{% url 'url_self_sharedevent_registration' group_name=group.name pk=sharedevent.pk %}"
-                    class="btn btn-xs">s'inscrire</a>
+                    class="btn btn-xs">se préinscrire</a>
                 {% endif %}
             </td>
             <td>

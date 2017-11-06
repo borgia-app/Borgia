@@ -550,8 +550,8 @@ class SharedEvent(models.Model):
 
     def list_of_registered_ponderation(self):
         """
-        Forme une liste des inscrits [[user, 1], [user, 1]] à partir des
-        inscrits. La pondération d'un inscrit est toujours de 1
+        Forme une liste des préinscrits [[user, 1], [user, 1]] à partir des
+        préinscrits. La pondération d'un préinscrit est toujours de 1
         :return: liste_u_p [[user, 1], [user, 1]]
         """
         list_u_p = []
@@ -572,7 +572,7 @@ class SharedEvent(models.Model):
                     ponderation_of_user = u[1]
 
                     return self.final_price_per_ponderation * ponderation_of_user
-                
+
         else:
              return 0
 
@@ -618,7 +618,7 @@ class SharedEvent(models.Model):
         Define Permissions for SharedEvent.
         """
         permissions = (
-            ('register_sharedevent', 'S\'inscrire à un événement commun'),
+            ('register_sharedevent', 'Se préinscrire à un événement commun'),
             ('list_sharedevent', 'Lister les événements communs'),
             ('manage_sharedevent', 'Gérer les événements communs'),
             ('proceed_payment_sharedevent',

@@ -154,7 +154,7 @@
             {% else %}
                 <a class="btn btn-danger"
                 href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk='ALL' %}">
-                Supprimer tous les inscrits</a>
+                Supprimer tous les préinscrits</a>
             {% endif %}
         {% endif %}
     </p>
@@ -291,7 +291,7 @@
 </script>
 
 <script>
-    // Masquage de pondération dans le cas d'ajout manuel d'un inscrit
+    // Masquage de pondération dans le cas d'ajout manuel d'un préinscrit
     display_ponderation();
 
     $('#id_add_user_form-state').change(function(){
