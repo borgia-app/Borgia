@@ -124,12 +124,16 @@
             <input type=hidden name="order_by" value="{{ order_by }}" />
             <input type=hidden name="next" value="{{ next }}" />
             {{ add_user_form.username.error_messages }} {{ add_user_form.state.error_messages }} {{ add_user_form.ponderation.error_messages }}
-            <p>{{ add_user_form.username.error }}
+            <p>
+              {{ add_user_form.username.error }}
               {{ add_user_form.username.label }} : {{ add_user_form.username }}
+
               {{ add_user_form.state.error }}{{ add_user_form.state }}
-              <span id="ponderation">{{ add_user_form.ponderation.error }}
-                {{ add_user_form.ponderation.label }} : {{ add_user_form.ponderation }}
-              </span> <button type='submit' class="btn btn-warning">Ajouter</button></p>
+
+              {{ add_user_form.ponderation.error }}
+              {{ add_user_form.ponderation.label }} : {{ add_user_form.ponderation }}
+              <button type='submit' class="btn btn-warning">Ajouter</button>
+            </p>
         </form>
     {% endif %}
   </div>
@@ -290,7 +294,7 @@
   }
 </script>
 
-<script>
+<!-- <script>
     // Masquage de pondération dans le cas d'ajout manuel d'un préinscrit
     display_ponderation();
 
@@ -306,7 +310,7 @@
             $('#ponderation').show();
         }
     }
-</script>
+</script> -->
 <script>
     // Bouton "plus" pour la liste des promos
     list_year_fields = document.getElementById("list_year").getElementsByTagName("span");

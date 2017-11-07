@@ -271,16 +271,7 @@ class SharedEventManageAddForm(forms.Form):
     username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
                                validators=[autocomplete_username_validator])
     state = forms.ChoiceField(choices=(('registered', 'Préinscrit'), ('participant', 'Participant')))
-    ponderation = forms.IntegerField(label='Pondération', min_value=0, required=False)
-
-    def clean_ponderation(self):
-        data = self.cleaned_data['ponderation']
-
-        if self.cleaned_data['state'] == 'participant':
-            if data == '':
-                raise ValidationError('Obligatoire')
-
-        return data
+    ponderation = forms.IntegerField(label='Pondération', min_value=0, required=True)
 
 
 class SharedEventManageDownloadXlsxForm(forms.Form):

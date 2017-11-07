@@ -465,6 +465,34 @@ class SharedEvent(models.Model):
         """
         return self.description + ' ' + str(self.date)
 
+    def list_of_participants_ponderation(self):
+        """
+        Forme une liste des participants [[user, ponderation],
+        [user, ponderation]] à partir de la liste ponderation
+        :return: liste_u_p [[user, ponderation], [user, ponderation]]
+        """
+        list_u_p = []
+        for user in self.users.all():
+            e = self.ponderationsuser_set.get(user=user, shared_event=self)
+            ponderation = e.ponderations_participation
+            if ponderation > 0:
+                list_u_p.append([user, ponderation])
+        return list_u_p
+
+    def list_of_registereds_ponderation(self):
+        """
+        Forme une liste des participants [[user, ponderation],
+        [user, ponderation]] à partir de la liste ponderation
+        :return: liste_u_p [[user, ponderation], [user, ponderation]]
+        """
+        list_u_p = []
+        for user in self.users.all():
+            e = self.ponderationsuser_set.get(user=user, shared_event=self)
+            ponderation = e.ponderations_registeration
+            if ponderation > 0:
+                list_u_p.append([user, ponderation])
+        return list_u_p
+
     def remove_participant(self, user):
         """
         Suppresion de l'utilisateur, purement et simplement, de l'événement.
@@ -473,38 +501,41 @@ class SharedEvent(models.Model):
         """
 
         # Suppresion de l'user dans users.
-        self.users.remove(user)
-        self.save()
+        PonderationsUser.objects.filter(user=user, shared_event=self).delete()
 
-
-    # NEED TO BE CHANGED
-    def add_participant(self, user, ponderation):
+    def add_participant(self, user, ponderation, isParticipant=True):
         """
         Ajout d'un nombre de ponderation à l'utilisateur.
         :param user: user associé
         :param ponderation: ponderation à ajouter
+        :param isParticipant: est ce qu'on ajoute un participant ?
         :return:
         """
 
         # if the user doesn't exist in the event already
         if user not in self.users.all():
-            self.users.add(user)
+            if isParticipant:
+                PonderationsUser.objects.create(user=user, shared_event=self, ponderations_participation = ponderation)
+            else:
+                PonderationsUser.objects.create(user=user, shared_event=self, ponderations_registeration = ponderation)
+        else:
+            e = self.ponderationsuser_set.get(user=user, shared_event=self)
+            if isParticipant:
+                e.ponderations_participation = ponderation
+            else:
+                e.ponderations_registeration = ponderation
+            e.save()
 
-        u = self.ponderationsuser_set.get(user=user, shared_event=self)
-        u.ponderations_participation = ponderation
-        u.save()
-
-    # NEED TO BE CHANGED
     def get_price_of_user(self, user):
 	    # Calcul du prix par ponderation
         if isinstance(self.price, Decimal):
-            total_ponderations_participants = self.get_total_ponderations_participants
+            total_ponderations_participants = self.get_total_ponderations_participants()
+            ponderation_of_user = self.ponderationsuser_set.get(user=user).ponderations_participation
             return round(self.price / total_ponderations_participants * ponderation_of_user,2)
 
         else:
              return 0
 
-    # NEED TO BE CHANGED
     def pay(self, operator, recipient):
         """
         Procède au paiement de l'évenement par les participants.
@@ -516,7 +547,7 @@ class SharedEvent(models.Model):
         """
 
         # Calcul du prix par ponderation
-        total_ponderation = self.get_total_ponderations_participants
+        total_ponderation = self.get_total_ponderations_participants()
         final_price_per_ponderation = round(self.price / total_ponderation, 2)
 
         for e in self.ponderationsuser_set.all():
@@ -550,7 +581,6 @@ class SharedEvent(models.Model):
         for e in self.ponderationsuser_set.all():
             total += e.ponderations_participation
         return total
-
 
     class Meta:
         """

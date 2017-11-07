@@ -1322,7 +1322,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         if state == 'participants':
             return se.list_of_participants_ponderation()
         elif state == 'registered':
-            return se.list_of_registered_ponderation()
+            return se.list_of_registereds_ponderation()
 
     @staticmethod
     def get_key(item, order_by):
@@ -1472,7 +1472,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
                     for i, u in enumerate(lists[0]):
                         try:
                             if lists[1][i] > 0:
-                                se.add_participant(u, lists[1][i])
+                                se.add_participant(u, lists[1][i], True)
                         except KeyError:
                             pass
                 else:
@@ -1486,12 +1486,10 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         elif action == 'add_user':
             add_user_form = SharedEventManageAddForm(request.POST, prefix='add_user_form')
             if add_user_form.is_valid():
-                if add_user_form.cleaned_data['state'] == 'registered':
-                    se.registered.add(User.objects.get(username=add_user_form.cleaned_data['username']))
-                    se.save()
-                elif add_user_form.cleaned_data['state'] == 'participant':
-                    se.add_participant(User.objects.get(username=add_user_form.cleaned_data['username']),
-                                       add_user_form.cleaned_data['ponderation'])
+                isParticipant = add_user_form.cleaned_data['state'] == 'participant' # True pour un participant
+
+                se.add_participant(User.objects.get(username=add_user_form.cleaned_data['username']),
+                                    add_user_form.cleaned_data['ponderation'], isParticipant)
                 query_user = self.get_query_user(state)
 
         elif action == 'download_xlsx':
@@ -1531,7 +1529,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
                 elif download_xlsx_form.cleaned_data['state'] == 'registered':
                     data = []
-                    for e in se.list_of_registered_ponderation():
+                    for e in se.list_of_registereds_ponderation():
                         u = e[0]
                         data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
                     worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
@@ -1732,7 +1730,7 @@ class SharedEventChangePonderation(GroupPermissionMixin, View):
 
             if pond > 0:
                 # Changement de la pondération
-                se.add_participant(user, pond)
+                se.add_participant(user, pond, True)
 
                 # Réponse
                 response = pond
