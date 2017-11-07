@@ -164,7 +164,7 @@ class User(AbstractUser):
 
     def forecast_balance(self):
       # Get all undone shared events where user is involved as participant
-      shared_events = SharedEvent.objects.filter(participants__username__contains= self.username, done=False)
+      shared_events = SharedEvent.objects.filter(users__username__contains= self.username, done=False)
       solde_prev = 0
       for se in shared_events:
         solde_prev += se.get_price_of_user(self)
@@ -244,7 +244,7 @@ class User(AbstractUser):
         transferts = Transfert.objects.filter(Q(sender=self) | Q(recipient=self))
         rechargings = Recharging.objects.filter(sender=self)
         exceptionnal_movements = ExceptionnalMovement.objects.filter(recipient=self)
-        shared_events = SharedEvent.objects.filter(done=True, participants=self)
+        shared_events = SharedEvent.objects.filter(done=True, users=self)
         for e in shared_events:
             e.amount = e.get_price_of_user(self)
 

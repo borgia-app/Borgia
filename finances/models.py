@@ -467,7 +467,7 @@ class SharedEvent(models.Model):
 
     def remove_participant(self, user):
         """
-        Suppresion des ponderations d'un participants. Supprime simplement l'utilisateur si celui-ci n'est pas inscrit.
+        Suppresion de l'utilisateur, purement et simplement, de l'événement.
         :param user: user à supprimer
         :return:
         """
@@ -490,7 +490,9 @@ class SharedEvent(models.Model):
         if user not in self.users.all():
             self.users.add(user)
 
-        self.users.get(user).ponderations_participation += ponderation
+        u = self.ponderationsuser_set.get(user=user, shared_event=self)
+        u.ponderations_participation = ponderation
+        u.save()
 
     # NEED TO BE CHANGED
     def get_price_of_user(self, user):
@@ -514,20 +516,17 @@ class SharedEvent(models.Model):
         """
 
         # Calcul du prix par ponderation
-        total_ponderation = 0
-        for e in self.list_of_participants_ponderation():
-            total_ponderation += e[1]
-        self.final_price_per_ponderation = round(self.price / total_ponderation, 2)
-        self.save()
+        total_ponderation = self.get_total_ponderations_participants
+        final_price_per_ponderation = round(self.price / total_ponderation, 2)
 
-        for u in self.list_of_participants_ponderation():
-            u[0].debit(self.final_price_per_ponderation*u[1])
-            if (u[0].balance < 0):
+        for e in self.ponderationsuser_set.all():
+            e.user.debit(final_price_per_ponderation * e.ponderations_participation)
+            if (e.user.balance < 0):
 			    # If negative balance after event
 		        # We notify
                 notify(notification_class_name='negative_balance',
                    actor=operator,
-                   recipient=u[0],
+                   recipient=e.user,
                    target_object=self
                 )
 
@@ -538,7 +537,13 @@ class SharedEvent(models.Model):
         self.save()
 
     def wording(self):
-        return 'Evenement ' + self.description + ' ' + str(self.date)
+        return 'Evenement ' + self.description + ' Le ' + str(self.date)
+
+    def get_total_ponderations_registereds(self):
+        total = 0
+        for e in self.ponderationsuser_set.all():
+            total += e.ponderations_registeration
+        return total
 
     def get_total_ponderations_participants(self):
         total = 0
