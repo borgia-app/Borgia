@@ -1321,8 +1321,8 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         se = SharedEvent.objects.get(pk=self.kwargs['pk'])
         if state == 'participants':
             return se.list_of_participants_ponderation()
-        elif state == 'registered':
-            return se.list_of_registereds_ponderation()
+        elif state == 'registrants':
+            return se.list_of_registrants_ponderation()
 
     @staticmethod
     def get_key(item, order_by):
@@ -1364,8 +1364,8 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
                     'state': 'registered',
                     'order_by': 'last_name',
                 }
-                query_user = sorted(self.get_query_user('registered'), key=lambda item: getattr(item[0], 'last_name'))
-                state = 'registered'
+                query_user = sorted(self.get_query_user('registrants'), key=lambda item: getattr(item[0], 'username'))
+                state = 'registrants'
 
         # Sinon on choisit en fonction de la date de l'event
         # S'il est passé, on liste les participants par défaut, sinon on liste les préinscrits
@@ -1447,9 +1447,9 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
                 if list_user_form.cleaned_data['state'] == 'participants':
                     query_user = self.get_query_user('participants')
                     state = 'participants'
-                if list_user_form.cleaned_data['state'] == 'registered':
-                    query_user = self.get_query_user('registered')
-                    state = 'registered'
+                if list_user_form.cleaned_data['state'] == 'registrants':
+                    query_user = self.get_query_user('registrants')
+                    state = 'registrants'
                 order_by = list_user_form.cleaned_data['order_by']
                 query_user = sorted(query_user, key=lambda item: getattr(item[0], order_by))
 
@@ -1529,7 +1529,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
                 elif download_xlsx_form.cleaned_data['state'] == 'registered':
                     data = []
-                    for e in se.list_of_registereds_ponderation():
+                    for e in se.list_of_registrants_ponderation():
                         u = e[0]
                         data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
                     worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)

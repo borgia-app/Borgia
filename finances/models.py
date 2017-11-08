@@ -479,7 +479,7 @@ class SharedEvent(models.Model):
                 list_u_p.append([user, ponderation])
         return list_u_p
 
-    def list_of_registereds_ponderation(self):
+    def list_of_registrants_ponderation(self):
         """
         Forme une liste des participants [[user, ponderation],
         [user, ponderation]] à partir de la liste ponderation
@@ -570,7 +570,7 @@ class SharedEvent(models.Model):
     def wording(self):
         return 'Evenement ' + self.description + ' Le ' + str(self.date)
 
-    def get_total_ponderations_registereds(self):
+    def get_total_ponderations_registrants(self):
         total = 0
         for e in self.ponderationsuser_set.all():
             total += e.ponderations_registeration
