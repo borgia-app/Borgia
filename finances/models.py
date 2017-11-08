@@ -465,11 +465,23 @@ class SharedEvent(models.Model):
         """
         return self.description + ' ' + str(self.date)
 
+    def list_of_users_ponderation(self):
+        """
+        Forme une liste des users [[user1, ponderation_registration, ponderation_participation],...]
+        à partir de la liste des users
+        :return: liste_u_p [[user1, ponderation_registration, ponderation_participation],...]
+        """
+        list_u_all = []
+        for user in self.users.all():
+            e = self.ponderationsuser_set.get(user=user, shared_event=self)
+            list_u_all.append([user, e.ponderations_registeration, e.ponderations_participation])
+        return list_u_all
+
     def list_of_participants_ponderation(self):
         """
-        Forme une liste des participants [[user, ponderation],
-        [user, ponderation]] à partir de la liste ponderation
-        :return: liste_u_p [[user, ponderation], [user, ponderation]]
+        Forme une liste des participants [[user, ponderation],...]
+        à partir de la liste des users
+        :return: liste_u_p [[user, ponderation],...]
         """
         list_u_p = []
         for user in self.users.all():
@@ -481,19 +493,19 @@ class SharedEvent(models.Model):
 
     def list_of_registrants_ponderation(self):
         """
-        Forme une liste des participants [[user, ponderation],
-        [user, ponderation]] à partir de la liste ponderation
-        :return: liste_u_p [[user, ponderation], [user, ponderation]]
+        Forme une liste des participants [[user, ponderation],...]
+        à partir de la liste des users
+        :return: liste_u_p [[user, ponderation],...]
         """
-        list_u_p = []
+        list_u_r = []
         for user in self.users.all():
             e = self.ponderationsuser_set.get(user=user, shared_event=self)
             ponderation = e.ponderations_registeration
             if ponderation > 0:
-                list_u_p.append([user, ponderation])
-        return list_u_p
+                list_u_r.append([user, ponderation])
+        return list_u_r
 
-    def remove_participant(self, user):
+    def remove_participant(self, user, isParticipant=True):
         """
         Suppresion de l'utilisateur, purement et simplement, de l'événement.
         :param user: user à supprimer

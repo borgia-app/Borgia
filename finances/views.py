@@ -1319,7 +1319,9 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get_query_user(self, state):
         se = SharedEvent.objects.get(pk=self.kwargs['pk'])
-        if state == 'participants':
+        if state == 'users':
+            return se.list_of_users_ponderation()
+        elif state == 'participants':
             return se.list_of_participants_ponderation()
         elif state == 'registrants':
             return se.list_of_registrants_ponderation()
@@ -1352,17 +1354,24 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
         # Si on impose un state directement en GET (en venant d'un lien remove par exemple)
         if self.request.GET.get('state') is not None:
-            if self.request.GET.get('state') == 'participants':
+            if self.request.GET.get('state') == 'users':
+                initial_list_user_form = {
+                    'state': 'users',
+                    'order_by': 'username',
+                }
+                query_user = sorted(self.get_query_user('users'), key=lambda item: getattr(item[0], 'username'))
+                state = 'users'
+            elif self.request.GET.get('state') == 'participants':
                 initial_list_user_form = {
                     'state': 'participants',
-                    'order_by': 'last_name',
+                    'order_by': 'username',
                 }
-                query_user = sorted(self.get_query_user('participants'), key=lambda item: getattr(item[0], 'last_name'))
+                query_user = sorted(self.get_query_user('participants'), key=lambda item: getattr(item[0], 'username'))
                 state = 'participants'
             elif self.request.GET.get('state') == 'registered':
                 initial_list_user_form = {
                     'state': 'registered',
-                    'order_by': 'last_name',
+                    'order_by': 'username',
                 }
                 query_user = sorted(self.get_query_user('registrants'), key=lambda item: getattr(item[0], 'username'))
                 state = 'registrants'
@@ -1444,6 +1453,9 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         if action == 'list_user':
             list_user_form = SharedEventManageUserListForm(request.POST, prefix='list_user_form')
             if list_user_form.is_valid():
+                if list_user_form.cleaned_data['state'] == 'users':
+                    query_user = self.get_query_user('users')
+                    state = 'users'
                 if list_user_form.cleaned_data['state'] == 'participants':
                     query_user = self.get_query_user('participants')
                     state = 'participants'

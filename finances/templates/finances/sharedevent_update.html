@@ -165,11 +165,18 @@
     <table class="table table-default table-hover table-striped">
       <thead>
         <tr>
-            <th>Nom</th>
-            <th>Prénom</th>
+            <th>Username</th>
+            <th>Prénom Nom</th>
             <th>Bucque</th>
-            <th>Prom'ss</th>
-            <th>Pondération</th>
+            {% if done %}
+                <th>Participé à</th>
+            {% elif state == 'users' %}
+                <th>Pré-inscrit à</th>
+                <th>Participe à</th>
+            {% elif state == 'participants' %}
+                <th>Participe à</th>
+            {% elif state == 'registrants' %}
+                <th>Pré-inscrit à</th>
             <th>Prix</th>
             {% if done == False %}<th>Supprimer</th>{% endif %}
         </tr>
@@ -177,15 +184,20 @@
       <tbody>
       {% for u in query_user %}
           <tr>
-              <td>{{ u.0.last_name }}</td>
-              <td>{{ u.0.first_name }}</td>
-              <td>{{ u.0.surname }}</td>
               <td>{{ u.0.username }}</td>
+              <td>{{ u.0.first_name }} {{ u.0.last_name }}</td>
+              <td>{{ u.0.surname }}</td>
+
               <td>
                 {% if done %}
                 <span id="ponderation_{{ u.0.pk }}">{{ u.1 }}</span>
                 {% else %}
-                <input id="ponderation_{{ u.0.pk }}" class="form-control" type="number" min="1" value="{{ u.1 }}"/>
+                  <input id="ponderation_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
+                  {% if state == 'users' %}
+                    </td>
+                    <td>
+                    <input id="ponderation_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.2 }}"/>
+                  {% endif %}
                 {% endif %}
               </td>
               <td id="price_{{ u.0.pk }}">{% if price %}{% else %}indéfini{% endif %}</td>
@@ -197,7 +209,8 @@
                       <a class="btn btn-small btn-danger"
                       href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk=u.0.pk %}">supprimer</a>
                   {% endif %}
-              </td>{% endif %}
+              </td>
+              {% endif %}
           </tr>
       {% endfor %}
       </tbody>
