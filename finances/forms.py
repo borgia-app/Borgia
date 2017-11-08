@@ -248,7 +248,9 @@ class SharedEventManageListForm(forms.Form):
 
 class SharedEventManageUserListForm(forms.Form):
     order_by = forms.ChoiceField(label='Trier par', choices=(('last_name', 'Nom'), ('surname', 'Bucque')))
-    state = forms.ChoiceField(label='Lister les', choices=(('registered', 'Préinscrits'), ('participants', 'Participants')))
+    state = forms.ChoiceField(label='Lister les', choices=(('users', 'Tous les concernés'),
+                                                ('registereds', 'Uniquement les préinscrit'),
+                                                ('participants', 'Uniquement les participant')))
 
 
 class SharedEventManageUploadJSONForm(forms.Form):
@@ -270,7 +272,7 @@ class SharedEventManageUpdateForm(forms.Form):
 class SharedEventManageAddForm(forms.Form):
     username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
                                validators=[autocomplete_username_validator])
-    state = forms.ChoiceField(choices=(('users', 'Tous les concernés'), ('registereds', 'Uniquement les préinscrit'), ('participants', 'Uniquement les participant')))
+    state = forms.ChoiceField(choices=(('registered', 'Préinscrit'), ('participant', 'Participant')))
     ponderation = forms.IntegerField(label='Pondération', min_value=0, required=True, initial=1)
 
 

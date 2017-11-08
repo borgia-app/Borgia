@@ -151,14 +151,14 @@
     </p>
     <p>
         {% if done == False %}
-            {% if state == 'participants' %}
-                <a class="btn btn-danger"
-                href="{% url 'url_sharedevent_rm_participant' group_name=group.name pk=pk participant_pk='ALL' %}">
-                Supprimer tous les participants</a>
+            {% if state == 'registrants' %}
+            <a class="btn btn-danger"
+            href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk='ALL' %}">
+            Supprimer tous les préinscrits</a>
             {% else %}
-                <a class="btn btn-danger"
-                href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk='ALL' %}">
-                Supprimer tous les préinscrits</a>
+              <a class="btn btn-danger"
+              href="{% url 'url_sharedevent_rm_participant' group_name=group.name pk=pk participant_pk='ALL' %}">
+              Supprimer tous les participants</a>
             {% endif %}
         {% endif %}
     </p>
@@ -168,15 +168,16 @@
             <th>Username</th>
             <th>Prénom Nom</th>
             <th>Bucque</th>
-            {% if done %}
-                <th>Participé à</th>
-            {% elif state == 'users' %}
+            {% if state == 'users' %}
                 <th>Pré-inscrit à</th>
                 <th>Participe à</th>
             {% elif state == 'participants' %}
                 <th>Participe à</th>
             {% elif state == 'registrants' %}
                 <th>Pré-inscrit à</th>
+            {% elif done %}
+                <th>Participé à</th>
+            {% endif %}
             <th>Prix</th>
             {% if done == False %}<th>Supprimer</th>{% endif %}
         </tr>
@@ -190,7 +191,7 @@
 
               <td>
                 {% if done %}
-                <span id="ponderation_{{ u.0.pk }}">{{ u.1 }}</span>
+                  {{ u.1 }}
                 {% else %}
                   <input id="ponderation_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
                   {% if state == 'users' %}
@@ -200,14 +201,19 @@
                   {% endif %}
                 {% endif %}
               </td>
-              <td id="price_{{ u.0.pk }}">{% if price %}{% else %}indéfini{% endif %}</td>
-              {% if done == False %}<td>
+              {% if done %}
+              <td>{% if price %}{{ u.2 }}{% else %}Indéfini{% endif %}</td>
+              {% elif state == 'users' %}
+              <td id="price_{{ u.0.pk }}">{% if {{ u.1 }}{% else %}not price %}Indéfini{% endif %}</td>
+              {% endif %}
+              {% if not done %}
+              <td>
                   {% if state == 'participants' %}
                       <a class="btn btn-small btn-danger"
-                      href="{% url 'url_sharedevent_rm_participant' group_name=group.name pk=pk participant_pk=u.0.pk %}">supprimer</a>
+                      href="{% url 'url_sharedevent_rm_participant' group_name=group.name pk=pk participant_pk=u.0.pk %}">Supprimer</a>
                   {% else %}
                       <a class="btn btn-small btn-danger"
-                      href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk=u.0.pk %}">supprimer</a>
+                      href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk=u.0.pk %}">Supprimer</a>
                   {% endif %}
               </td>
               {% endif %}
@@ -252,9 +258,7 @@
 
 <script>
 {% if price %}
-  {% if done %}
-    set_prices_txt()
-  {% else %}
+  {% if not done %}
   set_prices_input()
   $("[id^='ponderation_']").change(function() {
     set_prices_input()
@@ -286,15 +290,6 @@
 
   function price_per_ponderation_input () {
     return {{ price|unlocalize }} / total_ponderation_input()
-  }
-
-  function set_prices_txt () {
-    $("[id^='ponderation_']").each(function() {
-      var id = $(this).attr('id').split('_')[1]
-      var ponderation = Number($(this).text())
-      var r_price = Math.round(Number(ponderation * price_per_ponderation_txt()*100))/100
-      $("#price_" + id).text(r_price + '€')
-    })
   }
 
   function set_prices_input () {
