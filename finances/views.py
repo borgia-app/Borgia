@@ -1426,11 +1426,26 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
     def post(self, request, *args, **kwargs):
 
         # Variables
-        se = SharedEvent.objects.get(pk=kwargs['pk'])
+        try:
+            se = SharedEvent.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
         errors = 0
-        state = request.POST.get('state')
-        order_by = request.POST.get('order_by')
-        query_user = sorted(self.get_query_user(state), key=lambda item: getattr(item[0], order_by))
+        
+        # Vérification des permissions
+        try:
+            if Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all() and request.user != se.manager:
+                raise PermissionDenied
+            state = request.POST.get('state')
+            order_by = request.POST.get('order_by')
+        except ObjectDoesNotExist:
+            raise Http404
+
+        query_user = []
+        try:
+            query_user = sorted(self.get_query_user(state), key=lambda item: getattr(item[0], order_by))
+        except TypeError:
+            pass
 
         # Liaison des forms et détermination du form qui a été submited
         initial_update_form = {
