@@ -1352,33 +1352,33 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         except ObjectDoesNotExist:
             raise Http404
 
-        # Si on impose un state directement en GET (en venant d'un lien remove par exemple)
-        if self.request.GET.get('state') is not None:
-            if self.request.GET.get('state') == 'users':
-                initial_list_user_form = {
-                    'state': 'users',
-                    'order_by': 'username',
-                }
-                query_user = sorted(self.get_query_user('users'), key=lambda item: getattr(item[0], 'username'))
-                state = 'users'
-            elif self.request.GET.get('state') == 'participants':
-                initial_list_user_form = {
-                    'state': 'participants',
-                    'order_by': 'username',
-                }
-                query_user = sorted(self.get_query_user('participants'), key=lambda item: getattr(item[0], 'username'))
-                state = 'participants'
-            elif self.request.GET.get('state') == 'registered':
-                initial_list_user_form = {
-                    'state': 'registered',
-                    'order_by': 'username',
-                }
-                query_user = sorted(self.get_query_user('registrants'), key=lambda item: getattr(item[0], 'username'))
-                state = 'registrants'
-
-        # Sinon on choisit en fonction de la date de l'event
-        # S'il est passé, on liste les participants par défaut, sinon on liste les préinscrits
-        else:
+        # # TODO Si on impose un state directement en GET (en venant d'un lien remove par exemple).
+        # if self.request.GET.get('state') is not None:
+        #     if self.request.GET.get('state') == 'users':
+        #         initial_list_user_form = {
+        #             'state': 'users',
+        #             'order_by': 'username',
+        #         }
+        #         query_user = sorted(self.get_query_user('users'), key=lambda item: getattr(item[0], 'username'))
+        #         state = 'users'
+        #     elif self.request.GET.get('state') == 'participants':
+        #         initial_list_user_form = {
+        #             'state': 'participants',
+        #             'order_by': 'username',
+        #         }
+        #         query_user = sorted(self.get_query_user('participants'), key=lambda item: getattr(item[0], 'username'))
+        #         state = 'participants'
+        #     elif self.request.GET.get('state') == 'registered':
+        #         initial_list_user_form = {
+        #             'state': 'registered',
+        #             'order_by': 'username',
+        #         }
+        #         query_user = sorted(self.get_query_user('registrants'), key=lambda item: getattr(item[0], 'username'))
+        #         state = 'registrants'
+        #
+        # # Sinon on choisit en fonction de la date de l'event
+        # # S'il est passé, on liste les participants par défaut, sinon on liste les préinscrits
+        # else:
             initial_list_user_form = {
                 'state': 'users',
                 'order_by': 'username',
@@ -1645,7 +1645,7 @@ class SharedEventRmParticipant(GroupPermissionMixin, View):
         return redirect(reverse(
             'url_sharedevent_update',
             kwargs={'group_name': self.group.name, 'pk': se.pk}
-        ) + '?state=participants#table_users')
+        ) + '#table_users')# TODO : Keep user search parameters. Ex : '?state=participants#table_users')
 
 
 class SharedEventRmRegistered(GroupPermissionMixin, View):
@@ -1680,7 +1680,7 @@ class SharedEventRmRegistered(GroupPermissionMixin, View):
         return redirect(reverse(
             'url_sharedevent_update',
             kwargs={'group_name': self.group.name, 'pk': se.pk}
-        ) + '?state=registered#table_users')
+        ) + '#table_users')# TODO : Keep user search parameters. Ex : '?state=participants#table_users')
 
 
 class SharedEventProceedPayment(GroupPermissionMixin, View):
