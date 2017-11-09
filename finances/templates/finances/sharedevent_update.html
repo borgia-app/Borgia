@@ -169,17 +169,21 @@
             <th>Prénom Nom</th>
             <th>Bucque</th>
             {% if state == 'users' %}
-                <th>Pré-inscrit à</th>
-                <th>Participe à</th>
+                <th>Préinscrit</th>
+                <th>Pris</th>
             {% elif state == 'participants' %}
-                <th>Participe à</th>
+                <th>Pris</th>
             {% elif state == 'registrants' %}
-                <th>Pré-inscrit à</th>
+                <th>Préinscrit</th>
             {% elif done %}
-                <th>Participé à</th>
+                <th>Pris</th>
             {% endif %}
-            <th>Prix</th>
-            {% if done == False %}<th>Supprimer</th>{% endif %}
+            {% if state != "users" %}
+              <th>Prix</th>
+            {% endif %}
+            {% if done == False %}
+              <th>Supprimer</th>
+            {% endif %}
         </tr>
       </thead>
       <tbody>
@@ -203,15 +207,15 @@
               </td>
               {% if done %}
               <td>{% if price %}{{ u.2 }}{% else %}Indéfini{% endif %}</td>
-              {% elif state == 'users' %}
-              <td id="price_{{ u.0.pk }}">{% if {{ u.1 }}{% else %}not price %}Indéfini{% endif %}</td>
+              {% elif state != "users" %}
+              <td id="price_{{ u.0.pk }}">{% if price %}{{ u.1 }}{% else %}Indéfini{% endif %}</td>
               {% endif %}
               {% if not done %}
               <td>
-                  {% if state == 'participants' %}
+                  {% if state == 'users' or state == 'participants' %}
                       <a class="btn btn-small btn-danger"
                       href="{% url 'url_sharedevent_rm_participant' group_name=group.name pk=pk participant_pk=u.0.pk %}">Supprimer</a>
-                  {% else %}
+                  {% elif state == 'registrants'%}
                       <a class="btn btn-small btn-danger"
                       href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk=u.0.pk %}">Supprimer</a>
                   {% endif %}
