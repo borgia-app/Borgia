@@ -1380,11 +1380,11 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         # S'il est passé, on liste les participants par défaut, sinon on liste les préinscrits
         else:
             initial_list_user_form = {
-                'state': 'participants',
-                'order_by': 'last_name',
+                'state': 'users',
+                'order_by': 'username',
             }
-            query_user = sorted(self.get_query_user('participants'), key=lambda item: getattr(item[0], 'last_name'))
-            state = 'participants'
+            query_user = sorted(self.get_query_user('users'), key=lambda item: getattr(item[0], 'username'))
+            state = 'users'
 
         initial_update_form = {
             'price': se.price,

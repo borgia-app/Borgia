@@ -247,7 +247,7 @@ class SharedEventManageListForm(forms.Form):
 
 
 class SharedEventManageUserListForm(forms.Form):
-    order_by = forms.ChoiceField(label='Trier par', choices=(('last_name', 'Nom'), ('surname', 'Bucque')))
+    order_by = forms.ChoiceField(label='Trier par', choices=(('username', 'Username'), ('last_name', 'Nom'), ('surname', 'Bucque')))
     state = forms.ChoiceField(label='Lister les', choices=(('users', 'Tous les concernés'),
                                                 ('registereds', 'Uniquement les préinscrit'),
                                                 ('participants', 'Uniquement les participant')))
