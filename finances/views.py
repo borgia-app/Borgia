@@ -1337,9 +1337,10 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
             se = SharedEvent.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
-        state = ''
+        # state = ''
+        # initial_list_user_form = {}
+
         query_user = []
-        initial_list_user_form = {}
         payment_error = ''
 
         # Vérification des permissions
@@ -1379,12 +1380,15 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         # # Sinon on choisit en fonction de la date de l'event
         # # S'il est passé, on liste les participants par défaut, sinon on liste les préinscrits
         # else:
-            initial_list_user_form = {
-                'state': 'users',
-                'order_by': 'username',
-            }
-            query_user = sorted(self.get_query_user('users'), key=lambda item: getattr(item[0], 'username'))
-            state = 'users'
+        state = 'users'
+        order_by = 'username'
+
+        initial_list_user_form = {
+            'state': state,
+            'order_by': order_by,
+        }
+        query_user = sorted(self.get_query_user(state), key=lambda item: getattr(item[0], order_by))
+
 
         initial_update_form = {
             'price': se.price,
@@ -1415,7 +1419,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context['query_user'] = query_user
         context['errors'] = 0
         context['state'] = state
-        context['order_by'] = 'last_name'
+        context['order_by'] = order_by
         context['done'] = se.done
         context['payment_error'] = payment_error
         context['remark'] = se.remark
@@ -1431,7 +1435,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         except ObjectDoesNotExist:
             raise Http404
         errors = 0
-        
+
         # Vérification des permissions
         try:
             if Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all() and request.user != se.manager:
