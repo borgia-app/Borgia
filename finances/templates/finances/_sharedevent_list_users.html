@@ -1,0 +1,88 @@
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Utilisateurs
+  </div>
+  <div class="panel-body" id="table_users">
+    <p>
+        {% if errors != 0 %}
+            {{ errors }} erreurs de traitement
+        {% endif %}
+    </p>
+    <p>
+        {% if done == False %}
+            {% if state == 'registrants' %}
+            <a class="btn btn-danger"
+            href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk='ALL' %}">
+            Supprimer tous les préinscrits</a>
+            {% else %}
+              <a class="btn btn-danger"
+              href="{% url 'url_sharedevent_rm_participant' group_name=group.name pk=pk participant_pk='ALL' %}">
+              Supprimer tous les participants</a>
+            {% endif %}
+        {% endif %}
+    </p>
+    <table class="table table-default table-hover table-striped">
+      <thead>
+        <tr>
+            <th>Username</th>
+            <th>Prénom Nom</th>
+            <th>Bucque</th>
+            {% if state == 'users' %}
+                <th>Préinscrit</th>
+                <th>Pris</th>
+            {% elif state == 'participants' %}
+                <th>Pris</th>
+            {% elif state == 'registrants' %}
+                <th>Préinscrit</th>
+            {% elif done %}
+                <th>Pris</th>
+            {% endif %}
+            {% if state != "users" %}
+              <th>Prix</th>
+            {% endif %}
+            {% if done == False %}
+              <th>Supprimer</th>
+            {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+      {% for u in query_user %}
+          <tr>
+              <td>{{ u.0.username }}</td>
+              <td>{{ u.0.first_name }} {{ u.0.last_name }}</td>
+              <td>{{ u.0.surname }}</td>
+
+              <td>
+                {% if done %}
+                  {{ u.1 }}
+                {% else %}
+                  <input id="ponderation_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
+                  {% if state == 'users' %}
+                    </td>
+                    <td>
+                    <input id="ponderation_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.2 }}"/>
+                  {% endif %}
+                {% endif %}
+              </td>
+              {% if done %}
+              <td>{% if price %}{{ u.2 }}{% else %}Indéfini{% endif %}</td>
+              {% elif state != "users" %}
+              <td id="price_{{ u.0.pk }}">{% if price %}{{ u.1 }}{% else %}Indéfini{% endif %}</td>
+              {% endif %}
+              {% if not done %}
+              <td>
+                  {% if state == 'users' or state == 'participants' %}
+                      <a class="btn btn-small btn-danger"
+                      href="{% url 'url_sharedevent_rm_participant' group_name=group.name pk=pk participant_pk=u.0.pk %}">Supprimer</a>
+                  {% elif state == 'registrants'%}
+                      <a class="btn btn-small btn-danger"
+                      href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk=u.0.pk %}">Supprimer</a>
+                  {% endif %}
+              </td>
+              {% endif %}
+          </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
