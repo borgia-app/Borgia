@@ -56,7 +56,7 @@
   </div>
 </div>
 {% endif %}
-<div class="panel panel-default">
+<!-- <div class="panel panel-default">
   <div class="panel-heading">
     Téléchargement de fichiers Excels
   </div>
@@ -82,9 +82,9 @@
         <input type="submit" value="Télécharger le fichier"/>
     </form>
   </div>
-</div>
+</div> -->
 {% if perms.finances.proceed_payment_sharedevent %}
-<div class="panel panel-default">
+<!-- <div class="panel panel-default">
   <div class="panel-heading">
     Paiement
   </div>
@@ -97,7 +97,7 @@
     <a href="{% url 'url_sharedevent_proceed_payment' pk=pk group_name=group.name %}" class="btn btn-danger">Procéder au paiement</a>
     {% endif %}
   </div>
-</div>
+</div> -->
 {% endif %}
 <div class="panel panel-default">
   <div class="panel-heading">
@@ -142,7 +142,7 @@
 {% include "finances/_sharedevent_list_users.html" %}
 
 {% if not done %}
-<script>
+<!-- <script>
     // Modification à la volée de la pondération
     // Apres la modification (blur ou enter), requete ajax pour modifier la pondération
     {% for u in list_ponderations %}
@@ -170,7 +170,7 @@
         });
     {% endfor %}
 
-</script>
+</script> -->
 
   {% if price %}
     {% if state == "participants" or state == "registrants" %}
