@@ -56,7 +56,7 @@ Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes
 
 Fixer les problèmes d'update de l'event  - Done
 Fixer l'ajout d'un user (Deux views - Add pondération et changepondération) - Done
-Fixer le fonctionnement de l'ajax
+Fixer le fonctionnement de l'ajax - Done
 Deplacer le paiement dans terminer l'event
 Ajouter une option pour se faire une marge (si c'est pas déjà le cas)
 Ajouter une fonction pour définir le prix par pondération (et pas par prix total)

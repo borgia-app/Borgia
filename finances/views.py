@@ -1683,12 +1683,14 @@ class SharedEventChangeWeight(GroupPermissionMixin, View):
         :param pond_pk: paramètre GET correspondant à la nouvelle pondération
         :type pk, user_pk, pond_pk: int
         """
+        response = 0
 
         try:
             # Variables d'entrées
             se = SharedEvent.objects.get(pk=kwargs['pk'])
             user = User.objects.get(pk=kwargs['participant_pk'])
             pond = int(request.GET['pond'])
+            isParticipant = int(request.GET['isParticipant']) #Boolean
 
             # Permission
             if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
@@ -1698,20 +1700,19 @@ class SharedEventChangeWeight(GroupPermissionMixin, View):
                 raise PermissionDenied
 
             if pond > 0:
-                # Changement de la pondération
-                se.add_weight(user, pond, True)
+                if isParticipant in [0,1]:
+                    # Changement de la pondération
+                    se.change_weight(user, pond, isParticipant)
 
-                # Réponse
-                response = pond
-            else:
-                response = 0
+                    # Réponse
+                    response = 1
 
         except KeyError:
-            response = 0
+            pass
         except ObjectDoesNotExist:
-            response = 0
+            pass
         except ValueError:
-            response = 0
+            pass
 
         return HttpResponse(response)
 

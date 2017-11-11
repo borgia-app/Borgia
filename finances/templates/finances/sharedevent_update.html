@@ -135,35 +135,37 @@
 {% include "finances/_sharedevent_list_users.html" %}
 
 {% if not done %}
-<!-- <script>
+
+<script type="text/javascript">
     // Modification à la volée de la pondération
     // Apres la modification (blur ou enter), requete ajax pour modifier la pondération
     {% for u in list_weights %}
-        var old_weight;
-        $('#weight_{{ u.0.pk }}').on('focus', function() {
-            old_weight = $(this).val();
-        }).change(function() {
-            if ($(this).val() != old_weight) {
-                $.ajax({
-                    method: "GET",
-                    url: "{% url 'url_sharedevent_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}",
-                    data: {
-                        pond: $(this).val()
-                    },
-                    success: function (response) {
-                        if (response == 0) {
-                            $('#weight_{{ u.0.pk }}').val(old_weight);
-                        }
-                    },
-                    error: function() {
-                        $('#weight_{{ u.0.pk }}').val(old_weight);
-                    }
-                })
-            }
+        $('#participant_weight_{{ u.0.pk }}').change( function (){
+          send_data("{% url 'url_sharedevent_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}", $(this).val(), 1);
+        });
+
+        $('#registered_weight_{{ u.0.pk }}').change( function (){
+          send_data("{% url 'url_sharedevent_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}", $(this).val(), 0);
         });
     {% endfor %}
 
-</script> -->
+    function send_data (unique_url, new_weight, int_isParticipant) {
+          $.ajax({
+              method: "GET",
+              url: unique_url,
+              data: {
+                  pond: new_weight,
+                  isParticipant: int_isParticipant
+              },
+              success: function (response) {
+
+              },
+              error: function() {
+              }
+          });
+    };
+
+</script>
 
   {% if price %}
     {% if state == "participants" or state == "registrants" %}
