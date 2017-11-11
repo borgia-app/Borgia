@@ -1337,8 +1337,6 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
             se = SharedEvent.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
-        # state = ''
-        # initial_list_user_form = {}
 
         list_ponderations = []
         payment_error = ''
@@ -1353,56 +1351,43 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         except ObjectDoesNotExist:
             raise Http404
 
-        # # TODO Si on impose un state directement en GET (en venant d'un lien remove par exemple).
-        # if self.request.GET.get('state') is not None:
-        #     if self.request.GET.get('state') == 'users':
-        #         initial_list_user_form = {
-        #             'state': 'users',
-        #             'order_by': 'username',
-        #         }
-        #         list_ponderations = sorted(self.get_list_ponderations('users'), key=lambda item: getattr(item[0], 'username'))
-        #         state = 'users'
-        #     elif self.request.GET.get('state') == 'participants':
-        #         initial_list_user_form = {
-        #             'state': 'participants',
-        #             'order_by': 'username',
-        #         }
-        #         list_ponderations = sorted(self.get_list_ponderations('participants'), key=lambda item: getattr(item[0], 'username'))
-        #         state = 'participants'
-        #     elif self.request.GET.get('state') == 'registered':
-        #         initial_list_user_form = {
-        #             'state': 'registered',
-        #             'order_by': 'username',
-        #         }
-        #         list_ponderations = sorted(self.get_list_ponderations('registrants'), key=lambda item: getattr(item[0], 'username'))
-        #         state = 'registrants'
+        # PAIEMENTS - NEED TO BE DONE IN ANOTHER VIEW
+        # if request.GET.get('no_price') == 'True':
+        #     payment_error = 'Veuillez renseigner le prix de l\'événement ! '
         #
-        # # Sinon on choisit en fonction de la date de l'event
-        # # S'il est passé, on liste les participants par défaut, sinon on liste les préinscrits
-        # else:
+        # if request.GET.get('no_participant') == 'True':
+        #     payment_error = 'Veuillez ajouter au moins un participant à l\'événement ! '
+        # context['payment_error'] = payment_error
+
+
+
+
+        # DEFAULT OPTIONS FOR LISTING
         state = 'users'
         order_by = 'username'
 
-        initial_list_user_form = {
+
+        # If an option is provided
+        if self.request.GET.get('list_users-state') is not None:
+            if self.request.GET.get('list_users-state') in ['users', 'participants', 'registrants']:
+                state = self.request.GET.get('list_users-state')
+        # If an option is provided
+        if self.request.GET.get('list_users-order_by') is not None:
+            if self.request.GET.get('list_users-order_by') in ['username', 'last_name', 'surname']:
+                order_by = self.request.GET.get('list_users-order_by')
+
+        initial_list_users_form = {
             'state': state,
             'order_by': order_by,
         }
-        list_ponderations = sorted(self.get_list_ponderations(state), key=lambda item: getattr(item[0], order_by))
-
 
         initial_update_form = {
             'price': se.price,
             'bills': se.bills,
         }
 
-        if request.GET.get('no_price') == 'True':
-            payment_error = 'Veuillez renseigner le prix de l\'événement ! '
-
-        if request.GET.get('no_participant') == 'True':
-            payment_error = 'Veuillez ajouter au moins un participant à l\'événement ! '
-
         # Création des forms
-        list_user_form = SharedEventManageUserListForm(prefix='list_user_form', initial=initial_list_user_form)
+        list_users_form = SharedEventListUsersForm(prefix='list_users', initial=initial_list_users_form)
         update_form = SharedEventManageUpdateForm(prefix='update_form', initial=initial_update_form)
         upload_json_form = SharedEventManageUploadJSONForm(prefix='upload_json_form')
         add_user_form = SharedEventManageAddForm(prefix='add_user_form')
@@ -1411,17 +1396,16 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
         context = super(SharedEventUpdate, self).get_context_data(**kwargs)
         context['pk'] = kwargs['pk']
-        context['list_user_form'] = list_user_form
+        context['list_users_form'] = list_users_form
         context['upload_json_form'] = upload_json_form
         context['update_form'] = update_form
         context['add_user_form'] = add_user_form
         context['download_xlsx_form'] = download_xlsx_form
-        context['list_ponderations'] = list_ponderations
+        context['list_ponderations'] = sorted(self.get_list_ponderations(state), key=lambda item: getattr(item[0], order_by))
         context['errors'] = 0
         context['state'] = state
         context['order_by'] = order_by
         context['done'] = se.done
-        context['payment_error'] = payment_error
         context['remark'] = se.remark
         context['price'] = se.price
 
@@ -1446,20 +1430,20 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
         # action = self.request.POST['action']
 
-        # # Si form list_user_form
+        # # Si form list_users_form
         # if action == 'list_user':
-        #     list_user_form = SharedEventManageUserListForm(request.POST, prefix='list_user_form')
-        #     if list_user_form.is_valid():
-        #         if list_user_form.cleaned_data['state'] == 'users':
+        #     list_users_form = SharedEventManageUserListForm(request.POST, prefix='list_users_form')
+        #     if list_users_form.is_valid():
+        #         if list_users_form.cleaned_data['state'] == 'users':
         #             list_ponderations = self.get_list_ponderations('users')
         #             state = 'users'
-        #         if list_user_form.cleaned_data['state'] == 'participants':
+        #         if list_users_form.cleaned_data['state'] == 'participants':
         #             list_ponderations = self.get_list_ponderations('participants')
         #             state = 'participants'
-        #         if list_user_form.cleaned_data['state'] == 'registrants':
+        #         if list_users_form.cleaned_data['state'] == 'registrants':
         #             list_ponderations = self.get_list_ponderations('registrants')
         #             state = 'registrants'
-        #         order_by = list_user_form.cleaned_data['order_by']
+        #         order_by = list_users_form.cleaned_data['order_by']
         #         list_ponderations = sorted(list_ponderations, key=lambda item: getattr(item[0], order_by))
 
         # Si form update
