@@ -59,18 +59,18 @@
                 {% else %}
                   {% if state == 'users' %}
                     <td>
-                      <input id="registered_weight_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
+                      <input id="weight_registered_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
                     </td>
                     <td>
-                      <input id="participant_weight_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.2 }}"/>
+                      <input id="weight_participant_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.2 }}"/>
                     </td>
                   {% elif state == 'participants' %}
                     <td>
-                      <input id="participant_weight_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
+                      <input id="weight_participant_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
                     </td>
                   {% elif state == 'registrants' %}
                     <td>
-                      <input id="registered_weight_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
+                      <input id="weight_registered_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
                     </td>
                   {% endif %}
                 {% endif %}
