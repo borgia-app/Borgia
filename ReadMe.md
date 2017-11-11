@@ -50,3 +50,17 @@ Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes
  Le sous-dossier less/less contient les fichiers originaux de bootstrap non-modifiés.
 
  Le fichier LESS est compilé dans static_dirs actuellement. __En prod, il faut changer le setting correspondant.__
+
+
+## SharedEvent - TODO List :
+
+Fixer les problèmes d'update de l'event  - Done
+Fixer l'ajout d'un user (Deux views - Add pondération et changepondération) - Done
+Fixer le fonctionnement de l'ajax
+Deplacer le paiement dans terminer l'event
+Ajouter une option pour se faire une marge (si c'est pas déjà le cas)
+Ajouter une fonction pour définir le prix par pondération (et pas par prix total)
+Fixer la suppression d'un user selon les cas
+Utiliser des requetes post pour du submitting de data (notamment dans la suppression)
+Pouvoir manuellement terminer les preinscriptions
+Ajout d'un indicateur visuel pour dire que l'ajax s'est bien (ou mal) passé
