@@ -145,7 +145,7 @@
 <script>
     // Modification à la volée de la pondération
     // Apres la modification (blur ou enter), requete ajax pour modifier la pondération
-    {% for u in query_user %}
+    {% for u in list_ponderations %}
         var old_ponderation;
         $('#ponderation_{{ u.0.pk }}').on('focus', function() {
             old_ponderation = $(this).val();

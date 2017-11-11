@@ -465,7 +465,7 @@ class SharedEvent(models.Model):
         """
         return self.description + ' ' + str(self.date)
 
-    def list_of_users_ponderation(self):
+    def list_users_ponderation(self):
         """
         Forme une liste des users [[user1, ponderation_registration, ponderation_participation],...]
         à partir de la liste des users
@@ -477,7 +477,7 @@ class SharedEvent(models.Model):
             list_u_all.append([user, e.ponderations_registeration, e.ponderations_participation])
         return list_u_all
 
-    def list_of_participants_ponderation(self):
+    def list_participants_ponderation(self):
         """
         Forme une liste des participants [[user, ponderation],...]
         à partir de la liste des users
@@ -491,7 +491,7 @@ class SharedEvent(models.Model):
                 list_u_p.append([user, ponderation])
         return list_u_p
 
-    def list_of_registrants_ponderation(self):
+    def list_registrants_ponderation(self):
         """
         Forme une liste des participants [[user, ponderation],...]
         à partir de la liste des users

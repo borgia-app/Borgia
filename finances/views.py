@@ -1317,14 +1317,14 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
     template_name = 'finances/sharedevent_update.html'
     perm_codename = None
 
-    def get_query_user(self, state):
+    def get_list_ponderations(self, state):
         se = SharedEvent.objects.get(pk=self.kwargs['pk'])
         if state == 'users':
-            return se.list_of_users_ponderation()
+            return se.list_users_ponderation()
         elif state == 'participants':
-            return se.list_of_participants_ponderation()
+            return se.list_participants_ponderation()
         elif state == 'registrants':
-            return se.list_of_registrants_ponderation()
+            return se.list_registrants_ponderation()
 
     @staticmethod
     def get_key(item, order_by):
@@ -1340,7 +1340,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         # state = ''
         # initial_list_user_form = {}
 
-        query_user = []
+        list_ponderations = []
         payment_error = ''
 
         # Vérification des permissions
@@ -1360,21 +1360,21 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         #             'state': 'users',
         #             'order_by': 'username',
         #         }
-        #         query_user = sorted(self.get_query_user('users'), key=lambda item: getattr(item[0], 'username'))
+        #         list_ponderations = sorted(self.get_list_ponderations('users'), key=lambda item: getattr(item[0], 'username'))
         #         state = 'users'
         #     elif self.request.GET.get('state') == 'participants':
         #         initial_list_user_form = {
         #             'state': 'participants',
         #             'order_by': 'username',
         #         }
-        #         query_user = sorted(self.get_query_user('participants'), key=lambda item: getattr(item[0], 'username'))
+        #         list_ponderations = sorted(self.get_list_ponderations('participants'), key=lambda item: getattr(item[0], 'username'))
         #         state = 'participants'
         #     elif self.request.GET.get('state') == 'registered':
         #         initial_list_user_form = {
         #             'state': 'registered',
         #             'order_by': 'username',
         #         }
-        #         query_user = sorted(self.get_query_user('registrants'), key=lambda item: getattr(item[0], 'username'))
+        #         list_ponderations = sorted(self.get_list_ponderations('registrants'), key=lambda item: getattr(item[0], 'username'))
         #         state = 'registrants'
         #
         # # Sinon on choisit en fonction de la date de l'event
@@ -1387,7 +1387,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
             'state': state,
             'order_by': order_by,
         }
-        query_user = sorted(self.get_query_user(state), key=lambda item: getattr(item[0], order_by))
+        list_ponderations = sorted(self.get_list_ponderations(state), key=lambda item: getattr(item[0], order_by))
 
 
         initial_update_form = {
@@ -1416,7 +1416,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context['update_form'] = update_form
         context['add_user_form'] = add_user_form
         context['download_xlsx_form'] = download_xlsx_form
-        context['query_user'] = query_user
+        context['list_ponderations'] = list_ponderations
         context['errors'] = 0
         context['state'] = state
         context['order_by'] = order_by
@@ -1445,9 +1445,9 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         except ObjectDoesNotExist:
             raise Http404
 
-        query_user = []
+        list_ponderations = []
         try:
-            query_user = sorted(self.get_query_user(state), key=lambda item: getattr(item[0], order_by))
+            list_ponderations = sorted(self.get_list_ponderations(state), key=lambda item: getattr(item[0], order_by))
         except TypeError:
             pass
 
@@ -1473,16 +1473,16 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
             list_user_form = SharedEventManageUserListForm(request.POST, prefix='list_user_form')
             if list_user_form.is_valid():
                 if list_user_form.cleaned_data['state'] == 'users':
-                    query_user = self.get_query_user('users')
+                    list_ponderations = self.get_list_ponderations('users')
                     state = 'users'
                 if list_user_form.cleaned_data['state'] == 'participants':
-                    query_user = self.get_query_user('participants')
+                    list_ponderations = self.get_list_ponderations('participants')
                     state = 'participants'
                 if list_user_form.cleaned_data['state'] == 'registrants':
-                    query_user = self.get_query_user('registrants')
+                    list_ponderations = self.get_list_ponderations('registrants')
                     state = 'registrants'
                 order_by = list_user_form.cleaned_data['order_by']
-                query_user = sorted(query_user, key=lambda item: getattr(item[0], order_by))
+                list_ponderations = sorted(list_ponderations, key=lambda item: getattr(item[0], order_by))
 
         # Si form update
         if action == 'update':
@@ -1512,7 +1512,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
                 se.save()
 
                 errors = len(lists[2])
-                query_user = self.get_query_user(state)
+                list_ponderations = self.get_list_ponderations(state)
 
         elif action == 'add_user':
             add_user_form = SharedEventManageAddForm(request.POST, prefix='add_user_form')
@@ -1521,7 +1521,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
                 se.add_participant(User.objects.get(username=add_user_form.cleaned_data['username']),
                                     add_user_form.cleaned_data['ponderation'], isParticipant)
-                query_user = self.get_query_user(state)
+                list_ponderations = self.get_list_ponderations(state)
 
         elif action == 'download_xlsx':
             download_xlsx_form = SharedEventManageDownloadXlsxForm(request.POST, prefix='download_xlsx_form', list_year=list_year())
@@ -1551,7 +1551,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
                 elif download_xlsx_form.cleaned_data['state'] == 'participants':
                     data = []
-                    for e in se.list_of_participants_ponderation():
+                    for e in se.list_participants_ponderation():
                         u = e[0]
                         data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
                     worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
@@ -1560,7 +1560,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
                 elif download_xlsx_form.cleaned_data['state'] == 'registered':
                     data = []
-                    for e in se.list_of_registrants_ponderation():
+                    for e in se.list_registrants_ponderation():
                         u = e[0]
                         data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
                     worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
@@ -1574,7 +1574,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context['update_form'] = update_form
         context['add_user_form'] = add_user_form
         context['download_xlsx_form'] = download_xlsx_form
-        context['query_user'] = query_user
+        context['list_ponderations'] = list_ponderations
         context['errors'] = errors
         context['state'] = state
         context['order_by'] = order_by
