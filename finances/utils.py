@@ -87,7 +87,7 @@ def workboot_init(workbook_name, macro=None, button_caption=None):
     return workbook, worksheet, response
 
 
-def list_base_ponderation_from_file(f):
+def list_base_weight_from_file(f):
 
     # Traitement sur le string pour le convertir en liste identifiable json
     initial = str(f.read())
@@ -103,42 +103,42 @@ def list_base_ponderation_from_file(f):
 
     # Lecture json
     list_base = []
-    list_ponderation = []
+    list_weight = []
     for dual in data:
         list_base.append(dual[0])
-        list_ponderation.append(dual[1])
-    return list_base, list_ponderation
+        list_weight.append(dual[1])
+    return list_base, list_weight
 
 
-def list_user_ponderation_errors_from_list(f, token):
+def list_user_weight_errors_from_list(f, token):
 
     if token == 'True':
         token = True
     else:
         token = False
 
-    list_base_ponderation = list_base_ponderation_from_file(f)
+    list_base_weight = list_base_weight_from_file(f)
 
     list_user = []
-    list_ponderation = []
+    list_weight = []
     list_error = []
 
-    for i, b in enumerate(list_base_ponderation[0]):
+    for i, b in enumerate(list_base_weight[0]):
 
         # Si le fichier contient des numéros de jetons
         if token is True:
             try:
                 list_user.append(User.objects.get(token_id=b))
-                list_ponderation.append(list_base_ponderation[1][i])
+                list_weight.append(list_base_weight[1][i])
             except ObjectDoesNotExist:
-                list_error.append([b, list_base_ponderation[1][i]])
+                list_error.append([b, list_base_weight[1][i]])
 
         # Si le fichier contient des usernames
         else:
             try:
                 list_user.append(User.objects.get(username=b))
-                list_ponderation.append(list_base_ponderation[1][i])
+                list_weight.append(list_base_weight[1][i])
             except ObjectDoesNotExist:
-                list_error.append([b, list_base_ponderation[1][i]])
+                list_error.append([b, list_base_weight[1][i]])
 
-    return list_user, list_ponderation, list_error, list_base_ponderation
+    return list_user, list_weight, list_error, list_base_weight

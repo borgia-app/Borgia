@@ -111,21 +111,20 @@
             {{ list_users_form.order_by.label }} : {{ list_users_form.order_by }}
              <button type='submit' class="btn btn-default">Lister</button></p>
     </form>
+
+
     {% if done == False %}
-        <form action="{% url 'url_sharedevent_update' pk=pk group_name=group.name %}#table_users" method='post'>
+        <form action="{% url 'url_sharedevent_add_weight' pk=pk group_name=group.name %}" method='post'>
             {% csrf_token %}
-            <input type="hidden" name="action" value='add_user'>
-            <input type="hidden" name="state" value="{{ state }}" />
-            <input type="hidden" name="order_by" value="{{ order_by }}" />
-            {{ add_user_form.username.error_messages }} {{ add_user_form.state.error_messages }} {{ add_user_form.ponderation.error_messages }}
+            {{ add_weight_form.username.error_messages }} {{ add_weight_form.state.error_messages }} {{ add_weight_form.weight.error_messages }}
             <p>
-              {{ add_user_form.username.error }}
-              {{ add_user_form.username.label }} : {{ add_user_form.username }}
+              {{ add_weight_form.username.error }}
+              {{ add_weight_form.username.label }} : {{ add_weight_form.username }}
 
-              {{ add_user_form.state.error }}{{ add_user_form.state }}
+              {{ add_weight_form.state.error }}{{ add_weight_form.state }}
 
-              {{ add_user_form.ponderation.error }}
-              {{ add_user_form.ponderation.label }} : {{ add_user_form.ponderation }}
+              {{ add_weight_form.weight.error }}
+              {{ add_weight_form.weight.label }} : {{ add_weight_form.weight }}
               <button type='submit' class="btn btn-warning">Ajouter</button>
             </p>
         </form>
@@ -139,25 +138,25 @@
 <!-- <script>
     // Modification à la volée de la pondération
     // Apres la modification (blur ou enter), requete ajax pour modifier la pondération
-    {% for u in list_ponderations %}
-        var old_ponderation;
-        $('#ponderation_{{ u.0.pk }}').on('focus', function() {
-            old_ponderation = $(this).val();
+    {% for u in list_weights %}
+        var old_weight;
+        $('#weight_{{ u.0.pk }}').on('focus', function() {
+            old_weight = $(this).val();
         }).change(function() {
-            if ($(this).val() != old_ponderation) {
+            if ($(this).val() != old_weight) {
                 $.ajax({
                     method: "GET",
-                    url: "{% url 'url_sharedevent_change_ponderation' group_name=group.name pk=pk participant_pk=u.0.pk %}",
+                    url: "{% url 'url_sharedevent_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}",
                     data: {
                         pond: $(this).val()
                     },
                     success: function (response) {
                         if (response == 0) {
-                            $('#ponderation_{{ u.0.pk }}').val(old_ponderation);
+                            $('#weight_{{ u.0.pk }}').val(old_weight);
                         }
                     },
                     error: function() {
-                        $('#ponderation_{{ u.0.pk }}').val(old_ponderation);
+                        $('#weight_{{ u.0.pk }}').val(old_weight);
                     }
                 })
             }

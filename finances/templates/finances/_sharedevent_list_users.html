@@ -46,7 +46,7 @@
         </tr>
       </thead>
       <tbody>
-      {% for u in list_ponderations %}
+      {% for u in list_weights %}
           <tr>
               <td>{{ u.0.username }}</td>
               <td>{{ u.0.first_name }} {{ u.0.last_name }}</td>
@@ -56,11 +56,11 @@
                 {% if done %}
                   {{ u.1 }}
                 {% else %}
-                  <input id="ponderation_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
+                  <input id="weight_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
                   {% if state == 'users' %}
                     </td>
                     <td>
-                    <input id="ponderation_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.2 }}"/>
+                    <input id="weight_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.2 }}"/>
                   {% endif %}
                 {% endif %}
               </td>

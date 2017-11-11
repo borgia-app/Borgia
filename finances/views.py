@@ -1317,14 +1317,14 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
     template_name = 'finances/sharedevent_update.html'
     perm_codename = None
 
-    def get_list_ponderations(self, state):
+    def get_list_weights(self, state):
         se = SharedEvent.objects.get(pk=self.kwargs['pk'])
         if state == 'users':
-            return se.list_users_ponderation()
+            return se.list_users_weight()
         elif state == 'participants':
-            return se.list_participants_ponderation()
+            return se.list_participants_weight()
         elif state == 'registrants':
-            return se.list_registrants_ponderation()
+            return se.list_registrants_weight()
 
     @staticmethod
     def get_key(item, order_by):
@@ -1338,7 +1338,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         except ObjectDoesNotExist:
             raise Http404
 
-        list_ponderations = []
+        list_weights = []
         payment_error = ''
 
         # Vérification des permissions
@@ -1387,11 +1387,11 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         }
 
         # Création des forms
-        list_users_form = SharedEventListUsersForm(prefix='list_users', initial=initial_list_users_form)
         update_form = SharedEventManageUpdateForm(prefix='update_form', initial=initial_update_form)
-        upload_json_form = SharedEventManageUploadJSONForm(prefix='upload_json_form')
-        add_user_form = SharedEventManageAddForm(prefix='add_user_form')
-        download_xlsx_form = SharedEventManageDownloadXlsxForm(prefix='download_xlsx_form',
+        upload_json_form = SharedEventManageUploadJSONForm(prefix='upload_json')
+        list_users_form = SharedEventListUsersForm(prefix='list_users', initial=initial_list_users_form)
+        add_weight_form = SharedEventAddWeightForm(prefix='add_weight')
+        download_xlsx_form = SharedEventManageDownloadXlsxForm(prefix='download_xlsx',
                                                                list_year=list_year())
 
         context = super(SharedEventUpdate, self).get_context_data(**kwargs)
@@ -1399,9 +1399,9 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context['list_users_form'] = list_users_form
         context['upload_json_form'] = upload_json_form
         context['update_form'] = update_form
-        context['add_user_form'] = add_user_form
+        context['add_weight_form'] = add_weight_form
         context['download_xlsx_form'] = download_xlsx_form
-        context['list_ponderations'] = sorted(self.get_list_ponderations(state), key=lambda item: getattr(item[0], order_by))
+        context['list_weights'] = sorted(self.get_list_weights(state), key=lambda item: getattr(item[0], order_by))
         context['errors'] = 0
         context['state'] = state
         context['order_by'] = order_by
@@ -1435,16 +1435,16 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         #     list_users_form = SharedEventManageUserListForm(request.POST, prefix='list_users_form')
         #     if list_users_form.is_valid():
         #         if list_users_form.cleaned_data['state'] == 'users':
-        #             list_ponderations = self.get_list_ponderations('users')
+        #             list_weights = self.get_list_weights('users')
         #             state = 'users'
         #         if list_users_form.cleaned_data['state'] == 'participants':
-        #             list_ponderations = self.get_list_ponderations('participants')
+        #             list_weights = self.get_list_weights('participants')
         #             state = 'participants'
         #         if list_users_form.cleaned_data['state'] == 'registrants':
-        #             list_ponderations = self.get_list_ponderations('registrants')
+        #             list_weights = self.get_list_weights('registrants')
         #             state = 'registrants'
         #         order_by = list_users_form.cleaned_data['order_by']
-        #         list_ponderations = sorted(list_ponderations, key=lambda item: getattr(item[0], order_by))
+        #         list_weights = sorted(list_weights, key=lambda item: getattr(item[0], order_by))
 
         # Si form update
         # if action == 'update':
@@ -1458,14 +1458,14 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         # elif action == 'upload_json':
         #     upload_json_form = SharedEventManageUploadJSONForm(request.POST, request.FILES,  prefix='upload_json_form')
         #     if upload_json_form.is_valid():
-        #         lists = list_user_ponderation_errors_from_list(request.FILES['upload_json_form-file'],
+        #         lists = list_user_weight_errors_from_list(request.FILES['upload_json_form-file'],
         #                                                        False)
         #         # Enregistrement des participants/préinscrits et des pondérations
         #         if upload_json_form.cleaned_data['state'] == 'participants':
         #             for i, u in enumerate(lists[0]):
         #                 try:
         #                     if lists[1][i] > 0:
-        #                         se.add_participant(u, lists[1][i], True)
+        #                         se.add_weight(u, lists[1][i], True)
         #                 except KeyError:
         #                     pass
         #         else:
@@ -1474,7 +1474,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         #         se.save()
         #
         #         errors = len(lists[2])
-        #         list_ponderations = self.get_list_ponderations(state)
+        #         list_weights = self.get_list_weights(state)
         #
         # elif action == 'download_xlsx':
         #     download_xlsx_form = SharedEventManageDownloadXlsxForm(request.POST, prefix='download_xlsx_form', list_year=list_year())
@@ -1504,7 +1504,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         #
         #         elif download_xlsx_form.cleaned_data['state'] == 'participants':
         #             data = []
-        #             for e in se.list_participants_ponderation():
+        #             for e in se.list_participants_weight():
         #                 u = e[0]
         #                 data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
         #             worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
@@ -1513,7 +1513,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         #
         #         elif download_xlsx_form.cleaned_data['state'] == 'registered':
         #             data = []
-        #             for e in se.list_registrants_ponderation():
+        #             for e in se.list_registrants_weight():
         #                 u = e[0]
         #                 data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
         #             worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
@@ -1670,7 +1670,7 @@ class SharedEventProceedPayment(GroupPermissionMixin, View):
             ) + '?no_price=True')
 
 
-class SharedEventChangePonderation(GroupPermissionMixin, View):
+class SharedEventChangeWeight(GroupPermissionMixin, View):
     perm_codename = None
 
     def get(self, request, *args, **kwargs):
@@ -1699,7 +1699,7 @@ class SharedEventChangePonderation(GroupPermissionMixin, View):
 
             if pond > 0:
                 # Changement de la pondération
-                se.add_participant(user, pond, True)
+                se.add_weight(user, pond, True)
 
                 # Réponse
                 response = pond
@@ -1715,58 +1715,46 @@ class SharedEventChangePonderation(GroupPermissionMixin, View):
 
         return HttpResponse(response)
 
-# class SharedEventAddPonderation(GroupPermissionMixin, View):
-#     perm_codename = None
-#
-#     def post(self, request, *args, **kwargs):
-#         """
-#         Change la valeur de la pondération d'un participant user pour un événement
-#         Permissions :   Si événements terminé -> denied,
-#                         Si pas manager ou pas la perm 'finances.manage_sharedevent' -> denied
-#         :param pk: pk de l'événement
-#         :param user_pk: paramètre GET correspondant au pk de l'user
-#         :param pond_pk: paramètre GET correspondant à la nouvelle pondération
-#         :type pk, user_pk, pond_pk: int
-#         """
-#
-#         try:
-#             # Variables d'entrées
-#             se = SharedEvent.objects.get(pk=kwargs['pk'])
-#             user = User.objects.get(pk=kwargs['participant_pk'])
-#             pond = int(request.GET['pond'])
-#
-#                 add_user_form = SharedEventManageAddForm(request.POST, prefix='add_user_form')
-#                 if add_user_form.is_valid():
-#                     isParticipant = add_user_form.cleaned_data['state'] == 'participant' # True pour un participant
-#
-#                     se.add_participant(User.objects.get(username=add_user_form.cleaned_data['username']),
-#                                         add_user_form.cleaned_data['ponderation'], isParticipant)
-#                     list_ponderations = self.get_list_ponderations(state)
-#
-#             # Permission
-#             if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
-#                 raise PermissionDenied
-#             # Même en ayant la permission, on ne modifie plus une event terminé
-#             elif se.done is True:
-#                 raise PermissionDenied
-#
-#             if pond > 0:
-#                 # Changement de la pondération
-#                 se.add_participant(user, pond, True)
-#
-#                 # Réponse
-#                 response = pond
-#             else:
-#                 response = 0
-#
-#         except KeyError:
-#             response = 0
-#         except ObjectDoesNotExist:
-#             response = 0
-#         except ValueError:
-#             response = 0
-#
-#         return HttpResponse(response)
+class SharedEventAddWeight(GroupPermissionMixin, View):
+    perm_codename = None
+
+    def post(self, request, *args, **kwargs):
+        """
+        Change la valeur de la pondération d'un participant user pour un événement
+        Permissions :   Si événements terminé -> denied,
+                        Si pas manager ou pas la perm 'finances.manage_sharedevent' -> denied
+        :param pk: pk de l'événement
+        :param user_pk: paramètre GET correspondant au pk de l'user
+        :param pond_pk: paramètre GET correspondant à la nouvelle pondération
+        :type pk, user_pk, pond_pk: int
+        """
+
+        try:
+            # Variables d'entrées
+            se = SharedEvent.objects.get(pk=kwargs['pk'])
+
+        except ObjectDoesNotExist:
+            raise Http404
+
+        # On ne modifie plus une event terminé
+        if se.done is True:
+            raise PermissionDenied
+        # Permission
+        if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
+            raise PermissionDenied
+
+        add_weight_form = SharedEventAddWeightForm(request.POST, prefix='add_weight')
+
+        if not add_weight_form.is_valid():
+            raise PermissionDenied
+
+        else:
+            isParticipant = add_weight_form.cleaned_data['state'] == 'participant' # True pour un participant
+
+            se.add_weight(User.objects.get(username=add_weight_form.cleaned_data['username']),
+                                add_weight_form.cleaned_data['weight'], isParticipant)
+
+            return redirect(reverse('url_sharedevent_update', kwargs={'group_name': self.group.name, 'pk': se.pk}))
 
 
 @csrf_exempt

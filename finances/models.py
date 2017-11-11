@@ -428,13 +428,13 @@ class SharedEvent(models.Model):
     renvoyer deux querys ordonnés différement
 
     --- OLD ---
-    Du coup on stocke le duo [participant_pk, ponderation] dans une liste
+    Du coup on stocke le duo [participant_pk, weight] dans une liste
     dumpé
-    JSON dans le string "ponderation"
+    JSON dans le string "weight"
     Je garde le m2m participants pour avoir quand même un lien plus simple
     (pour les recherches etc.)
     Lors de la suppression / ajout il faut utiliser les méthodes
-    add_participant et remove_participant pour faire ca
+    add_weight et remove_participant pour faire ca
     proprement.
     --- ---
     """
@@ -451,7 +451,7 @@ class SharedEvent(models.Model):
     manager = models.ForeignKey('users.User', related_name='manager',
         on_delete=models.CASCADE)
     users = models.ManyToManyField('users.User',
-                                    through='PonderationsUser',
+                                    through='WeightsUser',
                                     #related_name='people'
                                     )
     allow_self_registeration = models.BooleanField('Autoriser la self-préinscription', default=True)
@@ -465,44 +465,44 @@ class SharedEvent(models.Model):
         """
         return self.description + ' ' + str(self.date)
 
-    def list_users_ponderation(self):
+    def list_users_weight(self):
         """
-        Forme une liste des users [[user1, ponderation_registration, ponderation_participation],...]
+        Forme une liste des users [[user1, weight_registration, weight_participation],...]
         à partir de la liste des users
-        :return: liste_u_p [[user1, ponderation_registration, ponderation_participation],...]
+        :return: liste_u_p [[user1, weight_registration, weight_participation],...]
         """
         list_u_all = []
         for user in self.users.all():
-            e = self.ponderationsuser_set.get(user=user, shared_event=self)
-            list_u_all.append([user, e.ponderations_registeration, e.ponderations_participation])
+            e = self.weightsuser_set.get(user=user, shared_event=self)
+            list_u_all.append([user, e.weights_registeration, e.weights_participation])
         return list_u_all
 
-    def list_participants_ponderation(self):
+    def list_participants_weight(self):
         """
-        Forme une liste des participants [[user, ponderation],...]
+        Forme une liste des participants [[user, weight],...]
         à partir de la liste des users
-        :return: liste_u_p [[user, ponderation],...]
+        :return: liste_u_p [[user, weight],...]
         """
         list_u_p = []
         for user in self.users.all():
-            e = self.ponderationsuser_set.get(user=user, shared_event=self)
-            ponderation = e.ponderations_participation
-            if ponderation > 0:
-                list_u_p.append([user, ponderation])
+            e = self.weightsuser_set.get(user=user, shared_event=self)
+            weight = e.weights_participation
+            if weight > 0:
+                list_u_p.append([user, weight])
         return list_u_p
 
-    def list_registrants_ponderation(self):
+    def list_registrants_weight(self):
         """
-        Forme une liste des participants [[user, ponderation],...]
+        Forme une liste des participants [[user, weight],...]
         à partir de la liste des users
-        :return: liste_u_p [[user, ponderation],...]
+        :return: liste_u_p [[user, weight],...]
         """
         list_u_r = []
         for user in self.users.all():
-            e = self.ponderationsuser_set.get(user=user, shared_event=self)
-            ponderation = e.ponderations_registeration
-            if ponderation > 0:
-                list_u_r.append([user, ponderation])
+            e = self.weightsuser_set.get(user=user, shared_event=self)
+            weight = e.weights_registeration
+            if weight > 0:
+                list_u_r.append([user, weight])
         return list_u_r
 
     def remove_participant(self, user, isParticipant=True):
@@ -513,13 +513,13 @@ class SharedEvent(models.Model):
         """
 
         # Suppresion de l'user dans users.
-        PonderationsUser.objects.filter(user=user, shared_event=self).delete()
+        WeightsUser.objects.filter(user=user, shared_event=self).delete()
 
-    def add_participant(self, user, ponderation, isParticipant=True):
+    def add_weight(self, user, weight, isParticipant=True):
         """
-        Ajout d'un nombre de ponderation à l'utilisateur.
+        Ajout d'un nombre de weight à l'utilisateur.
         :param user: user associé
-        :param ponderation: ponderation à ajouter
+        :param weight: weight à ajouter
         :param isParticipant: est ce qu'on ajoute un participant ?
         :return:
         """
@@ -527,23 +527,46 @@ class SharedEvent(models.Model):
         # if the user doesn't exist in the event already
         if user not in self.users.all():
             if isParticipant:
-                PonderationsUser.objects.create(user=user, shared_event=self, ponderations_participation = ponderation)
+                WeightsUser.objects.create(user=user, shared_event=self, weights_participation = weight)
             else:
-                PonderationsUser.objects.create(user=user, shared_event=self, ponderations_registeration = ponderation)
+                WeightsUser.objects.create(user=user, shared_event=self, weights_registeration = weight)
         else:
-            e = self.ponderationsuser_set.get(user=user, shared_event=self)
+            e = self.weightsuser_set.get(user=user, shared_event=self)
             if isParticipant:
-                e.ponderations_participation = ponderation
+                e.weights_participation += weight
             else:
-                e.ponderations_registeration = ponderation
+                e.weights_registeration += weight
+            e.save()
+
+    def change_weight(self, user, weight, isParticipant=True):
+        """
+        Changement du nombre de weight de l'utilisateur.
+        :param user: user associé
+        :param weight: weight à changer
+        :param isParticipant: est ce qu'on ajoute un participant ?
+        :return:
+        """
+
+        # if the user doesn't exist in the event already
+        if user not in self.users.all():
+            if isParticipant:
+                WeightsUser.objects.create(user=user, shared_event=self, weights_participation = weight)
+            else:
+                WeightsUser.objects.create(user=user, shared_event=self, weights_registeration = weight)
+        else:
+            e = self.weightsuser_set.get(user=user, shared_event=self)
+            if isParticipant:
+                e.weights_participation = weight
+            else:
+                e.weights_registeration = weight
             e.save()
 
     def get_price_of_user(self, user):
-	    # Calcul du prix par ponderation
+	    # Calcul du prix par weight
         if isinstance(self.price, Decimal):
-            total_ponderations_participants = self.get_total_ponderations_participants()
-            ponderation_of_user = self.ponderationsuser_set.get(user=user).ponderations_participation
-            return round(self.price / total_ponderations_participants * ponderation_of_user,2)
+            total_weights_participants = self.get_total_weights_participants()
+            weight_of_user = self.weightsuser_set.get(user=user).weights_participation
+            return round(self.price / total_weights_participants * weight_of_user,2)
 
         else:
              return 0
@@ -558,12 +581,12 @@ class SharedEvent(models.Model):
         :return:
         """
 
-        # Calcul du prix par ponderation
-        total_ponderation = self.get_total_ponderations_participants()
-        final_price_per_ponderation = round(self.price / total_ponderation, 2)
+        # Calcul du prix par weight
+        total_weight = self.get_total_weights_participants()
+        final_price_per_weight = round(self.price / total_weight, 2)
 
-        for e in self.ponderationsuser_set.all():
-            e.user.debit(final_price_per_ponderation * e.ponderations_participation)
+        for e in self.weightsuser_set.all():
+            e.user.debit(final_price_per_weight * e.weights_participation)
             if (e.user.balance < 0):
 			    # If negative balance after event
 		        # We notify
@@ -582,16 +605,16 @@ class SharedEvent(models.Model):
     def wording(self):
         return 'Evenement ' + self.description + ' Le ' + str(self.date)
 
-    def get_total_ponderations_registrants(self):
+    def get_total_weights_registrants(self):
         total = 0
-        for e in self.ponderationsuser_set.all():
-            total += e.ponderations_registeration
+        for e in self.weightsuser_set.all():
+            total += e.weights_registeration
         return total
 
-    def get_total_ponderations_participants(self):
+    def get_total_weights_participants(self):
         total = 0
-        for e in self.ponderationsuser_set.all():
-            total += e.ponderations_participation
+        for e in self.weightsuser_set.all():
+            total += e.weights_participation
         return total
 
     class Meta:
@@ -607,11 +630,11 @@ class SharedEvent(models.Model):
         )
 
 
-class PonderationsUser(models.Model):
-    user = models.ForeignKey('users.User', on_delete=models.CASCADE) # Supprime la ponderation si l'utilisateur est supprimé
-    shared_event = models.ForeignKey(SharedEvent, on_delete=models.CASCADE) # Supprime la ponderation si l'event est supprimé
-    ponderations_registeration = models.IntegerField(default=0)
-    ponderations_participation = models.IntegerField(default=0)
+class WeightsUser(models.Model):
+    user = models.ForeignKey('users.User', on_delete=models.CASCADE) # Supprime la weight si l'utilisateur est supprimé
+    shared_event = models.ForeignKey(SharedEvent, on_delete=models.CASCADE) # Supprime la weight si l'event est supprimé
+    weights_registeration = models.IntegerField(default=0)
+    weights_participation = models.IntegerField(default=0)
 
     def __unicode__(self):
-        return "%s possede %s parts dans l'événement %s" % (self.user, self.ponderations_participation, self.shared_event)
+        return "%s possede %s parts dans l'événement %s" % (self.user, self.weights_participation, self.shared_event)

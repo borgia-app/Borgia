@@ -332,9 +332,14 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/shared_events/$',
         SharedEventList.as_view(),
         name='url_sharedevent_list'),
-    url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/change_ponderation/(?P<participant_pk>\d+)/$',
-        SharedEventChangePonderation.as_view(),
-        name='url_sharedevent_change_ponderation'),
+
+    url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/add_weight/$',
+        SharedEventAddWeight.as_view(),
+        name='url_sharedevent_add_weight'),
+    url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/change_weight/(?P<participant_pk>\d+)/$',
+        SharedEventChangeWeight.as_view(),
+        name='url_sharedevent_change_weight'),
+
     url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/proceed_payment/$',
         SharedEventProceedPayment.as_view(),
         name='url_sharedevent_proceed_payment'),

@@ -269,11 +269,11 @@ class SharedEventManageUpdateForm(forms.Form):
     bills = forms.CharField(label='Factures liées', required=False)
 
 
-class SharedEventManageAddForm(forms.Form):
+class SharedEventAddWeightForm(forms.Form):
     username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
                                validators=[autocomplete_username_validator])
     state = forms.ChoiceField(choices=(('registered', 'Préinscrit'), ('participant', 'Participant')))
-    ponderation = forms.IntegerField(label='Pondération', min_value=0, required=True, initial=1)
+    weight = forms.IntegerField(label='Pondération', min_value=0, required=True, initial=1)
 
 
 class SharedEventManageDownloadXlsxForm(forms.Form):
