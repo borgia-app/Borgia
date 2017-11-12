@@ -243,11 +243,10 @@ class SharedEventCreateForm(forms.Form):
 
 
 class SharedEventManageListForm(forms.Form):
-    date_begin = forms.DateField(label='De', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    date_end = forms.DateField(label='A', required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    all = forms.BooleanField(required=False, label='Depuis toujours')
-    done = forms.ChoiceField(label='Etat', choices=((True, 'Terminé'), (False, 'En cours'), ('both', 'Les deux')))
-    order_by = forms.ChoiceField(label='Trier par', choices=(('-date', 'Date'), ('manager', 'Opérateur')))
+    date_begin = forms.DateField(label="Depuis", required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
+    date_end = forms.DateField(label="Jusqu'à", required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
+    done = forms.ChoiceField(label="Etat", choices=(("not_done", 'En cours'), ("done", 'Terminé'), ("both", 'Les deux')))
+    order_by = forms.ChoiceField(label="Trier par", choices=(('-date', 'Date'), ('manager', 'Opérateur')))
 
 
 class SharedEventListUsersForm(forms.Form):

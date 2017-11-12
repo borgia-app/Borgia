@@ -1136,16 +1136,55 @@ class SelfLydiaConfirm(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class SelfSharedEventList(GroupPermissionMixin, View, GroupLateralMenuMixin):
-    perm_codename = None
-    template_name = 'finances/self_sharedevent_list.html'
-    lm_active = 'lm_self_sharedevent_list'
+class SharedEventList(GroupPermissionMixin, FormView,
+                      GroupLateralMenuFormMixin):
+    template_name = 'finances/sharedevent_list.html'
+    lm_active = 'lm_sharedevent_list'
+    perm_codename = 'list_sharedevent'
+    form_class = SharedEventManageListForm
 
-    def get(self, request, *args, **kwargs):
-        context = super(SelfSharedEventList, self).get_context_data(**kwargs)
-        context['sharedevent_list'] = SharedEvent.objects.filter(
-            done=False).order_by('-date')
-        return render(request, self.template_name, context=context)
+    def form_valid(self, form, **kwargs):
+
+        date_begin = form.cleaned_data['date_begin']
+        date_end = form.cleaned_data['date_end']
+        order_by = form.cleaned_data['order_by']
+        done = form.cleaned_data['done']
+
+        if date_begin is None:
+            date_begin = datetime.date.min
+        if date_end is None:
+            date_end = datetime.date.max
+
+        if done != "both":
+            if done == "done":
+                done = True
+            else:
+                done = False
+
+            query_shared_event = SharedEvent.objects.filter(date__range=[date_begin, date_end], done=done)
+        else:
+            query_shared_event = SharedEvent.objects.filter(date__range=[date_begin, date_end])
+
+
+        context = self.get_context_data(**kwargs)
+        if order_by != '-date':
+            context['query_shared_event'] = query_shared_event.order_by(order_by).order_by('-date')
+        else:
+            context['query_shared_event'] = query_shared_event.order_by('-date')
+
+
+        return self.render_to_response(context)
+
+    def get_initial(self):
+        initial = super(SharedEventList, self).get_initial()
+        initial['date_begin'] = datetime.date.today()
+        initial['done'] = "not_done"
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(SharedEventList, self).get_context_data(**kwargs)
+        context['query_shared_event'] = SharedEvent.objects.filter(date__gte=datetime.date.today(), done=False).order_by('-date')
+        return context
 
 
 class SharedEventSelfRegistration(GroupPermissionMixin, View):
@@ -1173,7 +1212,7 @@ class SharedEventSelfRegistration(GroupPermissionMixin, View):
         se.save()
 
         return redirect(reverse(
-            'url_self_sharedevent_list',
+            'url_sharedevent_list',
             kwargs={'group_name': group.name}
         ))
 
@@ -1256,7 +1295,7 @@ class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
         if self.group.name == 'gadzarts':
             return redirect(
                 reverse(
-                    'url_self_sharedevent_list',
+                    'url_sharedevent_list',
                     kwargs={'group_name': self.group.name}
                     ))
         return redirect(
@@ -1315,7 +1354,7 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
         if self.group.name == 'gadzarts':
             return redirect(
                 reverse(
-                    'url_self_sharedevent_list',
+                    'url_sharedevent_list',
                     kwargs={'group_name': self.group.name}
                     ))
         return redirect(
@@ -1533,59 +1572,6 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         #             return response
 
         return redirect(reverse('url_sharedevent_update', kwargs={'group_name': self.group.name, 'pk': se.pk}))
-
-
-class SharedEventList(GroupPermissionMixin, FormView,
-                      GroupLateralMenuFormMixin):
-    template_name = 'finances/sharedevent_list.html'
-    lm_active = 'lm_sharedevent_list'
-    perm_codename = 'list_sharedevent'
-    form_class = SharedEventManageListForm
-
-    def form_valid(self, form, **kwargs):
-
-        date_begin = form.cleaned_data['date_begin']
-        date_end = form.cleaned_data['date_end']
-        all = form.cleaned_data['all']
-        order_by = form.cleaned_data['order_by']
-        done = form.cleaned_data['done']
-        if done != 'both':
-
-            if done == 'False':
-                done = False
-            elif done == 'True':
-                done = True
-
-            if all is True:
-                query_shared_event = SharedEvent.objects.filter(done=done)
-            else:
-                if date_end is None:
-                    query_shared_event = SharedEvent.objects.filter(date__gte=date_begin, done=done)
-                else:
-                    query_shared_event = SharedEvent.objects.filter(date__range=[date_begin, date_end], done=done)
-        else:
-            if all is True:
-                query_shared_event = SharedEvent.objects.all()
-            else:
-                if date_end is None:
-                    query_shared_event = SharedEvent.objects.filter(date__gte=date_begin)
-                else:
-                    query_shared_event = SharedEvent.objects.filter(date__range=[date_begin, date_end])
-        context = self.get_context_data(**kwargs)
-        context['query_shared_event'] = query_shared_event.order_by(order_by).order_by('-date')
-        return self.render_to_response(context)
-
-    def get_initial(self):
-        initial = super(SharedEventList, self).get_initial()
-        initial['date_begin'] = now()
-        initial['all'] = True
-        initial['done'] = False
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super(SharedEventList, self).get_context_data(**kwargs)
-        context['query_shared_event'] = SharedEvent.objects.filter(done=False).order_by('-date')
-        return context
 
 
 class SharedEventRemoveUser(GroupPermissionMixin, View):

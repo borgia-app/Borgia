@@ -324,7 +324,7 @@ def lateral_menu_gadz(user, group, active=None):
                     'Evènements',
                     'calendar',
                     'lm_self_sharedevent_list',
-                    reverse('url_self_sharedevent_list', kwargs={'group_name': group.name})))
+                    reverse('url_sharedevent_list', kwargs={'group_name': group.name})))
     except ObjectDoesNotExist:
         pass
 
