@@ -1,6 +1,9 @@
 <div class="panel panel-default">
   <div class="panel-heading">
-    Utilisateurs
+    {% if state == "users" %}Utilisateurs - Tous les concernés
+    {% elif state == "participants" %}Utilisateurs - Uniquement les participants
+    {% elif state == "registrants" %}Utilisateurs - Uniquement les préinscrits
+    {% endif %}
   </div>
   <div class="panel-body" id="table_users">
     <p>
