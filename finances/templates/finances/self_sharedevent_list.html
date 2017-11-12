@@ -23,16 +23,16 @@
             <td>{{ sharedevent.date|date:"d/m/Y" }}</td>
             <td>{{ sharedevent.description }}</td>
             <td>{{ sharedevent.manager }}</td>
-            <td>{{ sharedevent.registered.all.count }} / {{ sharedevent.participants.all.count }}</td>
+            <td>todo / todo</td>
             <td>
-                {% if user in sharedevent.registered.all %}
+                {% if false %}
                     Oui
                 {% else %}
                     Non
-                    {% if e.allow_self_registeration %},
+                    {% if sharedevent.allow_self_registeration %},
                       <a
-                      href="{% url 'url_self_sharedevent_registration' group_name=group.name pk=sharedevent.pk %}"
-                      class="btn btn-xs">se préinscrire</a>
+                      href="{% url 'url_sharedevent_self_registration' group_name=group.name pk=sharedevent.pk weight=1 %}"
+                      class="btn btn-xs">Se préinscrire</a>
                     {% endif %}
                 {% endif %}
             </td>

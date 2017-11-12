@@ -3,13 +3,13 @@ import operator
 import hashlib
 import decimal
 from datetime import timedelta
+import datetime
 
 from django.shortcuts import render, HttpResponse, force_text, redirect
 from django.shortcuts import Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from datetime import timedelta
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 
@@ -1148,26 +1148,33 @@ class SelfSharedEventList(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class SelfSharedEventRegistration(GroupPermissionMixin, View):
+class SharedEventSelfRegistration(GroupPermissionMixin, View):
     perm_codename = None
 
     def get(self, request, *args, **kwargs):
         try:
-            se = SharedEvent.objects.get(pk=kwargs['pk'])
-            if se.allow_self_registeration:
-                if request.user not in se.users.all():
-                    se.users.add(request.user)
-                    se.save()
+            group = Group.objects.get(name=kwargs['group_name'])
         except ObjectDoesNotExist:
-            pass
+            raise Http404
+
         try:
-            self.group = Group.objects.get(name=request.GET.get('group_name'))
+            se = SharedEvent.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
-            pass
+            raise Http404
+
+        if not se.allow_self_registeration:
+            raise PermissionDenied
+
+        if se.date_end_registration:
+            if datetime.date.today() > se.date_end_registration:
+                raise PermissionDenied
+
+        se.add_weight(request.user, kwargs['weight'], False)
+        se.save()
 
         return redirect(reverse(
             'url_self_sharedevent_list',
-            kwargs={'group_name': self.group.name}
+            kwargs={'group_name': group.name}
         ))
 
 
@@ -1190,6 +1197,11 @@ class SharedEventCreate(GroupPermissionMixin, FormView,
             se.price = form.cleaned_data['price']
         if form.cleaned_data['bills']:
             se.bills = form.cleaned_data['bills']
+        if form.cleaned_data['date_end_registration']:
+            date_end_registration = form.cleaned_data['date_end_registration']
+            if date_end_registration > datetime.date.today() and date_end_registration <= form.cleaned_data['date']:
+                se.date_end_registration = form.cleaned_data['date_end_registration']
+
         se.save()
 
         self.success_url = reverse(
@@ -1624,7 +1636,6 @@ class SharedEventRemoveUser(GroupPermissionMixin, View):
             'url_sharedevent_update',
             kwargs={'group_name': self.group.name, 'pk': se.pk}
         ) + "?state=" + state + "&order_by=" + order_by + "#table_users")
-
 
 
 class SharedEventProceedPayment(GroupPermissionMixin, View):

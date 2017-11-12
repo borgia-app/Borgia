@@ -1,7 +1,3 @@
-/**
- * Created by Alexandre on 31/03/2016.
- */
-
 // Date picker
 jQuery(function($){
     $(".datepicker").datepicker({

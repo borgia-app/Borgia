@@ -236,6 +236,10 @@ class SharedEventCreateForm(forms.Form):
                                required=False, min_value=0)
     bills = forms.CharField(label='Factures liées (vide si pas encore connu)', required=False)
     allow_self_registeration = forms.BooleanField(label='Autoriser la self préinscription', initial=True, required=False)
+    date_end_registration = forms.DateField(    label='Date de fin de self-préinscription (vide si pas autorisé)',
+                                                required=False,
+                                                widget=forms.DateInput(attrs={'class': 'datepicker'})
+                                            )
 
 
 class SharedEventManageListForm(forms.Form):

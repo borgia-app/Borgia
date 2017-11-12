@@ -455,6 +455,7 @@ class SharedEvent(models.Model):
                                     #related_name='people'
                                     )
     allow_self_registeration = models.BooleanField('Autoriser la self-préinscription', default=True)
+    date_end_registration = models.DateField('Date de fin de self-préinscription', blank=True, null=True)
 
     def __str__(self):
         """
