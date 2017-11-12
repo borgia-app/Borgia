@@ -304,7 +304,7 @@ urlpatterns = [
         #####################
         #   SHAREDEVENTS    #
         #####################
-    url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/self/registration/(?P<weight>\d+)$',
+    url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/self_registration/(?P<weight>\d+)$',
         SharedEventSelfRegistration.as_view(),
         name='url_sharedevent_self_registration'),
 
