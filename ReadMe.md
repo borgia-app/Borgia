@@ -54,13 +54,11 @@ Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes
 
 ## SharedEvent - TODO List :
 
-Fixer les problèmes d'update de l'event  - Done
-Fixer l'ajout d'un user (Deux views - Add pondération et changepondération) - Done
-Fixer le fonctionnement de l'ajax - Done
 Ajouter une option pour se faire une marge (si c'est pas déjà le cas)
 Ajouter une fonction pour définir le prix par pondération (et pas par prix total)
 Fixer la suppression d'un user selon les cas - Done
-Utiliser des requetes post pour du submitting de data (notamment dans la suppression)
+Utiliser des requetes post pour du submitting de data (notamment : suppression, self_preinscription)
+Ajouter pour l'evenement la fin prévue de l'inscription
 Pouvoir manuellement terminer les preinscriptions
 Ajout d'un indicateur visuel pour dire que l'ajax s'est bien (ou mal) passé
 
