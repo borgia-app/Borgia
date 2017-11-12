@@ -1161,52 +1161,23 @@ class SharedEventList(GroupPermissionMixin, FormView,
             else:
                 done = False
 
-            query_shared_event = SharedEvent.objects.filter(date__range=[date_begin, date_end], done=done)
+            shared_events = SharedEvent.objects.filter(date__range=[date_begin, date_end], done=done)
         else:
-            query_shared_event = SharedEvent.objects.filter(date__range=[date_begin, date_end])
+            shared_events = SharedEvent.objects.filter(date__range=[date_begin, date_end])
 
 
         context = self.get_context_data(**kwargs)
         if order_by != '-date':
-            context['query_shared_event'] = query_shared_event.order_by(order_by).order_by('-date')
+            context['shared_events'] = shared_events.order_by(order_by).order_by('-date')
         else:
-            context['query_shared_event'] = query_shared_event.order_by('-date')
+            context['shared_events'] = shared_events.order_by('-date')
 
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(SharedEventList, self).get_context_data(**kwargs)
-        context['query_shared_event'] = SharedEvent.objects.filter(date__gte=datetime.date.today(), done=False).order_by('-date')
+        context['shared_events'] = SharedEvent.objects.filter(date__gte=datetime.date.today(), done=False).order_by('-date')
         return context
-
-
-class SharedEventSelfRegistration(GroupPermissionMixin, View):
-    perm_codename = None
-
-    def get(self, request, *args, **kwargs):
-        try:
-            group = Group.objects.get(name=kwargs['group_name'])
-            se = SharedEvent.objects.get(pk=int(kwargs['pk']))
-            weight = int(kwargs['weight'])
-        except ObjectDoesNotExist:
-            raise Http404
-        except ValueError: # For safety, but it shouldn't be possible with regex pattern in url FOR NOW (If Post is used, url need to be modified)
-            raise PermissionDenied
-
-        if not se.allow_self_registeration:
-            raise PermissionDenied
-
-        if se.date_end_registration:
-            if datetime.date.today() > se.date_end_registration:
-                raise PermissionDenied
-
-        se.add_weight(request.user, weight, False)
-        se.save()
-
-        return redirect(reverse(
-            'url_sharedevent_list',
-            kwargs={'group_name': group.name}
-        ))
 
 
 class SharedEventCreate(GroupPermissionMixin, FormView,
@@ -1257,17 +1228,14 @@ class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def dispatch(self, request, *args, **kwargs):
         try:
+            self.group = Group.objects.get(name=kwargs['group_name'])
             self.se = SharedEvent.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
 
         # Permissions
         try:
-            group = Group.objects.get(name=kwargs['group_name'])
-        except ObjectDoesNotExist:
-            raise Http404
-        try:
-            if Permission.objects.get(codename='manage_sharedevent') not in group.permissions.all():
+            if Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all():
                 if request.user != self.se.manager:
                     raise PermissionDenied
         except ObjectDoesNotExist:
@@ -1284,18 +1252,11 @@ class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def post(self, request, *args, **kwargs):
         self.se.delete()
-        if self.group.name == 'gadzarts':
-            return redirect(
-                reverse(
-                    'url_sharedevent_list',
-                    kwargs={'group_name': self.group.name}
-                    ))
         return redirect(
             reverse(
                 'url_sharedevent_list',
                 kwargs={'group_name': self.group.name}
                 ))
-
 
 class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     """
@@ -1343,12 +1304,7 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
         self.se.done = True
         self.se.remark = form.cleaned_data['remark']
         self.se.save()
-        if self.group.name == 'gadzarts':
-            return redirect(
-                reverse(
-                    'url_sharedevent_list',
-                    kwargs={'group_name': self.group.name}
-                    ))
+
         return redirect(
             reverse(
                 'url_sharedevent_list',
@@ -1566,84 +1522,56 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return redirect(reverse('url_sharedevent_update', kwargs={'group_name': self.group.name, 'pk': se.pk}))
 
 
-class SharedEventRemoveUser(GroupPermissionMixin, View):
-    perm_codename = None
+class SharedEventSelfRegistration(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+    """
+    Allow a user to register himself
 
-    def get(self, request, *args, **kwargs):
-        se = SharedEvent.objects.get(pk=kwargs['pk'])
+    :param kwargs['group_name']: name of the group used.
+    :param kwargs['pk']: pk of the event
+    :param self.perm_codename: codename of the permission checked.
+    """
+    form_class = SharedEventSelfRegistrationForm
+    template_name = 'finances/sharedevent_self_registration.html'
+    success_url = None
+    perm_codename = None  # Checked in dispatch
 
-        if (request.user != se.manager
-                and request.user.has_perm('finances.change_sharedevent')
-                is False):
-            raise PermissionDenied
-        elif se.done is True:
-            raise PermissionDenied
 
+    def dispatch(self, request, *args, **kwargs):
         try:
-            state = request.GET['state']
-            order_by = request.GET['order_by']
-            user_pk = kwargs['user_pk']
-
-            if state == "users":
-                if user_pk == 'ALL':
-                    for u in se.users.all():
-                        se.remove_participant(u)
-                else:
-                    se.remove_participant(User.objects.get(pk=user_pk))
-
-            elif state == "participants":
-                if user_pk == 'ALL':
-                    for u in se.users.all():
-                        se.change_weight(u, 0, True)
-                else:
-                    se.change_weight(User.objects.get(pk=user_pk), 0, True)
-
-            elif state == "registrants":
-                if user_pk == 'ALL':
-                    for u in se.users.all():
-                        se.change_weight(u, 0, False)
-                else:
-                    se.change_weight(User.objects.get(pk=user_pk), 0, False)
-
-            else:
-                raise Http404
+            self.se = SharedEvent.objects.get(pk=int(kwargs['pk']))
         except ObjectDoesNotExist:
             raise Http404
-
-        return redirect(reverse(
-            'url_sharedevent_update',
-            kwargs={'group_name': self.group.name, 'pk': se.pk}
-        ) + "?state=" + state + "&order_by=" + order_by + "#table_users")
-
-
-class SharedEventProceedPayment(GroupPermissionMixin, View):
-    perm_codename = None
-
-    def get(self, request, *args, **kwargs):
-        try:
-            se = SharedEvent.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
+        except ValueError: # For safety, but it shouldn't be possible with regex pattern in url FOR NOW (If Post is used, url need to be modified)
             raise Http404
-        if se.done is True:
-            raise PermissionDenied
-        if se.price is not None:
-            if se.users.count() > 0:
-              se.pay(request.user, User.objects.get(pk=1))
-              return redirect(reverse(
-                'url_sharedevent_update',
-                kwargs={'group_name': self.group.name, 'pk': se.pk}
-              ))
-            else:
-              return redirect(reverse(
-                'url_sharedevent_update',
-                kwargs={'group_name': self.group.name, 'pk': se.pk}
-              ) + '?no_participant=True')
 
-        else:
-            return redirect(reverse(
-                'url_sharedevent_update',
-                kwargs={'group_name': self.group.name, 'pk': se.pk}
-            ) + '?no_price=True')
+        # Permissions
+        if self.se.done:
+            raise PermissionDenied
+
+        if not self.se.allow_self_registeration:
+            raise PermissionDenied
+
+        if self.se.date_end_registration:
+            if datetime.date.today() > self.se.date_end_registration:
+                raise PermissionDenied
+
+        return super(SharedEventSelfRegistration, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SharedEventSelfRegistration, self).get_context_data(**kwargs)
+        context['shared_event'] = self.se
+        context['registeration_of_user'] = self.se.get_weight_of_user(self.request.user, False)
+        return context
+
+    def form_valid(self, form):
+
+        self.se.change_weight(self.request.user, int(form.cleaned_data['weight']), False)
+
+        return redirect(
+            reverse(
+                'url_sharedevent_self_registration',
+                kwargs={'group_name': self.group.name, 'pk': self.se.pk}
+                ))
 
 
 class SharedEventChangeWeight(GroupPermissionMixin, View):
@@ -1733,6 +1661,86 @@ class SharedEventAddWeight(GroupPermissionMixin, View):
                                 add_weight_form.cleaned_data['weight'], isParticipant)
 
             return redirect(reverse('url_sharedevent_update', kwargs={'group_name': self.group.name, 'pk': se.pk}))
+
+
+class SharedEventRemoveUser(GroupPermissionMixin, View):
+    perm_codename = None
+
+    def get(self, request, *args, **kwargs):
+        se = SharedEvent.objects.get(pk=kwargs['pk'])
+
+        if (request.user != se.manager
+                and request.user.has_perm('finances.change_sharedevent')
+                is False):
+            raise PermissionDenied
+        elif se.done is True:
+            raise PermissionDenied
+
+        try:
+            state = request.GET['state']
+            order_by = request.GET['order_by']
+            user_pk = kwargs['user_pk']
+
+            if state == "users":
+                if user_pk == 'ALL':
+                    for u in se.users.all():
+                        se.remove_participant(u)
+                else:
+                    se.remove_participant(User.objects.get(pk=user_pk))
+
+            elif state == "participants":
+                if user_pk == 'ALL':
+                    for u in se.users.all():
+                        se.change_weight(u, 0, True)
+                else:
+                    se.change_weight(User.objects.get(pk=user_pk), 0, True)
+
+            elif state == "registrants":
+                if user_pk == 'ALL':
+                    for u in se.users.all():
+                        se.change_weight(u, 0, False)
+                else:
+                    se.change_weight(User.objects.get(pk=user_pk), 0, False)
+
+            else:
+                raise Http404
+        except ObjectDoesNotExist:
+            raise Http404
+
+        return redirect(reverse(
+            'url_sharedevent_update',
+            kwargs={'group_name': self.group.name, 'pk': se.pk}
+        ) + "?state=" + state + "&order_by=" + order_by + "#table_users")
+
+
+class SharedEventProceedPayment(GroupPermissionMixin, View):
+    perm_codename = None
+
+    def get(self, request, *args, **kwargs):
+        try:
+            se = SharedEvent.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+        if se.done is True:
+            raise PermissionDenied
+        if se.price is not None:
+            if se.users.count() > 0:
+              se.pay(request.user, User.objects.get(pk=1))
+              return redirect(reverse(
+                'url_sharedevent_update',
+                kwargs={'group_name': self.group.name, 'pk': se.pk}
+              ))
+            else:
+              return redirect(reverse(
+                'url_sharedevent_update',
+                kwargs={'group_name': self.group.name, 'pk': se.pk}
+              ) + '?no_participant=True')
+
+        else:
+            return redirect(reverse(
+                'url_sharedevent_update',
+                kwargs={'group_name': self.group.name, 'pk': se.pk}
+            ) + '?no_price=True')
 
 
 @csrf_exempt

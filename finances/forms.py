@@ -261,6 +261,10 @@ class SharedEventListUsersForm(forms.Form):
                                                 ('participants', 'Uniquement les participant')))
 
 
+class SharedEventSelfRegistrationForm(forms.Form):
+    weight = forms.IntegerField(label='Pondération', min_value=0)
+
+
 class SharedEventManageUploadJSONForm(forms.Form):
     file = forms.FileField(label='Fichier de données')
     state = forms.ChoiceField(

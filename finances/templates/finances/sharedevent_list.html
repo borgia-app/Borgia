@@ -36,7 +36,7 @@
           <th>Préinscrit</th>
           <th>Gestion</th>
         </tr>
-        {% for sharedevent in query_shared_event %}
+        {% for sharedevent in shared_events %}
         <tr>
           <td>{{ sharedevent.date|date:"d/m/Y" }}</td>
           <td>{{ sharedevent.description }}</td>
@@ -49,7 +49,7 @@
                   Non
                   {% if sharedevent.allow_self_registeration %},
                     <a
-                    href="{% url 'url_sharedevent_self_registration' group_name=group.name pk=sharedevent.pk weight=1 %}"
+                    href="{% url 'url_sharedevent_self_registration' group_name=group.name pk=sharedevent.pk %}"
                     class="btn btn-xs">Se préinscrire</a>
                   {% endif %}
               {% endif %}
