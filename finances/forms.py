@@ -1,4 +1,5 @@
 import re
+import datetime
 
 from django import forms
 from django.contrib.auth import authenticate
@@ -243,9 +244,13 @@ class SharedEventCreateForm(forms.Form):
 
 
 class SharedEventListForm(forms.Form):
-    date_begin = forms.DateField(label="Depuis", required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
+    date_begin = forms.DateField(label="Depuis", required=False, initial= datetime.date.today(),
+                                    widget=forms.DateInput(attrs={'class': 'datepicker'})
+                                )
     date_end = forms.DateField(label="Jusqu'à", required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    done = forms.ChoiceField(label="Etat", choices=(("not_done", 'En cours'), ("done", 'Terminé'), ("both", 'Les deux')))
+    done = forms.ChoiceField(label="Etat", choices=(("not_done", 'En cours'), ("done", 'Terminé'), ("both", 'Les deux')),
+                                initial=("not_done", 'En cours')
+                            )
     order_by = forms.ChoiceField(label="Trier par", choices=(('-date', 'Date'), ('manager', 'Opérateur')))
 
 

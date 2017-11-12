@@ -1172,14 +1172,7 @@ class SharedEventList(GroupPermissionMixin, FormView,
         else:
             context['query_shared_event'] = query_shared_event.order_by('-date')
 
-
         return self.render_to_response(context)
-
-    def get_initial(self):
-        initial = super(SharedEventList, self).get_initial()
-        initial['date_begin'] = datetime.date.today()
-        initial['done'] = "not_done"
-        return initial
 
     def get_context_data(self, **kwargs):
         context = super(SharedEventList, self).get_context_data(**kwargs)
