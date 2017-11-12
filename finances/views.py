@@ -1193,13 +1193,12 @@ class SharedEventSelfRegistration(GroupPermissionMixin, View):
     def get(self, request, *args, **kwargs):
         try:
             group = Group.objects.get(name=kwargs['group_name'])
+            se = SharedEvent.objects.get(pk=int(kwargs['pk']))
+            weight = int(kwargs['weight'])
         except ObjectDoesNotExist:
             raise Http404
-
-        try:
-            se = SharedEvent.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
+        except ValueError: # For safety, but it shouldn't be possible with regex pattern in url FOR NOW (If Post is used, url need to be modified)
+            raise PermissionDenied
 
         if not se.allow_self_registeration:
             raise PermissionDenied
@@ -1208,7 +1207,7 @@ class SharedEventSelfRegistration(GroupPermissionMixin, View):
             if datetime.date.today() > se.date_end_registration:
                 raise PermissionDenied
 
-        se.add_weight(request.user, kwargs['weight'], False)
+        se.add_weight(request.user, weight, False)
         se.save()
 
         return redirect(reverse(
