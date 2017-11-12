@@ -60,7 +60,7 @@ Fixer le fonctionnement de l'ajax - Done
 Deplacer le paiement dans terminer l'event
 Ajouter une option pour se faire une marge (si c'est pas déjà le cas)
 Ajouter une fonction pour définir le prix par pondération (et pas par prix total)
-Fixer la suppression d'un user selon les cas
+Fixer la suppression d'un user selon les cas - Done
 Utiliser des requetes post pour du submitting de data (notamment dans la suppression)
 Pouvoir manuellement terminer les preinscriptions
 Ajout d'un indicateur visuel pour dire que l'ajax s'est bien (ou mal) passé
