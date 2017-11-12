@@ -1368,13 +1368,13 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
 
         # If an option is provided
-        if self.request.GET.get('list_users-state') is not None:
-            if self.request.GET.get('list_users-state') in ['users', 'participants', 'registrants']:
-                state = self.request.GET.get('list_users-state')
+        if self.request.GET.get('state') is not None:
+            if self.request.GET.get('state') in ['users', 'participants', 'registrants']:
+                state = self.request.GET.get('state')
         # If an option is provided
-        if self.request.GET.get('list_users-order_by') is not None:
-            if self.request.GET.get('list_users-order_by') in ['username', 'last_name', 'surname']:
-                order_by = self.request.GET.get('list_users-order_by')
+        if self.request.GET.get('order_by') is not None:
+            if self.request.GET.get('order_by') in ['username', 'last_name', 'surname']:
+                order_by = self.request.GET.get('order_by')
 
         initial_list_users_form = {
             'state': state,
@@ -1389,7 +1389,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
         # Création des forms
         update_form = SharedEventManageUpdateForm(prefix='update_form', initial=initial_update_form)
         upload_json_form = SharedEventManageUploadJSONForm(prefix='upload_json')
-        list_users_form = SharedEventListUsersForm(prefix='list_users', initial=initial_list_users_form)
+        list_users_form = SharedEventListUsersForm(initial=initial_list_users_form)
         add_weight_form = SharedEventAddWeightForm(prefix='add_weight')
         download_xlsx_form = SharedEventManageDownloadXlsxForm(prefix='download_xlsx',
                                                                list_year=list_year())
@@ -1448,7 +1448,7 @@ class SharedEventUpdate(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
         # Si form update
         # if action == 'update':
-        update_form = SharedEventManageUpdateForm(request.POST, prefix='update_form')
+        update_form = SharedEventManageUpdateForm(request.POST)
         if update_form.is_valid():
             se.price = update_form.cleaned_data['price']
             se.bills = update_form.cleaned_data['bills']
@@ -1576,7 +1576,7 @@ class SharedEventList(GroupPermissionMixin, FormView,
         return context
 
 
-class SharedEventRmParticipant(GroupPermissionMixin, View):
+class SharedEventRemoveUser(GroupPermissionMixin, View):
     perm_codename = None
 
     def get(self, request, *args, **kwargs):
@@ -1590,54 +1590,41 @@ class SharedEventRmParticipant(GroupPermissionMixin, View):
             raise PermissionDenied
 
         try:
-            user_pk = kwargs['participant_pk']
-            if user_pk == 'ALL':
-                for u in se.participants.all():
-                    se.remove_participant(u)
+            state = request.GET['state']
+            order_by = request.GET['order_by']
+            user_pk = kwargs['user_pk']
+
+            if state == "users":
+                if user_pk == 'ALL':
+                    for u in se.users.all():
+                        se.remove_participant(u)
+                else:
+                    se.remove_participant(User.objects.get(pk=user_pk))
+
+            elif state == "participants":
+                if user_pk == 'ALL':
+                    for u in se.users.all():
+                        se.change_weight(u, 0, True)
+                else:
+                    se.change_weight(User.objects.get(pk=user_pk), 0, True)
+
+            elif state == "registrants":
+                if user_pk == 'ALL':
+                    for u in se.users.all():
+                        se.change_weight(u, 0, False)
+                else:
+                    se.change_weight(User.objects.get(pk=user_pk), 0, False)
+
             else:
-                se.remove_participant(User.objects.get(pk=user_pk))
+                raise Http404
         except ObjectDoesNotExist:
-            pass
+            raise Http404
 
         return redirect(reverse(
             'url_sharedevent_update',
             kwargs={'group_name': self.group.name, 'pk': se.pk}
-        ) + '#table_users')# TODO : Keep user search parameters. Ex : '?state=participants#table_users')
+        ) + "?state=" + state + "&order_by=" + order_by + "#table_users")
 
-
-class SharedEventRmRegistered(GroupPermissionMixin, View):
-    perm_codename = None
-
-    def get(self, request, *args, **kwargs):
-        se = SharedEvent.objects.get(pk=kwargs['pk'])
-
-        if (request.user != se.manager
-                and request.user.has_perm('finances.change_sharedevent')
-                is False):
-            raise PermissionDenied
-        # Même en ayant la permission, on ne modifie plus une event terminé
-        elif se.done is True:
-            raise PermissionDenied
-        # Si la date est passé et que le payment n'est pas fait, on ne modifie plus les préinscrits
-        elif datetime.date(now()) > se.date:
-            raise PermissionDenied
-
-        try:
-            user_pk = kwargs['registered_pk']
-            if user_pk == 'ALL':
-                for u in se.registered.all():
-                    se.registered.remove(u)
-                se.save()
-            else:
-                se.registered.remove(User.objects.get(pk=user_pk))
-                se.save()
-        except ObjectDoesNotExist:
-            pass
-
-        return redirect(reverse(
-            'url_sharedevent_update',
-            kwargs={'group_name': self.group.name, 'pk': se.pk}
-        ) + '#table_users')# TODO : Keep user search parameters. Ex : '?state=participants#table_users')
 
 
 class SharedEventProceedPayment(GroupPermissionMixin, View):
@@ -1715,6 +1702,7 @@ class SharedEventChangeWeight(GroupPermissionMixin, View):
             pass
 
         return HttpResponse(response)
+
 
 class SharedEventAddWeight(GroupPermissionMixin, View):
     perm_codename = None

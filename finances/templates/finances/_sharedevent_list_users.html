@@ -10,14 +10,14 @@
     </p>
     <p>
         {% if done == False %}
-            {% if state == 'registrants' %}
+            {% if state == "users" %}
             <a class="btn btn-danger"
-            href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk='ALL' %}">
-            Supprimer tous les préinscrits</a>
+            href="{% url 'url_sharedevent_remove_user' group_name=group.name pk=pk user_pk='ALL' %}?state={{ state }}&order_by={{ order_by }}">
+            Supprimer tous les utilisateurs</a>
             {% else %}
-              <a class="btn btn-danger"
-              href="{% url 'url_sharedevent_rm_participant' group_name=group.name pk=pk participant_pk='ALL' %}">
-              Supprimer tous les participants</a>
+              <a class="btn btn-warning"
+              href="{% url 'url_sharedevent_remove_user' group_name=group.name pk=pk user_pk='ALL' %}?state={{ state }}&order_by={{ order_by }}">
+              RAZ de tous les users</a>
             {% endif %}
         {% endif %}
     </p>
@@ -76,18 +76,30 @@
                 {% endif %}
               </td>
               {% if done %}
-              <td>{% if price %}{{ u.2 }}{% else %}Indéfini{% endif %}</td>
+                <td>
+                  {% if price %}
+                    {{ u.2 }}
+                  {% else %}
+                    Indéfini
+                  {% endif %}
+                </td>
               {% elif state != "users" %}
-              <td id="price_{{ u.0.pk }}">{% if price %}{{ u.1 }}{% else %}Indéfini{% endif %}</td>
+              <td id="price_{{ u.0.pk }}">
+                {% if price %}
+                  {{ u.1 }}
+                {% else %}
+                  Indéfini
+                {% endif %}
+              </td>
               {% endif %}
               {% if not done %}
               <td>
-                  {% if state == 'users' or state == 'participants' %}
+                  {% if state == 'users' %}
                       <a class="btn btn-small btn-danger"
-                      href="{% url 'url_sharedevent_rm_participant' group_name=group.name pk=pk participant_pk=u.0.pk %}">Supprimer</a>
-                  {% elif state == 'registrants'%}
-                      <a class="btn btn-small btn-danger"
-                      href="{% url 'url_sharedevent_rm_registered' group_name=group.name pk=pk registered_pk=u.0.pk %}">Supprimer</a>
+                      href="{% url 'url_sharedevent_remove_user' group_name=group.name pk=pk user_pk=u.0.pk %}?state={{ state }}&order_by={{ order_by }}">Supprimer</a>
+                  {% else %}
+                      <a class="btn btn-small btn-warning"
+                      href="{% url 'url_sharedevent_remove_user' group_name=group.name pk=pk user_pk=u.0.pk %}?state={{ state }}&order_by={{ order_by }}">RAZ</a>
                   {% endif %}
               </td>
               {% endif %}
