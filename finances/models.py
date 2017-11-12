@@ -548,18 +548,26 @@ class SharedEvent(models.Model):
         """
 
         # if the user doesn't exist in the event already
-        if user not in self.users.all():
-            if isParticipant:
-                WeightsUser.objects.create(user=user, shared_event=self, weights_participation = weight)
-            else:
-                WeightsUser.objects.create(user=user, shared_event=self, weights_registeration = weight)
+        if user not in self.users.all() :
+            if weight != 0:
+                if isParticipant:
+                    WeightsUser.objects.create(user=user, shared_event=self, weights_participation = weight)
+                else:
+                    WeightsUser.objects.create(user=user, shared_event=self, weights_registeration = weight)
         else:
             e = self.weightsuser_set.get(user=user, shared_event=self)
-            if isParticipant:
-                e.weights_participation = weight
+
+            if weight == 0 and ( isParticipant and e.weights_registeration == 0 ) or ( not isParticipant and e.weights_participation == 0 ):
+                e.delete()
+                # Deleted if the bot value are 0
+
             else:
-                e.weights_registeration = weight
-            e.save()
+                if isParticipant:
+                    e.weights_participation = weight
+                else:
+                    e.weights_registeration = weight
+
+                e.save()
 
     def get_price_of_user(self, user):
 	    # Calcul du prix par weight
