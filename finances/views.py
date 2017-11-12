@@ -1141,7 +1141,7 @@ class SharedEventList(GroupPermissionMixin, FormView,
     template_name = 'finances/sharedevent_list.html'
     lm_active = 'lm_sharedevent_list'
     perm_codename = 'list_sharedevent'
-    form_class = SharedEventManageListForm
+    form_class = SharedEventListForm
 
     def form_valid(self, form, **kwargs):
 

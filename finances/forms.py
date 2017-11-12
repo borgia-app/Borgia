@@ -242,7 +242,7 @@ class SharedEventCreateForm(forms.Form):
                                             )
 
 
-class SharedEventManageListForm(forms.Form):
+class SharedEventListForm(forms.Form):
     date_begin = forms.DateField(label="Depuis", required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
     date_end = forms.DateField(label="Jusqu'à", required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
     done = forms.ChoiceField(label="Etat", choices=(("not_done", 'En cours'), ("done", 'Terminé'), ("both", 'Les deux')))
