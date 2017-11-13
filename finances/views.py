@@ -1331,10 +1331,6 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         elif state == 'registrants':
             return se.list_registrants_weight()
 
-    @staticmethod
-    def get_key(item, order_by):
-        return getattr(item, order_by)
-
     def dispatch(self, request, *args, **kwargs):
         try:
             self.group = Group.objects.get(name=kwargs['group_name'])
