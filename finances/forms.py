@@ -230,6 +230,17 @@ class SelfLydiaCreateForm(forms.Form):
                 ])
 
 
+class SharedEventListForm(forms.Form):
+    date_begin = forms.DateField(label="Depuis", required=False, initial= datetime.date.today(),
+                                    widget=forms.DateInput(attrs={'class': 'datepicker'})
+                                )
+    date_end = forms.DateField(label="Jusqu'à", required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
+    done = forms.ChoiceField(label="Etat", choices=(("not_done", 'En cours'), ("done", 'Terminé'), ("both", 'Les deux')),
+                                initial=("not_done", 'En cours')
+                            )
+    order_by = forms.ChoiceField(label="Trier par", choices=(('-date', 'Date'), ('manager', 'Opérateur')))
+
+
 class SharedEventCreateForm(forms.Form):
     description = forms.CharField(label='Description')
     date = forms.DateField(label='Date de l\'événement', widget=forms.DateInput(attrs={'class': 'datepicker'}))
@@ -243,15 +254,14 @@ class SharedEventCreateForm(forms.Form):
                                             )
 
 
-class SharedEventListForm(forms.Form):
-    date_begin = forms.DateField(label="Depuis", required=False, initial= datetime.date.today(),
-                                    widget=forms.DateInput(attrs={'class': 'datepicker'})
-                                )
-    date_end = forms.DateField(label="Jusqu'à", required=False, widget=forms.DateInput(attrs={'class': 'datepicker'}))
-    done = forms.ChoiceField(label="Etat", choices=(("not_done", 'En cours'), ("done", 'Terminé'), ("both", 'Les deux')),
-                                initial=("not_done", 'En cours')
-                            )
-    order_by = forms.ChoiceField(label="Trier par", choices=(('-date', 'Date'), ('manager', 'Opérateur')))
+class SharedEventFinishForm(forms.Form):
+    remark = forms.CharField(label='Pourquoi finir l\'événement ?')
+
+
+class SharedEventUpdateForm(forms.Form):
+    price = forms.DecimalField(label='Prix total (€)', decimal_places=2, max_digits=9, min_value=0, required=False)
+    bills = forms.CharField(label='Factures liées', required=False)
+    allow_self_registeration = forms.BooleanField(label='Autoriser la préinscription', required=False)
 
 
 class SharedEventListUsersForm(forms.Form):
@@ -263,23 +273,6 @@ class SharedEventListUsersForm(forms.Form):
 
 class SharedEventSelfRegistrationForm(forms.Form):
     weight = forms.IntegerField(label='Pondération', min_value=0)
-
-
-class SharedEventManageUploadJSONForm(forms.Form):
-    file = forms.FileField(label='Fichier de données')
-    state = forms.ChoiceField(
-        label='Etat',
-        choices=(('registered', 'Préinscrit'), ('participants', 'Participant')))
-
-
-class SharedEventFinishForm(forms.Form):
-    remark = forms.CharField(label='Pourquoi finir l\'événement ?')
-
-
-class SharedEventUpdateForm(forms.Form):
-    price = forms.DecimalField(label='Prix total (€)', decimal_places=2, max_digits=9, min_value=0, required=False)
-    bills = forms.CharField(label='Factures liées', required=False)
-    allow_self_registeration = forms.BooleanField(label='Autoriser la préinscription', required=False)
 
 
 class SharedEventAddWeightForm(forms.Form):
@@ -305,6 +298,13 @@ class SharedEventManageDownloadXlsxForm(forms.Form):
         for name, value in self.cleaned_data.items():
             if name.startwith('field_year_pg_'):
                 yield (self.fields[name].label, value)
+
+
+class SharedEventManageUploadJSONForm(forms.Form):
+    file = forms.FileField(label='Fichier de données')
+    state = forms.ChoiceField(
+        label='Etat',
+        choices=(('registered', 'Préinscrit'), ('participants', 'Participant')))
 
 
 class SetPriceProductBaseForm(forms.Form):
