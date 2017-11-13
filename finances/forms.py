@@ -236,7 +236,7 @@ class SharedEventCreateForm(forms.Form):
     price = forms.DecimalField(label='Prix total (vide si pas encore connu)', decimal_places=2, max_digits=9,
                                required=False, min_value=0)
     bills = forms.CharField(label='Factures liées (vide si pas encore connu)', required=False)
-    allow_self_registeration = forms.BooleanField(label='Autoriser la self préinscription', initial=True, required=False)
+    allow_self_registeration = forms.BooleanField(label='Autoriser la self préinscription', initial=True)
     date_end_registration = forms.DateField(    label='Date de fin de self-préinscription (vide si pas autorisé)',
                                                 required=False,
                                                 widget=forms.DateInput(attrs={'class': 'datepicker'})
@@ -276,9 +276,10 @@ class SharedEventFinishForm(forms.Form):
     remark = forms.CharField(label='Pourquoi finir l\'événement ?')
 
 
-class SharedEventManageUpdateForm(forms.Form):
+class SharedEventUpdateForm(forms.Form):
     price = forms.DecimalField(label='Prix total (€)', decimal_places=2, max_digits=9, min_value=0, required=False)
     bills = forms.CharField(label='Factures liées', required=False)
+    allow_self_registeration = forms.BooleanField(label='Autoriser la préinscription', required=False)
 
 
 class SharedEventAddWeightForm(forms.Form):
