@@ -327,9 +327,9 @@ urlpatterns = [
         SharedEventList.as_view(),
         name='url_sharedevent_list'),
 
-    url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/add_weight/$',
-        SharedEventAddWeight.as_view(),
-        name='url_sharedevent_add_weight'),
+    url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/manage_users/$',
+        SharedEventManageUsers.as_view(),
+        name='url_sharedevent_manage_users'),
     url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/change_weight/(?P<participant_pk>\d+)/$',
         SharedEventChangeWeight.as_view(),
         name='url_sharedevent_change_weight'),

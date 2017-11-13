@@ -83,6 +83,14 @@
     </form>
   </div>
 </div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Liste {% if not done %}et gestion manuelle {% endif %}des utilisateurs concernés.
+  </div>
+  <div class="panel-body">
+    <a href="{% url 'url_sharedevent_manage_users' pk=pk group_name=group.name %}" class="btn btn-success">Accéder</a>
+  </div>
+</div>
 {% if perms.finances.proceed_payment_sharedevent %}
 <div class="panel panel-default">
   <div class="panel-heading">
@@ -99,83 +107,5 @@
   </div>
 </div>
 {% endif %}
-<div class="panel panel-default">
-  <div class="panel-heading">
-    Gestion manuelle
-  </div>
-  <div class="panel-body">
-    <form action="{% url 'url_sharedevent_update' pk=pk group_name=group.name %}#table_users" method='get'>
-        <p>{{ list_users_form.state.error }}
-          {{ list_users_form.state.label }} : {{ list_users_form.state }}
-            {{ list_users_form.order_by.error }}
-            {{ list_users_form.order_by.label }} : {{ list_users_form.order_by }}
-             <button type='submit' class="btn btn-default">Lister</button></p>
-    </form>
-
-
-    {% if done == False %}
-        <form action="{% url 'url_sharedevent_add_weight' pk=pk group_name=group.name %}" method='post'>
-            {% csrf_token %}
-            {{ add_weight_form.username.error_messages }} {{ add_weight_form.state.error_messages }} {{ add_weight_form.weight.error_messages }}
-            <p>
-              {{ add_weight_form.username.error }}
-              {{ add_weight_form.username.label }} : {{ add_weight_form.username }}
-
-              {{ add_weight_form.state.error }}{{ add_weight_form.state }}
-
-              {{ add_weight_form.weight.error }}
-              {{ add_weight_form.weight.label }} : {{ add_weight_form.weight }}
-              <button type='submit' class="btn btn-warning">Ajouter</button>
-            </p>
-        </form>
-    {% endif %}
-  </div>
-</div>
-
-{% include "finances/_sharedevent_list_users.html" %}
-
-{% if not done %}
-
-<script type="text/javascript">
-    // Modification à la volée de la pondération
-    // Apres la modification (blur ou enter), requete ajax pour modifier la pondération
-    {% for u in list_weights %}
-        $('#weight_participant_{{ u.0.pk }}').change( function (){
-          send_data("{% url 'url_sharedevent_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}", $(this).val(), 1);
-        });
-
-        $('#weight_registered_{{ u.0.pk }}').change( function (){
-          send_data("{% url 'url_sharedevent_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}", $(this).val(), 0);
-        });
-    {% endfor %}
-
-    function send_data (unique_url, new_weight, int_isParticipant) {
-          $.ajax({
-              method: "GET",
-              url: unique_url,
-              data: {
-                  pond: new_weight,
-                  isParticipant: int_isParticipant
-              },
-              success: function (response) {
-
-              },
-              error: function() {
-              }
-          });
-    };
-
-</script>
-
-  {% if price %}
-    {% if state == "participants" or state == "registrants" %}
-      {% load static %}
-      <script src="{% static 'js/shared_event/calculate_users_price.js' %}" >
-      </script>
-    {% endif %}
-  {% endif %}
-{% endif %}
-
-
 
 {% endblock %}
