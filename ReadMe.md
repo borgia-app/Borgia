@@ -57,7 +57,6 @@ Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes
 Ajouter une option pour se faire une marge (si c'est pas déjà le cas)
 Ajouter une fonction pour définir le prix par pondération (et pas par prix total)
 Utiliser des requetes post pour du submitting de data (notamment : suppression)
-Pouvoir manuellement terminer les preinscriptions
 Ajout d'un indicateur visuel pour dire que l'ajax s'est bien (ou mal) passé
 
 Js loaddé partout, restreindre
