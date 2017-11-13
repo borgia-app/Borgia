@@ -1511,6 +1511,14 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
 
         return super(SharedEventManageUsers, self).dispatch(request, *args, **kwargs)
 
+    def get_initial(self):
+        initial = super(SharedEventManageUsers, self).get_initial()
+        if self.request.GET.get('state') is not None and self.request.GET.get('state') == "registrants":
+            initial['state'] = 'registered'
+        else:
+            initial['state'] = 'participant'
+        return initial
+
     def get_context_data(self, **kwargs):
 
         # DEFAULT OPTIONS FOR LISTING
