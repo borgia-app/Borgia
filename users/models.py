@@ -310,7 +310,7 @@ def list_year():
     :returns: list of integer years used by users, sorted the decreasing dates.
     """
     list_year = []
-    for u in User.objects.all().exclude(groups=9):
+    for u in User.objects.all().exclude(groups=6):
         if u.year not in list_year:
             if u.year is not None:  # year is not mandatory
                 list_year.append(u.year)
