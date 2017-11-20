@@ -426,17 +426,6 @@ class SharedEvent(models.Model):
     les participants sont dans la relation m2m users.
     Cependant, cette liste n'est pas ordonnée et deux demande de query peuvent
     renvoyer deux querys ordonnés différement
-
-    --- OLD ---
-    Du coup on stocke le duo [participant_pk, weight] dans une liste
-    dumpé
-    JSON dans le string "weight"
-    Je garde le m2m participants pour avoir quand même un lien plus simple
-    (pour les recherches etc.)
-    Lors de la suppression / ajout il faut utiliser les méthodes
-    add_weight et remove_participant pour faire ca
-    proprement.
-    --- ---
     """
     description = models.CharField('Description', max_length=254)
     date = models.DateField('Date Evenement', default=now)

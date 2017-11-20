@@ -58,29 +58,18 @@
 {% endif %}
 <div class="panel panel-default">
   <div class="panel-heading">
-    Téléchargement de fichiers Excels - Disabled
+    Téléchargement de fichiers Excels
   </div>
   <div class="panel-body">
-    <!-- <form action= "{% url 'url_sharedevent_update' pk=pk group_name=group.name %}" method="post">
+    <form action= "{% url 'url_sharedevent_download_xlsx' pk=pk group_name=group.name %}" method="post" class="form-horizontal">
         {% csrf_token %}
-            <span id="list_year">
-                <label>{{ download_xlsx_form.state.label }}</label> {{ download_xlsx_form.state }}
-                <label>Selectionner les années à inclure :</label>
-                {% for f in download_xlsx_form %}
-                    {% if f != download_xlsx_form.state %}
-                        <span class="fieldWrapper">
-                            {{ f.errors }}
-                            {{ f.label }} : {{ f }}
-                        </span>
-                    {% endif %}
-                {% endfor %}
-            </span>
-        <input type='hidden' name='action' value='download_xlsx'>
-        <input type=hidden name="state" value="{{ state }}" />
-        <input type=hidden name="order_by" value="{{ order_by }}" />
-        <input type=hidden name="next" value="{{ next }}" />
-        <input type="submit" value="Télécharger le fichier"/>
-    </form> -->
+        {{ download_xlsx_form|bootstrap_horizontal }}
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <button type="submit" class="btn btn-primary">Télécharger le fichier</button>
+          </div>
+        </div>
+    </form>
   </div>
 </div>
 <div class="panel panel-default">

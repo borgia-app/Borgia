@@ -22,7 +22,6 @@ from finances.models import *
 from borgia.utils import *
 from settings_data.models import Setting
 from finances.utils import *
-from users.models import list_year
 from notifications.models import notify
 
 
@@ -1351,7 +1350,8 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
 
         # Création des forms
         upload_json_form = SharedEventManageUploadJSONForm(prefix='upload_json')
-        download_xlsx_form = SharedEventManageDownloadXlsxForm( list_year=list_year() )
+        download_xlsx_form = SharedEventDownloadXlsxForm()
+        # list_year() contains smth like [2011, 2015, ...]
 
         context = super(SharedEventUpdate, self).get_context_data(**kwargs)
         context['pk'] = self.se.pk
@@ -1777,62 +1777,44 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
     def form_valid(self, form, *args, **kwargs):
 
         # Initialisation du fichier excel
-        workbook, worksheet, response = workboot_init(se.__str__(), 'Feuil1.XLSM_to_JSON',
+        workbook, worksheet, response = workboot_init(self.se.__str__(), 'Feuil1.XLSM_to_JSON',
                                                       'Générer le fichier JSON')
 
         # Ajout de l'entête de la table
         worksheet_write_line(workbook=workbook, worksheet=worksheet,
                              data=[['Nom prénom', 'Bucque', 'Username', 'Pondération']],
                              bold=True)
+        data = []
 
-        if download_xlsx_form.cleaned_data['state'] == 'year':
-            # Ajout des valeurs
-            list_year_result = []
-            data = []
-            for i in range(0, len(list_year())):
-                if download_xlsx_form.cleaned_data["field_year_%s" % i] is True:
-                    list_year_result.append(list_year()[i])
-            for u in User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=1)).order_by('last_name'):
-                data.append([u.last_name + ' ' + u.first_name, u.surname, u.username])
-            worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
-            workbook.close()
-            return response
+        if form.cleaned_data['state'] == 'year':
 
-        elif download_xlsx_form.cleaned_data['state'] == 'participants':
-            data = []
-            for e in se.list_of_participants_ponderation():
+            if form.cleaned_data['years']:
+                list_year_result = form.cleaned_data['years'] # Contains the years selected
+
+                users = User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=1)).order_by('username')
+                for u in users:
+                    data.append([u.username, u.last_name + ' ' + u.first_name, u.surname])
+
+            else:
+                raise Http404
+
+        elif form.cleaned_data['state'] == 'participants':
+            list_participants_weight = self.se.list_participants_weight()
+            for e in list_participants_weight:
                 u = e[0]
-                data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
-            worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
-            workbook.close()
-            return response
+                data.append([u.username, u.last_name + ' ' + u.first_name, u.surname, e[1]])
 
-        elif download_xlsx_form.cleaned_data['state'] == 'registered':
-            data = []
-            for e in se.list_of_registered_ponderation():
+        elif form.cleaned_data['state'] == 'registrants':
+            list_registrants_weight = self.se.list_registrants_weight()
+            for e in list_registrants_weight:
                 u = e[0]
-                data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
-            worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
-            workbook.close()
-            return response
+                data.append([u.username, u.last_name + ' ' + u.first_name, u.surname, e[1]])
+        else:
+            raise Http404
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        return redirect(reverse('url_sharedevent_manage_users',
-                                    kwargs={'group_name': self.group.name, 'pk': self.se.pk } ))
+        worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
+        workbook.close()
+        return response
 
 
 @csrf_exempt

@@ -12,6 +12,7 @@ from users.models import User
 from shops.models import Shop
 from finances.models import BankAccount
 from borgia.validators import *
+from users.models import list_year
 
 
 class BankAccountCreateForm(forms.ModelForm):
@@ -284,20 +285,21 @@ class SharedEventAddWeightForm(forms.Form):
 
 class SharedEventDownloadXlsxForm(forms.Form):
     state = forms.ChoiceField(label='Selection',
-                              choices=(('year', 'Listes de promotions'), ('registered', 'Préinscrit'),
+                              choices=(('year', 'Listes de promotions'), ('registrants', 'Préinscrit'),
                                        ('participants', 'Participants')))
 
-    def __init__(self, *args, **kwargs):
-        list_year = kwargs.pop('list_year')
-        super(SharedEventDownloadXlsxForm, self).__init__(*args, **kwargs)
-
-        for (i, y) in enumerate(list_year):
-            self.fields['field_year_%s' % i] = forms.BooleanField(label=y, required=False)
-
-    def year_pg_list_answers(self):
-        for name, value in self.cleaned_data.items():
-            if name.startwith('field_year_pg_'):
-                yield (self.fields[name].label, value)
+    def __init__(self, **kwargs):
+        super(SharedEventDownloadXlsxForm, self).__init__(**kwargs)
+        YEAR_CHOICES = []
+        for year in list_year():
+            YEAR_CHOICES.append(
+                (year, year)
+            )
+        self.fields['years'] = forms.MultipleChoiceField(
+            label='Année à inclure ',
+            choices=YEAR_CHOICES,
+            required=False
+        )
 
 
 class SharedEventManageUploadJSONForm(forms.Form):
