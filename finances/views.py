@@ -1351,8 +1351,7 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
 
         # Création des forms
         upload_json_form = SharedEventManageUploadJSONForm(prefix='upload_json')
-        download_xlsx_form = SharedEventManageDownloadXlsxForm(prefix='download_xlsx',
-                                                               list_year=list_year())
+        download_xlsx_form = SharedEventManageDownloadXlsxForm( list_year=list_year() )
 
         context = super(SharedEventUpdate, self).get_context_data(**kwargs)
         context['pk'] = self.se.pk
@@ -1654,6 +1653,186 @@ class SharedEventProceedPayment(GroupPermissionMixin, View):
                 'url_sharedevent_update',
                 kwargs={'group_name': self.group.name, 'pk': se.pk}
             ) + '?no_price=True')
+
+
+class SharedEventSelfRegistration(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+    """
+    Allow a user to register himself
+
+    :param kwargs['group_name']: name of the group used.
+    :param kwargs['pk']: pk of the event
+    :param self.perm_codename: codename of the permission checked.
+    """
+    form_class = SharedEventSelfRegistrationForm
+    template_name = 'finances/sharedevent_self_registration.html'
+    success_url = None
+    perm_codename = None  # Checked in dispatch
+
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.se = SharedEvent.objects.get(pk=int(kwargs['pk']))
+        except ObjectDoesNotExist:
+            raise Http404
+        except ValueError: # For safety, but it shouldn't be possible with regex pattern in url FOR NOW (If Post is used, url need to be modified)
+            raise Http404
+
+        # Permissions
+        if self.se.done:
+            raise PermissionDenied
+
+        if not self.se.allow_self_registeration:
+            raise PermissionDenied
+
+        if self.se.date_end_registration:
+            if datetime.date.today() > self.se.date_end_registration:
+                raise PermissionDenied
+
+        return super(SharedEventSelfRegistration, self).dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super(SharedEventSelfRegistration, self).get_context_data(**kwargs)
+        context['shared_event'] = self.se
+        context['registeration_of_user'] = self.se.get_weight_of_user(self.request.user, False)
+        return context
+
+    def form_valid(self, form):
+
+        self.se.change_weight(self.request.user, int(form.cleaned_data['weight']), False)
+
+        return redirect(
+            reverse(
+                'url_sharedevent_self_registration',
+                kwargs={'group_name': self.group.name, 'pk': self.se.pk}
+                ))
+
+
+class SharedEventChangeWeight(GroupPermissionMixin, View):
+    perm_codename = None
+
+    def get(self, request, *args, **kwargs):
+        """
+        Change la valeur de la pondération d'un participant user pour un événement
+        Permissions :   Si événements terminé -> denied,
+                        Si pas manager ou pas la perm 'finances.manage_sharedevent' -> denied
+        :param pk: pk de l'événement
+        :param user_pk: paramètre GET correspondant au pk de l'user
+        :param pond_pk: paramètre GET correspondant à la nouvelle pondération
+        :type pk, user_pk, pond_pk: int
+        """
+        response = 0
+
+        try:
+            # Variables d'entrées
+            se = SharedEvent.objects.get(pk=kwargs['pk'])
+            user = User.objects.get(pk=kwargs['participant_pk'])
+            pond = int(request.GET['pond'])
+            isParticipant = int(request.GET['isParticipant']) #Boolean
+
+            # Permission
+            if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
+                raise PermissionDenied
+            # Même en ayant la permission, on ne modifie plus une event terminé
+            elif se.done is True:
+                raise PermissionDenied
+
+            if pond > 0:
+                if isParticipant in [0,1]:
+                    # Changement de la pondération
+                    se.change_weight(user, pond, isParticipant)
+
+                    # Réponse
+                    response = 1
+
+        except KeyError:
+            pass
+        except ObjectDoesNotExist:
+            pass
+        except ValueError:
+            pass
+
+        return HttpResponse(response)
+
+
+class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+    """
+    Download Excel.
+    """
+    form_class = SharedEventDownloadXlsxForm
+    perm_codename = None # Checked in dispatch()
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.group = Group.objects.get(name=kwargs['group_name'])
+            self.se = SharedEvent.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+
+        # Permission
+        if not ( request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent') ):
+            raise PermissionDenied
+
+        return super(SharedEventDownloadXlsx, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form, *args, **kwargs):
+
+        # Initialisation du fichier excel
+        workbook, worksheet, response = workboot_init(se.__str__(), 'Feuil1.XLSM_to_JSON',
+                                                      'Générer le fichier JSON')
+
+        # Ajout de l'entête de la table
+        worksheet_write_line(workbook=workbook, worksheet=worksheet,
+                             data=[['Nom prénom', 'Bucque', 'Username', 'Pondération']],
+                             bold=True)
+
+        if download_xlsx_form.cleaned_data['state'] == 'year':
+            # Ajout des valeurs
+            list_year_result = []
+            data = []
+            for i in range(0, len(list_year())):
+                if download_xlsx_form.cleaned_data["field_year_%s" % i] is True:
+                    list_year_result.append(list_year()[i])
+            for u in User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=1)).order_by('last_name'):
+                data.append([u.last_name + ' ' + u.first_name, u.surname, u.username])
+            worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
+            workbook.close()
+            return response
+
+        elif download_xlsx_form.cleaned_data['state'] == 'participants':
+            data = []
+            for e in se.list_of_participants_ponderation():
+                u = e[0]
+                data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
+            worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
+            workbook.close()
+            return response
+
+        elif download_xlsx_form.cleaned_data['state'] == 'registered':
+            data = []
+            for e in se.list_of_registered_ponderation():
+                u = e[0]
+                data.append([u.last_name + ' ' + u.first_name, u.surname, u.username, e[1]])
+            worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
+            workbook.close()
+            return response
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        return redirect(reverse('url_sharedevent_manage_users',
+                                    kwargs={'group_name': self.group.name, 'pk': self.se.pk } ))
 
 
 @csrf_exempt

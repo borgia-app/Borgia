@@ -282,14 +282,14 @@ class SharedEventAddWeightForm(forms.Form):
     weight = forms.IntegerField(label='Pondération', min_value=0, required=True, initial=1)
 
 
-class SharedEventManageDownloadXlsxForm(forms.Form):
+class SharedEventDownloadXlsxForm(forms.Form):
     state = forms.ChoiceField(label='Selection',
                               choices=(('year', 'Listes de promotions'), ('registered', 'Préinscrit'),
                                        ('participants', 'Participants')))
 
     def __init__(self, *args, **kwargs):
         list_year = kwargs.pop('list_year')
-        super(SharedEventManageDownloadXlsxForm, self).__init__(*args, **kwargs)
+        super(SharedEventDownloadXlsxForm, self).__init__(*args, **kwargs)
 
         for (i, y) in enumerate(list_year):
             self.fields['field_year_%s' % i] = forms.BooleanField(label=y, required=False)
