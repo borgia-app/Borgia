@@ -1143,17 +1143,15 @@ class SharedEventList(GroupPermissionMixin, FormView,
     perm_codename = 'list_sharedevent'
     form_class = SharedEventListForm
 
-    def add_info_to_context(events):
-        for se in events:
-            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
-            se.total_weights_registrants = se.get_total_weights_registrants()
-            se.total_weights_participants = se.get_total_weights_participants()
-        return events
-
     def get_context_data(self, **kwargs):
         context = super(SharedEventList, self).get_context_data(**kwargs)
         shared_events = SharedEvent.objects.filter(date__gte=datetime.date.today(), done=False).order_by('-date')
-        context['shared_events'] = add_info_to_context(shared_events)
+
+        for se in shared_events: # Duplicate
+            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
+            se.total_weights_registrants = se.get_total_weights_registrants()
+            se.total_weights_participants = se.get_total_weights_participants()
+        context['shared_events'] = shared_events
         return context
 
     def form_valid(self, form, **kwargs):
@@ -1185,7 +1183,13 @@ class SharedEventList(GroupPermissionMixin, FormView,
         else:
             shared_events = shared_events.order_by('-date')
 
-        context['shared_events'] = add_info_to_context(shared_events)
+
+        for se in shared_events: # Duplicate
+            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
+            se.total_weights_registrants = se.get_total_weights_registrants()
+            se.total_weights_participants = se.get_total_weights_participants()
+
+        context['shared_events'] = shared_events
 
         return self.render_to_response(context)
 
