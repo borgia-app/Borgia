@@ -1168,15 +1168,31 @@ class SharedEventList(GroupPermissionMixin, FormView,
 
         context = self.get_context_data(**kwargs)
         if order_by != '-date':
-            context['shared_events'] = shared_events.order_by(order_by).order_by('-date')
+            shared_events = shared_events.order_by(order_by).order_by('-date')
         else:
-            context['shared_events'] = shared_events.order_by('-date')
+            shared_events = shared_events.order_by('-date')
+
+        ## Duplicate !
+        for se in shared_events:
+            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
+            se.total_weights_registrants = se.get_total_weights_registrants()
+            se.total_weights_participants = se.get_total_weights_participants()
+
+        context['shared_events'] = shared_events
 
         return self.render_to_response(context)
 
     def get_context_data(self, **kwargs):
         context = super(SharedEventList, self).get_context_data(**kwargs)
-        context['shared_events'] = SharedEvent.objects.filter(date__gte=datetime.date.today(), done=False).order_by('-date')
+        shared_events = SharedEvent.objects.filter(date__gte=datetime.date.today(), done=False).order_by('-date')
+
+        ## Duplicate !
+        for se in shared_events:
+            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
+            se.total_weights_registrants = se.get_total_weights_registrants()
+            se.total_weights_participants = se.get_total_weights_participants()
+
+        context['shared_events'] = shared_events
         return context
 
 

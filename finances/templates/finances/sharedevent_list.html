@@ -33,7 +33,8 @@
           <th>Description</th>
           <th>Gestionnaire</th>
           <th>Préinscrits / Participants</th>
-          <th>Préinscrit</th>
+          <th>Status</th>
+          <th>Remarque</th>
           <th>Gestion</th>
         </tr>
         {% for sharedevent in shared_events %}
@@ -41,19 +42,21 @@
           <td>{{ sharedevent.date|date:"d/m/Y" }}</td>
           <td>{{ sharedevent.description }}</td>
           <td>{{ sharedevent.manager }}</td>
-          <td>todo / todo</td>
-          <td>
-              {% if false %}
-                  Oui
-              {% else %}
-                  Non
-                  {% if sharedevent.allow_self_registeration %},
-                    <a
-                    href="{% url 'url_sharedevent_self_registration' group_name=group.name pk=sharedevent.pk %}"
-                    class="btn btn-xs">Se préinscrire</a>
-                  {% endif %}
+          <td>{{ sharedevent.total_weights_registrants }}/{{ sharedevent.total_weights_participants }}</td>
+          {% if sharedevent.done %}
+            <td>Terminé</td>
+            <td>Participation : {{ sharedevent.weight_of_user }}</td>
+          {% else %}
+            <td>En attente</td>
+            <td>Préinscrit : {{ sharedevent.weight_of_user }}
+              {% if sharedevent.allow_self_registeration and not done %},
+                <a href="{% url 'url_sharedevent_self_registration' group_name=group.name pk=sharedevent.pk %}"
+                  class="btn btn-xs">
+                  Se préinscrire
+                </a>
               {% endif %}
-          </td>
+            </td>
+          {% endif %}
           <td>
               {% if user == sharedevent.manager %}
                   <a href="{% url 'url_sharedevent_update' group_name=group.name pk=sharedevent.pk %}">Gérer</a>
