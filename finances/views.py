@@ -1143,6 +1143,19 @@ class SharedEventList(GroupPermissionMixin, FormView,
     perm_codename = 'list_sharedevent'
     form_class = SharedEventListForm
 
+    def add_info_to_context(events):
+        for se in events:
+            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
+            se.total_weights_registrants = se.get_total_weights_registrants()
+            se.total_weights_participants = se.get_total_weights_participants()
+        return events
+
+    def get_context_data(self, **kwargs):
+        context = super(SharedEventList, self).get_context_data(**kwargs)
+        shared_events = SharedEvent.objects.filter(date__gte=datetime.date.today(), done=False).order_by('-date')
+        context['shared_events'] = add_info_to_context(shared_events)
+        return context
+
     def form_valid(self, form, **kwargs):
 
         date_begin = form.cleaned_data['date_begin']
@@ -1172,28 +1185,9 @@ class SharedEventList(GroupPermissionMixin, FormView,
         else:
             shared_events = shared_events.order_by('-date')
 
-        ## Duplicate !
-        for se in shared_events:
-            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
-            se.total_weights_registrants = se.get_total_weights_registrants()
-            se.total_weights_participants = se.get_total_weights_participants()
-
-        context['shared_events'] = shared_events
+        context['shared_events'] = add_info_to_context(shared_events)
 
         return self.render_to_response(context)
-
-    def get_context_data(self, **kwargs):
-        context = super(SharedEventList, self).get_context_data(**kwargs)
-        shared_events = SharedEvent.objects.filter(date__gte=datetime.date.today(), done=False).order_by('-date')
-
-        ## Duplicate !
-        for se in shared_events:
-            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
-            se.total_weights_registrants = se.get_total_weights_registrants()
-            se.total_weights_participants = se.get_total_weights_participants()
-
-        context['shared_events'] = shared_events
-        return context
 
 
 class SharedEventCreate(GroupPermissionMixin, FormView,
@@ -1261,10 +1255,10 @@ class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
         return super(SharedEventDelete, self).dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
+    def get_context_data(self, request, *args, **kwargs):
+        context = super(SharedEventDelete, self).get_context_data(**kwargs)
         context['object'] = self.se
-        return render(request, self.template_name, context=context)
+        return context
 
     def post(self, request, *args, **kwargs):
         self.se.delete()
@@ -1599,11 +1593,10 @@ class SharedEventRemoveUser(GroupPermissionMixin, View):
     def get(self, request, *args, **kwargs):
         se = SharedEvent.objects.get(pk=kwargs['pk'])
 
-        if (request.user != se.manager
-                and request.user.has_perm('finances.change_sharedevent')
-                is False):
+        # Permission
+        if self.se.done is True:
             raise PermissionDenied
-        elif se.done is True:
+        if not ( request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent') ):
             raise PermissionDenied
 
         try:
@@ -1638,7 +1631,7 @@ class SharedEventRemoveUser(GroupPermissionMixin, View):
             raise Http404
 
         return redirect(reverse(
-            'url_sharedevent_update',
+            'url_sharedevent_manage_users',
             kwargs={'group_name': self.group.name, 'pk': se.pk}
         ) + "?state=" + state + "&order_by=" + order_by + "#table_users")
 
