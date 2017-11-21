@@ -4,6 +4,8 @@ import hashlib
 import decimal
 from datetime import timedelta
 import datetime
+from openpyxl import Workbook, load_workbook
+from openpyxl.writer.excel import save_virtual_workbook
 
 from django.shortcuts import render, HttpResponse, force_text, redirect
 from django.shortcuts import Http404
@@ -21,7 +23,6 @@ from finances.forms import *
 from finances.models import *
 from borgia.utils import *
 from settings_data.models import Setting
-from finances.utils import *
 from notifications.models import notify
 
 
@@ -1348,8 +1349,9 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
 
     def get_context_data(self, **kwargs):
 
-        # Création des forms
-        upload_json_form = SharedEventManageUploadJSONForm(prefix='upload_json')
+        # Création des formspyxl
+
+        upload_xlsx_form = SharedEventUploadXlsxForm()
         download_xlsx_form = SharedEventDownloadXlsxForm()
         # list_year() contains smth like [2011, 2015, ...]
 
@@ -1360,7 +1362,7 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
             context['remark'] = self.se.remark
             context['price'] = self.se.price
 
-        context['upload_json_form'] = upload_json_form
+        context['upload_xlsx_form'] = upload_xlsx_form
         context['download_xlsx_form'] = download_xlsx_form
 
         return context
@@ -1776,15 +1778,11 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
 
     def form_valid(self, form, *args, **kwargs):
 
-        # Initialisation du fichier excel
-        workbook, worksheet, response = workboot_init(self.se.__str__(), 'Feuil1.XLSM_to_JSON',
-                                                      'Générer le fichier JSON')
-
-        # Ajout de l'entête de la table
-        worksheet_write_line(workbook=workbook, worksheet=worksheet,
-                             data=[['Nom prénom', 'Bucque', 'Username', 'Pondération']],
-                             bold=True)
-        data = []
+        wb = Workbook()
+        # grab the active worksheet
+        ws = wb.active
+        ws.title = "Test"
+        ws.append(['Username', 'Nom Prénom', 'Bucque', 'Pondération'])
 
         if form.cleaned_data['state'] == 'year':
 
@@ -1793,7 +1791,7 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
 
                 users = User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=1)).order_by('username')
                 for u in users:
-                    data.append([u.username, u.last_name + ' ' + u.first_name, u.surname])
+                    ws.append([u.username, u.last_name + ' ' + u.first_name, u.surname])
 
             else:
                 raise Http404
@@ -1802,19 +1800,76 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
             list_participants_weight = self.se.list_participants_weight()
             for e in list_participants_weight:
                 u = e[0]
-                data.append([u.username, u.last_name + ' ' + u.first_name, u.surname, e[1]])
+                ws.append([u.username, u.last_name + ' ' + u.first_name, u.surname, e[1]])
 
         elif form.cleaned_data['state'] == 'registrants':
             list_registrants_weight = self.se.list_registrants_weight()
             for e in list_registrants_weight:
                 u = e[0]
-                data.append([u.username, u.last_name + ' ' + u.first_name, u.surname, e[1]])
+                ws.append([u.username, u.last_name + ' ' + u.first_name, u.surname, e[1]])
         else:
             raise Http404
 
-        worksheet_write_line(workbook=workbook, worksheet=worksheet, data=data, init_row=1)
-        workbook.close()
+        # Return the file
+        response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = ('attachment; filename="' + self.se.__str__() + '.xlsx"')
         return response
+
+
+class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+    """
+    Upload Excel.
+    """
+    form_class = SharedEventUploadXlsxForm
+    perm_codename = None # Checked in dispatch()
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.group = Group.objects.get(name=kwargs['group_name'])
+            self.se = SharedEvent.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+
+        # Permission
+        if self.se.done is True:
+            raise PermissionDenied
+        if not ( request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent') ):
+            raise PermissionDenied
+
+        return super(SharedEventUploadXlsx, self).dispatch(request, *args, **kwargs)
+
+    def form_valid(self, form, *args, **kwargs):
+        try:
+            wb = load_workbook(self.request.FILES['list_user'], read_only=True)
+            sheet = wb.active
+            rows = sheet.rows
+            next(rows) # Skip the first row
+            data = []
+        except:
+            raise PermissionDenied
+
+        if form.cleaned_data['state'] == 'participants':
+            isParticipant = True
+        else:
+            isParticipant = False
+
+        # Enregistrement des pondérations
+        for row in rows:
+            try:
+                pond = row[3].value # Should be an int
+                username = row[0].value.strip() # Should be a str
+                user = User.objects.get(username=username)
+
+                if pond > 0:
+                    self.se.change_weight( user, pond, isParticipant )
+            except:
+                pass
+
+        return redirect(
+            reverse(
+                'url_sharedevent_manage_users',
+                kwargs={'group_name': self.group.name, 'pk': self.se.pk}
+                ))
 
 
 @csrf_exempt
@@ -1884,7 +1939,6 @@ def self_lydia_callback(request):
         return HttpResponse('200')
     else:
         raise PermissionDenied
-
 
 def verify_token_algo_lydia(params, token):
     """

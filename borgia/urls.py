@@ -337,6 +337,9 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/download_xlsx/$',
         SharedEventDownloadXlsx.as_view(),
         name='url_sharedevent_download_xlsx'),
+    url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/upload_xlsx/$',
+        SharedEventUploadXlsx.as_view(),
+        name='url_sharedevent_upload_xlsx'),
 
 
     url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/proceed_payment/$',

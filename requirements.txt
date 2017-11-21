@@ -20,5 +20,5 @@ pytz==2017.2
 singledispatch==3.4.0.3
 six==1.10.0
 typing==3.6.2
-XlsxWriter==0.9.8
 django-static-precompiler==1.6
+openpyxl==2.4.9

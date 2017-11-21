@@ -302,11 +302,11 @@ class SharedEventDownloadXlsxForm(forms.Form):
         )
 
 
-class SharedEventManageUploadJSONForm(forms.Form):
-    file = forms.FileField(label='Fichier de données')
+class SharedEventUploadXlsxForm(forms.Form):
+    list_user = forms.FileField(label='Fichier de données')
     state = forms.ChoiceField(
-        label='Etat',
-        choices=(('registered', 'Préinscrit'), ('participants', 'Participant')))
+        label='Liste de ',
+        choices=(('registrants', 'Préinscrits'), ('participants', 'Participants')))
 
 
 class SetPriceProductBaseForm(forms.Form):

@@ -15,10 +15,6 @@
       <div class="panel-body">
         <form action="{% url 'url_sharedevent_update' pk=pk group_name=group.name %}" method='post' class="form-horizontal">
             {% csrf_token %}
-            <input type="hidden" name='action' value="update">
-            <input type="hidden" name="state" value="{{ state }}" />
-            <input type="hidden" name="order_by" value="{{ order_by }}" />
-            <input type="hidden" name="next" value="{{ next }}" />
             {{ form|bootstrap_horizontal }}
             <div class="form-group">
               <div class="col-sm-10 col-sm-offset-2">
@@ -34,23 +30,19 @@
   <div class="col-md-6">
     <div class="panel panel-default">
       <div class="panel-heading">
-        Chargement d'un fichier - Disabled
+        Chargement d'un fichier
       </div>
       <div class="panel-body">
-        <!-- <form enctype="multipart/form-data" action="{% url 'url_sharedevent_update' pk=pk group_name=group.name %}"
+        <form enctype="multipart/form-data" action="{% url 'url_sharedevent_upload_xlsx' pk=pk group_name=group.name %}"
         method='post' class="form-horizontal">
             {% csrf_token %}
-            <input type='hidden' name='action' value='upload_json'>
-            <input type=hidden name="state" value="{{ state }}" />
-            <input type=hidden name="order_by" value="{{ order_by }}" />
-            <input type=hidden name="next" value="{{ next }}" />
-            {{ upload_json_form|bootstrap_horizontal }}
+            {{ upload_xlsx_form|bootstrap_horizontal }}
             <div class="form-group">
               <div class="col-sm-10 col-sm-offset-2">
                 <button type="submit" class="btn btn-success">Upload</button>
               </div>
             </div>
-        </form> -->
+        </form>
       </div>
     </div>
   </div>
