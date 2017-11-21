@@ -632,6 +632,7 @@ class SharedEvent(models.Model):
             ('register_sharedevent', 'Se préinscrire à un événement commun'),
             ('list_sharedevent', 'Lister les événements communs'),
             ('manage_sharedevent', 'Gérer les événements communs'),
+            ('create_sharedevent', 'Créer un événement commun'),
             ('proceed_payment_sharedevent',
              'Procéder au paiement des événements communs'),
         )

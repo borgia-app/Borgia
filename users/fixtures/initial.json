@@ -60,7 +60,7 @@
         ["retrieve_transfert", "finances", "sale"],
         ["list_transfert", "finances", "sale"],
 
-        ["add_sharedevent", "finances", "sharedevent"],
+        ["create_sharedevent", "finances", "sharedevent"],
         ["list_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"],
         ["proceed_payment_sharedevent", "finances", "sharedevent"],
@@ -117,7 +117,7 @@
         ["retrieve_transfert", "finances", "sale"],
         ["list_transfert", "finances", "sale"],
 
-        ["add_sharedevent", "finances", "sharedevent"],
+        ["create_sharedevent", "finances", "sharedevent"],
         ["list_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"],
         ["proceed_payment_sharedevent", "finances", "sharedevent"],
@@ -180,7 +180,7 @@
         ["delete_bankaccount", "finances", "bankaccount"],
         ["retrieve_bankaccount", "finances", "bankaccount"],
 
-        ["add_sharedevent", "finances", "sharedevent"],
+        ["create_sharedevent", "finances", "sharedevent"],
         ["list_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"],
         ["proceed_payment_sharedevent", "finances", "sharedevent"],
@@ -200,7 +200,7 @@
         ["add_transfert", "finances", "transfert"],
 
         ["list_sharedevent", "finances", "sharedevent"],
-        ["add_sharedevent", "finances", "sharedevent"],
+        ["create_sharedevent", "finances", "sharedevent"],
         ["retrieve_user", "users", "user"],
 
         ["list_notification", "notifications", "notification"]
