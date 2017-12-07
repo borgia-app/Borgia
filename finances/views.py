@@ -1219,11 +1219,13 @@ class SharedEventCreate(GroupPermissionMixin, FormView,
                 se.date_end_registration = form.cleaned_data['date_end_registration']
 
         se.save()
+        self.se = se
+
         return super(SharedEventCreate, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('url_sharedevent_update',
-                        kwargs={'group_name': self.group.name, 'pk': se.pk}
+                        kwargs={'group_name': self.group.name, 'pk': self.se.pk}
                         )
 
 
