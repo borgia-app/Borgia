@@ -248,8 +248,8 @@ class SharedEventCreateForm(forms.Form):
     price = forms.DecimalField(label='Prix total (vide si pas encore connu)', decimal_places=2, max_digits=9,
                                required=False, min_value=0)
     bills = forms.CharField(label='Factures liées (vide si pas encore connu)', required=False)
-    allow_self_registeration = forms.BooleanField(label='Autoriser la self préinscription', initial=True)
-    date_end_registration = forms.DateField(    label='Date de fin de self-préinscription (vide si pas autorisé)',
+    allow_self_registeration = forms.BooleanField(label='Autoriser la self préinscription', initial=True, required=False)
+    date_end_registration = forms.DateField(    label='Date de fin de self-préinscription (Si pas autorisé laisser vide)',
                                                 required=False,
                                                 widget=forms.DateInput(attrs={'class': 'datepicker'})
                                             )
