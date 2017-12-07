@@ -1143,17 +1143,15 @@ class SharedEventList(GroupPermissionMixin, FormView,
     perm_codename = 'list_sharedevent'
     form_class = SharedEventListForm
 
-    def add_info_to_context(events):
-        for se in events:
-            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
-            se.total_weights_registrants = se.get_total_weights_registrants()
-            se.total_weights_participants = se.get_total_weights_participants()
-        return events
-
     def get_context_data(self, **kwargs):
         context = super(SharedEventList, self).get_context_data(**kwargs)
         shared_events = SharedEvent.objects.filter(date__gte=datetime.date.today(), done=False).order_by('-date')
-        context['shared_events'] = add_info_to_context(shared_events)
+
+        for se in shared_events: # Duplicate
+            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
+            se.total_weights_registrants = se.get_total_weights_registrants()
+            se.total_weights_participants = se.get_total_weights_participants()
+        context['shared_events'] = shared_events
         return context
 
     def form_valid(self, form, **kwargs):
@@ -1185,7 +1183,13 @@ class SharedEventList(GroupPermissionMixin, FormView,
         else:
             shared_events = shared_events.order_by('-date')
 
-        context['shared_events'] = add_info_to_context(shared_events)
+
+        for se in shared_events: # Duplicate
+            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
+            se.total_weights_registrants = se.get_total_weights_registrants()
+            se.total_weights_participants = se.get_total_weights_participants()
+
+        context['shared_events'] = shared_events
 
         return self.render_to_response(context)
 
@@ -1215,13 +1219,12 @@ class SharedEventCreate(GroupPermissionMixin, FormView,
                 se.date_end_registration = form.cleaned_data['date_end_registration']
 
         se.save()
-
-        self.success_url = reverse(
-            'url_sharedevent_update',
-            kwargs={'group_name': self.group.name, 'pk': se.pk}
-        )
-
         return super(SharedEventCreate, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('url_sharedevent_update',
+                        kwargs={'group_name': self.group.name, 'pk': se.pk}
+                        )
 
 
 class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
@@ -1255,7 +1258,7 @@ class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
         return super(SharedEventDelete, self).dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, request, *args, **kwargs):
+    def get_context_data(self, **kwargs):
         context = super(SharedEventDelete, self).get_context_data(**kwargs)
         context['object'] = self.se
         return context
@@ -1315,12 +1318,12 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
         self.se.done = True
         self.se.remark = form.cleaned_data['remark']
         self.se.save()
+        return super(SharedEventFinish, self).form_valid(form)
 
-        return redirect(
-            reverse(
-                'url_sharedevent_list',
-                kwargs={'group_name': self.group.name}
-                ))
+    def get_success_url(self):
+        return reverse('url_sharedevent_list',
+                        kwargs={'group_name': self.group.name}
+                        )
 
 
 class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
@@ -1377,17 +1380,19 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
 
         return context
 
-    def form_valid(self, form, *args, **kwargs):
+    def form_valid(self, form):
         if form.cleaned_data['price']:
             self.se.price = form.cleaned_data['price']
         if form.cleaned_data['bills']:
             self.se.bills = form.cleaned_data['bills']
         self.se.allow_self_registeration = form.cleaned_data['allow_self_registeration']
         self.se.save()
+        return super(SharedEventUpdate, self).form_valid(form)
 
-        return redirect(
-                reverse( 'url_sharedevent_update',
-                         kwargs={ 'group_name': self.group.name, 'pk': self.se.pk } ))
+    def get_success_url(self):
+        return reverse('url_sharedevent_update',
+                         kwargs={ 'group_name': self.group.name, 'pk': self.se.pk }
+                         )
 
 
 class SharedEventSelfRegistration(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
@@ -1400,7 +1405,6 @@ class SharedEventSelfRegistration(GroupPermissionMixin, FormView, GroupLateralMe
     """
     form_class = SharedEventSelfRegistrationForm
     template_name = 'finances/sharedevent_self_registration.html'
-    success_url = None
     perm_codename = None  # Checked in dispatch
 
 
@@ -1428,18 +1432,22 @@ class SharedEventSelfRegistration(GroupPermissionMixin, FormView, GroupLateralMe
     def get_context_data(self, **kwargs):
         context = super(SharedEventSelfRegistration, self).get_context_data(**kwargs)
         context['shared_event'] = self.se
-        context['registeration_of_user'] = self.se.get_weight_of_user(self.request.user, False)
+        context['registeration_of_user'] = self.se.get_weight_of_user(self.request.user, False) ## Duplicate
         return context
 
+    def get_initial(self):
+        initial = super(SharedEventSelfRegistration, self).get_initial()
+        initial['weight'] = self.se.get_weight_of_user(self.request.user, False) ## Duplicate
+        return initial
+
     def form_valid(self, form):
-
         self.se.change_weight(self.request.user, int(form.cleaned_data['weight']), False)
+        return super(SharedEventSelfRegistration, self).form_valid(form)
 
-        return redirect(
-            reverse(
-                'url_sharedevent_self_registration',
-                kwargs={'group_name': self.group.name, 'pk': self.se.pk}
-                ))
+    def get_success_url(self):
+        return reverse('url_sharedevent_self_registration',
+                        kwargs={'group_name': self.group.name, 'pk': self.se.pk}
+                        )
 
 
 class SharedEventChangeWeight(GroupPermissionMixin, View):
@@ -1565,16 +1573,7 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
         context['list_weights'] = sorted(self.get_list_weights(state), key=lambda item: getattr(item[0], order_by))
         return context
 
-    def form_valid(self, form, *args, **kwargs):
-        """
-        Change la valeur de la pondération d'un participant user pour un événement
-        Permissions :   Si événements terminé -> denied,
-                        Si pas manager ou pas la perm 'finances.manage_sharedevent' -> denied
-        :param pk: pk de l'événement
-        :param user_pk: paramètre GET correspondant au pk de l'user
-        :param pond_pk: paramètre GET correspondant à la nouvelle pondération
-        :type pk, user_pk, pond_pk: int
-        """
+    def form_valid(self, form):
         username = form.cleaned_data['username']
         weight = form.cleaned_data['weight']
         isParticipant = form.cleaned_data['state'] == 'participant' # True pour un participant
@@ -1582,9 +1581,11 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
         self.se.add_weight(User.objects.get(username=username),
                             weight,
                             isParticipant)
+        return super(SharedEventManageUsers, self).form_valid(form)
 
-        return redirect(reverse('url_sharedevent_manage_users',
-                                    kwargs={'group_name': self.group.name, 'pk': self.se.pk } ))
+    def get_success_url(self):
+        return reverse('url_sharedevent_manage_users',
+                        kwargs={'group_name': self.group.name, 'pk': self.se.pk })
 
 
 class SharedEventRemoveUser(GroupPermissionMixin, View):
@@ -1686,7 +1687,7 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
 
         return super(SharedEventDownloadXlsx, self).dispatch(request, *args, **kwargs)
 
-    def form_valid(self, form, *args, **kwargs):
+    def form_valid(self, form):
 
         wb = Workbook()
         # grab the active worksheet
@@ -1775,11 +1776,11 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
             except:
                 pass
 
-        return redirect(
-            reverse(
-                'url_sharedevent_manage_users',
-                kwargs={'group_name': self.group.name, 'pk': self.se.pk}
-                ))
+        return super(SharedEventManageUsers, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('url_sharedevent_manage_users',
+                        kwargs={'group_name': self.group.name, 'pk': self.se.pk})
 
 
 @csrf_exempt

@@ -59,3 +59,8 @@ Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes
 - Ajout d'un indicateur visuel pour dire que l'ajax s'est bien (ou mal) passé
 
 - Js loaddé partout, restreindre
+
+
+
+## Current Version :
+Build 4.4
