@@ -1260,10 +1260,10 @@ class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
         return super(SharedEventDelete, self).dispatch(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
-        context = super(SharedEventDelete, self).get_context_data(**kwargs)
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
         context['object'] = self.se
-        return context
+        return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
         self.se.delete()
