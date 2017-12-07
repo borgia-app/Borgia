@@ -573,7 +573,10 @@ class SharedEvent(models.Model):
         if isinstance(self.price, Decimal):
             total_weights_participants = self.get_total_weights_participants()
             weight_of_user = self.get_weight_of_user(user)
-            return round(self.price / total_weights_participants * weight_of_user,2)
+            try:
+                return round(self.price / total_weights_participants * weight_of_user,2)
+            except:
+                return 0
 
         else:
              return 0
