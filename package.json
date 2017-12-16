@@ -1,9 +1,9 @@
 {
   "name": "Borgia-demo",
-  "version": "4.1.0",
+  "version": "4.4.0",
   "author": "Borgia-app",
   "url": "https://github.com/Eyap53/Borgia-demo",
-  "license": "UNLICENSED",  
+  "license": "UNLICENSED",
   "dependencies": {
     "less": "^2.7.2"
   }
