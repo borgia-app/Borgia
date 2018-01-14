@@ -52,15 +52,5 @@ Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes
  Le fichier LESS est compilé dans static_dirs actuellement. __En prod, il faut changer le setting correspondant.__
 
 
-## SharedEvent - TODO List :
-
-- Ajouter une option pour se faire une marge (si c'est pas déjà le cas)
-- Ajouter une fonction pour définir le prix par pondération (et pas par prix total)
-- Ajout d'un indicateur visuel pour dire que l'ajax s'est bien (ou mal) passé
-
-- Js loaddé partout, restreindre
-
-
-
 ## Current Version :
 Build 4.4
