@@ -3,6 +3,8 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
+- 4.4.1 : Fix Division ba 0 when automaticprice is 0
+
 ## [4.4.0] - 2017-12-04
 ### Added
 - Séparation de la gestion d'évènement en deux (une page spécifique pour la gestion des users
