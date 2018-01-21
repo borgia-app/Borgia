@@ -129,13 +129,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
 LANGUAGE_CODE = 'fr-fr'
-
 TIME_ZONE = 'Europe/Paris'
-
 USE_I18N = True
-
 USE_L10N = True
-
 USE_TZ = True
 
 
@@ -179,8 +175,8 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static', 'static_dirs'),
 )
 
-# The line below tel static-precompiler to compile in static_dirs. NEED TO BE CHANGED IN PRODUCTION TO STATIC_ROOT
-STATIC_PRECOMPILER_ROOT = os.path.join(BASE_DIR, 'static', 'static_dirs')
+if (DEBUG == True):
+    STATIC_PRECOMPILER_ROOT = os.path.join(BASE_DIR, 'static', 'static_dirs')
 
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'media')
@@ -206,7 +202,7 @@ EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 # Electrovanne
 ARDUINO_PRIVATE = '80eg11TBAiR13UCI3dJKHWa5e7764KA3'
 
-ADMINS = [('Alexandre', 'a-palo@laposte.net'), ('Guillaume', 'guillaume@broggi.ovh'), ('Wassim', 'wassimbel94@gmail.com'), ('Mael', 'mael.lacour@gadz.org'), ('Vincent', 'vtim@hotmail.fr')]
+ADMINS = []
 
 # Durée de validité du token reset password
 PASSWORD_RESET_TIMEOUT_DAYS = 1  # en jours
