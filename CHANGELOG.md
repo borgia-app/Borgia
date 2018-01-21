@@ -3,7 +3,9 @@ All notable changes to this project will be documented in this file.
 
 ## [Unreleased]
 
-## [4.4.0] - 2017-12-04
+- 4.4.1 : Fix Division ba 0 when automaticprice is 0
+
+## [4.4] - 2017-12-04
 ### Added
 - Séparation de la gestion d'évènement en deux (une page spécifique pour la gestion des users
 - On peut maintenant uploader un xlsx
@@ -18,7 +20,7 @@ All notable changes to this project will be documented in this file.
 
 ### Removed
 
-## [4.3.0] - 2017-?
+## [4.3] - 2017-?
 ### Added
 - ...
 

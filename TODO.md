@@ -2,8 +2,6 @@
 This file contain all the work that NEED/SHOULD/COULD to be made.
 
 # Bugs rapportés :
-- InvalidOperation lors de la modifications d'un product
-
 
 
 ## SharedEvent :

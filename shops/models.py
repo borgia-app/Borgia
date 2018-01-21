@@ -102,19 +102,22 @@ class Product(models.Model):
         """
         try:
             try:
-                margin_profit = Setting.objects.get(
-                    name='MARGIN_PROFIT').get_value()
+                margin_profit = Setting.objects.get(name='MARGIN_PROFIT').get_value()
             except ObjectDoesNotExist:
                 margin_profit = 0
+
             last_stockentry = sorted(StockEntryProduct.objects.filter(product=self), key=lambda x: x.stockentry.datetime, reverse=True)[0]
             return round(Decimal(last_stockentry.unit_price() * Decimal(1 + margin_profit / 100)), 4)
         except IndexError:
-            pass
-        return Decimal(0)
+            return Decimal(0)
 
     def deviating_price_from_auto(self):
-      return round(((self.manual_price- self.get_automatic_price())/self.get_automatic_price())*100 ,4)
-	
+        automatic_price = self.get_automatic_price()
+        if automatic_price == 0:
+            return 0
+        else:
+            return round(( self.manual_price - automatic_price) / automatic_price * 100 , 4)
+
     def get_price(self):
         if self.is_manual:
             return self.manual_price
