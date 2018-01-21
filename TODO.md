@@ -2,6 +2,8 @@
 This file contain all the work that NEED/SHOULD/COULD to be made.
 
 # Bugs rapportés :
+- Stock négatif (Est ce vraiment un pb ??)
+- Certains emails de reset password pas envoyés...
 
 
 ## SharedEvent :
@@ -14,8 +16,15 @@ This file contain all the work that NEED/SHOULD/COULD to be made.
 
 ## Autre :
 
-- Mettre en place l'i18n
-- Passer à Django 2.0
+- I18N -> Traduire pour pek's, ...
 - Repenser la manière dont est gérée la monnaie (virtuelle/réelle)
 - Vérifier que les demandes Lydia marchent bien
 - Mettre en place un système d'aide/indication pour apprendre à se servir de Borgia
+
+
+## Preparation pour passer à 2.0 :
+
+- Les fonctions auth sont deprecated
+- Urls à modifier
+- Ecrire des tests
+- ...
