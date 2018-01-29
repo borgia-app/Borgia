@@ -613,7 +613,7 @@ class SharedEvent(models.Model):
         self.save()
 
     def wording(self):
-        return 'Evenement ' + self.description + ' Le ' + str(self.date)
+        return 'Événement : ' + self.description + ', le ' + self.date.strftime('%d/%m')
 
     def get_total_weights_registrants(self):
         total = 0
