@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'd8!^$6uved6+1d)iiqwhf5q8ao3*z)ykfdff3&zi4@i7pv#jzd'
+SECRET_KEY = 'need to be changed'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -183,8 +183,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'media')
 MEDIA_URL = '/media/'
 
 # Lydia
-LYDIA_API_TOKEN = '55f18739e5409079915994'
-LYDIA_VENDOR_TOKEN = '55f18739e2c95650506777'  # Trésorerie
+LYDIA_API_TOKEN = 'need to be changed'
+LYDIA_VENDOR_TOKEN = 'need to be changed'  # Trésorerie
 # Foyer : 57e524da19aba655147763
 LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/self/lydias/callback/'  # https ou non selon le dns
 LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/gadzarts/self/lydias/confirm/'
@@ -200,7 +200,7 @@ EMAIL_HOST_PASSWORD = 'Alexandre57'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 # Electrovanne
-ARDUINO_PRIVATE = '80eg11TBAiR13UCI3dJKHWa5e7764KA3'
+ARDUINO_PRIVATE = 'need to be changed'
 
 ADMINS = []
 
@@ -211,7 +211,7 @@ PASSWORD_RESET_TIMEOUT_DAYS = 1  # en jours
 SESSION_COOKIE_AGE = 7200
 
 # Mobile application
-MOBILE_SECRET_KEY = 'kcr,i4kij&hbb02yiy=63rd!+2lw^0!!7p6niv6c4t6cixkohnd_mnjnrn'
+MOBILE_SECRET_KEY = 'need to be changed'
 JWT_ALGORITHM = 'HS256'
 JWT_TOKEN_TIMEOUT = 7  # days
 
@@ -219,5 +219,5 @@ JWT_TOKEN_TIMEOUT = 7  # days
 # A modifier directement dans l'application
 # [LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, MARGIN_PROFIT]
 
-CENTER_NAME = "AE ENSAM Metz"
-DEFAULT_TEMPLATE = "birse" #Default template, en minuscule
+CENTER_NAME = "Center Name"
+DEFAULT_TEMPLATE = "light" #Default template, en minuscule
