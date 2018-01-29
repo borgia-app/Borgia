@@ -1,7 +1,7 @@
 import json
 import operator
 import hashlib
-import decimal
+from decimal import Decimal
 from datetime import timedelta
 import datetime
 from openpyxl import Workbook, load_workbook
@@ -1210,7 +1210,7 @@ class SharedEventCreate(GroupPermissionMixin, FormView,
             allow_self_registeration=form.cleaned_data['allow_self_registeration'],
             manager=self.request.user)
         if form.cleaned_data['price']:
-            se.price = form.cleaned_data['price']
+            se.price = Decimal(form.cleaned_data['price'])
         if form.cleaned_data['bills']:
             se.bills = form.cleaned_data['bills']
         if form.cleaned_data['date_end_registration']:
@@ -1610,9 +1610,9 @@ class SharedEventRemoveUser(GroupPermissionMixin, View):
             if state == "users":
                 if user_pk == 'ALL':
                     for u in se.users.all():
-                        se.remove_participant(u)
+                        se.remove_user(u)
                 else:
-                    se.remove_participant(User.objects.get(pk=user_pk))
+                    se.remove_user(User.objects.get(pk=user_pk))
 
             elif state == "participants":
                 if user_pk == 'ALL':
@@ -1834,10 +1834,10 @@ def self_lydia_callback(request):
     if verify_token_algo_lydia(params_dict, settings.LYDIA_API_TOKEN) is True:
         try:
             lydia = LydiaOnline.objects.create(
-                sender=User.objects.get(pk=request.GET.get('user_pk')),
-                recipient=User.objects.get(username='AE_ENSAM'),
-                amount=decimal.Decimal(params_dict['amount']),
-                id_from_lydia=params_dict['transaction_identifier']
+                sender = User.objects.get(pk=request.GET.get('user_pk')),
+                recipient = User.objects.get(username='AE_ENSAM'),
+                amount = Decimal(params_dict['amount']),
+                id_from_lydia = params_dict['transaction_identifier']
             )
             recharging = Recharging.objects.create(
                 sender=User.objects.get(pk=request.GET.get('user_pk')),

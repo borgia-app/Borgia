@@ -495,15 +495,19 @@ class SharedEvent(models.Model):
                 list_u_r.append([user, weight])
         return list_u_r
 
-    def remove_participant(self, user, isParticipant=True):
+    def remove_user(self, user, isParticipant=True):
         """
         Suppresion de l'utilisateur, purement et simplement, de l'événement.
         :param user: user à supprimer
         :return:
         """
-
-        # Suppresion de l'user dans users.
-        WeightsUser.objects.filter(user=user, shared_event=self).delete()
+        try:
+            # Suppresion de l'user dans users.
+            WeightsUser.objects.filter(user=user, shared_event=self).delete()
+        except ObjectDoesNotExist:
+            raise Http404
+        except ValueError:
+            raise Exception('NotAUser')
 
     def add_weight(self, user, weight, isParticipant=True):
         """
@@ -549,7 +553,7 @@ class SharedEvent(models.Model):
 
             if weight == 0 and ( ( isParticipant and e.weights_registeration == 0 ) or (  not isParticipant and e.weights_participation == 0 ) ):
                 e.delete()
-                # Deleted if the bot value are 0
+                # Deleted if both values are 0
 
             else:
                 if isParticipant:
@@ -565,8 +569,10 @@ class SharedEvent(models.Model):
                 return self.weightsuser_set.get(user=user).weights_participation
             else:
                 return self.weightsuser_set.get(user=user).weights_registeration
-        except:
+        except ObjectDoesNotExist:
             return 0
+        except ValueError:
+            raise Exception('NotAUser')
 
     def get_price_of_user(self, user):
 	    # Calcul du prix par weight
