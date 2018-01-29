@@ -26,5 +26,5 @@ This file contain all the work that NEED/SHOULD/COULD to be made.
 
 - Les fonctions auth sont deprecated
 - Urls à modifier
-- Ecrire des tests
+- Ecrire les tests manquants / Maj des anciens
 - ...
