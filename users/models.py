@@ -17,6 +17,7 @@ class ExtendedPermission(Permission):
 
     class Meta:
         proxy = True
+        auto_created = True ## Resolve the problem about migration. But I don't know the drawbacks. Questionned on StackOverflow
         default_permissions = ()
 
     def __str__(self):
