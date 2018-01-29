@@ -8,7 +8,7 @@ from django.views.generic import View
 from django.template import Template, Context
 from borgia.utils import *
 
-from borgia.models import ListCompleteView
+from borgia.views import ListCompleteView
 from notifications.forms import (notiftest, NotificationTemplateUpdateViewForm,
                                  NotificationTemplateCreateViewForm)
 from notifications.models import *

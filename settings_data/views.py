@@ -3,7 +3,7 @@ from django.views.generic.base import View
 from settings_data.models import Setting
 
 from contrib.models import add_to_breadcrumbs
-from borgia.models import FormNextView
+from borgia.views import FormNextView
 from settings_data.form import *
 
 
