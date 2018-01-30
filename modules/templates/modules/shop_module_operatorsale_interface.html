@@ -128,7 +128,9 @@ $("input[id^='id_']").change(function() {
   $('#total_' + pk).text((Number(usual_price) * $(this).val()).toFixed(2))
   total()
 })
-function total(data) {
+
+// Calculate the futur balance of the user
+function total() {
   var total = 0
   $('#invoice').empty()
   $("input[id^='id_']").each(function() {
@@ -146,7 +148,7 @@ function total(data) {
   })
   $('#total').text(total.toFixed(2))
   $('#result').text(
-    (Number(data) - total.toFixed(2)).toFixed(2)
+    (Number($('#initial').text()) - total.toFixed(2)).toFixed(2)
   )
   if (Number($('#result').text()) < 0) {
     $('#result_line').attr('class', 'col-md-4 bg-danger');
@@ -165,11 +167,13 @@ $("input[id^='id_']").each(function() {
 $("div[role='tabpanel']").first().attr('class', 'tab-pane active')
 $("li[role='presentation']").first().attr('class', 'active')
 
+
+// Update the balance of the user. Then calculate the futur balance of the user
 $("#id_client").focus(function() {
     $('#initial').text("--");
 }).blur(function() {
   if ($(this).val() == '') {
-    $('#initial').text(Number(0.0))
+    $('#initial').text(0.0)
   } else {
         // alert("Your book is overdue.");
         $.ajax({
@@ -179,7 +183,7 @@ $("#id_client").focus(function() {
                 username: $('#id_client').val()
             },
             success: function( data ) {
-                $('#initial').text(Number(data));
+                $('#initial').text(data);
                 total(data);
             }
         })
