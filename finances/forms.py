@@ -27,17 +27,19 @@ class BankAccountUpdateForm(forms.ModelForm):
         fields = ['bank', 'account']
 
 
-class SelfTransfertCreate(forms.Form):
+class SelfTransfertCreateForm(forms.Form):
     def __init__(self, **kwargs):
         sender = kwargs.pop('sender')
-        super(SelfTransfertCreate, self).__init__(**kwargs)
-        self.fields['recipient'] = forms.ModelChoiceField(
-            label='Receveur',
-            queryset=User.objects.all().exclude(pk__in=[1, sender.pk]),
-            widget=forms.Select(
-                attrs={'class': 'form-control selectpicker',
-                       'data-live-search': 'True'})
-            )
+        super(SelfTransfertCreateForm, self).__init__(**kwargs)
+
+        self.fields['recipient'] = forms.CharField(
+    		label="Receveur",
+            max_length=255,
+            required=True,
+            widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
+                                          'autocomplete': 'off',
+    									  'autofocus': 'true',
+    									  'placeholder': "Nom d'utilisateur"}))
         self.fields['amount'] = forms.DecimalField(
             label='Montant (€)',
             decimal_places=2,

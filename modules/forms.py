@@ -73,28 +73,14 @@ class SelfSaleShopModule(forms.Form):
 
 class OperatorSaleShopModule(SelfSaleShopModule):
     def get_client_field(self):
-        # try:
-        #     return forms.ChoiceField(
-        #         label='Client',
-        #         choices=([(None, 'Selectionner un client')] + [(str(u.pk)+'/'+str(u.balance), u.choice_string())
-        #                  for u in User.objects.all().exclude(groups__pk=1)]),
-        #         widget=forms.Select(
-        #             attrs={'class': 'form-control selectpicker',
-        #                    'data-live-search': 'True'})
-        #     )
-        # except OperationalError:
-        #     pass
-        # except ProgrammingError:
-        #     pass
         return forms.CharField(
     		label="Client",
             max_length=255,
+            required=True,
             widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
                                           'autocomplete': 'off',
     									  'autofocus': 'true',
-    									  'placeholder': "Nom d'utilisateur",
-                                          'required': 'true'})
-        )
+    									  'placeholder': "Nom d'utilisateur"}))
 
 
 class ModuleCategoryForm(forms.Form):
