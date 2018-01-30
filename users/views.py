@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from re import escape
 
 from django.shortcuts import render, HttpResponse, force_text, redirect
 from django.views.generic import FormView, View
@@ -11,6 +12,7 @@ from django.core.urlresolvers import reverse
 from users.forms import *
 from users.models import User, ExtendedPermission
 from borgia.utils import *
+
 
 
 class ManageGroupView(GroupPermissionMixin, FormView,
@@ -198,7 +200,7 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
     template_name = 'users/retrieve.html'
     perm_codename = 'retrieve_user'
-    
+
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=self.kwargs['pk'])
         #Update forecast balance
@@ -342,7 +344,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
          'year':'asc',
          'balance':'asc',}
     sort = None
-	
+
     def get(self, request, *args, **kwargs):
         """
         Used to pass search through workboard.
