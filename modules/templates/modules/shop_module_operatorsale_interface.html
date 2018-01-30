@@ -29,7 +29,6 @@
           {% endif %}
           <div class="row">
             <div class="form-group col-md-12">
-              <label for="id_client">{{ form.client.label_tag }}</label>
               {{ form.client }}
             </div>
           </div>
@@ -129,7 +128,7 @@ $("input[id^='id_']").change(function() {
   $('#total_' + pk).text((Number(usual_price) * $(this).val()).toFixed(2))
   total()
 })
-function total() {
+function total(data) {
   var total = 0
   $('#invoice').empty()
   $("input[id^='id_']").each(function() {
@@ -139,46 +138,55 @@ function total() {
       .substring(
         0,
         $("label[for='" + $(this).attr('id') + "']").text().length - 1
-      )
-    total += Number($('#total_' + pk).text())
+      );
+    total += Number($('#total_' + pk).text());
     if ($(this).val() > 0) {
-      $('#invoice').append('<li>' + product + ' x' + $(this).val() + '</li>')
+      $('#invoice').append('<li>' + product + ' x' + $(this).val() + '</li>');
     }
   })
   $('#total').text(total.toFixed(2))
   $('#result').text(
-    (Number($('#initial').text()) - total.toFixed(2)).toFixed(2)
+    (Number(data) - total.toFixed(2)).toFixed(2)
   )
   if (Number($('#result').text()) < 0) {
-    $('#result_line').attr('class', 'col-md-4 bg-danger')
+    $('#result_line').attr('class', 'col-md-4 bg-danger');
   } else if (Number($('#result').text()) > 0) {
-    $('#result_line').attr('class', 'col-md-4 bg-success')
+    $('#result_line').attr('class', 'col-md-4 bg-success');
   } else {
-    $('#result_line').attr('class', 'col-md-4')
+    $('#result_line').attr('class', 'col-md-4');
   }
-}
+};
 
 // First iteration (in case of form errors)
 $("input[id^='id_']").each(function() {
   $(this).trigger('change')
 })
-// Trigger change does not work here ... (???)
-$('#id_client').val($('#id_client').val())
-if ($('#id_client').val() != '') {
-  $('#initial').text(Number($('#id_client').val().split('/')[1]))
-}
 
 $("div[role='tabpanel']").first().attr('class', 'tab-pane active')
 $("li[role='presentation']").first().attr('class', 'active')
 
-$('#id_client').change(function() {
+$("#id_client").focus(function() {
+    $('#initial').text("--");
+}).blur(function() {
   if ($(this).val() == '') {
     $('#initial').text(Number(0.0))
   } else {
-    $('#initial').text(Number($(this).val().split('/')[1]))
-  }
-  total()
-})
+        // alert("Your book is overdue.");
+        $.ajax({
+            url: "/ajax/balance_from_username/",
+            dataType: "json",
+            data: {
+                username: $('#id_client').val()
+            },
+            success: function( data ) {
+                $('#initial').text(Number(data));
+                total(data);
+            }
+        })
+  };
+});
+
+
 </script>
 <script>
 // Navigation script

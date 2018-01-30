@@ -138,8 +138,14 @@ class OperatorSaleShopModuleInterface(SaleShopModuleInterface):
         return kwargs
 
     def form_valid(self, form):
-        client_pk = int(form.cleaned_data['client'].split('/')[0])
-        self.client = User.objects.get(pk=client_pk)
+        try:
+            self.client = User.objects.get(
+                username = form.cleaned_data['client'])
+        except ObjectDoesNotExist:
+            raise forms.ValidationError('Utilisateur inconnu')
+        except KeyError:
+            raise forms.ValidationError('Utilisateur non sélectionné')
+
         self.success_url = reverse(
             'url_module_operatorsale',
             kwargs={

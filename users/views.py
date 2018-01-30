@@ -442,3 +442,21 @@ def username_from_username_part(request):
         pass
 
     return HttpResponse(json.dumps(data))
+
+def balance_from_username(request):
+
+    ## NEED permissions
+
+    data = 0
+    try:
+        username = request.GET.get('username')
+
+        data = str(User.objects.get(username=username).balance)
+
+
+    except KeyError:
+        pass
+    except ObjectDoesNotExist:
+        pass
+
+    return HttpResponse(json.dumps(data))
