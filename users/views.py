@@ -14,7 +14,6 @@ from users.models import User, ExtendedPermission
 from borgia.utils import *
 
 
-
 class ManageGroupView(GroupPermissionMixin, FormView,
                       GroupLateralMenuFormMixin):
     template_name = 'users/group_manage.html'

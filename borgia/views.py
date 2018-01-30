@@ -16,6 +16,7 @@ from borgia.utils import *
 from finances.models import Sale, SharedEvent, Transfert, Recharging, ExceptionnalMovement
 from shops.models import Product
 from borgia.forms import LoginForm
+from users.forms import UserQuickSearchForm
 from django.conf import settings
 
 
@@ -660,6 +661,9 @@ class PresidentsGroupWorkboard(GroupPermissionMixin, View,
                 'title': event.description,
                 'start': event.date
             })
+
+        # Form Quick user search
+        context['quick_user_search_form'] = UserQuickSearchForm()
         return render(request, self.template_name, context=context)
 
 
@@ -678,6 +682,9 @@ class VicePresidentsInternalGroupWorkboard(GroupPermissionMixin, View,
                 'title': event.description,
                 'start': event.date
             })
+
+        # Form Quick user search
+        context['quick_user_search_form'] = UserQuickSearchForm()
         return render(request, self.template_name, context=context)
 
 
@@ -696,6 +703,9 @@ class TreasurersGroupWorkboard(GroupPermissionMixin, View,
                 'title': event.description,
                 'start': event.date
             })
+
+        # Form Quick user search
+        context['quick_user_search_form'] = UserQuickSearchForm()
         return render(request, self.template_name, context=context)
 
 
