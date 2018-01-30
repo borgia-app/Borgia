@@ -417,7 +417,7 @@ def username_from_username_part(request):
     try:
         key = request.GET.get('keywords')
 
-        regex = r"\b" + escape(key) + r"\b"
+        regex = r"^" + escape(key) + r"\b"
 
         # Fam'ss en entier
         # where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
