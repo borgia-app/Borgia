@@ -424,15 +424,16 @@ def username_from_username_part(request):
         where_search = User.objects.exclude(groups=1).filter( family__regex = regex ).order_by('-year')
 
         if len(key) > 2:
-            # Nom de famille, début ou entier à partir de 3 caractères
-            where_search = where_search | User.objects.filter(last_name__startswith=key)
-            # Prénom, début ou entier à partir de 3 caractères
-            where_search = where_search | User.objects.filter(first_name__startswith=key)
-            # Buque, début ou entier à partir de 3 caractères
-            where_search = where_search | User.objects.filter(surname__startswith=key)
+            if key.isalpha():
+                # Nom de famille, début ou entier à partir de 3 caractères
+                where_search = where_search | User.objects.filter(last_name__startswith=key)
+                # Prénom, début ou entier à partir de 3 caractères
+                where_search = where_search | User.objects.filter(first_name__startswith=key)
+                # Buque, début ou entier à partir de 3 caractères
+                where_search = where_search | User.objects.filter(surname__startswith=key)
 
-        # Suppression des doublons
-        where_search = where_search.distinct()
+                # Suppression des doublons
+                where_search = where_search.distinct()
 
         for e in where_search:
             data.append(e.username)
