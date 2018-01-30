@@ -408,15 +408,18 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial = super(UserListView, self).get_initial()
         initial['search'] = self.search
         return initial
-		
+
 def username_from_username_part(request):
     data = []
 
     try:
         key = request.GET.get('keywords')
 
+        regex = r"\b" + escape(key) + r"\b"
+
         # Fam'ss en entier
-        where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
+        # where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
+        where_search = User.objects.exclude(groups=1).filter( family__regex = regex ).order_by('-year')
 
         if len(key) > 2:
             # Nom de famille, début ou entier à partir de 3 caractères
