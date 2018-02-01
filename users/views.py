@@ -444,18 +444,39 @@ def username_from_username_part(request):
 
 def balance_from_username(request):
 
-    ## NEED permissions
+    ## Check permissions
 
-    data = 0
-    try:
-        username = request.GET.get('username')
+    # User is authentified, if not the he can't access the view
+    operator = request.user
 
-        data = str(User.objects.get(username=username).balance)
+    # try:
+    #     shop_name = request.GET.get('shop_name')
+    #     shop = Shop.objects.get(name = shop_name)
+    #     module = OperatorSaleModule.objects.get(shop = shop)
+    # except KeyError:
+    #         raise Http404
+    # except ObjectDoesNotExist:
+    #     raise Http404
+
+    # If deactivate
+    # if module.state is False:
+    #     raise Http404
+
+    if operator.has_perm('modules.use_operatorsalemodule'):
+        data = 0
+        try:
+            username = request.GET.get('username')
+
+            data = str(User.objects.get(username=username).balance)
 
 
-    except KeyError:
-        pass
-    except ObjectDoesNotExist:
-        pass
+        except KeyError:
+            pass
+        except ObjectDoesNotExist:
+            pass
 
-    return HttpResponse(json.dumps(data))
+        return HttpResponse(json.dumps(data))
+
+    # If user don't have the permission
+    else:
+        raise PermissionDenied
