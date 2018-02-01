@@ -95,7 +95,7 @@ class SelfSaleShopModuleInterface(SaleShopModuleInterface):
     """
     Sale interface for SelfSaleModule.
     """
-    template_name = 'modules/shop_module_selfsale_interface.html'
+    template_name = 'modules/shop_module_sale_interface.html'
     form_class = SelfSaleShopModule
     module_class = SelfSaleModule
     perm_codename = 'use_selfsalemodule'
@@ -108,6 +108,11 @@ class SelfSaleShopModuleInterface(SaleShopModuleInterface):
 
         self.lm_active = 'lm_selfsale_interface_module_' + self.shop.name
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(SelfSaleShopModuleInterface, self).get_context_data(**kwargs)
+        context['type'] = "self_sale"
+        return context
 
     def form_valid(self, form):
         self.client = self.request.user
@@ -125,7 +130,7 @@ class OperatorSaleShopModuleInterface(SaleShopModuleInterface):
     """
     Sale interface for SelfOperatorModule.
     """
-    template_name = 'modules/shop_module_operatorsale_interface.html'
+    template_name = 'modules/shop_module_sale_interface.html'
     form_class = OperatorSaleShopModule
     module_class = OperatorSaleModule
     perm_codename = 'use_operatorsalemodule'
@@ -136,6 +141,11 @@ class OperatorSaleShopModuleInterface(SaleShopModuleInterface):
                        self).get_form_kwargs(**kwargs)
         kwargs['client'] = None
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(OperatorSaleShopModuleInterface, self).get_context_data(**kwargs)
+        context['type'] = "operator_sale"
+        return context
 
     def form_valid(self, form):
         try:

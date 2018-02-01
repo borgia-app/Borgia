@@ -1,0 +1,72 @@
+{% block content %}
+<script>
+$("input[id^='id_']").change(function() {
+  var pk = $(this).attr('pk')
+  var usual_price = $(this).attr('data_price')
+  $('#total_' + pk).text((Number(usual_price) * $(this).val()).toFixed(2))
+  total()
+})
+
+// Calculate the futur balance of the user
+function total() {
+  var total = 0
+  $('#invoice').empty()
+  $("input[id^='id_']").each(function() {
+    var pk = $(this).attr('pk')
+    var product = $("label[for='" + $(this).attr('id') + "']")
+      .text()
+      .substring(
+        0,
+        $("label[for='" + $(this).attr('id') + "']").text().length - 1
+      );
+    total += Number($('#total_' + pk).text());
+    if ($(this).val() > 0) {
+      $('#invoice').append('<li>' + product + ' x' + $(this).val() + '</li>');
+    }
+  })
+  $('#total').text(total.toFixed(2))
+  $('#result').text(
+    (Number($('#initial').text()) - total.toFixed(2)).toFixed(2)
+  )
+  if (Number($('#result').text()) < 0) {
+    $('#result_line').attr('class', 'col-md-4 bg-danger');
+  } else if (Number($('#result').text()) > 0) {
+    $('#result_line').attr('class', 'col-md-4 bg-success');
+  } else {
+    $('#result_line').attr('class', 'col-md-4');
+  }
+};
+
+// First iteration (in case of form errors)
+$("input[id^='id_']").each(function() {
+  $(this).trigger('change')
+})
+
+$("div[role='tabpanel']").first().attr('class', 'tab-pane active')
+$("li[role='presentation']").first().attr('class', 'active')
+
+{% if type == "operator_sale" %}
+    // Update the balance of the user. Then calculate the futur balance of the user
+    $("#id_client").focus(function() {
+        $('#initial').text("--");
+    }).blur(function() {
+      if ($(this).val() == '') {
+        $('#initial').text(0.0)
+      } else {
+            // alert("Your book is overdue.");
+            $.ajax({
+                url: "/ajax/balance_from_username/",
+                dataType: "json",
+                data: {
+                    username: $('#id_client').val()
+                },
+                success: function( data ) {
+                    $('#initial').text(data);
+                    total(data);
+                }
+            })
+      };
+    });
+{% endif %}
+</script>
+{% endblock %}
