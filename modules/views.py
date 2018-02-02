@@ -245,13 +245,14 @@ class SelfSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
     :type kwargs['group_name']: string
     :raises: Http404 if the group_name doesn't match a group
     """
-    template_name = 'modules/shop_module_selfsale_workboard.html'
+    template_name = 'modules/shop_module_sale_workboard.html'
     perm_codename = None
     lm_active = 'lm_selfsale_module'
     module_class = SelfSaleModule
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
+        context['type'] = "self_sale"
         return render(request, self.template_name, context=context)
 
 
@@ -265,13 +266,14 @@ class OperatorSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
     :type kwargs['group_name']: string
     :raises: Http404 if the group_name doesn't match a group
     """
-    template_name = 'modules/shop_module_operatorsale_workboard.html'
+    template_name = 'modules/shop_module_sale_workboard.html'
     perm_codename = None
     lm_active = 'lm_operatorsale_module'
     module_class = OperatorSaleModule
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
+        context['type'] = "operator_sale"
         return render(request, self.template_name, context=context)
 
 
