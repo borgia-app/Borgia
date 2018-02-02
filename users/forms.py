@@ -134,7 +134,7 @@ class LinkTokenUserForm(forms.Form):
 
 class UserSearchForm(forms.Form):
     search = forms.CharField(
-        		label="Recherche",
+        		label="Utilisateur(s)",
                 max_length=255,
                 required=False,
                 widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
