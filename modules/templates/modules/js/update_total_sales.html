@@ -44,29 +44,5 @@ $("input[id^='id_']").each(function() {
 
 $("div[role='tabpanel']").first().attr('class', 'tab-pane active')
 $("li[role='presentation']").first().attr('class', 'active')
-
-{% if type == "operator_sale" %}
-    // Update the balance of the user. Then calculate the futur balance of the user
-    $("#id_client").focus(function() {
-        $('#initial').text("--");
-    }).blur(function() {
-      if ($(this).val() == '') {
-        $('#initial').text(0.0)
-      } else {
-            // alert("Your book is overdue.");
-            $.ajax({
-                url: "/ajax/balance_from_username/",
-                dataType: "json",
-                data: {
-                    username: $('#id_client').val()
-                },
-                success: function( data ) {
-                    $('#initial').text(data);
-                    total(data);
-                }
-            })
-      };
-    });
-{% endif %}
 </script>
 {% endblock %}

@@ -1,6 +1,5 @@
 {% block content %}
 <script>
-// Test commit on someone else PR
 
 // Ajout des informations de touches
 {% for category in categories %}
@@ -21,12 +20,6 @@ $(document).keydown(function(e) {
   else if (e.which == 37) {
     moveTab('previous')
   }
-  {% if type == "self_sale" %}
-    // Enter (numeric included)
-    else if (e.which == 13) {
-      $("#sale_form").submit()
-    }
-  {% endif %}
 
   // Il n'est pas possible de suivre de manière simple l'index des champs
   // dans le formulaire, car la boucle est conditionnée par un if.
@@ -39,6 +32,57 @@ $(document).keydown(function(e) {
   }
   {% endfor %}
 })
+
+/* Operator sale only
+ * On enter when on the id_client field, don't submit
+ * But get the balance on enter and select autocomplete option
+ */
+
+{% if type == "operator_sale" %}
+
+  // No submit on enter
+  $("#id_client").keydown(function(e) {
+    if (e.which == 13) {
+      e.preventDefault()
+    }
+  })
+
+   // Function to update the balance of the user.
+   // Then calculate the futur balance of the user
+   function update_initial(client_id) {
+     if (client_id == '') {
+       // No client ID, set default
+       $("#initial").text(0.0)
+     } else {
+       // Get balance for the client
+       $.ajax({
+           url: "/ajax/balance_from_username/",
+           dataType: "json",
+           data: {
+               username: $('#id_client').val()
+           },
+           success: function( data ) {
+               $('#initial').text(data);
+               total(data);
+           }
+       })
+     }
+   }
+
+   // On focus user selection field, set default
+   $("#id_client").focus(function() {
+       $('#initial').text("--");
+   })
+
+   // On select autocomplete option (works for enter too)
+   // Wrapped into $(function() { ... }) to force execution when page is fully loaded.
+   // Else, autocomplete (defined by class and js import) is executed after that.
+   $(function() {
+     $("#id_client").autocomplete('option', 'select', function(e, ui) {
+       update_initial($(this).val())
+     });
+   })
+{% endif %}
 
 // Navigation script
 function moveTab(nextOrPrev) {
