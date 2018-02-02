@@ -8,6 +8,7 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseBadRequest
 
 from users.forms import *
 from users.models import User, ExtendedPermission
@@ -463,19 +464,14 @@ def balance_from_username(request):
     #     raise Http404
 
     if operator.has_perm('modules.use_operatorsalemodule'):
-        data = 0
         try:
-            username = request.GET.get('username')
-
+            username = request.GET['username']
             data = str(User.objects.get(username=username).balance)
-
-
+            return HttpResponse(json.dumps(data))
         except KeyError:
-            pass
+            return HttpResponseBadRequest()
         except ObjectDoesNotExist:
-            pass
-
-        return HttpResponse(json.dumps(data))
+            return HttpResponseBadRequest()
 
     # If user don't have the permission
     else:

@@ -52,7 +52,8 @@ $(document).keydown(function(e) {
    function update_initial(client_id) {
      if (client_id == '') {
        // No client ID, set default
-       $("#initial").text(0.0)
+       // Don't need to call ajax
+       $("#initial").text(Number(0).toFixed(2))
      } else {
        // Get balance for the client
        $.ajax({
@@ -63,25 +64,32 @@ $(document).keydown(function(e) {
            },
            success: function( data ) {
                $('#initial').text(data);
-               total(data);
+               total();
+           },
+           error: function(jqXHR, textStatus, errorThrown) {
+                // On error, set everything to default
+               $('#id_client').val('');
+               $('#initial').text(Number(0).toFixed(2));
+               total();
            }
        })
      }
    }
 
-   // On focus user selection field, set default
-   $("#id_client").focus(function() {
-       $('#initial').text("--");
-   })
+     // On blur, must recheck ...
+     // Because an autocomplete is not a select, one can send anything !
+    $("#id_client").blur(function() {
+      update_initial($(this).val());
+    });
 
    // On select autocomplete option (works for enter too)
    // Wrapped into $(function() { ... }) to force execution when page is fully loaded.
    // Else, autocomplete (defined by class and js import) is executed after that.
    $(function() {
      $("#id_client").autocomplete('option', 'select', function(e, ui) {
-       update_initial($(this).val())
+       update_initial($(this).val());
      });
-   })
+   });
 {% endif %}
 
 // Navigation script
