@@ -3,19 +3,23 @@
 <div class="panel panel-default">
     <div class="panel-heading">
         Recherche rapide d'un utilisateur
-        <a class="btn btn-info btn-xs pull-right" href="{% url 'url_user_list' group_name=group_name %}">
-            Accéder à la liste des utilisateurs
-        </a>
     </div>
     <div class="panel-body">
-      <form action="{% url 'url_user_list' group_name=group_name %}" method="post" class="form-horizontal">
+      <form action="{% url 'url_user_list' group_name=group_name %}" method="post" class="form-horizontal" role="search_user">
         {% csrf_token %}
-        {{ quick_user_search_form|bootstrap_horizontal }}
+        <div class="form-group col-md-9">
+          {{ quick_user_search_form.search  }}
+          <span class="glyphicon glyphicon-user"></span>
+        </div>
+
         <div class="form-group">
-          <div class="col-sm-10 col-sm-offset-2">
+          <div class="col-md-3">
             <button type="submit" class="btn btn-primary">Recherche</button>
           </div>
         </div>
       </form>
+      <a class="btn btn-info btn-xs pull-right" href="{% url 'url_user_list' group_name=group_name %}">
+          Accéder à la liste des utilisateurs
+      </a>
     </div>
 </div>

@@ -162,7 +162,6 @@ class UserSearchForm(forms.Form):
 
 class UserQuickSearchForm(forms.Form):
     search = forms.CharField(
-        		label="Recherche",
                 max_length=255,
                 required=False,
                 widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
