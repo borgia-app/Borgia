@@ -87,6 +87,7 @@ class OperatorSaleShopModule(SelfSaleShopModule):
         except ProgrammingError:
             pass
 
+
 class ModuleCategoryForm(forms.Form):
     name = forms.CharField(
         label='Nom',
@@ -116,7 +117,7 @@ class ModuleCategoryCreateForm(forms.Form):
         self.fields['product'] = forms.ChoiceField(
             label='Produit',
             choices=([(None, 'Sélectionner un produit')] + [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
-                     for product in Product.objects.filter(shop=shop)]),
+                     for product in Product.objects.filter(shop=shop, is_active=True)]),
             widget=forms.Select(
                 attrs={'class': 'form-control selectpicker',
                        'data-live-search': 'True'})
@@ -134,7 +135,6 @@ class ModuleCategoryCreateForm(forms.Form):
     def clean(self):
         cleaned_data = super(ModuleCategoryCreateForm, self).clean()
         # Validation direct in html
-
 
 
 class ModuleCategoryCreateNameForm(forms.Form):
