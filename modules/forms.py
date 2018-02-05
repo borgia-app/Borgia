@@ -21,7 +21,7 @@ class SelfSaleShopModule(forms.Form):
 
         for category in self.module.categories.all():
             for category_product in category.categoryproduct_set.all():
-                if category_product.get_price() > 0:
+                if (category_product.get_price() > 0 and category_product.product.is_active):
                     self.fields[str(category_product.pk)
                                  + '-' + str(category.pk)
                                  ] = forms.IntegerField(
