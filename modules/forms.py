@@ -116,8 +116,15 @@ class ModuleCategoryCreateForm(forms.Form):
         super(ModuleCategoryCreateForm, self).__init__(*args, **kwargs)
         self.fields['product'] = forms.ChoiceField(
             label='Produit',
-            choices=([(None, 'Sélectionner un produit')] + [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
-                     for product in Product.objects.filter(shop=shop, is_active=True)]),
+            choices=([(None, 'Sélectionner un produit')] + [
+                (str(product.pk)+'/'+str(product.get_unit_display()),
+                product.__str__())
+                     for product in Product.objects.filter(shop=shop, is_active=True)
+                     ] + [
+                         (str(product.pk)+'/'+str(product.get_unit_display()),
+                         product.__str__() + ' DESACTIVE')
+                              for product in Product.objects.filter(shop=shop, is_active=False)
+                              ]),
             widget=forms.Select(
                 attrs={'class': 'form-control selectpicker',
                        'data-live-search': 'True'})
