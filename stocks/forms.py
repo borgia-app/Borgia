@@ -94,7 +94,7 @@ class InventoryProductForm(forms.Form):
         widget=forms.NumberInput(
             attrs={'class': 'form-control centered_input quantity',
                     'placeholder': 'Quantité',
-                    'min':1, 'required':'required'}
+                    'min':0, 'required':'required'}
         )
     )
     unit_quantity = forms.ChoiceField(
