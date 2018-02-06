@@ -238,11 +238,13 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     perm_chiefs = ['add_user', 'retrieve_user', 'list_user', 'supply_money_user', 'add_product',
                    'change_product', 'retrieve_product', 'list_product',
                    'list_sale', 'retrieve_sale', 'use_operatorsalemodule',
-                   'add_stockentry', 'retrieve_stockentry', 'list_stockentry']
+                   'add_stockentry', 'retrieve_stockentry', 'list_stockentry',
+                   'add_inventory', 'retrieve_inventory', 'list_inventory']
     perm_associates = ['add_user', 'retrieve_user', 'list_user', 'supply_money_user', 'add_product',
                        'change_product', 'retrieve_product', 'list_product',
                        'list_sale', 'retrieve_sale', 'use_operatorsalemodule',
-                       'add_stockentry', 'retrieve_stockentry', 'list_stockentry']
+                       'add_stockentry', 'retrieve_stockentry', 'list_stockentry',
+                       'add_inventory', 'retrieve_inventory', 'list_inventory']
 
     def form_valid(self, form):
         """
