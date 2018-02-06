@@ -1,0 +1,57 @@
+{% block content %}
+<script>
+$("input[id^='id_']").change(function() {
+  var pk = $(this).attr('pk');
+  var usual_price = $(this).attr('data_price');
+  $('#total_' + pk).text((Number(usual_price) * Number($(this).val())).toFixed(2));
+  total();
+})
+
+// Calculate the futur balance of the user
+function total() {
+  var total = 0
+  $('#invoice').empty();
+  $("input[id^='id_']").each(function() {
+    var pk = $(this).attr('pk');
+    var product = $("label[for='" + $(this).attr('id') + "']")
+      .text()
+      .substring(
+        0,
+        $("label[for='" + $(this).attr('id') + "']").text().length - 1
+      );
+    total += Number($('#total_' + pk).text());
+    if ($(this).val() > 0) {
+      $('#invoice').append('<li>' + product + ' x' + $(this).val() + '</li>');
+    }
+  })
+  $('#total').text(total.toFixed(2));
+  $('#result').text(
+    (Number($('#initial').text()) - total.toFixed(2)).toFixed(2)
+  );
+  if (Number($('#result').text()) < 0) {
+    $('#result_line').attr('class', 'col-md-4 bg-danger');
+  } else if (Number($('#result').text()) > 0) {
+    $('#result_line').attr('class', 'col-md-4 bg-success');
+  } else {
+    $('#result_line').attr('class', 'col-md-4');
+  }
+};
+
+// Initializing first item
+$("div[role='tabpanel']").first().attr('class', 'tab-pane active')
+$("li[role='presentation']").first().attr('class', 'active')
+
+// Reload everything if the page is reloaded due to form validation errors
+$(document).ready(function() {
+  {% if type == "operator_sale" %}
+  // Get user and update initial
+  update_initial($("#id_client").val());
+  {% endif %}
+  // Update product inputs
+  // Type number for products only (id_client: type text)
+  $("input[id^='id_']:input[type='number']").each(function() {
+    $(this).trigger('change');
+  });
+});
+</script>
+{% endblock %}

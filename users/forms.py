@@ -134,10 +134,13 @@ class LinkTokenUserForm(forms.Form):
 
 class UserSearchForm(forms.Form):
     search = forms.CharField(
-        label='Recherche',
-        max_length=255,
-        required=False
-    )
+        		label="Recherche",
+                max_length=255,
+                required=False,
+                widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
+                                              'autocomplete': 'off',
+        									  'autofocus': 'true',
+        									  'placeholder': "Nom d'utilisateur"}))
     unactive = forms.BooleanField(
         label='Désactivés seulement',
         required=False
@@ -155,3 +158,14 @@ class UserSearchForm(forms.Form):
             choices=YEAR_CHOICES,
             required=False
         )
+
+
+class UserQuickSearchForm(forms.Form):
+    search = forms.CharField(
+        		label="Recherche",
+                max_length=255,
+                required=False,
+                widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
+                                              'autocomplete': 'off',
+        									  'autofocus': 'true',
+        									  'placeholder': "Nom d'utilisateur"}))

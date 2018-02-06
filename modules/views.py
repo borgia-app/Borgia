@@ -95,7 +95,7 @@ class SelfSaleShopModuleInterface(SaleShopModuleInterface):
     """
     Sale interface for SelfSaleModule.
     """
-    template_name = 'modules/shop_module_selfsale_interface.html'
+    template_name = 'modules/shop_module_sale_interface.html'
     form_class = SelfSaleShopModule
     module_class = SelfSaleModule
     perm_codename = 'use_selfsalemodule'
@@ -108,6 +108,11 @@ class SelfSaleShopModuleInterface(SaleShopModuleInterface):
 
         self.lm_active = 'lm_selfsale_interface_module_' + self.shop.name
         return kwargs
+
+    def get_context_data(self, **kwargs):
+        context = super(SelfSaleShopModuleInterface, self).get_context_data(**kwargs)
+        context['type'] = "self_sale"
+        return context
 
     def form_valid(self, form):
         self.client = self.request.user
@@ -125,7 +130,7 @@ class OperatorSaleShopModuleInterface(SaleShopModuleInterface):
     """
     Sale interface for SelfOperatorModule.
     """
-    template_name = 'modules/shop_module_operatorsale_interface.html'
+    template_name = 'modules/shop_module_sale_interface.html'
     form_class = OperatorSaleShopModule
     module_class = OperatorSaleModule
     perm_codename = 'use_operatorsalemodule'
@@ -137,9 +142,20 @@ class OperatorSaleShopModuleInterface(SaleShopModuleInterface):
         kwargs['client'] = None
         return kwargs
 
+    def get_context_data(self, **kwargs):
+        context = super(OperatorSaleShopModuleInterface, self).get_context_data(**kwargs)
+        context['type'] = "operator_sale"
+        return context
+
     def form_valid(self, form):
-        client_pk = int(form.cleaned_data['client'].split('/')[0])
-        self.client = User.objects.get(pk=client_pk)
+        try:
+            self.client = User.objects.get(
+                username = form.cleaned_data['client'])
+        except ObjectDoesNotExist:
+            raise forms.ValidationError('Utilisateur inconnu')
+        except KeyError:
+            raise forms.ValidationError('Utilisateur non sélectionné')
+
         self.success_url = reverse(
             'url_module_operatorsale',
             kwargs={

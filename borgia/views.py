@@ -16,6 +16,7 @@ from borgia.utils import *
 from finances.models import Sale, SharedEvent, Transfert, Recharging, ExceptionnalMovement
 from shops.models import Product
 from borgia.forms import LoginForm
+from users.forms import UserQuickSearchForm
 from django.conf import settings
 
 
@@ -170,10 +171,20 @@ def jsi18n_catalog(request):
 
 def handler403(request):
     context = {}
+
     try:
         group_name = request.path.split('/')[1]
         context['group'] = Group.objects.get(name=group_name)
         context['group_name'] = group_name
+    except IndexError:
+        context['group_name'] = 'gadzarts'
+        context['group'] = Group.objects.get(name = 'gadzarts')
+    except ObjectDoesNotExist:
+        context['group_name'] = 'gadzarts'
+        context['group'] = Group.objects.get(name = 'gadzarts')
+
+
+    try:
         if (request.user.groups.all().exclude(
                 pk__in=[1, 5, 6]).count() > 0):
             context['first_job'] = request.user.groups.all().exclude(
@@ -190,6 +201,7 @@ def handler403(request):
         pass
     except ObjectDoesNotExist:
         pass
+
     response = render(
         request,
         '403.html',
@@ -660,6 +672,9 @@ class PresidentsGroupWorkboard(GroupPermissionMixin, View,
                 'title': event.description,
                 'start': event.date
             })
+
+        # Form Quick user search
+        context['quick_user_search_form'] = UserQuickSearchForm()
         return render(request, self.template_name, context=context)
 
 
@@ -678,6 +693,9 @@ class VicePresidentsInternalGroupWorkboard(GroupPermissionMixin, View,
                 'title': event.description,
                 'start': event.date
             })
+
+        # Form Quick user search
+        context['quick_user_search_form'] = UserQuickSearchForm()
         return render(request, self.template_name, context=context)
 
 
@@ -696,6 +714,9 @@ class TreasurersGroupWorkboard(GroupPermissionMixin, View,
                 'title': event.description,
                 'start': event.date
             })
+
+        # Form Quick user search
+        context['quick_user_search_form'] = UserQuickSearchForm()
         return render(request, self.template_name, context=context)
 
 

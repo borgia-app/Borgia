@@ -505,9 +505,9 @@ class SharedEvent(models.Model):
             # Suppresion de l'user dans users.
             WeightsUser.objects.filter(user=user, shared_event=self).delete()
         except ObjectDoesNotExist:
-            raise Http404
+            raise forms.ValidationError("Utilisateur inconnu")
         except ValueError:
-            raise Exception('NotAUser')
+            raise forms.ValidationError("Pas un utilisateur")
 
     def add_weight(self, user, weight, isParticipant=True):
         """
@@ -572,7 +572,7 @@ class SharedEvent(models.Model):
         except ObjectDoesNotExist:
             return 0
         except ValueError:
-            raise Exception('NotAUser')
+            raise forms.ValidationError("Pas un utilisateur")
 
     def get_price_of_user(self, user):
 	    # Calcul du prix par weight

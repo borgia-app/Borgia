@@ -749,7 +749,7 @@ class SelfTransfertCreate(GroupPermissionMixin, FormView,
     template_name = 'finances/self_transfert_create.html'
     perm_codename = 'add_transfert'
     lm_active = 'lm_self_transfert_create'
-    form_class = SelfTransfertCreate
+    form_class = SelfTransfertCreateForm
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super(SelfTransfertCreate, self).get_form_kwargs(**kwargs)
@@ -757,9 +757,14 @@ class SelfTransfertCreate(GroupPermissionMixin, FormView,
         return kwargs
 
     def form_valid(self, form):
+        try:
+            recipient = User.objects.get(username=form.cleaned_data['recipient'])
+        except ObjectDoesNotExist:
+            raise forms.ValidationError("L'utilisateur n'existe pas")
+
         transfert = Transfert.objects.create(
             sender=self.request.user,
-            recipient=form.cleaned_data['recipient'],
+            recipient=recipient,
             amount=form.cleaned_data['amount'],
             justification=form.cleaned_data['justification']
         )
@@ -767,7 +772,7 @@ class SelfTransfertCreate(GroupPermissionMixin, FormView,
         # We notify
         notify(notification_class_name= 'transfer_creation',
                actor=self.request.user,
-               recipient= form.cleaned_data['recipient'],
+               recipient= recipient,
                target_object=transfert)
         return super(SelfTransfertCreate, self).form_valid(form)
 
