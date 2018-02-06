@@ -21,7 +21,9 @@ class SelfSaleShopModule(forms.Form):
 
         for category in self.module.categories.all():
             for category_product in category.categoryproduct_set.all():
-                if (category_product.get_price() > 0 and category_product.product.is_active):
+                if (category_product.get_price() > 0 and
+                not category_product.product.is_removed and
+                category_product.product.is_active):
                     self.fields[str(category_product.pk)
                                  + '-' + str(category.pk)
                                  ] = forms.IntegerField(
@@ -83,29 +85,6 @@ class OperatorSaleShopModule(SelfSaleShopModule):
     									  'placeholder': "Nom d'utilisateur"}))
 
 
-
-class ModuleCategoryForm(forms.Form):
-    name = forms.CharField(
-        label='Nom',
-        max_length=254
-    )
-    pk = forms.IntegerField(
-        label='Pk',
-        widget=forms.HiddenInput(),
-        required=False
-    )
-
-    def __init__(self, *args, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ModuleCategoryForm, self).__init__(*args, **kwargs)
-        self.fields['products'] = forms.ModelMultipleChoiceField(
-            label='Produits',
-            queryset=Product.objects.filter(shop=shop),
-            widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
-                                               'data-live-search': 'True'}),
-            required=False)
-
-
 class ModuleCategoryCreateForm(forms.Form):
     def __init__(self, *args, **kwargs):
         shop = kwargs.pop('shop')
@@ -115,11 +94,11 @@ class ModuleCategoryCreateForm(forms.Form):
             choices=([(None, 'Sélectionner un produit')] + [
                 (str(product.pk)+'/'+str(product.get_unit_display()),
                 product.__str__())
-                     for product in Product.objects.filter(shop=shop, is_active=True)
+                     for product in Product.objects.filter(shop=shop, is_removed=False, is_active=True)
                      ] + [
                          (str(product.pk)+'/'+str(product.get_unit_display()),
                          product.__str__() + ' DESACTIVE')
-                              for product in Product.objects.filter(shop=shop, is_active=False)
+                              for product in Product.objects.filter(shop=shop, is_removed=False, is_active=False)
                               ]),
             widget=forms.Select(
                 attrs={'class': 'form-control selectpicker',

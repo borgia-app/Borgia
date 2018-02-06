@@ -1,0 +1,16 @@
+{% extends 'base_sober.html' %}
+
+{% block content %}
+<div class="panel panel-danger">
+  <div class="panel-heading">
+    Suppression d'un produit
+  </div>
+  <div class="panel-body">
+    <form action="" method="post">
+      {% csrf_token %}
+      <label> Supprimer le produit {{ object }} ? Attention, cette action est irreversible. Le produit ne pourra plus être sélectionné, ni vendu et son stock n'existera plus.</label>
+        <button class="btn btn-danger" type="submit">Valider</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

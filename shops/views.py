@@ -28,7 +28,7 @@ class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
     def get_context_data(self, **kwargs):
         context = super(ProductList, self).get_context_data(**kwargs)
         context['product_list'] = self.form_query(
-            Product.objects.all())
+            Product.objects.filter(is_removed=False))
         return context
 
     def get_form_kwargs(self):
@@ -110,7 +110,7 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
 class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View,
                         GroupLateralMenuMixin):
     """
-    Deactivate a product and redirect to the workboard of the group.
+    Deactivate a product and redirect to the retrieve of the product.
 
     :param kwargs['group_name']: name of the group used.
     :param kwargs['pk']: pk of the product
@@ -126,11 +126,43 @@ class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View,
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
+        # Set to True or False, activation is reversible.
         if self.object.is_active is True:
             self.object.is_active = False
         else:
             self.object.is_active = True
         self.object.save()
+
+        return redirect(reverse('url_product_retrieve',
+                        kwargs={'group_name': self.group.name,
+                                'pk': self.object.pk}))
+
+
+class ProductRemove(GroupPermissionMixin, ProductShopFromGroupMixin, View,
+                        GroupLateralMenuMixin):
+    """
+    Remove a product and redirect to the retrieve of the product.
+
+    :param kwargs['group_name']: name of the group used.
+    :param kwargs['pk']: pk of the product
+    :param self.perm_codename: codename of the permission checked.
+    """
+    template_name = 'shops/product_remove.html'
+    success_url = None
+    perm_codename = None
+
+    def get(self, request, *args, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['object'] = self.object
+        return render(request, self.template_name, context=context)
+
+    def post(self, request, *args, **kwargs):
+        # Set always to True, removing is non-reversible.
+        self.object.is_removed = True
+        self.object.save()
+
+        # Delete all category_product which use the product.
+        CategoryProduct.objects.filter(product=self.object).delete()
 
         return redirect(reverse('url_product_retrieve',
                         kwargs={'group_name': self.group.name,
