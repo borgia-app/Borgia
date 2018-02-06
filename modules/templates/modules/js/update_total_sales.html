@@ -43,8 +43,10 @@ $("li[role='presentation']").first().attr('class', 'active')
 
 // Reload everything if the page is reloaded due to form validation errors
 $(document).ready(function() {
+  {% if type == "operator_sale" %}
   // Get user and update initial
   update_initial($("#id_client").val());
+  {% endif %}
   // Update product inputs
   // Type number for products only (id_client: type text)
   $("input[id^='id_']:input[type='number']").each(function() {
