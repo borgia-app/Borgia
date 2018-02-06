@@ -60,7 +60,7 @@ $(document).keydown(function(e) {
            url: "/ajax/balance_from_username/",
            dataType: "json",
            data: {
-               username: $('#id_client').val()
+               username: client_id
            },
            success: function( data ) {
                $('#initial').text(data);
