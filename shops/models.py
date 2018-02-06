@@ -207,6 +207,11 @@ class Product(models.Model):
         unit -> unit
         """
         current_stock_estimated = self.current_stock_estimated(offset)
+
+        # If negative stock, display 0
+        if current_stock_estimated < 0:
+            return self.get_quantity_display(0)
+            
         return self.get_quantity_display(current_stock_estimated)
 
     def get_quantity_display(self, value):
@@ -225,7 +230,7 @@ class Product(models.Model):
             if value > 1:
                 return str(round(value, 0)) + ' produits'
             else:
-                return str(round(value, 0)) + 'produit'
+                return str(round(value, 0)) + ' produit'
 
     def update_correcting_factor(self, next_stock):
         """
