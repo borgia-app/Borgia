@@ -87,7 +87,7 @@ $(document).keydown(function(e) {
    // Else, autocomplete (defined by class and js import) is executed after that.
    $(function() {
      $("#id_client").autocomplete('option', 'select', function(e, ui) {
-       update_initial($(this).val());
+       update_initial(ui.item.value);
      });
    });
 {% endif %}
