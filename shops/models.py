@@ -211,7 +211,7 @@ class Product(models.Model):
         # If negative stock, display 0
         if current_stock_estimated < 0:
             return self.get_quantity_display(0)
-            
+
         return self.get_quantity_display(current_stock_estimated)
 
     def get_quantity_display(self, value):
@@ -241,16 +241,24 @@ class Product(models.Model):
         diff = input_estimated - input_real
         estimated_stock - real_stock = last_inventory + input - output_estimated - last_inventory - input + output_real
         estimated_stock - real_stock = output_real - output_estimated
-        je veux estimated_stock - real_stock = 0
+        I need: estimated_stock - real_stock = 0
         => output_real = output_estimated
         output_real = sales * correcting_factor
         correcting_factor = output_real / sales
         correcting_factor = (last_inventory + input - real_stock) / sales
+
+        If no sales are registered since the last inventory (stock_output = 0),
+        don't update the correcting factor (it should tend to infinity).
+        It appends when ZeroDivisionError is raised.
         """
         stock_base = self.last_inventoryproduct_value(1)
         stock_input = sum(se.quantity for se in self.stockentries_since_last_inventory(1))
         stock_output = sum(s.quantity for s in self.sales_since_last_inventory(1))
-        self.correcting_factor = Decimal(
-            (stock_base + stock_input - next_stock) / stock_output
-        )
-        self.save()
+
+        try:
+            self.correcting_factor = Decimal(
+                (stock_base + stock_input - next_stock) / stock_output
+            )
+            self.save()
+        except ZeroDivisionError:
+            pass
