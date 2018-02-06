@@ -141,7 +141,7 @@ class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View,
 class ProductRemove(GroupPermissionMixin, ProductShopFromGroupMixin, View,
                         GroupLateralMenuMixin):
     """
-    Remove a product and redirect to the retrieve of the product.
+    Remove a product and redirect to the list of products.
 
     :param kwargs['group_name']: name of the group used.
     :param kwargs['pk']: pk of the product
@@ -164,9 +164,8 @@ class ProductRemove(GroupPermissionMixin, ProductShopFromGroupMixin, View,
         # Delete all category_product which use the product.
         CategoryProduct.objects.filter(product=self.object).delete()
 
-        return redirect(reverse('url_product_retrieve',
-                        kwargs={'group_name': self.group.name,
-                                'pk': self.object.pk}))
+        return redirect(reverse('url_product_list',
+                        kwargs={'group_name': self.group.name}))
 
 
 class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View,
