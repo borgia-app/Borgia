@@ -1,5 +1,6 @@
 import json
 from datetime import datetime
+from re import escape
 
 from django.shortcuts import render, HttpResponse, force_text, redirect
 from django.views.generic import FormView, View
@@ -7,6 +8,7 @@ from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
 from django.core.urlresolvers import reverse
+from django.http import HttpResponseBadRequest
 
 from users.forms import *
 from users.models import User, ExtendedPermission
@@ -198,7 +200,7 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
     template_name = 'users/retrieve.html'
     perm_codename = 'retrieve_user'
-    
+
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=self.kwargs['pk'])
         #Update forecast balance
@@ -342,7 +344,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
          'year':'asc',
          'balance':'asc',}
     sort = None
-	
+
     def get(self, request, *args, **kwargs):
         """
         Used to pass search through workboard.
@@ -408,26 +410,30 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial = super(UserListView, self).get_initial()
         initial['search'] = self.search
         return initial
-		
+
 def username_from_username_part(request):
     data = []
 
     try:
         key = request.GET.get('keywords')
 
+        regex = r"^" + escape(key) + r"\b"
+
         # Fam'ss en entier
-        where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
+        # where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
+        where_search = User.objects.exclude(groups=1).filter( family__regex = regex ).order_by('-year')
 
         if len(key) > 2:
-            # Nom de famille, début ou entier à partir de 3 caractères
-            where_search = where_search | User.objects.filter(last_name__startswith=key)
-            # Prénom, début ou entier à partir de 3 caractères
-            where_search = where_search | User.objects.filter(first_name__startswith=key)
-            # Buque, début ou entier à partir de 3 caractères
-            where_search = where_search | User.objects.filter(surname__startswith=key)
+            if key.isalpha():
+                # Nom de famille, début ou entier à partir de 3 caractères
+                where_search = where_search | User.objects.filter(last_name__startswith=key)
+                # Prénom, début ou entier à partir de 3 caractères
+                where_search = where_search | User.objects.filter(first_name__startswith=key)
+                # Buque, début ou entier à partir de 3 caractères
+                where_search = where_search | User.objects.filter(surname__startswith=key)
 
-        # Suppression des doublons
-        where_search = where_search.distinct()
+                # Suppression des doublons
+                where_search = where_search.distinct()
 
         for e in where_search:
             data.append(e.username)
@@ -436,3 +442,37 @@ def username_from_username_part(request):
         pass
 
     return HttpResponse(json.dumps(data))
+
+def balance_from_username(request):
+
+    ## Check permissions
+
+    # User is authentified, if not the he can't access the view
+    operator = request.user
+
+    # try:
+    #     shop_name = request.GET.get('shop_name')
+    #     shop = Shop.objects.get(name = shop_name)
+    #     module = OperatorSaleModule.objects.get(shop = shop)
+    # except KeyError:
+    #         raise Http404
+    # except ObjectDoesNotExist:
+    #     raise Http404
+
+    # If deactivate
+    # if module.state is False:
+    #     raise Http404
+
+    if operator.has_perm('modules.use_operatorsalemodule'):
+        try:
+            username = request.GET['username']
+            data = str(User.objects.get(username=username).balance)
+            return HttpResponse(json.dumps(data))
+        except KeyError:
+            return HttpResponseBadRequest()
+        except ObjectDoesNotExist:
+            return HttpResponseBadRequest()
+
+    # If user don't have the permission
+    else:
+        raise PermissionDenied

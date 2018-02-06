@@ -68,36 +68,8 @@
     </div>
   </div>
   <div class="col-md-4">
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            Recherche rapide d'un utilisateur
-             <a class="btn btn-info btn-xs pull-right" href="{% url 'url_user_list' group_name=group_name %}">
-                Accéder à la liste des utilisateurs
-            </a>
-        </div>
-        <div class="panel-body">
-            <input type="text" class="form-control" id="input_search" />
-            <a
-            id="search"
-            class="btn btn-success"
-            style="margin-top: 5px"
-            href="{% url 'url_user_list' group_name=group_name %}">Rechercher</a>
-            <script>
-                var base_list_url = "{% url 'url_user_list' group_name=group_name %}";
-                $("#input_search").change(function () {
-                  $("#search").attr(
-                    'href',
-                    base_list_url + '?search=' + $(this).val())
-                });
-                $("#input_search").keypress(function (event) {
-                    if (event.which == 13){
-                        $("#input_search").trigger('change');
-                        $("#search")[0].click();
-                    }
-                })
-            </script>
-        </div>
-    </div>
+    <!-- User quick search -->
+      {% include "users/user_quick_search.html" %}
   </div>
 </div>
 <script>

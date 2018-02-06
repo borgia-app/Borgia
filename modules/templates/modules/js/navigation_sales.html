@@ -1,0 +1,144 @@
+{% block content %}
+<script>
+
+// Ajout des informations de touches
+{% for category in categories %}
+$("#{{ category.pk }} :input").each(function(index) {
+  var td = $(this).closest('tr').find('.F')
+  if ((index + 1) <= 12) {
+    $(td).text("F" + (index + 1))
+  }
+})
+{% endfor %}
+
+$(document).keydown(function(e) {
+  // Right arrow
+  if (e.which == 39) {
+    moveTab('next')
+  }
+  // Left arrow
+  else if (e.which == 37) {
+    moveTab('previous')
+  }
+
+  // Il n'est pas possible de suivre de manière simple l'index des champs
+  // dans le formulaire, car la boucle est conditionnée par un if.
+  // On attribut donc le "Fx" par le javascript ici.
+  // F1
+  {% for i in "xxxxxxxxxxxx" %}
+  if (e.which == {{ forloop.counter0|add:112 }}) {
+    e.preventDefault()
+    addOne({{ forloop.counter0|add:1 }})
+  }
+  {% endfor %}
+})
+
+/* Operator sale only
+ * On enter when on the id_client field, don't submit
+ * But get the balance on enter and select autocomplete option
+ */
+
+{% if type == "operator_sale" %}
+
+  // No submit on enter
+  $("#id_client").keydown(function(e) {
+    if (e.which == 13) {
+      e.preventDefault()
+    }
+  })
+
+   // Function to update the balance of the user.
+   // Then calculate the futur balance of the user
+   function update_initial(client_id) {
+     if (client_id == '') {
+       // No client ID, set default
+       // Don't need to call ajax
+       $("#initial").text(Number(0).toFixed(2))
+     } else {
+       // Get balance for the client
+       $.ajax({
+           url: "/ajax/balance_from_username/",
+           dataType: "json",
+           data: {
+               username: client_id
+           },
+           success: function( data ) {
+               $('#initial').text(data);
+               total();
+           },
+           error: function(jqXHR, textStatus, errorThrown) {
+                // On error, set everything to default
+               $('#id_client').val('');
+               $('#initial').text(Number(0).toFixed(2));
+               total();
+           }
+       })
+     }
+   }
+
+     // On blur, must recheck ...
+     // Because an autocomplete is not a select, one can send anything !
+    $("#id_client").blur(function() {
+      update_initial($(this).val());
+    });
+
+   // On select autocomplete option (works for enter too)
+   // Wrapped into $(function() { ... }) to force execution when page is fully loaded.
+   // Else, autocomplete (defined by class and js import) is executed after that.
+   $(function() {
+     $("#id_client").autocomplete('option', 'select', function(e, ui) {
+       update_initial(ui.item.value);
+     });
+   });
+{% endif %}
+
+// Navigation script
+function moveTab(nextOrPrev) {
+  var currentTab = ""
+  var currentPane = ""
+  $('.nav-tabs li').each(function () {
+    if ($(this).hasClass('active')) {
+      currentTab = $(this)
+    }
+  })
+  $('.tab-content div').each(function () {
+    if ($(this).hasClass('active')) {
+      currentPane = $(this)
+    }
+  })
+
+  if (nextOrPrev == "next") {
+    if (currentTab.next().length)
+    {
+      currentTab.removeClass('active')
+      currentTab.next().addClass('active')
+      currentPane.removeClass('active')
+      currentPane.next().addClass('active')
+    }
+  } else {
+    if (currentTab.prev().length)
+    {
+      currentTab.removeClass('active')
+      currentTab.prev().addClass('active')
+      currentPane.removeClass('active')
+      currentPane.prev().addClass('active')
+    }
+  }
+}
+
+function addOne(index) {
+  var currentPane = ""
+  $('.tab-content div').each(function (i) {
+    if ($(this).hasClass('active')) {
+      currentPane = $(this)
+    }
+  })
+  var tr = $(currentPane).find('tr')[index]
+  if (tr) {
+    $(tr).find('input').val(Number($(tr).find('input').val()) + 1)
+    $(tr).find('input').trigger("change")
+  }
+}
+
+</script>
+{% endblock %}

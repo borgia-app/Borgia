@@ -392,6 +392,10 @@ urlpatterns = [
         username_from_username_part,
         name='url_ajax_username_from_username_part'),
 
+    url(r'^ajax/balance_from_username/$',
+        balance_from_username,
+        name='url_balance_from_username'),
+
     url(r'^admin/', admin.site.urls),
     url(r'^local/jsi18n$', jsi18n_catalog),
 
