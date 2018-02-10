@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.timezone import now
 
-from decimal import Decimal, InvalidOperation
+from decimal import Decimal, InvalidOperation, DivisionUndefined
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator, MinValueValidator
 
@@ -262,4 +262,6 @@ class Product(models.Model):
             )
             self.save()
         except ZeroDivisionError:
+            pass
+        except DivisionUndefined:
             pass
