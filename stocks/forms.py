@@ -10,7 +10,7 @@ class StockEntryProductForm(forms.Form):
         self.fields['product'] = forms.ChoiceField(
             label='Produit',
             choices=([(None, 'Sélectionner un produit')] + [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
-                     for product in Product.objects.filter(shop=shop)]),
+                     for product in Product.objects.filter(shop=shop, is_removed=False)]),
             widget=forms.Select(
                 attrs={'class': 'form-control selectpicker',
                        'data-live-search': 'True', 'required':'required'})
@@ -83,7 +83,7 @@ class InventoryProductForm(forms.Form):
         self.fields['product'] = forms.ChoiceField(
             label='Produit',
             choices=([(None, 'Sélectionner un produit')] + [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
-                     for product in Product.objects.filter(shop=shop)]),
+                     for product in Product.objects.filter(shop=shop, is_removed=False)]),
             widget=forms.Select(
                 attrs={'class': 'form-control selectpicker',
                        'data-live-search': 'True', 'required':'required'})
@@ -108,7 +108,6 @@ class InventoryProductForm(forms.Form):
     def clean(self):
         cleaned_data = super(InventoryProductForm, self).clean()
         # Validation direct in html
-
 
 
 class InventoryListDateForm(forms.Form):

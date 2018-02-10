@@ -702,7 +702,7 @@ class ProductShopMixin(object):
         except ObjectDoesNotExist:
             raise Http404
         try:
-            self.product = ProductBase.objects.get(name=self.kwargs['pk'])
+            self.product = ProductBase.objects.get(name=self.kwargs['pk'], is_removed=False)
         except ObjectDoesNotExist:
             raise Http404
         if self.product.shop is not self.shop:
@@ -745,7 +745,7 @@ class ProductShopFromGroupMixin(object):
         except ValueError:
             self.shop = None
         try:
-            self.object = Product.objects.get(pk=self.kwargs['pk'])
+            self.object = Product.objects.get(pk=self.kwargs['pk'], is_removed=False)
         except ObjectDoesNotExist:
             raise Http404
         if self.shop:

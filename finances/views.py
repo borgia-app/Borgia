@@ -1700,7 +1700,7 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
         # grab the active worksheet
         ws = wb.active
         ws.title = "Test"
-        ws.append(['Username', 'Nom Prénom', 'Bucque', 'Pondération'])
+        ws.append(['Username', 'Pondération', 'Infos (Non utilisées) ->','Nom Prénom', 'Bucque'])
 
         if form.cleaned_data['state'] == 'year':
 
@@ -1709,7 +1709,7 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
 
                 users = User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=1)).order_by('username')
                 for u in users:
-                    ws.append([u.username, u.last_name + ' ' + u.first_name, u.surname])
+                    ws.append([u.username, '', '',u.last_name + ' ' + u.first_name, u.surname])
 
             else:
                 raise Http404
@@ -1779,7 +1779,7 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
                 user = User.objects.get(username=username)
 
                 if pond > 0:
-                    self.se.change_weight( user, pond, isParticipant )
+                    self.se.add_weight( user, pond, isParticipant )
             except:
                 pass
 

@@ -81,6 +81,7 @@ class Product(models.Model):
         related_name='%(app_label)s_%(class)s_shop',
         on_delete=models.CASCADE)
     is_active = models.BooleanField('Actif', default=True)
+    is_removed = models.BooleanField('Retiré', default=False)
     unit = models.CharField('Unité', max_length=255, choices=UNIT_CHOICES, blank=True, null=True)
     correcting_factor = models.DecimalField('Facteur correcteur de ventes', default=1,
                                        decimal_places=4, max_digits=9,

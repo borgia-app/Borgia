@@ -14,16 +14,22 @@
 					<img src="{% static 'img/borgia-logo-light.png' %}" class="logo img-responsive"/>
 				{% endif %}
 				{% csrf_token %}
-				{% for field in form %}
+
+        {% if form.non_field_errors %}
+            <div class="alert alert-danger">
+              <a class="close" data-dismiss="alert">×</a>
+              {{ form.non_field_errors|escape }}
+            </div>
+        {% endif %}
+
 				  <div class="form-group">
-				    {{ field }}
-					{% if field.name == 'username' %}
+				    {{ form.username }}
 					  <span class="glyphicon glyphicon-user"></span>
-					{% elif field.name == 'password' %}
-					  <span class="glyphicon glyphicon-lock"></span>
-					{% endif %}
-				  </div>
-				{% endfor %}
+          </div>
+          <div class="form-group">
+            {{ form.password }}
+             <span class="glyphicon glyphicon-lock"></span>
+          </div>
 				<p class="text-right" style="margin-top: -20px; margin-bottom: 35px;">
 				  <a class="btn btn-warning btn-xs" href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
 				</p>
