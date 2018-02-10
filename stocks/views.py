@@ -213,9 +213,15 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
+        """
+        Products in the shop (and active) but not listed in the form are
+        included in the inventory with a quantity 0.
+        """
         inventory = Inventory.objects.create(operator=request.user, shop=self.shop)
 
         inventory_form = self.form_class(request.POST)
+
+        # Ids in the form
         for form in inventory_form.cleaned_data:
             """
             Even if html and js verify and ensure entries, you verify again here.
@@ -249,6 +255,22 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
             except ZeroDivisionError:
                 pass
 
+        # Ids not in the form but active in the shop
+        try:
+            for product in Product.objects.filter(shop=self.shop, is_removed=False, is_active=True).exclude(
+                        pk__in=[form['product'].split('/')[0] for form in inventory_form.cleaned_data]):
+                InventoryProduct.objects.create(
+                    inventory=inventory,
+                    product=product,
+                    quantity=Decimal(0)
+                )
+
+        except ObjectDoesNotExist:
+            pass
+        except ZeroDivisionError:
+            pass
+
+        # Update all correcting factors listed
         inventory.update_correcting_factors()
 
         return redirect(
