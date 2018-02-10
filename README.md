@@ -53,4 +53,4 @@ Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes
 
 
 ## Current Version :
-Build 4.4.2
+Build 4.4.3 (current draft 4.5)
