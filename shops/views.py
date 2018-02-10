@@ -462,7 +462,7 @@ class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         nb = q_sales.count()
         try:
             mean = round(value / nb, 2)
-        except ZeroDivisionError:
+        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
             mean = 0
         return {
             'value': value,

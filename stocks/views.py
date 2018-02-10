@@ -100,7 +100,7 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
 
             except ObjectDoesNotExist:
                 pass
-            except ZeroDivisionError:
+            except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
                 pass
 
         return redirect(
@@ -252,7 +252,7 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
 
             except ObjectDoesNotExist:
                 pass
-            except ZeroDivisionError:
+            except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
                 pass
 
         # Ids not in the form but active in the shop
@@ -267,7 +267,7 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
 
         except ObjectDoesNotExist:
             pass
-        except ZeroDivisionError:
+        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
             pass
 
         # Update all correcting factors listed

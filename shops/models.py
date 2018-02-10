@@ -261,7 +261,5 @@ class Product(models.Model):
                 (stock_base + stock_input - next_stock) / stock_output
             )
             self.save()
-        except ZeroDivisionError:
-            pass
-        except DivisionUndefined:
+        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
             pass
