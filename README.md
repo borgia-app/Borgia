@@ -1,5 +1,6 @@
-# Borgia-demo
-Fork of Borgia-app repo. Demo Version
+<p align="center">
+   <img src="./static/static_dirs/img/borgia-logo-light.png" />
+</p>
 
 ## Get started : initial commands
 
