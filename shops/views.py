@@ -8,6 +8,7 @@ from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.forms.formsets import formset_factory
 from django.db.models import Q
 from django.core.exceptions import PermissionDenied
+from decimal import DivisionUndefined, DivisionByZero
 
 from shops.models import *
 from shops.forms import *

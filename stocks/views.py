@@ -1,6 +1,6 @@
 from django.shortcuts import render, redirect, Http404, reverse
 from functools import partial, wraps
-from decimal import Decimal
+from decimal import Decimal, DivisionUndefined, DivisionByZero
 
 from django.views.generic import FormView, View
 from django.forms.formsets import formset_factory
