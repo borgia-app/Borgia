@@ -16,7 +16,7 @@ from django.conf.urls.static import static
 
 from users.views import *
 from shops.views import (
-    ProductList, ProductCreate, ProductDeactivate, ProductRetrieve,
+    ProductList, ProductCreate, ProductDeactivate, ProductRemove, ProductRetrieve,
     ProductUpdate, ShopCreate, ShopList, ShopUpdate,
     ProductUpdatePrice, ShopCheckup
     )
@@ -130,6 +130,8 @@ urlpatterns = [
         ProductUpdatePrice.as_view(), name='url_product_update_price'),
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/deactivate/$',
         ProductDeactivate.as_view(), name='url_product_deactivate'),
+    url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/remove/$',
+        ProductRemove.as_view(), name='url_product_remove'),
 
         #####################
         #      STOCKS       #

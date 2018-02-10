@@ -65,10 +65,11 @@
           <div class="panel-body">
             <ul>
               {% for category_product in category.categoryproduct_set.all %}
-              <li>{{ category_product.product }}
+              <li {% if category_product.product.is_active == False %}style="color: red;"{% endif %}>{{ category_product.product }}
                 {% if category_product.product.unit %}
                  / {{ category_product.quantity }} {{ category_product.product.get_unit_display }}
                 {% endif %}
+                {% if category_product.product.is_active == False %} / DESACTIVE{% endif %}
               </li>
               {% endfor %}
             </ul>
