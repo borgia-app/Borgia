@@ -148,45 +148,12 @@
   </div>
 </div>
 
-
 {% if not done %}
 
-<script type="text/javascript">
-    // Modification à la volée de la pondération
-    // Apres la modification (blur ou enter), requete ajax pour modifier la pondération
-    {% for u in list_weights %}
-        $('#weight_participant_{{ u.0.pk }}').change( function (){
-          send_data("{% url 'url_sharedevent_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}", $(this).val(), 1);
-        });
-
-        $('#weight_registered_{{ u.0.pk }}').change( function (){
-          send_data("{% url 'url_sharedevent_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}", $(this).val(), 0);
-        });
-    {% endfor %}
-
-    function send_data (unique_url, new_weight, int_isParticipant) {
-          $.ajax({
-              method: "GET",
-              url: unique_url,
-              data: {
-                  pond: new_weight,
-                  isParticipant: int_isParticipant
-              },
-              success: function (response) {
-
-              },
-              error: function() {
-              }
-          });
-    };
-
-</script>
-
+  {% include 'finances/js/ajax_ponderation.html' with list_weights=list_weights %}
   {% if price %}
     {% if state == "participants" or state == "registrants" %}
-      {% load static %}
-      <script src="{% static 'js/shared_event/calculate_users_price.js' %}" >
-      </script>
+      {% include 'finances/js/calculate_users_price.html' with price=price %}
     {% endif %}
   {% endif %}
 {% endif %}

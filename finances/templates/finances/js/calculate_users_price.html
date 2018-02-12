@@ -1,8 +1,6 @@
+{% block content %}
+<script type="text/javascript">
 $(function(){
-
-  function get_total_price () {
-    return $("#id_update_form-price").val();
-  };
 
   function get_total_weight () {
     var total_weight = 0
@@ -13,7 +11,7 @@ $(function(){
   };
 
   function set_prices () {
-    var total_price = get_total_price();
+    var total_price = Number({{price}});
     if ( total_price ){
       var total_weight = get_total_weight();
       var price_per_weight = total_price / total_weight;
@@ -37,7 +35,6 @@ $(function(){
   $("[id^='weight_']").change(function() {
     set_prices();
   });
-  $("#id_update_form-price").change(function() {
-    set_prices();
-  });
 });
+</script>
+{% endblock %}
