@@ -1602,9 +1602,9 @@ class SharedEventRemoveUser(GroupPermissionMixin, View):
         se = SharedEvent.objects.get(pk=kwargs['pk'])
 
         # Permission
-        if self.se.done is True:
+        if se.done is True:
             raise PermissionDenied
-        if not ( request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent') ):
+        if not ( request.user == se.manager or request.user.has_perm('finances.manage_sharedevent') ):
             raise PermissionDenied
 
         try:
