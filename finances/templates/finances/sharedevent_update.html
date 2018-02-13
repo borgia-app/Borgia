@@ -14,15 +14,15 @@
       </div>
       <div class="panel-body">
         <form action="{% url 'url_sharedevent_update' pk=pk group_name=group.name %}" method='post' class="form-horizontal">
-            {% csrf_token %}
-            {{ form|bootstrap_horizontal }}
-            <div class="form-group">
-              <div class="col-sm-10 col-sm-offset-2">
-                <button type="submit" class="btn btn-success">Mise à jour</button>
-                <a href="{% url 'url_sharedevent_finish' group_name=group.name pk=pk %}" role="button" class="btn btn-warning">Terminer</a>
-                <a href="{% url 'url_sharedevent_delete' group_name=group.name pk=pk %}" role="button" class="btn btn-danger">Supprimer</a>
-              </div>
+          {% csrf_token %}
+          {{ form|bootstrap_horizontal }}
+          <div class="form-group">
+            <div class="col-sm-10 col-sm-offset-2">
+              <button type="submit" class="btn btn-success">Mise à jour</button>
+              <a href="{% url 'url_sharedevent_finish' group_name=group.name pk=pk %}" role="button" class="btn btn-warning">Terminer</a>
+              <a href="{% url 'url_sharedevent_delete' group_name=group.name pk=pk %}" role="button" class="btn btn-danger">Supprimer</a>
             </div>
+          </div>
         </form>
       </div>
     </div>
@@ -35,25 +35,37 @@
       <div class="panel-body">
         <form enctype="multipart/form-data" action="{% url 'url_sharedevent_upload_xlsx' pk=pk group_name=group.name %}"
         method='post' class="form-horizontal">
-            {% csrf_token %}
-            {{ upload_xlsx_form|bootstrap_horizontal }}
-            <div class="form-group">
-              <div class="col-sm-10 col-sm-offset-2">
-                <button type="submit" class="btn btn-success">Uploader l'Excel</button>
-              </div>
-            </div>
-        </form>
-      </div>
+        {% csrf_token %}
+        {{ upload_xlsx_form|bootstrap_horizontal }}
+        <div class="form-group">
+          <div class="col-sm-10 col-sm-offset-2">
+            <button type="submit" class="btn btn-success">Uploader l'Excel</button>
+          </div>
+        </div>
+      </form>
     </div>
   </div>
 </div>
+</div>
 {% endif %}
-<div class="panel panel-default">
-  <div class="panel-heading">
-    Téléchargement de fichiers Excels
+<div class="row">
+<div class="col-md-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Liste {% if not done %}et gestion manuelle {% endif %}des utilisateurs concernés.
+    </div>
+    <div class="panel-body">
+      <a href="{% url 'url_sharedevent_manage_users' pk=pk group_name=group.name %}" class="btn btn-success">Accéder à la {% if not done %}gestion manuelle{% else %}liste{% endif %}</a>
+    </div>
   </div>
-  <div class="panel-body">
-    <form action= "{% url 'url_sharedevent_download_xlsx' pk=pk group_name=group.name %}" method="post" class="form-horizontal">
+</div>
+<div class="col-md-6">
+  <div class="panel panel-default">
+    <div class="panel-heading">
+      Téléchargement de fichiers Excels
+    </div>
+    <div class="panel-body">
+      <form action= "{% url 'url_sharedevent_download_xlsx' pk=pk group_name=group.name %}" method="post" class="form-horizontal">
         {% csrf_token %}
         {{ download_xlsx_form|bootstrap_horizontal }}
         <div class="form-group">
@@ -61,30 +73,18 @@
             <button type="submit" class="btn btn-primary">Télécharger l'Excel'</button>
           </div>
         </div>
-    </form>
+      </form>
+    </div>
   </div>
 </div>
-<div class="panel panel-default">
-  <div class="panel-heading">
-    Liste {% if not done %}et gestion manuelle {% endif %}des utilisateurs concernés.
-  </div>
-  <div class="panel-body">
-    <a href="{% url 'url_sharedevent_manage_users' pk=pk group_name=group.name %}" class="btn btn-success">Accéder</a>
-  </div>
 </div>
-{% if perms.finances.proceed_payment_sharedevent %}
+{% if done  %}
 <div class="panel panel-default">
   <div class="panel-heading">
     Paiement
   </div>
   <div class="panel-body">
-    {% if payment_error %}
-      <div class="alert alert-danger"><a class="close" data-dismiss="alert">×</a>{{ payment_error }}</div>
-	{% endif %}
-    Etat : {% human_reading done 'shared_event_done' %}. {% if done %}{{ remark }}{% endif %}
-    {% if done == False %}
-    <a href="{% url 'url_sharedevent_proceed_payment' pk=pk group_name=group.name %}" class="btn btn-danger">Procéder au paiement</a>
-    {% endif %}
+    Etat : {% human_reading done 'shared_event_done' %}. {{ remark }}
   </div>
 </div>
 {% endif %}
