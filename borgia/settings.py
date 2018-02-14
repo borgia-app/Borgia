@@ -46,7 +46,8 @@ INSTALLED_APPS = [
     'modules',
     'stocks',
     'graphene_django',
-	'static_precompiler'
+	'static_precompiler',
+    'django_celery_results'
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -221,3 +222,6 @@ JWT_TOKEN_TIMEOUT = 7  # days
 
 CENTER_NAME = "Center Name"
 DEFAULT_TEMPLATE = "light" #Default template, en minuscule
+
+# Celery
+CELERY_RESULT_BACKEND = 'django-db'
