@@ -25,6 +25,7 @@ from finances.views import *
 from modules.views import *
 from notifications.views import *
 from stocks.views import *
+from settings_data.views import GlobalConfig
 from api.Schema.main import schema
 from graphene_django.views import GraphQLView
 from api.views import AuthGenerateJWT, AuthVerifyJWT, AuthInvalidateJWT, GraphQLJwtProtectedView
@@ -44,6 +45,12 @@ urlpatterns = [
     url(r'^jwt/new.json$', AuthGenerateJWT.as_view()),
     url(r'^jwt/token/(?P<token>.+)/(?P<pk>\d+).json$', AuthVerifyJWT.as_view()),
     url(r'^jwt/invalidate/(?P<token>.+)/(?P<pk>\d+).json$', AuthInvalidateJWT.as_view()),
+
+        #####################
+        #       CONFIG      #
+        #####################
+    url(r'^(?P<group_name>[\w-]+)/config/$',
+        GlobalConfig.as_view(), name='url_global_config'),        
 
         #####################
         #     WORKBOARDS    #
