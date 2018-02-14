@@ -1325,7 +1325,7 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
 
     def get_context_data(self, **kwargs):
         context = super(SharedEventFinish, self).get_context_data(**kwargs)
-        context['object'] = self.se
+        context['se'] = self.se
         return context
 
     def get_initial(self):
