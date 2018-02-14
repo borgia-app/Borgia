@@ -1,5 +1,6 @@
 {% extends 'base_sober.html' %}
 {% load bootstrap %}
+{% load static %}
 
 {% block content %}
 <div class="panel panel-info">
@@ -28,4 +29,6 @@
 
     </div>
 </div>
+
+<script type="text/javascript" src="{% static 'js/sharedevent_finish.js' %}"></script>
 {% endblock %}

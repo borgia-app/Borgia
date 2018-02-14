@@ -258,7 +258,7 @@ class SharedEventCreateForm(forms.Form):
 
 
 class SharedEventFinishForm(forms.Form):
-    type = forms.ChoiceField(label='Type', choices=(('pay_by_total', 'Payer par division du total'),
+    type_payment = forms.ChoiceField(label='Type', choices=(('pay_by_total', 'Payer par division du total'),
                                                         ('pay_by_ponderation', 'Payer par prix par pondération'),
                                                         ('no_payment', 'Ne pas faire payer')))
     total_price = forms.DecimalField(label='Prix total', decimal_places=2, max_digits=9,
@@ -270,7 +270,7 @@ class SharedEventFinishForm(forms.Form):
     def clean_total_price(self):
         data = self.cleaned_data['total_price']
 
-        if self.cleaned_data['type'] == 'pay_by_total':
+        if self.cleaned_data['type_payment'] == 'pay_by_total':
             if data is None:
                 raise forms.ValidationError('Obligatoire !')
 
@@ -279,7 +279,7 @@ class SharedEventFinishForm(forms.Form):
     def clean_ponderation_price(self):
         data = self.cleaned_data['ponderation_price']
 
-        if self.cleaned_data['type'] == 'pay_by_ponderation':
+        if self.cleaned_data['type_payment'] == 'pay_by_ponderation':
             if data is None:
                 raise forms.ValidationError('Obligatoire !')
 
@@ -288,7 +288,7 @@ class SharedEventFinishForm(forms.Form):
     def clean_remark(self):
         data = self.cleaned_data['remark']
 
-        if self.cleaned_data['type'] == 'no_payment':
+        if self.cleaned_data['type_payment'] == 'no_payment':
             if not data:
                 raise forms.ValidationError('Obligatoire !')
 

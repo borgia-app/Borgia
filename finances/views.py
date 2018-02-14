@@ -1337,15 +1337,15 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
         return initial
 
     def form_valid(self, form):
-        type = form.cleaned_data['type']
-        if (type == 'pay_by_total'):
+        type_payment = form.cleaned_data['type_payment']
+        if (type_payment == 'pay_by_total'):
             if self.se.price is not None:
                 self.se.pay_by_total(self.request.user, User.objects.get(pk=1), form.cleaned_data['total_price'])
 
-        if (type == 'pay_by_ponderation'):
+        if (type_payment == 'pay_by_ponderation'):
             self.se.pay_by_ponderation(self.request.user, User.objects.get(pk=1), form.cleaned_data['ponderation_price'])
 
-        if (type == 'no_payment'):
+        if (type_payment == 'no_payment'):
             self.se.end_without_payment(form.cleaned_data['remark'])
 
         return super(SharedEventFinish, self).form_valid(form)
