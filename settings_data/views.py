@@ -16,6 +16,14 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
     View to manage config of the application.
 
+    Each config parameter MUST exists and are created by a fixture.
+    However, to ensure that these values still exists, they are recreated if
+    necessary in get_initial with a get_or_create.
+
+    margin_profit default value: 5%
+    lydia_min_price default value: 5€
+    lydia_max_price default value: 500€
+
     :param kwargs['group_name']: name of the group, mandatory
     :type kwargs['group_name']: string
     """
@@ -25,9 +33,37 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get_context_data(self, **kwargs):
         context = super(GlobalConfig, self).get_context_data(**kwargs)
-        context['margin_profit'] = Setting.objects.get(name="MARGIN_PROFIT")
-        context['lydia_min_price'] = Setting.objects.get(name="LYDIA_MIN_PRICE")
-        context['lydia_max_price'] = Setting.objects.get(name="LYDIA_MAX_PRICE")
+
+        margin_profit, created = Setting.objects.get_or_create(
+            name="MARGIN_PROFIT",
+            description="Marge (%) à appliquer sur le prix des produits calculés automatiquement",
+            value_type="f"
+        )
+        if created:
+            margin_profit.value = "5"
+            margin_profit.save()
+        context['margin_profit'] = margin_profit
+
+        lydia_min_price, created = Setting.objects.get_or_create(
+            name="LYDIA_MIN_PRICE",
+            description="Valeur minimale (€) de rechargement en automatique par Lydia",
+            value_type="f"
+        )
+        if created:
+            lydia_min_price.value = "5"
+            lydia_min_price.save()
+        context['lydia_min_price'] = lydia_min_price
+
+        lydia_max_price, created = Setting.objects.get_or_create(
+            name="LYDIA_MAX_PRICE",
+            description="Valeur maximale (€) de rechargement en automatique par Lydia",
+            value_type="f"
+        )
+        if created:
+            lydia_max_price = "500"
+            lydia_max_price.save()
+        context['lydia_max_price'] = lydia_min_price
+
         return context
 
     def get(self, request, *args, **kwargs):
@@ -36,10 +72,6 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
 
 class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
-    template_name = 'settings_data/price_config.html'
-    perm_codename = None
-    lm_active = 'lm_global_config'
-    form_class = PriceConfigForm
     """
     Each config parameter MUST exists and are created by a fixture.
     However, to ensure that these values still exists, they are recreated if
@@ -47,6 +79,10 @@ class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     margin_profit default value: 5%
     """
+    template_name = 'settings_data/price_config.html'
+    perm_codename = None
+    lm_active = 'lm_global_config'
+    form_class = PriceConfigForm
 
     def get_initial(self, **kwargs):
         initial = super(PriceConfig, self).get_initial(**kwargs)
@@ -58,6 +94,7 @@ class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         )
         if created:
             margin_profit.value = "5"
+            margin_profit.save()
 
         initial['margin_profit'] = margin_profit.get_value()
         return initial
@@ -72,6 +109,14 @@ class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
 
 class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    """
+    Each config parameter MUST exists and are created by a fixture.
+    However, to ensure that these values still exists, they are recreated if
+    necessary in get_initial with a get_or_create.
+
+    lydia_min_price default value: 5€
+    lydia_max_price default value: 500€
+    """
     template_name = 'settings_data/lydia_config.html'
     perm_codename = None
     lm_active = 'lm_global_config'
@@ -87,16 +132,18 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         )
         if created:
             lydia_min_price.value = "5"
+            lydia_min_price.save()
         initial['lydia_min_price'] = lydia_min_price.get_value()
 
-        lydia_min_price, created = Setting.objects.get_or_create(
+        lydia_max_price, created = Setting.objects.get_or_create(
             name="LYDIA_MAX_PRICE",
             description="Valeur maximale (€) de rechargement en automatique par Lydia",
             value_type="f"
         )
         if created:
             lydia_max_price = "500"
-        initial['lydia_max_price'] = lydia_min_price.get_value()
+            lydia_max_price.save()
+        initial['lydia_max_price'] = lydia_max_price.get_value()
         return initial
 
     def form_valid(self, form):
