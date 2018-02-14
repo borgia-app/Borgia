@@ -19,31 +19,94 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
     :param kwargs['group_name']: name of the group, mandatory
     :type kwargs['group_name']: string
     """
-    template_name = 'settings_data/application_config.html'
+    template_name = 'settings_data/global_config.html'
     perm_codename = None
     lm_active = 'lm_global_config'
 
+    def get_context_data(self, **kwargs):
+        context = super(GlobalConfig, self).get_context_data(**kwargs)
+        context['margin_profit'] = Setting.objects.get(name="MARGIN_PROFIT")
+        context['lydia_min_price'] = Setting.objects.get(name="LYDIA_MIN_PRICE")
+        context['lydia_max_price'] = Setting.objects.get(name="LYDIA_MAX_PRICE")
+        return context
+
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['price_form'] = PriceConfigForm()
-        context['lydia_form'] = LydiaConfigForm()
         return render(request, self.template_name, context=context)
 
-    def post(self, request, *args, **kwargs):
-        # Price form
-        price_form = PriceConfigForm(request.POST)
-        if price_form.is_valid():
-            print(True)
-        else:
-            print(price_form)
-            context = self.get_context_data(**kwargs)
-            context['price_form'] = PriceConfigForm(price_form)
-            context['lydia_form'] = LydiaConfigForm(request.POST)
-            render(request, self.template_name, context=context)
-        # Lydia form
-        lydia_form = LydiaConfigForm(request.POST)
-        print(lydia_form.is_valid())
 
-        return redirect(reverse(
-            'url_global_config', kwargs={
-            'group_name': self.kwargs['group_name']}))
+class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    template_name = 'settings_data/price_config.html'
+    perm_codename = None
+    lm_active = 'lm_global_config'
+    form_class = PriceConfigForm
+    """
+    Each config parameter MUST exists and are created by a fixture.
+    However, to ensure that these values still exists, they are recreated if
+    necessary in get_initial with a get_or_create.
+
+    margin_profit default value: 5%
+    """
+
+    def get_initial(self, **kwargs):
+        initial = super(PriceConfig, self).get_initial(**kwargs)
+
+        margin_profit, created = Setting.objects.get_or_create(
+            name="MARGIN_PROFIT",
+            description="Marge (%) à appliquer sur le prix des produits calculés automatiquement",
+            value_type="f"
+        )
+        if created:
+            margin_profit.value = "5"
+
+        initial['margin_profit'] = margin_profit.get_value()
+        return initial
+
+    def form_valid(self, form):
+        # Margin profit
+        margin_profit = Setting.objects.get(name="MARGIN_PROFIT")
+        margin_profit.value = form.cleaned_data['margin_profit']
+        margin_profit.save()
+        return redirect(reverse('url_global_config',
+                        kwargs={'group_name': self.group.name}))
+
+
+class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    template_name = 'settings_data/lydia_config.html'
+    perm_codename = None
+    lm_active = 'lm_global_config'
+    form_class = LydiaConfigForm
+
+    def get_initial(self, **kwargs):
+        initial = super(LydiaConfig, self).get_initial(**kwargs)
+
+        lydia_min_price, created = Setting.objects.get_or_create(
+            name="LYDIA_MIN_PRICE",
+            description="Valeur minimale (€) de rechargement en automatique par Lydia",
+            value_type="f"
+        )
+        if created:
+            lydia_min_price.value = "5"
+        initial['lydia_min_price'] = lydia_min_price.get_value()
+
+        lydia_min_price, created = Setting.objects.get_or_create(
+            name="LYDIA_MAX_PRICE",
+            description="Valeur maximale (€) de rechargement en automatique par Lydia",
+            value_type="f"
+        )
+        if created:
+            lydia_max_price = "500"
+        initial['lydia_max_price'] = lydia_min_price.get_value()
+        return initial
+
+    def form_valid(self, form):
+        # Lydia min price
+        lydia_min_price = Setting.objects.get(name="LYDIA_MIN_PRICE")
+        lydia_min_price.value = form.cleaned_data['lydia_min_price']
+        lydia_min_price.save()
+        # Lydia max price
+        lydia_max_price = Setting.objects.get(name="LYDIA_MAX_PRICE")
+        lydia_max_price.value = form.cleaned_data['lydia_max_price']
+        lydia_max_price.save()
+        return redirect(reverse('url_global_config',
+                        kwargs={'group_name': self.group.name}))

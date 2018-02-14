@@ -1,0 +1,40 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+{% load l10n %}
+
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Prix de vente
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_price_config' group_name=group_name %}">
+      <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
+      Modifier
+    </a>
+  </div>
+  <table class="table table-bordered">
+    <tr>
+      <td>Marge appliquée aux prix en mode automatique</td>
+      <td>{{ margin_profit.get_value|unlocalize }} %</td>
+    </tr>
+  </table>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Rechargement par Lydia
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_lydia_config' group_name=group_name %}">
+      <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
+      Modifier
+    </a>
+  </div>
+  <table class="table table-bordered">
+    <tr>
+      <td>Montant minimal de rechargement</td>
+      <td>{{ lydia_min_price.get_value|unlocalize }} €</td>
+    </tr>
+    <tr>
+      <td>Montant maximal de rechargement</td>
+      <td>{{ lydia_max_price.get_value|unlocalize }} €</td>
+    </tr>
+  </table>
+</div>
+{% endblock %}
