@@ -3,7 +3,7 @@ from __future__ import absolute_import, unicode_literals
 import os
 from celery import Celery, chain
 from celery.schedules import crontab
-from users.tasks import scan_for_expired_users
+from users.tasks import scan_mailing_balance_alert
 
 os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'borgia.settings')
 """import django
@@ -32,7 +32,7 @@ def debug_task(self):
 @app.on_after_configure.connect
 def setup_periodic_tasks(sender, **kwargs):
     sender.add_periodic_task(
-        crontab(hour=18, minute=33),
-        scan_for_expired_users.s(),
+        5,
+        scan_mailing_balance_alert.s(),
         name='Alert mailing'
     )
