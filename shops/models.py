@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.timezone import now
 
-from decimal import Decimal, InvalidOperation, DivisionUndefined
+from decimal import Decimal, InvalidOperation, DivisionUndefined, DivisionByZero
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator, MinValueValidator
 
@@ -261,7 +261,5 @@ class Product(models.Model):
                 (stock_base + stock_input - next_stock) / stock_output
             )
             self.save()
-        except ZeroDivisionError:
-            pass
-        except DivisionUndefined:
+        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
             pass

@@ -1,5 +1,5 @@
 from django.db import models
-from decimal import Decimal
+from decimal import Decimal, DivisionUndefined, DivisionByZero
 
 from django.contrib.contenttypes.fields import (
     GenericForeignKey, GenericRelation
@@ -51,7 +51,7 @@ class CategoryProduct(models.Model):
                     return Decimal(self.quantity * self.product.get_price() / 1000)
             else:
                 return Decimal(self.product.get_price())
-        except ZeroDivisionError:
+        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
             return Decimal(0)
 
 
