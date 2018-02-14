@@ -27,7 +27,11 @@
     </a>
   </div>
   <table class="table table-bordered">
-    <tr>
+    <tr class={% if lydia_min_price.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
       <td>Montant minimal de rechargement</td>
       <td>
         {% if lydia_min_price.get_value %}
@@ -37,7 +41,11 @@
         {% endif %}
       </td>
     </tr>
-    <tr>
+    <tr class={% if lydia_max_price.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
       <td>Montant maximal de rechargement</td>
       <td>
         {% if lydia_max_price.get_value %}
@@ -58,7 +66,11 @@
     </a>
   </div>
   <table class="table table-bordered">
-    <tr>
+    <tr class={% if balance_threshold_mail_alert.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
       <td>Seuil d'alerte par mail</td>
       <td>
         {% if balance_threshold_mail_alert.get_value %}
@@ -68,11 +80,16 @@
         {% endif %}
       </td>
     </tr>
-    <tr>
+    <tr class={% if balance_threshold_mail_alert.get_value and balance_frequency_mail_alert.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
       <td>Fréquence d'alerte</td>
       <td>
         {% if balance_frequency_mail_alert.get_value %}
-          {{ balance_frequency_mail_alert.get_value|unlocalize }} jours
+          {{ balance_frequency_mail_alert.get_value|unlocalize }}
+          jour{{ balance_frequency_mail_alert.get_value|pluralize:"s" }}
         {% else %}
           pas d'email
         {% endif %}
