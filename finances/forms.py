@@ -261,10 +261,20 @@ class SharedEventFinishForm(forms.Form):
     type = forms.ChoiceField(label='Type', choices=(('pay_by_total', 'Payer par division du total'),
                                                         ('pay_by_ponderation', 'Payer par prix par pondération'),
                                                         ('no_payment', 'Ne pas faire payer')))
+    total_price = forms.DecimalField(label='Prix total', decimal_places=2, max_digits=9,
+                                   required=False, min_value=0)
     ponderation_price = forms.DecimalField(label='Prix par pondération', decimal_places=2, max_digits=9,
                                    required=False, min_value=0)
-    remark = forms.CharField(label='Pourquoi finir l\'événement ?',required=False)
+    remark = forms.CharField(label='Pourquoi finir l\'événement ?', required=False)
 
+    def clean_total_price(self):
+        data = self.cleaned_data['total_price']
+
+        if self.cleaned_data['type'] == 'pay_by_total':
+            if data is None:
+                raise forms.ValidationError('Obligatoire !')
+
+        return data
 
     def clean_ponderation_price(self):
         data = self.cleaned_data['ponderation_price']

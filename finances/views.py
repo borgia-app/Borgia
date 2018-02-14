@@ -1328,11 +1328,19 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
         context['object'] = self.se
         return context
 
+    def get_initial(self):
+        """
+        Populate the form with the current price.
+        """
+        initial = super(SharedEventFinish, self).get_initial()
+        initial['total_price'] = self.se.price
+        return initial
+
     def form_valid(self, form):
         type = form.cleaned_data['type']
         if (type == 'pay_by_total'):
             if self.se.price is not None:
-                self.se.pay_by_total(self.request.user, User.objects.get(pk=1))
+                self.se.pay_by_total(self.request.user, User.objects.get(pk=1), form.cleaned_data['total_price'])
 
         if (type == 'pay_by_ponderation'):
             self.se.pay_by_ponderation(self.request.user, User.objects.get(pk=1), form.cleaned_data['ponderation_price'])

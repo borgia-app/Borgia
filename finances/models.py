@@ -587,7 +587,7 @@ class SharedEvent(models.Model):
         else:
              return 0
 
-    def pay_by_total(self, operator, recipient):
+    def pay_by_total(self, operator, recipient, total_price):
         """
         Procède au paiement de l'évenement par les participants.
         Une seule vente, un seul paiement mais plusieurs débits sur compte
@@ -599,7 +599,7 @@ class SharedEvent(models.Model):
 
         # Calcul du prix par weight
         total_weight = self.get_total_weights_participants()
-        final_price_per_weight = round(self.price / total_weight, 2)
+        final_price_per_weight = round(total_price / total_weight, 2)
 
         for e in self.weightsuser_set.all():
             e.user.debit(final_price_per_weight * e.weights_participation)
@@ -615,7 +615,7 @@ class SharedEvent(models.Model):
 
         self.done = True
         self.datetime = now()
-        self.remark = 'Paiement par Borgia (par total)'
+        self.remark = 'Paiement par Borgia (Total : ' + str(total_price) + ')'
         self.save()
 
     def pay_by_ponderation(self, operator, recipient, price):
@@ -645,7 +645,7 @@ class SharedEvent(models.Model):
 
         self.done = True
         self.datetime = now()
-        self.remark = 'Paiement par Borgia (par pondération)'
+        self.remark = 'Paiement par Borgia (Pondération: ' + str(total_price) + ')'
         self.save()
 
     def end_without_payment(self, remark):
@@ -656,7 +656,7 @@ class SharedEvent(models.Model):
         """
         self.done = True
         self.datetime = now()
-        self.remark = remark
+        self.remark = 'Pas de paiement : ' + remark
         self.save()
 
     def wording(self):
