@@ -64,7 +64,7 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
         if created:
             lydia_max_price = "500"
             lydia_max_price.save()
-        context['lydia_max_price'] = lydia_min_price
+        context['lydia_max_price'] = lydia_max_price
 
         balance_threshold_mail_alert, created = Setting.objects.get_or_create(
             name="BALANCE_THRESHOLD_MAIL_ALERT",
@@ -171,11 +171,17 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     def form_valid(self, form):
         # Lydia min price
         lydia_min_price = Setting.objects.get(name="LYDIA_MIN_PRICE")
-        lydia_min_price.value = form.cleaned_data['lydia_min_price']
+        if not form.cleaned_data['lydia_min_price']:
+            lydia_min_price.value = ''
+        else:
+            lydia_min_price.value = form.cleaned_data['lydia_min_price']
         lydia_min_price.save()
         # Lydia max price
         lydia_max_price = Setting.objects.get(name="LYDIA_MAX_PRICE")
-        lydia_max_price.value = form.cleaned_data['lydia_max_price']
+        if not form.cleaned_data['lydia_max_price']:
+            lydia_max_price.value = ''
+        else:
+            lydia_max_price.value = form.cleaned_data['lydia_max_price']
         lydia_max_price.save()
         return redirect(reverse('url_global_config',
                         kwargs={'group_name': self.group.name}))
@@ -222,11 +228,17 @@ class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     def form_valid(self, form):
         # balance_threshold_mail_alert
         balance_threshold_mail_alert = Setting.objects.get(name="BALANCE_THRESHOLD_MAIL_ALERT")
-        balance_threshold_mail_alert.value = form.cleaned_data['balance_threshold_mail_alert']
+        if not form.cleaned_data['balance_threshold_mail_alert']:
+            balance_threshold_mail_alert.value = ''
+        else:
+            balance_threshold_mail_alert.value = form.cleaned_data['balance_threshold_mail_alert']
         balance_threshold_mail_alert.save()
         # balance_frequency_mail_alert
         balance_frequency_mail_alert = Setting.objects.get(name="BALANCE_FREQUENCY_MAIL_ALERT")
-        balance_frequency_mail_alert.value = form.cleaned_data['balance_frequency_mail_alert']
+        if not form.cleaned_data['balance_frequency_mail_alert']:
+            balance_frequency_mail_alert.value = ''
+        else:
+            balance_frequency_mail_alert.value = form.cleaned_data['balance_frequency_mail_alert']
         balance_frequency_mail_alert.save()
         return redirect(reverse('url_global_config',
                         kwargs={'group_name': self.group.name}))

@@ -29,11 +29,23 @@
   <table class="table table-bordered">
     <tr>
       <td>Montant minimal de rechargement</td>
-      <td>{{ lydia_min_price.get_value|unlocalize }} €</td>
+      <td>
+        {% if lydia_min_price.get_value %}
+          {{ lydia_min_price.get_value|unlocalize }} €
+        {% else %}
+          pas de limite
+        {% endif %}
+      </td>
     </tr>
     <tr>
       <td>Montant maximal de rechargement</td>
-      <td>{{ lydia_max_price.get_value|unlocalize }} €</td>
+      <td>
+        {% if lydia_max_price.get_value %}
+          {{ lydia_max_price.get_value|unlocalize }} €
+        {% else %}
+          pas de limite
+        {% endif %}
+      </td>
     </tr>
   </table>
 </div>
@@ -48,11 +60,23 @@
   <table class="table table-bordered">
     <tr>
       <td>Seuil d'alerte par mail</td>
-      <td>{{ balance_threshold_mail_alert.get_value|unlocalize }} €</td>
+      <td>
+        {% if balance_threshold_mail_alert.get_value %}
+          {{ balance_threshold_mail_alert.get_value|unlocalize }} €
+        {% else %}
+          pas d'email
+        {% endif %}
+      </td>
     </tr>
     <tr>
       <td>Fréquence d'alerte</td>
-      <td>{{ balance_frequency_mail_alert.get_value|unlocalize }} jours</td>
+      <td>
+        {% if balance_frequency_mail_alert.get_value %}
+          {{ balance_frequency_mail_alert.get_value|unlocalize }} jours
+        {% else %}
+          pas d'email
+        {% endif %}
+      </td>
     </tr>
   </table>
 </div>

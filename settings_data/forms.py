@@ -7,8 +7,7 @@ class PriceConfigForm(forms.Form):
     margin_profit = forms.DecimalField(label='Marge appliquée aux prix en mode automatique',
                                         decimal_places=2, max_digits=9,
                                         validators=[
-                                          MinValueValidator(0, 'Le montant doit être positif')],
-                                        required=False)
+                                          MinValueValidator(0, 'Le montant doit être positif')])
 
 
 class LydiaConfigForm(forms.Form):
