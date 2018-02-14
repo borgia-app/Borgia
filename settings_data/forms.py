@@ -21,6 +21,17 @@ class LydiaConfigForm(forms.Form):
                                         validators=[
                                           MinValueValidator(0, 'Le montant doit être positif')],
                                         required=False)
+    def clean(self):
+        """
+        If min and max:
+            max >= min
+        """
+        cleaned_data = super(LydiaConfigForm, self).clean()
+        lydia_min_price = cleaned_data.get("lydia_min_price", None)
+        lydia_max_price = cleaned_data.get("lydia_max_price", None)
+        if lydia_min_price is not None and lydia_max_price is not None:
+            if lydia_max_price < lydia_min_price:
+                raise ValidationError("Le montant maximal doit être supérieur ou égal au montant minimal")
 
 
 class BalanceConfigForm(forms.Form):

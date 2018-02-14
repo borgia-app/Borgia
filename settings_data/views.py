@@ -242,3 +242,6 @@ class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         balance_frequency_mail_alert.save()
         return redirect(reverse('url_global_config',
                         kwargs={'group_name': self.group.name}))
+
+
+# TODO: min < max, check for '' value in views, ensure min, max, values are respected in views
