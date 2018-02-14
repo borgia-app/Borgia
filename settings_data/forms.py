@@ -22,3 +22,13 @@ class LydiaConfigForm(forms.Form):
                                         validators=[
                                           MinValueValidator(0, 'Le montant doit être positif')],
                                         required=False)
+
+
+class BalanceConfigForm(forms.Form):
+    balance_threshold_mail_alert = forms.DecimalField(label='Valeur seuil',
+                                        decimal_places=2, max_digits=9,
+                                        required=False)
+    balance_frequency_mail_alert = forms.IntegerField(label='Fréquence des emails d\'alerte',
+                                        validators=[
+                                          MinValueValidator(1, 'La fréquence doit être d\'au moins 1 jour')],
+                                        required=False)

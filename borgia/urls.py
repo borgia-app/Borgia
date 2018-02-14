@@ -25,7 +25,7 @@ from finances.views import *
 from modules.views import *
 from notifications.views import *
 from stocks.views import *
-from settings_data.views import GlobalConfig, PriceConfig, LydiaConfig
+from settings_data.views import GlobalConfig, PriceConfig, LydiaConfig, BalanceConfig
 from api.Schema.main import schema
 from graphene_django.views import GraphQLView
 from api.views import AuthGenerateJWT, AuthVerifyJWT, AuthInvalidateJWT, GraphQLJwtProtectedView
@@ -55,6 +55,8 @@ urlpatterns = [
         PriceConfig.as_view(), name='url_price_config'),
     url(r'^(?P<group_name>[\w-]+)/config/lydia/$',
         LydiaConfig.as_view(), name='url_lydia_config'),
+    url(r'^(?P<group_name>[\w-]+)/config/balance/$',
+        BalanceConfig.as_view(), name='url_balance_config'),
 
         #####################
         #     WORKBOARDS    #

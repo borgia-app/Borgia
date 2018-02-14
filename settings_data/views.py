@@ -5,7 +5,7 @@ from django.contrib.auth.models import Group
 from django.views.generic import FormView, View
 from django.core.exceptions import ObjectDoesNotExist
 
-from settings_data.forms import PriceConfigForm, LydiaConfigForm
+from settings_data.forms import PriceConfigForm, LydiaConfigForm, BalanceConfigForm
 from settings_data.models import Setting
 from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           GroupLateralMenuMixin,
@@ -23,6 +23,8 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
     margin_profit default value: 5%
     lydia_min_price default value: 5€
     lydia_max_price default value: 500€
+    balance_threshold_mail_alert default value: -10€
+    balance_frequency_mail_alert default value: 7 days
 
     :param kwargs['group_name']: name of the group, mandatory
     :type kwargs['group_name']: string
@@ -63,6 +65,26 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
             lydia_max_price = "500"
             lydia_max_price.save()
         context['lydia_max_price'] = lydia_min_price
+
+        balance_threshold_mail_alert, created = Setting.objects.get_or_create(
+            name="BALANCE_THRESHOLD_MAIL_ALERT",
+            description="Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée",
+            value_type="f"
+        )
+        if created:
+            balance_threshold_mail_alert.value = "-10"
+            balance_threshold_mail_alert.save()
+        context['balance_threshold_mail_alert'] = balance_threshold_mail_alert
+
+        balance_frequency_mail_alert, created = Setting.objects.get_or_create(
+            name="BALANCE_FREQUENCY_MAIL_ALERT",
+            description="Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",
+            value_type="i"
+        )
+        if created:
+            balance_frequency_mail_alert.value = "7"
+            balance_frequency_mail_alert.save()
+        context['balance_frequency_mail_alert'] = balance_frequency_mail_alert
 
         return context
 
@@ -155,5 +177,56 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         lydia_max_price = Setting.objects.get(name="LYDIA_MAX_PRICE")
         lydia_max_price.value = form.cleaned_data['lydia_max_price']
         lydia_max_price.save()
+        return redirect(reverse('url_global_config',
+                        kwargs={'group_name': self.group.name}))
+
+
+class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    """
+    Each config parameter MUST exists and are created by a fixture.
+    However, to ensure that these values still exists, they are recreated if
+    necessary in get_initial with a get_or_create.
+
+    balance_threshold_mail_alert default value: -10€
+    balance_frequency_mail_alert default value: 7 days
+    """
+    template_name = 'settings_data/balance_config.html'
+    perm_codename = None
+    lm_active = 'lm_global_config'
+    form_class = BalanceConfigForm
+
+    def get_initial(self, **kwargs):
+        initial = super(BalanceConfig, self).get_initial(**kwargs)
+
+        balance_threshold_mail_alert, created = Setting.objects.get_or_create(
+            name="BALANCE_THRESHOLD_MAIL_ALERT",
+            description="Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée",
+            value_type="f"
+        )
+        if created:
+            balance_threshold_mail_alert.value = "-10"
+            balance_threshold_mail_alert.save()
+        initial['balance_threshold_mail_alert'] = balance_threshold_mail_alert.get_value()
+
+        balance_frequency_mail_alert, created = Setting.objects.get_or_create(
+            name="BALANCE_FREQUENCY_MAIL_ALERT",
+            description="Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",
+            value_type="i"
+        )
+        if created:
+            balance_frequency_mail_alert.value = "7"
+            balance_frequency_mail_alert.save()
+        initial['balance_frequency_mail_alert'] = balance_frequency_mail_alert.get_value()
+        return initial
+
+    def form_valid(self, form):
+        # balance_threshold_mail_alert
+        balance_threshold_mail_alert = Setting.objects.get(name="BALANCE_THRESHOLD_MAIL_ALERT")
+        balance_threshold_mail_alert.value = form.cleaned_data['balance_threshold_mail_alert']
+        balance_threshold_mail_alert.save()
+        # balance_frequency_mail_alert
+        balance_frequency_mail_alert = Setting.objects.get(name="BALANCE_FREQUENCY_MAIL_ALERT")
+        balance_frequency_mail_alert.value = form.cleaned_data['balance_frequency_mail_alert']
+        balance_frequency_mail_alert.save()
         return redirect(reverse('url_global_config',
                         kwargs={'group_name': self.group.name}))

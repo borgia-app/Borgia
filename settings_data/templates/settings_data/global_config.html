@@ -37,4 +37,23 @@
     </tr>
   </table>
 </div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Porte monnaie
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_balance_config' group_name=group_name %}">
+      <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
+      Modifier
+    </a>
+  </div>
+  <table class="table table-bordered">
+    <tr>
+      <td>Seuil d'alerte par mail</td>
+      <td>{{ balance_threshold_mail_alert.get_value|unlocalize }} €</td>
+    </tr>
+    <tr>
+      <td>Fréquence d'alerte</td>
+      <td>{{ balance_frequency_mail_alert.get_value|unlocalize }} jours</td>
+    </tr>
+  </table>
+</div>
 {% endblock %}
