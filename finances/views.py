@@ -1583,7 +1583,7 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
                 state = self.request.GET.get('state')
         # If an option is provided
         if self.request.GET.get('order_by') is not None:
-            if self.request.GET.get('order_by') in ['username', 'last_name', 'surname']:
+            if self.request.GET.get('order_by') in ['username', 'last_name', 'surname', 'year']:
                 order_by = self.request.GET.get('order_by')
 
         initial_list_users_form = {
