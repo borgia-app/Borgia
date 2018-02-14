@@ -55,6 +55,9 @@
       Liste {% if not done %}et gestion manuelle {% endif %}des utilisateurs concernés.
     </div>
     <div class="panel-body">
+      Nombre total de pré-inscription : <strong>{{ total_weights_registrants }}</strong><br />
+      Nombre total de participation : <strong>{{ total_weights_participants }}</strong><br />
+      <br />
       <a href="{% url 'url_sharedevent_manage_users' pk=pk group_name=group.name %}" class="btn btn-success">Accéder à la {% if not done %}gestion manuelle{% else %}liste{% endif %}</a>
     </div>
   </div>

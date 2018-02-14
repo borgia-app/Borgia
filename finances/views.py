@@ -1401,6 +1401,8 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         context = super(SharedEventUpdate, self).get_context_data(**kwargs)
         context['pk'] = self.se.pk
         context['done'] = self.se.done
+        context['total_weights_registrants'] = self.se.get_total_weights_registrants
+        context['total_weights_participants'] = self.se.get_total_weights_participants
         if self.se.done:
             context['remark'] = self.se.remark
             context['price'] = self.se.price
