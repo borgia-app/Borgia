@@ -1315,7 +1315,7 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
             raise PermissionDenied
 
         # Check if there are participants
-        if self.se.users.count() <= 0:
+        if self.se.get_total_weights_participants() == 0:
             return redirect(reverse(
                 'url_sharedevent_update',
                 kwargs={'group_name': group.name, 'pk': self.se.pk}
@@ -1381,6 +1381,8 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         except ObjectDoesNotExist:
             raise Http404
 
+        self.no_participant = request.GET.get('no_participant', False) == "True" # "True" == "True"
+
         return super(SharedEventUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self):
@@ -1392,23 +1394,23 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
 
     def get_context_data(self, **kwargs):
 
-        # Création des formspyxl
 
-        upload_xlsx_form = SharedEventUploadXlsxForm()
-        download_xlsx_form = SharedEventDownloadXlsxForm()
         # list_year() contains smth like [2011, 2015, ...]
 
         context = super(SharedEventUpdate, self).get_context_data(**kwargs)
         context['pk'] = self.se.pk
         context['done'] = self.se.done
-        context['total_weights_registrants'] = self.se.get_total_weights_registrants
-        context['total_weights_participants'] = self.se.get_total_weights_participants
         if self.se.done:
             context['remark'] = self.se.remark
             context['price'] = self.se.price
+        # Pour les users
+        context['total_weights_registrants'] = self.se.get_total_weights_registrants
+        context['total_weights_participants'] = self.se.get_total_weights_participants
+        context['no_participant'] = self.no_participant
 
-        context['upload_xlsx_form'] = upload_xlsx_form
-        context['download_xlsx_form'] = download_xlsx_form
+        # Création des forms excel
+        context['upload_xlsx_form'] = SharedEventUploadXlsxForm()
+        context['download_xlsx_form'] = SharedEventDownloadXlsxForm()
 
         return context
 

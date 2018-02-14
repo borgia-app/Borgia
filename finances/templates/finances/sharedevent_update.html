@@ -13,6 +13,11 @@
         Mise à jour de l'événement
       </div>
       <div class="panel-body">
+        {% if no_participant %}
+          <div class="alert alert-danger">
+            Il faut ajouter des participants avant de terminer l'évènement.
+          </div>
+        {% endif %}
         <form action="{% url 'url_sharedevent_update' pk=pk group_name=group.name %}" method='post' class="form-horizontal">
           {% csrf_token %}
           {{ form|bootstrap_horizontal }}
