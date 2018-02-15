@@ -1204,7 +1204,7 @@ class SharedEventCreate(GroupPermissionMixin, FormView,
     form_class = SharedEventCreateForm
     template_name = 'finances/sharedevent_create.html'
     success_url = None
-    perm_codename = 'create_sharedevent'
+    perm_codename = 'add_sharedevent'
     lm_active = 'lm_sharedevent_create'
 
     def form_valid(self, form):

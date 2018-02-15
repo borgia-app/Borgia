@@ -677,12 +677,17 @@ class SharedEvent(models.Model):
     class Meta:
         """
         Define Permissions for SharedEvent.
+
+        :note:: Initial Django Permission (add, change, delete) are added.
         """
         permissions = (
+            # CRUDL
+            # add_sharedevent
+            # change_sharedevent
+            # delete_sharedevent
             ('register_sharedevent', 'Se préinscrire à un événement commun'),
             ('list_sharedevent', 'Lister les événements communs'),
             ('manage_sharedevent', 'Gérer les événements communs'),
-            ('create_sharedevent', 'Créer un événement commun'),
             ('proceed_payment_sharedevent',
              'Procéder au paiement des événements communs'),
         )
