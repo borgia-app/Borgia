@@ -615,24 +615,24 @@ class SharedEvent(models.Model):
 
         self.done = True
         self.datetime = now()
-        self.remark = 'Paiement par Borgia (Total : ' + str(total_price) + ')'
+        self.remark = 'Paiement par Borgia (Prix total : ' + str(total_price) + ')'
         self.save()
 
-    def pay_by_ponderation(self, operator, recipient, price):
+    def pay_by_ponderation(self, operator, recipient, ponderation_price):
         """
         Procède au paiement de l'évenement par les participants.
         Une seule vente, un seul paiement mais plusieurs débits sur compte
         (un par participant)
         :param operator: user qui procède au paiement
         :param recipient: user qui recoit les paiements (AE_ENSAM)
-        :param price: price per ponderation for each participant
+        :param ponderation_price: price per ponderation for each participant
         :return:
         """
 
         for e in self.weightsuser_set.all():
             weight = e.weights_participation
             if weight != 0:
-                e.user.debit(price * weight)
+                e.user.debit(ponderation_price * weight)
                 if (e.user.balance < 0):
     			    # If negative balance after event
     		        # We notify
@@ -645,7 +645,7 @@ class SharedEvent(models.Model):
 
         self.done = True
         self.datetime = now()
-        self.remark = 'Paiement par Borgia (Pondération: ' + str(total_price) + ')'
+        self.remark = 'Paiement par Borgia (Prix par pondération: ' + str(ponderation_price) + ')'
         self.save()
 
     def end_without_payment(self, remark):
