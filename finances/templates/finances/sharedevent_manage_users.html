@@ -8,21 +8,26 @@
     Liste {% if not done %}et gestion manuelle {% endif %}des utilisateurs concernés.
   </div>
   <div class="panel-body">
-    <form action="{% url 'url_sharedevent_manage_users' pk=pk group_name=group.name %}#table_users" method='get'>
-        <p>{{ list_users_form.state.label }} : {{ list_users_form.state }}
-            {{ list_users_form.order_by.label }} : {{ list_users_form.order_by }}
-             <button type='submit' class="btn btn-default">Lister</button></p>
+    <form class="form-horizontal" action="{% url 'url_sharedevent_manage_users' pk=pk group_name=group.name %}#table_users" method='get'>
+        {{ list_users_form|bootstrap_horizontal }}
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-success">Lister</button>
+          </div>
+        </div>
     </form>
 
+    <div class="col-sm-12"><hr></div>
 
     {% if not done %}
-        <form action="{% url 'url_sharedevent_manage_users' pk=pk group_name=group.name %}" method='post'>
+        <form class="form-horizontal" action="{% url 'url_sharedevent_manage_users' pk=pk group_name=group.name %}" method='post'>
             {% csrf_token %}
-            {{ add_weight_form.username.error_messages }} {{ add_weight_form.state.error_messages }} {{ add_weight_form.weight.error_messages }}
-            <p>
-              {{ form }}
-              <button type='submit' class="btn btn-warning">Ajouter</button>
-            </p>
+            {{ form|bootstrap_horizontal }}
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-warning">Ajouter un utilisateur</button>
+              </div>
+            </div>
         </form>
     {% endif %}
 

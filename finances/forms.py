@@ -303,9 +303,9 @@ class SharedEventUpdateForm(forms.Form):
 
 class SharedEventListUsersForm(forms.Form):
     order_by = forms.ChoiceField(label='Trier par', choices=(('username', 'Username'), ('last_name', 'Nom'), ('surname', 'Bucque'), ('year', 'Promo')))
-    state = forms.ChoiceField(label='Lister les', choices=(('users', 'Tous les concernés'),
-                                                ('registrants', 'Uniquement les préinscrit'),
-                                                ('participants', 'Uniquement les participant')))
+    state = forms.ChoiceField(label='Lister', choices=(('users', 'Tous les concernés'),
+                                                ('registrants', 'Uniquement les préinscrits'),
+                                                ('participants', 'Uniquement les participants')))
 
 
 class SharedEventSelfRegistrationForm(forms.Form):
@@ -313,9 +313,16 @@ class SharedEventSelfRegistrationForm(forms.Form):
 
 
 class SharedEventAddWeightForm(forms.Form):
-    username = forms.CharField(label='Username', widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
-                               validators=[autocomplete_username_validator])
-    state = forms.ChoiceField(choices=(('registered', 'Préinscrit'), ('participant', 'Participant')))
+    username = forms.CharField(
+    		label="Ajouter",
+            max_length=255,
+            required=True,
+            widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
+                                          'autocomplete': 'off',
+    									  'autofocus': 'true',
+    									  'placeholder': "Nom d'utilisateur"}))
+
+    state = forms.ChoiceField(label='En tant que', choices=(('registered', 'Préinscrit'), ('participant', 'Participant')))
     weight = forms.IntegerField(label='Pondération', min_value=0, required=True, initial=1)
 
 
