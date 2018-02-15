@@ -22,3 +22,5 @@ six==1.10.0
 typing==3.6.2
 django-static-precompiler==1.6
 openpyxl==2.4.9
+celery
+django-celery-results==1.0.1

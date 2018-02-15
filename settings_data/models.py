@@ -84,7 +84,10 @@ class Setting(models.Model):
         if type(self.value) is bool:
             return self.value
         else:
-            return types[self.value_type](self.value)
+            try:
+                return types[self.value_type](self.value)
+            except ValueError:
+                return None
 
     class Meta:
         permissions = (

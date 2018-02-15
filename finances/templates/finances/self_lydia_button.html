@@ -1,5 +1,6 @@
 {% extends 'base_sober.html' %}
 {% load static %}
+{% load l10n %}
 {% load bootstrap %}
 
 {% block content %}
@@ -13,7 +14,7 @@
       <form>
         <div class="form-group">
           <label>Montant (€) :</label>
-          <input type="email" class="form-control" disabled="disabled" value="{{ amount }}" />
+          <input type="number" class="form-control" disabled="disabled" value="{{ amount|unlocalize }}" />
         </div>
         <div class="form-group">
           <label>Numéro de téléphone </label>
@@ -28,7 +29,7 @@
 <script type="text/javascript">
     $(document).ready(function() {
         $('#lydiaButton').payWithLYDIA({
-            amount: {{ amount }},
+            amount: {{ amount|unlocalize }},
             vendor_token: '{{ vendor_token }}',
             recipient: '{{ tel_number }}', //cellphone or email of your client
             message : '{{ message }}', //object of the payment

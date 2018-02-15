@@ -1070,16 +1070,31 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
 
     def get_form_kwargs(self):
         kwargs = super(SelfLydiaCreate, self).get_form_kwargs()
+
+        # Min value is always 0.01
         try:
-            kwargs['min_value'] = Setting.objects.get(
+            min_value = Setting.objects.get(
                 name='LYDIA_MIN_PRICE').get_value()
+            if min_value is not None:
+                if min_value > 0:
+                    kwargs['min_value'] = Decimal(min_value)
+                else:
+                    kwargs['min_value'] = Decimal("0.01")
+            else:
+                kwargs['min_value'] = Decimal("0.01")
         except ObjectDoesNotExist:
-            kwargs['min_value'] = 0
+            kwargs['min_value'] = Decimal("0.01")
+
         try:
-            kwargs['max_value'] = Setting.objects.get(
+            max_value = Setting.objects.get(
                 name='LYDIA_MAX_PRICE').get_value()
+            if max_value is not None:
+                kwargs['max_value'] = Decimal(max_value)
+            else:
+                kwargs['max_value'] = None
         except ObjectDoesNotExist:
-            kwargs['max_value'] = 1000
+            kwargs['max_value'] = None
+
         return kwargs
 
     def form_valid(self, form):
