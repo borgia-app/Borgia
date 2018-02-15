@@ -30,7 +30,7 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
     :type kwargs['group_name']: string
     """
     template_name = 'settings_data/global_config.html'
-    perm_codename = None
+    perm_codename = 'change_setting'
     lm_active = 'lm_global_config'
 
     def get_context_data(self, **kwargs):
@@ -102,7 +102,7 @@ class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     margin_profit default value: 5%
     """
     template_name = 'settings_data/price_config.html'
-    perm_codename = None
+    perm_codename = 'change_setting'
     lm_active = 'lm_global_config'
     form_class = PriceConfigForm
 
@@ -140,7 +140,7 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     lydia_max_price default value: 500€
     """
     template_name = 'settings_data/lydia_config.html'
-    perm_codename = None
+    perm_codename = 'change_setting'
     lm_active = 'lm_global_config'
     form_class = LydiaConfigForm
 
@@ -197,7 +197,7 @@ class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     balance_frequency_mail_alert default value: 7 days
     """
     template_name = 'settings_data/balance_config.html'
-    perm_codename = None
+    perm_codename = 'change_setting'
     lm_active = 'lm_global_config'
     form_class = BalanceConfigForm
 
