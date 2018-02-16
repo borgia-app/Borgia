@@ -695,11 +695,10 @@ class SharedEvent(models.Model):
             # add_sharedevent
             # change_sharedevent
             # delete_sharedevent
-            ('register_sharedevent', 'Se préinscrire à un événement commun'),
+            ('self_register_sharedevent', 'Se préinscrire à un événement commun'),
             ('list_sharedevent', 'Lister les événements communs'),
             ('manage_sharedevent', 'Gérer les événements communs'),
-            ('proceed_payment_sharedevent',
-             'Procéder au paiement des événements communs'),
+            ('proceed_payment_sharedevent', 'Procéder au paiement des événements communs'),
         )
 
 

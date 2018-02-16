@@ -49,7 +49,7 @@
           {% else %}
             <td>En attente</td>
             <td>Préinscrit : {{ sharedevent.weight_of_user }}
-              {% if sharedevent.allow_self_registeration and not done %},
+              {% if has_perm_self_register_sharedevent and sharedevent.allow_self_registeration and not done  %},
                 <a href="{% url 'url_sharedevent_self_registration' group_name=group.name pk=sharedevent.pk %}"
                   class="btn btn-xs">
                   Se préinscrire

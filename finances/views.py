@@ -1157,6 +1157,15 @@ class SharedEventList(GroupPermissionMixin, FormView,
             se.total_weights_registrants = se.get_total_weights_registrants()
             se.total_weights_participants = se.get_total_weights_participants()
         context['shared_events'] = shared_events
+
+        # Permission SelfRegistration
+        try:
+            group = Group.objects.get(name=context['group_name'])
+            if Permission.objects.get(codename='self_register_sharedevent') in group.permissions.all():
+                context['has_perm_self_register_sharedevent'] = True
+        except ObjectDoesNotExist:
+            pass # has_perm not True
+
         return context
 
     def form_valid(self, form, **kwargs):
@@ -1306,9 +1315,8 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
         except ObjectDoesNotExist:
             raise Http404
         try:
-            if Permission.objects.get(codename='manage_sharedevent') not in group.permissions.all():
-                if request.user != self.se.manager:
-                    raise PermissionDenied
+            if Permission.objects.get(codename='proceed_payment_sharedevent') not in group.permissions.all():
+                raise PermissionDenied
         except ObjectDoesNotExist:
             raise Http404
         if self.se.done:
@@ -1438,7 +1446,7 @@ class SharedEventSelfRegistration(GroupPermissionMixin, FormView, GroupLateralMe
     """
     form_class = SharedEventSelfRegistrationForm
     template_name = 'finances/sharedevent_self_registration.html'
-    perm_codename = None  # Checked in dispatch
+    perm_codename = 'self_register_sharedevent'
 
 
     def dispatch(self, request, *args, **kwargs):
