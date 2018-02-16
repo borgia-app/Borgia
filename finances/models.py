@@ -617,6 +617,7 @@ class SharedEvent(models.Model):
 
 
         self.done = True
+        self.price = total_price
         self.datetime = now()
         self.remark = 'Paiement par Borgia (Prix total : ' + str(total_price) + ')'
         self.save()
