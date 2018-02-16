@@ -10,14 +10,17 @@ function updateForm() {
     case "pay_by_total":
       $( ".form-group" ).eq(1).show();
       $( ".form-group" ).eq(2).hide();
+      $( ".form-group" ).eq(3).hide();
       break;
     case "pay_by_ponderation":
       $( ".form-group" ).eq(1).hide();
       $( ".form-group" ).eq(2).show();
+      $( ".form-group" ).eq(3).hide();
       break;
     case "no_payment":
       $( ".form-group" ).eq(1).hide();
       $( ".form-group" ).eq(2).hide();
+      $( ".form-group" ).eq(3).show();
       break;
     };
 };
