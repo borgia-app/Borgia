@@ -599,7 +599,10 @@ class SharedEvent(models.Model):
 
         # Calcul du prix par weight
         total_weight = self.get_total_weights_participants()
-        final_price_per_weight = round(total_price / total_weight, 2)
+        try:
+            final_price_per_weight = round(total_price / total_weight, 2)
+        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+            return
 
         for e in self.weightsuser_set.all():
             e.user.debit(final_price_per_weight * e.weights_participation)
