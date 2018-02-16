@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.timezone import now
-from decimal import Decimal
+from decimal import Decimal, DivisionUndefined, DivisionByZero
 import json
 
 from django.contrib.auth import get_user_model
@@ -436,6 +436,7 @@ class SharedEvent(models.Model):
     bills = models.CharField('Facture(s)', max_length=254, null=True,
                              blank=True)
     done = models.BooleanField('Terminé', default=False)
+    payment_by_ponderation = models.BooleanField('Paiement par pondération', default=False)
     remark = models.CharField('Remarque', max_length=254, null=True, blank=True)
     manager = models.ForeignKey('users.User', related_name='manager',
         on_delete=models.CASCADE)
@@ -577,13 +578,15 @@ class SharedEvent(models.Model):
     def get_price_of_user(self, user):
 	    # Calcul du prix par weight
         if isinstance(self.price, Decimal):
-            total_weights_participants = self.get_total_weights_participants()
             weight_of_user = self.get_weight_of_user(user)
-            try:
-                return round(self.price / total_weights_participants * weight_of_user,2)
-            except:
-                return 0
-
+            if not self.payment_by_ponderation:
+                total_weights_participants = self.get_total_weights_participants()
+                try:
+                    return round(self.price / total_weights_participants  * weight_of_user, 2)
+                except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+                    return 0
+            else:
+                return self.price * weight_of_user
         else:
              return 0
 
@@ -648,6 +651,8 @@ class SharedEvent(models.Model):
 
 
         self.done = True
+        self.payment_by_ponderation = True
+        self.price = ponderation_price
         self.datetime = now()
         self.remark = 'Paiement par Borgia (Prix par pondération: ' + str(ponderation_price) + ')'
         self.save()
@@ -659,6 +664,7 @@ class SharedEvent(models.Model):
         :return:
         """
         self.done = True
+        self.price = Decimal('0.00')
         self.datetime = now()
         self.remark = 'Pas de paiement : ' + remark
         self.save()
