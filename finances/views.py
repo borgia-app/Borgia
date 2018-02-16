@@ -1622,13 +1622,11 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
         return context
 
     def form_valid(self, form):
-        username = form.cleaned_data['username']
+        user = form.cleaned_data['user']
         weight = form.cleaned_data['weight']
         isParticipant = form.cleaned_data['state'] == 'participant' # True pour un participant
 
-        self.se.add_weight(User.objects.get(username=username),
-                            weight,
-                            isParticipant)
+        self.se.add_weight(user, weight, isParticipant)
         return super(SharedEventManageUsers, self).form_valid(form)
 
     def get_success_url(self):

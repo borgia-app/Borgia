@@ -313,7 +313,7 @@ class SharedEventSelfRegistrationForm(forms.Form):
 
 
 class SharedEventAddWeightForm(forms.Form):
-    username = forms.CharField(
+    user = forms.CharField(
     		label="Ajouter",
             max_length=255,
             required=True,
@@ -324,6 +324,16 @@ class SharedEventAddWeightForm(forms.Form):
 
     state = forms.ChoiceField(label='En tant que', choices=(('registered', 'Préinscrit'), ('participant', 'Participant')))
     weight = forms.IntegerField(label='Pondération', min_value=0, required=True, initial=1)
+
+    def clean_user(self):
+        username = self.cleaned_data['user']
+
+        try:
+            user = User.objects.get(username=username)
+        except ObjectDoesNotExist:
+                raise forms.ValidationError("L'utilisateur n'existe pas !")
+
+        return user
 
 
 class SharedEventDownloadXlsxForm(forms.Form):
