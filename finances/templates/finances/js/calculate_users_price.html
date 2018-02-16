@@ -1,3 +1,5 @@
+{% load l10n %}
+
 {% block content %}
 <script type="text/javascript">
 $(function(){
@@ -11,7 +13,7 @@ $(function(){
   };
 
   function set_prices () {
-    var total_price = Number({{price}});
+    var total_price = {{ price|unlocalize }};
     if ( total_price ){
       var total_weight = get_total_weight();
       var price_per_weight = total_price / total_weight;
