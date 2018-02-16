@@ -23,7 +23,7 @@
           <div class="form-group">
             <div class="col-sm-10 col-sm-offset-2">
               <button type="submit" class="btn btn-success">Mise à jour</button>
-              <a href="{% url 'url_sharedevent_finish' group_name=group.name pk=pk %}" role="button" class="btn btn-warning">Terminer</a>
+              <a href="{% url 'url_sharedevent_finish' group_name=group.name pk=pk %}" role="button" class="btn btn-warning {% if not has_perm_proceed_payment %}disabled{% endif %}">Terminer</a>
               <a href="{% url 'url_sharedevent_delete' group_name=group.name pk=pk %}" role="button" class="btn btn-danger">Supprimer</a>
             </div>
           </div>

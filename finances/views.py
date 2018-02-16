@@ -1266,7 +1266,7 @@ class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
         try:
             if Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all():
                 if request.user != self.se.manager:
-                    raise PermissionDenied
+                    raise Http404
         except ObjectDoesNotExist:
             raise Http404
         if self.se.done:
@@ -1312,13 +1312,11 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
         # Permissions
         try:
             group = Group.objects.get(name=kwargs['group_name'])
-        except ObjectDoesNotExist:
-            raise Http404
-        try:
             if Permission.objects.get(codename='proceed_payment_sharedevent') not in group.permissions.all():
-                raise PermissionDenied
+                raise Http404
         except ObjectDoesNotExist:
             raise Http404
+
         if self.se.done:
             raise PermissionDenied
 
@@ -1384,7 +1382,7 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         try:
             if Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all():
                 if request.user != self.se.manager:
-                    raise PermissionDenied
+                    raise Http404
         except ObjectDoesNotExist:
             raise Http404
 
@@ -1418,6 +1416,14 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         # Création des forms excel
         context['upload_xlsx_form'] = SharedEventUploadXlsxForm()
         context['download_xlsx_form'] = SharedEventDownloadXlsxForm()
+
+        # Permission FinishEvent
+        try:
+            group = Group.objects.get(name=context['group_name'])
+            if Permission.objects.get(codename='proceed_payment_sharedevent') in group.permissions.all():
+                context['has_perm_proceed_payment'] = True
+        except ObjectDoesNotExist:
+            pass # has_perm not True
 
         return context
 
@@ -1562,11 +1568,12 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
         except ObjectDoesNotExist:
             raise Http404
 
+        # Permission
+        if request.user != self.se.manager or not request.user.has_perm('finances.manage_sharedevent'):
+            raise Http404
+
         # On ne modifie plus une event terminé
         if self.se.done is True:
-            raise PermissionDenied
-        # Permission
-        if not ( request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent') ):
             raise PermissionDenied
 
         return super(SharedEventManageUsers, self).dispatch(request, *args, **kwargs)
