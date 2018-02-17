@@ -1,5 +1,6 @@
 from django.utils.timezone import now
 from django.shortcuts import render, redirect, Http404, reverse
+from django.conf import settings
 
 from django.contrib.auth.models import Group
 from django.views.generic import FormView, View
@@ -16,15 +17,10 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
     View to manage config of the application.
 
-    Each config parameter MUST exists and are created by a fixture.
+    Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
-    necessary in get_initial with a get_or_create.
-
-    margin_profit default value: 5%
-    lydia_min_price default value: 5€
-    lydia_max_price default value: 500€
-    balance_threshold_mail_alert default value: -10€
-    balance_frequency_mail_alert default value: 7 days
+    necessary in get_initial with a get_or_create. Default values are specified
+    in borgia/settings.py.
 
     :param kwargs['group_name']: name of the group, mandatory
     :type kwargs['group_name']: string
@@ -37,52 +33,52 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context = super(GlobalConfig, self).get_context_data(**kwargs)
 
         margin_profit, created = Setting.objects.get_or_create(
-            name="MARGIN_PROFIT",
-            description="Marge (%) à appliquer sur le prix des produits calculés automatiquement",
-            value_type="f"
+            name=settings.MARGIN_PROFIT_NAME,
+            description=settings.MARGIN_PROFIT_DESCRIPTION,
+            value_type=settings.MARGIN_PROFIT_VALUE_TYPE
         )
         if created:
-            margin_profit.value = "5"
+            margin_profit.value = settings.MARGIN_PROFIT_VALUE
             margin_profit.save()
         context['margin_profit'] = margin_profit
 
         lydia_min_price, created = Setting.objects.get_or_create(
-            name="LYDIA_MIN_PRICE",
-            description="Valeur minimale (€) de rechargement en automatique par Lydia",
-            value_type="f"
+            name=settings.LYDIA_MIN_PRICE_NAME,
+            description=settings.LYDIA_MIN_PRICE_DESCRIPTION,
+            value_type=settings.LYDIA_MIN_PRICE_VALUE_TYPE
         )
         if created:
-            lydia_min_price.value = "5"
+            lydia_min_price.value = settings.LYDIA_MIN_PRICE_VALUE
             lydia_min_price.save()
         context['lydia_min_price'] = lydia_min_price
 
         lydia_max_price, created = Setting.objects.get_or_create(
-            name="LYDIA_MAX_PRICE",
-            description="Valeur maximale (€) de rechargement en automatique par Lydia",
-            value_type="f"
+            name=settings.LYDIA_MAX_PRICE_NAME,
+            description=settings.LYDIA_MAX_PRICE_DESCRIPTION,
+            value_type=settings.LYDIA_MAX_PRICE_VALUE_TYPE
         )
         if created:
-            lydia_max_price = "500"
+            lydia_max_price = settings.LYDIA_MAX_PRICE_VALUE
             lydia_max_price.save()
         context['lydia_max_price'] = lydia_max_price
 
         balance_threshold_mail_alert, created = Setting.objects.get_or_create(
-            name="BALANCE_THRESHOLD_MAIL_ALERT",
-            description="Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée",
-            value_type="f"
+            name=settings.BALANCE_THRESHOLD_MAIL_ALERT_NAME,
+            description=settings.BALANCE_THRESHOLD_MAIL_ALERT_DESCRIPTION,
+            value_type=settings.BALANCE_THRESHOLD_MAIL_ALERT_VALUE_TYPE
         )
         if created:
-            balance_threshold_mail_alert.value = "-10"
+            balance_threshold_mail_alert.value = settings.BALANCE_THRESHOLD_MAIL_ALERT_VALUE
             balance_threshold_mail_alert.save()
         context['balance_threshold_mail_alert'] = balance_threshold_mail_alert
 
         balance_frequency_mail_alert, created = Setting.objects.get_or_create(
-            name="BALANCE_FREQUENCY_MAIL_ALERT",
-            description="Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",
-            value_type="i"
+            name=settings.BALANCE_FREQUENCY_MAIL_ALERT_NAME,
+            description=settings.BALANCE_FREQUENCY_MAIL_ALERT_DESCRIPTION,
+            value_type=settings.BALANCE_FREQUENCY_MAIL_ALERT_VALUE_TYPE
         )
         if created:
-            balance_frequency_mail_alert.value = "7"
+            balance_frequency_mail_alert.value = settings.BALANCE_FREQUENCY_MAIL_ALERT_VALUE
             balance_frequency_mail_alert.save()
         context['balance_frequency_mail_alert'] = balance_frequency_mail_alert
 
@@ -95,11 +91,10 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
 class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     """
-    Each config parameter MUST exists and are created by a fixture.
+    Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
-    necessary in get_initial with a get_or_create.
-
-    margin_profit default value: 5%
+    necessary in get_initial with a get_or_create. Default values are specified
+    in borgia/settings.py.
     """
     template_name = 'settings_data/price_config.html'
     perm_codename = 'change_setting'
@@ -110,12 +105,12 @@ class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial = super(PriceConfig, self).get_initial(**kwargs)
 
         margin_profit, created = Setting.objects.get_or_create(
-            name="MARGIN_PROFIT",
-            description="Marge (%) à appliquer sur le prix des produits calculés automatiquement",
-            value_type="f"
+            name=settings.MARGIN_PROFIT_NAME,
+            description=settings.MARGIN_PROFIT_DESCRIPTION,
+            value_type=settings.MARGIN_PROFIT_VALUE_TYPE
         )
         if created:
-            margin_profit.value = "5"
+            margin_profit.value = settings.MARGIN_PROFIT_VALUE
             margin_profit.save()
 
         initial['margin_profit'] = margin_profit.get_value()
@@ -132,12 +127,10 @@ class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
 class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     """
-    Each config parameter MUST exists and are created by a fixture.
+    Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
-    necessary in get_initial with a get_or_create.
-
-    lydia_min_price default value: 5€
-    lydia_max_price default value: 500€
+    necessary in get_initial with a get_or_create. Default values are specified
+    in borgia/settings.py.
     """
     template_name = 'settings_data/lydia_config.html'
     perm_codename = 'change_setting'
@@ -148,22 +141,22 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial = super(LydiaConfig, self).get_initial(**kwargs)
 
         lydia_min_price, created = Setting.objects.get_or_create(
-            name="LYDIA_MIN_PRICE",
-            description="Valeur minimale (€) de rechargement en automatique par Lydia",
-            value_type="f"
+            name=settings.LYDIA_MIN_PRICE_NAME,
+            description=settings.LYDIA_MIN_PRICE_DESCRIPTION,
+            value_type=settings.LYDIA_MIN_PRICE_VALUE_TYPE
         )
         if created:
-            lydia_min_price.value = "5"
+            lydia_min_price.value = settings.LYDIA_MIN_PRICE_VALUE
             lydia_min_price.save()
         initial['lydia_min_price'] = lydia_min_price.get_value()
 
         lydia_max_price, created = Setting.objects.get_or_create(
-            name="LYDIA_MAX_PRICE",
-            description="Valeur maximale (€) de rechargement en automatique par Lydia",
-            value_type="f"
+            name=settings.LYDIA_MAX_PRICE_NAME,
+            description=settings.LYDIA_MAX_PRICE_DESCRIPTION,
+            value_type=settings.LYDIA_MAX_PRICE_VALUE_TYPE
         )
         if created:
-            lydia_max_price = "500"
+            lydia_max_price = settings.LYDIA_MAX_PRICE_VALUE
             lydia_max_price.save()
         initial['lydia_max_price'] = lydia_max_price.get_value()
         return initial
@@ -189,12 +182,10 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
 class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     """
-    Each config parameter MUST exists and are created by a fixture.
+    Each config parameter MUST exists..
     However, to ensure that these values still exists, they are recreated if
-    necessary in get_initial with a get_or_create.
-
-    balance_threshold_mail_alert default value: -10€
-    balance_frequency_mail_alert default value: 7 days
+    necessary in get_initial with a get_or_create. Default values are specified
+    in borgia/settings.py.
     """
     template_name = 'settings_data/balance_config.html'
     perm_codename = 'change_setting'
@@ -205,22 +196,22 @@ class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial = super(BalanceConfig, self).get_initial(**kwargs)
 
         balance_threshold_mail_alert, created = Setting.objects.get_or_create(
-            name="BALANCE_THRESHOLD_MAIL_ALERT",
-            description="Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée",
-            value_type="f"
+            name=settings.BALANCE_THRESHOLD_MAIL_ALERT_NAME,
+            description=settings.BALANCE_THRESHOLD_MAIL_ALERT_DESCRIPTION,
+            value_type=settings.BALANCE_THRESHOLD_MAIL_ALERT_VALUE_TYPE
         )
         if created:
-            balance_threshold_mail_alert.value = "-10"
+            balance_threshold_mail_alert.value = settings.BALANCE_THRESHOLD_MAIL_ALERT_VALUE
             balance_threshold_mail_alert.save()
         initial['balance_threshold_mail_alert'] = balance_threshold_mail_alert.get_value()
 
         balance_frequency_mail_alert, created = Setting.objects.get_or_create(
-            name="BALANCE_FREQUENCY_MAIL_ALERT",
-            description="Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",
-            value_type="i"
+            name=settings.BALANCE_FREQUENCY_MAIL_ALERT_NAME,
+            description=settings.BALANCE_FREQUENCY_MAIL_ALERT_DESCRIPTION,
+            value_type=settings.BALANCE_FREQUENCY_MAIL_ALERT_VALUE_TYPE
         )
         if created:
-            balance_frequency_mail_alert.value = "7"
+            balance_frequency_mail_alert.value = settings.BALANCE_FREQUENCY_MAIL_ALERT_VALUE
             balance_frequency_mail_alert.save()
         initial['balance_frequency_mail_alert'] = balance_frequency_mail_alert.get_value()
         return initial
@@ -242,6 +233,3 @@ class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         balance_frequency_mail_alert.save()
         return redirect(reverse('url_global_config',
                         kwargs={'group_name': self.group.name}))
-
-
-# TODO: min < max, check for '' value in views, ensure min, max, values are respected in views

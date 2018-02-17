@@ -221,3 +221,35 @@ JWT_TOKEN_TIMEOUT = 7  # days
 
 CENTER_NAME = "Center Name"
 DEFAULT_TEMPLATE = "light" #Default template, en minuscule
+
+
+# Application settings default
+## MARGIN_PROFIT
+MARGIN_PROFIT_NAME = "MARGIN_PROFIT"
+MARGIN_PROFIT_DESCRIPTION = "Marge (%) à appliquer sur le prix des produits calculés automatiquement"
+MARGIN_PROFIT_VALUE_TYPE = "f"
+MARGIN_PROFIT_VALUE = "5"
+
+## LYDIA_MIN_PRICE
+LYDIA_MIN_PRICE_NAME = "LYDIA_MIN_PRICE"
+LYDIA_MIN_PRICE_DESCRIPTION = "Valeur minimale (€) de rechargement en automatique par Lydia"
+LYDIA_MIN_PRICE_VALUE_TYPE = "f"
+LYDIA_MIN_PRICE_VALUE = "5"
+
+## LYDIA_MAX_PRICE
+LYDIA_MAX_PRICE_NAME = "LYDIA_MAX_PRICE"
+LYDIA_MAX_PRICE_DESCRIPTION = "Valeur maximale (€) de rechargement en automatique par Lydia"
+LYDIA_MAX_PRICE_VALUE_TYPE = "f"
+LYDIA_MAX_PRICE_VALUE = "500"
+
+## BALANCE_THRESHOLD_MAIL_ALERT
+BALANCE_THRESHOLD_MAIL_ALERT_NAME = "BALANCE_THRESHOLD_MAIL_ALERT"
+BALANCE_THRESHOLD_MAIL_ALERT_DESCRIPTION = "Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée"
+BALANCE_THRESHOLD_MAIL_ALERT_VALUE_TYPE = "f"
+BALANCE_THRESHOLD_MAIL_ALERT_VALUE = "-10"
+
+## BALANCE_FREQUENCY_MAIL_ALERT
+BALANCE_FREQUENCY_MAIL_ALERT_NAME = "BALANCE_FREQUENCY_MAIL_ALERT"
+BALANCE_FREQUENCY_MAIL_ALERT_DESCRIPTION = "Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil"
+BALANCE_FREQUENCY_MAIL_ALERT_VALUE_TYPE = "i"
+BALANCE_FREQUENCY_MAIL_ALERT_VALUE = "7"
