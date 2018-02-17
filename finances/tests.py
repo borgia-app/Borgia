@@ -1399,3 +1399,7 @@ class SharedEventTestCase(TestCase):
     def test_get_price_of_user(self):
         # 53 + 0 + 47 = 100
         self.assertEqual( self.se.get_price_of_user( self.user1 ), 530)
+
+    def get_total_weights(self):
+        self.assertEqual(self.se.get_total_weights_registrants, 205) # 3 + 202
+        self.assertEqual(self.se.get_total_weights_participants, 356) # 53 + 303
