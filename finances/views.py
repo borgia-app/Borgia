@@ -1157,6 +1157,15 @@ class SharedEventList(GroupPermissionMixin, FormView,
             se.total_weights_registrants = se.get_total_weights_registrants()
             se.total_weights_participants = se.get_total_weights_participants()
         context['shared_events'] = shared_events
+
+        # Permission SelfRegistration
+        try:
+            group = Group.objects.get(name=context['group_name'])
+            if Permission.objects.get(codename='self_register_sharedevent') in group.permissions.all():
+                context['has_perm_self_register_sharedevent'] = True
+        except ObjectDoesNotExist:
+            pass # has_perm not True
+
         return context
 
     def form_valid(self, form, **kwargs):
@@ -1204,7 +1213,7 @@ class SharedEventCreate(GroupPermissionMixin, FormView,
     form_class = SharedEventCreateForm
     template_name = 'finances/sharedevent_create.html'
     success_url = None
-    perm_codename = 'create_sharedevent'
+    perm_codename = 'add_sharedevent'
     lm_active = 'lm_sharedevent_create'
 
     def form_valid(self, form):
@@ -1257,7 +1266,7 @@ class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
         try:
             if Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all():
                 if request.user != self.se.manager:
-                    raise PermissionDenied
+                    raise Http404
         except ObjectDoesNotExist:
             raise Http404
         if self.se.done:
@@ -1303,28 +1312,47 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
         # Permissions
         try:
             group = Group.objects.get(name=kwargs['group_name'])
+            if Permission.objects.get(codename='proceed_payment_sharedevent') not in group.permissions.all():
+                raise Http404
         except ObjectDoesNotExist:
             raise Http404
-        try:
-            if Permission.objects.get(codename='manage_sharedevent') not in group.permissions.all():
-                if request.user != self.se.manager:
-                    raise PermissionDenied
-        except ObjectDoesNotExist:
-            raise Http404
+
         if self.se.done:
             raise PermissionDenied
+
+        # Check if there are participants
+        if self.se.get_total_weights_participants() == 0:
+            return redirect(reverse(
+                'url_sharedevent_update',
+                kwargs={'group_name': group.name, 'pk': self.se.pk}
+              ) + '?no_participant=True')
 
         return super(SharedEventFinish, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(SharedEventFinish, self).get_context_data(**kwargs)
-        context['object'] = self.se
+        context['se'] = self.se
         return context
 
+    def get_initial(self):
+        """
+        Populate the form with the current price.
+        """
+        initial = super(SharedEventFinish, self).get_initial()
+        initial['total_price'] = self.se.price
+        return initial
+
     def form_valid(self, form):
-        self.se.done = True
-        self.se.remark = form.cleaned_data['remark']
-        self.se.save()
+        type_payment = form.cleaned_data['type_payment']
+        if (type_payment == 'pay_by_total'):
+            self.se.pay_by_total(self.request.user, User.objects.get(pk=1), form.cleaned_data['total_price'])
+
+        if (type_payment == 'pay_by_ponderation'):
+            self.se.pay_by_ponderation(self.request.user, User.objects.get(pk=1), form.cleaned_data['ponderation_price'])
+
+        if (type_payment == 'no_payment'):
+            self.se.end_without_payment(form.cleaned_data['remark'])
+
         return super(SharedEventFinish, self).form_valid(form)
 
     def get_success_url(self):
@@ -1354,9 +1382,11 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         try:
             if Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all():
                 if request.user != self.se.manager:
-                    raise PermissionDenied
+                    raise Http404
         except ObjectDoesNotExist:
             raise Http404
+
+        self.no_participant = request.GET.get('no_participant', False) == "True" # "True" == "True"
 
         return super(SharedEventUpdate, self).dispatch(request, *args, **kwargs)
 
@@ -1369,10 +1399,7 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
 
     def get_context_data(self, **kwargs):
 
-        # Création des formspyxl
 
-        upload_xlsx_form = SharedEventUploadXlsxForm()
-        download_xlsx_form = SharedEventDownloadXlsxForm()
         # list_year() contains smth like [2011, 2015, ...]
 
         context = super(SharedEventUpdate, self).get_context_data(**kwargs)
@@ -1381,9 +1408,22 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         if self.se.done:
             context['remark'] = self.se.remark
             context['price'] = self.se.price
+        # Pour les users
+        context['total_weights_registrants'] = self.se.get_total_weights_registrants
+        context['total_weights_participants'] = self.se.get_total_weights_participants
+        context['no_participant'] = self.no_participant
 
-        context['upload_xlsx_form'] = upload_xlsx_form
-        context['download_xlsx_form'] = download_xlsx_form
+        # Création des forms excel
+        context['upload_xlsx_form'] = SharedEventUploadXlsxForm()
+        context['download_xlsx_form'] = SharedEventDownloadXlsxForm()
+
+        # Permission FinishEvent
+        try:
+            group = Group.objects.get(name=context['group_name'])
+            if Permission.objects.get(codename='proceed_payment_sharedevent') in group.permissions.all():
+                context['has_perm_proceed_payment'] = True
+        except ObjectDoesNotExist:
+            pass # has_perm not True
 
         return context
 
@@ -1412,7 +1452,7 @@ class SharedEventSelfRegistration(GroupPermissionMixin, FormView, GroupLateralMe
     """
     form_class = SharedEventSelfRegistrationForm
     template_name = 'finances/sharedevent_self_registration.html'
-    perm_codename = None  # Checked in dispatch
+    perm_codename = 'self_register_sharedevent'
 
 
     def dispatch(self, request, *args, **kwargs):
@@ -1528,11 +1568,12 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
         except ObjectDoesNotExist:
             raise Http404
 
+        # Permission
+        if request.user != self.se.manager or not request.user.has_perm('finances.manage_sharedevent'):
+            raise Http404
+
         # On ne modifie plus une event terminé
         if self.se.done is True:
-            raise PermissionDenied
-        # Permission
-        if not ( request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent') ):
             raise PermissionDenied
 
         return super(SharedEventManageUsers, self).dispatch(request, *args, **kwargs)
@@ -1558,7 +1599,7 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
                 state = self.request.GET.get('state')
         # If an option is provided
         if self.request.GET.get('order_by') is not None:
-            if self.request.GET.get('order_by') in ['username', 'last_name', 'surname']:
+            if self.request.GET.get('order_by') in ['username', 'last_name', 'surname', 'year']:
                 order_by = self.request.GET.get('order_by')
 
         initial_list_users_form = {
@@ -1581,13 +1622,11 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
         return context
 
     def form_valid(self, form):
-        username = form.cleaned_data['username']
+        user = form.cleaned_data['user']
         weight = form.cleaned_data['weight']
         isParticipant = form.cleaned_data['state'] == 'participant' # True pour un participant
 
-        self.se.add_weight(User.objects.get(username=username),
-                            weight,
-                            isParticipant)
+        self.se.add_weight(user, weight, isParticipant)
         return super(SharedEventManageUsers, self).form_valid(form)
 
     def get_success_url(self):
@@ -1602,9 +1641,9 @@ class SharedEventRemoveUser(GroupPermissionMixin, View):
         se = SharedEvent.objects.get(pk=kwargs['pk'])
 
         # Permission
-        if self.se.done is True:
+        if se.done is True:
             raise PermissionDenied
-        if not ( request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent') ):
+        if not ( request.user == se.manager or request.user.has_perm('finances.manage_sharedevent') ):
             raise PermissionDenied
 
         try:
@@ -1642,36 +1681,6 @@ class SharedEventRemoveUser(GroupPermissionMixin, View):
             'url_sharedevent_manage_users',
             kwargs={'group_name': self.group.name, 'pk': se.pk}
         ) + "?state=" + state + "&order_by=" + order_by + "#table_users")
-
-
-class SharedEventProceedPayment(GroupPermissionMixin, View):
-    perm_codename = None
-
-    def get(self, request, *args, **kwargs):
-        try:
-            se = SharedEvent.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        if se.done is True:
-            raise PermissionDenied
-        if se.price is not None:
-            if se.users.count() > 0:
-              se.pay(request.user, User.objects.get(pk=1))
-              return redirect(reverse(
-                'url_sharedevent_update',
-                kwargs={'group_name': self.group.name, 'pk': se.pk}
-              ))
-            else:
-              return redirect(reverse(
-                'url_sharedevent_update',
-                kwargs={'group_name': self.group.name, 'pk': se.pk}
-              ) + '?no_participant=True')
-
-        else:
-            return redirect(reverse(
-                'url_sharedevent_update',
-                kwargs={'group_name': self.group.name, 'pk': se.pk}
-            ) + '?no_price=True')
 
 
 class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
