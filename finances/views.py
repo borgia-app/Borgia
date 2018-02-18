@@ -24,6 +24,7 @@ from finances.models import *
 from borgia.utils import *
 from settings_data.models import Setting
 from notifications.models import notify
+from settings_data.utils import settings_safe_get
 
 
 class UserBankAccountCreate(GroupPermissionMixin, UserMixin, FormView,
@@ -1070,16 +1071,31 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
 
     def get_form_kwargs(self):
         kwargs = super(SelfLydiaCreate, self).get_form_kwargs()
+
+        # Min value is always 0.01
         try:
-            kwargs['min_value'] = Setting.objects.get(
+            min_value = Setting.objects.get(
                 name='LYDIA_MIN_PRICE').get_value()
+            if min_value is not None:
+                if min_value > 0:
+                    kwargs['min_value'] = Decimal(min_value)
+                else:
+                    kwargs['min_value'] = Decimal("0.01")
+            else:
+                kwargs['min_value'] = Decimal("0.01")
         except ObjectDoesNotExist:
-            kwargs['min_value'] = 0
+            kwargs['min_value'] = Decimal("0.01")
+
         try:
-            kwargs['max_value'] = Setting.objects.get(
+            max_value = Setting.objects.get(
                 name='LYDIA_MAX_PRICE').get_value()
+            if max_value is not None:
+                kwargs['max_value'] = Decimal(max_value)
+            else:
+                kwargs['max_value'] = None
         except ObjectDoesNotExist:
-            kwargs['max_value'] = 1000
+            kwargs['max_value'] = None
+
         return kwargs
 
     def form_valid(self, form):
@@ -1093,7 +1109,7 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
             user.save()
 
         context = super(SelfLydiaCreate, self).get_context_data()
-        context['vendor_token'] = settings.LYDIA_VENDOR_TOKEN
+        context['vendor_token'] = settings_safe_get("LYDIA_VENDOR_TOKEN").get_value()
         context['confirm_url'] = settings.LYDIA_CONFIRM_URL
         context['callback_url'] = settings.LYDIA_CALLBACK_URL
         context['amount'] = form.cleaned_data['amount']
@@ -1845,7 +1861,7 @@ def self_lydia_callback(request):
         "vendor_token": request.POST.get("vendor_token"),
         "sig": request.POST.get("sig")
     }
-    if verify_token_algo_lydia(params_dict, settings.LYDIA_API_TOKEN) is True:
+    if verify_token_algo_lydia(params_dict, settings_safe_get("LYDIA_API_TOKEN").get_value()) is True:
         try:
             lydia = LydiaOnline.objects.create(
                 sender = User.objects.get(pk=request.GET.get('user_pk')),
