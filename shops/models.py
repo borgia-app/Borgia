@@ -50,7 +50,7 @@ class Shop(models.Model):
         """
         Define Permissions for Shop.
 
-        :note:: Initial Django Permission (create, delete, change) are added.
+        :note:: Initial Django Permission (add, change, delete) are added.
         """
         permissions = (
             # CRUDL
