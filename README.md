@@ -56,4 +56,4 @@ Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes
 Build 4.4.3 ([draft 4.5](https://github.com/borgia-app/Borgia/releases/tag/untagged-35f548c24f5bef9cfd1e))
 
 ## Dernière version stable :
-[Build 4.4.0](https://github.com/borgia-app/Borgia/tree/4.4.0)
+[Build 4.4.0](https://github.com/borgia-app/Borgia/releases/tag/4.4.0)
