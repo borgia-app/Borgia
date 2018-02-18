@@ -4,20 +4,19 @@
 
 ## Get started : initial commands
 
-* S'assurer que LESS est installé (avec ``npm install -g less``)
+* S'assurer que LESS est installé (avec ``yarn global add less``)
 
-* Charger les db et dumps :
+* Charger les migrations & les données initiales :
     * ``python manage.py makemigrations users shops finances modules settings_data notifications stocks``
     * ``python manage.py migrate``
-* Changer le mdp admin :
+    * ``python manage.py loaddata initial``
+* Changer le mot de passe du compte admin :
     * ``python manage.py loaddata first_member``
     * ``python manage.py shell``
     * ``from users.models import User``
     * ``u = User.objects.get(pk=2)``
     * ``u.set_password('admin')``
     * ``u.save()``
-* Puis :
-    * ``python manage.py loaddata initial``
 
 
 ### Update requirements.txt
@@ -53,5 +52,8 @@ Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes
  Le fichier LESS est compilé dans static_dirs actuellement. __En prod, il faut changer le setting correspondant.__
 
 
-## Current Version :
-Build 4.4.3 (current draft 4.5)
+## Version actuellement en développement :
+Build 4.4.3 ([draft 4.5](https://github.com/borgia-app/Borgia/releases/tag/untagged-35f548c24f5bef9cfd1e))
+
+## Dernière version stable :
+[Build 4.4.0](https://github.com/borgia-app/Borgia/tree/4.4.0)
