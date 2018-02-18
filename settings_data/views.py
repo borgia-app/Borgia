@@ -37,6 +37,8 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context['margin_profit'] = settings_safe_get('MARGIN_PROFIT')
         context['lydia_min_price'] = settings_safe_get('LYDIA_MIN_PRICE')
         context['lydia_max_price'] = settings_safe_get("LYDIA_MAX_PRICE")
+        context['lydia_api_token'] = settings_safe_get("LYDIA_API_TOKEN")
+        context['lydia_vendor_token'] = settings_safe_get("LYDIA_VENDOR_TOKEN")
         context['balance_threshold_mail_alert'] = settings_safe_get("BALANCE_THRESHOLD_MAIL_ALERT")
         context['balance_frequency_mail_alert'] = settings_safe_get("BALANCE_FREQUENCY_MAIL_ALERT")
         return context
@@ -114,6 +116,8 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial = super(LydiaConfig, self).get_initial(**kwargs)
         initial['lydia_min_price'] = settings_safe_get('LYDIA_MIN_PRICE').get_value()
         initial['lydia_max_price'] = settings_safe_get('LYDIA_MAX_PRICE').get_value()
+        initial['lydia_api_token'] = settings_safe_get('LYDIA_API_TOKEN').get_value()
+        initial['lydia_vendor_token'] = settings_safe_get('LYDIA_VENDOR_TOKEN').get_value()
         return initial
 
     def form_valid(self, form):
@@ -131,6 +135,14 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         else:
             lydia_max_price.value = form.cleaned_data['lydia_max_price']
         lydia_max_price.save()
+        # Lydia api token
+        lydia_api_token = settings_safe_get('LYDIA_API_TOKEN')
+        lydia_api_token.value = form.cleaned_data['lydia_api_token']
+        lydia_api_token.save()
+        # Lydia vendor token
+        lydia_vendor_token = settings_safe_get('LYDIA_VENDOR_TOKEN')
+        lydia_vendor_token.value = form.cleaned_data['lydia_vendor_token']
+        lydia_vendor_token.save()
         return redirect(reverse('url_global_config',
                         kwargs={'group_name': self.group.name}))
 

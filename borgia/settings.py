@@ -183,9 +183,6 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'media')
 MEDIA_URL = '/media/'
 
 # Lydia
-LYDIA_API_TOKEN = 'need to be changed'
-LYDIA_VENDOR_TOKEN = 'need to be changed'  # Trésorerie
-# Foyer : 57e524da19aba655147763
 LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/self/lydias/callback/'  # https ou non selon le dns
 LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/gadzarts/self/lydias/confirm/'
 
@@ -221,8 +218,9 @@ DEFAULT_TEMPLATE = "light" #Default template, en minuscule
 # name: (String name, String description, String value_type, String value)
 """
 CENTER_NAME,
-MARGIN_PROFIT, LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, BALANCE_THRESHOLD_MAIL_ALERT,
-BALANCE_FREQUENCY_MAIL_ALERT
+MARGIN_PROFIT,
+LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, LYDIA_API_TOKEN, LYDIA_VENDOR_TOKEN,
+BALANCE_THRESHOLD_MAIL_ALERT, BALANCE_FREQUENCY_MAIL_ALERT
 """
 SETTINGS_DEFAULT = {
     "CENTER_NAME": ("CENTER_NAME", "Nom du centre Borgia",
@@ -233,6 +231,10 @@ SETTINGS_DEFAULT = {
                         "f", "5"),
     "LYDIA_MAX_PRICE": ("LYDIA_MAX_PRICE", "Valeur maximale (€) de rechargement en automatique par Lydia",
                         "f", "500"),
+    "LYDIA_API_TOKEN": ("LYDIA_API_TOKEN", "Clé API (privée)",
+                        "s", "non définie"),
+    "LYDIA_VENDOR_TOKEN": ("LYDIA_VENDOR_TOKEN", "Clé vendeur (publique)",
+                        "s", "non définie"),
     "BALANCE_THRESHOLD_MAIL_ALERT": ("BALANCE_THRESHOLD_MAIL_ALERT", "Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée",
                         "f", "-10"),
     "BALANCE_FREQUENCY_MAIL_ALERT": ("BALANCE_FREQUENCY_MAIL_ALERT", "Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",

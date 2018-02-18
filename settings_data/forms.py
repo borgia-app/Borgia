@@ -25,6 +25,9 @@ class LydiaConfigForm(forms.Form):
                                         validators=[
                                           MinValueValidator(0, 'Le montant doit être positif')],
                                         required=False)
+    lydia_api_token = forms.CharField(label='Clé API (privée)', max_length=255)
+    lydia_vendor_token = forms.CharField(label='Clé vendeur (publique)', max_length=255)
+
     def clean(self):
         """
         If min and max:
