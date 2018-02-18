@@ -1,5 +1,5 @@
 from django.views.generic.base import ContextMixin
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.urls import NoReverseMatch

@@ -38,13 +38,6 @@ urlpatterns = [
         self_lydia_callback,
         name='url_self_lydia_callback'),
 
-    # GraphQL endpoint
-    url(r'^graphql', GraphQLJwtProtectedView.as_view(graphiql=True, schema=schema)),
-    # JWT auth backend
-    url(r'^jwt/new.json$', AuthGenerateJWT.as_view()),
-    url(r'^jwt/token/(?P<token>.+)/(?P<pk>\d+).json$', AuthVerifyJWT.as_view()),
-    url(r'^jwt/invalidate/(?P<token>.+)/(?P<pk>\d+).json$', AuthInvalidateJWT.as_view()),
-
         #####################
         #     WORKBOARDS    #
         #####################

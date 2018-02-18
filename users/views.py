@@ -2,12 +2,13 @@ import json
 from datetime import datetime
 from re import escape
 
-from django.shortcuts import render, HttpResponse, force_text, redirect
+from django.shortcuts import render, HttpResponse, redirect
+from django.utils.encoding import force_text
 from django.views.generic import FormView, View
 from django.contrib.auth.models import Group
 from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.http import HttpResponseBadRequest
 
 from users.forms import *

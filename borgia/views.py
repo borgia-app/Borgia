@@ -23,7 +23,7 @@ from django.conf import settings
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.edit import FormView
 from django.views.generic import CreateView
-from django.shortcuts import force_text
+from django.utils.encoding import force_text
 
 class Login(FormView):
     template_name = 'login.html'
@@ -155,7 +155,7 @@ class Logout(View):
             del request.session['save_login_url']
         except KeyError:
             pass
-        if request.user.is_authenticated():
+        if request.user.is_authenticated:
             logout(request)
         return redirect(success_url)
 
