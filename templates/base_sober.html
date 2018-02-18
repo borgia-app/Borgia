@@ -11,8 +11,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, user-scalable=no">
     <title>
-      {% center_name as center_name %}
-      Borgia{% if center_name %} - {{ center_name }}{% endif %}
+      Borgia - {% get_center_name %}
     </title>
     <link href="https://fonts.googleapis.com/css?family=Lato|Roboto" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
@@ -38,7 +37,7 @@
           <img src="{% static brand %}" class="logo"/>
 
         </a>
-        <p class="navbar-text navbar-text-center">{% if center_name %}{{ center_name }}{% else %}Borgia{% endif %}</p>
+        <p class="navbar-text navbar-text-center">{% get_center_name %}</p>
       </div>
       <div class="navbar-right">
         <ul class="nav navbar-nav">

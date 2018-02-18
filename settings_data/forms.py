@@ -3,6 +3,10 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
 
+class CenterConfigForm(forms.Form):
+    center_name = forms.CharField(label='Nom du centre Borgia', max_length=255)
+
+
 class PriceConfigForm(forms.Form):
     margin_profit = forms.DecimalField(label='Marge appliquée aux prix en mode automatique',
                                         decimal_places=2, max_digits=9,

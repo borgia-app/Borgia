@@ -5,6 +5,21 @@
 {% block content %}
 <div class="panel panel-default">
   <div class="panel-heading">
+    Centre Borgia
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_center_config' group_name=group_name %}">
+      <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
+      Modifier
+    </a>
+  </div>
+  <table class="table table-bordered">
+    <tr>
+      <td>Nom du centre Borgia</td>
+      <td>{{ center_name.get_value }}</td>
+    </tr>
+  </table>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">
     Prix de vente
     <a class="btn btn-default btn-xs pull-right" href="{% url 'url_price_config' group_name=group_name %}">
       <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>

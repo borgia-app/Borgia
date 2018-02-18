@@ -215,21 +215,18 @@ MOBILE_SECRET_KEY = 'need to be changed'
 JWT_ALGORITHM = 'HS256'
 JWT_TOKEN_TIMEOUT = 7  # days
 
-# Les paramètres modifiables sont des objets Settings de l'app settings_data
-# A modifier directement dans l'application
-# [LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, MARGIN_PROFIT]
-
-CENTER_NAME = "Center Name"
 DEFAULT_TEMPLATE = "light" #Default template, en minuscule
-
 
 # Application settings default
 # name: (String name, String description, String value_type, String value)
 """
+CENTER_NAME,
 MARGIN_PROFIT, LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, BALANCE_THRESHOLD_MAIL_ALERT,
 BALANCE_FREQUENCY_MAIL_ALERT
 """
 SETTINGS_DEFAULT = {
+    "CENTER_NAME": ("CENTER_NAME", "Nom du centre Borgia",
+                        "s", "Center Name"),
     "MARGIN_PROFIT": ("MARGIN_PROFIT", "Marge (%) à appliquer sur le prix des produits calculés automatiquement",
                         "f", "5"),
     "LYDIA_MIN_PRICE": ("LYDIA_MIN_PRICE", "Valeur minimale (€) de rechargement en automatique par Lydia",

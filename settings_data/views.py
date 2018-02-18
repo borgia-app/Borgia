@@ -6,7 +6,8 @@ from django.contrib.auth.models import Group
 from django.views.generic import FormView, View
 from django.core.exceptions import ObjectDoesNotExist
 
-from settings_data.forms import PriceConfigForm, LydiaConfigForm, BalanceConfigForm
+from settings_data.forms import (PriceConfigForm, CenterConfigForm,
+                                LydiaConfigForm, BalanceConfigForm)
 from settings_data.models import Setting
 from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           GroupLateralMenuMixin,
@@ -32,6 +33,7 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get_context_data(self, **kwargs):
         context = super(GlobalConfig, self).get_context_data(**kwargs)
+        context['center_name'] = settings_safe_get('CENTER_NAME')
         context['margin_profit'] = settings_safe_get('MARGIN_PROFIT')
         context['lydia_min_price'] = settings_safe_get('LYDIA_MIN_PRICE')
         context['lydia_max_price'] = settings_safe_get("LYDIA_MAX_PRICE")
@@ -42,6 +44,32 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         return render(request, self.template_name, context=context)
+
+
+class CenterConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    """
+    Each config parameter MUST exists.
+    However, to ensure that these values still exists, they are recreated if
+    necessary in get_initial with a get_or_create. Default values are specified
+    in borgia/settings.py.
+    """
+    template_name = 'settings_data/center_config.html'
+    perm_codename = 'change_setting'
+    lm_active = 'lm_global_config'
+    form_class = CenterConfigForm
+
+    def get_initial(self, **kwargs):
+        initial = super(CenterConfig, self).get_initial(**kwargs)
+        initial['center_name'] = settings_safe_get('CENTER_NAME').get_value()
+        return initial
+
+    def form_valid(self, form):
+        # Margin profit
+        center_name = settings_safe_get('CENTER_NAME')
+        center_name.value = form.cleaned_data['center_name']
+        center_name.save()
+        return redirect(reverse('url_global_config',
+                        kwargs={'group_name': self.group.name}))
 
 
 class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
