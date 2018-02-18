@@ -11,6 +11,7 @@ from settings_data.models import Setting
 from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           GroupLateralMenuMixin,
                           lateral_menu)
+from settings_data.utils import settings_safe_get
 
 
 class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
@@ -31,57 +32,11 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get_context_data(self, **kwargs):
         context = super(GlobalConfig, self).get_context_data(**kwargs)
-
-        margin_profit, created = Setting.objects.get_or_create(
-            name=settings.MARGIN_PROFIT_NAME,
-            description=settings.MARGIN_PROFIT_DESCRIPTION,
-            value_type=settings.MARGIN_PROFIT_VALUE_TYPE
-        )
-        if created:
-            margin_profit.value = settings.MARGIN_PROFIT_VALUE
-            margin_profit.save()
-        context['margin_profit'] = margin_profit
-
-        lydia_min_price, created = Setting.objects.get_or_create(
-            name=settings.LYDIA_MIN_PRICE_NAME,
-            description=settings.LYDIA_MIN_PRICE_DESCRIPTION,
-            value_type=settings.LYDIA_MIN_PRICE_VALUE_TYPE
-        )
-        if created:
-            lydia_min_price.value = settings.LYDIA_MIN_PRICE_VALUE
-            lydia_min_price.save()
-        context['lydia_min_price'] = lydia_min_price
-
-        lydia_max_price, created = Setting.objects.get_or_create(
-            name=settings.LYDIA_MAX_PRICE_NAME,
-            description=settings.LYDIA_MAX_PRICE_DESCRIPTION,
-            value_type=settings.LYDIA_MAX_PRICE_VALUE_TYPE
-        )
-        if created:
-            lydia_max_price = settings.LYDIA_MAX_PRICE_VALUE
-            lydia_max_price.save()
-        context['lydia_max_price'] = lydia_max_price
-
-        balance_threshold_mail_alert, created = Setting.objects.get_or_create(
-            name=settings.BALANCE_THRESHOLD_MAIL_ALERT_NAME,
-            description=settings.BALANCE_THRESHOLD_MAIL_ALERT_DESCRIPTION,
-            value_type=settings.BALANCE_THRESHOLD_MAIL_ALERT_VALUE_TYPE
-        )
-        if created:
-            balance_threshold_mail_alert.value = settings.BALANCE_THRESHOLD_MAIL_ALERT_VALUE
-            balance_threshold_mail_alert.save()
-        context['balance_threshold_mail_alert'] = balance_threshold_mail_alert
-
-        balance_frequency_mail_alert, created = Setting.objects.get_or_create(
-            name=settings.BALANCE_FREQUENCY_MAIL_ALERT_NAME,
-            description=settings.BALANCE_FREQUENCY_MAIL_ALERT_DESCRIPTION,
-            value_type=settings.BALANCE_FREQUENCY_MAIL_ALERT_VALUE_TYPE
-        )
-        if created:
-            balance_frequency_mail_alert.value = settings.BALANCE_FREQUENCY_MAIL_ALERT_VALUE
-            balance_frequency_mail_alert.save()
-        context['balance_frequency_mail_alert'] = balance_frequency_mail_alert
-
+        context['margin_profit'] = settings_safe_get('MARGIN_PROFIT')
+        context['lydia_min_price'] = settings_safe_get('LYDIA_MIN_PRICE')
+        context['lydia_max_price'] = settings_safe_get("LYDIA_MAX_PRICE")
+        context['balance_threshold_mail_alert'] = settings_safe_get("BALANCE_THRESHOLD_MAIL_ALERT")
+        context['balance_frequency_mail_alert'] = settings_safe_get("BALANCE_FREQUENCY_MAIL_ALERT")
         return context
 
     def get(self, request, *args, **kwargs):
@@ -103,22 +58,12 @@ class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     def get_initial(self, **kwargs):
         initial = super(PriceConfig, self).get_initial(**kwargs)
-
-        margin_profit, created = Setting.objects.get_or_create(
-            name=settings.MARGIN_PROFIT_NAME,
-            description=settings.MARGIN_PROFIT_DESCRIPTION,
-            value_type=settings.MARGIN_PROFIT_VALUE_TYPE
-        )
-        if created:
-            margin_profit.value = settings.MARGIN_PROFIT_VALUE
-            margin_profit.save()
-
-        initial['margin_profit'] = margin_profit.get_value()
+        initial['margin_profit'] = settings_safe_get('MARGIN_PROFIT').get_value()
         return initial
 
     def form_valid(self, form):
         # Margin profit
-        margin_profit = Setting.objects.get(name="MARGIN_PROFIT")
+        margin_profit = settings_safe_get('MARGIN_PROFIT')
         margin_profit.value = form.cleaned_data['margin_profit']
         margin_profit.save()
         return redirect(reverse('url_global_config',
@@ -139,38 +84,20 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     def get_initial(self, **kwargs):
         initial = super(LydiaConfig, self).get_initial(**kwargs)
-
-        lydia_min_price, created = Setting.objects.get_or_create(
-            name=settings.LYDIA_MIN_PRICE_NAME,
-            description=settings.LYDIA_MIN_PRICE_DESCRIPTION,
-            value_type=settings.LYDIA_MIN_PRICE_VALUE_TYPE
-        )
-        if created:
-            lydia_min_price.value = settings.LYDIA_MIN_PRICE_VALUE
-            lydia_min_price.save()
-        initial['lydia_min_price'] = lydia_min_price.get_value()
-
-        lydia_max_price, created = Setting.objects.get_or_create(
-            name=settings.LYDIA_MAX_PRICE_NAME,
-            description=settings.LYDIA_MAX_PRICE_DESCRIPTION,
-            value_type=settings.LYDIA_MAX_PRICE_VALUE_TYPE
-        )
-        if created:
-            lydia_max_price = settings.LYDIA_MAX_PRICE_VALUE
-            lydia_max_price.save()
-        initial['lydia_max_price'] = lydia_max_price.get_value()
+        initial['lydia_min_price'] = settings_safe_get('LYDIA_MIN_PRICE').get_value()
+        initial['lydia_max_price'] = settings_safe_get('LYDIA_MAX_PRICE').get_value()
         return initial
 
     def form_valid(self, form):
         # Lydia min price
-        lydia_min_price = Setting.objects.get(name="LYDIA_MIN_PRICE")
+        lydia_min_price = settings_safe_get('LYDIA_MIN_PRICE')
         if not form.cleaned_data['lydia_min_price']:
             lydia_min_price.value = ''
         else:
             lydia_min_price.value = form.cleaned_data['lydia_min_price']
         lydia_min_price.save()
         # Lydia max price
-        lydia_max_price = Setting.objects.get(name="LYDIA_MAX_PRICE")
+        lydia_max_price = settings_safe_get('LYDIA_MAX_PRICE')
         if not form.cleaned_data['lydia_max_price']:
             lydia_max_price.value = ''
         else:
@@ -194,38 +121,20 @@ class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     def get_initial(self, **kwargs):
         initial = super(BalanceConfig, self).get_initial(**kwargs)
-
-        balance_threshold_mail_alert, created = Setting.objects.get_or_create(
-            name=settings.BALANCE_THRESHOLD_MAIL_ALERT_NAME,
-            description=settings.BALANCE_THRESHOLD_MAIL_ALERT_DESCRIPTION,
-            value_type=settings.BALANCE_THRESHOLD_MAIL_ALERT_VALUE_TYPE
-        )
-        if created:
-            balance_threshold_mail_alert.value = settings.BALANCE_THRESHOLD_MAIL_ALERT_VALUE
-            balance_threshold_mail_alert.save()
-        initial['balance_threshold_mail_alert'] = balance_threshold_mail_alert.get_value()
-
-        balance_frequency_mail_alert, created = Setting.objects.get_or_create(
-            name=settings.BALANCE_FREQUENCY_MAIL_ALERT_NAME,
-            description=settings.BALANCE_FREQUENCY_MAIL_ALERT_DESCRIPTION,
-            value_type=settings.BALANCE_FREQUENCY_MAIL_ALERT_VALUE_TYPE
-        )
-        if created:
-            balance_frequency_mail_alert.value = settings.BALANCE_FREQUENCY_MAIL_ALERT_VALUE
-            balance_frequency_mail_alert.save()
-        initial['balance_frequency_mail_alert'] = balance_frequency_mail_alert.get_value()
+        initial['balance_threshold_mail_alert'] = settings_safe_get('BALANCE_THRESHOLD_MAIL_ALERT').get_value()
+        initial['balance_frequency_mail_alert'] = settings_safe_get('BALANCE_FREQUENCY_MAIL_ALERT').get_value()
         return initial
 
     def form_valid(self, form):
         # balance_threshold_mail_alert
-        balance_threshold_mail_alert = Setting.objects.get(name="BALANCE_THRESHOLD_MAIL_ALERT")
+        balance_threshold_mail_alert = settings_safe_get('BALANCE_THRESHOLD_MAIL_ALERT')
         if not form.cleaned_data['balance_threshold_mail_alert']:
             balance_threshold_mail_alert.value = ''
         else:
             balance_threshold_mail_alert.value = form.cleaned_data['balance_threshold_mail_alert']
         balance_threshold_mail_alert.save()
         # balance_frequency_mail_alert
-        balance_frequency_mail_alert = Setting.objects.get(name="BALANCE_FREQUENCY_MAIL_ALERT")
+        balance_frequency_mail_alert = settings_safe_get('BALANCE_FREQUENCY_MAIL_ALERT')
         if not form.cleaned_data['balance_frequency_mail_alert']:
             balance_frequency_mail_alert.value = ''
         else:
