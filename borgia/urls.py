@@ -357,10 +357,6 @@ urlpatterns = [
         name='url_sharedevent_upload_xlsx'),
 
 
-    url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/proceed_payment/$',
-        SharedEventProceedPayment.as_view(),
-        name='url_sharedevent_proceed_payment'),
-
         #####################
         #   CONNECTIONS     #
         #####################

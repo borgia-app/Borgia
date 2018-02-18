@@ -23,12 +23,12 @@ def lateral_menu(user, group, active=None):
     # TODO: try for reverse urls
 
     models_checked = [
-        (User, 'Utilisateurs', 'List', 'Add'),
-        (Shop, 'Magasins', 'List', 'Add'),
-        (Notification, 'Notifications', 'List'),
-        (NotificationTemplate, 'Templates notification', 'List', 'Add'),
-        (SharedEvent, 'Evènements', 'List', 'Add'),
-        (NotificationGroup, 'Groupes', 'List', 'Add'),
+        (User, 'Utilisateurs', 'user', 'List', 'Add'),
+        (Shop, 'Magasins', 'shopping-basket', 'List', 'Add'),
+        (Notification, 'Notifications', '', 'List'),
+        (NotificationTemplate, 'Templates notification', '', 'List', 'Add'),
+        (SharedEvent, 'Evènements', 'calendar', 'List', 'Add'),
+        (NotificationGroup, 'Groupes', '', 'List', 'Add'),
     ]
 
     nav_tree = []
@@ -331,17 +331,8 @@ def lateral_menu_gadz(user, group, active=None):
             'lm_self_transaction_list',
             reverse('url_self_transaction_list', kwargs={'group_name': group.name})))
 
-    try:
-        if (Permission.objects.get(codename='list_sharedevent')
-                in group.permissions.all()):
-            nav_tree.append(
-                simple_lateral_link(
-                    'Evènements',
-                    'calendar',
-                    'lm_self_sharedevent_list',
-                    reverse('url_sharedevent_list', kwargs={'group_name': group.name})))
-    except ObjectDoesNotExist:
-        pass
+
+    nav_tree.append(lateral_menu_model((SharedEvent, 'Evènements', 'calendar', 'List', 'Add'), group))
 
     if active is not None:
         for link in nav_tree:
@@ -358,7 +349,7 @@ def lateral_menu_gadz(user, group, active=None):
     return nav_tree
 
 
-def lateral_menu_model(model, group, faIcon='database'):
+def lateral_menu_model(model, group):
     """
     Build the object tree related to a model used to generate the lateral menu
     in the template lateral_menu.html.
@@ -377,6 +368,11 @@ def lateral_menu_model(model, group, faIcon='database'):
     :type id: string or integer
     :type faIcon: string
     """
+    if model[2]:
+        faIcon = model[2]
+    else:
+        faIcon = "database"
+
     model_tree = {
         'label': model[1],
         'icon': faIcon,

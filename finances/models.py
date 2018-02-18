@@ -1,6 +1,6 @@
 from django.db import models
 from django.utils.timezone import now
-from decimal import Decimal
+from decimal import Decimal, DivisionUndefined, DivisionByZero
 import json
 
 from django.contrib.auth import get_user_model
@@ -436,6 +436,7 @@ class SharedEvent(models.Model):
     bills = models.CharField('Facture(s)', max_length=254, null=True,
                              blank=True)
     done = models.BooleanField('Terminé', default=False)
+    payment_by_ponderation = models.BooleanField('Paiement par pondération', default=False)
     remark = models.CharField('Remarque', max_length=254, null=True, blank=True)
     manager = models.ForeignKey('users.User', related_name='manager',
         on_delete=models.CASCADE)
@@ -505,9 +506,9 @@ class SharedEvent(models.Model):
             # Suppresion de l'user dans users.
             WeightsUser.objects.filter(user=user, shared_event=self).delete()
         except ObjectDoesNotExist:
-            raise forms.ValidationError("Utilisateur inconnu")
+            pass
         except ValueError:
-            raise forms.ValidationError("Pas un utilisateur")
+            pass
 
     def add_weight(self, user, weight, isParticipant=True):
         """
@@ -569,25 +570,25 @@ class SharedEvent(models.Model):
                 return self.weightsuser_set.get(user=user).weights_participation
             else:
                 return self.weightsuser_set.get(user=user).weights_registeration
-        except ObjectDoesNotExist:
+        except (ObjectDoesNotExist, ValueError):
             return 0
-        except ValueError:
-            raise forms.ValidationError("Pas un utilisateur")
 
     def get_price_of_user(self, user):
 	    # Calcul du prix par weight
         if isinstance(self.price, Decimal):
-            total_weights_participants = self.get_total_weights_participants()
             weight_of_user = self.get_weight_of_user(user)
-            try:
-                return round(self.price / total_weights_participants * weight_of_user,2)
-            except:
-                return 0
-
+            if not self.payment_by_ponderation:
+                total_weights_participants = self.get_total_weights_participants()
+                try:
+                    return round(self.price / total_weights_participants  * weight_of_user, 2)
+                except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+                    return 0
+            else:
+                return self.price * weight_of_user
         else:
              return 0
 
-    def pay(self, operator, recipient):
+    def pay_by_total(self, operator, recipient, total_price):
         """
         Procède au paiement de l'évenement par les participants.
         Une seule vente, un seul paiement mais plusieurs débits sur compte
@@ -599,7 +600,10 @@ class SharedEvent(models.Model):
 
         # Calcul du prix par weight
         total_weight = self.get_total_weights_participants()
-        final_price_per_weight = round(self.price / total_weight, 2)
+        try:
+            final_price_per_weight = round(total_price / total_weight, 2)
+        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+            return
 
         for e in self.weightsuser_set.all():
             e.user.debit(final_price_per_weight * e.weights_participation)
@@ -614,8 +618,53 @@ class SharedEvent(models.Model):
 
 
         self.done = True
+        self.price = total_price
         self.datetime = now()
-        self.remark = 'Paiement par Borgia'
+        self.remark = 'Paiement par Borgia (Prix total : ' + str(total_price) + ')'
+        self.save()
+
+    def pay_by_ponderation(self, operator, recipient, ponderation_price):
+        """
+        Procède au paiement de l'évenement par les participants.
+        Une seule vente, un seul paiement mais plusieurs débits sur compte
+        (un par participant)
+        :param operator: user qui procède au paiement
+        :param recipient: user qui recoit les paiements (AE_ENSAM)
+        :param ponderation_price: price per ponderation for each participant
+        :return:
+        """
+
+        for e in self.weightsuser_set.all():
+            weight = e.weights_participation
+            if weight != 0:
+                e.user.debit(ponderation_price * weight)
+                if (e.user.balance < 0):
+    			    # If negative balance after event
+    		        # We notify
+                    notify(notification_class_name='negative_balance',
+                       actor=operator,
+                       recipient=e.user,
+                       target_object=self
+                    )
+
+
+        self.done = True
+        self.payment_by_ponderation = True
+        self.price = ponderation_price
+        self.datetime = now()
+        self.remark = 'Paiement par Borgia (Prix par pondération: ' + str(ponderation_price) + ')'
+        self.save()
+
+    def end_without_payment(self, remark):
+        """
+        Termine l'évènement sans effectuer de paiement
+        :param remark: justification
+        :return:
+        """
+        self.done = True
+        self.price = Decimal('0.00')
+        self.datetime = now()
+        self.remark = 'Pas de paiement : ' + remark
         self.save()
 
     def wording(self):
@@ -636,14 +685,18 @@ class SharedEvent(models.Model):
     class Meta:
         """
         Define Permissions for SharedEvent.
+
+        :note:: Initial Django Permission (add, change, delete) are added.
         """
         permissions = (
-            ('register_sharedevent', 'Se préinscrire à un événement commun'),
+            # CRUDL
+            # add_sharedevent
+            # change_sharedevent
+            # delete_sharedevent
+            ('self_register_sharedevent', 'Se préinscrire à un événement commun'),
             ('list_sharedevent', 'Lister les événements communs'),
             ('manage_sharedevent', 'Gérer les événements communs'),
-            ('create_sharedevent', 'Créer un événement commun'),
-            ('proceed_payment_sharedevent',
-             'Procéder au paiement des événements communs'),
+            ('proceed_payment_sharedevent', 'Procéder au paiement des événements communs'),
         )
 
 
