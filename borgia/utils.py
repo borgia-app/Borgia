@@ -237,6 +237,21 @@ def lateral_menu(user, group, active=None):
     except ValueError:
         pass
 
+    # Global config
+    try:
+        if (Permission.objects.get(codename='change_setting')
+                in group.permissions.all()):
+            nav_tree.append(simple_lateral_link(
+                label='Configuration',
+                faIcon='cogs',
+                id='lm_global_config',
+                url=reverse(
+                    'url_global_config',
+                    kwargs={'group_name': group.name})
+            ))
+    except ObjectDoesNotExist:
+        pass
+
     if active is not None:
         for link in nav_tree:
             try:

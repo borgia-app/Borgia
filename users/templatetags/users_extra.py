@@ -4,6 +4,8 @@ from django.template.defaultfilters import stringfilter
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
+from settings_data.utils import settings_safe_get
+
 register = template.Library()
 
 
@@ -59,8 +61,8 @@ def order_by(attr, request):
 
 
 @register.simple_tag
-def center_name():
-    return getattr(settings, "CENTER_NAME", None)
+def get_center_name():
+    return settings_safe_get("CENTER_NAME").get_value()
 
 @register.simple_tag
 def set_template(template):
