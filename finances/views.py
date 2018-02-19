@@ -1743,13 +1743,13 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
             list_participants_weight = self.se.list_participants_weight()
             for e in list_participants_weight:
                 u = e[0]
-                ws.append([u.username, u.last_name + ' ' + u.first_name, u.surname, e[1]])
+                ws.append([u.username, e[1], u.last_name + ' ' + u.first_name, u.surname])
 
         elif form.cleaned_data['state'] == 'registrants':
             list_registrants_weight = self.se.list_registrants_weight()
             for e in list_registrants_weight:
                 u = e[0]
-                ws.append([u.username, u.last_name + ' ' + u.first_name, u.surname, e[1]])
+                ws.append([u.username, e[1], u.last_name + ' ' + u.first_name, u.surname])
         else:
             raise Http404
 
@@ -1799,7 +1799,7 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
         # Enregistrement des pondérations
         for row in rows:
             try:
-                pond = row[3].value # Should be an int
+                pond = row[1].value # Should be an int
                 username = row[0].value.strip() # Should be a str
                 user = User.objects.get(username=username)
 
@@ -1808,7 +1808,7 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
             except:
                 pass
 
-        return super(SharedEventManageUsers, self).form_valid(form)
+        return super(SharedEventUploadXlsx, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('url_sharedevent_manage_users',
