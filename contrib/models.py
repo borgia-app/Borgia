@@ -1,6 +1,6 @@
 from django.shortcuts import redirect
 from django.urls import resolve, Resolver404
-from django.core.urlresolvers import reverse
+from django.urls import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
@@ -8,6 +8,7 @@ from django.conf import settings
 from re import compile, match
 from django.contrib.sessions.models import Session
 from django.contrib.auth.signals import user_logged_in, user_logged_out
+from django.utils.deprecation import MiddlewareMixin
 
 
 class TimeStampedDescription(models.Model):
@@ -29,7 +30,7 @@ if hasattr(settings, 'LOGIN_EXEMPT_URLS'):
     EXEMPT_URLS += [compile(expr) for expr in settings.LOGIN_EXEMPT_URLS]
 
 
-class LoginRequiredMiddleware:
+class LoginRequiredMiddleware(MiddlewareMixin):
     """
     Middleware that requires a user to be authenticated to view any page other
     than LOGIN_URL. Exemptions to this requirement can optionally be specified
@@ -67,7 +68,7 @@ class LoginRequiredMiddleware:
                     return HttpResponseRedirect(settings.LOGIN_URL)
 
 
-class SaveLoginUrlMiddleware():
+class SaveLoginUrlMiddleware(MiddlewareMixin):
     def process_view(self, request, view_func, view_args, view_kwargs):
         try:
             if view_kwargs['save_login_url'] is True:
@@ -76,19 +77,3 @@ class SaveLoginUrlMiddleware():
                 del request.session['save_login_url']
         except KeyError:
             pass
-
-
-class RedirectLoginProfile:
-    """
-    Redirection vers le profile si l'user va sur une page de login alors qu'il est déjà connecté
-    """
-    def process_request(self, request):
-        login_pages = [
-            '/auth/login',
-            '/',
-        ]
-        if request.path_info in login_pages and request.user.is_authenticated:
-            return redirect(reverse(
-                'url_group_workboard',
-                kwargs={'group_name': 'gadzarts'}
-            ))

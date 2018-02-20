@@ -1,7 +1,8 @@
 from lxml import etree
 
 
-from django.shortcuts import HttpResponseRedirect, render, redirect, force_text
+from django.shortcuts import HttpResponseRedirect, render, redirect
+from django.utils.encoding import force_text
 from django.views.generic.edit import UpdateView, CreateView
 from django.views.generic.list import ListView
 from django.views.generic import View

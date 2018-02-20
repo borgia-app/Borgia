@@ -7,7 +7,8 @@ import datetime
 from openpyxl import Workbook, load_workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
-from django.shortcuts import render, HttpResponse, force_text, redirect
+from django.shortcuts import render, HttpResponse, redirect
+from django.utils.encoding import force_text
 from django.shortcuts import Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.core.exceptions import PermissionDenied
