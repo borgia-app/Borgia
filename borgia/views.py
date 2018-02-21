@@ -7,14 +7,10 @@ from django.core.serializers import serialize
 from datetime import datetime, timedelta, date
 from re import compile
 
-from users.models import User
-from django.contrib.auth.models import Group
 import json
-from django.core.exceptions import ObjectDoesNotExist
 
 from borgia.utils import *
 from finances.models import Sale, SharedEvent, Transfert, Recharging, ExceptionnalMovement
-from shops.models import Product
 from borgia.forms import LoginForm
 from users.forms import UserQuickSearchForm
 from django.conf import settings
@@ -22,8 +18,6 @@ from django.conf import settings
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.edit import FormView
-from django.views.generic import CreateView
-from django.utils.encoding import force_text
 
 class Login(FormView):
     template_name = 'login.html'
