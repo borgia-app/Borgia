@@ -5,10 +5,8 @@ from django import forms
 from django.contrib.auth import authenticate
 from django.forms.widgets import PasswordInput
 from django.core.validators import RegexValidator
-from django.db.models import Q
 from django.contrib.auth.models import Permission
 
-from users.models import User
 from shops.models import Shop
 from finances.models import BankAccount
 from borgia.validators import *
