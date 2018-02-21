@@ -26,9 +26,6 @@ from modules.views import *
 from notifications.views import *
 from stocks.views import *
 from settings_data.views import GlobalConfig, PriceConfig, LydiaConfig, BalanceConfig, CenterConfig
-from api.Schema.main import schema
-from graphene_django.views import GraphQLView
-from api.views import AuthGenerateJWT, AuthVerifyJWT, AuthInvalidateJWT, GraphQLJwtProtectedView
 
 handler403 = handler403
 handler404 = handler404

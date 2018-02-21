@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'settings_data',
     'modules',
     'stocks',
-    'graphene_django',
 	'static_precompiler'
 ]
 
@@ -204,11 +203,6 @@ PASSWORD_RESET_TIMEOUT_DAYS = 1  # en jours
 
 # Deconnection automatique
 SESSION_COOKIE_AGE = 7200
-
-# Mobile application
-MOBILE_SECRET_KEY = 'need to be changed'
-JWT_ALGORITHM = 'HS256'
-JWT_TOKEN_TIMEOUT = 7  # days
 
 DEFAULT_TEMPLATE = "light" #Default template, en minuscule
 
