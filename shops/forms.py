@@ -1,9 +1,7 @@
 from django import forms
-from django.forms.models import ModelChoiceField
 from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
 
 from shops.models import Shop, Product
-from borgia.validators import autocomplete_username_validator
 
 
 class ProductCreateForm(forms.Form):
