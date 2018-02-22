@@ -12,6 +12,7 @@ class SelfSaleShopModule(forms.Form):
     def __init__(self, *args, **kwargs):
         self.module = kwargs.pop('module')
         self.client = kwargs.pop('client')
+        self.balance_threshold_purchase = kwargs.pop('balance_threshold_purchase')
         super(SelfSaleShopModule, self).__init__(*args, **kwargs)
 
         try:
@@ -64,7 +65,7 @@ class SelfSaleShopModule(forms.Form):
                         total_price += (CategoryProduct.objects.get(pk=category_product_pk).get_price() * invoice)
                     except ObjectDoesNotExist:
                         pass
-        if total_price > self.client.balance:
+        if (self.client.balance - total_price) < self.balance_threshold_purchase.get_value():
             raise forms.ValidationError('Crédit insuffisant !')
         if self.module.limit_purchase:
             if total_price > self.module.limit_purchase:
