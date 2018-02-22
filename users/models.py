@@ -5,7 +5,6 @@ from itertools import chain
 
 from django.db import models
 from django.db.models import Q
-from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator
 from django.utils import timezone
 

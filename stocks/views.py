@@ -8,9 +8,8 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
 
 from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
-                          ShopFromGroupMixin, ShopModuleMixin,
-                          GroupLateralMenuMixin, shop_from_group,
-                          lateral_menu)
+                          ShopFromGroupMixin,
+                          GroupLateralMenuMixin, shop_from_group)
 from stocks.forms import (StockEntryProductForm, StockEntryListDateForm,
                             InventoryListDateForm, InventoryProductForm)
 from stocks.models import StockEntry, StockEntryProduct, Inventory, InventoryProduct

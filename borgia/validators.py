@@ -1,5 +1,3 @@
-import re
-
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
 
 from users.models import User

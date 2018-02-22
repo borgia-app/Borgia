@@ -1,23 +1,15 @@
-import json
 import operator
 import hashlib
-from decimal import Decimal
 from datetime import timedelta
-import datetime
 from openpyxl import Workbook, load_workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
 from django.shortcuts import render, HttpResponse, redirect
 from django.utils.encoding import force_text
-from django.shortcuts import Http404
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.core.exceptions import PermissionDenied
-from django.db.models import Q
-from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 
 from django.views.generic import FormView, View
-from django.contrib.auth.models import Group
 from django.conf import settings
 
 from finances.forms import *

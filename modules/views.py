@@ -1,4 +1,3 @@
-from django.utils.timezone import now
 from django.shortcuts import render, redirect, Http404, reverse
 from functools import partial, wraps
 

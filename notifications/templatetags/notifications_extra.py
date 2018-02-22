@@ -1,6 +1,6 @@
 from django import template
 from notifications.models import *
-from django.template import Template, Context
+from django.template import Template
 
 register = template.Library()
 

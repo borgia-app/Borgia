@@ -1,13 +1,9 @@
-from django.shortcuts import redirect
 from django.urls import resolve, Resolver404
-from django.urls import reverse
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from django.http import HttpResponseRedirect
 from django.conf import settings
-from re import compile, match
-from django.contrib.sessions.models import Session
-from django.contrib.auth.signals import user_logged_in, user_logged_out
+from re import compile
 from django.utils.deprecation import MiddlewareMixin
 
 
