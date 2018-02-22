@@ -1,7 +1,5 @@
 from django.db import models
-from django.utils.timezone import now
-
-from decimal import Decimal, InvalidOperation, DivisionUndefined, DivisionByZero
+from decimal import Decimal, DivisionUndefined, DivisionByZero
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator, MinValueValidator
 

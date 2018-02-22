@@ -1,17 +1,10 @@
-from django.utils.timezone import now
-from django.shortcuts import render, redirect, Http404, reverse
-from django.conf import settings
-
-from django.contrib.auth.models import Group
+from django.shortcuts import render, redirect, reverse
 from django.views.generic import FormView, View
-from django.core.exceptions import ObjectDoesNotExist
 
 from settings_data.forms import (PriceConfigForm, CenterConfigForm,
                                 LydiaConfigForm, BalanceConfigForm)
-from settings_data.models import Setting
 from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
-                          GroupLateralMenuMixin,
-                          lateral_menu)
+                          GroupLateralMenuMixin)
 from settings_data.utils import settings_safe_get
 
 

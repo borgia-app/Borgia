@@ -1,14 +1,10 @@
 from django.db import models
 from django.utils.timezone import now
 from decimal import Decimal, DivisionUndefined, DivisionByZero
-import json
 
-from django.contrib.auth import get_user_model
 from django.core.validators import MinValueValidator, RegexValidator
 from django.core.exceptions import ObjectDoesNotExist
-from django.contrib.contenttypes.fields import (
-    GenericForeignKey, GenericRelation
-    )
+from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
 from notifications.models import notify
 

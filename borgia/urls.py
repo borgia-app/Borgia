@@ -1,4 +1,4 @@
-from django.conf.urls import url, include
+from django.conf.urls import url
 from django.contrib import admin
 from django.contrib.auth.views import (
     password_reset, password_reset_complete,
@@ -11,7 +11,6 @@ from borgia.views import (
     PresidentsGroupWorkboard, VicePresidentsInternalGroupWorkboard,
     TreasurersGroupWorkboard
     )
-from django.conf import settings
 from django.conf.urls.static import static
 
 from users.views import *
@@ -20,15 +19,11 @@ from shops.views import (
     ProductUpdate, ShopCreate, ShopList, ShopUpdate,
     ProductUpdatePrice, ShopCheckup
     )
-from shops.models import Product
 from finances.views import *
 from modules.views import *
 from notifications.views import *
 from stocks.views import *
 from settings_data.views import GlobalConfig, PriceConfig, LydiaConfig, BalanceConfig, CenterConfig
-from api.Schema.main import schema
-from graphene_django.views import GraphQLView
-from api.views import AuthGenerateJWT, AuthVerifyJWT, AuthInvalidateJWT, GraphQLJwtProtectedView
 
 handler403 = handler403
 handler404 = handler404

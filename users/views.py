@@ -5,14 +5,11 @@ from re import escape
 from django.shortcuts import render, HttpResponse, redirect
 from django.utils.encoding import force_text
 from django.views.generic import FormView, View
-from django.contrib.auth.models import Group
-from django.core.exceptions import PermissionDenied
 from django.db.models import Q
-from django.urls import reverse
 from django.http import HttpResponseBadRequest
 
 from users.forms import *
-from users.models import User, ExtendedPermission
+from users.models import ExtendedPermission
 from borgia.utils import *
 
 

@@ -1,14 +1,6 @@
-from functools import partial, wraps
-
 from django.shortcuts import render, redirect
-from django.shortcuts import Http404
 from django.views.generic import FormView, View
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
-from django.forms.formsets import formset_factory
 from django.db.models import Q
-from django.core.exceptions import PermissionDenied
-from decimal import DivisionUndefined, DivisionByZero
 
 from shops.models import *
 from shops.forms import *

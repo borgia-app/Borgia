@@ -7,14 +7,10 @@ from django.core.serializers import serialize
 from datetime import datetime, timedelta, date
 from re import compile
 
-from users.models import User
-from django.contrib.auth.models import Group
 import json
-from django.core.exceptions import ObjectDoesNotExist
 
 from borgia.utils import *
 from finances.models import Sale, SharedEvent, Transfert, Recharging, ExceptionnalMovement
-from shops.models import Product
 from borgia.forms import LoginForm
 from users.forms import UserQuickSearchForm
 from django.conf import settings
@@ -22,8 +18,6 @@ from django.conf import settings
 
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.generic.edit import FormView
-from django.views.generic import CreateView
-from django.utils.encoding import force_text
 
 class Login(FormView):
     template_name = 'login.html'
@@ -718,36 +712,6 @@ class TreasurersGroupWorkboard(GroupPermissionMixin, View,
         # Form Quick user search
         context['quick_user_search_form'] = UserQuickSearchForm()
         return render(request, self.template_name, context=context)
-
-
-class FormNextView(FormView):
-    def get_context_data(self, **kwargs):
-        context = super(FormNextView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
-        return context
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
-
-
-class CreateNextView(CreateView):
-    def get_context_data(self, **kwargs):
-        context = super(CreateNextView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
-        return context
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
-
-
-class UpdateNextView(CreateView):
-    def get_context_data(self, **kwargs):
-        context = super(UpdateNextView, self).get_context_data(**kwargs)
-        context['next'] = self.request.GET.get('next', self.request.POST.get('next', self.success_url))
-        return context
-
-    def get_success_url(self):
-        return force_text(self.request.GET.get('next', self.request.POST.get('next', self.success_url)))
 
 
 class ListCompleteView(FormView):

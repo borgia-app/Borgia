@@ -5,7 +5,6 @@ from django.core.validators import MinValueValidator
 from shops.models import Product
 from modules.models import CategoryProduct
 from users.models import User
-from django.db.utils import OperationalError, ProgrammingError
 
 
 class SelfSaleShopModule(forms.Form):
