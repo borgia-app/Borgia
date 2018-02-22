@@ -6,6 +6,7 @@ from shops.models import *
 from shops.forms import *
 from finances.models import *
 from borgia.utils import *
+from settings_data.utils import settings_safe_get
 
 
 class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
@@ -229,11 +230,7 @@ class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
     def get_context_data(self, **kwargs):
         context = super(ProductUpdatePrice, self).get_context_data(**kwargs)
         context['object'] = self.object
-        try:
-            context['margin_profit'] = Setting.objects.get(
-                name='MARGIN_PROFIT').get_value()
-        except ObjectDoesNotExist:
-            pass
+        context['margin_profit'] = settings_safe_get('MARGIN_PROFIT').get_value()
         return context
 
     def get_initial(self):
@@ -263,7 +260,7 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                    'change_product', 'retrieve_product', 'list_product',
                    'list_sale', 'retrieve_sale', 'use_operatorsalemodule',
                    'add_stockentry', 'retrieve_stockentry', 'list_stockentry',
-                   'add_inventory', 'retrieve_inventory', 'list_inventory']
+                   'add_inventory', 'retrieve_inventory', 'list_inventory', 'change_price_product']
     perm_associates = ['add_user', 'retrieve_user', 'list_user', 'supply_money_user', 'add_product',
                        'change_product', 'retrieve_product', 'list_product',
                        'list_sale', 'retrieve_sale', 'use_operatorsalemodule',

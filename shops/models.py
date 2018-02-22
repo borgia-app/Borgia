@@ -6,6 +6,7 @@ from django.core.validators import RegexValidator, MinValueValidator
 from settings_data.models import Setting
 from stocks.models import InventoryProduct, StockEntryProduct
 from finances.models import SaleProduct
+from settings_data.utils import settings_safe_get
 
 
 class Shop(models.Model):
@@ -100,10 +101,7 @@ class Product(models.Model):
         Return the price calculated over the last stockentry concerning the product.
         """
         try:
-            try:
-                margin_profit = Setting.objects.get(name='MARGIN_PROFIT').get_value()
-            except ObjectDoesNotExist:
-                margin_profit = 0
+            margin_profit = settings_safe_get('MARGIN_PROFIT').get_value()
 
             last_stockentry = sorted(StockEntryProduct.objects.filter(product=self), key=lambda x: x.stockentry.datetime, reverse=True)[0]
             return round(Decimal(last_stockentry.unit_price() * Decimal(1 + margin_profit / 100)), 4)

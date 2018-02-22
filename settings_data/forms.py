@@ -8,19 +8,19 @@ class CenterConfigForm(forms.Form):
 
 
 class PriceConfigForm(forms.Form):
-    margin_profit = forms.DecimalField(label='Marge appliquée aux prix en mode automatique',
+    margin_profit = forms.DecimalField(label='Marge appliquée aux prix en mode automatique (%)',
                                         decimal_places=2, max_digits=9,
                                         validators=[
                                           MinValueValidator(0, 'Le montant doit être positif')])
 
 
 class LydiaConfigForm(forms.Form):
-    lydia_min_price = forms.DecimalField(label='Montant minimal de rechargement',
+    lydia_min_price = forms.DecimalField(label='Montant minimal de rechargement (€)',
                                         decimal_places=2, max_digits=9,
                                         validators=[
                                           MinValueValidator(0, 'Le montant doit être positif')],
                                         required=False)
-    lydia_max_price = forms.DecimalField(label='Montant maximal de rechargement',
+    lydia_max_price = forms.DecimalField(label='Montant maximal de rechargement (€)',
                                         decimal_places=2, max_digits=9,
                                         validators=[
                                           MinValueValidator(0, 'Le montant doit être positif')],
@@ -42,10 +42,12 @@ class LydiaConfigForm(forms.Form):
 
 
 class BalanceConfigForm(forms.Form):
-    balance_threshold_mail_alert = forms.DecimalField(label='Valeur seuil',
+    balance_threshold_purchase = forms.DecimalField(label='Valeur seuil (€) pour pouvoir acheter',
+                                        decimal_places=2, max_digits=9)
+    balance_threshold_mail_alert = forms.DecimalField(label='Valeur seuil (€) de l\'alerte par email',
                                         decimal_places=2, max_digits=9,
                                         required=False)
-    balance_frequency_mail_alert = forms.IntegerField(label='Fréquence des emails d\'alerte',
+    balance_frequency_mail_alert = forms.IntegerField(label='Fréquence de l\'alerte par email',
                                         validators=[
                                           MinValueValidator(1, 'La fréquence doit être d\'au moins 1 jour')],
                                         required=False)

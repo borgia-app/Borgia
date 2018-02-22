@@ -17,6 +17,7 @@ from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
 from shops.models import Shop, Product
 from finances.models import Sale, SaleProduct
 from users.models import User
+from settings_data.utils import settings_safe_get
 
 
 class SaleShopModuleInterface(GroupPermissionMixin, FormView,
@@ -50,6 +51,7 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
         kwargs = super(SaleShopModuleInterface,
                        self).get_form_kwargs(**kwargs)
         kwargs['module'] = self.module
+        kwargs['balance_threshold_purchase'] = settings_safe_get('BALANCE_THRESHOLD_PURCHASE')
         return kwargs
 
     def get_context_data(self, **kwargs):
