@@ -218,7 +218,8 @@ DEFAULT_TEMPLATE = "light" #Default template, en minuscule
 CENTER_NAME,
 MARGIN_PROFIT,
 LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, LYDIA_API_TOKEN, LYDIA_VENDOR_TOKEN,
-BALANCE_THRESHOLD_MAIL_ALERT, BALANCE_FREQUENCY_MAIL_ALERT
+BALANCE_THRESHOLD_MAIL_ALERT, BALANCE_FREQUENCY_MAIL_ALERT,
+BALANCE_THRESHOLD_PURCHASE
 """
 SETTINGS_DEFAULT = {
     "CENTER_NAME": ("CENTER_NAME", "Nom du centre Borgia",
@@ -236,5 +237,7 @@ SETTINGS_DEFAULT = {
     "BALANCE_THRESHOLD_MAIL_ALERT": ("BALANCE_THRESHOLD_MAIL_ALERT", "Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée",
                         "f", "-10"),
     "BALANCE_FREQUENCY_MAIL_ALERT": ("BALANCE_FREQUENCY_MAIL_ALERT", "Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",
-                        "i", "7")
+                        "i", "7"),
+    "BALANCE_THRESHOLD_PURCHASE": ("BALANCE_THRESHOLD_PURCHASE", "Valeur seuil (€) en dessous de laquelle (strictement) la commande est impossible",
+                        "f", "0")                        
 }

@@ -89,6 +89,12 @@
     </a>
   </div>
   <table class="table table-bordered">
+    <tr>
+      <td>Seuil pour pouvoir commander</td>
+      <td>
+          {{ balance_threshold_purchase.get_value|unlocalize }} €
+      </td>
+    </tr>
     <tr class={% if balance_threshold_mail_alert.get_value %}
               "success"
             {% else %}
@@ -108,7 +114,7 @@
             {% else %}
               "danger"
             {% endif %}>
-      <td>Fréquence d'alerte</td>
+      <td>Fréquence d'alerte par mail</td>
       <td>
         {% if balance_frequency_mail_alert.get_value %}
           {{ balance_frequency_mail_alert.get_value|unlocalize }}

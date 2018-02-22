@@ -39,6 +39,7 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context['lydia_max_price'] = settings_safe_get("LYDIA_MAX_PRICE")
         context['lydia_api_token'] = settings_safe_get("LYDIA_API_TOKEN")
         context['lydia_vendor_token'] = settings_safe_get("LYDIA_VENDOR_TOKEN")
+        context['balance_threshold_purchase'] = settings_safe_get("BALANCE_THRESHOLD_PURCHASE")
         context['balance_threshold_mail_alert'] = settings_safe_get("BALANCE_THRESHOLD_MAIL_ALERT")
         context['balance_frequency_mail_alert'] = settings_safe_get("BALANCE_FREQUENCY_MAIL_ALERT")
         return context
@@ -161,11 +162,16 @@ class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     def get_initial(self, **kwargs):
         initial = super(BalanceConfig, self).get_initial(**kwargs)
+        initial['balance_threshold_purchase'] = settings_safe_get('BALANCE_THRESHOLD_PURCHASE').get_value()
         initial['balance_threshold_mail_alert'] = settings_safe_get('BALANCE_THRESHOLD_MAIL_ALERT').get_value()
         initial['balance_frequency_mail_alert'] = settings_safe_get('BALANCE_FREQUENCY_MAIL_ALERT').get_value()
         return initial
 
     def form_valid(self, form):
+        # balance_threshold_purchase
+        balance_threshold_purchase = settings_safe_get('BALANCE_THRESHOLD_PURCHASE')
+        balance_threshold_purchase.value = form.cleaned_data['balance_threshold_purchase']
+        balance_threshold_purchase.save()
         # balance_threshold_mail_alert
         balance_threshold_mail_alert = settings_safe_get('BALANCE_THRESHOLD_MAIL_ALERT')
         if not form.cleaned_data['balance_threshold_mail_alert']:
