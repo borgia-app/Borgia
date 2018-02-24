@@ -3,7 +3,7 @@
   "version": "4.5.0",
   "author": "Borgia-app",
   "url": "https://github.com/borgia-app/Borgia",
-  "license": "MIT",
+  "license": "GPL-3.0,
   "dependencies": {
     "less": "^2.7.2"
   }
