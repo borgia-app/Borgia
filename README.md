@@ -2,9 +2,25 @@
    <img src="./static/static_dirs/img/borgia-logo-light.png" />
 </p>
 
-## Get started : initial commands
+## Introduction
 
-* S'assurer que LESS est installé (avec `yarn global add less`)
+Borgia est un outil qui permet de construire, gérer et organiser votre vie étudiante ! De la vente de produits à l'organisation d'évènements en passant par la gestion de porte-monnaies virtuels, Borgia est votre meilleur allié pour développer votre association d'étudiants.
+
+## Version actuelle :
+
+[Build 4.5.0](https://github.com/borgia-app/Borgia/releases/tag/4.5.0)
+
+## Commencer
+
+### Installer les modules Python
+
+* `pip install -r requirements.txt`
+
+### Installer LESS
+
+* `yarn global add less`
+
+### Charger les données initiales
 
 * Charger les migrations & les données initiales :
   * `python manage.py makemigrations users shops finances modules settings_data notifications stocks`
@@ -17,38 +33,15 @@
   * `u = User.objects.get(pk=2)`
   * `u.set_password('admin')`
   * `u.save()`
+* Créer ensuite les différents magasins avec l'interface graphique. Attention, ne pas oublier d'ajouter des utiliseurs aux groupes `chefs` et `associés` de chaque magasin après la création.
 
-### Update requirements.txt
+## Se documenter
 
-Ce fichier contient tout les modules python nécessaires pour l'execution de borgia.
-Celui-ci peut être mis à jour en théorie avec la commande suivante :
+La documentation de Borgia est en cours de construction. Des ressources sont disponibles [ici](https://github.com/borgia-app/Borgia-docs).
 
-* `pip freeze -r devel-req.txt > stable-req.txt`
+## Note pour Linux & MacOs:
 
-Cependant, ceci ajoute TOUT les modules installés par pip. Donc également les éventuels modules ajoutés pour d'autres projet.
+Python est installé par défaut avec deux versions : 2 et 3. 2 étant la version par défaut.
+Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes commandes (notamment celles ci-dessus), il faut utiliser `python3`. De même, il faudra utiliser `pip3` pour installer les paquets.
 
-### Installer les modules avec le fichier requirements.txt
-
-Pour installer les modules, il suffit d'effectuer la commande :
-
-`pip install -r requirements.txt`
-
-## Note pour Linux (et mac ??):
-
-Python est installé par défaut avec deux version : 2 et 3. 2 étant la version par défaut.
-Or Django (et donc Borgia) fonctionnent avec la version 3. Pour les difféfentes manip (notamment celle ci-dessus), il faut utiliser `python3`. De même, il faudra utiliser `pip3`
-
-## Fonctionnement Graphique:
-
-Le nouveau fonctionnement est le suivant : on génère un fichier "bootstrap" modifié, en utilisant LESS :
-Les variables de bootstrap sont définies pour obtenir le template.
-Si-besoin, on ajoute un fichier de style en LESS (ici main). Cici nous permet de changer facilement de template.
-De plus ce fichier est moins volumineux, car on supprime les modules de bootstrap non-utilisés.
-
-Le sous-dossier less/less contient les fichiers originaux de bootstrap non-modifiés.
-
-Le fichier LESS est compilé dans static_dirs actuellement. **En prod, il faut changer le setting correspondant.**
-
-## Version actuelle :
-
-[Build 4.5.0](https://github.com/borgia-app/Borgia/releases/tag/4.5.0)
+**En prod, il faut changer le setting correspondant.**
