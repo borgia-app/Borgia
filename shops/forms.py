@@ -83,6 +83,7 @@ class ShopCreateForm(forms.ModelForm):
         except ObjectDoesNotExist:
             pass
 
+
 class ShopUpdateForm(forms.ModelForm):
     class Meta:
         model = Shop
@@ -106,7 +107,7 @@ class ShopCheckupSearchForm(forms.Form):
         super(ShopCheckupSearchForm, self).__init__(**kwargs)
         self.fields['products'] = forms.ModelMultipleChoiceField(
             label='Produits',
-            queryset=Product.objects.filter(shop=shop),
+            queryset=Product.objects.filter(shop=shop, is_removed=False),
             widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
                                                'data-live-search': 'True'}),
             required=False)
