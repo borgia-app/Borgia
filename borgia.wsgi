@@ -1,5 +1,5 @@
 [uwgi]
 socket = :8000
-chdir = /borgia/borgia
+chdir = /borgia/Borgia
 wsgi-file = borgia/wsgi.py
 
