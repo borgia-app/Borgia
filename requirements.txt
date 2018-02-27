@@ -17,3 +17,4 @@ six==1.10.0
 typing==3.6.2
 django-static-precompiler==1.7
 openpyxl==2.4.9
+psycopg2==2.7
