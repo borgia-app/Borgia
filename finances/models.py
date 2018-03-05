@@ -387,8 +387,9 @@ class Transfert(models.Model):
 
 
     def pay(self):
-        self.sender.debit(self.amount)
-        self.recipient.credit(self.amount)
+        if self.sender.debit != self.recipient.credit:
+            self.sender.debit(self.amount)
+            self.recipient.credit(self.amount)
 
 
 class ExceptionnalMovement(models.Model):
