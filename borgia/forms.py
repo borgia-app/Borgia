@@ -37,9 +37,12 @@ class LoginForm(forms.Form):
 
         # User credential check
         try:
-            User.objects.get(username=cleaned_data['username'])
+            u = User.objects.get(username=cleaned_data['username'])
         except ObjectDoesNotExist:
             raise forms.ValidationError("L'utilisateur n'existe pas")
+        if not u.is_active:
+            raise forms.ValidationError("L'utilisateur a été supprimé")
+
         user = authenticate(
             username=cleaned_data['username'],
             password=cleaned_data['password']
