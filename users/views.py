@@ -344,16 +344,22 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     sort = None
 
     def get_context_data(self, **kwargs):
+        context = super(UserListView, self).get_context_data(**kwargs)
+
+        ## Header List
+        context['list_header'] = [["username", "Username"], ["last_name", "Nom Prénom"], ["surname", "Bucque"], ["family", "Fam's"], ["campus", "Tabagn's"], ["year", "Prom's"], ["balance", "Solde"]]
+
 
         try:
             self.sort = self.request.GET['sort']
         except KeyError:
             pass
 
-        context = super(UserListView, self).get_context_data(**kwargs)
         context['group'] = self.group
         if self.sort is not None:
+          context['sort'] = self.sort
           if self.headers[self.sort] == "des":
+            context['reverse'] = True
             context['user_list'] = self.form_query(
                 User.objects.all().exclude(groups=1).order_by(self.sort).reverse())
             self.headers[self.sort] = "asc"
@@ -364,6 +370,9 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         else:
             context['user_list'] = self.form_query(
               User.objects.all().exclude(groups=1))
+
+
+
         return context
 
     def form_query(self, query):
@@ -382,7 +391,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         if self.state and self.state != 'all':
             query = query.filter(
                 is_active=self.state)
-                
+
         return query
 
     def form_valid(self, form):
