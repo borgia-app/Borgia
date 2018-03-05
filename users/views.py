@@ -371,7 +371,9 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
             context['user_list'] = self.form_query(
               User.objects.all().exclude(groups=1))
 
-
+        # Permission Retrieveuser
+        if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
+            context['has_perm_retrieve_user'] = True
 
         return context
 

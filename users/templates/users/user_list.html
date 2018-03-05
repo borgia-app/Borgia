@@ -45,7 +45,9 @@
           </a></th>
         {% endfor %}
           <th>Etat</th>
-          <th>Détail</th>
+          {% if has_perm_retrieve_user %}
+            <th>Détail</th>
+          {% endif %}
       </tr>
     </thead>
     <tbody>
@@ -59,9 +61,11 @@
         <td>{{ user.year }}</td>
         <td>{{ user.balance }}€</td>
         <td>{% if user.is_active %}Activé{% else %}Désactivé{% endif %}</td>
-        <td>
-          <a href="{% url 'url_user_retrieve' group_name=group_name pk=user.pk %}">Détail</a>
-        </td>
+        {% if has_perm_retrieve_user %}
+          <td>
+            <a href="{% url 'url_user_retrieve' group_name=group_name pk=user.pk %}">Détail</a>
+          </td>
+        {% endif %}
       </tr>
       {% endfor %}
     </tbody>
