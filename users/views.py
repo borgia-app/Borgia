@@ -332,29 +332,24 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     form_class = UserSearchForm
 
     search = None
-    unactive = None
     year = None
-    headers = {'first_name':'asc',
+    state = None
+    headers = {'username':'asc',
          'last_name':'asc',
          'surname':'asc',
          'family':'asc',
          'campus':'asc',
          'year':'asc',
-         'balance':'asc',}
+         'balance':'asc'}
     sort = None
 
-    def get(self, request, *args, **kwargs):
-        """
-        Used to pass search through workboard.
-        """
+    def get_context_data(self, **kwargs):
+
         try:
-            self.sort = request.GET['sort']
-            self.search = request.GET['search']
+            self.sort = self.request.GET['sort']
         except KeyError:
             pass
-        return super(UserListView, self).get(request, *args, **kwargs)
 
-    def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
         context['group'] = self.group
         if self.sort is not None:
@@ -372,7 +367,6 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         return context
 
     def form_query(self, query):
-
         if self.search:
             query = query.filter(
                 Q(last_name__icontains=self.search)
@@ -381,22 +375,22 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 | Q(username__icontains=self.search)
             )
 
-        if self.unactive:
-            query = query.filter(
-                is_active=False)
-
         if self.year and self.year != 'all':
             query = query.filter(
                 year=self.year)
 
+        if self.state and self.state != 'all':
+            query = query.filter(
+                is_active=self.state)
+                
         return query
 
     def form_valid(self, form):
         if form.cleaned_data['search']:
             self.search = form.cleaned_data['search']
 
-        if form.cleaned_data['unactive']:
-            self.unactive = form.cleaned_data['unactive']
+        if form.cleaned_data['state']:
+            self.state = form.cleaned_data['state']
 
         if form.cleaned_data['year']:
             self.year = form.cleaned_data['year']
