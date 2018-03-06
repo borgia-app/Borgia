@@ -56,6 +56,9 @@ class SelfTransfertCreateForm(forms.Form):
         except ObjectDoesNotExist:
             raise forms.ValidationError("L'utilisateur n'existe pas !")
 
+        if not recipient.is_active:
+            raise forms.ValidationError("L'utilisateur a été supprimé !")
+
         if self.sender == recipient:
             # Send to self : Impossible
             raise forms.ValidationError("Vous ne pouvez pas transferez à vous même !")
