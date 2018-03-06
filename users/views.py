@@ -7,6 +7,7 @@ from django.utils.encoding import force_text
 from django.views.generic import FormView, View
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
+from settings_data.utils import settings_safe_get
 
 from users.forms import *
 from users.models import ExtendedPermission
@@ -391,8 +392,15 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 year=self.year)
 
         if self.state and self.state != 'all':
-            query = query.filter(
-                is_active=self.state)
+            if self.state == 'negative_balance':
+                query = query.filter(balance__lt=0.0, is_active=True)
+            elif self.state == 'threshold':
+                threshold = settings_safe_get('BALANCE_THRESHOLD_PURCHASE').get_value()
+                query = query.filter(balance__lt=threshold, is_active=True)
+            elif self.state == 'unactive':
+                query = query.filter(is_active=False)
+        else:
+            query = query.filter(is_active=True)
 
         return query
 

@@ -141,9 +141,10 @@ class UserSearchForm(forms.Form):
         									  'autofocus': 'true',
         									  'placeholder': "Nom / Prénom / Surnom"}))
     year = forms.ChoiceField(label='Année', required=False)
-    state = forms.ChoiceField(label='Etat', choices=(('all', 'Tous les utilisateurs'),
-                                                        ('True', 'Uniquement les activés'),
-                                                        ('False', 'Uniquement les desactivés')),
+    state = forms.ChoiceField(label='Etat', choices=(('all', 'Tous les actifs'),
+                                                        ('negative_balance', 'Uniquement ceux à solde négative'),
+                                                        ('threshold', 'Uniquement ceux en-dessous du seuil de commande'),
+                                                        ('unactive', 'Uniquement ceux désactivés')),
                                             required=False)
 
     def __init__(self, **kwargs):
