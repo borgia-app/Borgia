@@ -330,7 +330,10 @@ class SharedEventAddWeightForm(forms.Form):
         try:
             user = User.objects.get(username=username)
         except ObjectDoesNotExist:
-                raise forms.ValidationError("L'utilisateur n'existe pas !")
+            raise forms.ValidationError("L'utilisateur n'existe pas !")
+
+        if not user.is_active :
+            raise forms.ValidationError("L'utilisateur a été supprimé !")
 
         return user
 
