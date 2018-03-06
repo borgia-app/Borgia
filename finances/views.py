@@ -751,10 +751,7 @@ class SelfTransfertCreate(GroupPermissionMixin, FormView,
         return kwargs
 
     def form_valid(self, form):
-        try:
-            recipient = User.objects.get(username=form.cleaned_data['recipient'])
-        except ObjectDoesNotExist:
-            raise forms.ValidationError("L'utilisateur n'existe pas")
+        recipient = form.cleaned_data['recipient'] # Get user or ValidationError
 
         transfert = Transfert.objects.create(
             sender=self.request.user,

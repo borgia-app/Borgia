@@ -27,7 +27,7 @@ class BankAccountUpdateForm(forms.ModelForm):
 
 class SelfTransfertCreateForm(forms.Form):
     def __init__(self, **kwargs):
-        sender = kwargs.pop('sender')
+        self.sender = kwargs.pop('sender')
         super(SelfTransfertCreateForm, self).__init__(**kwargs)
 
         self.fields['recipient'] = forms.CharField(
@@ -42,11 +42,25 @@ class SelfTransfertCreateForm(forms.Form):
             label='Montant (€)',
             decimal_places=2,
             max_digits=9,
-            min_value=0, max_value=sender.balance)
+            min_value=0, max_value=self.sender.balance)
         self.fields['justification'] = forms.CharField(
             label='Justification',
             max_length=254
         )
+
+    def clean_recipient(self):
+        username = self.cleaned_data['recipient']
+
+        try:
+            recipient = User.objects.get(username=username)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError("L'utilisateur n'existe pas !")
+
+        if self.sender == recipient:
+            # Send to self : Impossible
+            raise forms.ValidationError("Vous ne pouvez pas transferez à vous même !")
+
+        return recipient
 
 
 class GenericListSearchDateForm(forms.Form):

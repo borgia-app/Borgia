@@ -149,13 +149,8 @@ class OperatorSaleShopModuleInterface(SaleShopModuleInterface):
         return context
 
     def form_valid(self, form):
-        try:
-            self.client = User.objects.get(
-                username = form.cleaned_data['client'])
-        except ObjectDoesNotExist:
-            raise forms.ValidationError('Utilisateur inconnu')
-        except KeyError:
-            raise forms.ValidationError('Utilisateur non sélectionné')
+        self.client = form.cleaned_data['client']
+
 
         self.success_url = reverse(
             'url_module_operatorsale',
