@@ -1725,7 +1725,7 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
             if form.cleaned_data['years']:
                 list_year_result = form.cleaned_data['years'] # Contains the years selected
 
-                users = User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=1)).order_by('username')
+                users = User.objects.filter(year__in=list_year_result).exclude(groups=Group.objects.get(pk=1)).filter(is_active=True).order_by('username')
                 for u in users:
                     ws.append([u.username, '', '',u.last_name + ' ' + u.first_name, u.surname])
 

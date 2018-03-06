@@ -342,6 +342,7 @@ class SharedEventDownloadXlsxForm(forms.Form):
     state = forms.ChoiceField(label='Selection',
                               choices=(('year', 'Listes de promotions'), ('registrants', 'Préinscrit'),
                                        ('participants', 'Participants')))
+    years = forms.MultipleChoiceField(label='Année(s) à inclure', required=False)
 
     def __init__(self, **kwargs):
         super(SharedEventDownloadXlsxForm, self).__init__(**kwargs)
@@ -350,11 +351,7 @@ class SharedEventDownloadXlsxForm(forms.Form):
             YEAR_CHOICES.append(
                 (year, year)
             )
-        self.fields['years'] = forms.MultipleChoiceField(
-            label='Année à inclure ',
-            choices=YEAR_CHOICES,
-            required=False
-        )
+        self.fields['years'].choices = YEAR_CHOICES
 
 
 class SharedEventUploadXlsxForm(forms.Form):
