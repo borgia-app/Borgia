@@ -53,7 +53,7 @@ class ManageGroupView(GroupPermissionMixin, FormView,
         """
         Add possible members and permissions to kwargs of the form.
 
-        Possible members are all members, except specials members.
+        Possible members are all members, except specials members and unactive users.
         Possible permissions are all permissions.
         :note:: For the special case of a shop management, two groups exist:
         group of chiefs and group of associates. If the group of associates is
@@ -75,7 +75,7 @@ class ManageGroupView(GroupPermissionMixin, FormView,
                 pk__in=human_unused_permissions()
             )
 
-        kwargs['possible_members'] = User.objects.all().exclude(
+        kwargs['possible_members'] = User.objects.filter(is_active=True).exclude(
             groups=Group.objects.get(name='specials'))
         return kwargs
 
