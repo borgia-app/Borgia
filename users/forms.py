@@ -136,27 +136,25 @@ class UserSearchForm(forms.Form):
         		label="Utilisateur(s)",
                 max_length=255,
                 required=False,
-                widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
+                widget=forms.TextInput(attrs={'class': 'form-control',
                                               'autocomplete': 'off',
         									  'autofocus': 'true',
-        									  'placeholder': "Nom d'utilisateur"}))
-    unactive = forms.BooleanField(
-        label='Désactivés seulement',
-        required=False
-    )
+        									  'placeholder': "Nom / Prénom / Surnom"}))
+    year = forms.ChoiceField(label='Année', required=False)
+    state = forms.ChoiceField(label='Etat', choices=(('all', 'Tous les utilisateurs'),
+                                                        ('True', 'Uniquement les activés'),
+                                                        ('False', 'Uniquement les desactivés')),
+                                            required=False)
 
     def __init__(self, **kwargs):
+        super(UserSearchForm, self).__init__(**kwargs)
+
         YEAR_CHOICES = [('all', 'Toutes')]
         for year in list_year():
             YEAR_CHOICES.append(
                 (year, year)
             )
-        super(UserSearchForm, self).__init__(**kwargs)
-        self.fields['year'] = forms.ChoiceField(
-            label='Année',
-            choices=YEAR_CHOICES,
-            required=False
-        )
+        self.fields['year'].choices = YEAR_CHOICES
 
 
 class UserQuickSearchForm(forms.Form):
