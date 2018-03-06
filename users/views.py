@@ -308,6 +308,9 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         user = User.objects.get(pk=kwargs['pk'])
         if user.is_active is True:
             user.is_active = False
+            if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
+                user.groups.clear()
+                user.groups.add(Group.objects.get(pk=5))
         else:
             user.is_active = True
         user.save()
