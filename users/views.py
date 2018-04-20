@@ -1,6 +1,8 @@
 import json
 from datetime import datetime
 from re import escape
+from openpyxl import Workbook, load_workbook
+from openpyxl.writer.excel import save_virtual_workbook
 
 from django.shortcuts import render, HttpResponse, redirect
 from django.utils.encoding import force_text
@@ -408,6 +410,86 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial = super(UserListView, self).get_initial()
         initial['search'] = self.search
         return initial
+
+
+class AddUsersXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+    """
+    Download/Upload Excel for adding users.
+    """
+    template_name = 'users/add_users_xlsx.html'
+    form_class = AddUsersUploadXlsxForm
+    perm_codename = 'add_user'
+    lm_active = 'lm_user_create'
+
+
+    def form_valid(self, form, *args, **kwargs):
+        try:
+            wb = load_workbook(self.request.FILES['list_user'], read_only=True)
+            sheet = wb.active
+            rows = sheet.rows
+            next(rows) # Skip the first row
+            data = []
+        except:
+            raise PermissionDenied
+
+        # Enregistrement des users
+        for row in rows:
+            try:
+                user = User.objects.create(username=row[0].value.strip(),
+                                           first_name=row[1].value.strip(),
+                                           last_name=row[2].value.strip(),
+                                           email=row[3].value.strip(),
+                                           surname=row[4].value.strip(),
+                                           family=row[5].value,
+                                           campus=row[6].value.strip().upper(),
+                                           year=row[7].value)
+                user.set_password(form.cleaned_data['password'])
+                user.save()
+
+                # En deux fois au cas ou y'a un pb
+                user.groups.add(Group.objects.get(pk=5))
+                user.save()
+            except:
+                pass
+
+        return super(AddUsersXlsx, self).form_valid(form)
+
+    def get_success_url(self):
+        try:
+            if Permission.objects.get(codename='list_user') in self.group.permissions.all():
+                return reverse('url_user_list',
+                                kwargs={'group_name': self.group.name})
+            else:
+                return reverse('url_group_workboard',
+                                kwargs={'group_name': self.group.name})
+        except ObjectDoesNotExist:
+            return reverse('url_workboard',
+                            kwargs={'group_name': self.group.name})
+
+
+class AddUsersDownloadXlsx(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    Download Excel for adding users.
+    """
+    perm_codename = 'add_user'
+    lm_active = 'lm_user_create'
+
+    def get(self, request, *args, **kwargs):
+
+        wb = Workbook()
+        # grab the active worksheet
+        ws = wb.active
+        ws.title = "Test"
+        ws.append(['Username (Ex: 53Me215)', 'Prenom', 'Nom','Email (un valide !)', 'Bucque (Ex: Eyap)', 'Fams (Ex: 53)',
+                        'Tabagns (Ex: Me)', 'Annee (Ex: 2015)', 'Mot de passe',
+                        'Note : Les champs sont obligatoire, sauf: bucque et nums. Pour rappel, cest une fonctionnalites en mode pre-alpha. Il ny aura pas de message derreur si ca plante. Faites attention. Vraiment.'])
+
+        # Return the file
+        response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = ('attachment; filename="AddUsersByExcel.xlsx"')
+        return response
+
+
 
 def username_from_username_part(request):
     data = []

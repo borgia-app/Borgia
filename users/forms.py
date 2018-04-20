@@ -167,3 +167,7 @@ class UserQuickSearchForm(forms.Form):
                                               'autocomplete': 'off',
         									  'autofocus': 'true',
         									  'placeholder': "Nom d'utilisateur"}))
+
+
+class AddUsersUploadXlsxForm(forms.Form):
+    list_user = forms.FileField(label='Fichier excel des Users')

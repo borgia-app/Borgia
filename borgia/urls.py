@@ -110,6 +110,14 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/supply_money/$',
         UserSupplyMoney.as_view(), name='url_user_supplymoney'),
 
+        #       PRE-ALPHA : Ajout par xlsx
+    url(r'^(?P<group_name>[\w-]+)/users/add_by_list_xlsx/$',
+        AddUsersXlsx.as_view(),
+        name='url_add_users_xlsx'),
+    url(r'^(?P<group_name>[\w-]+)/users/add_by_list_xlsx_download/$',
+        AddUsersDownloadXlsx.as_view(),
+        name='url_add_users_download_xlsx'),
+
 
         #####################
         #      GROUPS       #
