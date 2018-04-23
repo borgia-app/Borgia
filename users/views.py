@@ -481,8 +481,8 @@ class UserAddByListXlsxDownload(GroupPermissionMixin, View, GroupLateralMenuMixi
         ws = wb.active
         ws.title = "Test"
         ws.append(['Username (Ex: 53Me215)', 'Prenom', 'Nom','Email (un valide !)', 'Bucque (Ex: Eyap)', 'Fams (Ex: 53)',
-                        'Tabagns (Ex: Me)', 'Annee (Ex: 2015)',
-                        'Note : Les champs sont obligatoire, sauf: bucque et nums. Pour rappel, cest une fonctionnalites en mode pre-alpha. Il ny aura pas de message derreur si ca plante. Faites attention. Vraiment.'])
+                        'Tabagns (Ex: Me)', 'Annee (Ex: 2015)'
+                        ])
 
         # Return the file
         response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
