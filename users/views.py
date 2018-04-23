@@ -443,7 +443,7 @@ class AddUsersXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
                                            family=row[5].value,
                                            campus=row[6].value.strip().upper(),
                                            year=row[7].value)
-                user.set_password(form.cleaned_data['password'])
+                user.set_password( "".join((random.choice(string.letters + string.digits + string.punctuation)) for x in range(20)) )
                 user.save()
 
                 # En deux fois au cas ou y'a un pb
@@ -481,7 +481,7 @@ class AddUsersDownloadXlsx(GroupPermissionMixin, View, GroupLateralMenuMixin):
         ws = wb.active
         ws.title = "Test"
         ws.append(['Username (Ex: 53Me215)', 'Prenom', 'Nom','Email (un valide !)', 'Bucque (Ex: Eyap)', 'Fams (Ex: 53)',
-                        'Tabagns (Ex: Me)', 'Annee (Ex: 2015)', 'Mot de passe',
+                        'Tabagns (Ex: Me)', 'Annee (Ex: 2015)',
                         'Note : Les champs sont obligatoire, sauf: bucque et nums. Pour rappel, cest une fonctionnalites en mode pre-alpha. Il ny aura pas de message derreur si ca plante. Faites attention. Vraiment.'])
 
         # Return the file
