@@ -412,11 +412,11 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         return initial
 
 
-class AddUsersXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class UserAddByListXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     """
     Download/Upload Excel for adding users.
     """
-    template_name = 'users/add_users_xlsx.html'
+    template_name = 'users/add_by_list_xlsx.html'
     form_class = AddUsersUploadXlsxForm
     perm_codename = 'add_user'
     lm_active = 'lm_user_create'
@@ -467,7 +467,7 @@ class AddUsersXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
                             kwargs={'group_name': self.group.name})
 
 
-class AddUsersDownloadXlsx(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class UserAddByListXlsxDownload(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
     Download Excel for adding users.
     """

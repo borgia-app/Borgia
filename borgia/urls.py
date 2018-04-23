@@ -111,12 +111,12 @@ urlpatterns = [
         UserSupplyMoney.as_view(), name='url_user_supplymoney'),
 
         #       PRE-ALPHA : Ajout par xlsx
-    url(r'^(?P<group_name>[\w-]+)/users/add_by_list_xlsx/$',
-        AddUsersXlsx.as_view(),
-        name='url_add_users_xlsx'),
-    url(r'^(?P<group_name>[\w-]+)/users/add_by_list_xlsx_download/$',
-        AddUsersDownloadXlsx.as_view(),
-        name='url_add_users_download_xlsx'),
+    url(r'^(?P<group_name>[\w-]+)/users/add_by_list/xlsx/$',
+        UserAddByListXlsx.as_view(),
+        name='url_add_by_list_xlsx'),
+    url(r'^(?P<group_name>[\w-]+)/users/add_by_list/xlsx/download$',
+        UserAddByListXlsxDownload.as_view(),
+        name='url_add_by_list_xlsx_download'),
 
 
         #####################
