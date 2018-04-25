@@ -45,19 +45,19 @@ class SelfSaleShopModule(forms.Form):
 
 
     def clean(self):
-        cleaned_data = super(SelfSaleShopModule, self).clean()
+        super(SelfSaleShopModule, self).clean()
         if self.client is None:
             try:
                 self.client = User.objects.get(
-                    username=cleaned_data['client'])
+                    username= self.cleaned_data['client'])
             except ObjectDoesNotExist:
                 raise forms.ValidationError('Utilisateur inconnu')
             except KeyError:
                 raise forms.ValidationError('Utilisateur non sélectionné')
         total_price = 0
-        for field in cleaned_data:
+        for field in self.cleaned_data:
             if field != 'client':
-                invoice = cleaned_data[field]
+                invoice = self.cleaned_data[field]
                 if isinstance(invoice, int) and invoice > 0 :
                     try:
                         category_product_pk = field.split('-')[0]
@@ -71,6 +71,9 @@ class SelfSaleShopModule(forms.Form):
                 raise forms.ValidationError('Le montant est supérieur à la limite.')
         if total_price <= 0:
             raise forms.ValidationError('La commande doit être positive.')
+
+        self.cleaned_data['client'] = self.client
+        return self.cleaned_data
 
 
 class OperatorSaleShopModule(SelfSaleShopModule):
