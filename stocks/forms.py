@@ -7,14 +7,18 @@ class StockEntryProductForm(forms.Form):
     def __init__(self, *args, **kwargs):
         shop = kwargs.pop('shop')
         super(StockEntryProductForm, self).__init__(*args, **kwargs)
-        self.fields['product'] = forms.ChoiceField(
-            label='Produit',
-            choices=([(None, 'Sélectionner un produit')] + [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
-                     for product in Product.objects.filter(shop=shop, is_removed=False)]),
-            widget=forms.Select(
-                attrs={'class': 'form-control selectpicker',
-                       'data-live-search': 'True', 'required':'required'})
-        )
+        product_choice = ([(None, 'Sélectionner un produit')] +
+                            [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
+                            for product in Product.objects.filter(shop=shop, is_removed=False)]
+                        )
+        self.fields['product'].choices = product_choice
+
+    product = forms.ChoiceField(label='Produit', widget=forms.Select(
+                                                    attrs={'class': 'form-control selectpicker',
+                                                    'data-live-search': 'True', 'required':'required'})
+                                                    )
+
+
     quantity = forms.IntegerField(
         label='En vente',
         required=False,
@@ -80,14 +84,17 @@ class InventoryProductForm(forms.Form):
     def __init__(self, *args, **kwargs):
         shop = kwargs.pop('shop')
         super(InventoryProductForm, self).__init__(*args, **kwargs)
-        self.fields['product'] = forms.ChoiceField(
-            label='Produit',
-            choices=([(None, 'Sélectionner un produit')] + [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
-                     for product in Product.objects.filter(shop=shop, is_removed=False)]),
-            widget=forms.Select(
-                attrs={'class': 'form-control selectpicker',
-                       'data-live-search': 'True', 'required':'required'})
+
+        product_choice = ([(None, 'Sélectionner un produit')] +
+        [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
+        for product in Product.objects.filter(shop=shop, is_removed=False)]
         )
+        self.fields['product'].choices = product_choice
+
+    product = forms.ChoiceField(label='Produit', widget=forms.Select(
+                                                    attrs={'class': 'form-control selectpicker',
+                                                    'data-live-search': 'True', 'required':'required'})
+                                                    )
     quantity = forms.IntegerField(
         label='En vente',
         required=False,
