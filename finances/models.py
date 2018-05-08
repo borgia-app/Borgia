@@ -679,6 +679,20 @@ class SharedEvent(models.Model):
             total += e.weights_participation
         return total
 
+    def total_number_registrants(self):
+        total = 0
+        for e in self.weightsuser_set.all():
+            if e.weights_registeration > 0:
+                total += 1
+        return total
+
+    def total_number_participants(self):
+        total = 0
+        for e in self.weightsuser_set.all():
+            if e.weights_participation > 0:
+                total += 1
+        return total
+
     class Meta:
         """
         Define Permissions for SharedEvent.
