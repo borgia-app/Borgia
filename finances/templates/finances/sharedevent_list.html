@@ -44,7 +44,7 @@
           <td>{{ sharedevent.date|date:"d/m/Y" }}</td>
           <td>{{ sharedevent.description }}</td>
           <td>{{ sharedevent.manager }}</td>
-          <td>{{ sharedevent.total_nb_registrants }}/{{ sharedevent.total_nb_participants }}</td>
+-          <td>{{ sharedevent.total_weights_registrants }}/{{ sharedevent.total_weights_participants }}</td>
           {% if sharedevent.done %}
             <td>Terminé</td>
             <td>Participation : {{ sharedevent.weight_of_user }}</td>
