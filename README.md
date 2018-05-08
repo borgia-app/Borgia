@@ -6,6 +6,8 @@ Build : [4.5.1](https://github.com/borgia-app/Borgia/releases/tag/4.5.1)
 
 Licence : [GNU GPL version 3](./license.txt)
 
+Chat : [Join us on Slack](https://borgia-app.slack.com)
+
 ## Introduction
 
 Borgia est un outil qui permet de construire, gérer et organiser votre vie étudiante ! De la vente de produits à l'organisation d'évènements en passant par la gestion de porte-monnaies virtuels, Borgia est votre meilleur allié pour développer votre association d'étudiants.
