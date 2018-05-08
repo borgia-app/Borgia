@@ -1162,6 +1162,8 @@ class SharedEventList(GroupPermissionMixin, FormView,
 
         for se in shared_events: # Duplicate
             se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
+            se.number_registrants = se.get_number_registrants()
+            se.number_participants = se.get_number_participants()
             se.total_weights_registrants = se.get_total_weights_registrants()
             se.total_weights_participants = se.get_total_weights_participants()
         context['shared_events'] = shared_events
@@ -1417,6 +1419,8 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
             context['remark'] = self.se.remark
             context['price'] = self.se.price
         # Pour les users
+        context['number_registrants'] = self.se.get_number_registrants
+        context['number_participants'] = self.se.get_number_participants
         context['total_weights_registrants'] = self.se.get_total_weights_registrants
         context['total_weights_participants'] = self.se.get_total_weights_participants
         context['no_participant'] = self.no_participant
