@@ -1118,6 +1118,17 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
         initial['tel_number'] = self.request.user.phone
         return initial
 
+    def get_context_data(self, **kwargs):
+        context = super(SelfLydiaCreate, self).get_context_data(**kwargs)
+        try:
+            if settings_safe_get("LYDIA_API_TOKEN").get_value() in ['', 'non définie']:
+                context['no_module'] = True
+            else:
+                context['no_module'] = False
+        except:
+            context['no_module'] = True
+        return context
+
 
 class SelfLydiaConfirm(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
