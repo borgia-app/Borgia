@@ -606,7 +606,7 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
         sales = {}
         list = Sale.objects.filter(shop=self.shop).order_by('-datetime')
         sales['weeks'] = self.weeklist(
-            datetime.now() - timedelta(days=365),
+            datetime.now() - timedelta(days=30),
         datetime.now())
         sales['data_weeks'] = self.sale_data_weeks(list, sales['weeks'])[0]
         sales['total'] = self.sale_data_weeks(list, sales['weeks'])[1]

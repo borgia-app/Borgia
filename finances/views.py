@@ -500,7 +500,7 @@ class RechargingList(GroupPermissionMixin, FormView,
         context['recharging_list'] = Recharging.objects.all().order_by('-datetime')
 
         context['recharging_list'] = self.form_query(
-            context['recharging_list'])[:100]
+            context['recharging_list'])[:1000]
 
         context['info'] = self.info(context['recharging_list'])
         return context
@@ -515,7 +515,8 @@ class RechargingList(GroupPermissionMixin, FormView,
         info = {
             'cash': {
                 'total': 0,
-                'nb': 0
+                'nb': 0,
+                'ids': Cash.objects.none()
             },
             'cheque': {
                 'total': 0,
@@ -542,18 +543,19 @@ class RechargingList(GroupPermissionMixin, FormView,
             if r.payment_solution.get_type() == 'cash':
                 info['cash']['total'] += r.payment_solution.amount
                 info['cash']['nb'] += 1
+                info['cash']['ids'] |= Cash.objects.filter(pk=r.payment_solution.cash.pk)
             if r.payment_solution.get_type() == 'cheque':
                 info['cheque']['total'] += r.payment_solution.amount
                 info['cheque']['nb'] += 1
-                info['cheque']['ids'] |= [r.payment_solution.cheque]
+                info['cheque']['ids'] |= Cheque.objects.filter(pk=r.payment_solution.cheque.pk)
             if r.payment_solution.get_type() == 'lydiafacetoface':
                 info['lydia_face2face']['total'] += r.payment_solution.amount
                 info['lydia_face2face']['nb'] += 1
-                info['lydia_face2face']['ids'] |= [r.payment_solution.lydiafacetoface]
+                info['lydia_face2face']['ids'] |= LydiaFaceToFace.objects.filter(pk=r.payment_solution.lydiafacetoface.pk)
             if r.payment_solution.get_type() == 'lydiaonline':
                 info['lydia_online']['total'] += r.payment_solution.amount
                 info['lydia_online']['nb'] += 1
-                info['lydia_online']['ids'] |= [r.payment_solution.lydiaonline]
+                info['lydia_online']['ids'] |= LydiaOnline.objects.filter(pk=r.payment_solution.lydiaonline.pk)
             info['total']['total'] += r.payment_solution.amount
             info['total']['nb'] += 1
         return info
@@ -1116,6 +1118,17 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
         initial['tel_number'] = self.request.user.phone
         return initial
 
+    def get_context_data(self, **kwargs):
+        context = super(SelfLydiaCreate, self).get_context_data(**kwargs)
+        try:
+            if settings_safe_get("LYDIA_API_TOKEN").get_value() in ['', 'non définie']:
+                context['no_module'] = True
+            else:
+                context['no_module'] = False
+        except:
+            context['no_module'] = True
+        return context
+
 
 class SelfLydiaConfirm(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
@@ -1208,6 +1221,8 @@ class SharedEventList(GroupPermissionMixin, FormView,
 
         for se in shared_events: # Duplicate
             se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
+            se.number_registrants = se.get_number_registrants()
+            se.number_participants = se.get_number_participants()
             se.total_weights_registrants = se.get_total_weights_registrants()
             se.total_weights_participants = se.get_total_weights_participants()
 

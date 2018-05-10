@@ -7,11 +7,15 @@
         Crédit du compte avec Lydia
     </div>
     <div class="panel-body">
+        {% if no_module %}
+          <p>Le rechargement par Lydia n'est pas correctement configuré, il n'est pas actuellement possible d'utiliser cette fonctionnalité.</p>
+        {% else %}
         <form action="" method="post">
             {% csrf_token %}
             {{ form|bootstrap }}
             <button class="btn btn-success" type="submit">Valider</button>
         </form>
+        {% endif %}
     </div>
 </div>
 {% endblock %}
