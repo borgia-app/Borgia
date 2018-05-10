@@ -17,9 +17,10 @@ function total() {
   // For each product of the shop
   $(".buyable_product").each(function() {
     // Get the name of the product
-    var product = $("label[for='" + $(this).attr('id') + "']")
+    var name = $(this).attr('name');
+    var product = $("label[for=id_" + name + "]")
       .text()
-      .substring(0, -1);
+      .slice(0, -1);
 
     // Get the value
     value = Number($(this).val());
