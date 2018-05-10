@@ -95,6 +95,7 @@
           {{ balance_threshold_purchase.get_value|unlocalize }} €
       </td>
     </tr>
+    {% comment %}
     <tr class={% if balance_threshold_mail_alert.get_value %}
               "success"
             {% else %}
@@ -124,6 +125,7 @@
         {% endif %}
       </td>
     </tr>
+    {% endcomment %}
   </table>
 </div>
 {% endblock %}
