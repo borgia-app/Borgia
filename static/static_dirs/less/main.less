@@ -1,5 +1,5 @@
 html {
-  height: 100%;
+  min-height: 100%;
   box-sizing: border-box;
 }
 
@@ -8,6 +8,8 @@ body {
   overflow-y: scroll;
   line-height: 1.5;
   padding-bottom: 65px;
+  position: relative;
+  min-height: 100%;
 }
 
 .body-clean {
@@ -76,13 +78,7 @@ canvas {
 
 // Login Form
 .login-form {
-  height: 200px;
-  position: absolute;
-  top: -250px;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  margin: auto;
+  position: relative;
   font-size: 12pt;
   text-align: center;
   max-width: 460px;
@@ -91,6 +87,10 @@ canvas {
     display: block;
     margin: 0 auto;
     margin-bottom: 55px;
+ 
+    @media screen and (max-height : 780px) {
+      margin-bottom: 0px;
+    } 
   }
 }
 .login-footer-text {
