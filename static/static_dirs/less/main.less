@@ -16,8 +16,19 @@ body {
   padding-top: 2.5px;
   padding-bottom: 2.5px;
 }
+
+@logo-width-full: 165px;
+@logo-width-mobile: 37px;
 .navbar-brand > .logo {
   height: 45px;
+  width: @logo-width-full;
+  float: left;
+  -webkit-transition: width 1s; /* Safari */
+  transition: width 1s;
+
+  @media screen and (max-width : 780px) {
+    width: @logo-width-mobile;
+  }
 }
 
 canvas {
@@ -175,10 +186,4 @@ form[role=search_user] .glyphicon {
 #username_client {
   font-size: 30px;
   text-align: center;
-}
-// LISTS
-.ui-widget-content {
-  max-height: 350px;
-  overflow-y: auto;
-  overflow-x: hidden;
 }

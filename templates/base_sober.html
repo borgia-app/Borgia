@@ -39,7 +39,7 @@
       <div class="navbar-header">
         <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
           {% set_brand request.user.theme as brand %}
-          <img src="{% static brand %}" class="logo"/>
+          <span style="background: url('{% static brand %}') no-repeat; background-size: cover" class="logo"/> </span>
 
         </a>
         <p class="navbar-text navbar-text-center">{% get_center_name %}</p>
