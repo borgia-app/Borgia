@@ -1,6 +1,11 @@
 html {
-  min-height: 100%;
+  height: 100%;
   box-sizing: border-box;
+
+  @media screen and (max-height: 780px) {
+    height: auto;
+    min-height: 100%;
+  }
 }
 
 body {
@@ -74,6 +79,20 @@ canvas {
   margin-top: 10px;
   margin-bottom: auto;
   font-size: 14pt;
+}
+
+// Footer
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+
+  @media screen and (min-height : 781px) {
+    position: fixed;
+    margin-bottom: 0;
+    border-width: 1px 0 0;
+  }
 }
 
 // Login Form
