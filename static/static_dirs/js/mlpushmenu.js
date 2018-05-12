@@ -107,7 +107,6 @@
 			// the menu should close if clicking somewhere on the body
 			var bodyClickFn = function( el ) {
 				self._resetMenu();
-				self.trigger.classList.toggle('active');
 				el.removeEventListener( self.eventtype, bodyClickFn );
 			};
 
@@ -196,6 +195,7 @@
 			// add class mp-pushed to main wrapper if opening the first time
 			if( this.level === 1 ) {
 				classie.add( this.wrapper, 'mp-pushed' );
+				classie.toggle( this.trigger, 'active' );
 				this.open = true;
 			}
 			// add class mp-level-open to the opening level element
@@ -207,6 +207,7 @@
 			this.level = 0;
 			// remove class mp-pushed from main wrapper
 			classie.remove( this.wrapper, 'mp-pushed' );
+			classie.toggle( this.trigger, 'active' );
 			this._toggleLevels();
 			this.open = false;
 		},
