@@ -14,8 +14,9 @@
   <div class="panel-body">
     <form method="post">
       {% csrf_token %}
-      {{ inventory_form.management_form }}
-      {% for form in inventory_form %}
+      {{ inventory_formset.management_form }}
+      {{ inventory_formset.non_form_errors }}
+      {% for form in inventory_formset %}
         <div class="category_formset row" style="margin-bottom: 15px">
           <div class="col-md-5">
               {{ form.product }}

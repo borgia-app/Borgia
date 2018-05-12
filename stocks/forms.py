@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.formsets import BaseFormSet
 
 from shops.models import Shop, Product
 
@@ -115,6 +116,23 @@ class InventoryProductForm(forms.Form):
     def clean(self):
         cleaned_data = super(InventoryProductForm, self).clean()
         # Validation direct in html
+
+class BaseInventoryProductFormSet(BaseFormSet):
+    def clean(self):
+        """
+        Check that there is max one inventory for each product
+        """
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        products = []
+        for form in self.forms:
+            product = form.cleaned_data['product']
+
+            if product in products:
+                raise forms.ValidationError("Impossible de définir deux produits identiques dans le même inventaire")
+            products.append(product)
 
 
 class InventoryListDateForm(forms.Form):
