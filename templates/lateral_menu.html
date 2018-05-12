@@ -46,78 +46,69 @@ context['nav_tree'] = nav_tree = [
     }
 ]
 -->
+<!-- Multi-level push menu -->
 {% if nav_tree %}
-  <div class="list-group lateral_menu" id="root" style="animation-duration: 0.3s; position: absolute; width: 90%;">
-    {% for link in nav_tree %}
-    <a
-    class="list-group-item {% if link.class %}list-group-item-{{ link.class }}{% endif %}
-    {% if link.active %}active{% else %}
-      {% if link.subs %}
-        {% for sub in link.subs %}
-          {% if sub.active %}active{% endif %}
-        {% endfor %}
-      {% endif %}
-    {% endif %}"
-    href="{% if link.url %}{{ link.url }}{% else %}#{% endif %}"
-    id={{ link.id }}
-    {% if link.subs %}data-has-subs{% endif %}
-    >
-      <i class="fa fa-{{ link.icon }} fa-fw" aria-hidden="true"></i>
-      &nbsp; {{ link.label }}
-      {% if link.subs %}
-      <i class="fa fa-angle-right pull-right" aria-hidden="true"></i>
-      {% endif %}
-     </a>
-  {% endfor %}
-  </div>
+	<nav id="sidebar" class="mp-menu">
+		<div class="mp-level">
+			<div class="mp-header">
+				<h2>Borgia</h2>
+			</div>
+			<ul class="list-group">
+			{% for link in nav_tree %}
+				<li>
+					<a
+					class="menu-item {% if link.class %}list-group-item-{{ link.class }}{% endif %}
+					{% if link.active %}active{% else %}
+					{% if link.subs %}
+					{% for sub in link.subs %}
+						{% if sub.active %}active{% endif %}
+					{% endfor %}
+					{% endif %}
+					{% endif %}"
+					href="{% if link.url %}{{ link.url }}{% else %}#{% endif %}"
+					id={{ link.id }}
+					{% if link.subs %}data-has-subs{% endif %}
+					>
+						<i class="fa fa-{{ link.icon }} fa-fw" aria-hidden="true"></i>
+						&nbsp; {{ link.label }}
+						{% if link.subs %}
+							<i class="fa fa-angle-right pull-right" aria-hidden="true"></i>
+						{% endif %}
+					</a>
+					{% if link.subs %}
+						<div class="mp-level">
+							<h2>{{ link.label }}</h2>
+							<a class="mp-back" href="#">
+								<i class="fa fa-angle-left pull-left" aria-hidden="true"></i>
+								<i class="fa fa-angle-left pull-left" aria-hidden="true"></i>
+								Retour
+							</a>
 
-{% for link_w_subs in nav_tree %}
-  {% if link_w_subs.subs %}
-  <div class="list-group lateral_menu" data-parent-id={{ link_w_subs.id }} style='display: none; animation-duration: 0.3s;'>
-    <a
-    href="#"
-    class="list-group-item list-group-item-info"
-    data-parent-id={{ link_w_subs.id }}
-    >
-    <i class="fa fa-angle-left pull-left" aria-hidden="true"></i>
-    <i class="fa fa-angle-left pull-left" aria-hidden="true"></i>
-    <span style="margin-left: 25%">{{ link_w_subs.label }}</span>
-    </a>
-    {% for link in link_w_subs.subs %}
-    <a
-    class="list-group-item {% if link.active %}active{% endif %}"
-    href="{% if link.url %}{{ link.url }}{% else %}#{% endif %}"
-    id={{ link.id }}
-    >
-      <i class="fa fa-{{ link.icon }} fa-fw" aria-hidden="true"></i>
-      &nbsp; {{ link.label }}
-      {% if link.subs %}
-      <i class="fa fa-angle-right" aria-hidden="true"></i>
-      {% endif %}
-     </a>
-  {% endfor %}
-  </div>
-  {% endif %}
-{% endfor %}
+							<ul>
+							{% for link_sub in link.subs %}
+								<li>
+									<a
+										class="menu-item {% if link_sub.active %}active{% endif %}"
+										href="{% if link_sub.url %}{{ link_sub.url }}{% else %}#{% endif %}"
+										id={{ link_sub.id }}
+									>
+										<i class="fa fa-{{ link_sub.icon }} fa-fw" aria-hidden="true"></i>
+											&nbsp; {{ link_sub.label }}
+											{% if link_sub.subs %}
+												<i class="fa fa-angle-right" aria-hidden="true"></i>
+											{% endif %}
+									</a>
 
-<script>
-  $("#root a[data-has-subs]").each(function() {
-    $(this).click(function() {
-      var id = $(this).attr('id')
-      $('#root').removeClass('animated slideInLeft');
-      $('#root').addClass('animated slideOutLeft').delay(300).hide(0);;
-      $('div[data-parent-id='+id+']').show();
-      $('div[data-parent-id='+id+']').removeClass('animated slideOutRight');
-      $('div[data-parent-id='+id+']').addClass('animated slideInRight');
-    })
-  })
-  $('a[data-parent-id]').each(function() {
-    var parent_id = $(this).attr('data-parent-id')
-    $(this).click(function() {
-      $('div[data-parent-id='+parent_id+']').addClass('animated slideOutRight').delay(300).hide(0);
-      $('#root').removeClass('animated slideOutLeft').delay(300).show();
-      $('#root').addClass('animated slideInLeft');
-    })
-  })
-</script>
+								</li>
+
+							{% endfor %}
+							</ul>
+						</div>
+					{% endif %}
+				</li>
+			{% endfor %}
+			</ul>
+		</div>
+	</nav>
 {% endif %}
+<!-- /mp-menu -->
