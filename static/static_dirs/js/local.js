@@ -7,6 +7,15 @@ var adaptBodyPaddingToFooter = function() {
 	if ($(".footer").length > 0) {
 		height = $(".footer").height();
 		$('body').css("padding-bottom",height);
+
+		if ($(".content").length > 0) {
+			content_height = $(".content").height();
+			if ( content_height < $(window).height() ) {
+				$('.footer').css("position","fixed");
+			} else {
+				$('.footer').css("position","absolute");
+			}
+		}
 	}
 }
 jQuery(function($){
