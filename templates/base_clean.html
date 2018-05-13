@@ -36,7 +36,6 @@
     <div class="container-fluid">
       <div class="navbar-header">
         <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
-           <span class="logo"></span>
         </a>
         <p class="navbar-text navbar-text-center">{% get_center_name %}</p>
       </div>
@@ -44,7 +43,7 @@
   </nav>
 
   <div class='container'>
-    <div class='col-md-6 col-md-offset-3 login-form'>
+    <div class='center-block login-form'>
       {% block content %}
       {% endblock %}
     </div>
