@@ -131,7 +131,7 @@ class BaseInventoryProductFormSet(BaseFormSet):
 
         products = []
         for form in self.forms:
-            product = form.cleaned_data['product']
+            product = form.cleaned_data['product'].split('/')[0]
 
             if product in products:
                 raise forms.ValidationError("Impossible de définir deux produits identiques dans le même inventaire")
