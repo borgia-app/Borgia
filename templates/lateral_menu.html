@@ -51,7 +51,40 @@ context['nav_tree'] = nav_tree = [
 	<nav id="sidebar" class="mp-menu">
 		<div class="mp-level">
 			<div class="mp-header">
-				<h2>Borgia</h2>
+			  <div id="mp-header-mobile" class="visible-xs visible-sm">
+			   <ul class="list-group">
+			     <li class="mp-header-list-item list-group-item" style="display: flex;">
+				 {% if request.user.avatar %}
+					 <span class="navbar-text-avatar"><img src="{{ request.user.avatar.url }}" class="user-avatar"/></span>
+				 {% endif %}
+				 <h2 class="navbar-text">{{ request.user.display_name_navbar }}</p></h2>
+				 </li>
+				 <li class="mp-header-list-item list-group-item text-center">
+					 <span
+					 style="font-weight: bold"
+					 class="{% if request.user.balance > 0 %}text-success{% else %}text-danger{% endif %}">Solde: {{ request.user.balance }} €</span>
+				 </li>
+				 <li class="mp-header-list-item list-group-item mp-header-settings">
+					<a href="#sidebarSettings" class="dropdown-toggle" data-toggle="collapse" role="button" aria-expanded="false">
+						<i class="fa fa-cog" aria-hidden="true"></i> <span class="caret"></span>
+					</a>
+					<ul class="list-unstyled collapse" id="sidebarSettings" aria-expanded="false">
+						<li><a href="{% url 'url_self_user_update' group_name=group.name %}">
+							<i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>Modifier mes informations
+						</a></li>
+						<li><a href="{% url 'url_self_lydia_create' group_name=group.name %}">
+							<i class="fa fa-credit-card" aria-hidden="true" style="margin-right: 5px;"></i>Recharger mon compte
+						</a></li>
+						<li><a href="{% url 'url_logout' %}" style="box-shadow: none;">
+							<i class="fa fa-sign-out" aria-hidden="true" style="margin-right: 5px;"></i>Se déconnecter
+						</a></li>
+					</ul>
+				 </li>
+				</ul>
+			  </div>
+			  <div id "mp-header-desktop" class="hidden-xs hidden-sm">
+				<h2> Borgia </h2>
+			  </div>
 			</div>
 			<ul class="list-group">
 			{% for link in nav_tree %}

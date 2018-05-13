@@ -104,6 +104,7 @@ canvas {
   bottom: 0;
   left: 0;
   right: 0;
+  transition: all 0.5s;
 
   @media screen and (min-width : 768px) {
     position: fixed;
@@ -292,6 +293,7 @@ form[role=search_user] .glyphicon {
 #sidebar {
     min-width: 240px;
     max-width: 240px;
+    overflow-y: auto;
 	transition: all 0.3s;
 }
 
@@ -306,7 +308,7 @@ form[role=search_user] .glyphicon {
 	top: 0;
 	left: 0;
 	z-index: 1;
-	height: 200vh;
+	height: 100vh;
 	border-right: 1px solid #e8e8e8;
 	-webkit-transform: translate3d(-100%, 0, 0);
 	-moz-transform: translate3d(-100%, 0, 0);
@@ -446,6 +448,7 @@ form[role=search_user] .glyphicon {
 	text-transform: uppercase;
 	font-weight: 700;
 	letter-spacing: 1px;
+	overflow: hidden;
 	font-size: 1em;
 }
 
@@ -533,8 +536,23 @@ form[role=search_user] .glyphicon {
 
 .mp-header {
   background: @navbar-default-bg;
-  height: 50.8px;
+  min-height: 50.8px;
+
+  .mp-header-list-item {
+    overflow: hidden;
+	background: @navbar-default-bg;
+  }
+
+  .mp-header-settings {
+	padding: 0;
+	& > a {
+	  background: none !important;
+	  box-shadow: none !important;
+	  text-align: center;
+	}
+  }
 }
+
 
 /* Fallback example for browsers that don't support 3D transforms (and no JS fallback) */
 /* We'll show the first level only */

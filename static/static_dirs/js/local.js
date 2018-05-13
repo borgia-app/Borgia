@@ -9,8 +9,8 @@ var adaptBodyPaddingToFooter = function() {
 		$('body').css("padding-bottom",height);
 
 		if ($(".content").length > 0) {
-			content_height = $(".content").height();
-			if ( content_height < $(window).height() ) {
+			contentHeight = $(".content").height();
+			if ( contentHeight < $(window).height() ) {
 				$('.footer').css("position","fixed");
 			} else {
 				$('.footer').css("position","absolute");
@@ -18,11 +18,20 @@ var adaptBodyPaddingToFooter = function() {
 		}
 	}
 }
+// Adapt sidebar height to content
+var adaptSidebarHeight = function(wh) {
+	if (( $("#sidebar").length > 0 )) {
+			$('#sidebar').height(wh);
+			$('#sidebar .mp-level').height($('#sidebar').prop('scrollHeight'));
+	}
+}
 jQuery(function($){
   adaptBodyPaddingToFooter();
+  adaptSidebarHeight($(window).height());
   
   $(window).resize(function() {
 	  adaptBodyPaddingToFooter();
+	  adaptSidebarHeight($(window).height());
   })
 })
 

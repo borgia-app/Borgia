@@ -85,6 +85,8 @@
 			this.level = 0;
 			// the moving wrapper
 			this.wrapper = document.getElementById( 'wrapper' );
+			// the page footer
+			this.footer = document.querySelector( '.footer' );
 			// the mp-level elements
 			this.levels = Array.prototype.slice.call( this.el.querySelectorAll( 'div.mp-level' ) );
 			// save the depth of each of these mp-level elements
@@ -180,6 +182,7 @@
 				translateVal = this.options.type === 'overlap' ? this.el.offsetWidth + levelFactor : this.el.offsetWidth;
 			
 			this._setTransform( 'translate3d(' + translateVal + 'px,0,0)' );
+			this._setTransform('translate3d(' + translateVal + 'px,0,0)', this.footer);
 
 			if( subLevel ) {
 				// reset transform for sublevel
@@ -195,6 +198,7 @@
 			// add class mp-pushed to main wrapper if opening the first time
 			if( this.level === 1 ) {
 				classie.add( this.wrapper, 'mp-pushed' );
+				classie.add( this.footer, 'mp-pushed' );
 				classie.toggle( this.trigger, 'active' );
 				this.open = true;
 			}
@@ -204,9 +208,11 @@
 		// close the menu
 		_resetMenu : function() {
 			this._setTransform('translate3d(0,0,0)');
+			this._setTransform('translate3d(0,0,0)', this.footer);
 			this.level = 0;
 			// remove class mp-pushed from main wrapper
 			classie.remove( this.wrapper, 'mp-pushed' );
+			classie.remove( this.footer, 'mp-pushed' );
 			classie.toggle( this.trigger, 'active' );
 			this._toggleLevels();
 			this.open = false;

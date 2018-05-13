@@ -51,19 +51,13 @@
                                 <span></span>
                                 <span></span>
 						</button>
-						<button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-							<span class="sr-only">Toggle navigation</span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-							<span class="icon-bar"></span>
-						</button>
 						<a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
 							{% set_brand request.user.theme as brand %}
 							<span style="background: url('{% static brand %}') no-repeat; background-size: cover" class="logo"/> </span>
 						</a>
 						<p class="navbar-text navbar-text-center">{% get_center_name %}</p>
 					</div>
-					<div id="navbar" class="navbar-collapse collapse" aria-expanded="false">
+					<div id="navbar" class="hidden-xs hidden-sm" aria-expanded="false">
 						<div class="navbar-right">
 							<ul class="nav navbar-nav" style="text-align: center">
 								<li class="user-profile-link"><a href="{% url 'url_user_retrieve' group_name=group_name pk=request.user.pk %}" style="padding:0;">
