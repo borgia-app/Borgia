@@ -8,14 +8,14 @@ var adaptBodyPaddingToFooter = function() {
 		height = $(".footer").height();
 		$('body').css("padding-bottom",height);
 
-		if ($(".content").length > 0) {
-			contentHeight = $(".content").height();
-			if ( contentHeight < $(window).height() ) {
-				$('.footer').css("position","fixed");
-			} else {
-				$('.footer').css("position","absolute");
-			}
-		}
+		// if ($(".content").length > 0) {
+			// contentHeight = $(".content").height();
+			// if ( contentHeight < $(window).height() ) {
+				// $('.footer').css("position","fixed");
+			// } else {
+				// $('.footer').css("position","absolute");
+			// }
+		// }
 	}
 }
 // Adapt sidebar height to content
