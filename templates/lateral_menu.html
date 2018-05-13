@@ -68,7 +68,7 @@ context['nav_tree'] = nav_tree = [
 					<a class="col-xs-6" style="box-shadow: inset -1px 0 rgba(0, 0, 0, 0.2) !important;" href="{% if group %}{% url 'url_notification_list' group_name=group.name %}{% endif %}">
 						<i class="fa fa-bell" aria-hidden="true"></i>{% if notifications %}<span class="badge" id="notif-count">{{ notifications.count }}</span>{% endif %}
 					</a>
-					<a href="#sidebarSettings" class="dropdown-toggle col-xs-6" data-toggle="collapse" role="button" aria-expanded="false">
+					<a data-target="#sidebarSettings" class="dropdown-toggle col-xs-6" data-toggle="collapse" role="button" aria-expanded="false">
 						<i class="fa fa-cog" aria-hidden="true"></i> <span class="caret"></span>
 					</a>
 					<ul class="list-unstyled col-xs-12 collapse" id="sidebarSettings" aria-expanded="false">
