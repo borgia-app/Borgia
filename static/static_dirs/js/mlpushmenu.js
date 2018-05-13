@@ -182,7 +182,9 @@
 				translateVal = this.options.type === 'overlap' ? this.el.offsetWidth + levelFactor : this.el.offsetWidth;
 			
 			this._setTransform( 'translate3d(' + translateVal + 'px,0,0)' );
-			this._setTransform('translate3d(' + translateVal + 'px,0,0)', this.footer);
+			if ( window.getComputedStyle(this.footer).getPropertyValue('position') != 'fixed' ) {
+				this._setTransform('translate3d(' + translateVal + 'px,0,0)', this.footer);
+			}
 
 			if( subLevel ) {
 				// reset transform for sublevel
@@ -208,7 +210,9 @@
 		// close the menu
 		_resetMenu : function() {
 			this._setTransform('translate3d(0,0,0)');
-			this._setTransform('translate3d(0,0,0)', this.footer);
+			if ( window.getComputedStyle(this.footer).getPropertyValue('position') != 'fixed' ) {
+				this._setTransform('translate3d(0,0,0)', this.footer);
+			}
 			this.level = 0;
 			// remove class mp-pushed from main wrapper
 			classie.remove( this.wrapper, 'mp-pushed' );
