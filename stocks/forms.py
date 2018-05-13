@@ -80,6 +80,9 @@ class StockEntryListDateForm(forms.Form):
         widget=forms.DateInput(attrs={'class': 'datepicker'}),
         required=False)
 
+class AdditionnalDataInventoryForm(forms.Form):
+    type = forms.ChoiceField(label='Type d\'Inventaire',
+                            choices=([('partial', 'Partiel'), ('full', 'Complet')]))
 
 class InventoryProductForm(forms.Form):
     def __init__(self, *args, **kwargs):

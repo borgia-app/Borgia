@@ -11,7 +11,8 @@ from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           ShopFromGroupMixin,
                           GroupLateralMenuMixin, shop_from_group)
 from stocks.forms import (StockEntryProductForm, StockEntryListDateForm,
-                            InventoryListDateForm, InventoryProductForm, BaseInventoryProductFormSet)
+                            InventoryListDateForm, InventoryProductForm,
+                            BaseInventoryProductFormSet, AdditionnalDataInventoryForm)
 from stocks.models import StockEntry, StockEntryProduct, Inventory, InventoryProduct
 from shops.models import Product
 
@@ -207,11 +208,14 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                                         formset=BaseInventoryProductFormSet,
                                         extra=1)
 
+        self.AdditionnalDataInventoryForm = AdditionnalDataInventoryForm()
+
         return super(ShopInventoryCreate, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         context['inventory_formset'] = self.InventoryProductFormSet(form_kwargs={'shop': self.shop})
+        context['additionnal_data_form'] = self.AdditionnalDataInventoryForm
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
@@ -220,8 +224,9 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
         included in the inventory with a quantity 0.
         """
         inventory_formset = self.InventoryProductFormSet(request.POST, form_kwargs={'shop': self.shop})
+        additionnal_data_form = AdditionnalDataInventoryForm(request.POST)
 
-        if inventory_formset.is_valid():
+        if inventory_formset.is_valid() and additionnal_data_form.is_valid():
 
             inventory = Inventory.objects.create(operator=request.user, shop=self.shop)
 
@@ -259,20 +264,21 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                 except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
                     pass
 
-            # Ids not in the form but active in the shop
-            try:
-                for product in Product.objects.filter(shop=self.shop, is_removed=False, is_active=True).exclude(
-                            pk__in=[form['product'].split('/')[0] for form in inventory_formset.cleaned_data]):
-                    InventoryProduct.objects.create(
-                        inventory=inventory,
-                        product=product,
-                        quantity=Decimal(0)
-                    )
+            if additionnal_data_form.cleaned_data['type'] == 'full':
+                # Ids not in the form but active in the shop
+                try:
+                    for product in Product.objects.filter(shop=self.shop, is_removed=False, is_active=True).exclude(
+                                pk__in=[form['product'].split('/')[0] for form in inventory_formset.cleaned_data]):
+                        InventoryProduct.objects.create(
+                            inventory=inventory,
+                            product=product,
+                            quantity=Decimal(0)
+                        )
 
-            except ObjectDoesNotExist:
-                pass
-            except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
-                pass
+                except ObjectDoesNotExist:
+                    pass
+                except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+                    pass
 
             # Update all correcting factors listed
             inventory.update_correcting_factors()
@@ -284,6 +290,7 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
         else:
             context = self.get_context_data(**kwargs)
             context['inventory_formset'] = inventory_formset
+            context['additionnal_data_form'] = self.AdditionnalDataInventoryForm
             return render(request, self.template_name, context=context)
 
 
