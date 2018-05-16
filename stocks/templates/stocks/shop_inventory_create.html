@@ -43,7 +43,7 @@ $('.category_formset').formset({
   addText: 'Nouveau produit',
   deleteText: 'Supprimer',
   addCssClass: 'add-row btn btn-success btn-sm',
-  deleteCssClass: 'delete-row',
+  deleteCssClass: 'delete-row btn btn-warning btn-sm',
   added: function(row) {
     $(row).find('.selectpicker').each(function() {
       $(this).selectpicker()
