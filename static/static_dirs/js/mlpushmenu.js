@@ -117,6 +117,15 @@
 				el.removeEventListener( self.eventtype, bodyClickFn );
 			};
 
+			// the menu should close on orientation change
+			window.addEventListener("orientationchange", function( el ) {
+			   var trigger = document.getElementById('sidebarTrigger');
+               self._resetMenu();
+			   if ( !classie.has( trigger, 'active' ) ) {
+				 classie.add( trigger, 'active' );
+			   }
+            });
+
 			// open (or close) the menu
 			this.trigger.addEventListener( this.eventtype, function( ev ) {
 				ev.stopPropagation();
@@ -222,6 +231,10 @@
 				this._setTransform('translate3d(0,0,0)');
 				if ( window.getComputedStyle(this.footer).getPropertyValue('position') != 'fixed' ) {
 					this._setTransform('translate3d(0,0,0)', this.footer);
+				} else {
+					if ( this.footer.style.transform != "translate3d(0,0,0)" ) {
+						this._setTransform('translate3d(0,0,0)', this.footer);
+					}
 				}
 			}
 			this.level = 0;
