@@ -346,7 +346,7 @@ form[role=search_user] .glyphicon {
 	left: 0;
 	z-index: 1;
 	height: 100vh;
-	border-right: 1px solid #e8e8e8;
+	border-right: 1px solid @navbar-default-bg;
 	-webkit-transform: translate3d(-100%, 0, 0);
 	-moz-transform: translate3d(-100%, 0, 0);
 	transform: translate3d(-100%, 0, 0);
@@ -572,7 +572,9 @@ form[role=search_user] .glyphicon {
 
 .mp-header {
   background: @navbar-default-bg;
-  min-height: 50.8px;
+  min-height: 52px;
+  border-bottom: 1px solid;
+  border-color: darken(@navbar-default-bg, 6.5%);
 
   .mp-header-list-item {
     overflow: hidden;
