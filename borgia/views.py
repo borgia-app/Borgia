@@ -138,6 +138,11 @@ class Login(FormView):
             })
         return context
 
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+          return redirect(self.get_success_url())
+        else:
+          return super(Login, self).get(request, *args, **kwargs)
 
 class Logout(View):
     def get(self, request, *args, **kwargs):
