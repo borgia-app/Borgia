@@ -415,7 +415,7 @@ def username_from_username_part(request):
     try:
         key = request.GET.get('keywords')
 
-        regex = r"^" + escape(key)
+        regex = r"^" + escape(key) + r"(\W|$)"
 
         # Fam'ss en entier
         # where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
@@ -424,11 +424,11 @@ def username_from_username_part(request):
         if len(key) > 2:
             if key.isalpha():
                 # Nom de famille, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(last_name__startswith=key)
+                where_search = where_search | User.objects.filter(last_name__istartswith=key)
                 # Prénom, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(first_name__startswith=key)
+                where_search = where_search | User.objects.filter(first_name__istartswith=key)
                 # Buque, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(surname__startswith=key)
+                where_search = where_search | User.objects.filter(surname__istartswith=key)
 
                 # Suppression des doublons
                 where_search = where_search.distinct()
