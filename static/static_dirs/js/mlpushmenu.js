@@ -119,12 +119,12 @@
 
 			// the menu should close on orientation change
 			window.addEventListener("orientationchange", function( el ) {
-			   var trigger = document.getElementById('sidebarTrigger');
-               self._resetMenu();
-			   if ( !classie.has( trigger, 'active' ) ) {
-				 classie.add( trigger, 'active' );
-			   }
-            });
+				var trigger = document.getElementById('sidebarTrigger');
+				self._resetMenu();
+				if ( !classie.has( trigger, 'active' ) ) {
+					classie.add( trigger, 'active' );
+				}
+			});
 
 			// open (or close) the menu
 			this.trigger.addEventListener( this.eventtype, function( ev ) {
