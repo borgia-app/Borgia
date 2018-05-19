@@ -51,7 +51,7 @@
                                 <span></span>
                                 <span></span>
 						</button>
-						<a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
+						<a class="navbar-brand visible-xs visible-sm" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
 							{% set_brand request.user.theme as brand %}
 							<span style="background: url('{% static brand %}') no-repeat; background-size: cover" class="logo"/> </span>
 						</a>

@@ -57,6 +57,10 @@
 		return e.parentNode && closest( e.parentNode, classname );
 	}
 
+	function desktopWidth() {
+		return document.documentElement.clientWidth >= 768
+	}
+
 	function mlPushMenu( el, trigger, options ) {	
 		this.el = el;
 		this.trigger = trigger;
@@ -67,6 +71,7 @@
 			this._init();
 		}
 	}
+
 
 	mlPushMenu.prototype = {
 		defaults : {
@@ -111,6 +116,15 @@
 				self._resetMenu();
 				el.removeEventListener( self.eventtype, bodyClickFn );
 			};
+
+			// the menu should close on orientation change
+			window.addEventListener("orientationchange", function( el ) {
+				var trigger = document.getElementById('sidebarTrigger');
+				self._resetMenu();
+				if ( !classie.has( trigger, 'active' ) ) {
+					classie.add( trigger, 'active' );
+				}
+			});
 
 			// open (or close) the menu
 			this.trigger.addEventListener( this.eventtype, function( ev ) {
@@ -181,9 +195,11 @@
 			var levelFactor = ( this.level - 1 ) * this.options.levelSpacing,
 				translateVal = this.options.type === 'overlap' ? this.el.offsetWidth + levelFactor : this.el.offsetWidth;
 			
-			this._setTransform( 'translate3d(' + translateVal + 'px,0,0)' );
-			if ( window.getComputedStyle(this.footer).getPropertyValue('position') != 'fixed' ) {
-				this._setTransform('translate3d(' + translateVal + 'px,0,0)', this.footer);
+			if ( !desktopWidth() ) {
+				this._setTransform( 'translate3d(' + translateVal + 'px,0,0)' );
+				if ( window.getComputedStyle(this.footer).getPropertyValue('position') != 'fixed' ) {
+					this._setTransform('translate3d(' + translateVal + 'px,0,0)', this.footer);
+				}
 			}
 
 			if( subLevel ) {
@@ -193,7 +209,9 @@
 				for( var i = 0, len = this.levels.length; i < len; ++i ) {
 					var levelEl = this.levels[i];
 					if( levelEl != subLevel && !classie.has( levelEl, 'mp-level-open' ) ) {
-						this._setTransform( 'translate3d(-100%,0,0) translate3d(' + -1*levelFactor + 'px,0,0)', levelEl );
+						if ( !desktopWidth() ) {
+							this._setTransform( 'translate3d(-100%,0,0) translate3d(' + -1*levelFactor + 'px,0,0)', levelEl );
+						}
 					}
 				}
 			}
@@ -209,9 +227,15 @@
 		},
 		// close the menu
 		_resetMenu : function() {
-			this._setTransform('translate3d(0,0,0)');
-			if ( window.getComputedStyle(this.footer).getPropertyValue('position') != 'fixed' ) {
-				this._setTransform('translate3d(0,0,0)', this.footer);
+			if ( !desktopWidth() ) {
+				this._setTransform('translate3d(0,0,0)');
+				if ( window.getComputedStyle(this.footer).getPropertyValue('position') != 'fixed' ) {
+					this._setTransform('translate3d(0,0,0)', this.footer);
+				} else {
+					if ( this.footer.style.transform != "translate3d(0,0,0)" ) {
+						this._setTransform('translate3d(0,0,0)', this.footer);
+					}
+				}
 			}
 			this.level = 0;
 			// remove class mp-pushed from main wrapper
@@ -224,7 +248,9 @@
 		// close sub menus
 		_closeMenu : function() {
 			var translateVal = this.options.type === 'overlap' ? this.el.offsetWidth + ( this.level - 1 ) * this.options.levelSpacing : this.el.offsetWidth;
-			this._setTransform( 'translate3d(' + translateVal + 'px,0,0)' );
+			if ( !desktopWidth() ) {
+			  this._setTransform( 'translate3d(' + translateVal + 'px,0,0)' );
+			}
 			this._toggleLevels();
 		},
 		// translate the el
