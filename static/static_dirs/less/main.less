@@ -23,28 +23,44 @@ body {
   background-origin: content-box;
 }
 
-#content {
-    padding: 20px;
-    min-height: 100vh;
-    transition: all 0.3s;
+
+.wrapper {
+  @media screen and (min-width : 768px) {
+    display: flex;
+    flex-direction: row;
+	align-items: flex-start;
+  }
 }
+
+.content {
+	@media screen and (min-width : 768px) {
+      width: 100%;
+    }
+}
+
+.navbar {
+  border-left: 0;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+@logo-width-full: 166px;
+@logo-width-mobile: 37px;
 
 .navbar-brand {
   padding-top: 2.5px;
   padding-bottom: 2.5px;
-}
 
-@logo-width-full: 165px;
-@logo-width-mobile: 37px;
-.navbar-brand > .logo {
-  height: 45px;
-  width: @logo-width-full;
-  float: left;
-  -webkit-transition: width 1s; /* Safari */
-  transition: width 1s;
+  & > .logo {
+    height: 45px;
+    width: @logo-width-full;
+    float: left;
+    -webkit-transition: width 1s; /* Safari */
+    transition: width 1s;
 
-  @media screen and (max-width : 767px) {
-    width: @logo-width-mobile;
+    @media screen and (max-width : 767px) {
+      width: @logo-width-mobile;
+    }
   }
 }
 
@@ -89,6 +105,10 @@ canvas {
   margin-top: 10px;
   margin-bottom: auto;
   font-size: 14pt;
+
+  @media screen and ( min-width : 768px) {
+    margin-left: 0;
+  }
 }
 
 .divider {
@@ -110,6 +130,7 @@ canvas {
     position: fixed;
     margin-bottom: 0;
     border-width: 1px 0 0;
+	z-index: 2;
   }
 }
 
@@ -269,6 +290,10 @@ form[role=search_user] .glyphicon {
 	@media screen and ( max-width : 768px ) {
 	  margin-left: 0;
 	}
+
+	@media screen and ( min-width : 768px ) {
+	  display: none;
+	}
 }
 
 #sidebarTrigger span {
@@ -297,11 +322,16 @@ form[role=search_user] .glyphicon {
     margin: 5px auto;
 }
 
+@sidebar-width: 240px;
 #sidebar {
-    min-width: 240px;
-    max-width: 240px;
+    min-width: @sidebar-width;
+    max-width: @sidebar-width;
     overflow-y: auto;
 	transition: all 0.3s;
+
+	@media screen and (min-width : 768px) {
+	  overflow-y: hidden;
+	}
 }
 
 #sidebar.active {
@@ -320,6 +350,11 @@ form[role=search_user] .glyphicon {
 	-webkit-transform: translate3d(-100%, 0, 0);
 	-moz-transform: translate3d(-100%, 0, 0);
 	transform: translate3d(-100%, 0, 0);
+
+	@media screen and (min-width : 768px) {
+	  position: relative;
+	  left: @sidebar-width;
+	}
 }
 
 .mp-level {
@@ -428,10 +463,13 @@ form[role=search_user] .glyphicon {
 .mp-menu h2 {
 	margin: 0;
 	padding: 1em;
-	color: rgba(0,0,0,0.4);
 	text-shadow: 0 0 1px rgba(0,0,0,0.1);
-	font-weight: 300;
-	font-size: 2em;
+	color: @navbar-default-link-color;
+	text-transform: uppercase;
+	font-weight: 700;
+	letter-spacing: 1px;
+	overflow: hidden;
+	font-size: 1em;
 }
 
 .mp-menu.mp-overlap h2::before {
@@ -448,15 +486,6 @@ form[role=search_user] .glyphicon {
 	-webkit-transform: translateX(-100%);
 	-moz-transform: translateX(-100%);
 	transform: translateX(-100%);
-}
-
-.mp-menu.mp-cover h2 {
-	color: @navbar-default-link-color;
-	text-transform: uppercase;
-	font-weight: 700;
-	letter-spacing: 1px;
-	overflow: hidden;
-	font-size: 1em;
 }
 
 .mp-overlap .mp-level.mp-level-overlay > h2::before {
@@ -565,7 +594,7 @@ form[role=search_user] .glyphicon {
 /* We'll show the first level only */
 .no-csstransforms3d .wrapper,
 .no-js .wrapper {
-	padding-left: 240px;
+	padding-left: @sidebar-width;
 }
 
 .no-csstransforms3d .mp-menu .mp-level,

@@ -19,7 +19,7 @@ var adaptBodyPaddingToFooter = function() {
 }
 // Adapt sidebar height to content
 var adaptSidebarHeight = function(wh) {
-	if (( $("#sidebar").length > 0 )) {
+	if (( $("#sidebar").length > 0 ) && ( $(window).width() < 768 ) ) {
 			$('#sidebar').height(wh);
 			$('#sidebar .mp-level').height($('#sidebar').prop('scrollHeight'));
 	}
