@@ -4,6 +4,7 @@ from datetime import timedelta
 from openpyxl import Workbook, load_workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
+from django.db.models import Q
 from django.shortcuts import render, HttpResponse, redirect
 from django.utils.encoding import force_text
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
