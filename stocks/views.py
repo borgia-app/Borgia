@@ -10,9 +10,7 @@ from django.contrib.auth.models import Group
 from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           ShopFromGroupMixin,
                           GroupLateralMenuMixin, shop_from_group)
-from stocks.forms import (StockEntryProductForm, StockEntryListDateForm,
-                            InventoryListDateForm, InventoryProductForm,
-                            BaseInventoryProductFormSet, AdditionnalDataInventoryForm)
+from stocks.forms import *
 from stocks.models import StockEntry, StockEntryProduct, Inventory, InventoryProduct
 from shops.models import Product
 
@@ -36,25 +34,30 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
             raise Http404
         except ValueError:
             raise Http404
-        self.form_class = formset_factory(wraps(StockEntryProductForm)(partial(StockEntryProductForm, shop=self.shop)), extra=1)
-        return super(ShopStockEntryCreate,
-                     self).dispatch(request, *args, **kwargs)
+
+        self.StockEntryProductForm = formset_factory(StockEntryProductForm,
+                                        extra=1)
+        return super(ShopStockEntryCreate, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['stockentry_form'] = self.form_class()
+        context['stockentry_form'] = self.StockEntryProductForm(form_kwargs={'shop': self.shop})
+        context['add_inventory_form'] = AdditionnalDataStockEntryForm()
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
         stockentry = StockEntry.objects.create(operator=request.user, shop=self.shop)
 
-        stockentry_form = self.form_class(request.POST)
+        stockentry_form = self.StockEntryProductForm(request.POST, form_kwargs={'shop': self.shop})
+        add_inventory_form = AdditionnalDataStockEntryForm(request.POST)
+
         for form in stockentry_form.cleaned_data:
             """
             Even if html and js verify and ensure entries, you verify again here.
             """
             try:
                 product = Product.objects.get(pk=form['product'].split('/')[0])
+
                 if product.unit:
                     # Container
                     if product.unit == 'G':
@@ -97,6 +100,32 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                     quantity=quantity,
                     price=price
                 )
+
+                ## AJOUT DE L'INVENTAIRE SI BESOIN
+                if add_inventory_form.is_valid():
+                    if add_inventory_form.cleaned_data['isAddingInventory'] == 'with':
+                        inventory = Inventory.objects.create(operator=request.user, shop=self.shop)
+
+                        # Container
+                        if product.unit == 'G':
+                            if form['unit_inventory'] == 'G':
+                                inventory_quantity = Decimal(form['inventory_quantity'])
+                            elif form['unit_inventory'] == 'KG':
+                                inventory_quantity = Decimal(form['inventory_quantity'] * 1000)
+                        elif product.unit == 'CL':
+                            if form['unit_inventory'] == 'CL':
+                                inventory_quantity = Decimal(form['inventory_quantity'])
+                            elif form['unit_inventory'] == 'L':
+                                inventory_quantity = Decimal(form['inventory_quantity'] * 100)
+                        else:
+                            # Single product
+                            inventory_quantity = form['inventory_quantity']
+
+                            InventoryProduct.objects.create(
+                            inventory=inventory,
+                            product=product,
+                            quantity=inventory_quantity+quantity
+                            )
 
             except ObjectDoesNotExist:
                 pass

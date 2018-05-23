@@ -9,15 +9,17 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    Ajout de produits au stock du magasin {{ shop }}
+    Entrée de stock au magasin {{ shop }}
   </div>
   <div class="panel-body">
     <form method="post">
       {% csrf_token %}
+	  {{ add_inventory_form|bootstrap }}
+      <h3>Ajouter les produits :</h3>
       {{ stockentry_form.management_form }}
       {% for form in stockentry_form %}
         <div class="category_formset row" style="margin-bottom: 15px">
-          <div class="col-md-5">
+            <div class="col-md-3">
               {{ form.product }}
             </div>
             <div class="col-md-3 quantity_unit">
@@ -33,6 +35,14 @@
                 {{ form.amount }}
                 <span class="input-group-btn">
                   {{ form.unit_amount }}
+                </span>
+              </div>
+            </div>
+            <div class="col-md-2 product_inventory">
+              <div class="input-group">
+                {{ form.inventory_quantity }}
+                <span class="input-group-btn">
+                  {{ form.unit_inventory }}
                 </span>
               </div>
             </div>
@@ -183,6 +193,20 @@ function update_units(e) {
     $(this).closest('.row').find('.unit_amount').selectpicker('val', '')
   }
 }
+
+function update_inventory_form() {
+    var val = $('#id_isAddingInventory').find(':selected').val();
+    if (val == 'with') {
+        $('.product_inventory').show();
+    }
+    else if (val == 'without') {
+        $('.product_inventory').hide();
+    };
+};
+
+$(update_inventory_form);
+$('#id_isAddingInventory').change(update_inventory_form);
+
 </script>
 <style>
   .add-row {
