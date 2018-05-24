@@ -41,7 +41,7 @@ class LoginForm(forms.Form):
         except ObjectDoesNotExist:
             raise forms.ValidationError("L'utilisateur n'existe pas")
         if not u.is_active:
-            raise forms.ValidationError("L'utilisateur a été supprimé")
+            raise forms.ValidationError("L'utilisateur a été desactivé")
 
         user = authenticate(
             username=cleaned_data['username'],

@@ -57,7 +57,7 @@ class SelfTransfertCreateForm(forms.Form):
             raise forms.ValidationError("L'utilisateur n'existe pas !")
 
         if not recipient.is_active:
-            raise forms.ValidationError("L'utilisateur a été supprimé !")
+            raise forms.ValidationError("L'utilisateur a été desactivé !")
 
         if self.sender == recipient:
             # Send to self : Impossible
@@ -350,7 +350,7 @@ class SharedEventAddWeightForm(forms.Form):
             raise forms.ValidationError("L'utilisateur n'existe pas !")
 
         if not user.is_active :
-            raise forms.ValidationError("L'utilisateur a été supprimé !")
+            raise forms.ValidationError("L'utilisateur a été desactivé !")
 
         return user
 
