@@ -28,32 +28,44 @@
     {% if user_list %}
     <table class="table table-hover table-striped">
     <thead>
+
+
       <tr>
-          <th><a href="?sort=last_name">Nom</a></th>
-          <th><a href="?sort=first_name">Prénom</a></th>
-          <th><a href="?sort=surname">Bucque</a></th>
-          <th><a href="?sort=family">Num's</a></th>
-          <th><a href="?sort=campus">Tabagn's</a></th>
-          <th><a href="?sort=year">Prom's</a></th>
-          <th><a href="?sort=balance">Solde</a></th>
+        {% for name, description in list_header %}
+          <th><a href="?sort={{ name }}">{{ description }}
+            {% if sort and sort == name %}
+              {% if reverse %}
+                <i class="fa fa-sort-desc" aria-hidden="true"></i>
+              {% else %}
+                <i class="fa fa-sort-asc" aria-hidden="true"></i>
+              {% endif %}
+            {% else %}
+              <i class="fa fa-sort" aria-hidden="true"></i>
+            {% endif %}
+          </a></th>
+        {% endfor %}
           <th>Etat</th>
-          <th>Détail</th>
+          {% if has_perm_retrieve_user %}
+            <th>Détail</th>
+          {% endif %}
       </tr>
     </thead>
     <tbody>
       {% for user in user_list %}
       <tr class="{% if user.balance >= 0 %}success{% else %}danger{% endif %}">
-        <td>{{ user.last_name }}</td>
-        <td>{{ user.first_name }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.last_name }} {{ user.first_name }}</td>
         <td>{{ user.surname }}</td>
         <td>{{ user.family }}</td>
         <td>{{ user.campus }}</td>
         <td>{{ user.year }}</td>
         <td>{{ user.balance }}€</td>
         <td>{% if user.is_active %}Activé{% else %}Désactivé{% endif %}</td>
-        <td>
-          <a href="{% url 'url_user_retrieve' group_name=group_name pk=user.pk %}">Détail</a>
-        </td>
+        {% if has_perm_retrieve_user %}
+          <td>
+            <a href="{% url 'url_user_retrieve' group_name=group_name pk=user.pk %}">Détail</a>
+          </td>
+        {% endif %}
       </tr>
       {% endfor %}
     </tbody>
