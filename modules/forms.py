@@ -47,9 +47,11 @@ class SelfSaleShopModule(forms.Form):
                 self.client = User.objects.get(
                     username= self.cleaned_data['client'])
             except ObjectDoesNotExist:
-                raise forms.ValidationError('Utilisateur inconnu')
+                raise forms.ValidationError("L'utilisateur n'existe pas")
             except KeyError:
                 raise forms.ValidationError('Utilisateur non sélectionné')
+            if not self.client.is_active:
+                raise forms.ValidationError("L'utilisateur a été desactivé")
         total_price = 0
         for field in self.cleaned_data:
             if field != 'client':

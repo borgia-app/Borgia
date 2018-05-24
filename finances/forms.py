@@ -56,6 +56,8 @@ class SelfTransfertCreateForm(forms.Form):
         except ObjectDoesNotExist:
             raise forms.ValidationError("L'utilisateur n'existe pas !")
 
+        if not recipient.is_active:
+            raise forms.ValidationError("L'utilisateur a été desactivé !")
         if self.sender == recipient:
             # Send to self : Impossible
             raise forms.ValidationError("Vous ne pouvez pas transferez à vous même !")
@@ -344,7 +346,10 @@ class SharedEventAddWeightForm(forms.Form):
         try:
             user = User.objects.get(username=username)
         except ObjectDoesNotExist:
-                raise forms.ValidationError("L'utilisateur n'existe pas !")
+            raise forms.ValidationError("L'utilisateur n'existe pas !")
+
+        if not user.is_active :
+            raise forms.ValidationError("L'utilisateur a été desactivé !")
 
         return user
 
@@ -353,6 +358,7 @@ class SharedEventDownloadXlsxForm(forms.Form):
     state = forms.ChoiceField(label='Selection',
                               choices=(('year', 'Listes de promotions'), ('registrants', 'Préinscrit'),
                                        ('participants', 'Participants')))
+    years = forms.MultipleChoiceField(label='Année(s) à inclure', required=False)
 
     def __init__(self, **kwargs):
         super(SharedEventDownloadXlsxForm, self).__init__(**kwargs)
@@ -361,11 +367,7 @@ class SharedEventDownloadXlsxForm(forms.Form):
             YEAR_CHOICES.append(
                 (year, year)
             )
-        self.fields['years'] = forms.MultipleChoiceField(
-            label='Année à inclure ',
-            choices=YEAR_CHOICES,
-            required=False
-        )
+        self.fields['years'].choices = YEAR_CHOICES
 
 
 class SharedEventUploadXlsxForm(forms.Form):

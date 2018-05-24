@@ -7,6 +7,7 @@ from django.utils.encoding import force_text
 from django.views.generic import FormView, View
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
+from settings_data.utils import settings_safe_get
 
 from users.forms import *
 from users.models import ExtendedPermission
@@ -53,7 +54,7 @@ class ManageGroupView(GroupPermissionMixin, FormView,
         """
         Add possible members and permissions to kwargs of the form.
 
-        Possible members are all members, except specials members.
+        Possible members are all members, except specials members and unactive users.
         Possible permissions are all permissions.
         :note:: For the special case of a shop management, two groups exist:
         group of chiefs and group of associates. If the group of associates is
@@ -75,7 +76,7 @@ class ManageGroupView(GroupPermissionMixin, FormView,
                 pk__in=human_unused_permissions()
             )
 
-        kwargs['possible_members'] = User.objects.all().exclude(
+        kwargs['possible_members'] = User.objects.filter(is_active=True).exclude(
             groups=Group.objects.get(name='specials'))
         return kwargs
 
@@ -307,6 +308,9 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         user = User.objects.get(pk=kwargs['pk'])
         if user.is_active is True:
             user.is_active = False
+            if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
+                user.groups.clear()
+                user.groups.add(Group.objects.get(pk=5))
         else:
             user.is_active = True
         user.save()
@@ -391,8 +395,15 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 year=self.year)
 
         if self.state and self.state != 'all':
-            query = query.filter(
-                is_active=self.state)
+            if self.state == 'negative_balance':
+                query = query.filter(balance__lt=0.0, is_active=True)
+            elif self.state == 'threshold':
+                threshold = settings_safe_get('BALANCE_THRESHOLD_PURCHASE').get_value()
+                query = query.filter(balance__lt=threshold, is_active=True)
+            elif self.state == 'unactive':
+                query = query.filter(is_active=False)
+        else:
+            query = query.filter(is_active=True)
 
         return query
 
@@ -424,16 +435,16 @@ def username_from_username_part(request):
 
         # Fam'ss en entier
         # where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
-        where_search = User.objects.exclude(groups=1).filter( family__regex = regex ).order_by('-year')
+        where_search = User.objects.exclude(groups=1).filter( family__regex = regex, is_active=True ).order_by('-year')
 
         if len(key) > 2:
             if key.isalpha():
                 # Nom de famille, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(last_name__istartswith=key)
+                where_search = where_search | User.objects.filter(last_name__istartswith=key, is_active=True)
                 # Prénom, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(first_name__istartswith=key)
+                where_search = where_search | User.objects.filter(first_name__istartswith=key, is_active=True)
                 # Buque, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(surname__istartswith=key)
+                where_search = where_search | User.objects.filter(surname__istartswith=key, is_active=True)
 
                 # Suppression des doublons
                 where_search = where_search.distinct()
