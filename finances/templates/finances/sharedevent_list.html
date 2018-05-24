@@ -32,17 +32,21 @@
           <th>Date</th>
           <th>Description</th>
           <th>Gestionnaire</th>
-          <th>Préinscrits / Participants</th>
+          <th>Préinscrits / Parts</th>
+          <th>Participants / Parts</th>
           <th>Status</th>
           <th>Remarque</th>
+          {% if user == sharedevent.manager %}
           <th>Gestion</th>
+          {% endif %}
         </tr>
         {% for sharedevent in shared_events %}
         <tr>
           <td>{{ sharedevent.date|date:"d/m/Y" }}</td>
           <td>{{ sharedevent.description }}</td>
           <td>{{ sharedevent.manager }}</td>
-          <td>{{ sharedevent.total_weights_registrants }}/{{ sharedevent.total_weights_participants }}</td>
+          <td>{{ sharedevent.number_registrants }}/{{ sharedevent.total_weights_registrants }}</td>
+          <td>{{ sharedevent.number_participants}}/{{ sharedevent.total_weights_participants }}</td>
           {% if sharedevent.done %}
             <td>Terminé</td>
             <td>Participation : {{ sharedevent.weight_of_user }}</td>

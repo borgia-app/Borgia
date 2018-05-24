@@ -58,7 +58,6 @@ class SelfTransfertCreateForm(forms.Form):
 
         if not recipient.is_active:
             raise forms.ValidationError("L'utilisateur a été desactivé !")
-
         if self.sender == recipient:
             # Send to self : Impossible
             raise forms.ValidationError("Vous ne pouvez pas transferez à vous même !")

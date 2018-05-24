@@ -1,9 +1,11 @@
 {% block content %}
 <script>
-$("input[id^='id_']").change(function() {
-  var pk = $(this).attr('pk');
+
+// In case a user select a product
+$(".buyable_product").change(function() {
+  var name = $(this).attr('name');
   var usual_price = $(this).attr('data_price');
-  $('#total_' + pk).text((Number(usual_price) * Number($(this).val())).toFixed(2));
+  $('#total_' + name).text((Number(usual_price) * Number($(this).val())).toFixed(2));
   total();
 })
 
@@ -11,26 +13,37 @@ $("input[id^='id_']").change(function() {
 function total() {
   var total = 0
   $('#invoice').empty();
-  $("input[id^='id_']").each(function() {
-    var pk = $(this).attr('pk');
-    var product = $("label[for='" + $(this).attr('id') + "']")
+
+  // For each product of the shop
+  $(".buyable_product").each(function() {
+    // Get the name of the product
+    var name = $(this).attr('name');
+    var product = $("label[for=id_" + name + "]")
       .text()
-      .substring(
-        0,
-        $("label[for='" + $(this).attr('id') + "']").text().length - 1
-      );
-    total += Number($('#total_' + pk).text());
+      .slice(0, -1);
+
+    // Get the value
+    value = Number($(this).val());
+
+    // Add to total price
+    total += $(this).attr('data_price') * value;
+
+    // Add in the list of selected products
     if ($(this).val() > 0) {
-      $('#invoice').append('<li>' + product + ' x' + $(this).val() + '</li>');
+      $('#invoice').append('<li>' + product + ' x' + value + '</li>');
     }
-  })
-  $('#total').text(total.toFixed(2));
-  $('#result').text(
-    (Number($('#initial').text()) - total.toFixed(2)).toFixed(2)
-  );
-  if (Number($('#result').text()) < 0) {
+  });
+
+  // Update results
+  total = total.toFixed(2);
+  $('#total').text(total);
+  result = (Number($('#initial').text()) - total).toFixed(2);
+  $('#result').text(result);
+
+  // Change result coloration
+  if (result < 0) {
     $('#result_line').attr('class', 'col-md-4 bg-danger');
-  } else if (Number($('#result').text()) > 0) {
+  } else if (result > 0) {
     $('#result_line').attr('class', 'col-md-4 bg-success');
   } else {
     $('#result_line').attr('class', 'col-md-4');
@@ -49,9 +62,58 @@ $(document).ready(function() {
   {% endif %}
   // Update product inputs
   // Type number for products only (id_client: type text)
-  $("input[id^='id_']:input[type='number']").each(function() {
+  $(".buyable_product").each(function() {
     $(this).trigger('change');
   });
 });
+
+
+{% if type == "operator_sale" %}
+
+   // Function to update the balance of the user.
+   // Then calculate the futur balance of the user
+   function update_initial(client_id) {
+     if (client_id == '') {
+       // No client ID, set default
+       // Don't need to call ajax
+       $("#initial").text(Number(0).toFixed(2))
+     } else {
+       // Get balance for the client
+       $.ajax({
+           url: "/ajax/balance_from_username/",
+           dataType: "json",
+           data: {
+               username: client_id
+           },
+           success: function( data ) {
+               $('#initial').text(data);
+               total();
+           },
+           error: function(jqXHR, textStatus, errorThrown) {
+                // On error, set everything to default
+               $('#id_client').val('');
+               $('#initial').text(Number(0).toFixed(2));
+               total();
+           }
+       })
+     }
+   }
+
+     // On blur, must recheck ...
+     // Because an autocomplete is not a select, one can send anything !
+    $("#id_client").blur(function() {
+      update_initial($(this).val());
+    });
+
+   // On select autocomplete option (works for enter too)
+   // Wrapped into $(function() { ... }) to force execution when page is fully loaded.
+   // Else, autocomplete (defined by class and js import) is executed after that.
+   $(function() {
+     $("#id_client").autocomplete('option', 'select', function(e, ui) {
+       update_initial(ui.item.value);
+     });
+   });
+{% endif %}
+
 </script>
 {% endblock %}

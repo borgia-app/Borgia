@@ -11,7 +11,8 @@ from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           ShopFromGroupMixin,
                           GroupLateralMenuMixin, shop_from_group)
 from stocks.forms import (StockEntryProductForm, StockEntryListDateForm,
-                            InventoryListDateForm, InventoryProductForm)
+                            InventoryListDateForm, InventoryProductForm,
+                            BaseInventoryProductFormSet, AdditionnalDataInventoryForm)
 from stocks.models import StockEntry, StockEntryProduct, Inventory, InventoryProduct
 from shops.models import Product
 
@@ -202,13 +203,19 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
             raise Http404
         except ValueError:
             raise Http404
-        self.form_class = formset_factory(wraps(InventoryProductForm)(partial(InventoryProductForm, shop=self.shop)), extra=1)
-        return super(ShopInventoryCreate,
-                     self).dispatch(request, *args, **kwargs)
+
+        self.InventoryProductFormSet = formset_factory(InventoryProductForm,
+                                        formset=BaseInventoryProductFormSet,
+                                        extra=1)
+
+        self.AdditionnalDataInventoryForm = AdditionnalDataInventoryForm()
+
+        return super(ShopInventoryCreate, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['inventory_form'] = self.form_class()
+        context['inventory_formset'] = self.InventoryProductFormSet(form_kwargs={'shop': self.shop})
+        context['additionnal_data_form'] = self.AdditionnalDataInventoryForm
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
@@ -216,66 +223,75 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
         Products in the shop (and active) but not listed in the form are
         included in the inventory with a quantity 0.
         """
-        inventory = Inventory.objects.create(operator=request.user, shop=self.shop)
+        inventory_formset = self.InventoryProductFormSet(request.POST, form_kwargs={'shop': self.shop})
+        additionnal_data_form = AdditionnalDataInventoryForm(request.POST)
 
-        inventory_form = self.form_class(request.POST)
+        if inventory_formset.is_valid() and additionnal_data_form.is_valid():
 
-        # Ids in the form
-        for form in inventory_form.cleaned_data:
-            """
-            Even if html and js verify and ensure entries, you verify again here.
-            """
-            try:
-                product = Product.objects.get(pk=form['product'].split('/')[0])
-                if product.unit:
-                    # Container
-                    if product.unit == 'G':
-                        if form['unit_quantity'] == 'G':
-                            quantity = Decimal(form['quantity'])
-                        elif form['unit_quantity'] == 'KG':
-                            quantity = Decimal(form['quantity'] * 1000)
-                    elif product.unit == 'CL':
-                        if form['unit_quantity'] == 'CL':
-                            quantity = Decimal(form['quantity'])
-                        elif form['unit_quantity'] == 'L':
-                            quantity = Decimal(form['quantity'] * 100)
-                else:
-                    # Single product
-                    quantity = form['quantity']
+            inventory = Inventory.objects.create(operator=request.user, shop=self.shop)
 
-                InventoryProduct.objects.create(
-                    inventory=inventory,
-                    product=product,
-                    quantity=quantity
-                )
+            # Ids in the form
+            for form in inventory_formset.cleaned_data:
+                """
+                Even if html and js verify and ensure entries, you verify again here.
+                """
+                try:
+                    product = Product.objects.get(pk=form['product'].split('/')[0])
+                    if product.unit:
+                        # Container
+                        if product.unit == 'G':
+                            if form['unit_quantity'] == 'G':
+                                quantity = Decimal(form['quantity'])
+                            elif form['unit_quantity'] == 'KG':
+                                quantity = Decimal(form['quantity'] * 1000)
+                        elif product.unit == 'CL':
+                            if form['unit_quantity'] == 'CL':
+                                quantity = Decimal(form['quantity'])
+                            elif form['unit_quantity'] == 'L':
+                                quantity = Decimal(form['quantity'] * 100)
+                    else:
+                        # Single product
+                        quantity = form['quantity']
 
-            except ObjectDoesNotExist:
-                pass
-            except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
-                pass
-
-        # Ids not in the form but active in the shop
-        try:
-            for product in Product.objects.filter(shop=self.shop, is_removed=False, is_active=True).exclude(
-                        pk__in=[form['product'].split('/')[0] for form in inventory_form.cleaned_data]):
-                InventoryProduct.objects.create(
-                    inventory=inventory,
-                    product=product,
-                    quantity=Decimal(0)
-                )
-
-        except ObjectDoesNotExist:
-            pass
-        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
-            pass
-
-        # Update all correcting factors listed
-        inventory.update_correcting_factors()
-
-        return redirect(
-            reverse('url_inventory_list',
-                           kwargs={'group_name': self.group.name})
+                    InventoryProduct.objects.create(
+                        inventory=inventory,
+                        product=product,
+                        quantity=quantity
                     )
+
+                except ObjectDoesNotExist:
+                    pass
+                except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+                    pass
+
+            if additionnal_data_form.cleaned_data['type'] == 'full':
+                # Ids not in the form but active in the shop
+                try:
+                    for product in Product.objects.filter(shop=self.shop, is_removed=False, is_active=True).exclude(
+                                pk__in=[form['product'].split('/')[0] for form in inventory_formset.cleaned_data]):
+                        InventoryProduct.objects.create(
+                            inventory=inventory,
+                            product=product,
+                            quantity=Decimal(0)
+                        )
+
+                except ObjectDoesNotExist:
+                    pass
+                except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+                    pass
+
+            # Update all correcting factors listed
+            inventory.update_correcting_factors()
+
+            return redirect(
+                reverse('url_inventory_list',
+                               kwargs={'group_name': self.group.name})
+                        )
+        else:
+            context = self.get_context_data(**kwargs)
+            context['inventory_formset'] = inventory_formset
+            context['additionnal_data_form'] = self.AdditionnalDataInventoryForm
+            return render(request, self.template_name, context=context)
 
 
 class InventoryList(GroupPermissionMixin, ShopFromGroupMixin, FormView,

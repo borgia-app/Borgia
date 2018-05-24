@@ -103,7 +103,7 @@
                       <td>{{ field.errors }}{{ field.label_tag }}</td>
                       <td>{{ field }}</td>
                       <td>{{ field.field.widget.attrs.data_price|unlocalize }}€</td>
-                      <td><span id="total_{{ field.field.widget.attrs.pk }}">0.00</span>€</td>
+                      <td><span id="total_{{ field.html_name }}">0.00</span>€</td>
                     </tr>
                     {% endif %}
                   {% endfor %}
@@ -115,7 +115,7 @@
         </div>
       </div>
     </div>
-  <div>
+  </div>
 </form>
 
 

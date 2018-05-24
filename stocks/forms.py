@@ -1,4 +1,5 @@
 from django import forms
+from django.forms.formsets import BaseFormSet
 
 from shops.models import Shop, Product
 
@@ -7,14 +8,18 @@ class StockEntryProductForm(forms.Form):
     def __init__(self, *args, **kwargs):
         shop = kwargs.pop('shop')
         super(StockEntryProductForm, self).__init__(*args, **kwargs)
-        self.fields['product'] = forms.ChoiceField(
-            label='Produit',
-            choices=([(None, 'Sélectionner un produit')] + [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
-                     for product in Product.objects.filter(shop=shop, is_removed=False)]),
-            widget=forms.Select(
-                attrs={'class': 'form-control selectpicker',
-                       'data-live-search': 'True', 'required':'required'})
-        )
+        product_choice = ([(None, 'Sélectionner un produit')] +
+                            [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
+                            for product in Product.objects.filter(shop=shop, is_removed=False)]
+                        )
+        self.fields['product'].choices = product_choice
+
+    product = forms.ChoiceField(label='Produit', widget=forms.Select(
+                                                    attrs={'class': 'form-control selectpicker',
+                                                    'data-live-search': 'True', 'required':'required'})
+                                                    )
+
+
     quantity = forms.IntegerField(
         label='En vente',
         required=False,
@@ -75,19 +80,25 @@ class StockEntryListDateForm(forms.Form):
         widget=forms.DateInput(attrs={'class': 'datepicker'}),
         required=False)
 
+class AdditionnalDataInventoryForm(forms.Form):
+    type = forms.ChoiceField(label='Type d\'Inventaire',
+                            choices=([('partial', 'Partiel'), ('full', 'Complet')]))
 
 class InventoryProductForm(forms.Form):
     def __init__(self, *args, **kwargs):
         shop = kwargs.pop('shop')
         super(InventoryProductForm, self).__init__(*args, **kwargs)
-        self.fields['product'] = forms.ChoiceField(
-            label='Produit',
-            choices=([(None, 'Sélectionner un produit')] + [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
-                     for product in Product.objects.filter(shop=shop, is_removed=False)]),
-            widget=forms.Select(
-                attrs={'class': 'form-control selectpicker',
-                       'data-live-search': 'True', 'required':'required'})
+
+        product_choice = ([(None, 'Sélectionner un produit')] +
+        [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
+        for product in Product.objects.filter(shop=shop, is_removed=False)]
         )
+        self.fields['product'].choices = product_choice
+
+    product = forms.ChoiceField(label='Produit', widget=forms.Select(
+                                                    attrs={'class': 'form-control selectpicker',
+                                                    'data-live-search': 'True', 'required':'required'})
+                                                    )
     quantity = forms.IntegerField(
         label='En vente',
         required=False,
@@ -108,6 +119,23 @@ class InventoryProductForm(forms.Form):
     def clean(self):
         cleaned_data = super(InventoryProductForm, self).clean()
         # Validation direct in html
+
+class BaseInventoryProductFormSet(BaseFormSet):
+    def clean(self):
+        """
+        Check that there is max one inventory for each product
+        """
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        products = []
+        for form in self.forms:
+            product = form.cleaned_data['product'].split('/')[0]
+
+            if product in products:
+                raise forms.ValidationError("Impossible de définir deux produits identiques dans le même inventaire")
+            products.append(product)
 
 
 class InventoryListDateForm(forms.Form):

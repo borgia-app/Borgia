@@ -31,11 +31,7 @@ class SelfSaleShopModule(forms.Form):
                         widget=forms.NumberInput(
                             attrs={'data_category_pk': category.pk,
                                    'data_price': category_product.get_price(),
-                                   'class': 'form-control',
-                                   'pk': (
-                                       str(category_product.product.pk)
-                                       + '-'
-                                       + str(category.pk)),
+                                   'class': 'form-control buyable_product',
 									'min': 0}),
                         initial=0,
                         required=False,
