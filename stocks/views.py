@@ -51,7 +51,14 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
         stockentry_form = self.StockEntryProductForm(request.POST, form_kwargs={'shop': self.shop})
         add_inventory_form = AdditionnalDataStockEntryForm(request.POST)
 
-        if stockentry_form.is_valid():
+
+
+        if stockentry_form.is_valid() and add_inventory_form.is_valid():
+            is_adding_inventory = False
+            if add_inventory_form.cleaned_data['isAddingInventory'] == 'with':
+                inventory = Inventory.objects.create(operator=request.user, shop=self.shop)
+                is_adding_inventory = True
+
             for form in stockentry_form.cleaned_data:
                 try:
                     product =  get_product_from_form(form['product'])
@@ -66,9 +73,8 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                     )
 
                     ## AJOUT DE L'INVENTAIRE SI BESOIN
-                    if add_inventory_form.is_valid():
-                        if add_inventory_form.cleaned_data['isAddingInventory'] == 'with':
-                            inventory = Inventory.objects.create(operator=request.user, shop=self.shop)
+                    if is_adding_inventory:
+                        if form['unit_inventory'] and form['inventory_quantity']:
                             inventory_quantity = get_normalized_quantity(product, form['unit_inventory'], form['inventory_quantity'])
 
                             InventoryProduct.objects.create(
