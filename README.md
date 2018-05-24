@@ -2,7 +2,7 @@
    <img src="./static/static_dirs/img/borgia-logo-light.png" />
 </p>
 
-Build : [4.5.4](https://github.com/borgia-app/Borgia/releases/tag/4.5.4)
+Last Build : [4.6.0](https://github.com/borgia-app/Borgia/releases/tag/4.6.0)
 
 Licence : [GNU GPL version 3](./license.txt)
 
@@ -16,30 +16,30 @@ Borgia est un outil qui permet de construire, gérer et organiser votre vie étu
 
 ### Installer les modules Python
 
-* `pip install -r requirements.txt`.
+-   `pip install -r requirements.txt`.
 
 ### Installer LESS
 
-* `yarn global add less`.
+-   `yarn global add less`.
 
 ### Paramètres
 
-* Modifier le fichier `borgia/settings.py` en fonction de vos données et paramètres (notamment domaines, compte Lydia et compte mail).
+-   Modifier le fichier `borgia/settings.py` en fonction de vos données et paramètres (notamment domaines, compte Lydia et compte mail).
 
 ### Charger les données initiales
 
-* Charger les migrations & les données initiales :
-  * `python manage.py makemigrations users shops finances modules settings_data notifications stocks`,
-  * `python manage.py migrate`,
-  * `python manage.py loaddata initial`.
-* Changer le mot de passe du compte admin :
-  * `python manage.py loaddata first_member`,
-  * `python manage.py shell`,
-  * `from users.models import User`,
-  * `u = User.objects.get(pk=2)`,
-  * `u.set_password('admin')`.
-  * `u.save()`
-* Créer ensuite les différents magasins avec l'interface graphique. Attention, ne pas oublier d'ajouter des utiliseurs aux groupes `chefs` et `associés` de chaque magasin après la création.
+-   Charger les migrations & les données initiales :
+    -   `python manage.py makemigrations users shops finances modules settings_data notifications stocks`,
+    -   `python manage.py migrate`,
+    -   `python manage.py loaddata initial`.
+-   Changer le mot de passe du compte admin :
+    -   `python manage.py loaddata first_member`,
+    -   `python manage.py shell`,
+    -   `from users.models import User`,
+    -   `u = User.objects.get(pk=2)`,
+    -   `u.set_password('admin')`.
+    -   `u.save()`
+-   Créer ensuite les différents magasins avec l'interface graphique. Attention, ne pas oublier d'ajouter des utiliseurs aux groupes `chefs` et `associés` de chaque magasin après la création.
 
 ## Se documenter
 
