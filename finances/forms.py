@@ -273,7 +273,7 @@ class SharedEventCreateForm(forms.Form):
 
 
 class SharedEventFinishForm(forms.Form):
-    type_payment = forms.ChoiceField(label='Type', choices=(('pay_by_total', 'Payer par division du total'),
+    type_payment = forms.ChoiceField(label='Type de débucquage', choices=(('pay_by_total', 'Payer par division du total'),
                                                         ('pay_by_ponderation', 'Payer par prix par pondération'),
                                                         ('no_payment', 'Ne pas faire payer')))
     total_price = forms.DecimalField(label='Prix total', decimal_places=2, max_digits=9,

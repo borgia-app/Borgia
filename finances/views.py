@@ -1345,26 +1345,38 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
             raise PermissionDenied
 
         # Check if there are participants
-        if self.se.get_total_weights_participants() == 0:
+        self.total_weights_participants = self.se.get_total_weights_participants()
+        if self.total_weights_participants == 0:
             return redirect(reverse(
                 'url_sharedevent_update',
                 kwargs={'group_name': group.name, 'pk': self.se.pk}
               ) + '?no_participant=True')
 
-        return super(SharedEventFinish, self).dispatch(request, *args, **kwargs)
+        # Get some data :
+        self.price = self.se.price
+        try:
+            self.ponderation_price = self.price / self.total_weights_participants
+        except TypeError:
+            self.ponderation_price = 0
 
-    def get_context_data(self, **kwargs):
-        context = super(SharedEventFinish, self).get_context_data(**kwargs)
-        context['se'] = self.se
-        return context
+        return super(SharedEventFinish, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self):
         """
         Populate the form with the current price.
         """
         initial = super(SharedEventFinish, self).get_initial()
-        initial['total_price'] = self.se.price
+        initial['total_price'] = self.price
+        initial['ponderation_price'] = self.ponderation_price
         return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(SharedEventFinish, self).get_context_data(**kwargs)
+        context['se'] = self.se
+        context['total_price'] = self.se.price
+        context['total_weights_participants'] = self.total_weights_participants
+        context['ponderation_price'] = self.ponderation_price
+        return context
 
     def form_valid(self, form):
         type_payment = form.cleaned_data['type_payment']
