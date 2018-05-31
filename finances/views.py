@@ -1275,7 +1275,7 @@ class SharedEventCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
                         )
 
 
-class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class SharedEventDelete(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
     """
     Delete a sharedevent and redirect to the list of sharedevents.
 
@@ -1284,8 +1284,10 @@ class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
     :param self.perm_codename: codename of the permission checked.
     """
     template_name = 'finances/sharedevent_delete.html'
+    form_class = SharedEventDeleteForm
     success_url = None
     perm_codename = None  # Checked in dispatch
+    success_message = "L'évènement a bien été supprimé."
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -1306,18 +1308,19 @@ class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
         return super(SharedEventDelete, self).dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        context['object'] = self.se
-        return render(request, self.template_name, context=context)
+    def get_context_data(self, **kwargs):
+        context = super(SharedEventDelete, self).get_context_data(**kwargs)
+        context['se'] = self.se
+        return context
 
-    def post(self, request, *args, **kwargs):
+    def form_valid(self, form):
         self.se.delete()
-        return redirect(
-            reverse(
-                'url_sharedevent_list',
+        return super(SharedEventDelete, self).form_valid(form)
+
+    def get_success_url(self):
+        return reverse('url_sharedevent_list',
                 kwargs={'group_name': self.group.name}
-                ))
+                )
 
 
 class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):

@@ -272,6 +272,10 @@ class SharedEventCreateForm(forms.Form):
                                             )
 
 
+class SharedEventDeleteForm(forms.Form):
+    checkbox = forms.BooleanField(label="Je suis conscient que la suppression entraîne le non-paiement, et la perte des informations.")
+
+
 class SharedEventFinishForm(forms.Form):
     type_payment = forms.ChoiceField(label='Type de débucquage', choices=(('pay_by_total', 'Payer par division du total'),
                                                         ('pay_by_ponderation', 'Payer par prix par pondération'),
