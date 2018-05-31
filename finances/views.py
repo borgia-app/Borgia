@@ -9,8 +9,10 @@ from django.shortcuts import render, HttpResponse, redirect
 from django.utils.encoding import force_text
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.views.decorators.csrf import csrf_exempt
+from django.contrib import messages
 
 from django.views.generic import FormView, View
+from django.contrib.messages.views import SuccessMessageMixin
 from django.conf import settings
 
 from finances.forms import *
@@ -1232,13 +1234,14 @@ class SharedEventList(GroupPermissionMixin, FormView,
         return self.render_to_response(context)
 
 
-class SharedEventCreate(GroupPermissionMixin, FormView,
+class SharedEventCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
                         GroupLateralMenuFormMixin):
     form_class = SharedEventCreateForm
     template_name = 'finances/sharedevent_create.html'
     success_url = None
     perm_codename = 'add_sharedevent'
     lm_active = 'lm_sharedevent_create'
+    success_message = "'%(description)s' a bien été créé."
 
     def form_valid(self, form):
 
@@ -1260,6 +1263,11 @@ class SharedEventCreate(GroupPermissionMixin, FormView,
         self.se = se
 
         return super(SharedEventCreate, self).form_valid(form)
+
+    def get_success_message(self, cleaned_data):
+        return self.success_message % dict(
+            description=self.se.description,
+        )
 
     def get_success_url(self):
         return reverse('url_sharedevent_update',
@@ -1312,7 +1320,7 @@ class SharedEventDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
                 ))
 
 
-class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
     """
     Finish a sharedevent and redirect to the list of sharedevents.
     This command is used when you want to keep the event in the database, but
@@ -1326,6 +1334,7 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
     template_name = 'finances/sharedevent_finish.html'
     success_url = None
     perm_codename = None  # Checked in dispatch
+    success_message = "'%(description)s' a bien été terminé."
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -1391,19 +1400,25 @@ class SharedEventFinish(GroupPermissionMixin, FormView, GroupLateralMenuFormMixi
 
         return super(SharedEventFinish, self).form_valid(form)
 
+    def get_success_message(self, cleaned_data):
+        return self.success_message % dict(
+            description=self.se.description,
+        )
+
     def get_success_url(self):
         return reverse('url_sharedevent_list',
                         kwargs={'group_name': self.group.name}
                         )
 
 
-class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
     """
-    Update the Shared Event
+    Update the Shared Event,
     """
     form_class = SharedEventUpdateForm
     template_name = 'finances/sharedevent_update.html'
     perm_codename = None # Checked in dispatch()
+    success_message = "'%(description)s' a bien été mis à jour."
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -1472,7 +1487,13 @@ class SharedEventUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
             self.se.bills = form.cleaned_data['bills']
         self.se.allow_self_registeration = form.cleaned_data['allow_self_registeration']
         self.se.save()
+
         return super(SharedEventUpdate, self).form_valid(form)
+
+    def get_success_message(self, cleaned_data):
+        return self.success_message % dict(
+            description=self.se.description,
+        )
 
     def get_success_url(self):
         return reverse('url_sharedevent_update',
