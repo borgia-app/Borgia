@@ -288,10 +288,7 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                                kwargs={'group_name': self.group.name})
                         )
         else:
-            context = self.get_context_data(**kwargs)
-            context['inventory_formset'] = inventory_formset
-            context['additionnal_data_form'] = self.AdditionnalDataInventoryForm
-            return render(request, self.template_name, context=context)
+            return get()
 
 
 class InventoryList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
