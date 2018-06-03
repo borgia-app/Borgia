@@ -321,7 +321,7 @@ class SharedEventUpdateForm(forms.Form):
 
 
 class SharedEventListUsersForm(forms.Form):
-    order_by = forms.ChoiceField(label='Trier par', choices=(('username', 'Username'), ('last_name', 'Nom'), ('surname', 'Bucque'), ('year', 'Promo')))
+    order_by = forms.ChoiceField(label='Trier par', choices=(('username', 'Username'), ('last_name', 'Nom'), ('surname', 'Bucque'), ('year', 'Année')))
     state = forms.ChoiceField(label='Lister', choices=(('users', 'Tous les concernés'),
                                                 ('registrants', 'Uniquement les préinscrits'),
                                                 ('participants', 'Uniquement les participants')))
