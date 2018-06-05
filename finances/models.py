@@ -603,7 +603,9 @@ class SharedEvent(models.Model):
             return
 
         for e in self.weightsuser_set.all():
-            e.user.debit(final_price_per_weight * e.weights_participation)
+            user_price = final_price_per_weight * e.weights_participation
+            e.user.debit(user_price)
+            recipient.credit(user_price)
             if (e.user.balance < 0):
 			    # If negative balance after event
 		        # We notify
@@ -612,7 +614,6 @@ class SharedEvent(models.Model):
                    recipient=e.user,
                    target_object=self
                 )
-
 
         self.done = True
         self.price = total_price
@@ -634,7 +635,9 @@ class SharedEvent(models.Model):
         for e in self.weightsuser_set.all():
             weight = e.weights_participation
             if weight != 0:
-                e.user.debit(ponderation_price * weight)
+                user_price = ponderation_price * weight
+                e.user.debit(user_price)
+                recipient.credit(user_price)
                 if (e.user.balance < 0):
     			    # If negative balance after event
     		        # We notify
@@ -643,7 +646,6 @@ class SharedEvent(models.Model):
                        recipient=e.user,
                        target_object=self
                     )
-
 
         self.done = True
         self.payment_by_ponderation = True
