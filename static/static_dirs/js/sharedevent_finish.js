@@ -24,3 +24,9 @@ function updateForm() {
       break;
     };
 };
+
+// Disable finish button
+$('#finish_form').submit( function(event) {
+    // disable to avoid double submission
+    $('#finish_submit').attr('disabled', true);
+});
