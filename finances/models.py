@@ -595,6 +595,9 @@ class SharedEvent(models.Model):
         :return:
         """
 
+        self.done = True
+        self.save()
+
         # Calcul du prix par weight
         total_weight = self.get_total_weights_participants()
         try:
@@ -603,7 +606,9 @@ class SharedEvent(models.Model):
             return
 
         for e in self.weightsuser_set.all():
-            e.user.debit(final_price_per_weight * e.weights_participation)
+            user_price = final_price_per_weight * e.weights_participation
+            e.user.debit(user_price)
+            recipient.credit(user_price)
             if (e.user.balance < 0):
 			    # If negative balance after event
 		        # We notify
@@ -613,8 +618,6 @@ class SharedEvent(models.Model):
                    target_object=self
                 )
 
-
-        self.done = True
         self.price = total_price
         self.datetime = now()
         self.remark = 'Paiement par Borgia (Prix total : ' + str(total_price) + ')'
@@ -631,10 +634,15 @@ class SharedEvent(models.Model):
         :return:
         """
 
+        self.done = True
+        self.save()
+
         for e in self.weightsuser_set.all():
             weight = e.weights_participation
             if weight != 0:
-                e.user.debit(ponderation_price * weight)
+                user_price = ponderation_price * weight
+                e.user.debit(user_price)
+                recipient.credit(user_price)
                 if (e.user.balance < 0):
     			    # If negative balance after event
     		        # We notify
@@ -644,8 +652,6 @@ class SharedEvent(models.Model):
                        target_object=self
                     )
 
-
-        self.done = True
         self.payment_by_ponderation = True
         self.price = ponderation_price
         self.datetime = now()

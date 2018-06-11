@@ -272,8 +272,12 @@ class SharedEventCreateForm(forms.Form):
                                             )
 
 
+class SharedEventDeleteForm(forms.Form):
+    checkbox = forms.BooleanField(label="Je suis conscient que la suppression entraîne le non-paiement, et la perte des informations.")
+
+
 class SharedEventFinishForm(forms.Form):
-    type_payment = forms.ChoiceField(label='Type', choices=(('pay_by_total', 'Payer par division du total'),
+    type_payment = forms.ChoiceField(label='Type de débucquage', choices=(('pay_by_total', 'Payer par division du total'),
                                                         ('pay_by_ponderation', 'Payer par prix par pondération'),
                                                         ('no_payment', 'Ne pas faire payer')))
     total_price = forms.DecimalField(label='Prix total', decimal_places=2, max_digits=9,
@@ -317,7 +321,7 @@ class SharedEventUpdateForm(forms.Form):
 
 
 class SharedEventListUsersForm(forms.Form):
-    order_by = forms.ChoiceField(label='Trier par', choices=(('username', 'Username'), ('last_name', 'Nom'), ('surname', 'Bucque'), ('year', 'Promo')))
+    order_by = forms.ChoiceField(label='Trier par', choices=(('username', 'Username'), ('last_name', 'Nom'), ('surname', 'Bucque'), ('year', 'Année')))
     state = forms.ChoiceField(label='Lister', choices=(('users', 'Tous les concernés'),
                                                 ('registrants', 'Uniquement les préinscrits'),
                                                 ('participants', 'Uniquement les participants')))

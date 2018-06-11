@@ -61,7 +61,7 @@
       <thead>
         <tr>
             <th>Username</th>
-            <th>Prénom Nom</th>
+            <th>Nom Prénom</th>
             <th>Bucque</th>
             {% if state == 'users' %}
                 <th>Préinscrit</th>
@@ -85,7 +85,7 @@
       {% for u in list_weights %}
           <tr>
               <td>{{ u.0.username }}</td>
-              <td>{{ u.0.first_name }} {{ u.0.last_name }}</td>
+              <td>{{ u.0.last_name }} {{ u.0.first_name }}</td>
               <td>{{ u.0.surname }}</td>
 
                 {% if done %}

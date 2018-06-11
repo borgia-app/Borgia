@@ -41,6 +41,13 @@ Borgia est un outil qui permet de construire, gérer et organiser votre vie étu
     -   `u.save()`
 -   Créer ensuite les différents magasins avec l'interface graphique. Attention, ne pas oublier d'ajouter des utiliseurs aux groupes `chefs` et `associés` de chaque magasin après la création.
 
+### Tester ses modifications
+
+Pour lancer les tests unitaires : `python manage.py test`
+
+Pour lancer les tests unitaires uniquement sur un module :
+`python manage.py test nom_du_module`
+
 ## Se documenter
 
 La documentation de Borgia est en cours de construction. Des ressources sont disponibles [ici](https://github.com/borgia-app/Borgia-docs).
