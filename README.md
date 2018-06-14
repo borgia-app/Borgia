@@ -2,7 +2,7 @@
    <img src="./static/static_dirs/img/borgia-logo-light.png" />
 </p>
 
-Last Build : [4.6.0](https://github.com/borgia-app/Borgia/releases/tag/4.6.0)
+Last Build : [4.6.1](https://github.com/borgia-app/Borgia/releases/tag/4.6.1)
 
 Licence : [GNU GPL version 3](./license.txt)
 
