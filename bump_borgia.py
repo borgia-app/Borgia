@@ -2,7 +2,7 @@
 """
 Bump Borgia files. It must be executed inside Borgia directory
 
-Use Example : python3 ./bump.py 4.7.0
+Use Example : python3 ./bump_borgia.py 4.7.0
 """
 import os
 import argparse
