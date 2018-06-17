@@ -1379,7 +1379,7 @@ class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
         """
         initial = super(SharedEventFinish, self).get_initial()
         initial['total_price'] = self.price
-        initial['ponderation_price'] = self.ponderation_price
+        initial['ponderation_price'] = round(self.ponderation_price,2)
         return initial
 
     def get_context_data(self, **kwargs):
@@ -1387,7 +1387,7 @@ class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
         context['se'] = self.se
         context['total_price'] = self.se.price
         context['total_weights_participants'] = self.total_weights_participants
-        context['ponderation_price'] = self.ponderation_price
+        context['ponderation_price'] = round(self.ponderation_price,2)
         return context
 
     def form_valid(self, form):
