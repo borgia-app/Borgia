@@ -61,21 +61,20 @@
       <thead>
         <tr>
             <th>Username</th>
-            <th>Nom Prénom</th>
-            <th>Bucque</th>
+            <th class="hidden-sm hidden-xs">Nom Prénom</th>
+            <th class="hidden-sm hidden-xs">Bucque</th>
             {% if state == 'users' %}
                 <th>Préinscrit</th>
                 <th>Pris</th>
             {% elif state == 'participants' %}
+			    <th class="hidden-sm hidden-xs">Solde</th>
                 <th>Pris</th>
             {% elif state == 'registrants' %}
                 <th>Préinscrit</th>
             {% elif done %}
                 <th>Pris</th>
             {% endif %}
-            {% if state != "users" %}
-              <th>Prix</th>
-            {% endif %}
+            <th class="hidden-sm hidden-xs">Prix</th>
             {% if done == False %}
               <th>Supprimer</th>
             {% endif %}
@@ -85,8 +84,8 @@
       {% for u in list_weights %}
           <tr>
               <td>{{ u.0.username }}</td>
-              <td>{{ u.0.last_name }} {{ u.0.first_name }}</td>
-              <td>{{ u.0.surname }}</td>
+              <td class="hidden-sm hidden-xs">{{ u.0.last_name }} {{ u.0.first_name }}</td>
+              <td class="hidden-sm hidden-xs">{{ u.0.surname }}</td>
 
                 {% if done %}
                   <td>
@@ -101,6 +100,7 @@
                       <input id="weight_participant_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.2 }}"/>
                     </td>
                   {% elif state == 'participants' %}
+			        <td class="hidden-sm hidden-xs {% if u.0.balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ u.0.balance }}€</td>
                     <td>
                       <input id="weight_participant_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
                     </td>
@@ -112,15 +112,15 @@
                 {% endif %}
               </td>
               {% if done %}
-                <td>
+                <td class="hidden-sm hidden-xs">
                   {% if price %}
                     {{ u.2 }}
                   {% else %}
                     Indéfini
                   {% endif %}
                 </td>
-              {% elif state != "users" %}
-              <td id="price_{{ u.0.pk }}">
+              {% else %}
+              <td class="hidden-sm hidden-xs" id="price_{{ u.0.pk }}">
                 {% if price %}
                   {{ u.1 }}
                 {% else %}
@@ -150,7 +150,7 @@
 
   {% include 'finances/js/ajax_ponderation.html' with list_weights=list_weights %}
   {% if price %}
-    {% if state == "participants" or state == "registrants" %}
+    {% if state == "participants" or state == "registrants" or state == "users" %}
       {% include 'finances/js/calculate_users_price.html' with price=price %}
     {% endif %}
   {% endif %}
