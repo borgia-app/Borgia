@@ -462,7 +462,7 @@ class SharedEvent(models.Model):
         list_u_all = []
         for user in self.users.all():
             e = self.weightsuser_set.get(user=user, shared_event=self)
-            list_u_all.append([user, e.weights_registeration, e.weights_participation])
+            list_u_all.append([user, e.weights_registeration, e.weights_participation, e.weights_participation * self.price])
         return list_u_all
 
     def list_participants_weight(self):
@@ -476,7 +476,7 @@ class SharedEvent(models.Model):
             e = self.weightsuser_set.get(user=user, shared_event=self)
             weight = e.weights_participation
             if weight > 0:
-                list_u_p.append([user, weight])
+                list_u_p.append([user, weight, e.weights_participation * self.price])
         return list_u_p
 
     def list_registrants_weight(self):
