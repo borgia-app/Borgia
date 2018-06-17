@@ -34,11 +34,9 @@
           <th>Gestionnaire</th>
           <th>Préinscrits / Parts</th>
           <th>Participants / Parts</th>
-          <th>Status</th>
+          <th>Statut</th>
           <th>Remarque</th>
-          {% if user == sharedevent.manager %}
           <th>Gestion</th>
-          {% endif %}
         </tr>
         {% for sharedevent in shared_events %}
         <tr>
