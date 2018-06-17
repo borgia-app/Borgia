@@ -7,7 +7,7 @@
         <div class="panel-heading">
           Evènements
           {% if group|has_group_perm:"add_sharedevent" %}
-            <a class="btn btn-xs btn-success" href="{% url 'url_sharedevent_create' group_name=group.name %}">Nouveau</a>
+            <a class="btn btn-xs btn-success pull-right" href="{% url 'url_sharedevent_create' group_name=group.name %}">Nouveau</a>
           {% endif %}
         </div>
         <div class="panel-body">
