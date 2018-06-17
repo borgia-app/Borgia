@@ -1634,10 +1634,6 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
         if request.user != self.se.manager or not request.user.has_perm('finances.manage_sharedevent'):
             raise Http404
 
-        # On ne modifie plus une event terminé
-        if self.se.done is True:
-            raise PermissionDenied
-
         return super(SharedEventManageUsers, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self):
