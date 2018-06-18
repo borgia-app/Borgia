@@ -141,13 +141,15 @@
                   </td>
                 {% endif %}
               {% else %}
-                <td id="price_{{ u.0.pk }}">
-                  {% if price %}
-                    {{ u.1 }}
-                  {% else %}
-                    Indéfini
-                  {% endif %}
-                </td>
+                {% if state != 'registrants' %}
+                  <td id="price_{{ u.0.pk }}">
+                    {% if price %}
+                      {{ u.1 }}
+                    {% else %}
+                      Indéfini
+                    {% endif %}
+                  </td>
+                {% endif %}
               {% endif %}
               {% if not done %}
                 <td>
