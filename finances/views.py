@@ -1846,14 +1846,17 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
             i += 1;
             try:
                 username = row[0].value.strip() # Should be a str
-                user = User.objects.get(username=username)
-                try:
-                    pond = int(row[1].value) # Should be an int. Else, raise an error
-
-                    if pond > 0:
-                        self.se.change_weight( user, pond, isParticipant )
-                except:
-                    errors.append( "Erreur avec " + username + " (ligne n*" + str(i) + "). A priori pas ajouté." )
+                user = User.objects.filter(username=username)
+                if user.count() > 0:
+                    user = User.objects.get(username=username)
+                    try:
+                        pond = int(row[1].value) # Should be an int. Else, raise an error
+                        if pond > 0:
+                            self.se.change_weight( user, pond, isParticipant )
+                    except:
+                        errors.append( "Erreur avec " + username + " (ligne n*" + str(i) + "). A priori pas ajouté." )
+                else:
+                    errors.append( "L'utilisateur " + username + " n'existe pas. (ligne n*" + str(i) + ").")
             except:
                 errors.append( "Erreur avec la ligne n*" + str(i) + ". Pas ajouté." )
 
