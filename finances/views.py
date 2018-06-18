@@ -1860,9 +1860,11 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
         errors_count = len(errors)
         error_message = ""
         if errors_count >= 1 :
-            error_message = str(errors_count) + " erreur(s) pendant l'ajout : \n"
-            error_message += "\n".join(errors)
-              #error_message += "- " + error + "\r\n"
+            error_message = str(errors_count) + " erreur(s) pendant l'ajout : \n - "
+            if sheet.max_row - 1 == errors_count:
+              error_message += "Aucune donnée ne peut être importée (Vérifiez le format et la syntaxe du contenu du fichier)"
+            else:
+              error_message += "\n - ".join(errors)
             messages.warning(self.request, error_message)
             messages.success(self.request, "Les " + str( i - (1 + errors_count) ) + " autres utilisateurs ont bien été ajoutés.")
         else:
