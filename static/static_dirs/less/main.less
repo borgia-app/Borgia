@@ -275,6 +275,28 @@ form[role=search_user] .glyphicon {
   overflow-x: hidden;
 }
 
+// Flash messages
+.messages {
+  position: absolute;
+  right: 0;
+  width: 50%;
+  z-index: 1000;
+
+  & > .alert {
+    display: flex;
+	flex-direction: row;
+
+	& > .alert-icon {
+      order: 0;
+	  margin-right: 7px;
+    }
+  }
+
+  @media screen and ( max-width : 768px ) {
+    width: 100%;
+  }
+}
+
 // LATERAL MENU
 #sidebarTrigger {
     margin-top: 0px;
