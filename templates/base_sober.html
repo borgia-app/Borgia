@@ -133,7 +133,7 @@
 								  </i>
 								</div>
 								<div>
-							      {{ message }}
+                                   {{ message |linebreaks }}
 								</div>
 							  </div>
                             {% endfor %}
@@ -174,11 +174,21 @@
 </script>
 <script>
 {% if messages %}
-  $(function() {
-    setTimeout(function() {
-        $(".message").hide('blind', {}, 500)
-    }, 5000);
-  });
+  {% for message in messages %}
+    {% if message.tags == 'success' %}
+    $(function() {
+      setTimeout(function() {
+          $(".message .alert-success").hide('blind', {}, 500)
+      }, 5000);
+    });
+    {% else %}
+	$(function() {
+      setTimeout(function() {
+          $(".message").hide('blind', {}, 500)
+      }, 25000);
+    });
+    {% endif %}
+  {% endfor %}
 {% endif %}
 </script>
 

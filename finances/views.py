@@ -1855,13 +1855,15 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
                 except:
                     errors.append( "Erreur avec " + username + " (ligne n*" + str(i) + "). A priori pas ajouté." )
             except:
-                errors.append( "Erreur avec line n*" + str(i) + ". Pas ajouté." )
+                errors.append( "Erreur avec la ligne n*" + str(i) + ". Pas ajouté." )
 
         errors_count = len(errors)
+        error_message = ""
         if errors_count >= 1 :
-            messages.warning(self.request, "Erreurs pendant l'ajout :")
-            for error in errors:
-                messages.warning(self.request, "- " + error)
+            error_message = str(errors_count) + " erreur(s) pendant l'ajout : \n"
+            error_message += "\n".join(errors)
+              #error_message += "- " + error + "\r\n"
+            messages.warning(self.request, error_message)
             messages.success(self.request, "Les " + str( i - (1 + errors_count) ) + " autres utilisateurs ont bien été ajoutés.")
         else:
             messages.success(self.request, "Les " + str( i-1 ) + " utilisateurs ont bien été ajoutés.")
