@@ -1839,24 +1839,28 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
             isParticipant = False
 
         errors = []
+        nb_empty_rows = 0
         i = 1
 
         # Enregistrement des pondérations
         for row in rows:
             i += 1;
             try:
-                username = row[0].value.strip() # Should be a str
-                user = User.objects.filter(username=username)
-                if user.count() > 0:
-                    user = User.objects.get(username=username)
-                    try:
-                        pond = int(row[1].value) # Should be an int. Else, raise an error
-                        if pond > 0:
-                            self.se.change_weight( user, pond, isParticipant )
-                    except:
-                        errors.append( "Erreur avec " + username + " (ligne n*" + str(i) + "). A priori pas ajouté." )
+                if row[0].value and row[1].value:
+                  username = row[0].value.strip() # Should be a str
+                  user = User.objects.filter(username=username)
+                  if user.count() > 0:
+                      user = User.objects.get(username=username)
+                      try:
+                          pond = int(row[1].value) # Should be an int. Else, raise an error
+                          if pond > 0:
+                              self.se.change_weight( user, pond, isParticipant )
+                      except:
+                          errors.append( "Erreur avec " + username + " (ligne n*" + str(i) + "). A priori pas ajouté." )
+                  else:
+                      errors.append( "L'utilisateur " + username + " n'existe pas. (ligne n*" + str(i) + ").")
                 else:
-                    errors.append( "L'utilisateur " + username + " n'existe pas. (ligne n*" + str(i) + ").")
+                  nb_empty_rows += 1
             except:
                 errors.append( "Erreur avec la ligne n*" + str(i) + ". Pas ajouté." )
 
@@ -1864,12 +1868,12 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
         error_message = ""
         if errors_count >= 1 :
             error_message = str(errors_count) + " erreur(s) pendant l'ajout : \n - "
-            if sheet.max_row - 1 == errors_count:
+            if sheet.max_row - nb_empty_rows - 1 == errors_count:
               error_message += "Aucune donnée ne peut être importée (Vérifiez le format et la syntaxe du contenu du fichier)"
             else:
               error_message += "\n - ".join(errors)
             messages.warning(self.request, error_message)
-            messages.success(self.request, "Les " + str( i - (1 + errors_count) ) + " autres utilisateurs ont bien été ajoutés.")
+            messages.success(self.request, "Les " + str( i - nb_empty_rows - (1 + errors_count) ) + " autres utilisateurs ont bien été ajoutés.")
         else:
             messages.success(self.request, "Les " + str( i-1 ) + " utilisateurs ont bien été ajoutés.")
 
