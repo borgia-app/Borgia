@@ -21,37 +21,47 @@
             <ul class="nav nav-tabs" role="tablist">
               <li role="presentation" class="active"><a href="#all" aria-controls="all" role="tab" data-toggle="tab">Tous</a></li>
               {% for object in transaction_list.shops %}
-              <li role="presentation">
-                <a href="#{{ object.shop.name }}"
-                  aria-controls="{{ object.shop.name }}"
-                  role="tab" data-toggle="tab">{{ object.shop.name|capfirst }}
-                </a>
-              </li>
+                {% if object.sale_list_short %}
+                <li role="presentation">
+                  <a href="#{{ object.shop.name }}"
+                    aria-controls="{{ object.shop.name }}"
+                    role="tab" data-toggle="tab">{{ object.shop.name|capfirst }}
+                  </a>
+                </li>
+                {% endif %}
               {% endfor %}
+              {% if transaction_list.transferts.transfert_list_short %}
               <li role="presentation">
                 <a href="#transferts"
                   aria-controles="transferts"
                   role="tab" data-toggle="tab">Transferts
                 </a>
               </li>
+              {% endif %}
+              {% if transaction_list.rechargings.recharging_list_short %}
               <li role="presentation">
                 <a href="#rechargings"
                   aria-controles="rechargements"
                   role="tab" data-toggle="tab">Rechargements
                 </a>
               </li>
+              {% endif %}
+              {% if transaction_list.exceptionnalmovements.exceptionnalmovements_list_short %}
               <li role="presentation">
                 <a href="#exceptionnalmovements"
                   aria-controles="mouvements exceptionnels"
                   role="tab" data-toggle="tab">Exceptionnels
                 </a>
               </li>
+              {% endif %}
+              {% if transaction_list.sharedevents.sharedevent_list_short %}
               <li role="presentation">
                 <a href="#shared_events"
                   aria-controles="shared_events"
                   role="tab" data-toggle="tab">Evènements
                 </a>
               </li>
+              {% endif %}
             </ul>
 
             <div class="tab-content">
@@ -79,7 +89,7 @@
                             -{{ transaction.amount }}€
                           {% endif %}
                         {% elif transaction|get_transaction_model == 'Transfert' %}
-                          {% if transaction.sender.recipient == user %}
+                          {% if transaction.recipient == user %}
                             {{ transaction.amount }}€
                           {% else %}
                             -{{ transaction.amount }}€
@@ -131,7 +141,7 @@
                     <tr>
                       <td>{{ transfert.datetime|date:"d/m/Y H:i:s" }}</td>
                       <td>{{ transfert.justification }}
-                      {% if transfert.sender == user %} vers {{ transfert.recipient }}{% else %} depuis {{ transfert.sender}}{% endif %}</td>
+                      {% if transfert.sender == user %} vers {{ transfert.recipient }}{% else %} depuis {{ transfert.sender }}{% endif %}</td>
                       <td>
                         {% if transfert.sender == user %}
                           -{{ transfert.amount }}

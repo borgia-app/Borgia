@@ -743,12 +743,13 @@ class TransfertRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class SelfTransfertCreate(GroupPermissionMixin, FormView,
+class SelfTransfertCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
                           GroupLateralMenuFormMixin):
     template_name = 'finances/self_transfert_create.html'
     perm_codename = 'add_transfert'
     lm_active = 'lm_self_transfert_create'
     form_class = SelfTransfertCreateForm
+    success_message = "Le montant de %(amount)s€ a bien été transféré à %(recipient)s."
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super(SelfTransfertCreate, self).get_form_kwargs(**kwargs)
@@ -771,6 +772,12 @@ class SelfTransfertCreate(GroupPermissionMixin, FormView,
                recipient= recipient,
                target_object=transfert)
         return super(SelfTransfertCreate, self).form_valid(form)
+
+    def get_success_message(self, cleaned_data):
+        return self.success_message % dict(
+            amount=cleaned_data['amount'],
+            recipient=cleaned_data['recipient']
+        )		
 
 
 class ExceptionnalMovementList(GroupPermissionMixin, FormView,
