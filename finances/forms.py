@@ -42,7 +42,7 @@ class SelfTransfertCreateForm(forms.Form):
             label='Montant (€)',
             decimal_places=2,
             max_digits=9,
-            min_value=0, max_value=self.sender.balance)
+            min_value=0, max_value=max(self.sender.balance,0))
         self.fields['justification'] = forms.CharField(
             label='Justification',
             max_length=254
