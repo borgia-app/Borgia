@@ -1,5 +1,3 @@
-{% block content %}
-<script type="text/javascript">
 $(function(){
   $("#id_allow_self_registeration").change(function() {
     if (this.checked) {
@@ -9,5 +7,3 @@ $(function(){
 	}
   });
 });
-</script>
-{% endblock %}

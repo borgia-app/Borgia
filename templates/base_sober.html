@@ -172,17 +172,11 @@
 		type : 'cover'
 	});
 </script>
-<script>
+
 {% if messages %}
-  {% for message in messages %}
-    $(function() {
-      setTimeout(function() {
-          $(".message").hide('blind', {}, 500)
-      }, 25000);
-    });
-  {% endfor %}
+  {% include 'js/timer_flash_message.html' with messages=messages %}
 {% endif %}
-</script>
+
 
 </body>
 </html>

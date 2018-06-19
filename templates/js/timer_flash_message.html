@@ -1,0 +1,11 @@
+{% block content %}
+<script type="text/javascript">
+{% for message in messages %}
+    $(function() {
+      setTimeout(function() {
+          $(".message").hide('blind', {}, 500)
+      }, 25000);
+    });
+{% endfor %}
+</script>
+{% endblock %}

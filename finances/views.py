@@ -1848,8 +1848,7 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
             try:
                 if row[0].value and row[1].value:
                   username = row[0].value.strip() # Should be a str
-                  user = User.objects.filter(username=username)
-                  if user.count() > 0:
+                  if User.objects.filter(username=username).count() > 0:
                       user = User.objects.get(username=username)
                       try:
                           pond = int(row[1].value) # Should be an int. Else, raise an error

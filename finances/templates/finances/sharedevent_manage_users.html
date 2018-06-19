@@ -173,9 +173,7 @@
 
   {% include 'finances/js/ajax_ponderation.html' with list_weights=list_weights %}
   {% if price %}
-    {% if state == "participants" or state == "registrants" or state == "users" %}
-      {% include 'finances/js/calculate_users_price.html' with price=price %}
-    {% endif %}
+		{% include 'finances/js/calculate_users_price.html' with price=price %}
   {% endif %}
 {% endif %}
 
