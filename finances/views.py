@@ -1840,18 +1840,19 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
 
         errors = []
         nb_empty_rows = 0
+        min_col = sheet.min_column - 1
         i = 1
 
         # Enregistrement des pondérations
         for row in rows:
             i += 1;
             try:
-                if row[0].value and row[1].value:
-                  username = row[0].value.strip() # Should be a str
+                if row[min_col].value and row[min_col + 1].value:
+                  username = row[min_col].value.strip() # Should be a str
                   if User.objects.filter(username=username).count() > 0:
                       user = User.objects.get(username=username)
                       try:
-                          pond = int(row[1].value) # Should be an int. Else, raise an error
+                          pond = int(row[min_col+1].value) # Should be an int. Else, raise an error
                           if pond > 0:
                               self.se.change_weight( user, pond, isParticipant )
                       except:
