@@ -1386,7 +1386,7 @@ class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
         """
         initial = super(SharedEventFinish, self).get_initial()
         initial['total_price'] = self.price
-        initial['ponderation_price'] = self.ponderation_price
+        initial['ponderation_price'] = round(self.ponderation_price,2)
         return initial
 
     def get_context_data(self, **kwargs):
@@ -1394,7 +1394,7 @@ class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
         context['se'] = self.se
         context['total_price'] = self.se.price
         context['total_weights_participants'] = self.total_weights_participants
-        context['ponderation_price'] = self.ponderation_price
+        context['ponderation_price'] = round(self.ponderation_price,2)
         return context
 
     def form_valid(self, form):
@@ -1641,10 +1641,6 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
         if request.user != self.se.manager or not request.user.has_perm('finances.manage_sharedevent'):
             raise Http404
 
-        # On ne modifie plus une event terminé
-        if self.se.done is True:
-            raise PermissionDenied
-
         return super(SharedEventManageUsers, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self):
@@ -1850,30 +1846,41 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
             isParticipant = False
 
         errors = []
+        nb_empty_rows = 0
+        min_col = sheet.min_column - 1
         i = 1
 
         # Enregistrement des pondérations
         for row in rows:
             i += 1;
             try:
-                username = row[0].value.strip() # Should be a str
-                user = User.objects.get(username=username)
-                try:
-                    pond = int(row[1].value) # Should be an int. Else, raise an error
-
-                    if pond > 0:
-                        self.se.change_weight( user, pond, isParticipant )
-                except:
-                    errors.append( "Erreur avec " + username + " (ligne n*" + str(i) + "). A priori pas ajouté." )
+                if row[min_col].value and row[min_col + 1].value:
+                  username = row[min_col].value.strip() # Should be a str
+                  if User.objects.filter(username=username).count() > 0:
+                      user = User.objects.get(username=username)
+                      try:
+                          pond = int(row[min_col+1].value) # Should be an int. Else, raise an error
+                          if pond > 0:
+                              self.se.change_weight( user, pond, isParticipant )
+                      except:
+                          errors.append( "Erreur avec " + username + " (ligne n*" + str(i) + "). A priori pas ajouté." )
+                  else:
+                      errors.append( "L'utilisateur " + username + " n'existe pas. (ligne n*" + str(i) + ").")
+                else:
+                  nb_empty_rows += 1
             except:
-                errors.append( "Erreur avec line n*" + str(i) + ". Pas ajouté." )
+                errors.append( "Erreur avec la ligne n*" + str(i) + ". Pas ajouté." )
 
         errors_count = len(errors)
+        error_message = ""
         if errors_count >= 1 :
-            messages.warning(self.request, "Erreurs pendant l'ajout :")
-            for error in errors:
-                messages.warning(self.request, "- " + error)
-            messages.success(self.request, "Les " + str( i - (1 + errors_count) ) + " autres utilisateurs ont bien été ajoutés.")
+            error_message = str(errors_count) + " erreur(s) pendant l'ajout : \n - "
+            if sheet.max_row - nb_empty_rows - 1 == errors_count:
+              error_message += "Aucune donnée ne peut être importée (Vérifiez le format et la syntaxe du contenu du fichier)"
+            else:
+              error_message += "\n - ".join(errors)
+            messages.warning(self.request, error_message)
+            messages.success(self.request, "Les " + str( i - nb_empty_rows - (1 + errors_count) ) + " autres utilisateurs ont bien été ajoutés.")
         else:
             messages.success(self.request, "Les " + str( i-1 ) + " utilisateurs ont bien été ajoutés.")
 

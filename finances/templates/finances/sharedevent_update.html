@@ -60,10 +60,10 @@
     </div>
     <div class="panel-body">
       Nombre de pré-inscrits : <strong>{{ number_registrants }}</strong><br />
-      Nombre total de pré-inscription : <strong>{{ total_weights_registrants }}</strong><br />
+      Nombre total de pré-inscriptions : <strong>{{ total_weights_registrants }}</strong><br />
       <br />
       Nombre de participants : <strong>{{ number_participants }}</strong><br />
-      Nombre total de participation : <strong>{{ total_weights_participants }}</strong><br />
+      Nombre total de participations : <strong>{{ total_weights_participants }}</strong><br />
       <br />
       <a href="{% url 'url_sharedevent_manage_users' pk=pk group_name=group.name %}" class="btn btn-success">Accéder à la {% if not done %}gestion manuelle{% else %}liste{% endif %}</a>
     </div>

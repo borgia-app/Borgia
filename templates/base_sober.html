@@ -122,7 +122,20 @@
                     {% if messages %}
                         <div class="messages">
                             {% for message in messages %}
-                            <div{% if message.tags %} class="alert alert-{{ message.tags }}" role="alert"{% endif %}>{{ message }}</div>
+                              <div{% if message.tags %} class="message alert alert-{{ message.tags }}" role="alert"{% endif %}>
+							    <div class="alert-icon">
+							      <i class="fa 
+                                    {% if message.tags == 'success' %}fa-check{% endif %}
+                                    {% if message.tags == 'info' %}fa-info-circle{% endif %}
+                                    {% if message.tags == 'warning' %}fa-exclamation-triangle{% endif %}
+                                    {% if message.tags == 'error' %}fa-exclamation-circle{% endif %}
+							      ">
+								  </i>
+								</div>
+								<div>
+                                   {{ message |linebreaks }}
+								</div>
+							  </div>
                             {% endfor %}
                         </div>
                     {% endif %}
@@ -159,5 +172,11 @@
 		type : 'cover'
 	});
 </script>
+
+{% if messages %}
+  {% include 'js/timer_flash_message.html' with messages=messages %}
+{% endif %}
+
+
 </body>
 </html>

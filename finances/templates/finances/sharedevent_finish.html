@@ -21,11 +21,13 @@
     </div>
     <div class="panel-body">
         <p>
-            <strong>Rappel :</strong><br>
-             - Prix total: {% if total_price %}{{ total_price }}{% else %}Non renseigné{% endif %}<br>
-             - Nombre de part: {{ total_weights_participants }}<br>
-             {% if ponderation_price %}- Prix de revient par part: {{ ponderation_price }}<br>{% endif %}
-             <br>
+          <strong>Rappel :</strong><br>
+        </p>
+        <ul>
+            <li>Prix total: {% if total_price %}{{ total_price }} €{% else %}Non renseigné{% endif %}</li>
+            <li>Nombre de part: {{ total_weights_participants }}</li>
+            {% if ponderation_price %}<li>Prix de revient par part: {{ ponderation_price }}</li>{% endif %}
+		</ul>
         <form id="finish_form" action="" method="post">
             {% csrf_token %}
             {{ form|bootstrap }}
