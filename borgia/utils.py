@@ -284,7 +284,11 @@ def lateral_menu_gadz(user, group, active=None):
         try:
             module = SelfSaleModule.objects.get(shop=shop)
             if module.state is True:
-                list_selfsalemodule.append(shop)
+                try:
+                    if Permission.objects.get(codename='use_selfsalemodule') in group.permissions.all():
+                        list_selfsalemodule.append(shop)
+                except ObjectDoesNotExist:
+                    pass
         except ObjectDoesNotExist:
             pass
 
@@ -317,12 +321,16 @@ def lateral_menu_gadz(user, group, active=None):
             'lm_self_lydia_create',
             reverse('url_self_lydia_create', kwargs={'group_name': group.name})))
 
-    nav_tree.append(
-        simple_lateral_link(
-            'Transfert',
-            'exchange',
-            'lm_self_transfert_create',
-            reverse('url_self_transfert_create', kwargs={'group_name': group.name})))
+    try:
+        if Permission.objects.get(codename='add_transfert') in group.permissions.all():
+            nav_tree.append(
+                simple_lateral_link(
+                    'Transfert',
+                    'exchange',
+                    'lm_self_transfert_create',
+                     reverse('url_self_transfert_create', kwargs={'group_name': group.name})))
+    except ObjectDoesNotExist:
+        pass
 
     nav_tree.append(
         simple_lateral_link(
@@ -331,8 +339,11 @@ def lateral_menu_gadz(user, group, active=None):
             'lm_self_transaction_list',
             reverse('url_self_transaction_list', kwargs={'group_name': group.name})))
 
-
-    nav_tree.append(lateral_menu_model((SharedEvent, 'Evènements', 'calendar', 'List', 'Add'), group))
+    try:
+        if Permission.objects.get(codename='list_sharedevent') in group.permissions.all():
+            nav_tree.append(lateral_menu_model((SharedEvent, 'Evènements', 'calendar', 'List', 'Add'), group))
+    except ObjectDoesNotExist:
+	    pass
 
     if active is not None:
         for link in nav_tree:
