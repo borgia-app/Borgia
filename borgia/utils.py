@@ -341,7 +341,12 @@ def lateral_menu_gadz(user, group, active=None):
 
     try:
         if Permission.objects.get(codename='list_sharedevent') in group.permissions.all():
-            nav_tree.append(lateral_menu_model((SharedEvent, 'Evènements', 'calendar', 'List', 'Add'), group))
+            nav_tree.append(
+                simple_lateral_link(
+                    'Évènements',
+                    'calendar',
+                    'lm_sharedevent_list',
+                     reverse('url_sharedevent_list', kwargs={'group_name': group.name})))
     except ObjectDoesNotExist:
 	    pass
 
