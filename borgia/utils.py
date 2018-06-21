@@ -83,10 +83,20 @@ def lateral_menu(user, group, active=None):
     # Functions
 
     # Manage products
-    if lateral_menu_product(group) is not None:
-        nav_tree.append(
-            lateral_menu_product(group)
+    try:
+        if (Permission.objects.get(codename='list_product') in group.permissions.all()):
+            nav_tree.append(
+                simple_lateral_link(
+                    label='Produits',
+                    faIcon='cube',
+                    id='lm_product_list',
+                    url= reverse(
+                        'url_product_list',
+                        kwargs={'group_name': group.name})
+				)
             )
+    except ObjectDoesNotExist:
+        pass
 
     # Manage stocks
     if lateral_menu_stock(group) is not None:
@@ -445,48 +455,6 @@ def lateral_menu_model(model, group):
         return model_tree
     else:
         return None
-
-
-def lateral_menu_product(group):
-    """
-    """
-    product_tree = {
-        'label': 'Produits',
-        'icon': 'cube',
-        'id': 'lm_product',
-        'subs': []
-    }
-
-    add_permission = Permission.objects.get(
-        codename='add_product')
-    list_permission = Permission.objects.get(
-        codename='list_product')
-
-    if add_permission in group.permissions.all():
-        product_tree['subs'].append({
-            'label': 'Nouveau',
-            'icon': 'plus',
-            'id': 'lm_product_create',
-            'url': reverse(
-                'url_product_create',
-                kwargs={'group_name': group.name})
-        })
-
-    if list_permission in group.permissions.all():
-        product_tree['subs'].append({
-            'label': 'Liste',
-            'icon': 'list',
-            'id': 'lm_product_list',
-            'url': reverse(
-                'url_product_list',
-                kwargs={'group_name': group.name})
-        })
-
-    if len(product_tree['subs']) > 0:
-        return product_tree
-    else:
-        return None
-
 
 def lateral_menu_stock(group):
     """
