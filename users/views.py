@@ -11,6 +11,7 @@ from settings_data.utils import settings_safe_get
 
 from users.forms import *
 from users.models import ExtendedPermission
+from django.contrib import messages
 from borgia.utils import *
 
 
@@ -290,13 +291,14 @@ class UserUpdateAdminView(GroupPermissionMixin, FormView, GroupLateralMenuFormMi
 
 class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
-    Deactivate an user and redirect to the workboard of the group.
+    Deactivate a user and redirect to the workboard of the group.
 
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
     template_name = 'users/deactivate.html'
     perm_codename = 'delete_user'
+    success_message = "Le compte de %(user)s a bien été "
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
@@ -315,10 +317,51 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
             user.is_active = True
         user.save()
 
+        if user.is_active:
+            self.success_message += 'activé'
+        else:
+            self.success_message += 'désactivé'
+
+        messages.success(request, self.success_message % dict(
+            user=user,
+        ))
+
         self.success_url = reverse(
             'url_user_retrieve',
             kwargs={'group_name': self.group.name,
                     'pk': self.kwargs['pk']})
+
+        return redirect(force_text(self.success_url))
+
+
+class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    Deactivate own account and disconnect.
+
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
+    template_name = 'users/deactivate.html'
+    perm_codename = None
+
+    def get(self, request, *args, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+        context = self.get_context_data(**kwargs)
+        context['object'] = user
+        return render(request, 'users/deactivate.html', context=context)
+
+    def post(self, request, *args, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+        if user.is_active is True:
+            user.is_active = False
+            if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
+                user.groups.clear()
+                user.groups.add(Group.objects.get(pk=5))
+
+        user.save()
+
+        self.success_url = reverse(
+            'url_logout')
 
         return redirect(force_text(self.success_url))
 
