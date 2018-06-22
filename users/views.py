@@ -322,6 +322,40 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
         return redirect(force_text(self.success_url))
 
+class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    Deactivate an user and redirect to the workboard of the group.
+
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
+    template_name = 'users/deactivate.html'
+    perm_codename = None
+
+    def get(self, request, *args, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+        context = self.get_context_data(**kwargs)
+        context['object'] = user
+        return render(request, 'users/deactivate.html', context=context)
+
+    def post(self, request, *args, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+        if user.is_active is True:
+            user.is_active = False
+            if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
+                user.groups.clear()
+                user.groups.add(Group.objects.get(pk=5))
+        else:
+            user.is_active = True
+        user.save()
+
+        self.success_url = reverse(
+            'url_user_retrieve',
+            kwargs={'group_name': self.group.name,
+                    'pk': self.kwargs['pk']})
+
+        return redirect(force_text(self.success_url))
+
 
 class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     """
