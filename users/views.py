@@ -11,6 +11,7 @@ from settings_data.utils import settings_safe_get
 
 from users.forms import *
 from users.models import ExtendedPermission
+from django.contrib import messages
 from borgia.utils import *
 
 
@@ -297,6 +298,7 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
     template_name = 'users/deactivate.html'
     perm_codename = 'delete_user'
+    success_message = "Le compte de %(user)s a bien été "
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
@@ -314,6 +316,15 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         else:
             user.is_active = True
         user.save()
+
+        if user.is_active:
+            self.success_message += 'activé'
+        else:
+            self.success_message += 'désactivé'
+
+        messages.success(request, self.success_message % dict(
+            user=user,
+        ))
 
         self.success_url = reverse(
             'url_user_retrieve',
@@ -331,6 +342,7 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
     template_name = 'users/deactivate.html'
     perm_codename = None
+    success_message = "Le compte de %(user)s a bien été "
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
@@ -348,6 +360,15 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         else:
             user.is_active = True
         user.save()
+
+        if user.is_active:
+            self.success_message += 'activé'
+        else:
+            self.success_message += 'désactivé'
+
+        messages.success(request, self.success_message % dict(
+            user=user,
+        ))
 
         self.success_url = reverse(
             'url_user_retrieve',
