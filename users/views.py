@@ -291,7 +291,7 @@ class UserUpdateAdminView(GroupPermissionMixin, FormView, GroupLateralMenuFormMi
 
 class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
-    Deactivate an user and redirect to the workboard of the group.
+    Deactivate a user and redirect to the workboard of the group.
 
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
@@ -333,16 +333,16 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
         return redirect(force_text(self.success_url))
 
+
 class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
-    Deactivate an user and redirect to the workboard of the group.
+    Deactivate own account and disconnect.
 
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
     template_name = 'users/deactivate.html'
     perm_codename = None
-    success_message = "Le compte de %(user)s a bien été "
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
@@ -357,23 +357,11 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
             if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
                 user.groups.clear()
                 user.groups.add(Group.objects.get(pk=5))
-        else:
-            user.is_active = True
+
         user.save()
 
-        if user.is_active:
-            self.success_message += 'activé'
-        else:
-            self.success_message += 'désactivé'
-
-        messages.success(request, self.success_message % dict(
-            user=user,
-        ))
-
         self.success_url = reverse(
-            'url_user_retrieve',
-            kwargs={'group_name': self.group.name,
-                    'pk': self.kwargs['pk']})
+            'url_logout')
 
         return redirect(force_text(self.success_url))
 
