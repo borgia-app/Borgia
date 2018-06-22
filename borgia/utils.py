@@ -23,11 +23,11 @@ def lateral_menu(user, group, active=None):
     # TODO: try for reverse urls
 
     models_checked = [
-        (User, 'Utilisateurs', 'user', 'List', 'Add'),
-        (Shop, 'Magasins', 'shopping-basket', 'List', 'Add'),
-        (Notification, 'Notifications', '', 'List'),
-        (NotificationTemplate, 'Templates notification', '', 'List', 'Add'),
-        (SharedEvent, 'Evènements', 'calendar', 'List', 'Add'),
+        (User, 'Utilisateurs', 'user', 'noSubs','List'),
+        (Shop, 'Magasins', 'shopping-basket', 'noSubs', 'List'),
+        (Notification, 'Notifications', 'bell', 'noSubs', 'List'),
+        (NotificationTemplate, 'Templates notification', 'list-alt', 'noSubs', 'List'),
+        (SharedEvent, 'Evènements', 'calendar', 'noSubs', 'List'),
         (NotificationGroup, 'Groupes', '', 'List', 'Add'),
     ]
 
@@ -83,10 +83,20 @@ def lateral_menu(user, group, active=None):
     # Functions
 
     # Manage products
-    if lateral_menu_product(group) is not None:
-        nav_tree.append(
-            lateral_menu_product(group)
+    try:
+        if (Permission.objects.get(codename='list_product') in group.permissions.all()):
+            nav_tree.append(
+                simple_lateral_link(
+                    label='Produits',
+                    faIcon='cube',
+                    id='lm_product_list',
+                    url= reverse(
+                        'url_product_list',
+                        kwargs={'group_name': group.name})
+				)
             )
+    except ObjectDoesNotExist:
+        pass
 
     # Manage stocks
     if lateral_menu_stock(group) is not None:
@@ -255,10 +265,14 @@ def lateral_menu(user, group, active=None):
     if active is not None:
         for link in nav_tree:
             try:
-                for sub in link['subs']:
-                    if sub['id'] == active:
-                        sub['active'] = True
-                        break
+                if len(link['subs']) == 0:
+                    if link['id'] == active:
+                        link['active'] = True
+                else:
+                    for sub in link['subs']:
+                        if sub['id'] == active:
+                            sub['active'] = True
+                            break
             except KeyError:
                 if link['id'] == active:
                     link['active'] = True
@@ -284,7 +298,11 @@ def lateral_menu_gadz(user, group, active=None):
         try:
             module = SelfSaleModule.objects.get(shop=shop)
             if module.state is True:
-                list_selfsalemodule.append(shop)
+                try:
+                    if Permission.objects.get(codename='use_selfsalemodule') in group.permissions.all():
+                        list_selfsalemodule.append(shop)
+                except ObjectDoesNotExist:
+                    pass
         except ObjectDoesNotExist:
             pass
 
@@ -317,12 +335,16 @@ def lateral_menu_gadz(user, group, active=None):
             'lm_self_lydia_create',
             reverse('url_self_lydia_create', kwargs={'group_name': group.name})))
 
-    nav_tree.append(
-        simple_lateral_link(
-            'Transfert',
-            'exchange',
-            'lm_self_transfert_create',
-            reverse('url_self_transfert_create', kwargs={'group_name': group.name})))
+    try:
+        if Permission.objects.get(codename='add_transfert') in group.permissions.all():
+            nav_tree.append(
+                simple_lateral_link(
+                    'Transfert',
+                    'exchange',
+                    'lm_self_transfert_create',
+                     reverse('url_self_transfert_create', kwargs={'group_name': group.name})))
+    except ObjectDoesNotExist:
+        pass
 
     nav_tree.append(
         simple_lateral_link(
@@ -331,8 +353,16 @@ def lateral_menu_gadz(user, group, active=None):
             'lm_self_transaction_list',
             reverse('url_self_transaction_list', kwargs={'group_name': group.name})))
 
-
-    nav_tree.append(lateral_menu_model((SharedEvent, 'Evènements', 'calendar', 'List', 'Add'), group))
+    try:
+        if Permission.objects.get(codename='list_sharedevent') in group.permissions.all():
+            nav_tree.append(
+                simple_lateral_link(
+                    'Évènements',
+                    'calendar',
+                    'lm_sharedevent_list',
+                     reverse('url_sharedevent_list', kwargs={'group_name': group.name})))
+    except ObjectDoesNotExist:
+	    pass
 
     if active is not None:
         for link in nav_tree:
@@ -373,12 +403,21 @@ def lateral_menu_model(model, group):
     else:
         faIcon = "database"
 
-    model_tree = {
-        'label': model[1],
-        'icon': faIcon,
-        'id': 'lm_' + model[0]._meta.model_name,
-        'subs': []
-    }
+    if 'noSubs' in model:
+        model_tree = {
+            'label': model[1],
+            'icon': faIcon,
+            'id': 'lm_' + model[0]._meta.model_name,
+            'url': '',
+            'subs': []
+        }
+    else:
+        model_tree = {
+            'label': model[1],
+            'icon': faIcon,
+            'id': 'lm_' + model[0]._meta.model_name,
+            'subs': []
+        }
 
     if 'Add' in model:
         add_permission = Permission.objects.get(
@@ -399,61 +438,23 @@ def lateral_menu_model(model, group):
             codename='list_' + model[0]._meta.model_name)
 
         if list_permission in group.permissions.all():
-            model_tree['subs'].append({
-                'label': 'Liste',
-                'icon': 'list',
-                'id': 'lm_' + model[0]._meta.model_name + '_list',
-                'url': reverse(
-                    'url_' + model[0]._meta.model_name + '_list',
-                    kwargs={'group_name': group.name})
-            })
+            if 'noSubs' in model:
+                model_tree['url'] = reverse('url_' + model[0]._meta.model_name + '_list', kwargs={'group_name': group.name})
+                model_tree['id'] = 'lm_' + model[0]._meta.model_name  + '_list'
+            else:
+                model_tree['subs'].append({
+                    'label': 'Liste',
+                    'icon': 'list',
+                    'id': 'lm_' + model[0]._meta.model_name + '_list',
+                    'url': reverse(
+                        'url_' + model[0]._meta.model_name + '_list',
+                        kwargs={'group_name': group.name})
+                })
 
-    if len(model_tree['subs']) > 0:
+    if len(model_tree['subs']) > 0 or 'noSubs' in model:
         return model_tree
     else:
         return None
-
-
-def lateral_menu_product(group):
-    """
-    """
-    product_tree = {
-        'label': 'Produits',
-        'icon': 'cube',
-        'id': 'lm_product',
-        'subs': []
-    }
-
-    add_permission = Permission.objects.get(
-        codename='add_product')
-    list_permission = Permission.objects.get(
-        codename='list_product')
-
-    if add_permission in group.permissions.all():
-        product_tree['subs'].append({
-            'label': 'Nouveau',
-            'icon': 'plus',
-            'id': 'lm_product_create',
-            'url': reverse(
-                'url_product_create',
-                kwargs={'group_name': group.name})
-        })
-
-    if list_permission in group.permissions.all():
-        product_tree['subs'].append({
-            'label': 'Liste',
-            'icon': 'list',
-            'id': 'lm_product_list',
-            'url': reverse(
-                'url_product_list',
-                kwargs={'group_name': group.name})
-        })
-
-    if len(product_tree['subs']) > 0:
-        return product_tree
-    else:
-        return None
-
 
 def lateral_menu_stock(group):
     """
