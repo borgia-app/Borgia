@@ -122,7 +122,7 @@
                     {% if messages %}
                         <div class="messages">
                             {% for message in messages %}
-                              <div{% if message.tags %} class="message alert {% if message.tags != 'error' %}alert-{{ message.tags }} {% else %} alert-danger {% endif %}" role="alert"{% endif %}>
+                              <div{% if message.tags %} class="message alert alert-{{ message.tags }}" role="alert"{% endif %}>
 							    <div class="alert-icon">
 							      <i class="fa 
                                     {% if message.tags == 'success' %}fa-check{% endif %}

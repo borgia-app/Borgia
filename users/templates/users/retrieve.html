@@ -9,24 +9,13 @@
         {% if group|has_group_perm:"change_user" %}
           <a class="btn btn-primary" href="{% url 'url_user_update' group_name=group_name pk=object.pk %}">Modifier les informations</a>
         {% endif %}
-        {% if group|has_group_perm:"delete_user" or object.pk == request.user.pk %}
-          {% if object.pk == request.user.pk %}
-            <a class="btn btn-primary" href="{% url 'url_self_deactivate' group_name=group_name pk=object.pk %}">
-                {% if object.is_active == True %}
-                    Désactiver mon compte
-                {% else %}
-                    Activer mon compte
-                {% endif %}
-            </a>
-          {% else %}
-            <a class="btn btn-primary" href="{% url 'url_user_deactivate' group_name=group_name pk=object.pk %}">
-                {% if object.is_active == True %}
-                    Désactiver le compte
-                {% else %}
-                    Activer le compte
-                {% endif %}
-            </a>
-          {% endif %}
+        {% if group|has_group_perm:"delete_user" %}
+          <a class="btn btn-primary" href="{% url 'url_user_deactivate' group_name=group_name pk=object.pk %}">
+              {% if object.is_active == True %}
+                Désactiver l'utilisateur
+              {% else %}
+                Activer l'utilisateur
+              {% endif %}</a>
         {% endif %}
         {% if group|has_group_perm:"add_exceptionnal_movement" %}
           <a class="btn btn-primary" href="{% url 'url_user_exceptionnalmovement_create' group_name=group_name user_pk=object.pk %}">Mouvement exceptionnel</a>

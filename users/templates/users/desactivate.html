@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+
+{% block content %}
+    <div class="container50">
+        <h2 class="align-center">Désactivation d'un utilisateur</h2>
+        <form class="form-style-1" action="" method="post">{% csrf_token %}
+            <li><label>{% if object.is_active == True %}
+                Désactiver
+            {% else %}
+                Activer
+            {% endif %}
+                l'utilisateur {{ object.username }} ({{ object.first_name }} {{ object.last_name }}) ?</label></li>
+            <input type=hidden name="next" value="{{ next }}" />
+            <input type=hidden name="is_active" value="{{ object.is_active }}" />
+            <li><input type="submit" value="Valider" class="btn btn-success" /></li>
+        </form>
+    </div>
+{% endblock %}
