@@ -122,7 +122,7 @@
                     {% if messages %}
                         <div class="messages">
                             {% for message in messages %}
-                              <div{% if message.tags %} class="message alert {% if message.tags != 'error' %}alert-{{ message.tags }} {% else %} alert-danger {% endif %}" role="alert"{% endif %}>
+                              <div {% if message.tags %}class="message alert {% if message.tags != 'error' %}alert-{{ message.tags }} {% else %} alert-danger {% endif %}" role="alert"{% endif %}>
 							    <div class="alert-icon">
 							      <i class="fa 
                                     {% if message.tags == 'success' %}fa-check{% endif %}
@@ -134,16 +134,20 @@
 								</div>
 								<div>
                                    {{ message |linebreaks }}
+				                </div>
+		                        <div>
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
 								</div>
-							  </div>
+                              </div>
                             {% endfor %}
-                        </div>
+						</div>
                     {% endif %}
-
-					{%  block content %}
-					{%  endblock %}
-				</div>
-			</div>
+			   </div>
+			   {%  block content %}
+			   {%  endblock %}
+		    </div>
 		</div>
 	</div>
 	{% include "footer.html" %}
