@@ -7,10 +7,12 @@ from django.utils.encoding import force_text
 from django.views.generic import FormView, View
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
+from django.contrib import messages
 from settings_data.utils import settings_safe_get
 
 from users.forms import *
 from users.models import ExtendedPermission
+from finances.models import SharedEvent
 from borgia.utils import *
 
 
@@ -290,13 +292,14 @@ class UserUpdateAdminView(GroupPermissionMixin, FormView, GroupLateralMenuFormMi
 
 class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
-    Deactivate an user and redirect to the workboard of the group.
+    Deactivate a user and redirect to the workboard of the group.
 
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
     template_name = 'users/deactivate.html'
     perm_codename = 'delete_user'
+    success_message = "Le compte de %(user)s a bien été "
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
@@ -315,10 +318,62 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
             user.is_active = True
         user.save()
 
+        if user.is_active:
+            self.success_message += 'activé'
+        else:
+            self.success_message += 'désactivé'
+
+        messages.success(request, self.success_message % dict(
+            user=user,
+        ))
+
         self.success_url = reverse(
             'url_user_retrieve',
             kwargs={'group_name': self.group.name,
                     'pk': self.kwargs['pk']})
+
+        return redirect(force_text(self.success_url))
+
+
+class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    Deactivate own account and disconnect.
+
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
+    template_name = 'users/deactivate.html'
+    perm_codename = None
+    error_sharedevent_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
+
+    def get(self, request, *args, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+        context = self.get_context_data(**kwargs)
+        context['object'] = user
+        return render(request, 'users/deactivate.html', context=context)
+
+    def post(self, request, *args, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+        sharedevents = SharedEvent.objects.filter(manager=user, done=False)
+        if user.is_active is True:
+            if sharedevents.count() > 0:
+                for sharedevent in sharedevents:
+                    self.error_sharedevent_message += "\n - " + sharedevent.description
+                messages.warning(request, self.error_sharedevent_message)
+            else:
+                user.is_active = False
+                if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
+                    user.groups.clear()
+                    user.groups.add(Group.objects.get(pk=5))
+
+                user.save()
+        if sharedevents.count() > 0:
+            self.success_url = reverse(
+                'url_sharedevent_list',
+                kwargs={'group_name': self.group.name})
+        else:
+            self.success_url = reverse(
+                'url_logout')
 
         return redirect(force_text(self.success_url))
 
