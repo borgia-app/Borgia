@@ -1430,6 +1430,8 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
     perm_codename = None # Checked in dispatch()
     success_message = "'%(description)s' a bien été mis à jour."
 
+    manager_changed = False
+
     def dispatch(self, request, *args, **kwargs):
         try:
             self.group = Group.objects.get(name=kwargs['group_name'])
@@ -1455,6 +1457,7 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
         initial = super(SharedEventUpdate, self).get_initial()
         initial['price'] = self.se.price
         initial['bills'] = self.se.bills
+        initial['manager'] = self.se.manager.username
         initial['allow_self_registeration'] = self.se.allow_self_registeration
         return initial
 
@@ -1495,20 +1498,46 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
             self.se.price = form.cleaned_data['price']
         if form.cleaned_data['bills']:
             self.se.bills = form.cleaned_data['bills']
+        if form.cleaned_data['manager']:
+            form_manager = User.objects.get(username = form.cleaned_data['manager'])
+            manage_permission = False
+            if self.se.manager != form_manager :
+                for group in form_manager.groups.all():
+                    if group.permissions.filter(codename = 'manage_sharedevent').count() > 0:
+                        manage_permission = True
+                        break
+                if manage_permission:
+                    self.manager_changed = True
+                else:
+                    messages.warning(self.request, 
+                                     "%(user)s ne dispose pas de droits suffisants pour gérer l'évènement" % dict(
+                                        user = form_manager))
+            if manage_permission:
+                self.se.manager = User.objects.get(username = form.cleaned_data['manager'])
         self.se.allow_self_registeration = form.cleaned_data['allow_self_registeration']
         self.se.save()
 
         return super(SharedEventUpdate, self).form_valid(form)
 
     def get_success_message(self, cleaned_data):
-        return self.success_message % dict(
-            description=self.se.description,
-        )
+        if self.manager_changed:
+            return "%(user)s gère désormais l'évènement" % dict(
+                user = self.se.manager,
+            )
+        else:
+            return self.success_message % dict(
+                description=self.se.description,
+            )
 
     def get_success_url(self):
-        return reverse('url_sharedevent_update',
-                         kwargs={ 'group_name': self.group.name, 'pk': self.se.pk }
-                         )
+        if self.manager_changed:
+            return reverse('url_group_workboard',
+                            kwargs={ 'group_name': self.group.name }
+                            )
+        else:
+            return reverse('url_sharedevent_update',
+                            kwargs={ 'group_name': self.group.name, 'pk': self.se.pk }
+                            )
 
 
 class SharedEventSelfRegistration(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
@@ -1880,7 +1909,8 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
             else:
               error_message += "\n - ".join(errors)
             messages.warning(self.request, error_message)
-            messages.success(self.request, "Les " + str( i - nb_empty_rows - (1 + errors_count) ) + " autres utilisateurs ont bien été ajoutés.")
+            if i - nb_empty_rows - (1 + errors_count) > 0:
+                messages.success(self.request, "Les " + str( i - nb_empty_rows - (1 + errors_count) ) + " autres utilisateurs ont bien été ajoutés.")
         else:
             messages.success(self.request, "Les " + str( i-1 ) + " utilisateurs ont bien été ajoutés.")
 
