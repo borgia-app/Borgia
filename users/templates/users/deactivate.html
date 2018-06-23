@@ -34,7 +34,11 @@
         <button class="btn btn-danger" type="submit">Valider</button>
     </form>
     {% if object.pk == request.user.pk %}
-        <p>Attention! Une fois le compte désactivé, vous ne pouvez pas le réactiver vous-même.</p>
+        <ul>
+          <li>Attention! Une fois le compte désactivé, vous ne pouvez pas le réactiver vous-même.</li>
+          <li>Vous ne pouvez pas désactiver votre compte tant que vous gérez des évènements en cours.
+		      Depuis la page de gestion de l'évènement, il est possible d'assigner un autre gestionnaire.</li>
+        </ul>
     {% endif %}
   </div>
 </div>

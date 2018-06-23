@@ -7,11 +7,12 @@ from django.utils.encoding import force_text
 from django.views.generic import FormView, View
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
+from django.contrib import messages
 from settings_data.utils import settings_safe_get
 
 from users.forms import *
 from users.models import ExtendedPermission
-from django.contrib import messages
+from finances.models import SharedEvent
 from borgia.utils import *
 
 
@@ -343,6 +344,7 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
     template_name = 'users/deactivate.html'
     perm_codename = None
+    error_sharedevent_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
@@ -352,16 +354,26 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def post(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
+        sharedevents = SharedEvent.objects.filter(manager=user, done=False)
         if user.is_active is True:
-            user.is_active = False
-            if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
-                user.groups.clear()
-                user.groups.add(Group.objects.get(pk=5))
+            if sharedevents.count() > 0:
+                for sharedevent in sharedevents:
+                    self.error_sharedevent_message += "\n - " + sharedevent.description
+                messages.warning(request, self.error_sharedevent_message)
+            else:
+                user.is_active = False
+                if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
+                    user.groups.clear()
+                    user.groups.add(Group.objects.get(pk=5))
 
-        user.save()
-
-        self.success_url = reverse(
-            'url_logout')
+                user.save()
+        if sharedevents.count() > 0:
+            self.success_url = reverse(
+                'url_sharedevent_list',
+                kwargs={'group_name': self.group.name})
+        else:
+            self.success_url = reverse(
+                'url_logout')
 
         return redirect(force_text(self.success_url))
 
