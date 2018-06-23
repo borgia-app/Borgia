@@ -21,125 +21,136 @@
 
     <link rel="shortcut icon" type="image/png" href="{% static 'img/borgia-label-less.png' %}"/>
     <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-    <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+    <script src="{% static 'js/jquery-ui.min.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/locales/bootstrap-datepicker.fr.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.standalone.min.css">
+
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/widgets.js' %}"></script>
     <script src="{% static 'js/local.js' %}"></script>
+	<script src="{% static 'js/classie.js' %}"></script>
+	<script src="{% static 'js/mlpushmenu.js' %}"></script>
+	<script src="{% static 'js/modernizr.custom.js' %}"></script>
 </head>
 <body>
-  <nav class="navbar navbar-default">
-    <div class="container-fluid">
-      <div class="navbar-header">
-        <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
-          {% set_brand request.user.theme as brand %}
-          <img src="{% static brand %}" class="logo"/>
 
-        </a>
-        <p class="navbar-text navbar-text-center">{% get_center_name %}</p>
-      </div>
-      <div class="navbar-right">
-        <ul class="nav navbar-nav">
-          <li class="user-profile-link"><a href="{% url 'url_user_retrieve' group_name=group_name pk=request.user.pk %}" style="padding:0;">
-		      {% if request.user.avatar %}
-              <span class="navbar-text-avatar" style="float: left;"><img src="{{ request.user.avatar.url }}" class="user-avatar"/></span>
-              {% endif %}
-              <p class="navbar-text">{{ request.user.display_name_navbar }}</p></a></li>
-          <li><p class="navbar-text">
-            <span
-              style="font-weight: bold"
-              class="{% if request.user.balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ request.user.balance }} €</span>
-            </p></li>
-          <li class="notification">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" >
-               <i class="fa fa-bell" aria-hidden="true"></i>{% if notifications %}<span class="badge" id="notif-count">{{ notifications.count }}</span>{% endif %}
-            </a>
-            <ul class="dropdown-menu dropdown-menu-right scrollable-menu" role="menu">
-                                    {% if notifications %}
-                                        {% for notification in notifications %}
-                                         <li class="dropdown-item scrollable-menu"><a><i class="fa fa-fw {% notification_icon notification %}" aria-hidden="true"></i>{% html_rendering_tag notification %}</a></li>
-                                         <li role="separator" class="divider"></li>
-                                        {% endfor %}
-                                    {%  else %}
-                                        <li class="dropdown-item scrollable-menu"><a href="#">Pas de nouvelle notification</a></li>
-                                        <li role="separator" class="divider"></li>
-                                    {% endif %}
-                                    <li class="scrollable-menu text-center">
-                                        <a href="{% if group %}{% url 'url_notification_list' group_name=group.name %}{% endif %}">
-                                            Voir tout {{ test42 }}
-                                        </a>
-                                    </li>
+    <div class="wrapper" id="wrapper">
+		{% if nav_tree %}
+			{% include "lateral_menu.html" %}
+		{% endif %}
+		<div class="content">
+			<nav class="navbar navbar-default">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<button type="button" id="sidebarTrigger" class="navbar-btn pull-left active">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+						</button>
+						<a class="navbar-brand visible-xs visible-sm" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
+							{% set_brand request.user.theme as brand %}
+							<span style="background: url('{% static brand %}') no-repeat; background-size: cover" class="logo"/> </span>
+						</a>
+						<p class="navbar-text navbar-text-center">{% get_center_name %}</p>
+					</div>
+					<div id="navbar" class="hidden-xs hidden-sm" aria-expanded="false">
+						<div class="navbar-right">
+							<ul class="nav navbar-nav" style="text-align: center">
+								<li class="user-profile-link"><a href="{% url 'url_user_retrieve' group_name=group_name pk=request.user.pk %}" style="padding:0;">
+									{% if request.user.avatar %}
+										<span class="navbar-text-avatar"><img src="{{ request.user.avatar.url }}" class="user-avatar"/></span>
+									{% endif %}
+								<p class="navbar-text">{{ request.user.display_name_navbar }}</p></a></li>
+								<li><p class="navbar-text">
+								<span
+									style="font-weight: bold"
+									class="{% if request.user.balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ request.user.balance }} €</span>
+								</p></li>
+								<li role="separator" class="divider"></li>
+								<li class="notification">
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" >
+										<i class="fa fa-bell" aria-hidden="true"></i>{% if notifications %}<span class="badge" id="notif-count">{{ notifications.count }}</span>{% endif %}
+									</a>
+									<ul class="dropdown-menu dropdown-menu-right scrollable-menu" role="menu">
+										{% if notifications %}
+											{% for notification in notifications %}
+												<li class="dropdown-item scrollable-menu"><a><i class="fa fa-fw {% notification_icon notification %}" aria-hidden="true"></i>{% html_rendering_tag notification %}</a></li>
+												<li role="separator" class="divider"></li>
+											{% endfor %}
+										{%  else %}
+											<li class="dropdown-item scrollable-menu"><a href="#">Pas de nouvelle notification</a></li>
+											<li role="separator" class="divider"></li>
+										{% endif %}
+										<li class="scrollable-menu text-center">
+											<a href="{% if group %}{% url 'url_notification_list' group_name=group.name %}{% endif %}">
+												Voir tout {{ test42 }}
+											</a>
+										</li>
+									</ul>
+								</li>
 
-                                </ul>
+								<li class="dropdown">
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+										<i class="fa fa-cog" aria-hidden="true"></i> <span class="caret"></span>
+									</a>
+									<ul class="dropdown-menu">
+										<li><a href="{% url 'url_self_user_update' group_name=group.name %}">
+											<i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>Modifier mes informations
+										</a></li>
+										<li role="separator" class="divider"></li>
+										<li><a href="{% url 'url_self_lydia_create' group_name=group.name %}">
+											<i class="fa fa-credit-card" aria-hidden="true" style="margin-right: 5px;"></i>Recharger mon compte
+										</a></li>
+										<li role="separator" class="divider"></li>
+										<li><a href="{% url 'url_logout' %}">
+											<i class="fa fa-sign-out" aria-hidden="true" style="margin-right: 5px;"></i>Se déconnecter
+										</a></li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</nav>
 
-          </li>
-          <li class="dropdown">
-            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-              <i class="fa fa-cog" aria-hidden="true"></i> <span class="caret"></span>
-            </a>
-            <ul class="dropdown-menu">
-              <li><a href="{% url 'url_self_user_update' group_name=group.name %}">
-                <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>Modifier mes informations
-              </a></li>
-              <li role="separator" class="divider"></li>
-              <li><a href="{% url 'url_self_lydia_create' group_name=group.name %}">
-                <i class="fa fa-credit-card" aria-hidden="true" style="margin-right: 5px;"></i>Recharger mon compte
-              </a></li>
-              <li role="separator" class="divider"></li>
-              <li><a href="{% url 'url_logout' %}">
-                <i class="fa fa-sign-out" aria-hidden="true" style="margin-right: 5px;"></i>Se déconnecter
-              </a></li>
-            </ul>
-          </li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  {% if nav_tree %}
-  <div class="container-fluid">
-   <div class="col-md-2">
-    {% include "lateral_menu.html" %}
-   </div>
-   <div class="col-md-10">
-  {% else %}
-  <div class="container">
-    <div class="col-md-12">
-  {% endif %}
-    {%  block content %}
-    {%  endblock %}
-    </div>
-  </div>
-
-  <footer class="navbar navbar-default navbar-fixed-bottom">
-    <div class="container-fluid row">
-      <div class="col-xs-9">
-        <p class="navbar-text">
-          <a href="https://github.com/borgia-app/Borgia/blob/master/license.txt" style="color: #777;">
-            <i class="fa fa-copyright" aria-hidden="true"></i>
-            Licence GNU GPL
-          </a>
-          <a href="https://github.com/orgs/borgia-app/teams/maintainers-borgia" style="margin-left: 10px; color: #777;">
-            <i class="fa fa-users" aria-hidden="true"></i>
-            Developed by Borgia maintainers
-          </a>
-          <a href="https://github.com/borgia-app/Borgia" style="margin-left: 10px; color: #777;">
-            <i class="fa fa-github" aria-hidden="true"></i>
-            Follow us on Github
-          </a>
-        </p>
-     </div>
-      <div class="col-xs-3">
-        <p class="navbar-text pull-right">
-          <a href="https://github.com/borgia-app/Borgia/releases/tag/4.5.0" style="color: #777;">
-            <i class="fa fa-code-fork" aria-hidden="true"></i>
-            Build 4.5.0
-          </a>
-        </p>
-      </div>
-    </div>
-  </footer>
+			<div class="container-fluid">
+				<div class="col-md-12">
+                    {% if messages %}
+                        <div class="messages">
+                            {% for message in messages %}
+                              <div {% if message.tags %}class="message alert {% if message.tags != 'error' %}alert-{{ message.tags }} {% else %} alert-danger {% endif %}" role="alert"{% endif %}>
+							    <div class="alert-icon">
+							      <i class="fa 
+                                    {% if message.tags == 'success' %}fa-check{% endif %}
+                                    {% if message.tags == 'info' %}fa-info-circle{% endif %}
+                                    {% if message.tags == 'warning' %}fa-exclamation-triangle{% endif %}
+                                    {% if message.tags == 'error' %}fa-exclamation-circle{% endif %}
+							      ">
+								  </i>
+								</div>
+								<div>
+                                   {{ message |linebreaks }}
+				                </div>
+		                        <div>
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+								</div>
+                              </div>
+                            {% endfor %}
+						</div>
+                    {% endif %}
+			   </div>
+			   {%  block content %}
+			   {%  endblock %}
+		    </div>
+		</div>
+	</div>
+	{% include "footer.html" %}
 
 <script>
  $(".navbar li.notification").click(function() {
@@ -160,5 +171,16 @@
    }
  })
 </script>
+<script>
+	new mlPushMenu( document.getElementById( 'sidebar' ), document.getElementById( 'sidebarTrigger' ), {
+		type : 'cover'
+	});
+</script>
+
+{% if messages %}
+  {% include 'js/timer_flash_message.html' with messages=messages %}
+{% endif %}
+
+
 </body>
 </html>

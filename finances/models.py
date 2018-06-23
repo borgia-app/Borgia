@@ -387,8 +387,9 @@ class Transfert(models.Model):
 
 
     def pay(self):
-        self.sender.debit(self.amount)
-        self.recipient.credit(self.amount)
+        if self.sender.debit != self.recipient.credit:
+            self.sender.debit(self.amount)
+            self.recipient.credit(self.amount)
 
 
 class ExceptionnalMovement(models.Model):
@@ -461,7 +462,10 @@ class SharedEvent(models.Model):
         list_u_all = []
         for user in self.users.all():
             e = self.weightsuser_set.get(user=user, shared_event=self)
-            list_u_all.append([user, e.weights_registeration, e.weights_participation])
+            if isinstance(self.price, Decimal) and e.weights_participation > 0:
+              list_u_all.append([user, e.weights_registeration, e.weights_participation, e.weights_participation * self.price])
+            else:
+              list_u_all.append([user, e.weights_registeration, e.weights_participation])
         return list_u_all
 
     def list_participants_weight(self):
@@ -475,7 +479,10 @@ class SharedEvent(models.Model):
             e = self.weightsuser_set.get(user=user, shared_event=self)
             weight = e.weights_participation
             if weight > 0:
-                list_u_p.append([user, weight])
+                if self.price:
+                  list_u_p.append([user, weight, weight * self.price])
+                else:
+                  list_u_p.append([user, weight])
         return list_u_p
 
     def list_registrants_weight(self):
@@ -594,6 +601,9 @@ class SharedEvent(models.Model):
         :return:
         """
 
+        self.done = True
+        self.save()
+
         # Calcul du prix par weight
         total_weight = self.get_total_weights_participants()
         try:
@@ -602,7 +612,9 @@ class SharedEvent(models.Model):
             return
 
         for e in self.weightsuser_set.all():
-            e.user.debit(final_price_per_weight * e.weights_participation)
+            user_price = final_price_per_weight * e.weights_participation
+            e.user.debit(user_price)
+            recipient.credit(user_price)
             if (e.user.balance < 0):
 			    # If negative balance after event
 		        # We notify
@@ -612,8 +624,6 @@ class SharedEvent(models.Model):
                    target_object=self
                 )
 
-
-        self.done = True
         self.price = total_price
         self.datetime = now()
         self.remark = 'Paiement par Borgia (Prix total : ' + str(total_price) + ')'
@@ -630,10 +640,15 @@ class SharedEvent(models.Model):
         :return:
         """
 
+        self.done = True
+        self.save()
+
         for e in self.weightsuser_set.all():
             weight = e.weights_participation
             if weight != 0:
-                e.user.debit(ponderation_price * weight)
+                user_price = ponderation_price * weight
+                e.user.debit(user_price)
+                recipient.credit(user_price)
                 if (e.user.balance < 0):
     			    # If negative balance after event
     		        # We notify
@@ -643,8 +658,6 @@ class SharedEvent(models.Model):
                        target_object=self
                     )
 
-
-        self.done = True
         self.payment_by_ponderation = True
         self.price = ponderation_price
         self.datetime = now()
@@ -676,6 +689,20 @@ class SharedEvent(models.Model):
         total = 0
         for e in self.weightsuser_set.all():
             total += e.weights_participation
+        return total
+
+    def get_number_registrants(self):
+        total = 0
+        for e in self.weightsuser_set.all():
+            if e.weights_registeration != 0:
+                total+=1;
+        return total
+
+    def get_number_participants(self):
+        total = 0
+        for e in self.weightsuser_set.all():
+            if e.weights_participation != 0:
+                total+=1;
         return total
 
     class Meta:

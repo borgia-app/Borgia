@@ -3,20 +3,43 @@
 {% block content %}
 <div class="panel panel-danger">
   <div class="panel-heading">
-    Désactivation d'un utilisateur
+    {% if object.is_active == True %}
+        Désactivation
+    {% else %}
+        Réactivation
+    {% endif %}
+    {% if object.pk == request.user.pk %}
+        de mon compte
+    {% else %}
+        d'un compte utilisateur
+    {% endif %}
   </div>
   <div class="panel-body">
     <form action="" method="post">
       {% csrf_token %}
-      <label>{% if object.is_active == True %}
+      <label>
+        {% if object.is_active == True %}
             Désactiver
         {% else %}
             Activer
         {% endif %}
-            l'utilisateur {{ object.username }} ({{ object.first_name }} {{ object.last_name }}) ?</label>
+            {% if object.pk == request.user.pk %}
+                mon compte ?
+            {% else %}
+                l'utilisateur {{ object.username }} ({{ object.first_name }} {{ object.last_name }}) ?
+            {% endif %}
+	  </label>
+
         <input type=hidden name="is_active" value="{{ object.is_active }}" />
         <button class="btn btn-danger" type="submit">Valider</button>
     </form>
+    {% if object.pk == request.user.pk %}
+        <ul>
+          <li>Attention! Une fois le compte désactivé, vous ne pouvez pas le réactiver vous-même.</li>
+          <li>Vous ne pouvez pas désactiver votre compte tant que vous gérez des évènements en cours.
+		      Depuis la page de gestion de l'évènement, il est possible d'assigner un autre gestionnaire.</li>
+        </ul>
+    {% endif %}
   </div>
 </div>
 {% endblock %}

@@ -1,5 +1,5 @@
 from django.db import models
-from decimal import Decimal, DivisionUndefined, DivisionByZero
+from decimal import InvalidOperation, Decimal, DivisionUndefined, DivisionByZero
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import RegexValidator, MinValueValidator
 
@@ -145,7 +145,11 @@ class Product(models.Model):
         Return None if there is no inventory.
         """
         try:
-            return sorted(InventoryProduct.objects.filter(product=self), key=lambda x: x.inventory.datetime, reverse=True)[0+offset]
+            list_inventoryproduct = InventoryProduct.objects.filter(product=self)
+            if list_inventoryproduct is None:
+                return None
+            else:
+                return list_inventoryproduct.order_by('-id')[0+offset]
         except IndexError:
             return None
 
@@ -257,5 +261,5 @@ class Product(models.Model):
                 (stock_base + stock_input - next_stock) / stock_output
             )
             self.save()
-        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+        except (InvalidOperation, ZeroDivisionError, DivisionUndefined, DivisionByZero):
             pass

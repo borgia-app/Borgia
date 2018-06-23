@@ -138,6 +138,11 @@ class Login(FormView):
             })
         return context
 
+    def get(self, request, *args, **kwargs):
+        if request.user.is_authenticated:
+          return redirect(self.get_success_url())
+        else:
+          return super(Login, self).get(request, *args, **kwargs)
 
 class Logout(View):
     def get(self, request, *args, **kwargs):
@@ -606,7 +611,7 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
         sales = {}
         list = Sale.objects.filter(shop=self.shop).order_by('-datetime')
         sales['weeks'] = self.weeklist(
-            datetime.now() - timedelta(days=365),
+            datetime.now() - timedelta(days=30),
         datetime.now())
         sales['data_weeks'] = self.sale_data_weeks(list, sales['weeks'])[0]
         sales['total'] = self.sale_data_weeks(list, sales['weeks'])[1]

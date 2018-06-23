@@ -7,7 +7,7 @@
         <div class="panel-heading">
           Evènements
           {% if group|has_group_perm:"add_sharedevent" %}
-            <a class="btn btn-xs btn-success" href="{% url 'url_sharedevent_create' group_name=group.name %}">Nouveau</a>
+            <a class="btn btn-xs btn-success pull-right" href="{% url 'url_sharedevent_create' group_name=group.name %}">Nouveau</a>
           {% endif %}
         </div>
         <div class="panel-body">
@@ -32,8 +32,9 @@
           <th>Date</th>
           <th>Description</th>
           <th>Gestionnaire</th>
-          <th>Préinscrits / Participants</th>
-          <th>Status</th>
+          <th>Préinscrits / Parts</th>
+          <th>Participants / Parts</th>
+          <th>Statut</th>
           <th>Remarque</th>
           <th>Gestion</th>
         </tr>
@@ -42,7 +43,8 @@
           <td>{{ sharedevent.date|date:"d/m/Y" }}</td>
           <td>{{ sharedevent.description }}</td>
           <td>{{ sharedevent.manager }}</td>
-          <td>{{ sharedevent.total_weights_registrants }}/{{ sharedevent.total_weights_participants }}</td>
+          <td>{{ sharedevent.number_registrants }}/{{ sharedevent.total_weights_registrants }}</td>
+          <td>{{ sharedevent.number_participants}}/{{ sharedevent.total_weights_participants }}</td>
           {% if sharedevent.done %}
             <td>Terminé</td>
             <td>Participation : {{ sharedevent.weight_of_user }}</td>

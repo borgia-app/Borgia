@@ -97,6 +97,8 @@ urlpatterns = [
         UserUpdateAdminView.as_view(), name='url_user_update'),
     url(r'^(?P<group_name>[\w-]+)/users/(?P<pk>\d+)/deactivate/$',
         UserDeactivateView.as_view(), name='url_user_deactivate'),
+    url(r'^(?P<group_name>[\w-]+)/users/(?P<pk>\d+)/self_deactivate/$',
+        UserSelfDeactivateView.as_view(), name='url_self_deactivate'),
 
     url(r'^(?P<group_name>[\w-]+)/users/(?P<user_pk>\d+)/bank_accounts/create/$',
         UserBankAccountCreate.as_view(), name='url_user_bankaccount_create'),

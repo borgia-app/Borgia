@@ -9,9 +9,12 @@ from django.utils.encoding import force_text
 from django.views.generic import FormView, View
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
+from django.contrib import messages
+from settings_data.utils import settings_safe_get
 
 from users.forms import *
 from users.models import ExtendedPermission
+from finances.models import SharedEvent
 from borgia.utils import *
 
 
@@ -55,7 +58,7 @@ class ManageGroupView(GroupPermissionMixin, FormView,
         """
         Add possible members and permissions to kwargs of the form.
 
-        Possible members are all members, except specials members.
+        Possible members are all members, except specials members and unactive users.
         Possible permissions are all permissions.
         :note:: For the special case of a shop management, two groups exist:
         group of chiefs and group of associates. If the group of associates is
@@ -77,7 +80,7 @@ class ManageGroupView(GroupPermissionMixin, FormView,
                 pk__in=human_unused_permissions()
             )
 
-        kwargs['possible_members'] = User.objects.all().exclude(
+        kwargs['possible_members'] = User.objects.filter(is_active=True).exclude(
             groups=Group.objects.get(name='specials'))
         return kwargs
 
@@ -291,13 +294,14 @@ class UserUpdateAdminView(GroupPermissionMixin, FormView, GroupLateralMenuFormMi
 
 class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
-    Deactivate an user and redirect to the workboard of the group.
+    Deactivate a user and redirect to the workboard of the group.
 
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
     template_name = 'users/deactivate.html'
     perm_codename = 'delete_user'
+    success_message = "Le compte de %(user)s a bien été "
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
@@ -309,14 +313,69 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         user = User.objects.get(pk=kwargs['pk'])
         if user.is_active is True:
             user.is_active = False
+            if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
+                user.groups.clear()
+                user.groups.add(Group.objects.get(pk=5))
         else:
             user.is_active = True
         user.save()
+
+        if user.is_active:
+            self.success_message += 'activé'
+        else:
+            self.success_message += 'désactivé'
+
+        messages.success(request, self.success_message % dict(
+            user=user,
+        ))
 
         self.success_url = reverse(
             'url_user_retrieve',
             kwargs={'group_name': self.group.name,
                     'pk': self.kwargs['pk']})
+
+        return redirect(force_text(self.success_url))
+
+
+class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    Deactivate own account and disconnect.
+
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
+    template_name = 'users/deactivate.html'
+    perm_codename = None
+    error_sharedevent_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
+
+    def get(self, request, *args, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+        context = self.get_context_data(**kwargs)
+        context['object'] = user
+        return render(request, 'users/deactivate.html', context=context)
+
+    def post(self, request, *args, **kwargs):
+        user = User.objects.get(pk=kwargs['pk'])
+        sharedevents = SharedEvent.objects.filter(manager=user, done=False)
+        if user.is_active is True:
+            if sharedevents.count() > 0:
+                for sharedevent in sharedevents:
+                    self.error_sharedevent_message += "\n - " + sharedevent.description
+                messages.warning(request, self.error_sharedevent_message)
+            else:
+                user.is_active = False
+                if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
+                    user.groups.clear()
+                    user.groups.add(Group.objects.get(pk=5))
+
+                user.save()
+        if sharedevents.count() > 0:
+            self.success_url = reverse(
+                'url_sharedevent_list',
+                kwargs={'group_name': self.group.name})
+        else:
+            self.success_url = reverse(
+                'url_logout')
 
         return redirect(force_text(self.success_url))
 
@@ -334,33 +393,34 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     form_class = UserSearchForm
 
     search = None
-    unactive = None
     year = None
-    headers = {'first_name':'asc',
+    state = None
+    headers = {'username':'asc',
          'last_name':'asc',
          'surname':'asc',
          'family':'asc',
          'campus':'asc',
          'year':'asc',
-         'balance':'asc',}
+         'balance':'asc'}
     sort = None
-
-    def get(self, request, *args, **kwargs):
-        """
-        Used to pass search through workboard.
-        """
-        try:
-            self.sort = request.GET['sort']
-            self.search = request.GET['search']
-        except KeyError:
-            pass
-        return super(UserListView, self).get(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
+
+        ## Header List
+        context['list_header'] = [["username", "Username"], ["last_name", "Nom Prénom"], ["surname", "Bucque"], ["family", "Fam's"], ["campus", "Tabagn's"], ["year", "Prom's"], ["balance", "Solde"]]
+
+
+        try:
+            self.sort = self.request.GET['sort']
+        except KeyError:
+            pass
+
         context['group'] = self.group
         if self.sort is not None:
+          context['sort'] = self.sort
           if self.headers[self.sort] == "des":
+            context['reverse'] = True
             context['user_list'] = self.form_query(
                 User.objects.all().exclude(groups=1).order_by(self.sort).reverse())
             self.headers[self.sort] = "asc"
@@ -371,10 +431,14 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         else:
             context['user_list'] = self.form_query(
               User.objects.all().exclude(groups=1))
+
+        # Permission Retrieveuser
+        if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
+            context['has_perm_retrieve_user'] = True
+
         return context
 
     def form_query(self, query):
-
         if self.search:
             query = query.filter(
                 Q(last_name__icontains=self.search)
@@ -383,13 +447,20 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 | Q(username__icontains=self.search)
             )
 
-        if self.unactive:
-            query = query.filter(
-                is_active=False)
-
         if self.year and self.year != 'all':
             query = query.filter(
                 year=self.year)
+
+        if self.state and self.state != 'all':
+            if self.state == 'negative_balance':
+                query = query.filter(balance__lt=0.0, is_active=True)
+            elif self.state == 'threshold':
+                threshold = settings_safe_get('BALANCE_THRESHOLD_PURCHASE').get_value()
+                query = query.filter(balance__lt=threshold, is_active=True)
+            elif self.state == 'unactive':
+                query = query.filter(is_active=False)
+        else:
+            query = query.filter(is_active=True)
 
         return query
 
@@ -397,8 +468,8 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         if form.cleaned_data['search']:
             self.search = form.cleaned_data['search']
 
-        if form.cleaned_data['unactive']:
-            self.unactive = form.cleaned_data['unactive']
+        if form.cleaned_data['state']:
+            self.state = form.cleaned_data['state']
 
         if form.cleaned_data['year']:
             self.year = form.cleaned_data['year']
@@ -497,20 +568,20 @@ def username_from_username_part(request):
     try:
         key = request.GET.get('keywords')
 
-        regex = r"^" + escape(key) + r"\b"
+        regex = r"^" + escape(key) + r"(\W|$)"
 
         # Fam'ss en entier
         # where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
-        where_search = User.objects.exclude(groups=1).filter( family__regex = regex ).order_by('-year')
+        where_search = User.objects.exclude(groups=1).filter( family__regex = regex, is_active=True ).order_by('-year')
 
         if len(key) > 2:
             if key.isalpha():
                 # Nom de famille, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(last_name__startswith=key)
+                where_search = where_search | User.objects.filter(last_name__istartswith=key, is_active=True)
                 # Prénom, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(first_name__startswith=key)
+                where_search = where_search | User.objects.filter(first_name__istartswith=key, is_active=True)
                 # Buque, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(surname__startswith=key)
+                where_search = where_search | User.objects.filter(surname__istartswith=key, is_active=True)
 
                 # Suppression des doublons
                 where_search = where_search.distinct()

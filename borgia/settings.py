@@ -139,6 +139,7 @@ LOGIN_REDIRECT_URL = '/gadzarts/'
 LOGIN_URL = '/auth/login/'
 
 LOGIN_EXEMPT_URLS = [
+    '/',
     '/auth/login/',
     '/auth/password_reset/',
     '/auth/password_reset/done/',
@@ -233,5 +234,5 @@ SETTINGS_DEFAULT = {
     "BALANCE_FREQUENCY_MAIL_ALERT": ("BALANCE_FREQUENCY_MAIL_ALERT", "Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",
                         "i", "7"),
     "BALANCE_THRESHOLD_PURCHASE": ("BALANCE_THRESHOLD_PURCHASE", "Valeur seuil (€) en dessous de laquelle (strictement) la commande est impossible",
-                        "f", "0")                        
+                        "f", "0")
 }

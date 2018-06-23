@@ -54,7 +54,7 @@
           <td>
             <ul>
                 {% for g in object.groups.all %}
-                    <li>{{ g.name }}</li>
+                    <li>{{ g | group_name }}</li>
                 {% endfor %}
             </ul>
           </td>

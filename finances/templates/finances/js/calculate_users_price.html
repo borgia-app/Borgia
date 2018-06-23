@@ -6,7 +6,7 @@ $(function(){
 
   function get_total_weight () {
     var total_weight = 0
-    $("[id^='weight_']").each(function() {
+    $("[id^='weight_participant_']").each(function() {
       total_weight += Number($(this).val())
     });
     return total_weight;
@@ -18,7 +18,7 @@ $(function(){
       var total_weight = get_total_weight();
       var price_per_weight = total_price / total_weight;
 
-      $("[id^='weight_']").each(function() {
+      $("[id^='weight_participant_']").each(function() {
         var id = $(this).attr('id').split('_')[2];
         var weight = $(this).val();
         var r_price = Math.round( Number(weight) * price_per_weight * 100 ) / 100;
@@ -31,7 +31,6 @@ $(function(){
       });
     }
   };
-
 
   $(set_prices());
   $("[id^='weight_']").change(function() {

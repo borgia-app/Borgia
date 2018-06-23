@@ -4,6 +4,7 @@ from django.template.defaultfilters import stringfilter
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
+from borgia.utils import *
 from settings_data.utils import settings_safe_get
 
 register = template.Library()
@@ -83,3 +84,7 @@ def set_brand(template):
         return 'img/borgia-logo-' + default_template + '.png'
     else:
         return 'img/borgia-logo-light.png'
+
+@register.filter
+def group_name(group):
+  return group_name_display(group)

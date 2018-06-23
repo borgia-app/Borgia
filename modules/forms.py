@@ -31,11 +31,7 @@ class SelfSaleShopModule(forms.Form):
                         widget=forms.NumberInput(
                             attrs={'data_category_pk': category.pk,
                                    'data_price': category_product.get_price(),
-                                   'class': 'form-control',
-                                   'pk': (
-                                       str(category_product.product.pk)
-                                       + '-'
-                                       + str(category.pk)),
+                                   'class': 'form-control buyable_product',
 									'min': 0}),
                         initial=0,
                         required=False,
@@ -45,19 +41,21 @@ class SelfSaleShopModule(forms.Form):
 
 
     def clean(self):
-        cleaned_data = super(SelfSaleShopModule, self).clean()
+        super(SelfSaleShopModule, self).clean()
         if self.client is None:
             try:
                 self.client = User.objects.get(
-                    username=cleaned_data['client'])
+                    username= self.cleaned_data['client'])
             except ObjectDoesNotExist:
-                raise forms.ValidationError('Utilisateur inconnu')
+                raise forms.ValidationError("L'utilisateur n'existe pas")
             except KeyError:
                 raise forms.ValidationError('Utilisateur non sélectionné')
+            if not self.client.is_active:
+                raise forms.ValidationError("L'utilisateur a été desactivé")
         total_price = 0
-        for field in cleaned_data:
+        for field in self.cleaned_data:
             if field != 'client':
-                invoice = cleaned_data[field]
+                invoice = self.cleaned_data[field]
                 if isinstance(invoice, int) and invoice > 0 :
                     try:
                         category_product_pk = field.split('-')[0]
@@ -71,6 +69,9 @@ class SelfSaleShopModule(forms.Form):
                 raise forms.ValidationError('Le montant est supérieur à la limite.')
         if total_price <= 0:
             raise forms.ValidationError('La commande doit être positive.')
+
+        self.cleaned_data['client'] = self.client
+        return self.cleaned_data
 
 
 class OperatorSaleShopModule(SelfSaleShopModule):

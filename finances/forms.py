@@ -27,7 +27,7 @@ class BankAccountUpdateForm(forms.ModelForm):
 
 class SelfTransfertCreateForm(forms.Form):
     def __init__(self, **kwargs):
-        sender = kwargs.pop('sender')
+        self.sender = kwargs.pop('sender')
         super(SelfTransfertCreateForm, self).__init__(**kwargs)
 
         self.fields['recipient'] = forms.CharField(
@@ -42,11 +42,27 @@ class SelfTransfertCreateForm(forms.Form):
             label='Montant (€)',
             decimal_places=2,
             max_digits=9,
-            min_value=0, max_value=sender.balance)
+            min_value=0, max_value=max(self.sender.balance,0))
         self.fields['justification'] = forms.CharField(
             label='Justification',
             max_length=254
         )
+
+    def clean_recipient(self):
+        username = self.cleaned_data['recipient']
+
+        try:
+            recipient = User.objects.get(username=username)
+        except ObjectDoesNotExist:
+            raise forms.ValidationError("L'utilisateur n'existe pas !")
+
+        if not recipient.is_active:
+            raise forms.ValidationError("L'utilisateur a été desactivé !")
+        if self.sender == recipient:
+            # Send to self : Impossible
+            raise forms.ValidationError("Vous ne pouvez pas transferez à vous même !")
+
+        return recipient
 
 
 class GenericListSearchDateForm(forms.Form):
@@ -249,15 +265,19 @@ class SharedEventCreateForm(forms.Form):
     price = forms.DecimalField(label='Prix total (vide si pas encore connu)', decimal_places=2, max_digits=9,
                                required=False, min_value=0)
     bills = forms.CharField(label='Factures liées (vide si pas encore connu)', required=False)
-    allow_self_registeration = forms.BooleanField(label='Autoriser la self préinscription', initial=True, required=False)
-    date_end_registration = forms.DateField(    label='Date de fin de self-préinscription (Si pas autorisé laisser vide)',
-                                                required=False,
-                                                widget=forms.DateInput(attrs={'class': 'datepicker'})
+    allow_self_registeration = forms.BooleanField(label='Autoriser la préinscription', initial=True, required=False)
+    date_end_registration = forms.DateField(label='Date de fin de la préinscription',
+                                            required=False,
+                                            widget=forms.DateInput(attrs={'class': 'datepicker'})
                                             )
 
 
+class SharedEventDeleteForm(forms.Form):
+    checkbox = forms.BooleanField(label="Je suis conscient que la suppression entraîne le non-paiement, et la perte des informations.")
+
+
 class SharedEventFinishForm(forms.Form):
-    type_payment = forms.ChoiceField(label='Type', choices=(('pay_by_total', 'Payer par division du total'),
+    type_payment = forms.ChoiceField(label='Type de débucquage', choices=(('pay_by_total', 'Payer par division du total'),
                                                         ('pay_by_ponderation', 'Payer par prix par pondération'),
                                                         ('no_payment', 'Ne pas faire payer')))
     total_price = forms.DecimalField(label='Prix total', decimal_places=2, max_digits=9,
@@ -297,11 +317,17 @@ class SharedEventFinishForm(forms.Form):
 class SharedEventUpdateForm(forms.Form):
     price = forms.DecimalField(label='Prix total (€)', decimal_places=2, max_digits=9, min_value=0, required=False)
     bills = forms.CharField(label='Factures liées', required=False)
+    manager = forms.CharField(label='Gestionnaire', required=False,
+                                widget=forms.TextInput(
+                                attrs={'class':
+                                       'autocomplete_username'}),
+                                validators=[
+                                autocomplete_username_validator])
     allow_self_registeration = forms.BooleanField(label='Autoriser la préinscription', required=False)
 
 
 class SharedEventListUsersForm(forms.Form):
-    order_by = forms.ChoiceField(label='Trier par', choices=(('username', 'Username'), ('last_name', 'Nom'), ('surname', 'Bucque'), ('year', 'Promo')))
+    order_by = forms.ChoiceField(label='Trier par', choices=(('username', 'Username'), ('last_name', 'Nom'), ('surname', 'Bucque'), ('year', 'Année')))
     state = forms.ChoiceField(label='Lister', choices=(('users', 'Tous les concernés'),
                                                 ('registrants', 'Uniquement les préinscrits'),
                                                 ('participants', 'Uniquement les participants')))
@@ -330,7 +356,10 @@ class SharedEventAddWeightForm(forms.Form):
         try:
             user = User.objects.get(username=username)
         except ObjectDoesNotExist:
-                raise forms.ValidationError("L'utilisateur n'existe pas !")
+            raise forms.ValidationError("L'utilisateur n'existe pas !")
+
+        if not user.is_active :
+            raise forms.ValidationError("L'utilisateur a été desactivé !")
 
         return user
 
@@ -339,6 +368,7 @@ class SharedEventDownloadXlsxForm(forms.Form):
     state = forms.ChoiceField(label='Selection',
                               choices=(('year', 'Listes de promotions'), ('registrants', 'Préinscrit'),
                                        ('participants', 'Participants')))
+    years = forms.MultipleChoiceField(label='Année(s) à inclure', required=False)
 
     def __init__(self, **kwargs):
         super(SharedEventDownloadXlsxForm, self).__init__(**kwargs)
@@ -347,11 +377,7 @@ class SharedEventDownloadXlsxForm(forms.Form):
             YEAR_CHOICES.append(
                 (year, year)
             )
-        self.fields['years'] = forms.MultipleChoiceField(
-            label='Année à inclure ',
-            choices=YEAR_CHOICES,
-            required=False
-        )
+        self.fields['years'].choices = YEAR_CHOICES
 
 
 class SharedEventUploadXlsxForm(forms.Form):
