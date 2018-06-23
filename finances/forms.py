@@ -317,6 +317,12 @@ class SharedEventFinishForm(forms.Form):
 class SharedEventUpdateForm(forms.Form):
     price = forms.DecimalField(label='Prix total (€)', decimal_places=2, max_digits=9, min_value=0, required=False)
     bills = forms.CharField(label='Factures liées', required=False)
+    manager = forms.CharField(label='Gestionnaire', required=False,
+                                widget=forms.TextInput(
+                                attrs={'class':
+                                       'autocomplete_username'}),
+                                validators=[
+                                autocomplete_username_validator])
     allow_self_registeration = forms.BooleanField(label='Autoriser la préinscription', required=False)
 
 
