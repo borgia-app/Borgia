@@ -1,0 +1,83 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+{% block content %}
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Upload d'utilisateurs via un fichier Excel
+            </div>
+            <div class="panel-body">
+                <form enctype="multipart/form-data"
+                      action="{% url 'url_add_by_list_xlsx' group_name=group.name %}"
+                      method='post'
+                      class="form-horizontal">
+                    {% csrf_token %} {{ form|bootstrap_horizontal }}
+                    <div class="form-group">
+                        <div class="col-sm-10 col-sm-offset-2">
+                            <button type="submit"
+                                    class="btn btn-success">Uploader l'Excel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Téléchargement de fichiers Excels
+            </div>
+            <div class="panel-body">
+                <form action="{% url 'url_add_by_list_xlsx_download' group_name=group.name %}"
+                      method="get"
+                      class="form-horizontal">
+                    <div class="form-group">
+                        <div class="col-sm-10 col-sm-offset-2">
+                            <button type="submit"
+                                    class="btn btn-primary">Télécharger l'Excel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <i class="fa fa-info-circle"
+           aria-hidden="true"></i> Informations
+    </div>
+    <div class="panel-body">
+        <p>Cette page permet d'ajouter une liste d'utilisateurs par fichier excels.</p>
+        <p>La fonctionnalité est encore en mode <strong>PRE-ALPHA</strong> ! C'est à dire qu'elle n'a pas encore été testée totalement, et qu'elle contient potentiellement des bugs.</p>
+        <p>Pour cette raison, cette page n'est pas accessible depuis une navigation "normale" dans Borgia. Celle-ci sera intégrée après un développement plus poussé.</p>
+        <p>Dans tous les cas, Merci de faire <strong>VRAIMENT</strong> attention, c'est à dire de rentrer les utilisateurs petit à petit si possible, et de vérifier le résultat. MERCI de bien remplir les différents champs ! Pas de caractères chelous, notamment
+            dans les nums et le nom d'utilisateur, etc...</p>
+        <p><strong>Merci notamment de bien vérifier l'email</strong> ! En effet, le mot de passe est généré aléatoirement, et chaque utilisateur devra faire une demande de réinitialisation, par email donc. Autrement dit, s'il est faux, le compte ne sera pas accessible
+            de leur part.
+        </p>
+        <p>
+            Si jamais une erreur se produit, elle n'est, pour l'instant, pas affichée. Vous ne pourrez donc pas savoir que tel ou tel utilisateur n'a pas été rentré dans la base de données. Mais bon ça devrait quand même bien prémacher le travail.</p>
+        <h4>Contenu des colonnes du fichier Excel (Dans l'ordre):</h4>
+        <table class="table">
+            <thead>
+                <tr>
+                   <th>username</th>
+                   <th>first_name</th>
+                   <th>last_name</th>
+                   <th>campus</th>
+                   <th>year</th>
+                   <th>surname</th>
+                   <th>family</th>
+                   <th>phone</th>
+                   <th>email</th>				   
+                </tr>
+            </thead>
+        </table>		
+    </div>
+</div>
+{% endblock %}

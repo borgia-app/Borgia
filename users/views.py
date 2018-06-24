@@ -483,12 +483,12 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         return initial
 
 
-class UserAddByListXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class UserUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     """
     Download/Upload Excel for adding users.
     """
-    template_name = 'users/add_by_list_xlsx.html'
-    form_class = AddUsersUploadXlsxForm
+    template_name = 'users/bulk_edit.html'
+    form_class = UserUploadXlsxForm
     perm_codename = 'add_user'
     lm_active = 'lm_user_create'
 
@@ -498,32 +498,123 @@ class UserAddByListXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
             wb = load_workbook(self.request.FILES['list_user'], read_only=True)
             sheet = wb.active
             rows = sheet.rows
-            next(rows) # Skip the first row
             data = []
         except:
             raise PermissionDenied
 
-        # Enregistrement des users
+        errors = []
+        nb_empty_rows = 0
+        min_col = sheet.min_column - 1
+        max_col = sheet.max_column - 1
+        min_row = sheet.min_row
+        i = min_row
+
+        # Setting column numbers
+        for col in range(min_col, max_col+2):
+            if sheet.cell(None,sheet.min_row,col).value == 'username':
+                col_username = col - (min_row - 1)
+            elif sheet.cell(None,sheet.min_row,col).value == 'first_name':
+                col_first_name = col - (min_row - 1)
+            elif sheet.cell(None,sheet.min_row,col).value == 'last_name':
+                col_last_name = col - (min_row - 1)
+            elif sheet.cell(None,sheet.min_row,col).value == 'email':
+                col_email = col - (min_row - 1)
+            elif sheet.cell(None,sheet.min_row,col).value == 'surname':
+                col_surname = col - (min_row - 1)
+            elif sheet.cell(None,sheet.min_row,col).value == 'family':
+                col_family = col - (min_row - 1)
+            elif sheet.cell(None,sheet.min_row,col).value == 'campus':
+                col_campus = col - (min_row - 1)
+            elif sheet.cell(None,sheet.min_row,col).value == 'year':
+                col_year = col - (min_row - 1)
+            elif sheet.cell(None,sheet.min_row,col).value == 'balance':
+                col_balance = col - (min_row - 1)
+
+        for _ in range(min_row):
+            next(rows)
+
+        # Saving users
         for row in rows:
+            i += 1
             try:
-                user = User.objects.create(username=row[0].value.strip(),
-                                           first_name=row[1].value.strip(),
-                                           last_name=row[2].value.strip(),
-                                           email=row[3].value.strip(),
-                                           surname=row[4].value.strip(),
-                                           family=row[5].value,
-                                           campus=row[6].value.strip().upper(),
-                                           year=row[7].value)
-                user.set_password( "".join((random.choice(string.letters + string.digits + string.punctuation)) for x in range(20)) )
-                user.save()
+                user_dict = {}
+                errors_on_required_columns = []
+                skipped_row = False
+                try:
+                    if row[col_username].value:
+                        user_dict['username'] = row[col_username].value.strip()
+                    else:
+                        skipped_row = True
+                        nb_empty_rows += 1
+                except:
+                    skipped_row = True
+                    errors_on_required_columns.append('username')
 
-                # En deux fois au cas ou y'a un pb
-                user.groups.add(Group.objects.get(pk=5))
-                user.save()
+                try:
+                    user_dict['first_name'] = row[col_first_name].value.strip()
+                except:
+                    errors_on_required_columns.append('first_name')
+
+                try:
+                    user_dict['last_name'] = row[col_last_name].value.strip()
+                except:
+                    errors_on_required_columns.append('last_name')
+
+                try:
+                    user_dict['email'] = row[col_email].value.strip()
+                except:
+                    errors_on_required_columns.append('email')
+
+                try:
+                    user_dict['surname'] = row[col_surname].value.strip()
+                except:
+                    errors_on_required_columns.append('surname')
+
+                try:
+                    user_dict['family'] = str(row[col_family].value).strip()
+                except:
+                    errors_on_required_columns.append('family')
+
+                try:
+                    user_dict['campus'] = row[col_campus].value.strip()
+                except:
+                    errors_on_required_columns.append('campus')
+
+                try:
+                    user_dict['year'] = int(row[col_year].value)
+                except:
+                    errors_on_required_columns.append('year')
+
+                try:
+                    user_dict['balance'] = str(row[col_balance].value).strip()
+                except:
+                    errors_on_required_columns.append('balance')
+
+                if not skipped_row:
+                    username = user_dict['username']
+                    if User.objects.filter(username=username).count() > 0:
+                        user = User.objects.filter(username=username).update(**user_dict)
+                    else:
+                        user = User.objects.create(**user_dict)
+                    user.set_password( "".join((random.choice(string.letters + string.digits + string.punctuation)) for x in range(20)) )
+                    user.save()
+
+                    user.groups.add(Group.objects.get(pk=5))
             except:
-                pass
+                if len(errors_on_required_columns) > 0:
+                    if skipped_row:
+                        errors.append("La ligne n*" + str(i) + "n'a pas été traitée car le username est manquant")
+                    else:
+                        errors.append("Les colonnes " + ", ".join(errors_on_required_columns) + " sont requis et comportent des erreurs (ligne n*" + str(i) + ")")
+                else:
+                    errors.append("Une erreur empêche le traitement du fichier Excel (ligne n*" + str(i) + ")")
 
-        return super(AddUsersXlsx, self).form_valid(form)
+
+        error_message = ""
+        error_message += "\n - ".join(errors)
+        messages.warning(self.request, error_message)
+
+        return super(UserUploadXlsx, self).form_valid(form)
 
     def get_success_url(self):
         try:

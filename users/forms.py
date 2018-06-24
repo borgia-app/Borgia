@@ -168,5 +168,5 @@ class UserQuickSearchForm(forms.Form):
         									  'placeholder': "Nom d'utilisateur"}))
 
 
-class AddUsersUploadXlsxForm(forms.Form):
+class UserUploadXlsxForm(forms.Form):
     list_user = forms.FileField(label='Fichier excel des Users')

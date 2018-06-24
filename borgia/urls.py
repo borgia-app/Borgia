@@ -114,7 +114,7 @@ urlpatterns = [
 
         #       PRE-ALPHA : Ajout par xlsx
     url(r'^(?P<group_name>[\w-]+)/users/add_by_list/xlsx/$',
-        UserAddByListXlsx.as_view(),
+        UserUploadXlsx.as_view(),
         name='url_add_by_list_xlsx'),
     url(r'^(?P<group_name>[\w-]+)/users/add_by_list/xlsx/download$',
         UserAddByListXlsxDownload.as_view(),
