@@ -169,4 +169,20 @@ class UserQuickSearchForm(forms.Form):
 
 
 class UserUploadXlsxForm(forms.Form):
-    list_user = forms.FileField(label='Fichier excel des Users')
+    list_user = forms.FileField(label='Fichier Excel')
+    user_fields = (
+                ("first_name", "Prénom"),
+                ("last_name", "Nom"),
+                ("email", "Email"),
+                ("surname", "Bucque"),
+                ("family", "Fam's"),
+                ("campus", "Tabagn's"),
+                ("year", "Prom's (Année)"),
+                ("balance", "Solde")
+                )
+    xlsx_columns = forms.MultipleChoiceField(label='Colonnes à traiter:',
+                                       widget=forms.SelectMultiple(
+                                       attrs={'class': 'selectpicker', 'data-live-search': 'True',
+                                              'title': 'Sélectionner les colonnes à traiter',
+                                              'data-actions-box': 'True'}),
+                                       choices=user_fields)

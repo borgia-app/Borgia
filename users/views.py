@@ -509,6 +509,7 @@ class UserUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         min_row = sheet.min_row
         i = min_row
 
+        columns = form.cleaned_data['xlsx_columns']
         # Setting column numbers
         for col in range(min_col, max_col+2):
             if sheet.cell(None,sheet.min_row,col).value == 'username':
@@ -550,45 +551,53 @@ class UserUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
                     skipped_row = True
                     errors_on_required_columns.append('username')
 
-                try:
-                    user_dict['first_name'] = row[col_first_name].value.strip()
-                except:
-                    errors_on_required_columns.append('first_name')
+                if 'first_name' in columns:
+                    try:
+                        user_dict['first_name'] = row[col_first_name].value.strip()
+                    except:
+                        errors_on_required_columns.append('first_name')
 
-                try:
-                    user_dict['last_name'] = row[col_last_name].value.strip()
-                except:
-                    errors_on_required_columns.append('last_name')
+                if 'last_name' in columns:
+                    try:
+                        user_dict['last_name'] = row[col_last_name].value.strip()
+                    except:
+                        errors_on_required_columns.append('last_name')
 
-                try:
-                    user_dict['email'] = row[col_email].value.strip()
-                except:
-                    errors_on_required_columns.append('email')
+                if 'email' in columns:
+                    try:
+                        user_dict['email'] = row[col_email].value.strip()
+                    except:
+                        errors_on_required_columns.append('email')
 
-                try:
-                    user_dict['surname'] = row[col_surname].value.strip()
-                except:
-                    errors_on_required_columns.append('surname')
+                if 'surname' in columns:
+                    try:
+                       user_dict['surname'] = row[col_surname].value.strip()
+                    except:
+                       errors_on_required_columns.append('surname')
 
-                try:
-                    user_dict['family'] = str(row[col_family].value).strip()
-                except:
-                    errors_on_required_columns.append('family')
+                if 'family' in columns:
+                    try:
+                       user_dict['family'] = str(row[col_family].value).strip()
+                    except:
+                        errors_on_required_columns.append('family')
 
-                try:
-                    user_dict['campus'] = row[col_campus].value.strip()
-                except:
-                    errors_on_required_columns.append('campus')
+                if 'campus' in columns:
+                    try:
+                        user_dict['campus'] = row[col_campus].value.strip()
+                    except:
+                        errors_on_required_columns.append('campus')
 
-                try:
-                    user_dict['year'] = int(row[col_year].value)
-                except:
-                    errors_on_required_columns.append('year')
+                if 'year' in columns:
+                    try:
+                        user_dict['year'] = int(row[col_year].value)
+                    except:
+                        errors_on_required_columns.append('year')
 
-                try:
-                    user_dict['balance'] = str(row[col_balance].value).strip()
-                except:
-                    errors_on_required_columns.append('balance')
+                if 'balance' in columns:
+                    try:
+                        user_dict['balance'] = str(row[col_balance].value).strip()
+                    except:
+                        errors_on_required_columns.append('balance')
 
                 if not skipped_row:
                     username = user_dict['username']
