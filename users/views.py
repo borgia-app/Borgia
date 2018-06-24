@@ -1,4 +1,5 @@
 import json
+import random,string
 from datetime import datetime
 from re import escape
 from openpyxl import Workbook, load_workbook
@@ -534,6 +535,7 @@ class UserUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         for _ in range(min_row):
             next(rows)
 
+        skipped_rows = []
         # Saving users
         for row in rows:
             i += 1
@@ -605,22 +607,25 @@ class UserUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
                         user = User.objects.filter(username=username).update(**user_dict)
                     else:
                         user = User.objects.create(**user_dict)
-                    user.set_password( "".join((random.choice(string.letters + string.digits + string.punctuation)) for x in range(20)) )
+                    user = User.objects.get(username=username)
+                    user.set_password( ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(20)))
                     user.save()
 
                     user.groups.add(Group.objects.get(pk=5))
+                else:
+                    skipped_rows.append(str(i))
             except:
-                if len(errors_on_required_columns) > 0:
-                    if skipped_row:
-                        errors.append("La ligne n*" + str(i) + "n'a pas été traitée car le username est manquant")
-                    else:
-                        errors.append("Les colonnes " + ", ".join(errors_on_required_columns) + " sont requis et comportent des erreurs (ligne n*" + str(i) + ")")
+                if str(i) in skipped_rows:
+                    errors.append("La ligne n*" + str(i) + "n'a pas été traitée car le username est manquant") # TODO: Make this error appear
+                elif len(errors_on_required_columns) > 0:
+                    errors.append("Les colonnes " + ", ".join(errors_on_required_columns) + " sont requis et comportent des erreurs (ligne n*" + str(i) + ")")
                 else:
                     errors.append("Une erreur empêche le traitement du fichier Excel (ligne n*" + str(i) + ")")
 
 
         error_message = ""
         error_message += "\n - ".join(errors)
+        messages.success(self.request, str(i - len(skipped_rows) - min_row - len(errors)) + " utilisateurs ont été crées/mis à jour")
         messages.warning(self.request, error_message)
 
         return super(UserUploadXlsx, self).form_valid(form)
