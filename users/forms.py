@@ -169,7 +169,9 @@ class UserQuickSearchForm(forms.Form):
 
 
 class UserUploadXlsxForm(forms.Form):
-    list_user = forms.FileField(label='Fichier Excel')
+    list_user = forms.FileField(label='Fichier Excel',
+                                widget=forms.ClearableFileInput(attrs={'class': 'btn btn-default btn-file'}))
+
     user_fields = (
                 ("first_name", "Prénom"),
                 ("last_name", "Nom"),
