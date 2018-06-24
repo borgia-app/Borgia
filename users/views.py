@@ -555,49 +555,57 @@ class UserUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
 
                 if 'first_name' in columns:
                     try:
-                        user_dict['first_name'] = row[col_first_name].value.strip()
+                        if row[col_first_name].value:
+                            user_dict['first_name'] = row[col_first_name].value.strip()
                     except:
                         errors_on_required_columns.append('first_name')
 
                 if 'last_name' in columns:
                     try:
-                        user_dict['last_name'] = row[col_last_name].value.strip()
+                        if row[col_last_name].value:
+                            user_dict['last_name'] = row[col_last_name].value.strip()
                     except:
                         errors_on_required_columns.append('last_name')
 
                 if 'email' in columns:
                     try:
-                        user_dict['email'] = row[col_email].value.strip()
+                        if row[col_email].value:
+                            user_dict['email'] = row[col_email].value.strip()
                     except:
                         errors_on_required_columns.append('email')
 
                 if 'surname' in columns:
                     try:
-                       user_dict['surname'] = row[col_surname].value.strip()
+                        if row[col_surname].value:
+                            user_dict['surname'] = row[col_surname].value.strip()
                     except:
                        errors_on_required_columns.append('surname')
 
                 if 'family' in columns:
                     try:
-                       user_dict['family'] = str(row[col_family].value).strip()
+                       if row[col_family].value:
+                            user_dict['family'] = str(row[col_family].value).strip()
                     except:
                         errors_on_required_columns.append('family')
 
                 if 'campus' in columns:
                     try:
-                        user_dict['campus'] = row[col_campus].value.strip()
+                        if row[col_campus].value:
+                            user_dict['campus'] = row[col_campus].value.strip()
                     except:
                         errors_on_required_columns.append('campus')
 
                 if 'year' in columns:
                     try:
-                        user_dict['year'] = int(row[col_year].value)
+                        if row[col_year].value:
+                            user_dict['year'] = int(row[col_year].value)
                     except:
                         errors_on_required_columns.append('year')
 
                 if 'balance' in columns:
                     try:
-                        user_dict['balance'] = str(row[col_balance].value).strip()
+                        if row[col_balance].value:
+                            user_dict['balance'] = str(row[col_balance].value).strip()
                     except:
                         errors_on_required_columns.append('balance')
 
