@@ -1,12 +1,12 @@
-from django.shortcuts import render, redirect
-from django.views.generic import FormView, View
 from django.db.models import Q
+from django.shortcuts import redirect, render
+from django.views.generic import FormView, View
 
-from shops.models import *
-from shops.forms import *
-from finances.models import *
 from borgia.utils import *
+from finances.models import *
 from settings_data.utils import settings_safe_get
+from shops.forms import *
+from shops.models import *
 
 
 class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,

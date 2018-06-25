@@ -104,7 +104,7 @@ class Product(models.Model):
             margin_profit = settings_safe_get('MARGIN_PROFIT').get_value()
 
             last_stockentry = sorted(StockEntryProduct.objects.filter(product=self), key=lambda x: x.stockentry.datetime, reverse=True)[0]
-            return round(Decimal(last_stockentry.unit_price() * Decimal(1 + margin_profit / 100)), 4)
+            return round(Decimal(last_stockentry.unit_price() * self.correcting_factor * Decimal(1 + margin_profit / 100)), 4)
         except IndexError:
             return Decimal(0)
 
