@@ -1510,17 +1510,16 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
             manage_permission = False
             if self.se.manager != form_manager :
                 for group in form_manager.groups.all():
-                    if group.permissions.filter(codename = 'manage_sharedevent').count() > 0:
+                    if Permission.objects.get(codename='add_sharedevent') in group.permissions.all():
                         manage_permission = True
                         break
                 if manage_permission:
+                    self.se.manager = form_manager
                     self.manager_changed = True
                 else:
                     messages.warning(self.request, 
                                      "%(user)s ne dispose pas de droits suffisants pour gérer l'évènement" % dict(
                                         user = form_manager))
-            if manage_permission:
-                self.se.manager = User.objects.get(username = form.cleaned_data['manager'])
         self.se.allow_self_registeration = form.cleaned_data['allow_self_registeration']
         self.se.save()
 
@@ -1537,7 +1536,7 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
             )
 
     def get_success_url(self):
-        if self.manager_changed:
+        if self.manager_changed and Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all():
             return reverse('url_group_workboard',
                             kwargs={ 'group_name': self.group.name }
                             )
