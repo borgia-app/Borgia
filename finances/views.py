@@ -1177,6 +1177,16 @@ class SharedEventList(GroupPermissionMixin, FormView,
     perm_codename = 'list_sharedevent'
     form_class = SharedEventListForm
 
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.group = Group.objects.get(name=kwargs['group_name'])
+        except ObjectDoesNotExist:
+            raise Http404
+        except ValueError: # For safety, but it shouldn't be possible with regex pattern in url FOR NOW (If Post is used, url need to be modified)
+            raise Http404
+
+        return super(SharedEventList, self).dispatch(request, *args, **kwargs)
+
     def get_context_data(self, **kwargs):
         context = super(SharedEventList, self).get_context_data(**kwargs)
         shared_events = SharedEvent.objects.filter(date__gte=datetime.date.today(), done=False).order_by('-date')
@@ -1187,15 +1197,12 @@ class SharedEventList(GroupPermissionMixin, FormView,
             se.number_participants = se.get_number_participants()
             se.total_weights_registrants = se.get_total_weights_registrants()
             se.total_weights_participants = se.get_total_weights_participants()
+            se.has_perm_manage = (self.request.user == se.manager or 
+                                Permission.objects.get(codename='manage_sharedevent') in self.group.permissions.all() )
         context['shared_events'] = shared_events
-
         # Permission SelfRegistration
-        try:
-            group = Group.objects.get(name=context['group_name'])
-            if Permission.objects.get(codename='self_register_sharedevent') in group.permissions.all():
-                context['has_perm_self_register_sharedevent'] = True
-        except ObjectDoesNotExist:
-            pass # has_perm not True
+        if Permission.objects.get(codename='self_register_sharedevent') in self.group.permissions.all():
+            context['has_perm_self_register_sharedevent'] = True
 
         return context
 

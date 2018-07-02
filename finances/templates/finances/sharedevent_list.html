@@ -60,7 +60,7 @@
             </td>
           {% endif %}
           <td>
-              {% if user == sharedevent.manager %}
+              {% if sharedevent.has_perm_manage %}
                   <a href="{% url 'url_sharedevent_update' group_name=group.name pk=sharedevent.pk %}">Gérer</a>
               {% endif %}
           </td>
