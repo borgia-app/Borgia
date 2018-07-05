@@ -8,6 +8,7 @@ from django.views.generic import FormView, View
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
 from django.contrib import messages
+from django.contrib.messages.views import SuccessMessageMixin
 from settings_data.utils import settings_safe_get
 
 from users.forms import *
@@ -16,7 +17,7 @@ from finances.models import SharedEvent
 from borgia.utils import *
 
 
-class ManageGroupView(GroupPermissionMixin, FormView,
+class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
                       GroupLateralMenuFormMixin):
     template_name = 'users/group_manage.html'
     success_url = None
@@ -125,8 +126,11 @@ class ManageGroupView(GroupPermissionMixin, FormView,
 
         return super(ManageGroupView, self).form_valid(form)
 
+    def get_success_message(self, cleaned_data):
+        return "Le groupe a bien été mis à jour"
 
-class UserCreateView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+
+class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
     """
     Create a new user and redirect to the workboard of the group.
 
@@ -167,6 +171,9 @@ class UserCreateView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial['campus'] = 'Me'
         initial['year'] = datetime.now().year - 1
         return initial
+
+    def get_success_message(self, cleaned_data):
+        return "L'utilisateur a bien été crée'"
 
     """
     If can retrieve user: go to the user.
@@ -212,7 +219,7 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class SelfUserUpdate(GroupPermissionMixin, FormView,
+class SelfUserUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView,
                      GroupLateralMenuFormMixin):
     template_name = 'users/self_user_update.html'
     form_class = SelfUserUpdateForm
@@ -243,8 +250,10 @@ class SelfUserUpdate(GroupPermissionMixin, FormView,
         self.request.user.save()
         return super(SelfUserUpdate, self).form_valid(form)
 
+    def get_success_message(self, cleaned_data):
+        return "Vos infos ont bien été mises à jour"
 
-class UserUpdateAdminView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class UserUpdateAdminView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
     """
     Update an user and redirect to the workboard of the group.
 
@@ -282,12 +291,16 @@ class UserUpdateAdminView(GroupPermissionMixin, FormView, GroupLateralMenuFormMi
                 setattr(user_modified, k, form.cleaned_data[k])
         user_modified.save()
 
-        self.success_url = reverse(
-            'url_user_retrieve',
+        return super(UserUpdateAdminView, self).form_valid(form)
+
+    def get_success_message(self, cleaned_data):
+        return "Les informations ont bien été mises à jour"
+
+    def get_success_url(self):
+        return reverse('url_user_retrieve',
             kwargs={'group_name': self.group.name,
                     'pk': self.kwargs['pk']})
 
-        return super(UserUpdateAdminView, self).form_valid(form)
 
 
 class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
