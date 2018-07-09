@@ -1546,7 +1546,7 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
                             )
 
 
-class SharedEventSelfRegistration(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class SharedEventSelfRegistration(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
     """
     Allow a user to register himself
 
@@ -1592,8 +1592,15 @@ class SharedEventSelfRegistration(GroupPermissionMixin, FormView, GroupLateralMe
         return initial
 
     def form_valid(self, form):
-        self.se.change_weight(self.request.user, int(form.cleaned_data['weight']), False)
+        self.new_weight = int(form.cleaned_data['weight'])
+        self.se.change_weight(self.request.user, self.new_weight, False)
         return super(SharedEventSelfRegistration, self).form_valid(form)
+
+    def get_success_message(self, cleaned_data):
+        if self.new_weight > 0:
+            return "Vous avez bien été inscrit"
+        else:
+            return "Vous avez bien été désinscrit"
 
     def get_success_url(self):
         return reverse('url_sharedevent_self_registration',
