@@ -1,7 +1,7 @@
 from django import forms
 from django.forms.formsets import BaseFormSet
 
-from shops.models import Shop, Product
+from shops.models import Product, Shop
 
 
 class StockEntryProductForm(forms.Form):

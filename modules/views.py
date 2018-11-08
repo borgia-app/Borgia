@@ -1,23 +1,27 @@
-from django.shortcuts import render, redirect, Http404, reverse
 from functools import partial, wraps
 
 from django.contrib.auth.models import Group
-from django.views.generic import FormView, View
-from django.forms.formsets import formset_factory
 from django.core.exceptions import ObjectDoesNotExist
+from django.forms.formsets import formset_factory
+from django.http import Http404
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.views.generic.base import View
+from django.views.generic.edit import FormView
 
-from modules.forms import (OperatorSaleShopModule, SelfSaleShopModule,
-                           ModuleCategoryCreateForm, ModuleCategoryCreateNameForm,
-                           ShopModuleConfigForm)
-from modules.models import OperatorSaleModule, SelfSaleModule, Category, CategoryProduct
-from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
-                          ShopFromGroupMixin, ShopModuleMixin,
-                          GroupLateralMenuMixin, shop_from_group,
-                          lateral_menu)
-from shops.models import Shop, Product
+from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
+                          GroupPermissionMixin, ShopFromGroupMixin,
+                          ShopModuleMixin, lateral_menu, shop_from_group)
 from finances.models import Sale, SaleProduct
-from users.models import User
+from modules.forms import (ModuleCategoryCreateForm,
+                           ModuleCategoryCreateNameForm,
+                           OperatorSaleShopModule, SelfSaleShopModule,
+                           ShopModuleConfigForm)
+from modules.models import (Category, CategoryProduct, OperatorSaleModule,
+                            SelfSaleModule)
 from settings_data.utils import settings_safe_get
+from shops.models import Product, Shop
+from users.models import User
 
 
 class SaleShopModuleInterface(GroupPermissionMixin, FormView,

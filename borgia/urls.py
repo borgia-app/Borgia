@@ -1,29 +1,63 @@
+from django.conf import settings
 from django.conf.urls import url
-from django.contrib import admin
-from django.contrib.auth.views import (
-    password_reset, password_reset_complete,
-    password_reset_confirm, password_change, password_change_done,
-    password_reset_done)
-from borgia.views import (
-    jsi18n_catalog, TestBootstrapSober,
-    handler403, handler404, handler500,
-    Login, Logout, GadzartsGroupWorkboard, ShopGroupWorkboard,
-    PresidentsGroupWorkboard, VicePresidentsInternalGroupWorkboard,
-    TreasurersGroupWorkboard
-    )
 from django.conf.urls.static import static
+from django.contrib import admin
+from django.contrib.auth.views import (password_change, password_change_done,
+                                       password_reset, password_reset_complete,
+                                       password_reset_confirm,
+                                       password_reset_done)
 
-from users.views import *
-from shops.views import (
-    ProductList, ProductCreate, ProductDeactivate, ProductRemove, ProductRetrieve,
-    ProductUpdate, ShopCreate, ShopList, ShopUpdate,
-    ProductUpdatePrice, ShopCheckup
-    )
-from finances.views import *
-from modules.views import *
-from notifications.views import *
-from stocks.views import *
-from settings_data.views import GlobalConfig, PriceConfig, LydiaConfig, BalanceConfig, CenterConfig
+from borgia.views import (GadzartsGroupWorkboard, Login, Logout,
+                          PresidentsGroupWorkboard, ShopGroupWorkboard,
+                          TestBootstrapSober, TreasurersGroupWorkboard,
+                          VicePresidentsInternalGroupWorkboard, handler403,
+                          handler404, handler500, jsi18n_catalog)
+from finances.views import (ExceptionnalMovementList,
+                            ExceptionnalMovementRetrieve, RechargingList,
+                            RechargingRetrieve, SaleList, SaleRetrieve,
+                            SelfBankAccountCreate, SelfBankAccountDelete,
+                            SelfBankAccountUpdate, SelfLydiaConfirm,
+                            SelfLydiaCreate, SelfTransactionList,
+                            SelfTransfertCreate, SharedEventChangeWeight,
+                            SharedEventCreate, SharedEventDelete,
+                            SharedEventDownloadXlsx, SharedEventFinish,
+                            SharedEventList, SharedEventManageUsers,
+                            SharedEventRemoveUser, SharedEventSelfRegistration,
+                            SharedEventUpdate, SharedEventUploadXlsx,
+                            TransfertList, TransfertRetrieve,
+                            UserBankAccountCreate, UserBankAccountDelete,
+                            UserBankAccountUpdate,
+                            UserExceptionnalMovementCreate, UserSupplyMoney,
+                            self_lydia_callback)
+from modules.models import OperatorSaleModule, SelfSaleModule
+from modules.views import (OperatorSaleShopModuleInterface,
+                           OperatorSaleShopModuleWorkboard,
+                           SelfSaleShopModuleInterface,
+                           SelfSaleShopModuleWorkboard,
+                           ShopModuleCategoryCreate, ShopModuleCategoryDelete,
+                           ShopModuleCategoryUpdate, ShopModuleConfig)
+from notifications.views import (NotificationGroupCreateView,
+                                 NotificationGroupListCompleteView,
+                                 NotificationGroupUpdateView,
+                                 NotificationListCompleteView,
+                                 NotificationTemplateCreateView,
+                                 NotificationTemplateDeactivateView,
+                                 NotificationTemplateListCompleteView,
+                                 NotificationTemplateUpdateView,
+                                 read_notification)
+from settings_data.views import (BalanceConfig, CenterConfig, GlobalConfig,
+                                 LydiaConfig, PriceConfig)
+from shops.views import (ProductCreate, ProductDeactivate, ProductList,
+                         ProductRemove, ProductRetrieve, ProductUpdate,
+                         ProductUpdatePrice, ShopCheckup, ShopCreate, ShopList,
+                         ShopUpdate)
+from stocks.views import (InventoryList, InventoryRetrieve,
+                          ShopInventoryCreate, ShopStockEntryCreate,
+                          StockEntryList, StockEntryRetrieve)
+from users.views import (ManageGroupView, SelfUserUpdate, UserCreateView,
+                         UserDeactivateView, UserListView, UserRetrieveView,
+                         UserSelfDeactivateView, UserUpdateAdminView,
+                         balance_from_username, username_from_username_part)
 
 handler403 = handler403
 handler404 = handler404
@@ -34,9 +68,9 @@ urlpatterns = [
         self_lydia_callback,
         name='url_self_lydia_callback'),
 
-        #####################
-        #       CONFIG      #
-        #####################
+    #####################
+    #       CONFIG      #
+    #####################
     url(r'^(?P<group_name>[\w-]+)/config/$',
         GlobalConfig.as_view(), name='url_global_config'),
     url(r'^(?P<group_name>[\w-]+)/config/center/$',
@@ -48,9 +82,9 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/config/balance/$',
         BalanceConfig.as_view(), name='url_balance_config'),
 
-        #####################
-        #     WORKBOARDS    #
-        #####################
+    #####################
+    #     WORKBOARDS    #
+    #####################
     url(r'^presidents/$',
         PresidentsGroupWorkboard.as_view(), {'group_name': 'presidents'},
         name='url_group_workboard'),
@@ -59,10 +93,12 @@ urlpatterns = [
         name='url_group_workboard'),
 
     url(r'^vice-presidents-internal/$',
-        VicePresidentsInternalGroupWorkboard.as_view(), {'group_name': 'vice-presidents-internal'},
+        VicePresidentsInternalGroupWorkboard.as_view(
+        ), {'group_name': 'vice-presidents-internal'},
         name='url_group_workboard'),
     url(r'^vice-presidents-internal/workboard/$',
-        VicePresidentsInternalGroupWorkboard.as_view(), {'group_name': 'vice-presidents-internal'},
+        VicePresidentsInternalGroupWorkboard.as_view(
+        ), {'group_name': 'vice-presidents-internal'},
         name='url_group_workboard'),
 
     url(r'^treasurers/$',
@@ -84,9 +120,9 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/workboard/$',
         ShopGroupWorkboard.as_view(), name='url_group_workboard'),
 
-        #####################
-        #       USERS       #
-        #####################
+    #####################
+    #       USERS       #
+    #####################
     url(r'^(?P<group_name>[\w-]+)/users/create/$',
         UserCreateView.as_view(), name='url_user_create'),
     url(r'^(?P<group_name>[\w-]+)/users/$',
@@ -113,16 +149,16 @@ urlpatterns = [
         UserSupplyMoney.as_view(), name='url_user_supplymoney'),
 
 
-        #####################
-        #      GROUPS       #
-        #####################
+    #####################
+    #      GROUPS       #
+    #####################
     url(r'^(?P<group_name>[\w-]+)/groups/(?P<pk>\d+)/update/$',
         ManageGroupView.as_view(), name='url_group_update'),
 
 
-        #####################
-        #     PRODUCTS      #
-        #####################
+    #####################
+    #     PRODUCTS      #
+    #####################
     url(r'^(?P<group_name>[\w-]+)/products/$',
         ProductList.as_view(), name='url_product_list'),
     url(r'^(?P<group_name>[\w-]+)/products/create/$',
@@ -138,9 +174,9 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/products/(?P<pk>\d+)/remove/$',
         ProductRemove.as_view(), name='url_product_remove'),
 
-        #####################
-        #      STOCKS       #
-        #####################
+    #####################
+    #      STOCKS       #
+    #####################
     url(r'^(?P<group_name>[\w-]+)/stocks/entries/create/$',
         ShopStockEntryCreate.as_view(), name='url_stock_entry_create'),
     url(r'^(?P<group_name>[\w-]+)/stocks/entries/$',
@@ -154,9 +190,9 @@ urlpatterns = [
     url(r'^(?P<group_name>[\w-]+)/stocks/inventories/(?P<pk>\d+)/$',
         InventoryRetrieve.as_view(), name='url_inventory_retrieve'),
 
-        #####################
-        #     FINANCES      #
-        #####################
+    #####################
+    #     FINANCES      #
+    #####################
     url(r'^(?P<group_name>[\w-]+)/sales/$',
         SaleList.as_view(), name='url_sale_list'),
     url(r'^(?P<group_name>[\w-]+)/sales/(?P<pk>\d+)/$',
@@ -179,9 +215,9 @@ urlpatterns = [
         ExceptionnalMovementRetrieve.as_view(),
         name='url_exceptionnalmovement_retrieve'),
 
-        #####################
-        #      MODULES      #
-        #####################
+    #####################
+    #      MODULES      #
+    #####################
     url(r'^(?P<group_name>[\w-]+)/modules/self_sale/categories/create/$',
         ShopModuleCategoryCreate.as_view(),
         name='url_module_selfsale_categories_create',
@@ -231,9 +267,9 @@ urlpatterns = [
         name='url_module_operatorsale'),
 
 
-        #####################
-        #   NOTIFICATIONS   #
-        #####################
+    #####################
+    #   NOTIFICATIONS   #
+    #####################
     url(r'^(?P<group_name>[\w-]+)/notifications/$',
         NotificationListCompleteView.as_view(),
         name='url_notification_list'),
@@ -263,9 +299,9 @@ urlpatterns = [
         name='url_notificationgroup_update'),
 
 
-        #####################
-        #       SHOPS       #
-        #####################
+    #####################
+    #       SHOPS       #
+    #####################
     url(r'^(?P<group_name>[\w-]+)/shops/$',
         ShopList.as_view(),
         name='url_shop_list'),
@@ -279,9 +315,9 @@ urlpatterns = [
         ShopCheckup.as_view(),
         name='url_shop_checkup'),
 
-        #####################
-        #  SELF OPERATIONS  #
-        #####################
+    #####################
+    #  SELF OPERATIONS  #
+    #####################
     url(r'^(?P<group_name>[\w-]+)/self/transferts/create/$',
         SelfTransfertCreate.as_view(),
         name='url_self_transfert_create'),
@@ -308,9 +344,9 @@ urlpatterns = [
         SelfLydiaConfirm.as_view(),
         name='url_self_lydia_confirm'),
 
-        #####################
-        #   SHAREDEVENTS    #
-        #####################
+    #####################
+    #   SHAREDEVENTS    #
+    #####################
     url(r'^(?P<group_name>[\w-]+)/shared_events/(?P<pk>\d+)/self_registration/$',
         SharedEventSelfRegistration.as_view(),
         name='url_sharedevent_self_registration'),
@@ -349,9 +385,9 @@ urlpatterns = [
         name='url_sharedevent_upload_xlsx'),
 
 
-        #####################
-        #   CONNECTIONS     #
-        #####################
+    #####################
+    #   CONNECTIONS     #
+    #####################
     url(r'^$', Login.as_view()),
     url(r'^auth/logout/',
         Logout.as_view(),

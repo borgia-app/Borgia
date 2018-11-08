@@ -1,7 +1,6 @@
-import unittest
 from django.test import TestCase
 
-from settings_data.models import *
+from settings_data.models import Setting
 
 
 class SettingTestCase(TestCase):

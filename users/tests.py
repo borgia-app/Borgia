@@ -1,13 +1,6 @@
-import unittest
 from django.test import TestCase
 
-from django.core.exceptions import ObjectDoesNotExist
-
-from users.models import User, list_year, user_from_token_tap
-from users.models import token_tap_to_token_id
-from finances.models import BankAccount, Sale, SharedEvent
-from django.contrib.contenttypes.models import ContentType
-
+from users.models import User
 
 # class MiscellaneousUtilsUserTokenTestCase(TestCase):
 #     def test_token_tap_to_token_id_valid_example(self):

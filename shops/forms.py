@@ -1,7 +1,7 @@
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist, MultipleObjectsReturned
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
-from shops.models import Shop, Product
+from shops.models import Product, Shop
 
 
 class ProductCreateForm(forms.Form):

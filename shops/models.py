@@ -1,12 +1,11 @@
-from django.db import models
-from decimal import InvalidOperation, Decimal, DivisionUndefined, DivisionByZero
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import RegexValidator, MinValueValidator
+import decimal
 
-from settings_data.models import Setting
-from stocks.models import InventoryProduct, StockEntryProduct
+from django.core.validators import MinValueValidator, RegexValidator
+from django.db import models
+
 from finances.models import SaleProduct
 from settings_data.utils import settings_safe_get
+from stocks.models import InventoryProduct, StockEntryProduct
 
 
 class Shop(models.Model):
@@ -74,18 +73,19 @@ class Product(models.Model):
     manual_price = models.DecimalField('Prix manuel', default=0,
                                        decimal_places=2, max_digits=9,
                                        validators=[
-                                           MinValueValidator(Decimal(0))])
+                                           MinValueValidator(decimal.Decimal(0))])
     shop = models.ForeignKey(
         'Shop',
         related_name='%(app_label)s_%(class)s_shop',
         on_delete=models.CASCADE)
     is_active = models.BooleanField('Actif', default=True)
     is_removed = models.BooleanField('Retiré', default=False)
-    unit = models.CharField('Unité', max_length=255, choices=UNIT_CHOICES, blank=True, null=True)
+    unit = models.CharField('Unité', max_length=255,
+                            choices=UNIT_CHOICES, blank=True, null=True)
     correcting_factor = models.DecimalField('Facteur correcteur de ventes', default=1,
-                                       decimal_places=4, max_digits=9,
-                                       validators=[
-                                           MinValueValidator(Decimal(0))])
+                                            decimal_places=4, max_digits=9,
+                                            validators=[
+                                                MinValueValidator(decimal.Decimal(0))])
 
     def __str__(self):
         return self.name
@@ -103,17 +103,18 @@ class Product(models.Model):
         try:
             margin_profit = settings_safe_get('MARGIN_PROFIT').get_value()
 
-            last_stockentry = sorted(StockEntryProduct.objects.filter(product=self), key=lambda x: x.stockentry.datetime, reverse=True)[0]
-            return round(Decimal(last_stockentry.unit_price() * self.correcting_factor * Decimal(1 + margin_profit / 100)), 4)
+            last_stockentry = sorted(StockEntryProduct.objects.filter(
+                product=self), key=lambda x: x.stockentry.datetime, reverse=True)[0]
+            return round(decimal.Decimal(last_stockentry.unit_price() * self.correcting_factor * decimal.Decimal(1 + margin_profit / 100)), 4)
         except IndexError:
-            return Decimal(0)
+            return decimal.Decimal(0)
 
     def deviating_price_from_auto(self):
         automatic_price = self.get_automatic_price()
         if automatic_price == 0:
             return 0
         else:
-            return round(( self.manual_price - automatic_price) / automatic_price * 100 , 4)
+            return round((self.manual_price - automatic_price) / automatic_price * 100, 4)
 
     def get_price(self):
         if self.is_manual:
@@ -145,7 +146,8 @@ class Product(models.Model):
         Return None if there is no inventory.
         """
         try:
-            list_inventoryproduct = InventoryProduct.objects.filter(product=self)
+            list_inventoryproduct = InventoryProduct.objects.filter(
+                product=self)
             if list_inventoryproduct is None:
                 return None
             else:
@@ -157,7 +159,7 @@ class Product(models.Model):
         try:
             return self.last_inventoryproduct(offset).quantity
         except AttributeError:
-            return Decimal(0)
+            return decimal.Decimal(0)
 
     def sales_since_last_inventory(self, offset=0):
         """
@@ -166,8 +168,9 @@ class Product(models.Model):
         try:
             return SaleProduct.objects.filter(
                 product=self,
-                sale__datetime__gte=self.last_inventoryproduct(offset).inventory.datetime
-                )
+                sale__datetime__gte=self.last_inventoryproduct(
+                    offset).inventory.datetime
+            )
         except AttributeError:
             return SaleProduct.objects.filter(
                 product=self
@@ -180,7 +183,8 @@ class Product(models.Model):
         try:
             return StockEntryProduct.objects.filter(
                 product=self,
-                stockentry__datetime__gte=self.last_inventoryproduct(offset).inventory.datetime
+                stockentry__datetime__gte=self.last_inventoryproduct(
+                    offset).inventory.datetime
             )
         except AttributeError:
             return StockEntryProduct.objects.filter(
@@ -194,9 +198,12 @@ class Product(models.Model):
         the value given by the next inventory.
         """
         stock_base = self.last_inventoryproduct_value(offset)
-        stock_input = sum(se.quantity for se in self.stockentries_since_last_inventory(offset))
-        stock_output = sum(s.quantity for s in self.sales_since_last_inventory(offset))
-        corrected_stock_output = stock_output * Decimal(self.correcting_factor)
+        stock_input = sum(
+            se.quantity for se in self.stockentries_since_last_inventory(offset))
+        stock_output = sum(
+            s.quantity for s in self.sales_since_last_inventory(offset))
+        corrected_stock_output = stock_output * \
+            decimal.Decimal(self.correcting_factor)
 
         return stock_base + stock_input - corrected_stock_output
 
@@ -253,13 +260,15 @@ class Product(models.Model):
         It appends when ZeroDivisionError is raised.
         """
         stock_base = self.last_inventoryproduct_value(1)
-        stock_input = sum(se.quantity for se in self.stockentries_since_last_inventory(1))
-        stock_output = sum(s.quantity for s in self.sales_since_last_inventory(1))
+        stock_input = sum(
+            se.quantity for se in self.stockentries_since_last_inventory(1))
+        stock_output = sum(
+            s.quantity for s in self.sales_since_last_inventory(1))
 
         try:
-            self.correcting_factor = Decimal(
+            self.correcting_factor = decimal.Decimal(
                 (stock_base + stock_input - next_stock) / stock_output
             )
             self.save()
-        except (InvalidOperation, ZeroDivisionError, DivisionUndefined, DivisionByZero):
+        except (ZeroDivisionError, decimal.DivisionByZero, decimal.DivisionUndefined, decimal.InvalidOperation):
             pass

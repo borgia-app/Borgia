@@ -1,21 +1,19 @@
-from lxml import etree
 from annoying.fields import AutoOneToOneField
-
-from django.db import models, IntegrityError
-from django.utils.timezone import now
-from django.contrib.contenttypes.models import ContentType
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.core.exceptions import ObjectDoesNotExist
-from django.forms import ValidationError
-from django.db.models.signals import m2m_changed, pre_save
-from django.dispatch import receiver
-from django.utils.html import conditional_escape
 from django.contrib.auth.models import User
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.db import models
+from django.db.models.signals import m2m_changed, pre_save
+from django.db.utils import IntegrityError
+from django.dispatch.dispatcher import receiver
+from django.utils.html import conditional_escape
+from django.utils.timezone import now
+from lxml import etree
+
+
 #TODO: make it work with users.models
-
 # Classes
-
-
 class Notification(models.Model):
     """"
     A notification represents an user side log, saved for informative purposes.

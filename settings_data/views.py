@@ -1,10 +1,12 @@
-from django.shortcuts import render, redirect, reverse
-from django.views.generic import FormView, View
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.views.generic.base import View
+from django.views.generic.edit import FormView
 
-from settings_data.forms import (PriceConfigForm, CenterConfigForm,
-                                LydiaConfigForm, BalanceConfigForm)
-from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
-                          GroupLateralMenuMixin)
+from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
+                          GroupPermissionMixin)
+from settings_data.forms import (BalanceConfigForm, CenterConfigForm,
+                                 LydiaConfigForm, PriceConfigForm)
 from settings_data.utils import settings_safe_get
 
 

@@ -1,15 +1,15 @@
-from django.views.generic.base import ContextMixin
-from django.urls import reverse
+from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
-from django.urls import NoReverseMatch
+from django.urls import NoReverseMatch, reverse
+from django.views.generic.base import ContextMixin
 
-from django.contrib.auth.models import Group, Permission
-from users.models import User
-from notifications.models import Notification, NotificationTemplate, NotificationGroup
-from shops.models import Product, Shop
-from modules.models import *
 from finances.models import SharedEvent
+from modules.models import OperatorSaleModule, SelfSaleModule
+from notifications.models import (Notification, NotificationGroup,
+                                  NotificationTemplate)
+from shops.models import Product, Shop
+from users.models import User
 
 
 def lateral_menu(user, group, active=None):
@@ -88,12 +88,12 @@ def lateral_menu(user, group, active=None):
             nav_tree.append(
                 simple_lateral_link(
                     label='Produits',
-                    faIcon='cube',
+                    fa_icon='cube',
                     id='lm_product_list',
                     url= reverse(
                         'url_product_list',
                         kwargs={'group_name': group.name})
-				)
+                )
             )
     except ObjectDoesNotExist:
         pass
@@ -117,7 +117,7 @@ def lateral_menu(user, group, active=None):
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Ventes',
-                faIcon='shopping-cart',
+                fa_icon='shopping-cart',
                 id='lm_sale_list',
                 url=reverse(
                     'url_sale_list',
@@ -133,7 +133,7 @@ def lateral_menu(user, group, active=None):
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Rechargements',
-                faIcon='money',
+                fa_icon='money',
                 id='lm_recharging_list',
                 url=reverse(
                     'url_recharging_list',
@@ -149,7 +149,7 @@ def lateral_menu(user, group, active=None):
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Transferts',
-                faIcon='exchange',
+                fa_icon='exchange',
                 id='lm_transfert_list',
                 url=reverse(
                     'url_transfert_list',
@@ -165,7 +165,7 @@ def lateral_menu(user, group, active=None):
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Exceptionnels',
-                faIcon='exclamation-triangle',
+                fa_icon='exclamation-triangle',
                 id='lm_exceptionnalmovement_list',
                 url=reverse(
                     'url_exceptionnalmovement_list',
@@ -188,7 +188,7 @@ def lateral_menu(user, group, active=None):
         # TODO: check perm
         nav_tree.append(simple_lateral_link(
             label='Module vente libre service',
-            faIcon='shopping-basket',
+            fa_icon='shopping-basket',
             id='lm_selfsale_module',
             url=reverse(
                 'url_module_selfsale_workboard',
@@ -198,7 +198,7 @@ def lateral_menu(user, group, active=None):
         # TODO: check perm
         nav_tree.append(simple_lateral_link(
             label='Module vente par opérateur',
-            faIcon='coffee',
+            fa_icon='coffee',
             id='lm_operatorsale_module',
             url=reverse(
                 'url_module_operatorsale_workboard',
@@ -221,7 +221,7 @@ def lateral_menu(user, group, active=None):
         if module.state is True:
             nav_tree.append(simple_lateral_link(
                 label='Module vente',
-                faIcon='shopping-basket',
+                fa_icon='shopping-basket',
                 id='lm_operatorsale_interface_module',
                 url=reverse(
                     'url_module_operatorsale',
@@ -236,7 +236,7 @@ def lateral_menu(user, group, active=None):
         shop = shop_from_group(group)
         nav_tree.append(simple_lateral_link(
             label='Bilan de santé',
-            faIcon='hospital-o',
+            fa_icon='hospital-o',
             id='lm_shop_checkup',
             url=reverse(
                 'url_shop_checkup',
@@ -253,7 +253,7 @@ def lateral_menu(user, group, active=None):
                 in group.permissions.all()):
             nav_tree.append(simple_lateral_link(
                 label='Configuration',
-                faIcon='cogs',
+                fa_icon='cogs',
                 id='lm_global_config',
                 url=reverse(
                     'url_global_config',
@@ -282,8 +282,6 @@ def lateral_menu(user, group, active=None):
 
 
 def lateral_menu_gadz(user, group, active=None):
-    nav_tree = []
-
     """
     - Groups
     - List of self sale modules
@@ -292,6 +290,8 @@ def lateral_menu_gadz(user, group, active=None):
     - History of transactions
     - Shared events
     """
+
+    nav_tree = []
 
     list_selfsalemodule = []
     for shop in Shop.objects.all().exclude(pk=1):
@@ -362,7 +362,7 @@ def lateral_menu_gadz(user, group, active=None):
                     'lm_sharedevent_list',
                      reverse('url_sharedevent_list', kwargs={'group_name': group.name})))
     except ObjectDoesNotExist:
-	    pass
+        pass
 
     if active is not None:
         for link in nav_tree:
@@ -392,21 +392,21 @@ def lateral_menu_model(model, group):
     :param model: Model to be used, mandatory.
     :param group: Group whose permissions are checked, mandatory.
     :param id: Id used in the nav tree, mandatory.
-    :param faIcon: Font Awesome icon used.
+    :param fa_icon: Font Awesome icon used.
     :type model: Model object
     :type group: Group object
     :type id: string or integer
-    :type faIcon: string
+    :type fa_icon: string
     """
     if model[2]:
-        faIcon = model[2]
+        fa_icon = model[2]
     else:
-        faIcon = "database"
+        fa_icon = "database"
 
     if 'noSubs' in model:
         model_tree = {
             'label': model[1],
-            'icon': faIcon,
+            'icon': fa_icon,
             'id': 'lm_' + model[0]._meta.model_name,
             'url': '',
             'subs': []
@@ -414,7 +414,7 @@ def lateral_menu_model(model, group):
     else:
         model_tree = {
             'label': model[1],
-            'icon': faIcon,
+            'icon': fa_icon,
             'id': 'lm_' + model[0]._meta.model_name,
             'subs': []
         }
@@ -455,6 +455,7 @@ def lateral_menu_model(model, group):
         return model_tree
     else:
         return None
+
 
 def lateral_menu_stock(group):
     """
@@ -563,7 +564,7 @@ def lateral_menu_shop_sale(group, shop):
             if module.state is True:
                 shop_tree['subs'].append(simple_lateral_link(
                     label='Vente libre service',
-                    faIcon='shopping-basket',
+                    fa_icon='shopping-basket',
                     id='lm_selfsale_module_'+shop.name,
                     url=reverse(
                         'url_module_selfsale',
@@ -579,10 +580,10 @@ def lateral_menu_shop_sale(group, shop):
         return None
 
 
-def simple_lateral_link(label, faIcon, id, url):
+def simple_lateral_link(label, fa_icon, id, url):
     return {
         'label': label,
-        'icon': faIcon,
+        'icon': fa_icon,
         'id': id,
         'url': url
     }
@@ -714,7 +715,7 @@ class ProductShopMixin(object):
         except ObjectDoesNotExist:
             raise Http404
         try:
-            self.product = ProductBase.objects.get(name=self.kwargs['pk'], is_removed=False)
+            self.product = Product.objects.get(name=self.kwargs['pk'], is_removed=False)
         except ObjectDoesNotExist:
             raise Http404
         if self.product.shop is not self.shop:
@@ -953,8 +954,6 @@ def human_permission_name(name):
 
 
 def human_unused_permissions():
-    """
-    """
     pks = []
     unused_cud_models = [
         'logentry',

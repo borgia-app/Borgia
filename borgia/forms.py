@@ -1,6 +1,6 @@
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
+from django.core.exceptions import ObjectDoesNotExist
 
 from users.models import User
 

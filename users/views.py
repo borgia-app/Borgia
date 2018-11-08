@@ -1,20 +1,28 @@
+import datetime
 import json
-from datetime import datetime
-from re import escape
+import re
 
-from django.shortcuts import render, HttpResponse, redirect
-from django.utils.encoding import force_text
-from django.views.generic import FormView, View
-from django.db.models import Q
-from django.http import HttpResponseBadRequest
 from django.contrib import messages
+from django.contrib.auth.models import Group, Permission
 from django.contrib.messages.views import SuccessMessageMixin
-from settings_data.utils import settings_safe_get
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.db.models import Q
+from django.http import Http404, HttpResponseBadRequest
+from django.shortcuts import HttpResponse, redirect, render
+from django.urls import reverse
+from django.utils.encoding import force_text
+from django.views.generic.base import View
+from django.views.generic.edit import FormView
 
-from users.forms import *
-from users.models import ExtendedPermission
+from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
+                          GroupPermissionMixin, group_name_display,
+                          human_unused_permissions, permission_to_manage_group)
 from finances.models import SharedEvent
-from borgia.utils import *
+from settings_data.utils import settings_safe_get
+from users.forms import (ManageGroupForm, SelfUserUpdateForm,
+                         UserCreationCustomForm, UserSearchForm,
+                         UserUpdateAdminForm)
+from users.models import ExtendedPermission, User
 
 
 class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
@@ -169,7 +177,7 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
     def get_initial(self):
         initial = super(UserCreateView, self).get_initial()
         initial['campus'] = 'Me'
-        initial['year'] = datetime.now().year - 1
+        initial['year'] = datetime.datetime.now().year - 1
         return initial
 
     def get_success_message(self, cleaned_data):
@@ -499,7 +507,7 @@ def username_from_username_part(request):
     try:
         key = request.GET.get('keywords')
 
-        regex = r"^" + escape(key) + r"(\W|$)"
+        regex = r"^" + re.escape(key) + r"(\W|$)"
 
         # Fam'ss en entier
         # where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')

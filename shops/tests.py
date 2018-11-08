@@ -1,11 +1,11 @@
-import unittest
-from decimal import Decimal
-import random
-from django.test import TestCase
+# import random
+# import unittest
+# import decimal
 
-from shops.models import *
-from settings_data.models import Setting
+# from django.test import TestCase
 
+# from settings_data.models import Setting
+# from shops.models import *
 
 # class ShopTestCase(TestCase):
 #     def setUp(self):
@@ -503,11 +503,11 @@ from settings_data.models import Setting
 #         # Mean = (1 + 1.1 + 1.2 + 1.3 + 1.4)/5 = 1.2
 #         self.assertAlmostEqual(
 #             self.pb1.set_calculated_price_mean(),
-#             Decimal(1.20)
+#             decimal.Decimal(1.20)
 #         )
 #         self.assertAlmostEqual(
 #             self.pb2.set_calculated_price_mean(),
-#             Decimal(102)
+#             decimal.Decimal(102)
 #         )
 #         # With margin profit, 10%
 #         # ProductBase1:
@@ -522,11 +522,11 @@ from settings_data.models import Setting
 #         )
 #         self.assertAlmostEqual(
 #             self.pb1.set_calculated_price_mean(),
-#             Decimal(1.32)
+#             decimal.Decimal(1.32)
 #         )
 #         self.assertAlmostEqual(
 #             self.pb2.set_calculated_price_mean(),
-#             Decimal(112.2)
+#             decimal.Decimal(112.2)
 #         )
 #         # With margin profit, random int %
 #         r = random.randint(0, 100)
@@ -535,11 +535,11 @@ from settings_data.models import Setting
 #         s.save()
 #         self.assertAlmostEqual(
 #             self.pb1.set_calculated_price_mean(),
-#             Decimal(round(1.2*(1+r/100), 2))
+#             decimal.Decimal(round(1.2*(1+r/100), 2))
 #         )
 #         self.assertAlmostEqual(
 #             self.pb2.set_calculated_price_mean(),
-#             Decimal(round(102*(1+r/100), 2))
+#             decimal.Decimal(round(102*(1+r/100), 2))
 #         )
 #         s.delete()
 #
@@ -634,7 +634,7 @@ from settings_data.models import Setting
 #         # deviating = ((1.2-1.15)/1.2)*100 (%) = 4.17%
 #         self.assertAlmostEqual(
 #             self.pb1.deviating_price_from_auto(),
-#             Decimal(4.17)
+#             decimal.Decimal(4.17)
 #         )
 #         # ProductBase2
 #         # price auto = 102
@@ -642,7 +642,7 @@ from settings_data.models import Setting
 #         # deviating = ((102-150)/102)*100 (%) = 47.06%
 #         self.assertAlmostEqual(
 #             self.pb2.deviating_price_from_auto(),
-#             Decimal(47.06)
+#             decimal.Decimal(47.06)
 #         )
 #
 #         self.assertEqual(
@@ -857,31 +857,31 @@ from settings_data.models import Setting
 #     def test_quantity_sold(self):
 #         self.assertAlmostEqual(
 #             self.c1_pb2.quantity_sold(),
-#             Decimal(40)
+#             decimal.Decimal(40)
 #         )
 #         self.assertAlmostEqual(
 #             self.c2_pb2.quantity_sold(),
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #
 #     def test_estimated_quantity_remaining(self):
 #         self.assertAlmostEqual(
 #             self.c1_pb2.estimated_quantity_remaining()[0],
-#             Decimal(110)
+#             decimal.Decimal(110)
 #         )
 #         self.assertAlmostEqual(
 #             self.c2_pb2.estimated_quantity_remaining()[0],
-#             Decimal(150)
+#             decimal.Decimal(150)
 #         )
 #         # 110 of 150 = 73.33%
 #         self.assertAlmostEqual(
 #             self.c1_pb2.estimated_quantity_remaining()[1],
-#             Decimal(73.33)
+#             decimal.Decimal(73.33)
 #         )
 #         # 150 of 150 = 100%
 #         self.assertAlmostEqual(
 #             self.c2_pb2.estimated_quantity_remaining()[1],
-#             Decimal(100)
+#             decimal.Decimal(100)
 #         )
 #
 #

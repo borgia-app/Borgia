@@ -1,23 +1,31 @@
-from django.views.generic import FormView, TemplateView, View
-from django.shortcuts import render, redirect, HttpResponse
-from django.contrib.auth import login, authenticate, logout
-from django.db.models import Q
-from functools import reduce
-from django.core.serializers import serialize
-from datetime import datetime, timedelta, date
-from re import compile
-
+import datetime
+import functools
 import json
+import re
 
-from borgia.utils import *
-from finances.models import Sale, SharedEvent, Transfert, Recharging, ExceptionnalMovement
-from borgia.forms import LoginForm
-from users.forms import UserQuickSearchForm
 from django.conf import settings
-
-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import Group
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.serializers import serialize
+from django.db.models import Q
+from django.http import HttpResponse, Http404
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.views.generic.base import TemplateView, View
 from django.views.generic.edit import FormView
+
+from borgia.forms import LoginForm
+from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
+                          ShopFromGroupMixin)
+from finances.models import (ExceptionnalMovement, Recharging, Sale,
+                             SharedEvent, Transfert)
+from modules.models import OperatorSaleModule, SelfSaleModule
+from shops.models import Shop
+from users.forms import UserQuickSearchForm
+from users.models import User
+
 
 class Login(FormView):
     template_name = 'login.html'
@@ -308,7 +316,7 @@ def get_list_model(request, model, search_in, props=None):
 
     # Recherche si précisée
     try:
-        args_search = reduce(
+        args_search = functools.reduce(
             lambda q, where: q | Q(
                 **{where + '__startswith': request.GET['search']}), search_in,
             Q())
@@ -522,8 +530,8 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
     def get_transactions(self, request):
         transactions = {}
         transactions['months'] = self.monthlist(
-            datetime.now() - timedelta(days=365),
-            datetime.now())
+            datetime.datetime.now() - datetime.timedelta(days=365),
+            datetime.datetime.now())
 
         transactions['all'] = self.request.user.list_transaction()[:5]
 
@@ -587,7 +595,7 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
         mlist = []
         for tot_m in range(total_months(start)-1, total_months(end)):
             y, m = divmod(tot_m, 12)
-            mlist.append(datetime(y, m+1, 1).strftime("%b-%y"))
+            mlist.append(datetime.datetime(y, m+1, 1).strftime("%b-%y"))
         return mlist
 
 
@@ -610,8 +618,8 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
         sales = {}
         list = Sale.objects.filter(shop=self.shop).order_by('-datetime')
         sales['weeks'] = self.weeklist(
-            datetime.now() - timedelta(days=30),
-        datetime.now())
+            datetime.datetime.now() - datetime.timedelta(days=30),
+            datetime.datetime.now())
         sales['data_weeks'] = self.sale_data_weeks(list, sales['weeks'])[0]
         sales['total'] = self.sale_data_weeks(list, sales['weeks'])[1]
         sales['all'] = list[:7]
@@ -736,7 +744,7 @@ class ListCompleteView(FormView):
         # Récupération des paramètres GET
 
         # Gestion des dates
-        pattern_date = compile('[0-9]{2}-[0-9]{2}-[0-9]{4}')
+        pattern_date = re.compile('[0-9]{2}-[0-9]{2}-[0-9]{4}')
 
         for name in self.attr.keys():
             if request.GET.get(name) is not None:
@@ -748,7 +756,7 @@ class ListCompleteView(FormView):
                 # Cas des dates
                 elif pattern_date.match(request.GET.get(name)) is not None:
                     split_date = request.GET.get(name).split('-')
-                    self.attr[name] = date(int(split_date[2]), int(split_date[1]), int(split_date[0]))
+                    self.attr[name] = datetime.date(int(split_date[2]), int(split_date[1]), int(split_date[0]))
                 # Autres
                 else:
                     self.attr[name] = request.GET.get(name)
@@ -779,7 +787,7 @@ class ListCompleteView(FormView):
     def get_context_data(self, **kwargs):
         context = super(ListCompleteView, self).get_context_data(**kwargs)
         for name in self.attr.keys():
-            if isinstance(self.attr[name], date):
+            if isinstance(self.attr[name], datetime.date):
                 context[name] = self.attr[name].strftime('%d-%m-%Y')
             else:
                 context[name] = self.attr[name]

@@ -1,20 +1,25 @@
-from django.shortcuts import render, redirect, Http404, reverse
-from functools import partial, wraps
-from decimal import Decimal, DivisionUndefined, DivisionByZero
+import decimal
+import functools
 
-from django.views.generic import FormView, View
-from django.forms.formsets import formset_factory
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth.models import Group
+from django.core.exceptions import ObjectDoesNotExist
+from django.forms.formsets import formset_factory
+from django.http import Http404
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.views.generic.base import View
+from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
-                          ShopFromGroupMixin,
-                          GroupLateralMenuMixin, shop_from_group)
-from stocks.forms import (StockEntryProductForm, StockEntryListDateForm,
-                            InventoryListDateForm, InventoryProductForm,
-                            BaseInventoryProductFormSet, AdditionnalDataInventoryForm)
-from stocks.models import StockEntry, StockEntryProduct, Inventory, InventoryProduct
+from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
+                          GroupPermissionMixin, ShopFromGroupMixin,
+                          shop_from_group)
 from shops.models import Product
+from stocks.forms import (AdditionnalDataInventoryForm,
+                          BaseInventoryProductFormSet, InventoryListDateForm,
+                          InventoryProductForm, StockEntryListDateForm,
+                          StockEntryProductForm)
+from stocks.models import (Inventory, InventoryProduct, StockEntry,
+                           StockEntryProduct)
 
 
 class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
@@ -36,7 +41,7 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
             raise Http404
         except ValueError:
             raise Http404
-        self.form_class = formset_factory(wraps(StockEntryProductForm)(partial(StockEntryProductForm, shop=self.shop)), extra=1)
+        self.form_class = formset_factory(functools.wraps(StockEntryProductForm)(functools.partial(StockEntryProductForm, shop=self.shop)), extra=1)
         return super(ShopStockEntryCreate,
                      self).dispatch(request, *args, **kwargs)
 
@@ -59,37 +64,37 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                     # Container
                     if product.unit == 'G':
                         if form['unit_quantity'] == 'G':
-                            quantity = Decimal(form['quantity'])
+                            quantity = decimal.Decimal(form['quantity'])
                             if form['unit_amount'] == 'PACKAGE':
-                                price = Decimal(form['amount'])
+                                price = decimal.Decimal(form['amount'])
                             elif form['unit_amount'] == 'KG':
-                                price = Decimal(form['amount'] * Decimal(form['quantity'] / 1000))
+                                price = decimal.Decimal(form['amount'] * decimal.Decimal(form['quantity'] / 1000))
                         elif form['unit_quantity'] == 'KG':
-                            quantity = Decimal(form['quantity'] * 1000)
+                            quantity = decimal.Decimal(form['quantity'] * 1000)
                             if form['unit_amount'] == 'PACKAGE':
-                                price = Decimal(form['amount'])
+                                price = decimal.Decimal(form['amount'])
                             elif form['unit_amount'] == 'KG':
-                                price = Decimal(form['amount'] * form['quantity'])
+                                price = decimal.Decimal(form['amount'] * form['quantity'])
                     elif product.unit == 'CL':
                         if form['unit_quantity'] == 'CL':
-                            quantity = Decimal(form['quantity'])
+                            quantity = decimal.Decimal(form['quantity'])
                             if form['unit_amount'] == 'PACKAGE':
-                                price = Decimal(form['amount'])
+                                price = decimal.Decimal(form['amount'])
                             elif form['unit_amount'] == 'L':
-                                price = Decimal(form['amount'] * Decimal(form['quantity'] / 100))
+                                price = decimal.Decimal(form['amount'] * decimal.Decimal(form['quantity'] / 100))
                         elif form['unit_quantity'] == 'L':
-                            quantity = Decimal(form['quantity'] * 100)
+                            quantity = decimal.Decimal(form['quantity'] * 100)
                             if form['unit_amount'] == 'PACKAGE':
-                                price = Decimal(form['amount'])
+                                price = decimal.Decimal(form['amount'])
                             elif form['unit_amount'] == 'L':
-                                price = Decimal(form['amount'] * form['quantity'])
+                                price = decimal.Decimal(form['amount'] * form['quantity'])
                 else:
                     # Single product
                     quantity = form['quantity']
                     if form['unit_amount'] == 'UNIT':
-                        price = Decimal(form['amount'] * form['quantity'])
+                        price = decimal.Decimal(form['amount'] * form['quantity'])
                     elif form['unit_amount'] == 'PACKAGE':
-                        price = Decimal(form['amount'])
+                        price = decimal.Decimal(form['amount'])
 
                 StockEntryProduct.objects.create(
                     stockentry=stockentry,
@@ -100,7 +105,7 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
 
             except ObjectDoesNotExist:
                 pass
-            except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+            except (ZeroDivisionError, decimal.DivisionUndefined, decimal.DivisionByZero):
                 pass
 
         return redirect(
@@ -241,14 +246,14 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                         # Container
                         if product.unit == 'G':
                             if form['unit_quantity'] == 'G':
-                                quantity = Decimal(form['quantity'])
+                                quantity = decimal.Decimal(form['quantity'])
                             elif form['unit_quantity'] == 'KG':
-                                quantity = Decimal(form['quantity'] * 1000)
+                                quantity = decimal.Decimal(form['quantity'] * 1000)
                         elif product.unit == 'CL':
                             if form['unit_quantity'] == 'CL':
-                                quantity = Decimal(form['quantity'])
+                                quantity = decimal.Decimal(form['quantity'])
                             elif form['unit_quantity'] == 'L':
-                                quantity = Decimal(form['quantity'] * 100)
+                                quantity = decimal.Decimal(form['quantity'] * 100)
                     else:
                         # Single product
                         quantity = form['quantity']
@@ -261,7 +266,7 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
 
                 except ObjectDoesNotExist:
                     pass
-                except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+                except (ZeroDivisionError, decimal.DivisionUndefined, decimal.DivisionByZero):
                     pass
 
             if additionnal_data_form.cleaned_data['type'] == 'full':
@@ -272,12 +277,12 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                         InventoryProduct.objects.create(
                             inventory=inventory,
                             product=product,
-                            quantity=Decimal(0)
+                            quantity=decimal.Decimal(0)
                         )
 
                 except ObjectDoesNotExist:
                     pass
-                except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+                except (ZeroDivisionError, decimal.DivisionUndefined, decimal.DivisionByZero):
                     pass
 
             # Update all correcting factors listed

@@ -1,14 +1,10 @@
-import unittest
-from datetime import date
-from decimal import Decimal
+import datetime
+import decimal
+
 from django.test import TestCase
 
-from django.core.exceptions import ObjectDoesNotExist
-
+from finances.models import SharedEvent
 from users.models import User
-from shops.models import *
-from finances.models import *
-
 
 # class LydiaTestCase(TestCase):
 #     def setUp(self):
@@ -159,7 +155,7 @@ from finances.models import *
 #         )
 #         self.debit_balance = DebitBalance.objects.create(
 #             amount=10,
-#             date=date.today(),
+#             date=datetime.date.today(),
 #             sender=self.user1,
 #             recipient=self.user2
 #         )
@@ -167,7 +163,7 @@ from finances.models import *
 #     def test_str(self):
 #         self.assertEqual(
 #             self.debit_balance.__str__(),
-#             '10€ ' + str(date.today()))
+#             '10€ ' + str(datetime.date.today()))
 #
 #     def test_set_movement(self):
 #         self.user1.balance = 100
@@ -175,11 +171,11 @@ from finances.models import *
 #         self.debit_balance.set_movement()
 #         self.assertAlmostEqual(
 #             self.user1.balance,
-#             Decimal(90)
+#             decimal.Decimal(90)
 #         )
 #         self.assertAlmostEqual(
 #             self.user2.balance,
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #
 #
@@ -230,7 +226,7 @@ from finances.models import *
 #         )
 #         self.debit_balance = DebitBalance.objects.create(
 #             amount=10,
-#             date=date.today(),
+#             date=datetime.date.today(),
 #             sender=self.user1,
 #             recipient=self.user2
 #         )
@@ -264,7 +260,7 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             self.payment.list_cheque()[1],
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #
 #     def test_list_lydia(self):
@@ -274,7 +270,7 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             self.payment.list_lydia()[1],
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #
 #     def test_list_cash(self):
@@ -284,7 +280,7 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             self.payment.list_cash()[1],
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #
 #     def test_list_debit_balance(self):
@@ -294,18 +290,18 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             self.payment.list_debit_balance()[1],
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #
 #     def test_maj_amount(self):
 #         self.assertAlmostEqual(
 #             self.payment.amount,
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.payment.maj_amount()
 #         self.assertAlmostEqual(
 #             self.payment.amount,
-#             Decimal(40)
+#             decimal.Decimal(40)
 #         )
 #
 #     def test_payments_used(self):
@@ -452,7 +448,7 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             self.sale.list_single_products()[1],
-#             Decimal(1)
+#             decimal.Decimal(1)
 #         )
 #
 #     def test_list_single_products_from_container(self):
@@ -462,32 +458,32 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             self.sale.list_single_products_from_container()[1],
-#             Decimal(15)
+#             decimal.Decimal(15)
 #         )
 #
 #     def test_maj_amount(self):
 #         self.assertAlmostEqual(
 #             self.sale.amount,
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.sale.maj_amount()
 #         self.assertAlmostEqual(
 #             self.sale.amount,
-#             Decimal(16)
+#             decimal.Decimal(16)
 #         )
 #
 #     def test_price_for(self):
 #         self.assertAlmostEqual(
 #             self.sale.price_for(self.user1),
-#             Decimal(-10)
+#             decimal.Decimal(-10)
 #         )
 #         self.assertAlmostEqual(
 #             self.sale.price_for(self.user2),
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             self.sale.price_for(self.user3),
-#             Decimal(-6)
+#             decimal.Decimal(-6)
 #         )
 #
 #     def test_string_products(self):
@@ -513,7 +509,7 @@ from finances.models import *
 #             sender=self.user1,
 #             recipient=self.user2,
 #             amount=50,
-#             date=date.today(),
+#             date=datetime.date.today(),
 #             justification='remboursement'
 #         )
 #
@@ -522,7 +518,7 @@ from finances.models import *
 #         debit_balance = DebitBalance.objects.get(sender=self.user1)
 #         self.assertAlmostEqual(
 #             debit_balance.amount,
-#             Decimal(50)
+#             decimal.Decimal(50)
 #         )
 #         self.assertEqual(
 #             debit_balance.sender,
@@ -538,7 +534,7 @@ from finances.models import *
 #         payment = Payment.objects.all()[0]  # Theorically the only one.
 #         self.assertAlmostEqual(
 #             payment.amount,
-#             Decimal(50)
+#             decimal.Decimal(50)
 #         )
 #         self.assertCountEqual(
 #             payment.list_cheque()[0],
@@ -558,19 +554,19 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cheque()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_lydia()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cash()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_debit_balance()[1],
-#             Decimal(50)
+#             decimal.Decimal(50)
 #         )
 #
 #     def test_sale(self):
@@ -578,7 +574,7 @@ from finances.models import *
 #         sale = Sale.objects.get(sender=self.user1)
 #         self.assertAlmostEqual(
 #             sale.amount,
-#             Decimal(50)
+#             decimal.Decimal(50)
 #         )
 #         self.assertTrue(sale.done)
 #         self.assertFalse(sale.is_credit)
@@ -614,11 +610,11 @@ from finances.models import *
 #     def test_balances(self):
 #         self.assertAlmostEqual(
 #             self.user1.balance,
-#             Decimal(50)
+#             decimal.Decimal(50)
 #         )
 #         self.assertAlmostEqual(
 #             self.user2.balance,
-#             Decimal(60)
+#             decimal.Decimal(60)
 #         )
 #
 #
@@ -631,7 +627,7 @@ from finances.models import *
 #             balance=100
 #             )
 #         self.lydia = Lydia.objects.create(
-#             date_operation=date.today(),
+#             date_operation=datetime.date.today(),
 #             amount=10,
 #             id_from_lydia='abcdefg',
 #             sender=self.user1,
@@ -640,7 +636,7 @@ from finances.models import *
 #         sale_recharging(
 #             sender=self.user1,
 #             operator=self.user1,
-#             date=date.today(),
+#             date=datetime.date.today(),
 #             wording='Rechargement automatique',
 #             payments_list=[self.lydia]
 #         )
@@ -650,7 +646,7 @@ from finances.models import *
 #         payment = Payment.objects.all()[0]  # Theorically the only one.
 #         self.assertAlmostEqual(
 #             payment.amount,
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #         self.assertCountEqual(
 #             payment.list_cheque()[0],
@@ -670,19 +666,19 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cheque()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_lydia()[1],
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cash()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_debit_balance()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #
 #     def test_sale(self):
@@ -690,7 +686,7 @@ from finances.models import *
 #         sale = Sale.objects.get(sender=self.user1)
 #         self.assertAlmostEqual(
 #             sale.amount,
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #         self.assertTrue(sale.done)
 #         self.assertTrue(sale.is_credit)
@@ -742,7 +738,7 @@ from finances.models import *
 #     def test_balances(self):
 #         self.assertAlmostEqual(
 #             self.user1.balance,
-#             Decimal(110)
+#             decimal.Decimal(110)
 #         )
 #
 #
@@ -765,7 +761,7 @@ from finances.models import *
 #         sale_recharging(
 #             sender=self.user1,
 #             operator=self.user2,
-#             date=date.today(),
+#             date=datetime.date.today(),
 #             wording='Rechargement manuel',
 #             payments_list=[self.cash]
 #         )
@@ -775,7 +771,7 @@ from finances.models import *
 #         payment = Payment.objects.all()[0]  # Theorically the only one.
 #         self.assertAlmostEqual(
 #             payment.amount,
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #         self.assertCountEqual(
 #             payment.list_cheque()[0],
@@ -795,19 +791,19 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cheque()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_lydia()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cash()[1],
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_debit_balance()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #
 #     def test_sale(self):
@@ -815,7 +811,7 @@ from finances.models import *
 #         sale = Sale.objects.get(sender=self.user1)
 #         self.assertAlmostEqual(
 #             sale.amount,
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #         self.assertTrue(sale.done)
 #         self.assertTrue(sale.is_credit)
@@ -867,7 +863,7 @@ from finances.models import *
 #     def test_balances(self):
 #         self.assertAlmostEqual(
 #             self.user1.balance,
-#             Decimal(110)
+#             decimal.Decimal(110)
 #         )
 #
 #
@@ -888,7 +884,7 @@ from finances.models import *
 #             affected=self.user1,
 #             is_credit=True,
 #             amount=10,
-#             date=date.today(),
+#             date=datetime.date.today(),
 #             justification='Exception'
 #         )
 #
@@ -897,7 +893,7 @@ from finances.models import *
 #         payment = Payment.objects.all()[0]  # Theorically the only one.
 #         self.assertAlmostEqual(
 #             payment.amount,
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #         self.assertCountEqual(
 #             payment.list_cheque()[0],
@@ -917,19 +913,19 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cheque()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_lydia()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cash()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_debit_balance()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #
 #     def test_sale(self):
@@ -937,7 +933,7 @@ from finances.models import *
 #         sale = Sale.objects.get(sender=self.user1)
 #         self.assertAlmostEqual(
 #             sale.amount,
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #         self.assertTrue(sale.done)
 #         self.assertTrue(sale.is_credit)
@@ -992,7 +988,7 @@ from finances.models import *
 #     def test_balances(self):
 #         self.assertAlmostEqual(
 #             self.user1.balance,
-#             Decimal(110)
+#             decimal.Decimal(110)
 #         )
 #
 #
@@ -1013,7 +1009,7 @@ from finances.models import *
 #             affected=self.user1,
 #             is_credit=False,
 #             amount=10,
-#             date=date.today(),
+#             date=datetime.date.today(),
 #             justification='Exception'
 #         )
 #
@@ -1021,7 +1017,7 @@ from finances.models import *
 #         debit_balance = DebitBalance.objects.get(sender=self.user1)
 #         self.assertAlmostEqual(
 #             debit_balance.amount,
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #         self.assertEqual(
 #             debit_balance.sender,
@@ -1037,7 +1033,7 @@ from finances.models import *
 #         payment = Payment.objects.all()[0]  # Theorically the only one.
 #         self.assertAlmostEqual(
 #             payment.amount,
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #         self.assertCountEqual(
 #             payment.list_cheque()[0],
@@ -1057,19 +1053,19 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cheque()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_lydia()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cash()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_debit_balance()[1],
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #
 #     def test_sale(self):
@@ -1077,7 +1073,7 @@ from finances.models import *
 #         sale = Sale.objects.get(sender=self.user1)
 #         self.assertAlmostEqual(
 #             sale.amount,
-#             Decimal(10)
+#             decimal.Decimal(10)
 #         )
 #         self.assertTrue(sale.done)
 #         self.assertFalse(sale.is_credit)
@@ -1132,7 +1128,7 @@ from finances.models import *
 #     def test_balances(self):
 #         self.assertAlmostEqual(
 #             self.user1.balance,
-#             Decimal(90)
+#             decimal.Decimal(90)
 #         )
 #
 #
@@ -1194,7 +1190,7 @@ from finances.models import *
 #         sale_sale(
 #             sender=self.user1,
 #             operator=self.user1,
-#             date=date.today(),
+#             date=datetime.date.today(),
 #             wording='Vente Shop name',
 #             products_list=[self.sp_pb1, self.spfc_pb2]
 #         )
@@ -1203,7 +1199,7 @@ from finances.models import *
 #         debit_balance = DebitBalance.objects.get(sender=self.user1)
 #         self.assertAlmostEqual(
 #             debit_balance.amount,
-#             Decimal(16)
+#             decimal.Decimal(16)
 #         )
 #         self.assertEqual(
 #             debit_balance.sender,
@@ -1219,7 +1215,7 @@ from finances.models import *
 #         payment = Payment.objects.all()[0]  # Theorically the only one.
 #         self.assertAlmostEqual(
 #             payment.amount,
-#             Decimal(16)
+#             decimal.Decimal(16)
 #         )
 #         self.assertCountEqual(
 #             payment.list_cheque()[0],
@@ -1239,19 +1235,19 @@ from finances.models import *
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cheque()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_lydia()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_cash()[1],
-#             Decimal(0)
+#             decimal.Decimal(0)
 #         )
 #         self.assertAlmostEqual(
 #             payment.list_debit_balance()[1],
-#             Decimal(16)
+#             decimal.Decimal(16)
 #         )
 #
 #     def test_sale(self):
@@ -1259,7 +1255,7 @@ from finances.models import *
 #         sale = Sale.objects.get(sender=self.user1)
 #         self.assertAlmostEqual(
 #             sale.amount,
-#             Decimal(16)
+#             decimal.Decimal(16)
 #         )
 #         self.assertTrue(sale.done)
 #         self.assertFalse(sale.is_credit)
@@ -1303,7 +1299,7 @@ from finances.models import *
 #     def test_balances(self):
 #         self.assertAlmostEqual(
 #             self.user1.balance,
-#             Decimal(84)
+#             decimal.Decimal(84)
 #         )
 
 
@@ -1317,9 +1313,9 @@ class SharedEventTestCase(TestCase):
 
         self.se = SharedEvent.objects.create(
             description = 'Test53',
-            date = date(2053, 1, 1),
+            date = datetime.date(2053, 1, 1),
             manager = self.manager,
-            price = Decimal(1000.00)
+            price = decimal.Decimal(1000.00)
         )
 
 
@@ -1473,9 +1469,9 @@ class SharedEventTestCase(TestCase):
         # INIT
         se = SharedEvent.objects.create(
             description = 'Test_payment',
-            date = date(2053, 1, 1),
+            date = datetime.date(2053, 1, 1),
             manager = self.manager,
-            price = Decimal(1000.00)
+            price = decimal.Decimal(1000.00)
         )
         user1 = User.objects.create(
             username='user1',
@@ -1495,15 +1491,15 @@ class SharedEventTestCase(TestCase):
         se.change_weight(user1, 10, True)
         se.change_weight(user1, 5, False)
         se.change_weight(user2, 40, True)
-        se.pay_by_total( self.manager, banker, Decimal(100.00) )
+        se.pay_by_total( self.manager, banker, decimal.Decimal(100.00) )
         # TESTS
         self.assertEqual(se.done, True)
         self.assertEqual(se.payment_by_ponderation, False)
-        self.assertEqual(banker.balance, Decimal(100.00))
-        self.assertEqual(se.price, Decimal(100.00))
+        self.assertEqual(banker.balance, decimal.Decimal(100.00))
+        self.assertEqual(se.price, decimal.Decimal(100.00))
         self.assertEqual(se.remark, 'Paiement par Borgia (Prix total : 100)')
-        # self.assertEqual(user1.balance, Decimal(-20.00)) # NOT WORKING
-        # self.assertEqual(user2.balance, Decimal(-80.00)) # NOT WORKING
+        # self.assertEqual(user1.balance, decimal.Decimal(-20.00)) # NOT WORKING
+        # self.assertEqual(user2.balance, decimal.Decimal(-80.00)) # NOT WORKING
         # END
         se.remove_user(user1)
         se.remove_user(user2)
@@ -1512,9 +1508,9 @@ class SharedEventTestCase(TestCase):
         # INIT
         se = SharedEvent.objects.create(
             description = 'Test_payment',
-            date = date(2053, 1, 1),
+            date = datetime.date(2053, 1, 1),
             manager = self.manager,
-            price = Decimal(1000.00)
+            price = decimal.Decimal(1000.00)
         )
         user1 = User.objects.create(
             username='user1',
@@ -1534,15 +1530,15 @@ class SharedEventTestCase(TestCase):
         se.change_weight(user1, 10, True)
         se.change_weight(user1, 5, False)
         se.change_weight(user2, 40, True)
-        se.pay_by_ponderation( self.manager, banker, Decimal(3.00) )
+        se.pay_by_ponderation( self.manager, banker, decimal.Decimal(3.00) )
         # TESTS
         self.assertEqual(se.done, True)
         self.assertEqual(se.payment_by_ponderation, True)
-        self.assertEqual(se.price, Decimal(3.00))
-        self.assertEqual(banker.balance, Decimal(150.00))
+        self.assertEqual(se.price, decimal.Decimal(3.00))
+        self.assertEqual(banker.balance, decimal.Decimal(150.00))
         self.assertEqual(se.remark, 'Paiement par Borgia (Prix par pondération: 3)')
-        # self.assertEqual(user1.balance, Decimal(-30.00)) # NOT WORKING
-        # self.assertEqual(user2.balance, Decimal(-120.00)) # NOT WORKING
+        # self.assertEqual(user1.balance, decimal.Decimal(-30.00)) # NOT WORKING
+        # self.assertEqual(user2.balance, decimal.Decimal(-120.00)) # NOT WORKING
         # END
         se.remove_user(user1)
         se.remove_user(user2)

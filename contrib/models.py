@@ -1,10 +1,11 @@
-from django.urls import resolve, Resolver404
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from django.http import HttpResponseRedirect
-from django.conf import settings
 from re import compile
+
+from django.conf import settings
+from django.db import models
+from django.http import HttpResponseRedirect
+from django.urls import Resolver404, resolve
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.translation import ugettext_lazy as _
 
 
 class TimeStampedDescription(models.Model):

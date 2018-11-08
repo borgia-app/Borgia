@@ -1,16 +1,17 @@
-import re
 import datetime
+import re
 
 from django import forms
 from django.contrib.auth import authenticate
-from django.forms.widgets import PasswordInput
-from django.core.validators import RegexValidator
 from django.contrib.auth.models import Permission
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import RegexValidator
+from django.forms.widgets import PasswordInput
 
-from shops.models import Shop
+from borgia.validators import autocomplete_username_validator
 from finances.models import BankAccount
-from borgia.validators import *
-from users.models import list_year
+from shops.models import Shop
+from users.models import User, list_year
 
 
 class BankAccountCreateForm(forms.ModelForm):

@@ -1,7 +1,10 @@
 from django import forms
-from borgia.validators import *
-from notifications.models import NotificationTemplate, NotificationClass, NotificationGroup
 from django.contrib.auth.models import Group
+from django.core.exceptions import ValidationError
+
+from borgia.validators import autocomplete_username_validator
+from notifications.models import (NotificationClass, NotificationGroup,
+                                  NotificationTemplate)
 from shops.models import Shop
 
 

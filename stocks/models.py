@@ -1,8 +1,8 @@
 from decimal import Decimal
 
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.timezone import now
-from django.core.validators import MinValueValidator
 
 
 class StockEntry(models.Model):

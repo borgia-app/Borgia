@@ -1,22 +1,24 @@
-from datetime import datetime
-from decimal import Decimal
 import re
-from itertools import chain
-
-from django.db import models
-from django.db.models import Q
-from django.core.validators import RegexValidator
-from django.utils import timezone
+import datetime
+import decimal
+import itertools
 
 from django.contrib.auth.models import AbstractUser, Permission
-from finances.models import Sale, BankAccount, SharedEvent, Transfert, Recharging, ExceptionnalMovement
+from django.core.validators import RegexValidator
+from django.db import models
+from django.db.models import Q
+from django.utils import timezone
+
+from finances.models import (BankAccount, ExceptionnalMovement, Recharging,
+                             Sale, SharedEvent, Transfert)
 
 
 class ExtendedPermission(Permission):
 
     class Meta:
         proxy = True
-        auto_created = True ## Resolve the problem about migration. But I don't know the drawbacks. Questionned on StackOverflow
+        # Resolve the problem about migration. But I don't know the drawbacks. Questionned on StackOverflow
+        auto_created = True
         default_permissions = ()
 
     def __str__(self):
@@ -80,13 +82,13 @@ class User(AbstractUser):
         ('KIN', 'Kin')
     )
     YEAR_CHOICES = []
-    for i in range(1953, datetime.now().year + 1):
+    for i in range(1953, datetime.datetime.now().year + 1):
         YEAR_CHOICES.append((i, i))
 
     THEME_CHOICES = (
-        ('light','Light'),
-        ('dark','Dark'),
-        ('birse','Birse')
+        ('light', 'Light'),
+        ('dark', 'Dark'),
+        ('birse', 'Birse')
     )
 
     surname = models.CharField('Bucque', max_length=255, blank=True, null=True)
@@ -94,7 +96,7 @@ class User(AbstractUser):
     balance = models.DecimalField('Solde', default=0, max_digits=9,
                                   decimal_places=2)
     virtual_balance = models.DecimalField('Solde prévisionnel', default=0, max_digits=9,
-                                  decimal_places=2)
+                                          decimal_places=2)
     year = models.IntegerField('Prom\'ss', choices=YEAR_CHOICES, blank=True,
                                null=True)
     campus = models.CharField('Tabagn\'ss', choices=CAMPUS_CHOICES,
@@ -117,10 +119,9 @@ class User(AbstractUser):
     avatar = models.ImageField('Avatar', upload_to='img/avatars/',
                                default=None, blank=True, null=True)
     theme = models.CharField('Préférence de theme graphique', choices=THEME_CHOICES,
-                                max_length=15, blank=True, null=True)
+                             max_length=15, blank=True, null=True)
 
     jwt_iat = models.DateTimeField('Jwt iat', default=timezone.now)
-
 
     def __str__(self):
         """
@@ -148,29 +149,30 @@ class User(AbstractUser):
             return 'undefined'
 
     def display_name_navbar(self):
-      """
-      Return the name displayed in the navbar
+        """
+        Return the name displayed in the navbar
 
-      """
-      if not self.first_name or not self.last_name:
-         return 'undefined'
-      try:
-         if not self.surname or not self.family:
-           return self.first_name + ' ' + self.last_name
-         else:
-           return self.surname + ' ' + self.family+self.campus+str(self.year_pg())
-      except AttributeError:
-         return 'undefined'
+        """
+        if not self.first_name or not self.last_name:
+            return 'undefined'
+        try:
+            if not self.surname or not self.family:
+                return self.first_name + ' ' + self.last_name
+            else:
+                return self.surname + ' ' + self.family+self.campus+str(self.year_pg())
+        except AttributeError:
+            return 'undefined'
 
     def forecast_balance(self):
-      # Get all undone shared events where user is involved as participant
-      shared_events = SharedEvent.objects.filter(users__username__contains= self.username, done=False)
-      solde_prev = 0
-      for se in shared_events:
-        solde_prev += se.get_price_of_user(self)
-      self.virtual_balance = self.balance - solde_prev
-	  #TODO: notify if forecast balance is negative
-      self.save()
+        # Get all undone shared events where user is involved as participant
+        shared_events = SharedEvent.objects.filter(
+            users__username__contains=self.username, done=False)
+        solde_prev = 0
+        for se in shared_events:
+            solde_prev += se.get_price_of_user(self)
+        self.virtual_balance = self.balance - solde_prev
+        # TODO: notify if forecast balance is negative
+        self.save()
 
     def year_pg(self):
         """
@@ -203,7 +205,7 @@ class User(AbstractUser):
         :raise: ValueError if the amount is negative or null or if not a float
         or int
         """
-        if (not isinstance(amount, int)) and (not isinstance(amount, float)) and (not isinstance(amount, Decimal)):
+        if (not isinstance(amount, int)) and (not isinstance(amount, float)) and (not isinstance(amount, decimal.Decimal)):
             raise ValueError('The amount is not a number')
         if amount <= 0:
             raise ValueError('The amount must be positive')
@@ -224,14 +226,13 @@ class User(AbstractUser):
         :raise: ValueError if the amount is negative or null or if not a float
         or int
         """
-        if (not isinstance(amount, int)) and (not isinstance(amount, float)) and (not isinstance(amount, Decimal)):
+        if (not isinstance(amount, int)) and (not isinstance(amount, float)) and (not isinstance(amount, decimal.Decimal)):
             raise ValueError('The amount is not a number')
         if amount <= 0:
             raise ValueError('The amount must be positive')
 
         self.balance -= amount
         self.save()
-
 
     def list_transaction(self):
         """
@@ -241,15 +242,18 @@ class User(AbstractUser):
         """
 
         sales = Sale.objects.filter(sender=self)
-        transferts = Transfert.objects.filter(Q(sender=self) | Q(recipient=self))
+        transferts = Transfert.objects.filter(
+            Q(sender=self) | Q(recipient=self))
         rechargings = Recharging.objects.filter(sender=self)
-        exceptionnal_movements = ExceptionnalMovement.objects.filter(recipient=self)
+        exceptionnal_movements = ExceptionnalMovement.objects.filter(
+            recipient=self)
         shared_events = SharedEvent.objects.filter(done=True, users=self)
         for e in shared_events:
             e.amount = e.get_price_of_user(self)
 
         list_transaction = sorted(
-            list(chain(sales, transferts, rechargings, exceptionnal_movements, shared_events)),
+            list(itertools.chain(sales, transferts, rechargings,
+                                 exceptionnal_movements, shared_events)),
             key=lambda instance: instance.datetime, reverse=True
         )
 
@@ -310,7 +314,8 @@ def list_year():
     :returns: list of integer years used by users, sorted the decreasing dates.
     """
     list_year = []
-    for u in User.objects.filter(is_active=True).exclude(groups=6).exclude(pk=1): # Parmis tout les users moins les gadz d'honn'ss et l'admin
+    # Parmis tout les users moins les gadz d'honn'ss et l'admin
+    for u in User.objects.filter(is_active=True).exclude(groups=6).exclude(pk=1):
         if u.year not in list_year:
             if u.year is not None:  # year is not mandatory
                 list_year.append(u.year)

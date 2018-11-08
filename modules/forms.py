@@ -2,8 +2,8 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator
 
-from shops.models import Product
 from modules.models import CategoryProduct
+from shops.models import Product
 from users.models import User
 
 

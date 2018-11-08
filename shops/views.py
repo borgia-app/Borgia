@@ -1,12 +1,27 @@
-from django.db.models import Q
-from django.shortcuts import redirect, render
-from django.views.generic import FormView, View
+import decimal
 
-from borgia.utils import *
-from finances.models import *
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import (MultipleObjectsReturned,
+                                    ObjectDoesNotExist, PermissionDenied)
+from django.db.models import Q
+from django.http import Http404
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils.timezone import now
+from django.views.generic.base import View
+from django.views.generic.edit import FormView
+
+from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
+                          GroupPermissionMixin, ProductShopFromGroupMixin,
+                          ShopFromGroupMixin)
+from finances.models import Sale
+from modules.models import CategoryProduct
 from settings_data.utils import settings_safe_get
-from shops.forms import *
-from shops.models import *
+from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
+                         ProductUpdatePriceForm, ShopCheckupSearchForm,
+                         ShopCreateForm, ShopUpdateForm)
+from shops.models import Product, Shop
 
 
 class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
@@ -452,7 +467,7 @@ class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         nb = q_sales.count()
         try:
             mean = round(value / nb, 2)
-        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+        except (ZeroDivisionError, decimal.DivisionByZero, decimal.DivisionUndefined):
             mean = 0
         return {
             'value': value,

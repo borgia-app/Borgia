@@ -1,18 +1,25 @@
+from django.contrib.auth.models import Group
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.http import Http404
+from django.shortcuts import HttpResponseRedirect, redirect, render
+from django.template import Context, Template
+from django.urls import reverse
+from django.utils.encoding import force_text
+from django.utils.timezone import now
+from django.views.generic import View
+from django.views.generic.edit import CreateView, UpdateView
+from django.views.generic.list import ListView
 from lxml import etree
 
-
-from django.shortcuts import HttpResponseRedirect, render, redirect
-from django.utils.encoding import force_text
-from django.views.generic.edit import UpdateView, CreateView
-from django.views.generic.list import ListView
-from django.views.generic import View
-from django.template import Template, Context
-from borgia.utils import *
-
+from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
+                          GroupPermissionMixin)
 from borgia.views import ListCompleteView
-from notifications.forms import (notiftest, NotificationTemplateUpdateViewForm,
-                                 NotificationTemplateCreateViewForm)
-from notifications.models import *
+from notifications.forms import (NotificationTemplateCreateViewForm,
+                                 NotificationTemplateUpdateViewForm, notiftest)
+from notifications.models import (Notification, NotificationClass,
+                                  NotificationGroup, NotificationTemplate,
+                                  get_allowed_tags, notify,
+                                  template_rendering_engine)
 
 
 # CRUD modèle notification
