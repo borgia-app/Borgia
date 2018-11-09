@@ -9,29 +9,29 @@ class StockEntryProductForm(forms.Form):
         shop = kwargs.pop('shop')
         super(StockEntryProductForm, self).__init__(*args, **kwargs)
         product_choice = ([(None, 'Sélectionner un produit')] +
-                            [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
-                            for product in Product.objects.filter(shop=shop, is_removed=False)]
-                        )
+                          [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
+                           for product in Product.objects.filter(shop=shop, is_removed=False)]
+                          )
         self.fields['product'].choices = product_choice
 
     product = forms.ChoiceField(label='Produit', widget=forms.Select(
-                                                    attrs={'class': 'form-control selectpicker',
-                                                    'data-live-search': 'True', 'required':'required'})
-                                                    )
-
+        attrs={'class': 'form-control selectpicker',
+               'data-live-search': 'True', 'required': 'required'})
+    )
 
     quantity = forms.IntegerField(
         label='En vente',
         required=False,
         widget=forms.NumberInput(
             attrs={'class': 'form-control centered_input quantity',
-                    'placeholder': 'Quantité',
-                    'min':1, 'required':'required'}
+                   'placeholder': 'Quantité',
+                   'min': 1, 'required': 'required'}
         )
     )
     unit_quantity = forms.ChoiceField(
         label='Unité quantité',
-        choices=([('UNIT', 'produits'), ('CL', 'cl'), ('L', 'L'), ('G', 'g'), ('KG', 'kg')]),
+        choices=([('UNIT', 'produits'), ('CL', 'cl'),
+                  ('L', 'L'), ('G', 'g'), ('KG', 'kg')]),
         widget=forms.Select(
             attrs={'class': 'form-control selectpicker unit_quantity', 'required': 'required'}),
         required=False
@@ -42,14 +42,15 @@ class StockEntryProductForm(forms.Form):
         max_digits=9,
         widget=forms.NumberInput(
             attrs={'class': 'form-control centered_input amount',
-                    'placeholder': 'Montant',
-                    'min':0, 'required':'required'}
+                   'placeholder': 'Montant',
+                   'min': 0, 'required': 'required'}
         ))
     unit_amount = forms.ChoiceField(
         label='Unité montant',
-        choices=([('UNIT', '€ / unité'), ('PACKAGE', '€ / lot'), ('L', '€ / L'), ('KG', '€ / kg')]),
+        choices=([('UNIT', '€ / unité'), ('PACKAGE', '€ / lot'),
+                  ('L', '€ / L'), ('KG', '€ / kg')]),
         widget=forms.Select(
-            attrs={'class': 'form-control selectpicker unit_amount', 'required':'required'}),
+            attrs={'class': 'form-control selectpicker unit_amount', 'required': 'required'}),
         required=False
     )
 
@@ -80,9 +81,11 @@ class StockEntryListDateForm(forms.Form):
         widget=forms.DateInput(attrs={'class': 'datepicker'}),
         required=False)
 
+
 class AdditionnalDataInventoryForm(forms.Form):
     type = forms.ChoiceField(label='Type d\'Inventaire',
-                            choices=([('partial', 'Partiel'), ('full', 'Complet')]))
+                             choices=([('partial', 'Partiel'), ('full', 'Complet')]))
+
 
 class InventoryProductForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -90,27 +93,28 @@ class InventoryProductForm(forms.Form):
         super(InventoryProductForm, self).__init__(*args, **kwargs)
 
         product_choice = ([(None, 'Sélectionner un produit')] +
-        [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
-        for product in Product.objects.filter(shop=shop, is_removed=False)]
-        )
+                          [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
+                           for product in Product.objects.filter(shop=shop, is_removed=False)]
+                          )
         self.fields['product'].choices = product_choice
 
     product = forms.ChoiceField(label='Produit', widget=forms.Select(
-                                                    attrs={'class': 'form-control selectpicker',
-                                                    'data-live-search': 'True', 'required':'required'})
-                                                    )
+        attrs={'class': 'form-control selectpicker',
+               'data-live-search': 'True', 'required': 'required'})
+    )
     quantity = forms.IntegerField(
         label='En vente',
         required=False,
         widget=forms.NumberInput(
             attrs={'class': 'form-control centered_input quantity',
-                    'placeholder': 'Quantité',
-                    'min':0, 'required':'required'}
+                   'placeholder': 'Quantité',
+                   'min': 0, 'required': 'required'}
         )
     )
     unit_quantity = forms.ChoiceField(
         label='Unité quantité',
-        choices=([('UNIT', 'produits'), ('CL', 'cl'), ('L', 'L'), ('G', 'g'), ('KG', 'kg')]),
+        choices=([('UNIT', 'produits'), ('CL', 'cl'),
+                  ('L', 'L'), ('G', 'g'), ('KG', 'kg')]),
         widget=forms.Select(
             attrs={'class': 'form-control selectpicker unit_quantity', 'required': 'required'}),
         required=False
@@ -119,6 +123,7 @@ class InventoryProductForm(forms.Form):
     def clean(self):
         cleaned_data = super(InventoryProductForm, self).clean()
         # Validation direct in html
+
 
 class BaseInventoryProductFormSet(BaseFormSet):
     def clean(self):
@@ -134,7 +139,8 @@ class BaseInventoryProductFormSet(BaseFormSet):
             product = form.cleaned_data['product'].split('/')[0]
 
             if product in products:
-                raise forms.ValidationError("Impossible de définir deux produits identiques dans le même inventaire")
+                raise forms.ValidationError(
+                    "Impossible de définir deux produits identiques dans le même inventaire")
             products.append(product)
 
 

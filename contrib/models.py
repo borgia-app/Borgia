@@ -38,6 +38,7 @@ class LoginRequiredMiddleware(MiddlewareMixin):
     Note : ajout de LOGIN_EXEMPT_URL_PATTERNS qui contient des patterns de re
     plus complexes
     """
+
     def process_request(self, request):
         assert hasattr(request, 'user'), "The Login Required middleware\
  requires authentication middleware to be installed. Edit your\

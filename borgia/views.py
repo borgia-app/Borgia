@@ -64,7 +64,7 @@ class Login(FormView):
             if self.gadzarts:
                 self.success_url = self.to_shop_selfsale()
             else:
-                self.success_url	 = self.to_shop_operatorsale()
+                self.success_url = self.to_shop_operatorsale()
         except KeyError or ObjectDoesNotExist:
             pass
 
@@ -88,7 +88,7 @@ class Login(FormView):
             password=form.cleaned_data['password']
         )
         login(self.request, user)
-		# Update forecast_balance on login
+        # Update forecast_balance on login
         user.forecast_balance()
         return super(Login, self).form_valid(form)
 
@@ -147,9 +147,10 @@ class Login(FormView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-          return redirect(self.get_success_url())
+            return redirect(self.get_success_url())
         else:
-          return super(Login, self).get(request, *args, **kwargs)
+            return super(Login, self).get(request, *args, **kwargs)
+
 
 class Logout(View):
     def get(self, request, *args, **kwargs):
@@ -184,11 +185,10 @@ def handler403(request):
         context['group_name'] = group_name
     except IndexError:
         context['group_name'] = 'gadzarts'
-        context['group'] = Group.objects.get(name = 'gadzarts')
+        context['group'] = Group.objects.get(name='gadzarts')
     except ObjectDoesNotExist:
         context['group_name'] = 'gadzarts'
-        context['group'] = Group.objects.get(name = 'gadzarts')
-
+        context['group'] = Group.objects.get(name='gadzarts')
 
     try:
         if (request.user.groups.all().exclude(
@@ -485,7 +485,7 @@ class TestBootstrapSober(TemplateView):
                         'url': '/users/user',
                         'id': 12
                     }
-                    ]
+                ]
             },
             {
                 'label': 'Presidency',
@@ -536,7 +536,8 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
         transactions['all'] = self.request.user.list_transaction()[:5]
 
         # Shops sales
-        sale_list = Sale.objects.filter(sender=self.request.user).order_by('-datetime')
+        sale_list = Sale.objects.filter(
+            sender=self.request.user).order_by('-datetime')
         transactions['shops'] = []
         for shop in Shop.objects.all().exclude(pk=1):
             list_filtered = sale_list.filter(shop=shop)
@@ -559,19 +560,22 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
         }
 
         # Rechargings
-        rechargings_list = Recharging.objects.filter(sender=self.request.user).order_by('-datetime')
+        rechargings_list = Recharging.objects.filter(
+            sender=self.request.user).order_by('-datetime')
         transactions['rechargings'] = {
             'recharging_list_short': rechargings_list[:5]
         }
 
         # ExceptionnalMovements
-        exceptionnalmovements_list = ExceptionnalMovement.objects.filter(recipient=self.request.user).order_by('-datetime')
+        exceptionnalmovements_list = ExceptionnalMovement.objects.filter(
+            recipient=self.request.user).order_by('-datetime')
         transactions['exceptionnalmovements'] = {
             'exceptionnalmovement_list_short': exceptionnalmovements_list[:5]
         }
 
         # Shared event
-        sharedevents_list = SharedEvent.objects.filter(done=True, users=self.request.user).order_by('-datetime')
+        sharedevents_list = SharedEvent.objects.filter(
+            done=True, users=self.request.user).order_by('-datetime')
         for obj in sharedevents_list:
             obj.amount = obj.get_price_of_user(self.request.user)
 
@@ -587,11 +591,11 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
             if object.datetime.strftime("%b-%y") in months:
                 amounts[
                     months.index(object.datetime.strftime("%b-%y"))] +=\
-                        abs(object.amount())
+                    abs(object.amount())
         return amounts
 
     def monthlist(self, start, end):
-        total_months = lambda dt: dt.month + 12 * dt.year
+        def total_months(dt): return dt.month + 12 * dt.year
         mlist = []
         for tot_m in range(total_months(start)-1, total_months(end)):
             y, m = divmod(tot_m, 12)
@@ -685,7 +689,7 @@ class PresidentsGroupWorkboard(GroupPermissionMixin, View,
 
 
 class VicePresidentsInternalGroupWorkboard(GroupPermissionMixin, View,
-                                   GroupLateralMenuMixin):
+                                           GroupLateralMenuMixin):
     template_name = 'workboards/vice-presidents-internal_workboard.html'
     perm_codename = None
     lm_active = 'lm_workboard'
@@ -756,7 +760,8 @@ class ListCompleteView(FormView):
                 # Cas des dates
                 elif pattern_date.match(request.GET.get(name)) is not None:
                     split_date = request.GET.get(name).split('-')
-                    self.attr[name] = datetime.date(int(split_date[2]), int(split_date[1]), int(split_date[0]))
+                    self.attr[name] = datetime.date(
+                        int(split_date[2]), int(split_date[1]), int(split_date[0]))
                 # Autres
                 else:
                     self.attr[name] = request.GET.get(name)

@@ -81,7 +81,7 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         if self.shop:
             shop = self.shop
         else:
-            shop=form.cleaned_data['shop']
+            shop = form.cleaned_data['shop']
         if form.cleaned_data['on_quantity']:
             Product.objects.create(
                 name=form.cleaned_data['name'],
@@ -96,7 +96,7 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                 correcting_factor=1
             )
         return redirect(reverse('url_product_list',
-                        kwargs={'group_name': self.group.name}))
+                                kwargs={'group_name': self.group.name}))
 
     def get_initial(self):
         initial = super(ProductCreate, self).get_initial()
@@ -143,12 +143,12 @@ class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View,
         self.object.save()
 
         return redirect(reverse('url_product_retrieve',
-                        kwargs={'group_name': self.group.name,
-                                'pk': self.object.pk}))
+                                kwargs={'group_name': self.group.name,
+                                        'pk': self.object.pk}))
 
 
 class ProductRemove(GroupPermissionMixin, ProductShopFromGroupMixin, View,
-                        GroupLateralMenuMixin):
+                    GroupLateralMenuMixin):
     """
     Remove a product and redirect to the list of products.
 
@@ -174,7 +174,7 @@ class ProductRemove(GroupPermissionMixin, ProductShopFromGroupMixin, View,
         CategoryProduct.objects.filter(product=self.object).delete()
 
         return redirect(reverse('url_product_list',
-                        kwargs={'group_name': self.group.name}))
+                                kwargs={'group_name': self.group.name}))
 
 
 class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View,
@@ -245,7 +245,8 @@ class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
     def get_context_data(self, **kwargs):
         context = super(ProductUpdatePrice, self).get_context_data(**kwargs)
         context['object'] = self.object
-        context['margin_profit'] = settings_safe_get('MARGIN_PROFIT').get_value()
+        context['margin_profit'] = settings_safe_get(
+            'MARGIN_PROFIT').get_value()
         return context
 
     def get_initial(self):
@@ -389,7 +390,7 @@ class ShopUpdate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
 # TODO: infos
 class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                    GroupLateralMenuFormMixin):
+                  GroupLateralMenuFormMixin):
     """
     You can see checkup of your group from shop only.
     If you're not from a group from shop, you need the permission 'list_shop'
@@ -478,7 +479,8 @@ class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
     def info_checkup(self):
         q_sale = Sale.objects.filter(shop=self.shop_mod)
         if self.products:
-            q_sale = q_sale.filter(products__pk__in=[p.pk for p in self.products])
+            q_sale = q_sale.filter(
+                products__pk__in=[p.pk for p in self.products])
         if self.date_begin:
             q_sale = q_sale.filter(datetime__gte=self.date_begin)
         if self.date_end:

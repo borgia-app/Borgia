@@ -8,8 +8,9 @@ from django.utils.timezone import now
 class StockEntry(models.Model):
     datetime = models.DateTimeField('Date', default=now)
     operator = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    products = models.ManyToManyField('shops.Product', through='StockEntryProduct')
-    shop = models.ForeignKey('shops.Shop',on_delete=models.CASCADE)
+    products = models.ManyToManyField(
+        'shops.Product', through='StockEntryProduct')
+    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE)
 
     def total(self):
         total = sum(sep.price for sep in self.stockentryproduct_set.all())
@@ -38,8 +39,8 @@ class StockEntryProduct(models.Model):
     product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField('Prix', default=0, decimal_places=2,
-                                 max_digits=9,
-                                 validators=[MinValueValidator(Decimal(0))])
+                                max_digits=9,
+                                validators=[MinValueValidator(Decimal(0))])
 
     def __str__(self):
         if self.product.unit:
@@ -60,8 +61,9 @@ class StockEntryProduct(models.Model):
 class Inventory(models.Model):
     datetime = models.DateTimeField('Date', default=now)
     operator = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    products = models.ManyToManyField('shops.Product', through='InventoryProduct')
-    shop = models.ForeignKey('shops.Shop',on_delete=models.CASCADE)
+    products = models.ManyToManyField(
+        'shops.Product', through='InventoryProduct')
+    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE)
 
     class Meta:
         permissions = (
@@ -71,7 +73,8 @@ class Inventory(models.Model):
 
     def update_correcting_factors(self):
         for inventoryproduct in self.inventoryproduct_set.all():
-            inventoryproduct.product.update_correcting_factor(inventoryproduct.quantity)
+            inventoryproduct.product.update_correcting_factor(
+                inventoryproduct.quantity)
 
 
 class InventoryProduct(models.Model):

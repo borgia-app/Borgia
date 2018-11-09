@@ -11,10 +11,12 @@ from shops.models import Shop
 # WIP
 class notiftest(forms.Form):
     recipient = forms.CharField(label='Receveur', max_length=255,
-                                widget=forms.TextInput(attrs={'class': 'autocomplete_username'}),
+                                widget=forms.TextInput(
+                                    attrs={'class': 'autocomplete_username'}),
                                 validators=[autocomplete_username_validator])
 
-    amount = forms.DecimalField(label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
+    amount = forms.DecimalField(
+        label='Montant (€)', decimal_places=2, max_digits=9, min_value=0)
 
 
 class NotificationTemplateCreateViewForm(forms.ModelForm):
@@ -24,7 +26,8 @@ class NotificationTemplateCreateViewForm(forms.ModelForm):
                   'type', 'is_activated']
 
     def __init__(self, *args, **kwargs):
-        super(NotificationTemplateCreateViewForm, self).__init__(*args, **kwargs)
+        super(NotificationTemplateCreateViewForm,
+              self).__init__(*args, **kwargs)
 
         # Some fields are improved with a search tools and a better display (thanks to bootstrap)
         self.fields['notification_class'] = forms.ModelChoiceField(
@@ -69,12 +72,12 @@ class NotificationTemplateCreateViewForm(forms.ModelForm):
             if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
                                                    target_users="ACTOR").exists():
                 raise ValidationError("Il existe déjà un template 'Actor' pour la même classe de notification",
-                                          code='Invalid')
+                                      code='Invalid')
         elif self.cleaned_data.get('target_users') == "RECIPIENT":
             if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
                                                    target_users="RECIPIENT").exists():
                 raise ValidationError("Il existe déjà un template 'Recipient' pour la même classe de notification",
-                                          code='Invalid')
+                                      code='Invalid')
 
 
 class NotificationTemplateUpdateViewForm(forms.ModelForm):
@@ -84,7 +87,8 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
                   'type']
 
     def __init__(self, *args, **kwargs):
-        super(NotificationTemplateUpdateViewForm, self).__init__(*args, **kwargs)
+        super(NotificationTemplateUpdateViewForm,
+              self).__init__(*args, **kwargs)
 
         # Some fields are improved with a search tools and a better display (thanks to bootstrap)
         self.fields['notification_class'] = forms.ModelChoiceField(
@@ -130,9 +134,9 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
             if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
                                                    target_users="ACTOR").exclude(pk=self.instance.pk).exists():
                 raise ValidationError("Il existe déjà un template 'Actor' pour la même classe de notification",
-                                          code='Invalid')
+                                      code='Invalid')
         elif self.cleaned_data.get('target_users') == "RECIPIENT":
             if NotificationTemplate.objects.filter(notification_class=self.cleaned_data.get("notification_class"),
                                                    target_users="RECIPIENT").exclude(pk=self.instance.pk).exists():
                 raise ValidationError("Il existe déjà un template 'Recipient' pour la même classe de notification",
-                                          code='Invalid')
+                                      code='Invalid')

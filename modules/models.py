@@ -21,7 +21,8 @@ class Category(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     module_id = models.PositiveIntegerField()
     module = GenericForeignKey('content_type', 'module_id')
-    products = models.ManyToManyField('shops.Product', through='CategoryProduct')
+    products = models.ManyToManyField(
+        'shops.Product', through='CategoryProduct')
 
 
 class CategoryProduct(models.Model):
@@ -43,7 +44,7 @@ class CategoryProduct(models.Model):
                 # - price for a L, quantity in cl
                 # - price for a kg, quantity in kg
                 if self.product.unit == 'CL':
-                    return decimal.Decimal(self.quantity * self.product.get_price() /  100)
+                    return decimal.Decimal(self.quantity * self.product.get_price() / 100)
                 if self.product.unit == 'G':
                     return decimal.Decimal(self.quantity * self.product.get_price() / 1000)
             else:
@@ -85,12 +86,12 @@ class ShopModule(Module):
         object_id_field='module_id')
     delay_post_purchase = models.IntegerField("Durée d'affichage du résumé de commande",
                                               validators=[
-                                                MinValueValidator(decimal.Decimal(0))],
+                                                  MinValueValidator(decimal.Decimal(0))],
                                               blank=True, null=True)
     limit_purchase = models.DecimalField('Montant limite de commande',
                                          decimal_places=2, max_digits=9,
                                          validators=[
-                                           MinValueValidator(decimal.Decimal(0))],
+                                             MinValueValidator(decimal.Decimal(0))],
                                          blank=True, null=True)
     logout_post_purchase = models.BooleanField('Deconnexion après une vente',
                                                default=False)

@@ -1220,7 +1220,7 @@ class SharedEventList(GroupPermissionMixin, FormView,
     def get_context_data(self, **kwargs):
         context = super(SharedEventList, self).get_context_data(**kwargs)
         shared_events = SharedEvent.objects.filter(
-            date__gte = datetime.date.today(), done=False).order_by('-date')
+            date__gte=datetime.date.today(), done=False).order_by('-date')
 
         for se in shared_events:  # Duplicate
             # Si fini, on recupere la participation, sinon la preinscription

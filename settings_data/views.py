@@ -34,7 +34,8 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context['lydia_max_price'] = settings_safe_get("LYDIA_MAX_PRICE")
         context['lydia_api_token'] = settings_safe_get("LYDIA_API_TOKEN")
         context['lydia_vendor_token'] = settings_safe_get("LYDIA_VENDOR_TOKEN")
-        context['balance_threshold_purchase'] = settings_safe_get("BALANCE_THRESHOLD_PURCHASE")
+        context['balance_threshold_purchase'] = settings_safe_get(
+            "BALANCE_THRESHOLD_PURCHASE")
         #context['balance_threshold_mail_alert'] = settings_safe_get("BALANCE_THRESHOLD_MAIL_ALERT")
         #context['balance_frequency_mail_alert'] = settings_safe_get("BALANCE_FREQUENCY_MAIL_ALERT")
         return context
@@ -67,7 +68,7 @@ class CenterConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         center_name.value = form.cleaned_data['center_name']
         center_name.save()
         return redirect(reverse('url_global_config',
-                        kwargs={'group_name': self.group.name}))
+                                kwargs={'group_name': self.group.name}))
 
 
 class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
@@ -84,7 +85,8 @@ class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     def get_initial(self, **kwargs):
         initial = super(PriceConfig, self).get_initial(**kwargs)
-        initial['margin_profit'] = settings_safe_get('MARGIN_PROFIT').get_value()
+        initial['margin_profit'] = settings_safe_get(
+            'MARGIN_PROFIT').get_value()
         return initial
 
     def form_valid(self, form):
@@ -93,7 +95,7 @@ class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         margin_profit.value = form.cleaned_data['margin_profit']
         margin_profit.save()
         return redirect(reverse('url_global_config',
-                        kwargs={'group_name': self.group.name}))
+                                kwargs={'group_name': self.group.name}))
 
 
 class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
@@ -110,10 +112,14 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     def get_initial(self, **kwargs):
         initial = super(LydiaConfig, self).get_initial(**kwargs)
-        initial['lydia_min_price'] = settings_safe_get('LYDIA_MIN_PRICE').get_value()
-        initial['lydia_max_price'] = settings_safe_get('LYDIA_MAX_PRICE').get_value()
-        initial['lydia_api_token'] = settings_safe_get('LYDIA_API_TOKEN').get_value()
-        initial['lydia_vendor_token'] = settings_safe_get('LYDIA_VENDOR_TOKEN').get_value()
+        initial['lydia_min_price'] = settings_safe_get(
+            'LYDIA_MIN_PRICE').get_value()
+        initial['lydia_max_price'] = settings_safe_get(
+            'LYDIA_MAX_PRICE').get_value()
+        initial['lydia_api_token'] = settings_safe_get(
+            'LYDIA_API_TOKEN').get_value()
+        initial['lydia_vendor_token'] = settings_safe_get(
+            'LYDIA_VENDOR_TOKEN').get_value()
         return initial
 
     def form_valid(self, form):
@@ -140,7 +146,7 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         lydia_vendor_token.value = form.cleaned_data['lydia_vendor_token']
         lydia_vendor_token.save()
         return redirect(reverse('url_global_config',
-                        kwargs={'group_name': self.group.name}))
+                                kwargs={'group_name': self.group.name}))
 
 
 class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
@@ -157,14 +163,16 @@ class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     def get_initial(self, **kwargs):
         initial = super(BalanceConfig, self).get_initial(**kwargs)
-        initial['balance_threshold_purchase'] = settings_safe_get('BALANCE_THRESHOLD_PURCHASE').get_value()
+        initial['balance_threshold_purchase'] = settings_safe_get(
+            'BALANCE_THRESHOLD_PURCHASE').get_value()
         #initial['balance_threshold_mail_alert'] = settings_safe_get('BALANCE_THRESHOLD_MAIL_ALERT').get_value()
         #initial['balance_frequency_mail_alert'] = settings_safe_get('BALANCE_FREQUENCY_MAIL_ALERT').get_value()
         return initial
 
     def form_valid(self, form):
         # balance_threshold_purchase
-        balance_threshold_purchase = settings_safe_get('BALANCE_THRESHOLD_PURCHASE')
+        balance_threshold_purchase = settings_safe_get(
+            'BALANCE_THRESHOLD_PURCHASE')
         balance_threshold_purchase.value = form.cleaned_data['balance_threshold_purchase']
         balance_threshold_purchase.save()
         """
@@ -184,4 +192,4 @@ class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         balance_frequency_mail_alert.save()
         """
         return redirect(reverse('url_global_config',
-                        kwargs={'group_name': self.group.name}))
+                                kwargs={'group_name': self.group.name}))

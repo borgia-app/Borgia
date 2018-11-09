@@ -627,8 +627,8 @@ class SharedEvent(models.Model):
             e.user.debit(user_price)
             recipient.credit(user_price)
             if (e.user.balance < 0):
-			    # If negative balance after event
-		        # We notify
+                            # If negative balance after event
+                        # We notify
                 notify(notification_class_name='negative_balance',
                        actor=operator,
                        recipient=e.user,
@@ -662,8 +662,8 @@ class SharedEvent(models.Model):
                 e.user.debit(user_price)
                 recipient.credit(user_price)
                 if (e.user.balance < 0):
-    			    # If negative balance after event
-    		        # We notify
+                            # If negative balance after event
+                        # We notify
                     notify(notification_class_name='negative_balance',
                            actor=operator,
                            recipient=e.user,

@@ -23,7 +23,7 @@ from stocks.models import (Inventory, InventoryProduct, StockEntry,
 
 
 class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
-                                View, GroupLateralMenuMixin):
+                           View, GroupLateralMenuMixin):
     """
     """
     template_name = 'stocks/shop_stock_entry_create.html'
@@ -41,7 +41,8 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
             raise Http404
         except ValueError:
             raise Http404
-        self.form_class = formset_factory(functools.wraps(StockEntryProductForm)(functools.partial(StockEntryProductForm, shop=self.shop)), extra=1)
+        self.form_class = formset_factory(functools.wraps(StockEntryProductForm)(
+            functools.partial(StockEntryProductForm, shop=self.shop)), extra=1)
         return super(ShopStockEntryCreate,
                      self).dispatch(request, *args, **kwargs)
 
@@ -51,7 +52,8 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
-        stockentry = StockEntry.objects.create(operator=request.user, shop=self.shop)
+        stockentry = StockEntry.objects.create(
+            operator=request.user, shop=self.shop)
 
         stockentry_form = self.form_class(request.POST)
         for form in stockentry_form.cleaned_data:
@@ -68,31 +70,36 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                             if form['unit_amount'] == 'PACKAGE':
                                 price = decimal.Decimal(form['amount'])
                             elif form['unit_amount'] == 'KG':
-                                price = decimal.Decimal(form['amount'] * decimal.Decimal(form['quantity'] / 1000))
+                                price = decimal.Decimal(
+                                    form['amount'] * decimal.Decimal(form['quantity'] / 1000))
                         elif form['unit_quantity'] == 'KG':
                             quantity = decimal.Decimal(form['quantity'] * 1000)
                             if form['unit_amount'] == 'PACKAGE':
                                 price = decimal.Decimal(form['amount'])
                             elif form['unit_amount'] == 'KG':
-                                price = decimal.Decimal(form['amount'] * form['quantity'])
+                                price = decimal.Decimal(
+                                    form['amount'] * form['quantity'])
                     elif product.unit == 'CL':
                         if form['unit_quantity'] == 'CL':
                             quantity = decimal.Decimal(form['quantity'])
                             if form['unit_amount'] == 'PACKAGE':
                                 price = decimal.Decimal(form['amount'])
                             elif form['unit_amount'] == 'L':
-                                price = decimal.Decimal(form['amount'] * decimal.Decimal(form['quantity'] / 100))
+                                price = decimal.Decimal(
+                                    form['amount'] * decimal.Decimal(form['quantity'] / 100))
                         elif form['unit_quantity'] == 'L':
                             quantity = decimal.Decimal(form['quantity'] * 100)
                             if form['unit_amount'] == 'PACKAGE':
                                 price = decimal.Decimal(form['amount'])
                             elif form['unit_amount'] == 'L':
-                                price = decimal.Decimal(form['amount'] * form['quantity'])
+                                price = decimal.Decimal(
+                                    form['amount'] * form['quantity'])
                 else:
                     # Single product
                     quantity = form['quantity']
                     if form['unit_amount'] == 'UNIT':
-                        price = decimal.Decimal(form['amount'] * form['quantity'])
+                        price = decimal.Decimal(
+                            form['amount'] * form['quantity'])
                     elif form['unit_amount'] == 'PACKAGE':
                         price = decimal.Decimal(form['amount'])
 
@@ -110,12 +117,12 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
 
         return redirect(
             reverse('url_stock_entry_list',
-                           kwargs={'group_name': self.group.name})
-                    )
+                    kwargs={'group_name': self.group.name})
+        )
 
 
 class StockEntryList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                  GroupLateralMenuFormMixin):
+                     GroupLateralMenuFormMixin):
     template_name = 'stocks/stockentry_list.html'
     perm_codename = 'list_stockentry'
     lm_active = 'lm_stockentry_list'
@@ -181,7 +188,7 @@ class StockEntryRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
             raise Http404
 
         return super(StockEntryRetrieve, self).dispatch(request, *args,
-                                                       **kwargs)
+                                                        **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -190,7 +197,7 @@ class StockEntryRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
 
 class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
-                                View, GroupLateralMenuMixin):
+                          View, GroupLateralMenuMixin):
     """
     """
     template_name = 'stocks/shop_inventory_create.html'
@@ -210,8 +217,8 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
             raise Http404
 
         self.InventoryProductFormSet = formset_factory(InventoryProductForm,
-                                        formset=BaseInventoryProductFormSet,
-                                        extra=1)
+                                                       formset=BaseInventoryProductFormSet,
+                                                       extra=1)
 
         self.AdditionnalDataInventoryForm = AdditionnalDataInventoryForm()
 
@@ -219,7 +226,8 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['inventory_formset'] = self.InventoryProductFormSet(form_kwargs={'shop': self.shop})
+        context['inventory_formset'] = self.InventoryProductFormSet(
+            form_kwargs={'shop': self.shop})
         context['additionnal_data_form'] = self.AdditionnalDataInventoryForm
         return render(request, self.template_name, context=context)
 
@@ -228,12 +236,14 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
         Products in the shop (and active) but not listed in the form are
         included in the inventory with a quantity 0.
         """
-        inventory_formset = self.InventoryProductFormSet(request.POST, form_kwargs={'shop': self.shop})
+        inventory_formset = self.InventoryProductFormSet(
+            request.POST, form_kwargs={'shop': self.shop})
         additionnal_data_form = AdditionnalDataInventoryForm(request.POST)
 
         if inventory_formset.is_valid() and additionnal_data_form.is_valid():
 
-            inventory = Inventory.objects.create(operator=request.user, shop=self.shop)
+            inventory = Inventory.objects.create(
+                operator=request.user, shop=self.shop)
 
             # Ids in the form
             for form in inventory_formset.cleaned_data:
@@ -241,19 +251,22 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                 Even if html and js verify and ensure entries, you verify again here.
                 """
                 try:
-                    product = Product.objects.get(pk=form['product'].split('/')[0])
+                    product = Product.objects.get(
+                        pk=form['product'].split('/')[0])
                     if product.unit:
                         # Container
                         if product.unit == 'G':
                             if form['unit_quantity'] == 'G':
                                 quantity = decimal.Decimal(form['quantity'])
                             elif form['unit_quantity'] == 'KG':
-                                quantity = decimal.Decimal(form['quantity'] * 1000)
+                                quantity = decimal.Decimal(
+                                    form['quantity'] * 1000)
                         elif product.unit == 'CL':
                             if form['unit_quantity'] == 'CL':
                                 quantity = decimal.Decimal(form['quantity'])
                             elif form['unit_quantity'] == 'L':
-                                quantity = decimal.Decimal(form['quantity'] * 100)
+                                quantity = decimal.Decimal(
+                                    form['quantity'] * 100)
                     else:
                         # Single product
                         quantity = form['quantity']
@@ -273,7 +286,7 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                 # Ids not in the form but active in the shop
                 try:
                     for product in Product.objects.filter(shop=self.shop, is_removed=False, is_active=True).exclude(
-                                pk__in=[form['product'].split('/')[0] for form in inventory_formset.cleaned_data]):
+                            pk__in=[form['product'].split('/')[0] for form in inventory_formset.cleaned_data]):
                         InventoryProduct.objects.create(
                             inventory=inventory,
                             product=product,
@@ -290,14 +303,14 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
 
             return redirect(
                 reverse('url_inventory_list',
-                               kwargs={'group_name': self.group.name})
-                        )
+                        kwargs={'group_name': self.group.name})
+            )
         else:
             return get()
 
 
 class InventoryList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                  GroupLateralMenuFormMixin):
+                    GroupLateralMenuFormMixin):
     template_name = 'stocks/inventory_list.html'
     perm_codename = 'list_inventory'
     lm_active = 'lm_inventory_list'

@@ -37,6 +37,7 @@ from users.models import User
 #         self.assertListEqual(list_year(), [2016, 2011, 2010, 1901])
 #
 
+
 class UserTestCase(TestCase):
     def setUp(self):
         self.userOnlyMandatory = User.objects.create(
@@ -54,7 +55,7 @@ class UserTestCase(TestCase):
             phone='0612345678',
             token_id='4875DF',
             balance=100
-            )
+        )
 
     def test_str(self):
         self.assertEqual(self.userOnlyMandatory.__str__(), 'undefined')

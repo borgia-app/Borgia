@@ -12,7 +12,7 @@ from django.utils.timezone import now
 from lxml import etree
 
 
-#TODO: make it work with users.models
+# TODO: make it work with users.models
 # Classes
 class Notification(models.Model):
     """"
@@ -52,13 +52,16 @@ class Notification(models.Model):
             'list',
         )
 
-    notification_class = models.ForeignKey('NotificationClass', blank=True, null=True, on_delete=models.CASCADE)
+    notification_class = models.ForeignKey(
+        'NotificationClass', blank=True, null=True, on_delete=models.CASCADE)
 
-    shop_category = models.ForeignKey('shops.Shop', blank=True, null=True, on_delete=models.CASCADE)
+    shop_category = models.ForeignKey(
+        'shops.Shop', blank=True, null=True, on_delete=models.CASCADE)
 
     target_category = models.CharField(max_length=20, default='ACTOR')
 
-    group_category = models.ForeignKey('NotificationGroup', blank=True, null=True, on_delete=models.CASCADE)
+    group_category = models.ForeignKey(
+        'NotificationGroup', blank=True, null=True, on_delete=models.CASCADE)
 
     TYPE_CHOICES = (
         ('DEBUG', 'debug'),
@@ -68,14 +71,17 @@ class Notification(models.Model):
         ('ERROR', 'error'),
     )
 
-    type = models.CharField(choices=TYPE_CHOICES, max_length=10, default='INFO')
+    type = models.CharField(choices=TYPE_CHOICES,
+                            max_length=10, default='INFO')
 
-    actor_type = models.ForeignKey(ContentType, related_name='notification_actor', on_delete=models.CASCADE)
+    actor_type = models.ForeignKey(
+        ContentType, related_name='notification_actor', on_delete=models.CASCADE)
     # CASCADE : the notification is deleted if the related actor object is deleted
     actor_id = models.PositiveIntegerField()
     actor_object = GenericForeignKey('actor_type', 'actor_id')
 
-    target_user = models.ForeignKey('users.User', related_name='notification_target_user', on_delete=models.CASCADE)
+    target_user = models.ForeignKey(
+        'users.User', related_name='notification_target_user', on_delete=models.CASCADE)
 
     action_medium_type = models.ForeignKey(ContentType,
                                            related_name='notification_action_medium',
@@ -83,7 +89,8 @@ class Notification(models.Model):
                                            null=True,
                                            on_delete=models.CASCADE)
     action_medium_id = models.PositiveIntegerField(blank=True, null=True)
-    action_medium_object = GenericForeignKey('action_medium_type', 'action_medium_id')
+    action_medium_object = GenericForeignKey(
+        'action_medium_type', 'action_medium_id')
 
     target_type = models.ForeignKey(ContentType,
                                     related_name='notification_target',
@@ -95,7 +102,8 @@ class Notification(models.Model):
 
     creation_datetime = models.DateTimeField(auto_now_add=True, editable=False)
 
-    displayed_datetime = models.DateTimeField(blank=True, null=True, editable=False)
+    displayed_datetime = models.DateTimeField(
+        blank=True, null=True, editable=False)
 
     read_datetime = models.DateTimeField(blank=True, null=True)
 
@@ -204,7 +212,8 @@ class NotificationTemplate(models.Model):
 
     creation_datetime = models.DateTimeField(auto_now_add=True, editable=False)
     update_datetime = models.DateTimeField(auto_now=True, editable=False)
-    last_call_datetime = models.DateTimeField(blank=True, null=True, editable=False)
+    last_call_datetime = models.DateTimeField(
+        blank=True, null=True, editable=False)
 
     is_activated = models.BooleanField(default=False,
                                        verbose_name='Template activé')
@@ -266,7 +275,8 @@ class NotificationGroup(models.Model):
             'change',
         )
 
-    notificationgroup = AutoOneToOneField('auth.Group', unique=True, on_delete=models.CASCADE)
+    notificationgroup = AutoOneToOneField(
+        'auth.Group', unique=True, on_delete=models.CASCADE)
     weight = models.IntegerField(default=0)
 
     def __str__(self):
@@ -278,6 +288,7 @@ class NotificationGroup(models.Model):
         return self.notificationgroup.name
 
 # Methods
+
 
 def notify(notification_class_name, actor, recipient=False, action_medium=False, target_object=False):
     """
@@ -311,7 +322,7 @@ def notify(notification_class_name, actor, recipient=False, action_medium=False,
                     for user in User.objects.filter(groups=group.notificationgroup, is_active=True):
                         if user not in notified_users:
                             create_notification(
-                                notification_template= NotificationTemplate.objects.get(
+                                notification_template=NotificationTemplate.objects.get(
                                     notification_class=notification_class[0],
                                     target_groups=group,
                                     target_users='TARGET_GROUPS',
@@ -372,7 +383,8 @@ def notify(notification_class_name, actor, recipient=False, action_medium=False,
             return notified
 
     except IntegrityError:
-        raise IntegrityError("Le nom de la classe de notifications doit être unique")
+        raise IntegrityError(
+            "Le nom de la classe de notifications doit être unique")
 
 
 def create_notification(notification_template, actor, target_user, group=None, action_medium=False, target_object=False):
@@ -408,7 +420,8 @@ def create_notification(notification_template, actor, target_user, group=None, a
                                 target_category=notification_template.target_users,
                                 type=notification_template.type,
                                 actor_id=actor.pk,
-                                actor_type=ContentType.objects.get(app_label='users', model='user'),
+                                actor_type=ContentType.objects.get(
+                                    app_label='users', model='user'),
                                 notification_class=notification_template.notification_class,
                                 target_user=target_user,
                                 action_medium_id=action_medium_id,
@@ -447,7 +460,8 @@ def xml_parser(node, parsed_xml=""):
     try:
         # Allowed tag are saved in a dictionary outside of the function for external use
         tag_dictionary = get_allowed_tags()
-        html_result = tag_dictionary[node.tag][0] + text + tag_dictionary[node.tag][1] + tail
+        html_result = tag_dictionary[node.tag][0] + \
+            text + tag_dictionary[node.tag][1] + tail
     except KeyError:
         # If the tag does not exist in the dictionary, a xml string is generated from the node
         html_result = conditional_escape(etree.tostring(node))
@@ -506,8 +520,8 @@ def get_allowed_tags():
     tag_dictionary = {'bold': ('<strong>', '</strong>'),
                       'actor': ('<span class="notification-actor" data-link="{% url "url_user_retrieve" pk=actor.pk group_name=group_name %}">'
                                 '{{actor}}</span>', ''),
-                      'target_object': ('{{target_object}}',''),
-                      'transfer.amount' : ('{{target_object.amount}}',''),
+                      'target_object': ('{{target_object}}', ''),
+                      'transfer.amount': ('{{target_object.amount}}', ''),
                       'transfer.justification': ('{{target_object.justification}}', ''),
                       '#text': ('', ''),
                       'bcode': ('<span class="bcode">', '</span>')}

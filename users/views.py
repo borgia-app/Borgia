@@ -74,11 +74,12 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         kwargs = super(ManageGroupView, self).get_form_kwargs()
 
         if self.group_updated.name.startswith('associates-') is True:
-            chiefs_group_name = self.group_updated.name.replace('associates', 'chiefs')
+            chiefs_group_name = self.group_updated.name.replace(
+                'associates', 'chiefs')
             kwargs['possible_permissions'] = ExtendedPermission.objects.filter(
                 pk__in=[p.pk for p in Group.objects.get(
-                name=chiefs_group_name).permissions.all().exclude(
-                pk=permission_to_manage_group(self.group_updated)[0].pk).exclude(
+                    name=chiefs_group_name).permissions.all().exclude(
+                    pk=permission_to_manage_group(self.group_updated)[0].pk).exclude(
                     pk__in=human_unused_permissions())]
             )
 
@@ -96,12 +97,13 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         initial['members'] = User.objects.filter(groups=self.group_updated)
         initial['permissions'] = [
             ExtendedPermission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
-            ]
+        ]
         return initial
 
     def get_context_data(self, **kwargs):
         context = super(ManageGroupView, self).get_context_data(**kwargs)
-        context['group_updated_name_display'] = group_name_display(self.group_updated)
+        context['group_updated_name_display'] = group_name_display(
+            self.group_updated)
         return context
 
     def form_valid(self, form):
@@ -188,6 +190,7 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
     If not, if can list user: go to the list of users.
     If not, go to the workboard of the group.
     """
+
     def get_success_url(self):
         try:
             if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
@@ -197,13 +200,13 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
             else:
                 if Permission.objects.get(codename='list_user') in self.group.permissions.all():
                     return reverse('url_user_list',
-                                    kwargs={'group_name': self.group.name})
+                                   kwargs={'group_name': self.group.name})
                 else:
                     return reverse('url_group_workboard',
-                                    kwargs={'group_name': self.group.name})
+                                   kwargs={'group_name': self.group.name})
         except ObjectDoesNotExist:
             return reverse('url_workboard',
-                            kwargs={'group_name': self.group.name})
+                           kwargs={'group_name': self.group.name})
             raise PermissionDenied
 
 
@@ -219,7 +222,7 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=self.kwargs['pk'])
-        #Update forecast balance
+        # Update forecast balance
         user.forecast_balance()
 
         context = self.get_context_data(**kwargs)
@@ -260,6 +263,7 @@ class SelfUserUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView,
 
     def get_success_message(self, cleaned_data):
         return "Vos infos ont bien été mises à jour"
+
 
 class UserUpdateAdminView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
     """
@@ -306,9 +310,8 @@ class UserUpdateAdminView(GroupPermissionMixin, SuccessMessageMixin, FormView, G
 
     def get_success_url(self):
         return reverse('url_user_retrieve',
-            kwargs={'group_name': self.group.name,
-                    'pk': self.kwargs['pk']})
-
+                       kwargs={'group_name': self.group.name,
+                               'pk': self.kwargs['pk']})
 
 
 class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
@@ -332,7 +335,8 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         user = User.objects.get(pk=kwargs['pk'])
         if user.is_active is True:
             user.is_active = False
-            if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
+            # si c'est un gadz. Special members can't be added to other groups
+            if Group.objects.get(pk=5) in user.groups.all():
                 user.groups.clear()
                 user.groups.add(Group.objects.get(pk=5))
         else:
@@ -383,7 +387,8 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
                 messages.warning(request, self.error_sharedevent_message)
             else:
                 user.is_active = False
-                if Group.objects.get(pk=5) in user.groups.all(): # si c'est un gadz. Special members can't be added to other groups
+                # si c'est un gadz. Special members can't be added to other groups
+                if Group.objects.get(pk=5) in user.groups.all():
                     user.groups.clear()
                     user.groups.add(Group.objects.get(pk=5))
 
@@ -414,21 +419,21 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     search = None
     year = None
     state = None
-    headers = {'username':'asc',
-         'last_name':'asc',
-         'surname':'asc',
-         'family':'asc',
-         'campus':'asc',
-         'year':'asc',
-         'balance':'asc'}
+    headers = {'username': 'asc',
+               'last_name': 'asc',
+               'surname': 'asc',
+               'family': 'asc',
+               'campus': 'asc',
+               'year': 'asc',
+               'balance': 'asc'}
     sort = None
 
     def get_context_data(self, **kwargs):
         context = super(UserListView, self).get_context_data(**kwargs)
 
-        ## Header List
-        context['list_header'] = [["username", "Username"], ["last_name", "Nom Prénom"], ["surname", "Bucque"], ["family", "Fam's"], ["campus", "Tabagn's"], ["year", "Prom's"], ["balance", "Solde"]]
-
+        # Header List
+        context['list_header'] = [["username", "Username"], ["last_name", "Nom Prénom"], ["surname", "Bucque"], [
+            "family", "Fam's"], ["campus", "Tabagn's"], ["year", "Prom's"], ["balance", "Solde"]]
 
         try:
             self.sort = self.request.GET['sort']
@@ -437,19 +442,19 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
         context['group'] = self.group
         if self.sort is not None:
-          context['sort'] = self.sort
-          if self.headers[self.sort] == "des":
-            context['reverse'] = True
-            context['user_list'] = self.form_query(
-                User.objects.all().exclude(groups=1).order_by(self.sort).reverse())
-            self.headers[self.sort] = "asc"
-          else:
-            context['user_list'] = self.form_query(
-                User.objects.all().exclude(groups=1).order_by(self.sort))
-            self.headers[self.sort] = "des"
+            context['sort'] = self.sort
+            if self.headers[self.sort] == "des":
+                context['reverse'] = True
+                context['user_list'] = self.form_query(
+                    User.objects.all().exclude(groups=1).order_by(self.sort).reverse())
+                self.headers[self.sort] = "asc"
+            else:
+                context['user_list'] = self.form_query(
+                    User.objects.all().exclude(groups=1).order_by(self.sort))
+                self.headers[self.sort] = "des"
         else:
             context['user_list'] = self.form_query(
-              User.objects.all().exclude(groups=1))
+                User.objects.all().exclude(groups=1))
 
         # Permission Retrieveuser
         if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
@@ -474,7 +479,8 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
             if self.state == 'negative_balance':
                 query = query.filter(balance__lt=0.0, is_active=True)
             elif self.state == 'threshold':
-                threshold = settings_safe_get('BALANCE_THRESHOLD_PURCHASE').get_value()
+                threshold = settings_safe_get(
+                    'BALANCE_THRESHOLD_PURCHASE').get_value()
                 query = query.filter(balance__lt=threshold, is_active=True)
             elif self.state == 'unactive':
                 query = query.filter(is_active=False)
@@ -501,6 +507,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         initial['search'] = self.search
         return initial
 
+
 def username_from_username_part(request):
     data = []
 
@@ -511,16 +518,20 @@ def username_from_username_part(request):
 
         # Fam'ss en entier
         # where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
-        where_search = User.objects.exclude(groups=1).filter( family__regex = regex, is_active=True ).order_by('-year')
+        where_search = User.objects.exclude(groups=1).filter(
+            family__regex=regex, is_active=True).order_by('-year')
 
         if len(key) > 2:
             if key.isalpha():
                 # Nom de famille, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(last_name__istartswith=key, is_active=True)
+                where_search = where_search | User.objects.filter(
+                    last_name__istartswith=key, is_active=True)
                 # Prénom, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(first_name__istartswith=key, is_active=True)
+                where_search = where_search | User.objects.filter(
+                    first_name__istartswith=key, is_active=True)
                 # Buque, début ou entier à partir de 3 caractères
-                where_search = where_search | User.objects.filter(surname__istartswith=key, is_active=True)
+                where_search = where_search | User.objects.filter(
+                    surname__istartswith=key, is_active=True)
 
                 # Suppression des doublons
                 where_search = where_search.distinct()
@@ -533,9 +544,10 @@ def username_from_username_part(request):
 
     return HttpResponse(json.dumps(data))
 
+
 def balance_from_username(request):
 
-    ## Check permissions
+    # Check permissions
 
     # User is authentified, if not the he can't access the view
     operator = request.user

@@ -11,19 +11,24 @@ class UserCreationCustomForm(forms.Form):
     email = forms.EmailField(label='Email')
     surname = forms.CharField(label='Buque', max_length=255, required=False)
     family = forms.CharField(label='Fam\'ss', max_length=255, required=False)
-    campus = forms.ChoiceField(label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
-    year = forms.ChoiceField(label='Prom\'ss', choices=User.YEAR_CHOICES[::-1], required=False)
+    campus = forms.ChoiceField(
+        label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
+    year = forms.ChoiceField(
+        label='Prom\'ss', choices=User.YEAR_CHOICES[::-1], required=False)
     username = forms.CharField(label='Username', max_length=255)
-    honnor_member = forms.BooleanField(label='Membre d\'honneur', required=False)
+    honnor_member = forms.BooleanField(
+        label='Membre d\'honneur', required=False)
     password = forms.CharField(label='Mot de passe', widget=PasswordInput)
-    password_bis = forms.CharField(label='Mot de passe (confirmation)', widget=PasswordInput)
+    password_bis = forms.CharField(
+        label='Mot de passe (confirmation)', widget=PasswordInput)
 
     def clean(self):
         cleaned_data = super(UserCreationCustomForm, self).clean()
         try:
 
             if cleaned_data['password'] != cleaned_data['password_bis']:
-                raise forms.ValidationError('Les deux mots de passe ne correspondent pas')
+                raise forms.ValidationError(
+                    'Les deux mots de passe ne correspondent pas')
 
         except KeyError:
             pass
@@ -45,7 +50,7 @@ class UserCreationCustomForm(forms.Form):
 class SelfUserUpdateForm(forms.ModelForm):
     class Meta:
         model = User
-        fields = ['email', 'phone', 'avatar','theme']
+        fields = ['email', 'phone', 'avatar', 'theme']
 
     def __init__(self, **kwargs):
         self.user = kwargs.pop('user')
@@ -66,8 +71,10 @@ class UserUpdateAdminForm(forms.Form):
     email = forms.EmailField(label='Email')
     surname = forms.CharField(label='Buque', max_length=255, required=False)
     family = forms.CharField(label='Fam\'ss', max_length=255, required=False)
-    campus = forms.ChoiceField(label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
-    year = forms.ChoiceField(label='Prom\'ss', choices=User.YEAR_CHOICES, required=False)
+    campus = forms.ChoiceField(
+        label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
+    year = forms.ChoiceField(
+        label='Prom\'ss', choices=User.YEAR_CHOICES, required=False)
 
     def __init__(self, **kwargs):
         self.user_modified = kwargs.pop('user_modified')
@@ -133,19 +140,20 @@ class LinkTokenUserForm(forms.Form):
 
 class UserSearchForm(forms.Form):
     search = forms.CharField(
-        		label="Utilisateur(s)",
-                max_length=255,
-                required=False,
-                widget=forms.TextInput(attrs={'class': 'form-control',
-                                              'autocomplete': 'off',
-        									  'autofocus': 'true',
-        									  'placeholder': "Nom / Prénom / Surnom"}))
+        label="Utilisateur(s)",
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control',
+                                      'autocomplete': 'off',
+                                      'autofocus': 'true',
+                                      'placeholder': "Nom / Prénom / Surnom"}))
     year = forms.ChoiceField(label='Année', required=False)
     state = forms.ChoiceField(label='Etat', choices=(('all', 'Tous les actifs'),
-                                                        ('negative_balance', 'Uniquement ceux à solde négative'),
-                                                        ('threshold', 'Uniquement ceux en-dessous du seuil de commande'),
-                                                        ('unactive', 'Uniquement ceux désactivés')),
-                                            required=False)
+                                                     ('negative_balance',
+                                                      'Uniquement ceux à solde négative'),
+                                                     ('threshold', 'Uniquement ceux en-dessous du seuil de commande'),
+                                                     ('unactive', 'Uniquement ceux désactivés')),
+                              required=False)
 
     def __init__(self, **kwargs):
         super(UserSearchForm, self).__init__(**kwargs)
@@ -160,9 +168,9 @@ class UserSearchForm(forms.Form):
 
 class UserQuickSearchForm(forms.Form):
     search = forms.CharField(
-                max_length=255,
-                required=False,
-                widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
-                                              'autocomplete': 'off',
-        									  'autofocus': 'true',
-        									  'placeholder': "Nom d'utilisateur"}))
+        max_length=255,
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
+                                      'autocomplete': 'off',
+                                      'autofocus': 'true',
+                                      'placeholder': "Nom d'utilisateur"}))

@@ -25,7 +25,6 @@ class ProductCreateForm(forms.Form):
             choices=(('CL', 'cl'), ('G', 'g')),
             required=False)
 
-
     def clean(self):
         cleaned_data = super(ProductCreateForm, self).clean()
         on_quantity = cleaned_data.get('on_quantity')

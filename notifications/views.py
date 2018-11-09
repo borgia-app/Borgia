@@ -33,13 +33,14 @@ class NotificationListCompleteView(GroupPermissionMixin, ListCompleteView, Group
     success_url = '/auth/login'
     attr = {
         'order_by': '-creation_datetime',
-        }
+    }
     perm_codename = 'list_notification'
 
     def get_context_data(self, **kwargs):
 
         # Récupération de la liste de notifications filtrées de l'user
-        self.query = Notification.objects.filter(target_user=self.request.user).order_by(self.attr['order_by'])
+        self.query = Notification.objects.filter(
+            target_user=self.request.user).order_by(self.attr['order_by'])
         notification_tab_header = []
         seen = set(notification_tab_header)
 
@@ -52,7 +53,8 @@ class NotificationListCompleteView(GroupPermissionMixin, ListCompleteView, Group
                 seen.add(notification.group_category)
                 notification_tab_header.append(notification.group_category)
 
-        context = super(NotificationListCompleteView, self).get_context_data(**kwargs)
+        context = super(NotificationListCompleteView,
+                        self).get_context_data(**kwargs)
 
         context['notification_tab_header'] = notification_tab_header
 
@@ -73,9 +75,11 @@ class NotificationTemplateListCompleteView(GroupPermissionMixin, ListCompleteVie
 
     def get_context_data(self, **kwargs):
         # Récupération de la liste de templates de notifications
-        self.query = NotificationTemplate.objects.all().order_by(self.attr['order_by'])
+        self.query = NotificationTemplate.objects.all().order_by(
+            self.attr['order_by'])
         # Call the base implementation first to get a context
-        context = super(NotificationTemplateListCompleteView, self).get_context_data(**kwargs)
+        context = super(NotificationTemplateListCompleteView,
+                        self).get_context_data(**kwargs)
         # Add in the html template
         for template_object in context['page']:
             template_object.html_template = Template(template_rendering_engine(template_object.xml_template)).\
@@ -101,7 +105,8 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
     # Here we will add allowed tags to context in order to display it and help users
     def get_context_data(self, **kwargs):
         # First, we get the usual context thanks to super
-        context = super(NotificationTemplateCreateView, self).get_context_data(**kwargs)
+        context = super(NotificationTemplateCreateView,
+                        self).get_context_data(**kwargs)
         # Next, we add variables used to render tags
         context['actor'] = self.request.user
         context['target_object'] = self.request.user
@@ -114,11 +119,13 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
             for tag, html in allowed_tags.items():
                 # if html[1] = "", it means the tag is alone, like <actor/r
                 if html[1] == "":
-                    tag_dictionary[etree.tostring(etree.Element(tag))] = str(Template(html[0]).render(Context(context)))
+                    tag_dictionary[etree.tostring(etree.Element(tag))] = str(
+                        Template(html[0]).render(Context(context)))
                 else:
                     xml_element = etree.Element(tag)
                     xml_element.text = tag
-                    tag_dictionary[etree.tostring(xml_element)] = str(Template(html[0]+tag+html[1]).render(Context(context)))
+                    tag_dictionary[etree.tostring(xml_element)] = str(
+                        Template(html[0]+tag+html[1]).render(Context(context)))
             context['tag_dictionary'] = tag_dictionary
         except ObjectDoesNotExist:
             pass
@@ -132,7 +139,8 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
             kwargs={'group_name': self.group.name})
 
         # We notify
-        notify(notification_class_name='notification_template_creation', actor=self.request.user)
+        notify(notification_class_name='notification_template_creation',
+               actor=self.request.user)
         return super(NotificationTemplateCreateView, self).form_valid(form)
 
 
@@ -149,7 +157,8 @@ class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLate
     # Here we will add allowed tags to context in order to display it and help users
     def get_context_data(self, **kwargs):
         # First, we get the usual context thanks to super
-        context = super(NotificationTemplateUpdateView, self).get_context_data(**kwargs)
+        context = super(NotificationTemplateUpdateView,
+                        self).get_context_data(**kwargs)
         # Next, we add variables used to render tags
         context['actor'] = self.request.user
         context['target_object'] = self.request.user
@@ -183,7 +192,8 @@ class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLate
                     'pk': self.object.pk})
 
         # We notify
-        notify(notification_class_name='notification_template_update', actor=self.request.user)
+        notify(notification_class_name='notification_template_update',
+               actor=self.request.user)
 
         return super(NotificationTemplateUpdateView, self).form_valid(form)
 
@@ -205,7 +215,8 @@ class NotificationTemplateDeactivateView(GroupPermissionMixin, View, GroupLatera
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
-        notification_template = NotificationTemplate.objects.get(pk=kwargs['pk'])
+        notification_template = NotificationTemplate.objects.get(
+            pk=kwargs['pk'])
         if notification_template.is_activated is True:
             notification_template.is_activated = False
         else:
@@ -217,7 +228,8 @@ class NotificationTemplateDeactivateView(GroupPermissionMixin, View, GroupLatera
             kwargs={'group_name': self.group.name})
 
         # We notify
-        notify(notification_class_name='notification_template_deactivation', actor=self.request.user)
+        notify(notification_class_name='notification_template_deactivation',
+               actor=self.request.user)
 
         return redirect(force_text(self.success_url))
 
@@ -268,7 +280,8 @@ def read_notification(request):
         int(request.GET.get('notification_id'))
 
         try:
-            notification = Notification.objects.get(pk=request.GET.get('notification_id'))
+            notification = Notification.objects.get(
+                pk=request.GET.get('notification_id'))
         except Notification.DoesNotExist:
             raise Http404
 
