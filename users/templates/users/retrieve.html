@@ -45,50 +45,6 @@
 {% if group|has_group_perm:"retrieve_more_user_info" %}
 <div class="panel panel-default">
   <div class="panel-heading">
-    Comptes en banque
-    {% if group|has_group_perm:"add_bankaccount" %}
-      <a class="btn btn-primary" href="{% url 'url_user_bankaccount_create' group_name=group_name user_pk=object.pk %}">Ajouter</a>
-    {% endif %}
-  </div>
-  <table class="table table-default table-striped table-hover">
-    <thead>
-      <tr>
-        <th>Banque</th>
-        <th>Compte</th>
-        {% if group|has_group_perm:"change_bankaccount" %}
-          <th>Modifier</th>
-        {% endif %}
-        {% if group|has_group_perm:"delete_bankaccount" %}
-          <th>Supprimer</th>
-        {% endif %}
-      </tr>
-    </thead>
-    <tbody>
-      {% for account in object.list_bank_account %}
-      <tr>
-        <td>{{ account.bank }}</td>
-        <td>{{ account.account }}</td>
-        {% if group|has_group_perm:"change_bankaccount" %}
-        <td>
-          <a
-          href="{% url 'url_user_bankaccount_update' group_name=group_name user_pk=object.pk pk=account.pk %}">Modifier
-          </a>
-        </td>
-        {% endif %}
-        {% if group|has_group_perm:"delete_bankaccount" %}
-        <td>
-          <a
-          href="{% url 'url_user_bankaccount_delete' group_name=group_name user_pk=object.pk pk=account.pk %}">Supprimer
-          </a>
-        </td>
-        {% endif %}
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
-<div class="panel panel-default">
-  <div class="panel-heading">
     Dernières transactions
   </div>
   <table class="table table-default table-striped table-hover">

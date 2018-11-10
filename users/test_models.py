@@ -18,7 +18,6 @@ class UserTestCase(TestCase):
             year=2015,
             campus='ME',
             phone='0600000000',
-            token_id='4875DF',
             balance=100
         )
         self.user_with_first_name = User.objects.create(
@@ -111,20 +110,6 @@ class UserTestCase(TestCase):
     #
     #     self.assertCountEqual(self.userAllUsedFields.list_sale(),
     #                           [s1, s2, s4, s6])
-
-    # def test_list_bank_account(self):
-    #     b1 = BankAccount.objects.create(
-    #         bank='bank1',
-    #         account='1234567891',
-    #         owner=self.userAllUsedFields)
-    #     b2 = BankAccount.objects.create(
-    #         bank='bank2',
-    #         account='1234567892',
-    #         owner=self.userAllUsedFields)
-    #
-    #     self.assertCountEqual(self.userAllUsedFields.list_bank_account(),
-    #                           [b1, b2])
-    #     self.assertCountEqual(self.userOnlyUsername.list_bank_account(), [])
 
 
 class ListYearTestCase(TestCase):

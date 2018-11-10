@@ -15,36 +15,4 @@
         </form>
     </div>
 </div>
-<div class="panel panel-default">
-  <div class="panel-heading">
-    Comptes en banque   <a
-    class="btn btn-default btn-small"
-    href="{% url 'url_self_bankaccount_create' group_name=group.name %}">
-    Ajouter</a>
-  </div>
-  <table class="table table-default table-striped table-hover">
-    <thead>
-      <tr>
-        <th>Banque</th>
-        <th>Compte</th>
-        <th>Modifier</th>
-        <th>Supprimer</th>
-      </tr>
-    </thead>
-    <tbody>
-      {% for account in user.list_bank_account %}
-      <tr>
-        <td>{{ account.bank }}</td>
-        <td>{{ account.account }}</td>
-        <td><a
-        href="{% url 'url_self_bankaccount_update' group_name=group.name pk=account.pk %}">Modifier
-        </a></td>
-        <td><a
-        href="{% url 'url_self_bankaccount_delete' group_name=group.name pk=account.pk %}">Supprimer
-        </a></td>
-      </tr>
-      {% endfor %}
-    </tbody>
-  </table>
-</div>
 {% endblock %}

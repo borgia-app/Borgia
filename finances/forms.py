@@ -9,21 +9,8 @@ from django.core.validators import RegexValidator
 from django.forms.widgets import PasswordInput
 
 from borgia.validators import autocomplete_username_validator
-from finances.models import BankAccount
 from shops.models import Shop
 from users.models import User, list_year
-
-
-class BankAccountCreateForm(forms.ModelForm):
-    class Meta:
-        model = BankAccount
-        fields = ['bank', 'account']
-
-
-class BankAccountUpdateForm(forms.ModelForm):
-    class Meta:
-        model = BankAccount
-        fields = ['bank', 'account']
 
 
 class SelfTransfertCreateForm(forms.Form):
@@ -161,8 +148,6 @@ class UserSupplyMoneyForm(forms.Form):
     signature_date = forms.DateField(label='Date de signature', required=False,
                                      widget=forms.DateInput(
                                          attrs={'class': 'datepicker'}))
-    # Unused for Cash and Lydia
-    bank_account = forms.CharField(label='Compte bancaire', required=False)
     operator_username = forms.CharField(label='Gestionnaire',
                                         widget=forms.TextInput(
                                             attrs={'class':
@@ -175,11 +160,6 @@ class UserSupplyMoneyForm(forms.Form):
     def __init__(self, **kwargs):
         self.user = kwargs.pop('user')
         super(UserSupplyMoneyForm, self).__init__(**kwargs)
-        self.fields['bank_account'] = forms.ModelChoiceField(
-            label='Compte bancaire',
-            queryset=BankAccount.objects.filter(owner=self.user),
-            required=False
-        )
 
     def clean_unique_number(self):
         data = self.cleaned_data['unique_number']
@@ -198,15 +178,6 @@ class UserSupplyMoneyForm(forms.Form):
 
         if (self.cleaned_data['type'] == 'cheque'
                 or self.cleaned_data['type'] == 'lydia'):
-            if data is None:
-                raise forms.ValidationError('Obligatoire')
-
-        return data
-
-    def clean_bank_account(self):
-        data = self.cleaned_data['bank_account']
-
-        if self.cleaned_data['type'] == 'cheque':
             if data is None:
                 raise forms.ValidationError('Obligatoire')
 

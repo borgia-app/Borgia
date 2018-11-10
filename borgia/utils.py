@@ -956,7 +956,6 @@ def human_permission_name(name):
         ('retrieve', 'Afficher'),
 
         ('group', 'groupe'),
-        ('bankaccount', 'compte en banque'),
         ('cash', 'payement en espèces'),
         ('cheque', 'chèque'),
         ('debitbalance', 'payement par compte'),

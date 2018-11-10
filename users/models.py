@@ -9,7 +9,7 @@ from django.db import models
 from django.db.models import Q
 from django.utils import timezone
 
-from finances.models import (BankAccount, ExceptionnalMovement, Recharging,
+from finances.models import (ExceptionnalMovement, Recharging,
                              Sale, SharedEvent, Transfert)
 
 
@@ -48,7 +48,6 @@ class User(AbstractUser):
     :param year: Gadz'Art promotion of the user (ie. prom'ss)
     :param campus: Gadz'Art centre of the user (ie. tabagn'ss)
     :param phone: phone number of the user (currently not used)
-    :param token_id: id of the linked token to the user
     :param avatar: image of the user
     :param theme: preference of css for the user
     :type id: integer superior to 0
@@ -65,7 +64,6 @@ class User(AbstractUser):
     :type year: string must be in YEAR_CHOICES
     :type campus: string must be in CAMPUS_CHOICES
     :type phone: string must match standard phone number in France ^0[0-9]{9}$
-    :type token_id: string must match ^[0-9A-Z]{12}$
     :type avatar: string path of the image in statics
     :type theme: string must be in THEME_CHOICES
 
@@ -107,15 +105,6 @@ class User(AbstractUser):
                                                         """Le numéro doit être
                                                         du type
                                                         0123456789""")])
-    token_id = models.CharField('Numéro de jeton lié', max_length=12,
-                                blank=True, null=True,
-                                validators=[RegexValidator('^[0-9A-Z]{12}$',
-                                                           """Mauvaise forme de
-                                                           numéro de jeton, il
-                                                           ne doit contenir que
-                                                           sixchiffres et/ou
-                                                           lettres
-                                                           majuscules""")])
     avatar = models.ImageField('Avatar', upload_to='img/avatars/',
                                default=None, blank=True, null=True)
     theme = models.CharField('Préférence de theme graphique', choices=THEME_CHOICES,
@@ -255,14 +244,6 @@ class User(AbstractUser):
 
         return list_transaction
 
-    def list_bank_account(self):
-        """
-        Return the list of bank accounts concerning the user.
-
-        :returns: list of BankAccount objects.
-        """
-        return BankAccount.objects.filter(owner=self)
-
     class Meta:
         """
         Permission imposed or not to an instance of User.
@@ -299,7 +280,6 @@ class User(AbstractUser):
 
             # Miscellaneous
             ('supply_money_user', 'Ajouter de l\'argent à un utilisateur'),
-            ('link_token_user', 'Lier un jeton à un utilisateur')
         )
 
 
@@ -316,46 +296,3 @@ def list_year():
             if u.year is not None:  # year is not mandatory
                 list_year.append(u.year)
     return sorted(list_year, reverse=True)
-
-
-def user_from_token_tap(token_tap):
-    """
-    Return the user corresponding to a token id.
-
-    The function does not use the format of token id defined in the related
-    attribute of User. Instead, it uses another format given by several used
-    RFID readers.
-    note:: If the format of the token correspond to the format defined in the
-    attribute of User (ie. ^[0-9A-Z]{6}$), one can just get the corresponding
-    User with User.object.get('token_id'=token).
-
-    :returns: User object
-    :raise: ValueError if the original format is not ^[0-9]{26}$
-    :raise: ObjectDoesNotExist if there is not corresponding User
-    """
-    return User.objects.get(token_id=token_tap_to_token_id(token_tap))
-
-
-def token_tap_to_token_id(token_tap):
-    """
-    Return a token in the format ^[0-9A-Z]{6}$ from one in the format
-    ^[0-9]{26}$.
-
-    The format ^[0-9]{26}$ might be the result of some RFID reader. However,
-    the format saved in the database is ^[0-9A-Z]{6}$.
-    example:: 25166484851706966556857503 -> 3FEB7D and
-    25166484852565553687068573 -> 4875DF
-
-    :param token_tap: token in the original format
-    :type token_tap: string ^[0-9]{26}$
-    :returns: string ^[0-9A-Z]{6}$ token format used in the database
-    :raise: ValueError if the original format is not ^[0-9]{26}$
-    """
-    if not re.match('^[0-9]{26}$', token_tap):
-        raise ValueError('The input token must match ^[0-9]{26}$')
-
-    token = ''
-    for dual in re.findall(r"[0-9]{2}", token_tap[1:len(token_tap) - 5]):
-        token += chr(int(dual))
-    token = token[4:]
-    return token

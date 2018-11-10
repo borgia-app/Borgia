@@ -101,17 +101,11 @@ from users.models import User
 #         self.user2 = User.objects.create(
 #             username='user2'
 #         )
-#         self.bank_account = BankAccount.objects.create(
-#             bank='bank',
-#             account='account',
-#             owner=self.user1
-#         )
 #         self.cheque = Cheque.objects.create(
 #             amount=10,
 #             cheque_number='1234567',
 #             sender=self.user1,
-#             recipient=self.user2,
-#             bank_account=self.bank_account
+#             recipient=self.user2
 #         )
 #         self.payment = Payment.objects.create()
 #         self.payment.cheques.add(self.cheque)
@@ -179,29 +173,6 @@ from users.models import User
 #         )
 #
 #
-# class BankAccountTestCase(TestCase):
-#     def setUp(self):
-#         self.user1 = User.objects.create(
-#             username='user1',
-#             last_name='Last name 1',
-#             first_name='First name 1'
-#         )
-#         self.user2 = User.objects.create(
-#             username='user2'
-#         )
-#         self.bank_account = BankAccount.objects.create(
-#             bank='bank',
-#             account='account',
-#             owner=self.user1
-#         )
-#
-#     def test_str(self):
-#         self.assertEqual(
-#             self.bank_account.__str__(),
-#             'bank account'
-#         )
-#
-#
 # class PaymentTestCase(TestCase):
 #     def setUp(self):
 #         self.user1 = User.objects.create(
@@ -212,17 +183,11 @@ from users.models import User
 #         self.user2 = User.objects.create(
 #             username='user2'
 #         )
-#         self.bank_account = BankAccount.objects.create(
-#             bank='bank',
-#             account='account',
-#             owner=self.user1
-#         )
 #         self.cheque = Cheque.objects.create(
 #             amount=10,
 #             cheque_number='1234567',
 #             sender=self.user1,
-#             recipient=self.user2,
-#             bank_account=self.bank_account
+#             recipient=self.user2
 #         )
 #         self.debit_balance = DebitBalance.objects.create(
 #             amount=10,

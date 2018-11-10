@@ -17,7 +17,7 @@
 </div>
 
 <script>
-    // Initialisation de type et du compte en banque (erreur de validation)
+    // Initialisation de type (erreur de validation)
     $(document).ready(function() {
         check_type();
     });
@@ -40,21 +40,15 @@
     }
     function display_cash() {
         $('label[for=' + 'id_unique_number' + '], input#id_unique_number').hide();
-        $('label[for=' + 'id_bank_account' + '], #id_bank_account').hide();
         $('label[for=' + 'id_signature_date' + '], input#id_signature_date').hide();
-        $('#id_link_create_bank_account').hide();
     }
     function display_cheque() {
         $('label[for=' + 'id_unique_number' + '], input#id_unique_number').show();
-        $('label[for=' + 'id_bank_account' + '], #id_bank_account').show();
         $('label[for=' + 'id_signature_date' + '], input#id_signature_date').show();
-        $('#id_link_create_bank_account').show();
     }
     function display_lydia() {
         $('label[for=' + 'id_unique_number' + '], input#id_unique_number').show();
-        $('label[for=' + 'id_bank_account' + '], #id_bank_account').hide();
         $('label[for=' + 'id_signature_date' + '], input#id_signature_date').show();
-        $('#id_link_create_bank_account').hide();
     }
 </script>
 {% endblock %}

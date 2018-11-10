@@ -224,12 +224,9 @@ class Cheque(PaymentSolution):
     mandatory.
     :param cheque_number: number of the cheque (written on the paper),
     mandatory.
-    :param bank_account: bank account of the cheque (written on the paper),
-    mandatory.
     :type is_cashed: boolean, default False
     :type signature_date: date string, default now
     :type cheque_number: string, must match ^[0-9]{7}$
-    :type bank_account: BankAccount object
     """
     is_cashed = models.BooleanField('Est encaissé', default=False)
     signature_date = models.DateField('Date de signature', default=now)
@@ -238,9 +235,6 @@ class Cheque(PaymentSolution):
                                          RegexValidator('^[0-9]{7}$',
                                                         '''Numéro de chèque
                                                         invalide''')])
-    bank_account = models.ForeignKey('BankAccount',
-                                     related_name='cheque_bank_account',
-                                     on_delete=models.CASCADE)
 
     def __str__(self):
         return 'Cheque n°' + self.cheque_number
@@ -250,46 +244,6 @@ class Cheque(PaymentSolution):
         Define Permissions for Cheque.
         """
         permissions = (
-        )
-
-
-class BankAccount(models.Model):
-    """
-    Define a bank account owned by an User.
-
-    Such information are used in order to identify in an unique way a Cheque
-    (BankAccount + cheque number).
-
-    :param bank: name of the bank, mandatory.
-    :param account: account number, mandatory.
-    :param owner: owner of the account, mandatory.
-    :type bank: string
-    :type account: string
-    :type owner: User object
-    """
-    bank = models.CharField('Banque', max_length=255)
-    account = models.CharField('Numéro de compte', max_length=255)
-    owner = models.ForeignKey('users.User', related_name='owner_bank_account',
-                              on_delete=models.CASCADE)
-
-    def __str__(self):
-        """
-        Return the display name of a BankAccount.
-
-        :returns: bank name and account number
-        :rtype: string
-        """
-        return (self.bank
-                + ' '
-                + self.account)
-
-    class Meta:
-        """
-        Define Permissions for BankAccount.
-        """
-        permissions = (
-            ('retrieve_bankaccount', 'Afficher un compte en banque'),
-            ('list_bankaccount', 'Lister les comptes en banque'),
         )
 
 

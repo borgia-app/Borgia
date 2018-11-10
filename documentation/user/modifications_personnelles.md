@@ -9,7 +9,7 @@ La page de modification de ses informations personnelles est accessible de parto
 
 ![Page de modification](./img/modifications-personnelles/welcome_selfupdate.png)
 
-La page de modification contient deux encarts. Le premier permet de modifier les informations courantes, et le second de gérer ses comptes en banque.
+Cette page permet de modifier les informations courantes.
 
 ### Informations courantes
 
@@ -25,22 +25,6 @@ Ces informations sont disponibles pour le président ou le trésorier par exempl
 De plus, l'adresse mail permet de récupérer un lien dans le cas de la réinitialisation du mot de passe.
 
 > Note : privilégiez des images "carrées" pour les avatars. L'affichage sera meilleur. Un petit tour sur Paint permet de modifier les dimensions de n'importe quelle image.
-
-### Comptes en banque
-
-![Comptes en banque](./img/modifications-personnelles/bank_selfupdate.png)
-
-Les comptes en banque permettent de même à un trésorier de vous faire un virement de manière simple, sans vous le demander. Il n'est pas obligatoire de renseigner un compte en banque.
-
-Pour ajouter un compte, cliquez sur "Ajouter".
-
-![Ajouter un compte en banque](./img/modifications-personnelles/add_bank_selfupdate.png)
-
-Il est possible à tout moment de modifier ou de supprimer un compte, via les boutons dans la liste.
-
-![Modifier un compte en banque](./img/modifications-personnelles/update_bank_selfupdate.png)
-
-![Supprimer un compte en banque](./img/modifications-personnelles/delete_bank_selfupdate.png)
 
 #### Changement du mot de passe
 

@@ -118,26 +118,6 @@ class ManageGroupForm(forms.Form):
             required=False)
 
 
-class LinkTokenUserForm(forms.Form):
-    username = forms.CharField(
-        label='User à lier',
-        widget=forms.TextInput(attrs={'class': 'autocomplete_username'}))
-    token_id = forms.CharField(label='Numéro unique du jeton')
-
-    def clean(self):
-
-        cleaned_data = super(LinkTokenUserForm, self).clean()
-
-        # Validation de l'username
-        username = cleaned_data['username']
-        try:
-            User.objects.get(username=username)
-        except ObjectDoesNotExist:
-            raise forms.ValidationError('Cette personne n\'existe pas')
-
-        return super(LinkTokenUserForm, self).clean()
-
-
 class UserSearchForm(forms.Form):
     search = forms.CharField(
         label="Utilisateur(s)",
