@@ -769,7 +769,7 @@ class UserSupplyMoney(GroupPermissionMixin, UserMixin, FormView,
                 signature_date=form.cleaned_data['signature_date'],
                 cheque_number=form.cleaned_data['unique_number'],
                 sender=sender,
-                recipient=User.objects.get(username='AE_ENSAM')
+                recipient=User.objects.get(username='AE_ENSAM'))
             payment = cheque
 
         elif form.cleaned_data['type'] == 'cash':

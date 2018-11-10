@@ -1282,67 +1282,63 @@ class SharedEventTestCase(TestCase):
             manager=self.manager,
             price=decimal.Decimal(1000.00)
         )
+        self.user1 = User.objects.create(
+            username='user1',
+            last_name='Last name 1',
+            first_name='First name 1',
+            balance=1000
+        )
+        self.user2 = User.objects.create(
+            username='user2',
+            last_name='Last name 2',
+            first_name='First name 2',
+            balance=2000
+        )
+        self.user3 = User.objects.create(
+            username='user3',
+            last_name='Last name 3',
+            first_name='First name 3',
+            balance=3000
+        )
+        self.user4 = User.objects.create(
+            username='user4',
+            last_name='Last name 4',
+            first_name='First name 4',
+            balance=4000
+        )
+        self.banker = User.objects.create(
+            username='Banker',
+            last_name='Ker',
+            first_name='Ban',
+            balance=0
+        )
 
     def test_wording(self):
         self.assertEqual(self.se.wording(), "Événement : Test53, le 01/01")
 
-    def test_remove_user(self):
-        user = User.objects.create(
-            username='user',
-            last_name='Last name',
-            first_name='First name'
-        )
-        self.se.change_weight(user, 555, True)
-        # Create user 5 with 555 in participation
-
-        self.assertEqual(self.se.get_weight_of_user(
-            user), 555)  # Verify it's created
-        self.se.remove_user(user)
-        self.assertEqual(self.se.get_weight_of_user(user), 0)
-
-    def test_add_and_get_weight(self):
+    def test_add_and_remove_user(self):
         # INIT
-        user1 = User.objects.create(
-            username='user1',
-            last_name='Last name 1',
-            first_name='First name 1'
-        )
-        user2 = User.objects.create(
-            username='user2',
-            last_name='Last name 2',
-            first_name='First name 2'
-        )
-        user3 = User.objects.create(
-            username='user3',
-            last_name='Last name 3',
-            first_name='First name 3'
-        )
-        user4 = User.objects.create(
-            username='user4',
-            last_name='Last name 4',
-            first_name='First name 4'
-        )
-        self.se.change_weight(user1, 100, True)
-        self.se.change_weight(user1, 30, True)
-        self.se.add_weight(user1, 23, True)
-        self.se.change_weight(user1, 10, False)
-        self.se.change_weight(user1, 1, False)
-        self.se.add_weight(user1, 2, False)
+        self.se.change_weight(self.user1, 100, True)
+        self.se.change_weight(self.user1, 30, True)
+        self.se.add_weight(self.user1, 23, True)
+        self.se.change_weight(self.user1, 10, False)
+        self.se.change_weight(self.user1, 1, False)
+        self.se.add_weight(self.user1, 2, False)
         # User 1 now should have 3 in registration, and 53 in participation
-        self.se.add_weight(user2, 200, False)
-        self.se.add_weight(user2, 2, False)
+        self.se.add_weight(self.user2, 200, False)
+        self.se.add_weight(self.user2, 2, False)
         # User 2 now should have 202 in registration
-        self.se.add_weight(user3, 400, True)
-        self.se.change_weight(user3, 47, True)
+        self.se.add_weight(self.user3, 400, True)
+        self.se.change_weight(self.user3, 47, True)
         # User 3 now should have 303 in participation
-        registration_u1 = self.se.get_weight_of_user(user1, False)
-        participation_u1 = self.se.get_weight_of_user(user1, True)
-        registration_u2 = self.se.get_weight_of_user(user2, False)
-        participation_u2 = self.se.get_weight_of_user(user2, True)
-        registration_u3 = self.se.get_weight_of_user(user3, False)
-        participation_u3 = self.se.get_weight_of_user(user3, True)
-        registration_u4 = self.se.get_weight_of_user(user4, False)
-        participation_u4 = self.se.get_weight_of_user(user4, True)
+        registration_u1 = self.se.get_weight_of_user(self.user1, False)
+        participation_u1 = self.se.get_weight_of_user(self.user1, True)
+        registration_u2 = self.se.get_weight_of_user(self.user2, False)
+        participation_u2 = self.se.get_weight_of_user(self.user2, True)
+        registration_u3 = self.se.get_weight_of_user(self.user3, False)
+        participation_u3 = self.se.get_weight_of_user(self.user3, True)
+        registration_u4 = self.se.get_weight_of_user(self.user4, False)
+        participation_u4 = self.se.get_weight_of_user(self.user4, True)
 
         # TESTS
         self.assertEqual(registration_u1, 3)
@@ -1358,116 +1354,83 @@ class SharedEventTestCase(TestCase):
         self.assertEqual(participation_u4, 0)
 
         # END
-        self.se.remove_user(user1)
-        self.se.remove_user(user2)
-        self.se.remove_user(user3)
-        self.se.remove_user(user4)
+        self.se.remove_user(self.user1)
+        self.se.remove_user(self.user2)
+        self.se.remove_user(self.user3)
+        self.se.remove_user(self.user4)
+
+        self.assertEqual(self.se.get_weight_of_user(self.user1, False), 0)
+        self.assertEqual(self.se.get_weight_of_user(self.user1, True), 0)
+        self.assertEqual(self.se.get_weight_of_user(self.user2, False), 0)
+        self.assertEqual(self.se.get_weight_of_user(self.user2, True), 0)
+        self.assertEqual(self.se.get_weight_of_user(self.user3, False), 0)
+        self.assertEqual(self.se.get_weight_of_user(self.user3, True), 0)
+        self.assertEqual(self.se.get_weight_of_user(self.user4, False), 0)
+        self.assertEqual(self.se.get_weight_of_user(self.user4, True), 0)
 
     def test_get_price_of_user(self):
         # INIT
-        user1 = User.objects.create(
-            username='user1',
-            last_name='Last name 1',
-            first_name='First name 1'
-        )
-        user2 = User.objects.create(
-            username='user2',
-            last_name='Last name 2',
-            first_name='First name 2'
-        )
-        self.se.change_weight(user1, 9, True)
-        self.se.change_weight(user2, 1, True)
+        self.se.change_weight(self.user1, 9, True)
+        self.se.change_weight(self.user2, 1, True)
         # TESTS
-        # Reminder: price => 1000
-        self.assertEqual(self.se.get_price_of_user(user1), 900)
-        self.assertEqual(self.se.get_price_of_user(user2), 100)
+        # Reminder: price = 1000
+        self.assertEqual(self.se.get_price_of_user(self.user1), 900)
+        self.assertEqual(self.se.get_price_of_user(self.user2), 100)
         # END
-        self.se.remove_user(user1)
-        self.se.remove_user(user2)
+        self.se.remove_user(self.user1)
+        self.se.remove_user(self.user2)
 
     def test_get_total_weights(self):
         # INIT
-        user1 = User.objects.create(
-            username='user1',
-            last_name='Last name 1',
-            first_name='First name 1'
-        )
-        user2 = User.objects.create(
-            username='user2',
-            last_name='Last name 2',
-            first_name='First name 2'
-        )
-        self.se.change_weight(user1, 10, True)
-        self.se.change_weight(user1, 5, False)
-        self.se.change_weight(user2, 40, True)
-        self.se.change_weight(user2, 25, False)
+        self.se.change_weight(self.user1, 10, True)
+        self.se.change_weight(self.user1, 5, False)
+        self.se.change_weight(self.user2, 40, True)
+        self.se.change_weight(self.user2, 25, False)
         # TESTS
         self.assertEqual(self.se.get_total_weights_registrants(), 30)
         self.assertEqual(self.se.get_total_weights_participants(), 50)
         # END
-        self.se.remove_user(user1)
-        self.se.remove_user(user2)
+        self.se.remove_user(self.user1)
+        self.se.remove_user(self.user2)
 
     def test_get_total_users(self):
         # INIT
-        user1 = User.objects.create(
-            username='user1',
-            last_name='Last name 1',
-            first_name='First name 1'
-        )
-        user2 = User.objects.create(
-            username='user2',
-            last_name='Last name 2',
-            first_name='First name 2'
-        )
-        self.se.change_weight(user1, 10, True)
-        self.se.change_weight(user1, 5, False)
-        self.se.change_weight(user2, 40, True)
+        self.se.change_weight(self.user1, 10, True)
+        self.se.change_weight(self.user1, 5, False)
+        self.se.change_weight(self.user2, 40, True)
         # TESTS
         self.assertEqual(self.se.get_number_registrants(), 1)
         self.assertEqual(self.se.get_number_participants(), 2)
         # END
-        self.se.remove_user(user1)
-        self.se.remove_user(user2)
+        self.se.remove_user(self.user1)
+        self.se.remove_user(self.user2)
 
     def test_pay_by_total(self):
         # INIT
-        se = SharedEvent.objects.create(
+        event = SharedEvent.objects.create(
             description='Test_payment',
             date=datetime.date(2053, 1, 1),
             manager=self.manager,
             price=decimal.Decimal(1000.00)
         )
-        user1 = User.objects.create(
-            username='user1',
-            last_name='Last name 1',
-            first_name='First name 1'
-        )
-        user2 = User.objects.create(
-            username='user2',
-            last_name='Last name 2',
-            first_name='First name 2'
-        )
-        banker = User.objects.create(
-            username='Banker',
-            last_name='Ker',
-            first_name='Ban'
-        )
-        se.change_weight(user1, 10, True)
-        se.change_weight(user1, 5, False)
-        se.change_weight(user2, 40, True)
-        se.pay_by_total(self.manager, banker, decimal.Decimal(100.00))
+        user1_initial_balance = self.user1.balance
+        user2_initial_balance = self.user2.balance
+        banker_initial_balance = self.banker.balance
+
+        event.change_weight(self.user1, 10, True)
+        event.change_weight(self.user2, 5, False)
+        event.change_weight(self.user2, 40, True)
+        event.pay_by_total(self.manager, self.banker, decimal.Decimal(100.00))
+
         # TESTS
-        self.assertEqual(se.done, True)
-        self.assertEqual(se.payment_by_ponderation, False)
-        self.assertEqual(banker.balance, decimal.Decimal(100.00))
-        self.assertEqual(se.price, decimal.Decimal(100.00))
-        self.assertEqual(se.remark, 'Paiement par Borgia (Prix total : 100)')
-        # self.assertEqual(user1.balance, decimal.Decimal(-20.00)) # NOT WORKING
-        # self.assertEqual(user2.balance, decimal.Decimal(-80.00)) # NOT WORKING
-        # END
-        se.remove_user(user1)
-        se.remove_user(user2)
+        self.assertEqual(event.done, True)
+        self.assertEqual(event.payment_by_ponderation, False)
+        self.assertEqual(self.banker.balance, banker_initial_balance + 100)
+        self.assertEqual(event.price, 100)
+        self.assertEqual(
+            event.remark, 'Paiement par Borgia (Prix total : 100)')
+        self.assertEqual(self.user1.balance, user1_initial_balance - 20)
+        self.assertEqual(self.user2.balance, user2_initial_balance - 80)
 
     def test_pay_by_ponderation(self):
         # INIT
@@ -1475,36 +1438,23 @@ class SharedEventTestCase(TestCase):
             description='Test_payment',
             date=datetime.date(2053, 1, 1),
             manager=self.manager,
-            price=decimal.Decimal(1000.00)
+            price=150
         )
-        user1 = User.objects.create(
-            username='user1',
-            last_name='Last name 1',
-            first_name='First name 1'
-        )
-        user2 = User.objects.create(
-            username='user2',
-            last_name='Last name 2',
-            first_name='First name 2'
-        )
-        banker = User.objects.create(
-            username='Banker',
-            last_name='Ker',
-            first_name='Ban'
-        )
-        se.change_weight(user1, 10, True)
-        se.change_weight(user1, 5, False)
-        se.change_weight(user2, 40, True)
-        se.pay_by_ponderation(self.manager, banker, decimal.Decimal(3.00))
+        user1_initial_balance = self.user1.balance
+        user2_initial_balance = self.user2.balance
+        banker_initial_balance = self.banker.balance
+
+        se.change_weight(self.user1, 10, True)
+        se.change_weight(self.user2, 5, False)
+        se.change_weight(self.user2, 40, True)
+        se.pay_by_ponderation(self.manager, self.banker, 3)
+
         # TESTS
         self.assertEqual(se.done, True)
         self.assertEqual(se.payment_by_ponderation, True)
         self.assertEqual(se.price, decimal.Decimal(3.00))
-        self.assertEqual(banker.balance, decimal.Decimal(150.00))
+        self.assertEqual(self.banker.balance, banker_initial_balance + 150)
         self.assertEqual(
             se.remark, 'Paiement par Borgia (Prix par pondération: 3)')
-        # self.assertEqual(user1.balance, decimal.Decimal(-30.00)) # NOT WORKING
-        # self.assertEqual(user2.balance, decimal.Decimal(-120.00)) # NOT WORKING
-        # END
-        se.remove_user(user1)
-        se.remove_user(user2)
+        self.assertEqual(self.user1.balance, user1_initial_balance - 30)
+        self.assertEqual(self.user2.balance, user2_initial_balance - 120)
