@@ -9,7 +9,7 @@ from django.contrib.auth.views import (password_change, password_change_done,
 
 from borgia.views import (GadzartsGroupWorkboard, Login, Logout,
                           PresidentsGroupWorkboard, ShopGroupWorkboard,
-                          TestBootstrapSober, TreasurersGroupWorkboard,
+                          TreasurersGroupWorkboard,
                           VicePresidentsInternalGroupWorkboard, handler403,
                           handler404, handler500, jsi18n_catalog)
 from finances.views import (ExceptionnalMovementList,
@@ -421,11 +421,6 @@ urlpatterns = [
     url(r'^auth/(?P<shop_name>[\w-]+)/$',
         Login.as_view(), {'save_login_url': True, 'gadzarts': False},
         name='url_login_direct_module_operatorsale'),
-
-
-    # Test Bootstrap CSS & components
-    url('^tests/bootstrap$',
-        TestBootstrapSober.as_view()),
 
     url(r'^ajax/username_from_username_part/$',
         username_from_username_part,

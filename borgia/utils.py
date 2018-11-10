@@ -23,7 +23,7 @@ def lateral_menu(user, group, active=None):
     # TODO: try for reverse urls
 
     models_checked = [
-        (User, 'Utilisateurs', 'user', 'noSubs','List'),
+        (User, 'Utilisateurs', 'user', 'noSubs', 'List'),
         (Shop, 'Magasins', 'shopping-basket', 'noSubs', 'List'),
         (Notification, 'Notifications', 'bell', 'noSubs', 'List'),
         (NotificationTemplate, 'Templates notification', 'list-alt', 'noSubs', 'List'),
@@ -84,13 +84,13 @@ def lateral_menu(user, group, active=None):
 
     # Manage products
     try:
-        if (Permission.objects.get(codename='list_product') in group.permissions.all()):
+        if Permission.objects.get(codename='list_product') in group.permissions.all():
             nav_tree.append(
                 simple_lateral_link(
                     label='Produits',
                     fa_icon='cube',
-                    id='lm_product_list',
-                    url= reverse(
+                    id_link='lm_product_list',
+                    url=reverse(
                         'url_product_list',
                         kwargs={'group_name': group.name})
                 )
@@ -118,7 +118,7 @@ def lateral_menu(user, group, active=None):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Ventes',
                 fa_icon='shopping-cart',
-                id='lm_sale_list',
+                id_link='lm_sale_list',
                 url=reverse(
                     'url_sale_list',
                     kwargs={'group_name': group.name}
@@ -134,7 +134,7 @@ def lateral_menu(user, group, active=None):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Rechargements',
                 fa_icon='money',
-                id='lm_recharging_list',
+                id_link='lm_recharging_list',
                 url=reverse(
                     'url_recharging_list',
                     kwargs={'group_name': group.name}
@@ -150,7 +150,7 @@ def lateral_menu(user, group, active=None):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Transferts',
                 fa_icon='exchange',
-                id='lm_transfert_list',
+                id_link='lm_transfert_list',
                 url=reverse(
                     'url_transfert_list',
                     kwargs={'group_name': group.name}
@@ -166,7 +166,7 @@ def lateral_menu(user, group, active=None):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Exceptionnels',
                 fa_icon='exclamation-triangle',
-                id='lm_exceptionnalmovement_list',
+                id_link='lm_exceptionnalmovement_list',
                 url=reverse(
                     'url_exceptionnalmovement_list',
                     kwargs={'group_name': group.name}
@@ -184,12 +184,11 @@ def lateral_menu(user, group, active=None):
 
     # module of shop
     try:
-        shop = shop_from_group(group)
         # TODO: check perm
         nav_tree.append(simple_lateral_link(
             label='Module vente libre service',
             fa_icon='shopping-basket',
-            id='lm_selfsale_module',
+            id_link='lm_selfsale_module',
             url=reverse(
                 'url_module_selfsale_workboard',
                 kwargs={'group_name': group.name}
@@ -199,7 +198,7 @@ def lateral_menu(user, group, active=None):
         nav_tree.append(simple_lateral_link(
             label='Module vente par opérateur',
             fa_icon='coffee',
-            id='lm_operatorsale_module',
+            id_link='lm_operatorsale_module',
             url=reverse(
                 'url_module_operatorsale_workboard',
                 kwargs={'group_name': group.name}
@@ -217,12 +216,12 @@ def lateral_menu(user, group, active=None):
     # Shop sale for shop
     try:
         shop = shop_from_group(group)
-        module, created = OperatorSaleModule.objects.get_or_create(shop=shop)
-        if module.state is True:
+        module_sale, created = OperatorSaleModule.objects.get_or_create(shop=shop)
+        if module_sale.state is True:
             nav_tree.append(simple_lateral_link(
                 label='Module vente',
                 fa_icon='shopping-basket',
-                id='lm_operatorsale_interface_module',
+                id_link='lm_operatorsale_interface_module',
                 url=reverse(
                     'url_module_operatorsale',
                     kwargs={'group_name': group.name,
@@ -237,7 +236,7 @@ def lateral_menu(user, group, active=None):
         nav_tree.append(simple_lateral_link(
             label='Bilan de santé',
             fa_icon='hospital-o',
-            id='lm_shop_checkup',
+            id_link='lm_shop_checkup',
             url=reverse(
                 'url_shop_checkup',
                 kwargs={'group_name': group.name,
@@ -254,7 +253,7 @@ def lateral_menu(user, group, active=None):
             nav_tree.append(simple_lateral_link(
                 label='Configuration',
                 fa_icon='cogs',
-                id='lm_global_config',
+                id_link='lm_global_config',
                 url=reverse(
                     'url_global_config',
                     kwargs={'group_name': group.name})
@@ -296,8 +295,8 @@ def lateral_menu_gadz(user, group, active=None):
     list_selfsalemodule = []
     for shop in Shop.objects.all().exclude(pk=1):
         try:
-            module = SelfSaleModule.objects.get(shop=shop)
-            if module.state is True:
+            module_sale = SelfSaleModule.objects.get(shop=shop)
+            if module_sale.state is True:
                 try:
                     if Permission.objects.get(codename='use_selfsalemodule') in group.permissions.all():
                         list_selfsalemodule.append(shop)
@@ -324,7 +323,7 @@ def lateral_menu_gadz(user, group, active=None):
             simple_lateral_link(
                 'Vente directe ' + shop.name.title(),
                 'shopping-basket',
-                'lm_selfsale_interface_module_' + shop.name, # Not currently used in modules.view
+                'lm_selfsale_interface_module_' + shop.name,  # Not currently used in modules.view
                 reverse('url_module_selfsale', kwargs={'group_name': group.name, 'shop_name': shop.name})
             ))
 
@@ -342,7 +341,7 @@ def lateral_menu_gadz(user, group, active=None):
                     'Transfert',
                     'exchange',
                     'lm_self_transfert_create',
-                     reverse('url_self_transfert_create', kwargs={'group_name': group.name})))
+                    reverse('url_self_transfert_create', kwargs={'group_name': group.name})))
     except ObjectDoesNotExist:
         pass
 
@@ -360,7 +359,7 @@ def lateral_menu_gadz(user, group, active=None):
                     'Évènements',
                     'calendar',
                     'lm_sharedevent_list',
-                     reverse('url_sharedevent_list', kwargs={'group_name': group.name})))
+                    reverse('url_sharedevent_list', kwargs={'group_name': group.name})))
     except ObjectDoesNotExist:
         pass
 
@@ -389,14 +388,11 @@ def lateral_menu_model(model, group):
         - list instances of model,
         - create instance of model
 
-    :param model: Model to be used, mandatory.
+    :param model: Model to be used, mandatory. id/id_link: Id used in the nav tree, mandatory.
+                                               fa_icon: Font Awesome icon used
     :param group: Group whose permissions are checked, mandatory.
-    :param id: Id used in the nav tree, mandatory.
-    :param fa_icon: Font Awesome icon used.
     :type model: Model object
     :type group: Group object
-    :type id: string or integer
-    :type fa_icon: string
     """
     if model[2]:
         fa_icon = model[2]
@@ -439,8 +435,9 @@ def lateral_menu_model(model, group):
 
         if list_permission in group.permissions.all():
             if 'noSubs' in model:
-                model_tree['url'] = reverse('url_' + model[0]._meta.model_name + '_list', kwargs={'group_name': group.name})
-                model_tree['id'] = 'lm_' + model[0]._meta.model_name  + '_list'
+                model_tree['url'] = reverse('url_' + model[0]._meta.model_name + '_list',
+                                            kwargs={'group_name': group.name})
+                model_tree['id'] = 'lm_' + model[0]._meta.model_name + '_list'
             else:
                 model_tree['subs'].append({
                     'label': 'Liste',
@@ -560,12 +557,12 @@ def lateral_menu_shop_sale(group, shop):
     try:
         if (Permission.objects.get(codename='use_selfsalemodule')
                 in group.permissions.all()):
-            module = SelfSaleModule.objects.get(shop=shop)
-            if module.state is True:
+            module_sale = SelfSaleModule.objects.get(shop=shop)
+            if module_sale.state is True:
                 shop_tree['subs'].append(simple_lateral_link(
                     label='Vente libre service',
                     fa_icon='shopping-basket',
-                    id='lm_selfsale_module_'+shop.name,
+                    id_link='lm_selfsale_module_'+shop.name,
                     url=reverse(
                         'url_module_selfsale',
                         kwargs={'group_name': group.name,
@@ -580,17 +577,21 @@ def lateral_menu_shop_sale(group, shop):
         return None
 
 
-def simple_lateral_link(label, fa_icon, id, url):
+def simple_lateral_link(label, fa_icon, id_link, url):
     return {
         'label': label,
         'icon': fa_icon,
-        'id': id,
+        'id': id_link,
         'url': url
     }
 
 
 class GroupLateralMenuFormMixin(ContextMixin):
     lm_active = None
+
+    def __init__(self):
+        self.request = None
+        self.kwargs = None
 
     def get_context_data(self, **kwargs):
         context = super(GroupLateralMenuFormMixin, self).get_context_data(
@@ -615,6 +616,10 @@ class GroupLateralMenuFormMixin(ContextMixin):
 class GroupLateralMenuMixin(ContextMixin):
     lm_active = None
 
+    def __init__(self):
+        self.request = None
+        self.kwargs = None
+
     def get_context_data(self, **kwargs):
         context = super(GroupLateralMenuMixin, self).get_context_data(**kwargs)
         try:
@@ -635,14 +640,19 @@ class GroupLateralMenuMixin(ContextMixin):
 
 class GroupPermissionMixin(object):
 
+    def __init__(self):
+        self.kwargs = None
+        self.perm_codename = None
+        self.group = None
+        self.success_url = None
+        self.request = None
+
     def dispatch(self, request, *args, **kwargs):
         """
         Check permissions for the view regarding a group.
 
-        :param self.perm_codename: codename of the permission to be
-        checked
-        :param self.kwargs['group_name']: name of the group
-
+        :param request:
+        :param kwargs: ['group_name'] name of the group
         :raises: Http404 if group_name not given
         :raises: Http404 if group_name doesn't match a group
         :raises: Http404 if codename doesn't match a permission
@@ -652,6 +662,8 @@ class GroupPermissionMixin(object):
         :raises: Http404 if the group doesn't have a workboard to redirect to
 
         Define the self.success_url based on the group.
+        perm_codename: codename of the permission to be
+        checked
 
         :note:: self.success_url is defined here, even if not used in the
         original view, for instance when there is no form.
@@ -700,8 +712,8 @@ class GroupPermissionMixin(object):
 
         for shop in Shop.objects.all().exclude(pk=1):
             try:
-                module = SelfSaleModule.objects.get(shop=shop)
-                if module.state is True:
+                module_sale = SelfSaleModule.objects.get(shop=shop)
+                if module_sale.state is True:
                     context['list_selfsalemodule'].append(shop)
             except ObjectDoesNotExist:
                 pass
@@ -709,6 +721,11 @@ class GroupPermissionMixin(object):
 
 
 class ProductShopMixin(object):
+    def __init__(self):
+        self.kwargs = None
+        self.shop = None
+        self.product = None
+
     def dispatch(self, request, *args, **kwargs):
         try:
             self.shop = Shop.objects.get(name='shop_name')
@@ -724,6 +741,9 @@ class ProductShopMixin(object):
 
 
 class ShopMixin(object):
+    def __init__(self):
+        self.shop = None
+
     def dispatch(self, request, *args, **kwargs):
         try:
             self.shop = Shop.objects.get(name='shop_name')
@@ -737,6 +757,11 @@ class ShopFromGroupMixin(object):
     :note:: Be carefull, this mixin doesn't raise 404 if no shop. You must
     handle the case of no shop with overriden.
     """
+
+    def __init__(self):
+        self.group = None
+        self.shop = None
+
     def dispatch(self, request, *args, **kwargs):
         try:
             self.shop = shop_from_group(self.group)
@@ -752,11 +777,17 @@ class ShopFromGroupMixin(object):
 
 
 class ProductShopFromGroupMixin(object):
+    def __init__(self):
+        self.shop = None
+        self.object = None
+        self.group = None
+        self.kwargs = None
+
     def dispatch(self, request, *args, **kwargs):
         try:
             self.shop = shop_from_group(self.group)
         except ValueError:
-            self.shop = None
+            pass
         try:
             self.object = Product.objects.get(pk=self.kwargs['pk'], is_removed=False)
         except ObjectDoesNotExist:
@@ -769,6 +800,11 @@ class ProductShopFromGroupMixin(object):
 
 
 class UserMixin(object):
+    def __init__(self):
+        self.kwargs = None
+        self.user = None
+        self.success_url = None
+
     def dispatch(self, request, *args, **kwargs):
         """
         Add self.user and modify success_url to be the retrieve of the user by
@@ -777,8 +813,9 @@ class UserMixin(object):
         Add the user to self and to context. Modify the success_url to be the
         retrieve of the user.
 
-        :param kwargs['user_pk']: pk of the user
-        :type kwargs['user_pk']: positiv integer
+        :param request:
+        :param kwargs: ['user_pk'] pk of the user
+        :type kwargs: ['user_pk'] positive integer
         :raises: Http404 if no user found
         """
         try:
@@ -797,6 +834,13 @@ class UserMixin(object):
 
 
 class ShopModuleMixin(object):
+    def __init__(self):
+        self.kwargs = None
+        self.module_class = None
+        self.shop = None
+        self.module = None
+        self.success_url = None
+
     def dispatch(self, request, *args, **kwargs):
         """
         Add self.module and modify success_url to be the workboard of the shop
