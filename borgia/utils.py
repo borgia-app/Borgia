@@ -449,6 +449,8 @@ def lateral_menu_model(model, group):
                         'url_' + model[0]._meta.model_name + '_list',
                         kwargs={'group_name': group.name})
                 })
+        else:
+            return None
 
     if len(model_tree['subs']) > 0 or 'noSubs' in model:
         return model_tree
