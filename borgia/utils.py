@@ -185,25 +185,27 @@ def lateral_menu(user, group, active=None):
     # module of shop
     try:
         # TODO: check perm
-        nav_tree.append(simple_lateral_link(
-            label='Module vente libre service',
-            fa_icon='shopping-basket',
-            id_link='lm_selfsale_module',
-            url=reverse(
-                'url_module_selfsale_workboard',
-                kwargs={'group_name': group.name}
-            )
-        ))
+        shop = shop_from_group(group)
+        if shop is not None:
+            nav_tree.append(simple_lateral_link(
+                label='Module vente libre service',
+                fa_icon='shopping-basket',
+                id_link='lm_selfsale_module',
+                url=reverse(
+                    'url_module_selfsale_workboard',
+                    kwargs={'group_name': group.name}
+                    )
+            ))
         # TODO: check perm
-        nav_tree.append(simple_lateral_link(
-            label='Module vente par opérateur',
-            fa_icon='coffee',
-            id_link='lm_operatorsale_module',
-            url=reverse(
-                'url_module_operatorsale_workboard',
-                kwargs={'group_name': group.name}
-            )
-        ))
+            nav_tree.append(simple_lateral_link(
+                label='Module vente par opérateur',
+                fa_icon='coffee',
+                id_link='lm_operatorsale_module',
+                url=reverse(
+                    'url_module_operatorsale_workboard',
+                    kwargs={'group_name': group.name}
+                )
+            ))
     except ValueError:
         pass
 
@@ -767,6 +769,7 @@ class ShopFromGroupMixin(object):
             self.shop = shop_from_group(self.group)
         except ValueError:
             self.shop = None
+
         return super(ShopFromGroupMixin,
                      self).dispatch(request, *args, **kwargs)
 
