@@ -129,50 +129,30 @@ class User(AbstractUser):
 
         Returns the first name followed by the last name of the user.
         example:: Alexandre Palo
+        If the first name or the last name is missing, return the username.
 
         :returns: string, undefined if no last or first name (not mandatory)
         """
-        if not self.first_name or not self.last_name:
-            return 'undefined'
-        return self.first_name + ' ' + self.last_name
 
-    def choice_string(self):
-        """
-        """
         if not self.first_name or not self.last_name:
-            return 'undefined'
-        try:
-            return self.family + self.campus + str(self.year_pg()) + ' ' + self.first_name + ' ' + self.last_name
-        except TypeError:
-            return 'undefined'
-        except AttributeError:
-            return 'undefined'
+            return self.username
+        else:
+            return self.first_name + ' ' + self.last_name
 
-    def display_name_navbar(self):
+    def get_full_name(self):
         """
         Return the name displayed in the navbar
 
         """
         if not self.first_name or not self.last_name:
-            return 'undefined'
+            return self.username
         try:
             if not self.surname or not self.family:
                 return self.first_name + ' ' + self.last_name
             else:
-                return self.surname + ' ' + self.family+self.campus+str(self.year_pg())
+                return self.surname + ' ' + self.family + self.campus + str(self.year_pg())
         except AttributeError:
-            return 'undefined'
-
-    def forecast_balance(self):
-        # Get all undone shared events where user is involved as participant
-        shared_events = SharedEvent.objects.filter(
-            users__username__contains=self.username, done=False)
-        solde_prev = 0
-        for se in shared_events:
-            solde_prev += se.get_price_of_user(self)
-        self.virtual_balance = self.balance - solde_prev
-        # TODO: notify if forecast balance is negative
-        self.save()
+            return self.username
 
     def year_pg(self):
         """
@@ -187,10 +167,26 @@ class User(AbstractUser):
 
         """
         if self.year is not None:
-            return int(str(self.year)[:1] + str(self.year)[-2:])
+            year = str(self.year)
+            return int( year[:1] + year[-2:] )
         else:
-            raise AttributeError("""The user does not have a defined year
-                                 attribute""")
+            raise AttributeError(
+                'The user does not have a defined year attribute')
+
+    def forecast_balance(self):
+        """
+        Get all undone shared events where user is involved as participant
+
+        TODO : Strongly dependent of Sharedevents, should be moved there.
+        TODO : notify if forecast balance is negative
+        """
+        shared_events = SharedEvent.objects.filter(
+            users__username__contains=self.username, done=False)
+        solde_prev = 0
+        for se in shared_events:
+            solde_prev += se.get_price_of_user(self)
+        self.virtual_balance = self.balance - solde_prev
+        self.save()
 
     def credit(self, amount):
         """
@@ -229,7 +225,7 @@ class User(AbstractUser):
         if (not isinstance(amount, int)) and (not isinstance(amount, float)) and (not isinstance(amount, decimal.Decimal)):
             raise ValueError('The amount is not a number')
         if amount <= 0:
-            raise ValueError('The amount must be positive')
+            raise ValueError('The amount must be strictly positive')
 
         self.balance -= amount
         self.save()
@@ -311,7 +307,7 @@ def list_year():
     """
     Return the list of current used years in all the users.
 
-    :returns: list of integer years used by users, sorted the decreasing dates.
+    :returns: list of integer years used by users, by decreasing dates.
     """
     list_year = []
     # Parmis tout les users moins les gadz d'honn'ss et l'admin

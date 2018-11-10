@@ -17,6 +17,7 @@ import re
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
 
@@ -26,7 +27,8 @@ SECRET_KEY = 'need to be changed'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']  # 'www.borgia.iresam.org' en prod, '*' pour une simulation de prod en local.
+# 'www.borgia.iresam.org' en prod, '*' pour une simulation de prod en local.
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -83,6 +85,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'borgia.wsgi.application'
 
+
 # Database
 # https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
@@ -119,6 +122,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
 # Internationalization
 # https://docs.djangoproject.com/en/1.9/topics/i18n/
 
@@ -127,6 +131,7 @@ TIME_ZONE = 'Europe/Paris'
 USE_I18N = True
 USE_L10N = True
 USE_TZ = True
+
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en²/1.9/howto/static-files/
@@ -153,12 +158,12 @@ LOGIN_EXEMPT_URLS = [
 LOGIN_EXEMPT_URL_PATTERNS = [
     re.compile('%s[\w-]+%s' % ('/auth/gadzarts/', '/')),
     re.compile('%s[\w-]+%s' % ('/auth/', '/')),
-    re.compile('^%s$' % '/graphql'),
+    re.compile('^%s$' % ('/graphql')),
     re.compile('^%s.+%s[\d]+%s$' % ('/jwt/token/', '/', '.json')),
     re.compile('^%s.+%s[\d]+%s$' % ('/jwt/invalidate/', '/', '.json')),
-    re.compile('^%s$' % '/jwt/new.json'),
-    re.compile('^%s.+$' % '/media/img/avatars/'),
-    re.compile('^%s.+$' % '/static/media/img/')
+    re.compile('^%s$' % ('/jwt/new.json')),
+    re.compile('^%s.+$' % ('/media/img/avatars/')),
+    re.compile('^%s.+$' % ('/static/media/img/'))
 ]
 
 STATIC_URL = '/static/'
@@ -169,15 +174,17 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static', 'static_dirs'),
 )
 
-if DEBUG:
+if (DEBUG == True):
     STATIC_PRECOMPILER_ROOT = os.path.join(BASE_DIR, 'static', 'static_dirs')
+
 
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'media')
 MEDIA_URL = '/media/'
 
 # Lydia
-LYDIA_CALLBACK_URL = 'http://url_borgia/self/lydias/callback/'  # https ou non selon le dns
-LYDIA_CONFIRM_URL = 'http://url_borgia/gadzarts/self/lydias/confirm/'
+# https ou non selon le dns
+LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/self/lydias/callback/'
+LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/gadzarts/self/lydias/confirm/'
 
 # Penser à activer 'autoriser l'acces par les applications moins sécurisées' dans Gmail
 EMAIL_USE_TLS = True
@@ -224,15 +231,10 @@ SETTINGS_DEFAULT = {
                         "s", "non définie"),
     "LYDIA_VENDOR_TOKEN": ("LYDIA_VENDOR_TOKEN", "Clé vendeur (publique)",
                            "s", "non définie"),
-    "BALANCE_THRESHOLD_MAIL_ALERT": ("BALANCE_THRESHOLD_MAIL_ALERT",
-                                     "Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par"
-                                     " email est activée",
+    "BALANCE_THRESHOLD_MAIL_ALERT": ("BALANCE_THRESHOLD_MAIL_ALERT", "Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée",
                                      "f", "-10"),
-    "BALANCE_FREQUENCY_MAIL_ALERT": ("BALANCE_FREQUENCY_MAIL_ALERT",
-                                     "Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde"
-                                     " est inférieur à la valeur seuil",
+    "BALANCE_FREQUENCY_MAIL_ALERT": ("BALANCE_FREQUENCY_MAIL_ALERT", "Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",
                                      "i", "7"),
-    "BALANCE_THRESHOLD_PURCHASE": ("BALANCE_THRESHOLD_PURCHASE", "Valeur seuil (€) en dessous de laquelle"
-                                                                 " (strictement) la commande est impossible",
+    "BALANCE_THRESHOLD_PURCHASE": ("BALANCE_THRESHOLD_PURCHASE", "Valeur seuil (€) en dessous de laquelle (strictement) la commande est impossible",
                                    "f", "0")
 }

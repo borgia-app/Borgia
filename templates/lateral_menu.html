@@ -58,7 +58,7 @@ context['nav_tree'] = nav_tree = [
 				 {% if request.user.avatar %}
 					 <span class="navbar-text-avatar"><img src="{{ request.user.avatar.url }}" class="user-avatar"/></span>
 				 {% endif %}
-				 <h2 class="navbar-text">{{ request.user.display_name_navbar }}</p></h2>
+				 <h2 class="navbar-text">{{ request.user.get_full_name }}</p></h2>
 				 </li>
 				 <li class="mp-header-list-item list-group-item text-center">
 					 <span

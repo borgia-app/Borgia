@@ -64,7 +64,7 @@
 									{% if request.user.avatar %}
 										<span class="navbar-text-avatar"><img src="{{ request.user.avatar.url }}" class="user-avatar"/></span>
 									{% endif %}
-								<p class="navbar-text">{{ request.user.display_name_navbar }}</p></a></li>
+								<p class="navbar-text">{{ request.user.get_full_name }}</p></a></li>
 								<li><p class="navbar-text">
 								<span
 									style="font-weight: bold"

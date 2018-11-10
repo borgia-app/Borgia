@@ -185,13 +185,12 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
     def get_success_message(self, cleaned_data):
         return "L'utilisateur a bien été crée'"
 
-    """
-    If can retrieve user: go to the user.
-    If not, if can list user: go to the list of users.
-    If not, go to the workboard of the group.
-    """
-
     def get_success_url(self):
+        """
+        If can retrieve user: go to the user.
+        If not, if can list user: go to the list of users.
+        If not, go to the workboard of the group.
+        """
         try:
             if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
                 return reverse('url_user_retrieve',
@@ -207,7 +206,6 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
         except ObjectDoesNotExist:
             return reverse('url_workboard',
                            kwargs={'group_name': self.group.name})
-            raise PermissionDenied
 
 
 class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
@@ -499,7 +497,6 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         if form.cleaned_data['year']:
             self.year = form.cleaned_data['year']
 
-        context = self.get_context_data()
         return self.get(self.request, self.args, self.kwargs)
 
     def get_initial(self):
