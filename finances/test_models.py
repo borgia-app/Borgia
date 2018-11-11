@@ -1422,6 +1422,10 @@ class SharedEventTestCase(TestCase):
         event.change_weight(self.user2, 40, True)
         event.pay_by_total(self.manager, self.banker, decimal.Decimal(100.00))
 
+        # Get users with updated balance
+        self.user1 = User.objects.get(pk= self.user1.pk)
+        self.user2 = User.objects.get(pk= self.user2.pk)
+
         # TESTS
         self.assertEqual(event.done, True)
         self.assertEqual(event.payment_by_ponderation, False)
@@ -1438,16 +1442,20 @@ class SharedEventTestCase(TestCase):
             description='Test_payment',
             date=datetime.date(2053, 1, 1),
             manager=self.manager,
-            price=150
+            price=decimal.Decimal(150.0)
         )
         user1_initial_balance = self.user1.balance
         user2_initial_balance = self.user2.balance
         banker_initial_balance = self.banker.balance
 
-        se.change_weight(self.user1, 10, True)
-        se.change_weight(self.user2, 5, False)
-        se.change_weight(self.user2, 40, True)
+        se.change_weight(self.user1, 10, isParticipant=True)
+        se.change_weight(self.user2, 5, isParticipant=False)
+        se.change_weight(self.user2, 40, isParticipant=True)
         se.pay_by_ponderation(self.manager, self.banker, 3)
+
+        # Get users with updated balance
+        self.user1 = User.objects.get(pk= self.user1.pk)
+        self.user2 = User.objects.get(pk= self.user2.pk)
 
         # TESTS
         self.assertEqual(se.done, True)
