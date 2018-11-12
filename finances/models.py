@@ -8,6 +8,7 @@ from django.db import models
 from django.utils.timezone import now
 
 from notifications.models import notify
+from users.models import User
 
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
@@ -50,11 +51,11 @@ class Sale(models.Model):
 
     """
     datetime = models.DateTimeField('Date', default=now)
-    sender = models.ForeignKey('users.User', related_name='sender_sale',
+    sender = models.ForeignKey(User, related_name='sender_sale',
                                on_delete=models.CASCADE)
-    recipient = models.ForeignKey('users.User', related_name='recipient_sale',
+    recipient = models.ForeignKey(User, related_name='recipient_sale',
                                   on_delete=models.CASCADE)
-    operator = models.ForeignKey('users.User', related_name='operator_sale',
+    operator = models.ForeignKey(User, related_name='operator_sale',
                                  on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     module_id = models.PositiveIntegerField()
@@ -146,9 +147,9 @@ class SaleProduct(models.Model):
 
 class Recharging(models.Model):
     datetime = models.DateTimeField('Date', default=now)
-    sender = models.ForeignKey('users.User', related_name='sender_recharging',
+    sender = models.ForeignKey(User, related_name='sender_recharging',
                                on_delete=models.CASCADE)
-    operator = models.ForeignKey('users.User', related_name='operator_recharging',
+    operator = models.ForeignKey(User, related_name='operator_recharging',
                                  on_delete=models.CASCADE)
     payment_solution = models.ForeignKey(
         'PaymentSolution', on_delete=models.CASCADE)
@@ -171,9 +172,9 @@ class Recharging(models.Model):
 
 
 class PaymentSolution(models.Model):
-    sender = models.ForeignKey('users.User', related_name='payment_sender',
+    sender = models.ForeignKey(User, related_name='payment_sender',
                                on_delete=models.CASCADE)
-    recipient = models.ForeignKey('users.User',
+    recipient = models.ForeignKey(User,
                                   related_name='payment_recipient',
                                   on_delete=models.CASCADE)
     amount = models.DecimalField('Montant', default=0, decimal_places=2,
@@ -330,9 +331,9 @@ class LydiaOnline(PaymentSolution):
 class Transfert(models.Model):
     datetime = models.DateTimeField('Date', default=now)
     justification = models.TextField('Justification', null=True, blank=True)
-    sender = models.ForeignKey('users.User', related_name='sender_transfert',
+    sender = models.ForeignKey(User, related_name='sender_transfert',
                                on_delete=models.CASCADE)
-    recipient = models.ForeignKey('users.User', related_name='recipient_transfert',
+    recipient = models.ForeignKey(User, related_name='recipient_transfert',
                                   on_delete=models.CASCADE)
     amount = models.DecimalField('Montant', default=0, decimal_places=2,
                                  max_digits=9,
@@ -350,9 +351,9 @@ class Transfert(models.Model):
 class ExceptionnalMovement(models.Model):
     datetime = models.DateTimeField('Date', default=now)
     justification = models.TextField('Justification', null=True, blank=True)
-    operator = models.ForeignKey('users.User', related_name='sender_exceptionnal_movement',
+    operator = models.ForeignKey(User, related_name='sender_exceptionnal_movement',
                                  on_delete=models.CASCADE)
-    recipient = models.ForeignKey('users.User', related_name='recipient_exceptionnal_movement',
+    recipient = models.ForeignKey(User, related_name='recipient_exceptionnal_movement',
                                   on_delete=models.CASCADE)
     amount = models.DecimalField('Montant', default=0, decimal_places=2,
                                  max_digits=9,
@@ -392,12 +393,10 @@ class SharedEvent(models.Model):
         'Paiement par pondération', default=False)
     remark = models.CharField(
         'Remarque', max_length=254, null=True, blank=True)
-    manager = models.ForeignKey('users.User', related_name='manager',
+    manager = models.ForeignKey(User, related_name='manager',
                                 on_delete=models.CASCADE)
-    users = models.ManyToManyField('users.User',
-                                   through='WeightsUser',
-                                   # related_name='people'
-                                   )
+    users = models.ManyToManyField(User,
+                                   through='WeightsUser')
     allow_self_registeration = models.BooleanField(
         'Autoriser la self-préinscription', default=True)
     date_end_registration = models.DateField(
@@ -692,7 +691,7 @@ class SharedEvent(models.Model):
 
 
 class WeightsUser(models.Model):
-    user = models.ForeignKey('users.User', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     shared_event = models.ForeignKey(SharedEvent, on_delete=models.CASCADE)
     weights_registeration = models.IntegerField(default=0)
     weights_participation = models.IntegerField(default=0)

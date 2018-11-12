@@ -67,34 +67,81 @@ class Shop(models.Model):
 
 
 class Product(models.Model):
+    """
+    Define a Product object.
+
+    :param name: Display name, mandatory.
+    :param is_manual: is the price set manually.
+    :param manual_price: price if set manually.
+    :param shop: Related shop.
+    :param is_active: is the product used.
+    :param is_removed: is the product removed.
+    :param unit: unit of the product.
+    :param correcting_factor: for automatic price.
+    :type name: string
+    :type is_manual: bool
+    :type manual_price: decimal
+    :type shop:
+    :type is_active: bool
+    :type is_removed: bool
+    :type unit: string
+    :type correcting_factor: decimal
+    """
     UNIT_CHOICES = (('CL', 'cl'), ('G', 'g'))
+
     name = models.CharField('Nom', max_length=255)
+    unit = models.CharField('Unité', max_length=255,
+                            choices=UNIT_CHOICES, blank=True, null=True)
+    shop = models.ForeignKey(
+        'Shop',
+        related_name='%(app_label)s_%(class)s_shop',
+        on_delete=models.CASCADE)
     is_manual = models.BooleanField('Gestion manuelle du prix', default=False)
     manual_price = models.DecimalField('Prix manuel', default=0,
                                        decimal_places=2, max_digits=9,
                                        validators=[
                                            MinValueValidator(decimal.Decimal(0))])
-    shop = models.ForeignKey(
-        'Shop',
-        related_name='%(app_label)s_%(class)s_shop',
-        on_delete=models.CASCADE)
-    is_active = models.BooleanField('Actif', default=True)
-    is_removed = models.BooleanField('Retiré', default=False)
-    unit = models.CharField('Unité', max_length=255,
-                            choices=UNIT_CHOICES, blank=True, null=True)
     correcting_factor = models.DecimalField('Facteur correcteur de ventes', default=1,
                                             decimal_places=4, max_digits=9,
                                             validators=[
                                                 MinValueValidator(decimal.Decimal(0))])
+    is_active = models.BooleanField('Actif', default=True)
+    is_removed = models.BooleanField('Retiré', default=False)
 
     def __str__(self):
         return self.name
 
-    def get_display_type(self):
+    def get_unit_display(self):
         if self.unit is not None:
-            return 'Vente au ' + self.get_unit_display()
+            return self.unit.lower()
         else:
-            return 'Vente à l\'unité'
+            return 'unit'
+
+    def get_upper_unit_display(self):
+        if self.unit is None:
+            return 'Unit'
+        elif self.unit == 'G':
+            return 'Kg'
+        elif self.unit == 'CL':
+            return 'L'
+
+    def get_quantity_display(self, value):
+        if self.unit:
+            if self.unit == 'CL':
+                if value >= 100:
+                    return str(round(value / 100, 2)) + 'L'
+                else:
+                    return str(round(value, 0)) + 'cl'
+            if self.unit == 'G':
+                if value >= 1000:
+                    return str(round(value / 1000, 2)) + 'kg'
+                else:
+                    return str(round(value, 0)) + 'g'
+        else:
+            if value > 1:
+                return str(round(value, 0)) + ' produits'
+            else:
+                return str(round(value, 0)) + ' produit'
 
     def get_automatic_price(self):
         """
@@ -122,23 +169,11 @@ class Product(models.Model):
         else:
             return self.get_automatic_price()
 
-    def get_display_price(self):
-        if self.unit:
-            return str(self.get_price()) + '€ / ' + self.upper_quantity()
-        else:
-            return str(self.get_price()) + '€ / produit'
-
-    def get_display_price_with_strategy(self):
+    def get_strategy_display(self):
         if self.is_manual:
-            return self.get_display_price() + ' (manuel)'
+            return 'manuel'
         else:
-            return self.get_display_price() + ' (automatique)'
-
-    def upper_quantity(self):
-        if self.unit == 'G':
-            return 'kg'
-        elif self.unit == 'CL':
-            return 'L'
+            return 'automatique'
 
     def last_inventoryproduct(self, offset=0):
         """
@@ -221,24 +256,6 @@ class Product(models.Model):
             return self.get_quantity_display(0)
 
         return self.get_quantity_display(current_stock_estimated)
-
-    def get_quantity_display(self, value):
-        if self.unit:
-            if self.unit == 'CL':
-                if value >= 100:
-                    return str(round(value / 100, 2)) + 'L'
-                else:
-                    return str(round(value, 0)) + 'cl'
-            if self.unit == 'G':
-                if value >= 1000:
-                    return str(round(value / 1000, 2)) + 'kg'
-                else:
-                    return str(round(value, 0)) + 'g'
-        else:
-            if value > 1:
-                return str(round(value, 0)) + ' produits'
-            else:
-                return str(round(value, 0)) + ' produit'
 
     def update_correcting_factor(self, next_stock):
         """

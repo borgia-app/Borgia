@@ -40,10 +40,10 @@
           {% for product in product_list %}
           <tr>
               <td>{{ product }}</td>
-              <td>{{ product.get_display_type }}</td>
+              <td>Vendu a(u) {{ product.get_unit_display }}</td>
               <td>{{ product.get_current_stock_estimated_display }}</td>
               <td>{{ product.correcting_factor }}</td>
-              <td>{{ product.get_display_price_with_strategy }}</td>
+              <td>{{ product.get_price }} € / {{ product.get_upper_unit_display }} ({{ product.get_strategy_display }})</td>
               <td>{% if product.is_active %}Activé{% else %}Désactivé{% endif %}</td>
               {% if group|has_group_perm:"retrieve_product" %}<td>
                 <a href="{% url 'url_product_retrieve' group_name=group_name pk=product.pk %}">Détail</a>

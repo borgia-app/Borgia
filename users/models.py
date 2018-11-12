@@ -1,4 +1,3 @@
-import re
 import datetime
 import decimal
 import itertools
@@ -8,9 +7,6 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.db.models import Q
 from django.utils import timezone
-
-from finances.models import (ExceptionnalMovement, Recharging,
-                             Sale, SharedEvent, Transfert)
 
 
 class ExtendedPermission(Permission):
@@ -169,8 +165,7 @@ class User(AbstractUser):
         TODO : Strongly dependent of Sharedevents, should be moved there.
         TODO : notify if forecast balance is negative
         """
-        shared_events = SharedEvent.objects.filter(
-            users__username__contains=self.username, done=False)
+        shared_events = self.sharedevent_set.filter(done = False)
         solde_prev = 0
         for se in shared_events:
             solde_prev += se.get_price_of_user(self)
@@ -226,15 +221,13 @@ class User(AbstractUser):
         :returns: list of objects
         """
 
-        sales = Sale.objects.filter(sender=self)
-        transferts = Transfert.objects.filter(
-            Q(sender=self) | Q(recipient=self))
-        rechargings = Recharging.objects.filter(sender=self)
-        exceptionnal_movements = ExceptionnalMovement.objects.filter(
-            recipient=self)
-        shared_events = SharedEvent.objects.filter(done=True, users=self)
-        for e in shared_events:
-            e.amount = e.get_price_of_user(self)
+        sales = self.sender_sale.all()
+        transferts = self.recipient_transfert.union(self.sender_transfert.all())
+        rechargings = self.sender_recharging.all()
+        exceptionnal_movements = self.recipient_exceptionnal_movement.all()
+        shared_events = self.sharedevent_set.filter(done=True)
+        for event in shared_events:
+            event.amount = event.get_price_of_user(self)
 
         list_transaction = sorted(
             list(itertools.chain(sales, transferts, rechargings,
