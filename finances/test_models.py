@@ -1276,7 +1276,7 @@ class SharedEventTestCase(TestCase):
             first_name='First name manager'
         )
 
-        self.se = SharedEvent.objects.create(
+        self.event1 = SharedEvent.objects.create(
             description='Test53',
             date=datetime.date(2053, 1, 1),
             manager=self.manager,
@@ -1314,31 +1314,39 @@ class SharedEventTestCase(TestCase):
         )
 
     def test_wording(self):
-        self.assertEqual(self.se.wording(), "Événement : Test53, le 01/01")
+        self.assertEqual(self.event1.wording(), "Événement : Test53, le 01/01")
 
     def test_add_and_remove_user(self):
         # INIT
-        self.se.change_weight(self.user1, 100, True)
-        self.se.change_weight(self.user1, 30, True)
-        self.se.add_weight(self.user1, 23, True)
-        self.se.change_weight(self.user1, 10, False)
-        self.se.change_weight(self.user1, 1, False)
-        self.se.add_weight(self.user1, 2, False)
+        self.event1.change_weight(self.user1, 100, isParticipant=True)
+        self.event1.change_weight(self.user1, 30, isParticipant=True)
+        self.event1.add_weight(self.user1, 23, isParticipant=True)
+        self.event1.change_weight(self.user1, 10, isParticipant=False)
+        self.event1.change_weight(self.user1, 1, isParticipant=False)
+        self.event1.add_weight(self.user1, 2, isParticipant=False)
         # User 1 now should have 3 in registration, and 53 in participation
-        self.se.add_weight(self.user2, 200, False)
-        self.se.add_weight(self.user2, 2, False)
+        self.event1.add_weight(self.user2, 200, isParticipant=False)
+        self.event1.add_weight(self.user2, 2, isParticipant=False)
         # User 2 now should have 202 in registration
-        self.se.add_weight(self.user3, 400, True)
-        self.se.change_weight(self.user3, 47, True)
+        self.event1.add_weight(self.user3, 400, isParticipant=True)
+        self.event1.change_weight(self.user3, 47, isParticipant=True)
         # User 3 now should have 303 in participation
-        registration_u1 = self.se.get_weight_of_user(self.user1, False)
-        participation_u1 = self.se.get_weight_of_user(self.user1, True)
-        registration_u2 = self.se.get_weight_of_user(self.user2, False)
-        participation_u2 = self.se.get_weight_of_user(self.user2, True)
-        registration_u3 = self.se.get_weight_of_user(self.user3, False)
-        participation_u3 = self.se.get_weight_of_user(self.user3, True)
-        registration_u4 = self.se.get_weight_of_user(self.user4, False)
-        participation_u4 = self.se.get_weight_of_user(self.user4, True)
+        registration_u1 = self.event1.get_weight_of_user(
+            self.user1, isParticipant=False)
+        participation_u1 = self.event1.get_weight_of_user(
+            self.user1, isParticipant=True)
+        registration_u2 = self.event1.get_weight_of_user(
+            self.user2, isParticipant=False)
+        participation_u2 = self.event1.get_weight_of_user(
+            self.user2, isParticipant=True)
+        registration_u3 = self.event1.get_weight_of_user(
+            self.user3, isParticipant=False)
+        participation_u3 = self.event1.get_weight_of_user(
+            self.user3, isParticipant=True)
+        registration_u4 = self.event1.get_weight_of_user(
+            self.user4, isParticipant=False)
+        participation_u4 = self.event1.get_weight_of_user(
+            self.user4, isParticipant=True)
 
         # TESTS
         self.assertEqual(registration_u1, 3)
@@ -1354,60 +1362,68 @@ class SharedEventTestCase(TestCase):
         self.assertEqual(participation_u4, 0)
 
         # END
-        self.se.remove_user(self.user1)
-        self.se.remove_user(self.user2)
-        self.se.remove_user(self.user3)
-        self.se.remove_user(self.user4)
+        self.event1.remove_user(self.user1)
+        self.event1.remove_user(self.user2)
+        self.event1.remove_user(self.user3)
+        self.event1.remove_user(self.user4)
 
-        self.assertEqual(self.se.get_weight_of_user(self.user1, False), 0)
-        self.assertEqual(self.se.get_weight_of_user(self.user1, True), 0)
-        self.assertEqual(self.se.get_weight_of_user(self.user2, False), 0)
-        self.assertEqual(self.se.get_weight_of_user(self.user2, True), 0)
-        self.assertEqual(self.se.get_weight_of_user(self.user3, False), 0)
-        self.assertEqual(self.se.get_weight_of_user(self.user3, True), 0)
-        self.assertEqual(self.se.get_weight_of_user(self.user4, False), 0)
-        self.assertEqual(self.se.get_weight_of_user(self.user4, True), 0)
+        self.assertEqual(self.event1.get_weight_of_user(
+            self.user1, isParticipant=False), 0)
+        self.assertEqual(self.event1.get_weight_of_user(
+            self.user1, isParticipant=True), 0)
+        self.assertEqual(self.event1.get_weight_of_user(
+            self.user2, isParticipant=False), 0)
+        self.assertEqual(self.event1.get_weight_of_user(
+            self.user2, isParticipant=True), 0)
+        self.assertEqual(self.event1.get_weight_of_user(
+            self.user3, isParticipant=False), 0)
+        self.assertEqual(self.event1.get_weight_of_user(
+            self.user3, isParticipant=True), 0)
+        self.assertEqual(self.event1.get_weight_of_user(
+            self.user4, isParticipant=False), 0)
+        self.assertEqual(self.event1.get_weight_of_user(
+            self.user4, isParticipant=True), 0)
 
     def test_get_price_of_user(self):
         # INIT
-        self.se.change_weight(self.user1, 9, True)
-        self.se.change_weight(self.user2, 1, True)
+        self.event1.change_weight(self.user1, 9, True)
+        self.event1.change_weight(self.user2, 1, True)
         # TESTS
         # Reminder: price = 1000
-        self.assertEqual(self.se.get_price_of_user(self.user1), 900)
-        self.assertEqual(self.se.get_price_of_user(self.user2), 100)
+        self.assertEqual(self.event1.get_price_of_user(self.user1), 900)
+        self.assertEqual(self.event1.get_price_of_user(self.user2), 100)
         # END
-        self.se.remove_user(self.user1)
-        self.se.remove_user(self.user2)
+        self.event1.remove_user(self.user1)
+        self.event1.remove_user(self.user2)
 
     def test_get_total_weights(self):
         # INIT
-        self.se.change_weight(self.user1, 10, True)
-        self.se.change_weight(self.user1, 5, False)
-        self.se.change_weight(self.user2, 40, True)
-        self.se.change_weight(self.user2, 25, False)
+        self.event1.change_weight(self.user1, 10, isParticipant=True)
+        self.event1.change_weight(self.user1, 5, isParticipant=False)
+        self.event1.change_weight(self.user2, 40, isParticipant=True)
+        self.event1.change_weight(self.user2, 25, isParticipant=False)
         # TESTS
-        self.assertEqual(self.se.get_total_weights_registrants(), 30)
-        self.assertEqual(self.se.get_total_weights_participants(), 50)
+        self.assertEqual(self.event1.get_total_weights_registrants(), 30)
+        self.assertEqual(self.event1.get_total_weights_participants(), 50)
         # END
-        self.se.remove_user(self.user1)
-        self.se.remove_user(self.user2)
+        self.event1.remove_user(self.user1)
+        self.event1.remove_user(self.user2)
 
     def test_get_total_users(self):
         # INIT
-        self.se.change_weight(self.user1, 10, True)
-        self.se.change_weight(self.user1, 5, False)
-        self.se.change_weight(self.user2, 40, True)
+        self.event1.change_weight(self.user1, 10, isParticipant=True)
+        self.event1.change_weight(self.user1, 5, isParticipant=False)
+        self.event1.change_weight(self.user2, 40, isParticipant=True)
         # TESTS
-        self.assertEqual(self.se.get_number_registrants(), 1)
-        self.assertEqual(self.se.get_number_participants(), 2)
+        self.assertEqual(self.event1.get_number_registrants(), 1)
+        self.assertEqual(self.event1.get_number_participants(), 2)
         # END
-        self.se.remove_user(self.user1)
-        self.se.remove_user(self.user2)
+        self.event1.remove_user(self.user1)
+        self.event1.remove_user(self.user2)
 
     def test_pay_by_total(self):
         # INIT
-        event = SharedEvent.objects.create(
+        event_total_price = SharedEvent.objects.create(
             description='Test_payment',
             date=datetime.date(2053, 1, 1),
             manager=self.manager,
@@ -1417,28 +1433,28 @@ class SharedEventTestCase(TestCase):
         user2_initial_balance = self.user2.balance
         banker_initial_balance = self.banker.balance
 
-        event.change_weight(self.user1, 10, True)
-        event.change_weight(self.user2, 5, False)
-        event.change_weight(self.user2, 40, True)
-        event.pay_by_total(self.manager, self.banker, decimal.Decimal(100.00))
+        event_total_price.change_weight(self.user1, 10, isParticipant=True)
+        event_total_price.change_weight(self.user2, 5, isParticipant=False)
+        event_total_price.change_weight(self.user2, 40, isParticipant=True)
+        event_total_price.pay_by_total(self.manager, self.banker, decimal.Decimal(100.00))
 
         # Get users with updated balance
-        self.user1 = User.objects.get(pk= self.user1.pk)
-        self.user2 = User.objects.get(pk= self.user2.pk)
+        self.user1 = User.objects.get(pk=self.user1.pk)
+        self.user2 = User.objects.get(pk=self.user2.pk)
 
         # TESTS
-        self.assertEqual(event.done, True)
-        self.assertEqual(event.payment_by_ponderation, False)
+        self.assertEqual(event_total_price.done, True)
+        self.assertEqual(event_total_price.payment_by_ponderation, False)
         self.assertEqual(self.banker.balance, banker_initial_balance + 100)
-        self.assertEqual(event.price, 100)
+        self.assertEqual(event_total_price.price, 100)
         self.assertEqual(
-            event.remark, 'Paiement par Borgia (Prix total : 100)')
+            event_total_price.remark, 'Paiement par Borgia (Prix total : 100)')
         self.assertEqual(self.user1.balance, user1_initial_balance - 20)
         self.assertEqual(self.user2.balance, user2_initial_balance - 80)
 
     def test_pay_by_ponderation(self):
         # INIT
-        se = SharedEvent.objects.create(
+        event_pond_price = SharedEvent.objects.create(
             description='Test_payment',
             date=datetime.date(2053, 1, 1),
             manager=self.manager,
@@ -1448,21 +1464,21 @@ class SharedEventTestCase(TestCase):
         user2_initial_balance = self.user2.balance
         banker_initial_balance = self.banker.balance
 
-        se.change_weight(self.user1, 10, isParticipant=True)
-        se.change_weight(self.user2, 5, isParticipant=False)
-        se.change_weight(self.user2, 40, isParticipant=True)
-        se.pay_by_ponderation(self.manager, self.banker, 3)
+        event_pond_price.change_weight(self.user1, 10, isParticipant=True)
+        event_pond_price.change_weight(self.user2, 5, isParticipant=False)
+        event_pond_price.change_weight(self.user2, 40, isParticipant=True)
+        event_pond_price.pay_by_ponderation(self.manager, self.banker, 3)
 
         # Get users with updated balance
-        self.user1 = User.objects.get(pk= self.user1.pk)
-        self.user2 = User.objects.get(pk= self.user2.pk)
+        self.user1 = User.objects.get(pk=self.user1.pk)
+        self.user2 = User.objects.get(pk=self.user2.pk)
 
         # TESTS
-        self.assertEqual(se.done, True)
-        self.assertEqual(se.payment_by_ponderation, True)
-        self.assertEqual(se.price, decimal.Decimal(3.00))
+        self.assertEqual(event_pond_price.done, True)
+        self.assertEqual(event_pond_price.payment_by_ponderation, True)
+        self.assertEqual(event_pond_price.price, decimal.Decimal(3.00))
         self.assertEqual(self.banker.balance, banker_initial_balance + 150)
         self.assertEqual(
-            se.remark, 'Paiement par Borgia (Prix par pondération: 3)')
+            event_pond_price.remark, 'Paiement par Borgia (Prix par pondération: 3)')
         self.assertEqual(self.user1.balance, user1_initial_balance - 30)
         self.assertEqual(self.user2.balance, user2_initial_balance - 120)
