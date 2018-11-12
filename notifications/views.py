@@ -211,7 +211,7 @@ class NotificationTemplateDeactivateView(GroupPermissionMixin, View, GroupLatera
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = NotificationTemplate.objects.get(pk=kwargs['pk'])
+        context['notification_template'] = NotificationTemplate.objects.get(pk=kwargs['pk'])
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):

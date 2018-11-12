@@ -192,7 +192,7 @@ class StockEntryRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['stockentry'] = self.object
         return render(request, self.template_name, context=context)
 
 
@@ -380,5 +380,5 @@ class InventoryRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['inventory'] = self.object
         return render(request, self.template_name, context=context)

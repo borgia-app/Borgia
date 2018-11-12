@@ -8,12 +8,12 @@
   </div>
   <div class="panel-body">
     <ul>
-      <li>Nom : {{ object.name }}</li>
-      <li>Prix de vente actuel : {{ object.get_price }} € / {{ object.get_upper_unit_display }} ({{ object.get_strategy_display }})</li>
-      <li>Type : Vendu a(u)  {{ object.get_unit_display }}</li>
-      <li>Magasin : {{ object.shop }}</li>
-      <li>En stock : {{ object.get_current_stock_estimated_display }} </li>
-      <li>Facteur de correction des ventes : {{ object.correcting_factor }} <i class="fa fa-question-circle" aria-hidden="true" data-toggle="modal" data-target="#myModal"></i>
+      <li>Nom : {{ product.name }}</li>
+      <li>Prix de vente actuel : {{ product.get_price }} € / {{ product.get_upper_unit_display }} ({{ product.get_strategy_display }})</li>
+      <li>Type : Vendu a(u)  {{ product.get_unit_display }}</li>
+      <li>Magasin : {{ product.shop }}</li>
+      <li>En stock : {{ product.get_current_stock_estimated_display }} </li>
+      <li>Facteur de correction des ventes : {{ product.correcting_factor }} <i class="fa fa-question-circle" aria-hidden="true" data-toggle="modal" data-target="#myModal"></i>
 </li>
     </ul>
   </div>
@@ -23,15 +23,15 @@
     Administration
   </div>
   <div class="panel-body">
-    {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update' group_name=group_name pk=object.pk %}">Modifier les informations</a></p>{% endif %}
-    {% if group|has_group_perm:"change_price_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update_price' group_name=group_name pk=object.pk %}">Modifier le prix de vente</a></p> {% endif %}
-    {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-default" href="{% url 'url_product_deactivate' group_name=group_name pk=object.pk %}">
-        {% if object.is_active == True %}
+    {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update' group_name=group_name pk=product.pk %}">Modifier les informations</a></p>{% endif %}
+    {% if group|has_group_perm:"change_price_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update_price' group_name=group_name pk=product.pk %}">Modifier le prix de vente</a></p> {% endif %}
+    {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-default" href="{% url 'url_product_deactivate' group_name=group_name pk=product.pk %}">
+        {% if product.is_active == True %}
             Désactiver le produit
         {% else %}
             Activer le produit
         {% endif %}</a></p>{% endif %}
-    {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-danger" href="{% url 'url_product_remove' group_name=group_name pk=object.pk %}">Supprimer le produit</a></p> {% endif %}
+    {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-danger" href="{% url 'url_product_remove' group_name=group_name pk=product.pk %}">Supprimer le produit</a></p> {% endif %}
   </div>
 </div>
 

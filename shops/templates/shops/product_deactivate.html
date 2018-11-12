@@ -8,12 +8,12 @@
   <div class="panel-body">
     <form action="" method="post">
       {% csrf_token %}
-      <label>{% if object.is_active == True %}
+      <label>{% if product.is_active == True %}
             Désactiver
         {% else %}
             Activer
         {% endif %}
-            le produit {{ object }} ?</label>
+            le produit {{ product }} ?</label>
         <button class="btn btn-danger" type="submit">Valider</button>
     </form>
   </div>

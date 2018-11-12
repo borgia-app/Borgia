@@ -212,7 +212,7 @@ class SaleRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['sale'] = self.object
         return render(request, self.template_name, context=context)
 
 
@@ -385,7 +385,7 @@ class RechargingRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['recharging'] = self.object
         return render(request, self.template_name, context=context)
 
 
@@ -489,7 +489,7 @@ class TransfertRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['transfert'] = self.object
         return render(request, self.template_name, context=context)
 
 
@@ -636,7 +636,7 @@ class ExceptionnalMovementRetrieve(GroupPermissionMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['exceptionnalmovement'] = self.object
         return render(request, self.template_name, context=context)
 
 

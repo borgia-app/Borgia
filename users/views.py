@@ -224,7 +224,7 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         user.forecast_balance()
 
         context = self.get_context_data(**kwargs)
-        context['object'] = user
+        context['user'] = user
         return render(request, self.template_name, context=context)
 
 
@@ -326,7 +326,7 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
         context = self.get_context_data(**kwargs)
-        context['object'] = user
+        context['user'] = user
         return render(request, 'users/deactivate.html', context=context)
 
     def post(self, request, *args, **kwargs):
@@ -372,7 +372,7 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     def get(self, request, *args, **kwargs):
         user = User.objects.get(pk=kwargs['pk'])
         context = self.get_context_data(**kwargs)
-        context['object'] = user
+        context['user'] = user
         return render(request, 'users/deactivate.html', context=context)
 
     def post(self, request, *args, **kwargs):

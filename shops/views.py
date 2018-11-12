@@ -131,7 +131,7 @@ class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['product'] = self.object
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
@@ -162,7 +162,7 @@ class ProductRemove(GroupPermissionMixin, ProductShopFromGroupMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['product'] = self.object
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
@@ -191,7 +191,7 @@ class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['product'] = self.object
         return render(request, self.template_name, context=context)
 
 
@@ -211,7 +211,7 @@ class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin, FormView,
 
     def get_context_data(self, **kwargs):
         context = super(ProductUpdate, self).get_context_data(**kwargs)
-        context['object'] = self.object
+        context['product'] = self.object
         return context
 
     def get_initial(self):
@@ -244,7 +244,7 @@ class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
 
     def get_context_data(self, **kwargs):
         context = super(ProductUpdatePrice, self).get_context_data(**kwargs)
-        context['object'] = self.object
+        context['product'] = self.object
         context['margin_profit'] = settings_safe_get(
             'MARGIN_PROFIT').get_value()
         return context
