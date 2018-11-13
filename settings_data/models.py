@@ -77,17 +77,23 @@ class Setting(models.Model):
             's': str,
             'i': int,
             'f': float,
-            'b': (lambda v: v.lower().startswith('t') or v.startswith('1'))
+            'b': bool
         }
-        if type(self.value) is float and self.value_type == 'i':
-            raise ValueError
-        if type(self.value) is bool:
-            return self.value
-        else:
-            try:
-                return types[self.value_type](self.value)
-            except ValueError:
-                return None
+        try:
+            rtype = types[self.value_type]
+            if rtype == bool:
+                return self.value in ["True", "true", True, 1]
+            else:
+                return rtype(self.value)
+        except ValueError:
+            if rtype == int:
+                return 0
+            elif rtype == float:
+                return 0.0
+            elif rtype == bool:
+                return False
+            else:
+                return ""
 
     class Meta:
         permissions = (
