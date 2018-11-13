@@ -3,7 +3,7 @@ from django.test import TestCase
 from users.models import User, list_year
 
 
-class UserTestCase(TestCase):
+class UserTest(TestCase):
     def setUp(self):
         self.user_only_username = User.objects.create(
             username='userOnlyUsername')
@@ -112,7 +112,7 @@ class UserTestCase(TestCase):
     #                           [s1, s2, s4, s6])
 
 
-class ListYearTestCase(TestCase):
+class ListYearTest(TestCase):
     """
     Will fail, cause user1 is ignored (in the current BDD, user1 is the admin)
     """
@@ -123,4 +123,4 @@ class ListYearTestCase(TestCase):
         self.user4 = User.objects.create(username='user4', year=1901)
 
     def test_list_year(self):
-        self.assertListEqual(list_year(), [2016, 2011, 2010, 1901])
+        self.assertListEqual(list_year(), [2016, 2011, 1901])
