@@ -65,7 +65,7 @@ class SelfUserUpdateForm(forms.ModelForm):
         return data
 
 
-class UserUpdateAdminForm(forms.Form):
+class UserUpdateForm(forms.Form):
     first_name = forms.CharField(label='Prenom', max_length=255)
     last_name = forms.CharField(label='Nom', max_length=255)
     email = forms.EmailField(label='Email')
@@ -78,7 +78,7 @@ class UserUpdateAdminForm(forms.Form):
 
     def __init__(self, **kwargs):
         self.user_modified = kwargs.pop('user_modified')
-        super(UserUpdateAdminForm, self).__init__(**kwargs)
+        super(UserUpdateForm, self).__init__(**kwargs)
 
     def clean_first_name(self):
         data = self.cleaned_data['first_name']

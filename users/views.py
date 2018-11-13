@@ -21,7 +21,7 @@ from finances.models import SharedEvent
 from settings_data.utils import settings_safe_get
 from users.forms import (ManageGroupForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserSearchForm,
-                         UserUpdateAdminForm)
+                         UserUpdateForm)
 from users.models import ExtendedPermission, User
 
 
@@ -263,7 +263,7 @@ class SelfUserUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView,
         return "Vos infos ont bien été mises à jour"
 
 
-class UserUpdateAdminView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
+class UserUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
     """
     Update an user and redirect to the workboard of the group.
 
@@ -271,25 +271,25 @@ class UserUpdateAdminView(GroupPermissionMixin, SuccessMessageMixin, FormView, G
     :param self.perm_codename: codename of the permission checked.
     """
     model = User
-    form_class = UserUpdateAdminForm
+    form_class = UserUpdateForm
     template_name = 'users/update_admin.html'
     perm_codename = 'change_user'
     modified = False
 
     def get_form_kwargs(self):
-        kwargs = super(UserUpdateAdminView, self).get_form_kwargs()
+        kwargs = super(UserUpdateView, self).get_form_kwargs()
         kwargs['user_modified'] = User.objects.get(pk=self.kwargs['pk'])
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(UserUpdateAdminView, self).get_context_data(**kwargs)
+        context = super(UserUpdateView, self).get_context_data(**kwargs)
         context['user_modified'] = User.objects.get(pk=self.kwargs['pk'])
         return context
 
     def get_initial(self):
-        initial = super(UserUpdateAdminView, self).get_initial()
+        initial = super(UserUpdateView, self).get_initial()
         user_modified = User.objects.get(pk=self.kwargs['pk'])
-        for k in UserUpdateAdminForm(user_modified=user_modified).fields.keys():
+        for k in UserUpdateForm(user_modified=user_modified).fields.keys():
             initial[k] = getattr(user_modified, k)
         return initial
 
@@ -301,7 +301,7 @@ class UserUpdateAdminView(GroupPermissionMixin, SuccessMessageMixin, FormView, G
                 setattr(user_modified, k, form.cleaned_data[k])
         user_modified.save()
 
-        return super(UserUpdateAdminView, self).form_valid(form)
+        return super(UserUpdateView, self).form_valid(form)
 
     def get_success_message(self, cleaned_data):
         return "Les informations ont bien été mises à jour"
