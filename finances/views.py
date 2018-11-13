@@ -1392,7 +1392,7 @@ class SharedEventChangeWeight(GroupPermissionMixin, View):
         try:
             # Variables d'entrées
             se = SharedEvent.objects.get(pk=kwargs['pk'])
-            user = User.objects.get(pk=kwargs['participant_pk'])
+            user = User.objects.get(pk=kwargs['user_pk'])
             pond = int(request.GET['pond'])
             isParticipant = int(request.GET['isParticipant'])  # Boolean
 
