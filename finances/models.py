@@ -171,7 +171,7 @@ class Recharging(models.Model):
         self.sender.credit(self.payment_solution.amount)
 
 
-class PaymentSolution(models.Model):
+class PaymentSolution(models.Model
     sender = models.ForeignKey(User, related_name='payment_sender',
                                on_delete=models.CASCADE)
     recipient = models.ForeignKey(User,
