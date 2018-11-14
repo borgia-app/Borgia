@@ -6,6 +6,7 @@ from notifications.views import (NotificationGroupCreateView,
                                  NotificationListCompleteView,
                                  NotificationTemplateCreateView,
                                  NotificationTemplateDeactivateView,
+                                 NotificationTemplateListCompleteView,
                                  NotificationTemplateUpdateView,
                                  read_notification)
 
@@ -13,6 +14,7 @@ notifications_patterns = [
     path('<str:group_name>/notifications/', include([
         path('', NotificationListCompleteView.as_view(), name='url_notification_list'),
         path('templates/', include([
+            path('', NotificationTemplateListCompleteView.as_view(), name='url_notificationtemplate_list'),
             path('create/<str:notification_class>/', NotificationTemplateCreateView.as_view(), name='url_notificationtemplate_create'),
             path('<int:pk>/update/', NotificationTemplateUpdateView.as_view(), name='url_notificationtemplate_change'),
             path('<int:pk>/deactivate/', NotificationTemplateDeactivateView.as_view(), name='url_notificationtemplate_deactivate')
