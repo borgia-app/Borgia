@@ -36,7 +36,7 @@ class UserUrlsTest(TestCase):
                          '/group_name/users/53/self_deactivate/')
 
     def test_url_self_user_update(self):
-        self.assertEqual(reverse('url_self_user_update',
+        self.assertEqual(reverse('url_user_self_update',
                                  kwargs={'group_name': 'group_name'}),
                          '/group_name/users/self/')
 

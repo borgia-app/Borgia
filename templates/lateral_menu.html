@@ -73,7 +73,7 @@ context['nav_tree'] = nav_tree = [
 						<i class="fa fa-cog" aria-hidden="true"></i> <span class="caret"></span>
 					</a>
 					<ul class="list-unstyled col-xs-12 collapse" id="sidebarSettings" aria-expanded="false">
-						<li><a href="{% url 'url_self_user_update' group_name=group.name %}">
+						<li><a href="{% url 'url_user_self_update' group_name=group.name %}">
 							<i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>Modifier mes informations
 						</a></li>
 						<li><a href="{% url 'url_self_lydia_create' group_name=group.name %}">

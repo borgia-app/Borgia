@@ -25,119 +25,107 @@ from users.forms import (ManageGroupForm, SelfUserUpdateForm,
 from users.models import ExtendedPermission, User
 
 
-class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
-                      GroupLateralMenuFormMixin):
-    template_name = 'users/group_manage.html'
-    success_url = None
-    form_class = ManageGroupForm
-    perm_codename = None
-    group_updated = None
-    lm_active = None
+class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+    """
+    List User instances.
 
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Check permission.
+    :param kwargs['group_name']: name of the group used.
+    :param self.perm_codename: codename of the permission checked.
+    """
+    perm_codename = 'list_user'
+    template_name = 'users/user_list.html'
+    lm_active = 'lm_user_list'
+    form_class = UserSearchForm
 
-        This function is at some parts redundant with the mixin GroupPermission
-        however you cannot set a perm_codename directly, because it depends
-        on the group_name directly.
-
-        :raises: Http404 if the group doesn't exist
-        :raises: Http404 if the group updated doesn't exist
-        :raises: PermissionDenied if the group doesn't have perm
-
-        Save the group_updated in self.
-        """
-        try:
-            self.group = Group.objects.get(name=kwargs['group_name'])
-            self.group_updated = Group.objects.get(pk=kwargs['pk'])
-            self.lm_active = 'lm_group_manage_' + self.group_updated.name
-        except ObjectDoesNotExist:
-            raise Http404
-
-        if (permission_to_manage_group(self.group_updated)[0]
-                not in self.group.permissions.all()):
-            raise PermissionDenied
-
-        return super(ManageGroupView, self).dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self):
-        """
-        Add possible members and permissions to kwargs of the form.
-
-        Possible members are all members, except specials members and unactive users.
-        Possible permissions are all permissions.
-        :note:: For the special case of a shop management, two groups exist:
-        group of chiefs and group of associates. If the group of associates is
-        managed, possible permissions are only permissions of the chiefs group.
-        """
-        kwargs = super(ManageGroupView, self).get_form_kwargs()
-
-        if self.group_updated.name.startswith('associates-') is True:
-            chiefs_group_name = self.group_updated.name.replace(
-                'associates', 'chiefs')
-            kwargs['possible_permissions'] = ExtendedPermission.objects.filter(
-                pk__in=[p.pk for p in Group.objects.get(
-                    name=chiefs_group_name).permissions.all().exclude(
-                    pk=permission_to_manage_group(self.group_updated)[0].pk).exclude(
-                    pk__in=human_unused_permissions())]
-            )
-
-        else:
-            kwargs['possible_permissions'] = ExtendedPermission.objects.all().exclude(
-                pk__in=human_unused_permissions()
-            )
-
-        kwargs['possible_members'] = User.objects.filter(is_active=True).exclude(
-            groups=Group.objects.get(name='specials'))
-        return kwargs
-
-    def get_initial(self):
-        initial = super(ManageGroupView, self).get_initial()
-        initial['members'] = User.objects.filter(groups=self.group_updated)
-        initial['permissions'] = [
-            ExtendedPermission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
-        ]
-        return initial
+    search = None
+    year = None
+    state = None
+    headers = {'username': 'asc',
+               'last_name': 'asc',
+               'surname': 'asc',
+               'family': 'asc',
+               'campus': 'asc',
+               'year': 'asc',
+               'balance': 'asc'}
+    sort = None
 
     def get_context_data(self, **kwargs):
-        context = super(ManageGroupView, self).get_context_data(**kwargs)
-        context['group_updated_name_display'] = group_name_display(
-            self.group_updated)
+        context = super(UserListView, self).get_context_data(**kwargs)
+
+        # Header List
+        context['list_header'] = [["username", "Username"], ["last_name", "Nom Prénom"], ["surname", "Bucque"], [
+            "family", "Fam's"], ["campus", "Tabagn's"], ["year", "Prom's"], ["balance", "Solde"]]
+
+        try:
+            self.sort = self.request.GET['sort']
+        except KeyError:
+            pass
+
+        context['group'] = self.group
+        if self.sort is not None:
+            context['sort'] = self.sort
+            if self.headers[self.sort] == "des":
+                context['reverse'] = True
+                context['user_list'] = self.form_query(
+                    User.objects.all().exclude(groups=1).order_by(self.sort).reverse())
+                self.headers[self.sort] = "asc"
+            else:
+                context['user_list'] = self.form_query(
+                    User.objects.all().exclude(groups=1).order_by(self.sort))
+                self.headers[self.sort] = "des"
+        else:
+            context['user_list'] = self.form_query(
+                User.objects.all().exclude(groups=1))
+
+        # Permission Retrieveuser
+        if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
+            context['has_perm_retrieve_user'] = True
+
         return context
 
+    def form_query(self, query):
+        if self.search:
+            query = query.filter(
+                Q(last_name__icontains=self.search)
+                | Q(first_name__icontains=self.search)
+                | Q(surname__icontains=self.search)
+                | Q(username__icontains=self.search)
+            )
+
+        if self.year and self.year != 'all':
+            query = query.filter(
+                year=self.year)
+
+        if self.state and self.state != 'all':
+            if self.state == 'negative_balance':
+                query = query.filter(balance__lt=0.0, is_active=True)
+            elif self.state == 'threshold':
+                threshold = settings_safe_get(
+                    'BALANCE_THRESHOLD_PURCHASE').get_value()
+                query = query.filter(balance__lt=threshold, is_active=True)
+            elif self.state == 'unactive':
+                query = query.filter(is_active=False)
+        else:
+            query = query.filter(is_active=True)
+
+        return query
+
     def form_valid(self, form):
-        """
-        Update permissions and members of the group updated.
-        """
-        old_members = User.objects.filter(groups=self.group_updated)
-        new_members = form.cleaned_data['members']
-        old_permissions = self.group_updated.permissions.all()
-        new_permissions = form.cleaned_data['permissions']
+        if form.cleaned_data['search']:
+            self.search = form.cleaned_data['search']
 
-        # Modification des membres
-        for m in old_members:
-            if m not in new_members:
-                m.groups.remove(self.group_updated)
-                m.save()
-        for m in new_members:
-            if m not in old_members:
-                m.groups.add(self.group_updated)
-                m.save()
+        if form.cleaned_data['state']:
+            self.state = form.cleaned_data['state']
 
-        # Modification des permissions
-        for p in old_permissions:
-            if p not in new_permissions:
-                self.group_updated.permissions.remove(p)
-        for p in new_permissions:
-            if p not in old_permissions:
-                self.group_updated.permissions.add(p)
-        self.group_updated.save()
+        if form.cleaned_data['year']:
+            self.year = form.cleaned_data['year']
 
-        return super(ManageGroupView, self).form_valid(form)
+        return self.get(self.request, self.args, self.kwargs)
 
-    def get_success_message(self, cleaned_data):
-        return "Le groupe a bien été mis à jour"
+    def get_initial(self):
+        initial = super(UserListView, self).get_initial()
+        initial['search'] = self.search
+        return initial
 
 
 class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
@@ -226,41 +214,6 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context = self.get_context_data(**kwargs)
         context['user'] = user
         return render(request, self.template_name, context=context)
-
-
-class SelfUserUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView,
-                     GroupLateralMenuFormMixin):
-    template_name = 'users/self_user_update.html'
-    form_class = SelfUserUpdateForm
-    perm_codename = None
-
-    def get_initial(self):
-        initial = super(SelfUserUpdate, self).get_initial()
-        initial['email'] = self.request.user.email
-        initial['phone'] = self.request.user.phone
-        initial['avatar'] = self.request.user.avatar
-        initial['theme'] = self.request.user.theme
-        return initial
-
-    def get_form_kwargs(self):
-        kwargs = super(SelfUserUpdate, self).get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
-
-    def form_valid(self, form):
-        self.request.user.email = form.cleaned_data['email']
-        self.request.user.phone = form.cleaned_data['phone']
-        self.request.user.theme = form.cleaned_data['theme']
-        if form.cleaned_data['avatar'] is not False:
-            setattr(self.request.user, 'avatar', form.cleaned_data['avatar'])
-        else:
-            if self.request.user.avatar:
-                self.request.user.avatar.delete(True)
-        self.request.user.save()
-        return super(SelfUserUpdate, self).form_valid(form)
-
-    def get_success_message(self, cleaned_data):
-        return "Vos infos ont bien été mises à jour"
 
 
 class UserUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
@@ -402,107 +355,154 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return redirect(force_text(self.success_url))
 
 
-class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
-    """
-    List User instances.
-
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
-    """
-    perm_codename = 'list_user'
-    template_name = 'users/user_list.html'
-    lm_active = 'lm_user_list'
-    form_class = UserSearchForm
-
-    search = None
-    year = None
-    state = None
-    headers = {'username': 'asc',
-               'last_name': 'asc',
-               'surname': 'asc',
-               'family': 'asc',
-               'campus': 'asc',
-               'year': 'asc',
-               'balance': 'asc'}
-    sort = None
-
-    def get_context_data(self, **kwargs):
-        context = super(UserListView, self).get_context_data(**kwargs)
-
-        # Header List
-        context['list_header'] = [["username", "Username"], ["last_name", "Nom Prénom"], ["surname", "Bucque"], [
-            "family", "Fam's"], ["campus", "Tabagn's"], ["year", "Prom's"], ["balance", "Solde"]]
-
-        try:
-            self.sort = self.request.GET['sort']
-        except KeyError:
-            pass
-
-        context['group'] = self.group
-        if self.sort is not None:
-            context['sort'] = self.sort
-            if self.headers[self.sort] == "des":
-                context['reverse'] = True
-                context['user_list'] = self.form_query(
-                    User.objects.all().exclude(groups=1).order_by(self.sort).reverse())
-                self.headers[self.sort] = "asc"
-            else:
-                context['user_list'] = self.form_query(
-                    User.objects.all().exclude(groups=1).order_by(self.sort))
-                self.headers[self.sort] = "des"
-        else:
-            context['user_list'] = self.form_query(
-                User.objects.all().exclude(groups=1))
-
-        # Permission Retrieveuser
-        if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
-            context['has_perm_retrieve_user'] = True
-
-        return context
-
-    def form_query(self, query):
-        if self.search:
-            query = query.filter(
-                Q(last_name__icontains=self.search)
-                | Q(first_name__icontains=self.search)
-                | Q(surname__icontains=self.search)
-                | Q(username__icontains=self.search)
-            )
-
-        if self.year and self.year != 'all':
-            query = query.filter(
-                year=self.year)
-
-        if self.state and self.state != 'all':
-            if self.state == 'negative_balance':
-                query = query.filter(balance__lt=0.0, is_active=True)
-            elif self.state == 'threshold':
-                threshold = settings_safe_get(
-                    'BALANCE_THRESHOLD_PURCHASE').get_value()
-                query = query.filter(balance__lt=threshold, is_active=True)
-            elif self.state == 'unactive':
-                query = query.filter(is_active=False)
-        else:
-            query = query.filter(is_active=True)
-
-        return query
-
-    def form_valid(self, form):
-        if form.cleaned_data['search']:
-            self.search = form.cleaned_data['search']
-
-        if form.cleaned_data['state']:
-            self.state = form.cleaned_data['state']
-
-        if form.cleaned_data['year']:
-            self.year = form.cleaned_data['year']
-
-        return self.get(self.request, self.args, self.kwargs)
+class UserSelfUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView,
+                     GroupLateralMenuFormMixin):
+    template_name = 'users/self_user_update.html'
+    form_class = SelfUserUpdateForm
+    perm_codename = None
 
     def get_initial(self):
-        initial = super(UserListView, self).get_initial()
-        initial['search'] = self.search
+        initial = super(UserSelfUpdateView, self).get_initial()
+        initial['email'] = self.request.user.email
+        initial['phone'] = self.request.user.phone
+        initial['avatar'] = self.request.user.avatar
+        initial['theme'] = self.request.user.theme
         return initial
+
+    def get_form_kwargs(self):
+        kwargs = super(UserSelfUpdateView, self).get_form_kwargs()
+        kwargs['user'] = self.request.user
+        return kwargs
+
+    def form_valid(self, form):
+        self.request.user.email = form.cleaned_data['email']
+        self.request.user.phone = form.cleaned_data['phone']
+        self.request.user.theme = form.cleaned_data['theme']
+        if form.cleaned_data['avatar'] is not False:
+            setattr(self.request.user, 'avatar', form.cleaned_data['avatar'])
+        else:
+            if self.request.user.avatar:
+                self.request.user.avatar.delete(True)
+        self.request.user.save()
+        return super(UserSelfUpdateView, self).form_valid(form)
+
+    def get_success_message(self, cleaned_data):
+        return "Vos infos ont bien été mises à jour"
+
+
+class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
+                      GroupLateralMenuFormMixin):
+    template_name = 'users/group_manage.html'
+    success_url = None
+    form_class = ManageGroupForm
+    perm_codename = None
+    group_updated = None
+    lm_active = None
+
+    def dispatch(self, request, *args, **kwargs):
+        """
+        Check permission.
+
+        This function is at some parts redundant with the mixin GroupPermission
+        however you cannot set a perm_codename directly, because it depends
+        on the group_name directly.
+
+        :raises: Http404 if the group doesn't exist
+        :raises: Http404 if the group updated doesn't exist
+        :raises: PermissionDenied if the group doesn't have perm
+
+        Save the group_updated in self.
+        """
+        try:
+            self.group = Group.objects.get(name=kwargs['group_name'])
+            self.group_updated = Group.objects.get(pk=kwargs['pk'])
+            self.lm_active = 'lm_group_manage_' + self.group_updated.name
+        except ObjectDoesNotExist:
+            raise Http404
+
+        if (permission_to_manage_group(self.group_updated)[0]
+                not in self.group.permissions.all()):
+            raise PermissionDenied
+
+        return super(ManageGroupView, self).dispatch(request, *args, **kwargs)
+
+    def get_form_kwargs(self):
+        """
+        Add possible members and permissions to kwargs of the form.
+
+        Possible members are all members, except specials members and unactive users.
+        Possible permissions are all permissions.
+        :note:: For the special case of a shop management, two groups exist:
+        group of chiefs and group of associates. If the group of associates is
+        managed, possible permissions are only permissions of the chiefs group.
+        """
+        kwargs = super(ManageGroupView, self).get_form_kwargs()
+
+        if self.group_updated.name.startswith('associates-') is True:
+            chiefs_group_name = self.group_updated.name.replace(
+                'associates', 'chiefs')
+            kwargs['possible_permissions'] = ExtendedPermission.objects.filter(
+                pk__in=[p.pk for p in Group.objects.get(
+                    name=chiefs_group_name).permissions.all().exclude(
+                    pk=permission_to_manage_group(self.group_updated)[0].pk).exclude(
+                    pk__in=human_unused_permissions())]
+            )
+
+        else:
+            kwargs['possible_permissions'] = ExtendedPermission.objects.all().exclude(
+                pk__in=human_unused_permissions()
+            )
+
+        kwargs['possible_members'] = User.objects.filter(is_active=True).exclude(
+            groups=Group.objects.get(name='specials'))
+        return kwargs
+
+    def get_initial(self):
+        initial = super(ManageGroupView, self).get_initial()
+        initial['members'] = User.objects.filter(groups=self.group_updated)
+        initial['permissions'] = [
+            ExtendedPermission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
+        ]
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(ManageGroupView, self).get_context_data(**kwargs)
+        context['group_updated_name_display'] = group_name_display(
+            self.group_updated)
+        return context
+
+    def form_valid(self, form):
+        """
+        Update permissions and members of the group updated.
+        """
+        old_members = User.objects.filter(groups=self.group_updated)
+        new_members = form.cleaned_data['members']
+        old_permissions = self.group_updated.permissions.all()
+        new_permissions = form.cleaned_data['permissions']
+
+        # Modification des membres
+        for m in old_members:
+            if m not in new_members:
+                m.groups.remove(self.group_updated)
+                m.save()
+        for m in new_members:
+            if m not in old_members:
+                m.groups.add(self.group_updated)
+                m.save()
+
+        # Modification des permissions
+        for p in old_permissions:
+            if p not in new_permissions:
+                self.group_updated.permissions.remove(p)
+        for p in new_permissions:
+            if p not in old_permissions:
+                self.group_updated.permissions.add(p)
+        self.group_updated.save()
+
+        return super(ManageGroupView, self).form_valid(form)
+
+    def get_success_message(self, cleaned_data):
+        return "Le groupe a bien été mis à jour"
 
 
 def username_from_username_part(request):
