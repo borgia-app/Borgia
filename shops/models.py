@@ -3,7 +3,6 @@ import decimal
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 
-from finances.models import SaleProduct
 from settings_data.utils import settings_safe_get
 from stocks.models import InventoryProduct, StockEntryProduct
 
@@ -201,15 +200,10 @@ class Product(models.Model):
         Return all SaleProduct concerning the product since the last inventory.
         """
         try:
-            return SaleProduct.objects.filter(
-                product=self,
-                sale__datetime__gte=self.last_inventoryproduct(
-                    offset).inventory.datetime
-            )
+            return self.saleproduct_set.filter(
+                sale__datetime__gte=self.last_inventoryproduct(offset).inventory.datetime)
         except AttributeError:
-            return SaleProduct.objects.filter(
-                product=self
-            )
+            return self.saleproduct_set.all()
 
     def stockentries_since_last_inventory(self, offset=0):
         """

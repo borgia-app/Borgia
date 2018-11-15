@@ -9,6 +9,7 @@ from django.utils.timezone import now
 
 from notifications.models import notify
 from users.models import User
+from shops.models import Shop, Product
 
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
@@ -60,8 +61,8 @@ class Sale(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     module_id = models.PositiveIntegerField()
     module = GenericForeignKey('content_type', 'module_id')
-    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE)
-    products = models.ManyToManyField('shops.Product', through='SaleProduct')
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, through='SaleProduct')
 
     def __str__(self):
         """
@@ -129,7 +130,7 @@ class Sale(models.Model):
 
 class SaleProduct(models.Model):
     sale = models.ForeignKey('Sale', on_delete=models.CASCADE)
-    product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField('Prix', default=0, decimal_places=2,
                                 max_digits=9,
