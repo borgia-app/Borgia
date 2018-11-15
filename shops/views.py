@@ -22,6 +22,8 @@ from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
                          ProductUpdatePriceForm, ShopCheckupSearchForm,
                          ShopCreateForm, ShopUpdateForm)
 from shops.models import Product, Shop
+from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
+                         DEFAULT_PERMISSIONS_CHIEFS)
 
 
 class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
@@ -272,16 +274,6 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     perm_codename = 'add_shop'
     lm_active = 'lm_shop_create'
     form_class = ShopCreateForm
-    perm_chiefs = ['add_user', 'retrieve_user', 'list_user', 'supply_money_user', 'add_product',
-                   'change_product', 'retrieve_product', 'list_product',
-                   'list_sale', 'retrieve_sale', 'use_operatorsalemodule',
-                   'add_stockentry', 'retrieve_stockentry', 'list_stockentry',
-                   'add_inventory', 'retrieve_inventory', 'list_inventory', 'change_price_product']
-    perm_associates = ['add_user', 'retrieve_user', 'list_user', 'supply_money_user', 'add_product',
-                       'change_product', 'retrieve_product', 'list_product',
-                       'list_sale', 'retrieve_sale', 'use_operatorsalemodule',
-                       'add_stockentry', 'retrieve_stockentry', 'list_stockentry',
-                       'add_inventory', 'retrieve_inventory', 'list_inventory']
 
     def form_valid(self, form):
         """
@@ -311,7 +303,7 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
             name='associates-' + shop.name
         )
 
-        for codename in self.perm_chiefs:
+        for codename in DEFAULT_PERMISSIONS_CHIEFS:
             try:
                 chiefs.permissions.add(
                     Permission.objects.get(codename=codename)
@@ -322,7 +314,7 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 pass
         chiefs.permissions.add(manage_associates)
         chiefs.save()
-        for codename in self.perm_associates:
+        for codename in DEFAULT_PERMISSIONS_ASSOCIATES:
             try:
                 associates.permissions.add(
                     Permission.objects.get(codename=codename)
