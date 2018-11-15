@@ -1,18 +1,19 @@
 from django.contrib.auth.models import Group, Permission
-from django.core.exceptions import PermissionDenied
+# from django.core.exceptions import PermissionDenied
 from django.test import Client, TestCase
 from django.urls import reverse
 
 from users.models import User
-from finances.models import Sale, Recharging, Transfert, Cash
-from shops.models import Shop
-from modules.models import ShopModule
+from finances.models import Recharging, Transfert, Cash  # , Sale
+# from shops.models import Shop
+# from modules.models import ShopModule
+
 
 class BaseFinancesViewsTest(TestCase):
     def setUp(self):
         members_group = Group.objects.create(name='gadzarts')
         presidents_group = Group.objects.create(name='presidents')
-        presidents_group.permissions.set( Permission.objects.all() )
+        presidents_group.permissions.set(Permission.objects.all())
         # Group specials NEED to be created (else raises errors) :
         specials_group = Group.objects.create(name='specials')
         specials_group.permissions.set([])
@@ -31,22 +32,26 @@ class BaseFinancesViewsTest(TestCase):
 
 class UserExceptionnalMovementCreateTest(BaseFinancesViewsTest):
     def test_get_allowed_user(self):
-        response_client1 = self.client1.get(reverse('url_user_exceptionnalmovement_create', kwargs={'group_name': 'presidents', 'user_pk': '2'}))
+        response_client1 = self.client1.get(reverse('url_user_exceptionnalmovement_create',
+                                                    kwargs={'group_name': 'presidents', 'user_pk': '2'}))
         self.assertEqual(response_client1.status_code, 200)
 
     def test_offline_user_redirection(self):
-        response_offline_user = Client().get(reverse('url_user_exceptionnalmovement_create', kwargs={'group_name': 'presidents', 'user_pk': '2'}))
+        response_offline_user = Client().get(reverse('url_user_exceptionnalmovement_create',
+                                                     kwargs={'group_name': 'presidents', 'user_pk': '2'}))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
 class UserSupplyMoneyTest(BaseFinancesViewsTest):
     def test_get_allowed_user(self):
-        response_client1 = self.client1.get(reverse('url_user_supplymoney', kwargs={'group_name': 'presidents', 'user_pk': '2'}))
+        response_client1 = self.client1.get(reverse('url_user_supplymoney',
+                                                    kwargs={'group_name': 'presidents', 'user_pk': '2'}))
         self.assertEqual(response_client1.status_code, 200)
 
     def test_offline_user_redirection(self):
-        response_offline_user = Client().get(reverse('url_user_supplymoney', kwargs={'group_name': 'presidents', 'user_pk': '2'}))
+        response_offline_user = Client().get(reverse('url_user_supplymoney',
+                                                     kwargs={'group_name': 'presidents', 'user_pk': '2'}))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -75,11 +80,13 @@ class SaleListTest(BaseFinancesViewsTest):
 #                             module_id=1)
 
 #     def test_get_allowed_user(self):
-#         response_client1 = self.client1.get(reverse('url_sale_retrieve', kwargs={'group_name': 'presidents', 'pk': '1'}))
+#         response_client1 = self.client1.get(reverse('url_sale_retrieve',
+#                                             kwargs={'group_name': 'presidents', 'pk': '1'}))
 #         self.assertEqual(response_client1.status_code, 200)
 
 #     def test_offline_user_redirection(self):
-#         response_offline_user = Client().get(reverse('url_sale_retrieve', kwargs={'group_name': 'presidents', 'pk': '1'}))
+#         response_offline_user = Client().get(reverse('url_sale_retrieve',
+#                                              kwargs={'group_name': 'presidents', 'pk': '1'}))
 #         self.assertEqual(response_offline_user.status_code, 302)
 #         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -102,11 +109,13 @@ class RechargingRetrieveTest(BaseFinancesViewsTest):
         Recharging.objects.create(sender=self.user2, operator=self.user1, payment_solution=cash)
 
     def test_get_allowed_user(self):
-        response_client1 = self.client1.get(reverse('url_recharging_retrieve', kwargs={'group_name': 'presidents', 'pk': '1'}))
+        response_client1 = self.client1.get(reverse('url_recharging_retrieve',
+                                                    kwargs={'group_name': 'presidents', 'pk': '1'}))
         self.assertEqual(response_client1.status_code, 200)
 
     def test_offline_user_redirection(self):
-        response_offline_user = Client().get(reverse('url_recharging_retrieve', kwargs={'group_name': 'presidents', 'pk': '1'}))
+        response_offline_user = Client().get(reverse('url_recharging_retrieve',
+                                                     kwargs={'group_name': 'presidents', 'pk': '1'}))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -128,10 +137,12 @@ class TransfertRetrieveTest(BaseFinancesViewsTest):
         Transfert.objects.create(sender=self.user1, recipient=self.user2, amount=10)
 
     def test_get_allowed_user(self):
-        response_client1 = self.client1.get(reverse('url_transfert_retrieve', kwargs={'group_name': 'presidents', 'pk': '1'}))
+        response_client1 = self.client1.get(reverse('url_transfert_retrieve',
+                                                    kwargs={'group_name': 'presidents', 'pk': '1'}))
         self.assertEqual(response_client1.status_code, 200)
 
     def test_offline_user_redirection(self):
-        response_offline_user = Client().get(reverse('url_transfert_retrieve', kwargs={'group_name': 'presidents', 'pk': '1'}))
+        response_offline_user = Client().get(reverse('url_transfert_retrieve',
+                                                     kwargs={'group_name': 'presidents', 'pk': '1'}))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
