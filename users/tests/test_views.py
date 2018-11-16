@@ -33,6 +33,21 @@ class UserListViewTest(BaseUsersViewsTest):
         response_client1 = self.client1.get(reverse('url_user_list', kwargs={'group_name': 'presidents'}))
         self.assertEqual(response_client1.status_code, 200)
 
+    def test_get_not_existing_group(self):
+        response_client1 = self.client1.get(reverse('url_user_list',
+                                                    kwargs={'group_name': 'group_that_does_not_exist'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_in_group_user(self):
+        response_client3 = self.client3.get(reverse('url_user_list',
+                                                    kwargs={'group_name': 'presidents'}))
+        self.assertEqual(response_client3.status_code, 403)
+
+    def test_get_not_allowed_group(self):
+        response_client2 = self.client2.get(reverse('url_user_list',
+                                                    kwargs={'group_name': 'specials'}))
+        self.assertEqual(response_client2.status_code, 403)
+
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_user_list', kwargs={'group_name': 'presidents'}))
         self.assertEqual(response_offline_user.status_code, 302)
@@ -43,6 +58,21 @@ class UserCreateViewTest(BaseUsersViewsTest):
     def test_get_allowed_user(self):
         response_client1 = self.client1.get(reverse('url_user_create', kwargs={'group_name': 'presidents'}))
         self.assertEqual(response_client1.status_code, 200)
+
+    def test_get_not_existing_group(self):
+        response_client1 = self.client1.get(reverse('url_user_create',
+                                                    kwargs={'group_name': 'group_that_does_not_exist'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_in_group_user(self):
+        response_client3 = self.client3.get(reverse('url_user_create',
+                                                    kwargs={'group_name': 'presidents'}))
+        self.assertEqual(response_client3.status_code, 403)
+
+    def test_get_not_allowed_group(self):
+        response_client2 = self.client2.get(reverse('url_user_create',
+                                                    kwargs={'group_name': 'specials'}))
+        self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_user_create', kwargs={'group_name': 'presidents'}))
@@ -55,6 +85,26 @@ class UserRetrieveViewTest(BaseUsersViewsTest):
         response_client1 = self.client1.get(reverse('url_user_retrieve', kwargs={'group_name': 'presidents', 'pk': '2'}))
         self.assertEqual(response_client1.status_code, 200)
 
+    def test_get_not_existing_user(self):
+        response_client1 = self.client1.get(reverse('url_user_retrieve',
+                                                    kwargs={'group_name': 'presidents', 'pk': '535353'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_existing_group(self):
+        response_client1 = self.client1.get(reverse('url_user_retrieve',
+                                                    kwargs={'group_name': 'group_that_does_not_exist', 'pk': '2'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_in_group_user(self):
+        response_client3 = self.client3.get(reverse('url_user_retrieve',
+                                                    kwargs={'group_name': 'presidents', 'pk': '2'}))
+        self.assertEqual(response_client3.status_code, 403)
+
+    def test_get_not_allowed_group(self):
+        response_client2 = self.client2.get(reverse('url_user_retrieve',
+                                                    kwargs={'group_name': 'specials', 'pk': '2'}))
+        self.assertEqual(response_client2.status_code, 403)
+
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_user_retrieve', kwargs={'group_name': 'presidents', 'pk': '2'}))
         self.assertEqual(response_offline_user.status_code, 302)
@@ -65,6 +115,26 @@ class UserUpdateViewTest(BaseUsersViewsTest):
     def test_get_allowed_user(self):
         response_client1 = self.client1.get(reverse('url_user_update', kwargs={'group_name': 'presidents', 'pk': '2'}))
         self.assertEqual(response_client1.status_code, 200)
+
+    def test_get_not_existing_user(self):
+        response_client1 = self.client1.get(reverse('url_user_update',
+                                                    kwargs={'group_name': 'presidents', 'pk': '535353'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_existing_group(self):
+        response_client1 = self.client1.get(reverse('url_user_update',
+                                                    kwargs={'group_name': 'group_that_does_not_exist', 'pk': '2'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_in_group_user(self):
+        response_client3 = self.client3.get(reverse('url_user_update',
+                                                    kwargs={'group_name': 'presidents', 'pk': '2'}))
+        self.assertEqual(response_client3.status_code, 403)
+
+    def test_get_not_allowed_group(self):
+        response_client2 = self.client2.get(reverse('url_user_update',
+                                                    kwargs={'group_name': 'specials', 'pk': '2'}))
+        self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_user_update', kwargs={'group_name': 'presidents', 'pk': '2'}))
@@ -77,6 +147,26 @@ class UserDeactivateViewTest(BaseUsersViewsTest):
         response_client1 = self.client1.get(reverse('url_user_deactivate', kwargs={'group_name': 'presidents', 'pk': '2'}))
         self.assertEqual(response_client1.status_code, 200)
 
+    def test_get_not_existing_user(self):
+        response_client1 = self.client1.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'presidents', 'pk': '535353'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_existing_group(self):
+        response_client1 = self.client1.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'group_that_does_not_exist', 'pk': '2'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_in_group_user(self):
+        response_client3 = self.client3.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'presidents', 'pk': '2'}))
+        self.assertEqual(response_client3.status_code, 403)
+
+    def test_get_not_allowed_group(self):
+        response_client2 = self.client2.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'specials', 'pk': '2'}))
+        self.assertEqual(response_client2.status_code, 403)
+
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_user_deactivate', kwargs={'group_name': 'presidents', 'pk': '2'}))
         self.assertEqual(response_offline_user.status_code, 302)
@@ -87,6 +177,31 @@ class UserSelfDeactivateViewTest(BaseUsersViewsTest):
     def test_get_allowed_user(self):
         response_client = self.client1.get(reverse('url_self_deactivate', kwargs={'group_name': 'gadzarts', 'pk': str(self.user1.pk)}))
         self.assertEqual(response_client.status_code, 200)
+
+    def test_get_not_existing_user(self):
+        response_client1 = self.client1.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'gadzarts', 'pk': '535353'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_on_another_user(self):
+        response_client1 = self.client1.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'gadzarts', 'pk': str(self.user2.pk)}))
+        self.assertEqual(response_client1.status_code, 403)
+
+    def test_get_not_existing_group(self):
+        response_client1 = self.client1.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'group_that_does_not_exist', 'pk': str(self.user1.pk)}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_in_group_user(self):
+        response_client3 = self.client3.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'gadzarts', 'pk': str(self.user3.pk)}))
+        self.assertEqual(response_client3.status_code, 403)
+
+    def test_get_not_allowed_group(self):
+        response_client2 = self.client2.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'specials', 'pk': str(self.user2.pk)}))
+        self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_self_deactivate', kwargs={'group_name': 'gadzarts', 'pk': str(self.user1.pk)}))
@@ -99,6 +214,21 @@ class UserSelfUpdateViewTest(BaseUsersViewsTest):
         response_client1 = self.client1.get(reverse('url_user_self_update', kwargs={'group_name': 'presidents'}))
         self.assertEqual(response_client1.status_code, 200)
 
+    def test_get_not_existing_group(self):
+        response_client1 = self.client1.get(reverse('url_user_self_update',
+                                                    kwargs={'group_name': 'group_that_does_not_exist'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_in_group_user(self):
+        response_client3 = self.client3.get(reverse('url_user_self_update',
+                                                    kwargs={'group_name': 'gadzarts'}))
+        self.assertEqual(response_client3.status_code, 403)
+
+    def test_get_not_allowed_group(self):
+        response_client2 = self.client2.get(reverse('url_user_self_update',
+                                                    kwargs={'group_name': 'specials'}))
+        self.assertEqual(response_client2.status_code, 403)
+
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_user_self_update', kwargs={'group_name': 'presidents'}))
         self.assertEqual(response_offline_user.status_code, 302)
@@ -109,6 +239,26 @@ class ManageGroupViewTest(BaseUsersViewsTest):
     def test_get_allowed_user(self):
         response_client1 = self.client1.get(reverse('url_group_update', kwargs={'group_name': 'presidents', 'pk': '1'}))
         self.assertEqual(response_client1.status_code, 200)
+
+    def test_get_not_existing_group(self):
+        response_client1 = self.client1.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'presidents', 'pk': '535353'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_existing_group2(self):
+        response_client1 = self.client1.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'group_that_does_not_exist', 'pk': '1'}))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def test_get_not_in_group_user(self):
+        response_client3 = self.client3.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'presidents', 'pk': '1'}))
+        self.assertEqual(response_client3.status_code, 403)
+
+    def test_get_not_allowed_group(self):
+        response_client2 = self.client2.get(reverse('url_user_deactivate',
+                                                    kwargs={'group_name': 'specials', 'pk': '1'}))
+        self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_group_update', kwargs={'group_name': 'presidents', 'pk': '1'}))
