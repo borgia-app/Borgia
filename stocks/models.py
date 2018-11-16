@@ -4,13 +4,15 @@ from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.timezone import now
 
+from shops.models import Product, Shop
+from users.models import User
+
 
 class StockEntry(models.Model):
     datetime = models.DateTimeField('Date', default=now)
-    operator = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    products = models.ManyToManyField(
-        'shops.Product', through='StockEntryProduct')
-    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE)
+    operator = models.ForeignKey(User, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, through='StockEntryProduct')
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
     def total(self):
         total = sum(sep.price for sep in self.stockentryproduct_set.all())
@@ -35,8 +37,8 @@ class StockEntryProduct(models.Model):
     quantity -> in CL/G (even if L/KG is possible in the form)
     price -> price for the whole quantity (even if price for L/KG is possible in the form)
     """
-    stockentry = models.ForeignKey('StockEntry', on_delete=models.CASCADE)
-    product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
+    stockentry = models.ForeignKey(StockEntry, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField('Prix', default=0, decimal_places=2,
                                 max_digits=9,
@@ -60,10 +62,9 @@ class StockEntryProduct(models.Model):
 
 class Inventory(models.Model):
     datetime = models.DateTimeField('Date', default=now)
-    operator = models.ForeignKey('users.User', on_delete=models.CASCADE)
-    products = models.ManyToManyField(
-        'shops.Product', through='InventoryProduct')
-    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE)
+    operator = models.ForeignKey(User, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, through='InventoryProduct')
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
     class Meta:
         permissions = (
@@ -81,8 +82,8 @@ class InventoryProduct(models.Model):
     """
     quantity -> in CL/G (even if L/KG is possible in the form)
     """
-    inventory = models.ForeignKey('Inventory', on_delete=models.CASCADE)
-    product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
+    inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
 
     def get_quantity_display(self):

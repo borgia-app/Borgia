@@ -4,7 +4,6 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 
 from settings_data.utils import settings_safe_get
-from stocks.models import InventoryProduct, StockEntryProduct
 
 
 class Shop(models.Model):
@@ -149,8 +148,8 @@ class Product(models.Model):
         try:
             margin_profit = settings_safe_get('MARGIN_PROFIT').get_value()
 
-            last_stockentry = sorted(StockEntryProduct.objects.filter(
-                product=self), key=lambda x: x.stockentry.datetime, reverse=True)[0]
+            last_stockentry = self.stockentryproduct_set.order_by('-stockentry__datetime').first()
+
             return round(decimal.Decimal(last_stockentry.unit_price() * self.correcting_factor * decimal.Decimal(1 + margin_profit / 100)), 4)
         except IndexError:
             return decimal.Decimal(0)
@@ -180,8 +179,7 @@ class Product(models.Model):
         Return None if there is no inventory.
         """
         try:
-            list_inventoryproduct = InventoryProduct.objects.filter(
-                product=self)
+            list_inventoryproduct = self.inventoryproduct_set.all()
             if list_inventoryproduct is None:
                 return None
             else:
@@ -207,18 +205,13 @@ class Product(models.Model):
 
     def stockentries_since_last_inventory(self, offset=0):
         """
-        Return all StockEntryProduct concerning the product since the
+        Return all StockEntryProduct concerning the product since the last inventory
         """
         try:
-            return StockEntryProduct.objects.filter(
-                product=self,
-                stockentry__datetime__gte=self.last_inventoryproduct(
-                    offset).inventory.datetime
-            )
+            last_inventory = self.last_inventoryproduct(offset).inventory.datetime
+            return self.stockentryproduct_set.filter(stockentry__datetime__gte=last_inventory)
         except AttributeError:
-            return StockEntryProduct.objects.filter(
-                product=self
-            )
+            return self.stockentryproduct_set.all()
 
     def current_stock_estimated(self, offset=0):
         """
