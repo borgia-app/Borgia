@@ -797,9 +797,12 @@ class ProductShopFromGroupMixin(object):
             self.object = Product.objects.get(pk=self.kwargs['pk'], is_removed=False)
         except ObjectDoesNotExist:
             raise Http404
-        if self.shop:
-            if self.object.shop != self.shop:
-                raise PermissionDenied
+        try:
+            if self.shop:
+                if self.object.shop != self.shop:
+                    raise PermissionDenied
+        except AttributeError:
+            pass
         return super(ProductShopFromGroupMixin,
                      self).dispatch(request, *args, **kwargs)
 
