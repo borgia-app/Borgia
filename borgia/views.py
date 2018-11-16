@@ -177,7 +177,7 @@ def jsi18n_catalog(request):
     return render(request, 'jsi18n.html')
 
 
-def handler403(request):
+def handler403(request, *args, **kwargs):
     context = {}
 
     try:
@@ -217,7 +217,7 @@ def handler403(request):
     return response
 
 
-def handler404(request):
+def handler404(request, *args, **kwargs):
     context = {}
     try:
         group_name = request.path.split('/')[1]
@@ -247,7 +247,7 @@ def handler404(request):
     return response
 
 
-def handler500(request):
+def handler500(request, *args, **kwargs):
     context = {}
     try:
         group_name = request.path.split('/')[1]
