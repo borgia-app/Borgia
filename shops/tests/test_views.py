@@ -24,8 +24,6 @@ class BaseShopsViewsTest(BaseUsersViewsTest):
             chiefs.permissions.add(perm)
 
         self.user3.groups.add(chiefs)
-        self.client3 = Client()
-        self.client3.force_login(self.user3)
 
         self.product1 = Product.objects.create(
             name="skoll", shop=self.shop1)

@@ -24,6 +24,8 @@ class BaseUsersViewsTest(TestCase):
         self.client1.force_login(self.user1)
         self.client2 = Client()
         self.client2.force_login(self.user2)
+        self.client3 = Client()
+        self.client3.force_login(self.user3)
 
 
 class UserListViewTest(BaseUsersViewsTest):
