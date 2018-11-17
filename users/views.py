@@ -207,9 +207,11 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     perm_codename = 'retrieve_user'
 
     def get(self, request, *args, **kwargs):
-        user = User.objects.get(pk=self.kwargs['pk'])
-        # Update forecast balance
-        user.forecast_balance()
+        try:
+            user = User.objects.get(pk=self.kwargs['pk'])
+            user.forecast_balance()
+        except ObjectDoesNotExist:
+            raise Http404
 
         context = self.get_context_data(**kwargs)
         context['user'] = user
@@ -241,7 +243,10 @@ class UserUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
 
     def get_initial(self):
         initial = super(UserUpdateView, self).get_initial()
-        user_modified = User.objects.get(pk=self.kwargs['pk'])
+        try:
+            user_modified = User.objects.get(pk=self.kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
         for k in UserUpdateForm(user_modified=user_modified).fields.keys():
             initial[k] = getattr(user_modified, k)
         return initial
@@ -277,13 +282,19 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     success_message = "Le compte de %(user)s a bien été "
 
     def get(self, request, *args, **kwargs):
-        user = User.objects.get(pk=kwargs['pk'])
+        try:
+            user = User.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404 
         context = self.get_context_data(**kwargs)
         context['user'] = user
         return render(request, 'users/deactivate.html', context=context)
 
     def post(self, request, *args, **kwargs):
-        user = User.objects.get(pk=kwargs['pk'])
+        try:
+            user = User.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404 
         if user.is_active is True:
             user.is_active = False
             # si c'est un gadz. Special members can't be added to other groups
@@ -323,13 +334,19 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     error_sharedevent_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
 
     def get(self, request, *args, **kwargs):
-        user = User.objects.get(pk=kwargs['pk'])
+        try:
+            user = User.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404 
         context = self.get_context_data(**kwargs)
         context['user'] = user
         return render(request, 'users/deactivate.html', context=context)
 
     def post(self, request, *args, **kwargs):
-        user = User.objects.get(pk=kwargs['pk'])
+        try:
+            user = User.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404 
         sharedevents = SharedEvent.objects.filter(manager=user, done=False)
         if user.is_active is True:
             if sharedevents.count() > 0:
