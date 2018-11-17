@@ -14,7 +14,7 @@
   <div class="panel-body">
     <form method="post">
       {% csrf_token %}
-      {{ additionnal_data_form|bootstrap }}
+      {{ additionnal_data_form|bootstrap_horizontal }}
       <h3> Liste des produits :</h3>
       {{ inventory_formset.management_form }}
       {{ inventory_formset.non_form_errors }}
@@ -43,7 +43,7 @@ $('.category_formset').formset({
   addText: 'Nouveau produit',
   deleteText: 'Supprimer',
   addCssClass: 'add-row btn btn-success btn-sm',
-  deleteCssClass: 'delete-row',
+  deleteCssClass: 'delete-row btn btn-warning btn-sm',
   added: function(row) {
     $(row).find('.selectpicker').each(function() {
       $(this).selectpicker()
