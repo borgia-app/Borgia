@@ -144,13 +144,16 @@ class Product(models.Model):
     def get_automatic_price(self):
         """
         Return the price calculated over the last stockentry concerning the product.
+        If there is no stock entry realisated, return 0.
         """
         try:
             margin_profit = settings_safe_get('MARGIN_PROFIT').get_value()
 
             last_stockentry = self.stockentryproduct_set.order_by('-stockentry__datetime').first()
-
-            return round(decimal.Decimal(last_stockentry.unit_price() * self.correcting_factor * decimal.Decimal(1 + margin_profit / 100)), 4)
+            if last_stockentry is not None:
+                return round(decimal.Decimal(last_stockentry.unit_price() * self.correcting_factor * decimal.Decimal(1 + margin_profit / 100)), 4)
+            else:
+                return 0
         except IndexError:
             return decimal.Decimal(0)
 
@@ -162,6 +165,9 @@ class Product(models.Model):
             return round((self.manual_price - automatic_price) / automatic_price * 100, 4)
 
     def get_price(self):
+        """
+        Return price for product, depending on is_manual
+        """
         if self.is_manual:
             return self.manual_price
         else:

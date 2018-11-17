@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.test import Client
 from django.urls import reverse
 
@@ -15,8 +16,18 @@ class BaseShopsViewsTest(BaseUsersViewsTest):
         self.shop1 = Shop.objects.create(
             name="shop1", description="The first shop ever", color="#F4FA58")
         chiefs = Group.objects.create(name='chiefs-' + self.shop1.name)
-        chiefs.permissions.add()
-        chiefs.save()
+
+        content_type = ContentType.objects.get(app_label='users', model='user')
+        Permission.objects.create(
+            name='Gérer le groupe des chiefs du magasin ' + self.shop1.name,
+            codename='manage_group_chiefs-' + self.shop1.name,
+            content_type=content_type
+        )
+        Permission.objects.create(
+            name='Gérer le groupe des associés du magasin ' + self.shop1.name,
+            codename='manage_group_associates-' + self.shop1.name,
+            content_type=content_type
+        )
 
         # Add chiefs default permissions
         for codename in DEFAULT_PERMISSIONS_CHIEFS:
@@ -28,7 +39,7 @@ class BaseShopsViewsTest(BaseUsersViewsTest):
         self.product1 = Product.objects.create(
             name="skoll", shop=self.shop1)
         self.product2 = Product.objects.create(
-            name="beer", unit='CL', shop=self.shop1)
+            name="beer", unit='CL', shop=self.shop1, is_manual=True, manual_price=2)
         self.product3 = Product.objects.create(
             name="meat", unit='G', shop=self.shop1)
 
@@ -62,12 +73,12 @@ class ShopCreateViewTest(BaseShopsViewsTest):
 class ShopUpdateViewTest(BaseShopsViewsTest):
     def test_get_allowed_user(self):
         response_client1 = self.client1.get(
-            reverse('url_shop_update', kwargs={'group_name': 'presidents', 'pk': '1'}))
+            reverse('url_shop_update', kwargs={'group_name': 'presidents', 'pk': str(self.shop1.pk)}))
         self.assertEqual(response_client1.status_code, 200)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_shop_update', kwargs={
-            'group_name': 'presidents', 'pk': '1'}))
+            'group_name': 'presidents', 'pk': str(self.shop1.pk)}))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -75,12 +86,12 @@ class ShopUpdateViewTest(BaseShopsViewsTest):
 class ShopCheckupViewTest(BaseShopsViewsTest):
     def test_get_allowed_user(self):
         response_client1 = self.client1.get(
-            reverse('url_shop_checkup', kwargs={'group_name': 'presidents', 'pk': '1'}))
+            reverse('url_shop_checkup', kwargs={'group_name': 'presidents', 'pk': str(self.shop1.pk)}))
         self.assertEqual(response_client1.status_code, 200)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_shop_checkup', kwargs={
-            'group_name': 'presidents', 'pk': '1'}))
+            'group_name': 'presidents', 'pk': str(self.shop1.pk)}))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -124,29 +135,29 @@ class ProductCreateViewTest(BaseShopsViewsTest):
 class ProductRetrieveViewTest(BaseShopsViewsTest):
     def test_get_president(self):
         response_client1 = self.client1.get(
-            reverse('url_product_retrieve', kwargs={'group_name': 'presidents', 'pk': '1'}))
+            reverse('url_product_retrieve', kwargs={'group_name': 'presidents', 'pk': str(self.product1.pk)}))
         response_client2 = self.client1.get(
-            reverse('url_product_retrieve', kwargs={'group_name': 'presidents', 'pk': '2'}))
+            reverse('url_product_retrieve', kwargs={'group_name': 'presidents', 'pk': str(self.product2.pk)}))
         response_client3 = self.client1.get(
-            reverse('url_product_retrieve', kwargs={'group_name': 'presidents', 'pk': '3'}))
+            reverse('url_product_retrieve', kwargs={'group_name': 'presidents', 'pk': str(self.product3.pk)}))
         self.assertEqual(response_client1.status_code, 200)
         self.assertEqual(response_client2.status_code, 200)
         self.assertEqual(response_client3.status_code, 200)
 
     def test_get_chief(self):
         response_client1 = self.client3.get(
-            reverse('url_product_retrieve', kwargs={'group_name': 'chiefs-shop1', 'pk': '1'}))
+            reverse('url_product_retrieve', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product1.pk)}))
         response_client2 = self.client3.get(
-            reverse('url_product_retrieve', kwargs={'group_name': 'chiefs-shop1', 'pk': '2'}))
+            reverse('url_product_retrieve', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product2.pk)}))
         response_client3 = self.client3.get(
-            reverse('url_product_retrieve', kwargs={'group_name': 'chiefs-shop1', 'pk': '3'}))
+            reverse('url_product_retrieve', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product3.pk)}))
         self.assertEqual(response_client1.status_code, 200)
         self.assertEqual(response_client2.status_code, 200)
         self.assertEqual(response_client3.status_code, 200)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_product_retrieve', kwargs={
-            'group_name': 'presidents', 'pk': '1'}))
+            'group_name': 'presidents', 'pk': str(self.product1.pk)}))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -154,29 +165,29 @@ class ProductRetrieveViewTest(BaseShopsViewsTest):
 class ProductUpdateViewTest(BaseShopsViewsTest):
     def test_get_president(self):
         response_client1 = self.client1.get(
-            reverse('url_product_update', kwargs={'group_name': 'presidents', 'pk': '1'}))
+            reverse('url_product_update', kwargs={'group_name': 'presidents', 'pk': str(self.product1.pk)}))
         response_client2 = self.client1.get(
-            reverse('url_product_update', kwargs={'group_name': 'presidents', 'pk': '2'}))
+            reverse('url_product_update', kwargs={'group_name': 'presidents', 'pk': str(self.product2.pk)}))
         response_client3 = self.client1.get(
-            reverse('url_product_update', kwargs={'group_name': 'presidents', 'pk': '3'}))
+            reverse('url_product_update', kwargs={'group_name': 'presidents', 'pk': str(self.product3.pk)}))
         self.assertEqual(response_client1.status_code, 200)
         self.assertEqual(response_client2.status_code, 200)
         self.assertEqual(response_client3.status_code, 200)
 
     def test_get_chief(self):
         response_client1 = self.client3.get(
-            reverse('url_product_update', kwargs={'group_name': 'chiefs-shop1', 'pk': '1'}))
+            reverse('url_product_update', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product1.pk)}))
         response_client2 = self.client3.get(
-            reverse('url_product_update', kwargs={'group_name': 'chiefs-shop1', 'pk': '2'}))
+            reverse('url_product_update', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product2.pk)}))
         response_client3 = self.client3.get(
-            reverse('url_product_update', kwargs={'group_name': 'chiefs-shop1', 'pk': '3'}))
+            reverse('url_product_update', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product3.pk)}))
         self.assertEqual(response_client1.status_code, 200)
         self.assertEqual(response_client2.status_code, 200)
         self.assertEqual(response_client3.status_code, 200)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_product_update', kwargs={
-            'group_name': 'presidents', 'pk': '1'}))
+            'group_name': 'presidents', 'pk': str(self.product1.pk)}))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -184,22 +195,22 @@ class ProductUpdateViewTest(BaseShopsViewsTest):
 class ProductUpdatePriceViewTest(BaseShopsViewsTest):
     def test_get_president(self):
         response_client1 = self.client1.get(
-            reverse('url_product_update_price', kwargs={'group_name': 'presidents', 'pk': '1'}))
+            reverse('url_product_update_price', kwargs={'group_name': 'presidents', 'pk': str(self.product1.pk)}))
         response_client2 = self.client1.get(
-            reverse('url_product_update_price', kwargs={'group_name': 'presidents', 'pk': '2'}))
+            reverse('url_product_update_price', kwargs={'group_name': 'presidents', 'pk': str(self.product2.pk)}))
         response_client3 = self.client1.get(
-            reverse('url_product_update_price', kwargs={'group_name': 'presidents', 'pk': '3'}))
+            reverse('url_product_update_price', kwargs={'group_name': 'presidents', 'pk': str(self.product3.pk)}))
         self.assertEqual(response_client1.status_code, 200)
         self.assertEqual(response_client2.status_code, 200)
         self.assertEqual(response_client3.status_code, 200)
 
     def test_get_chief(self):
         response_client1 = self.client3.get(
-            reverse('url_product_update_price', kwargs={'group_name': 'chiefs-shop1', 'pk': '1'}))
+            reverse('url_product_update_price', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product1.pk)}))
         response_client2 = self.client3.get(
-            reverse('url_product_update_price', kwargs={'group_name': 'chiefs-shop1', 'pk': '2'}))
+            reverse('url_product_update_price', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product2.pk)}))
         response_client3 = self.client3.get(
-            reverse('url_product_update_price', kwargs={'group_name': 'chiefs-shop1', 'pk': '3'}))
+            reverse('url_product_update_price', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product3.pk)}))
         self.assertEqual(response_client1.status_code, 200)
         self.assertEqual(response_client2.status_code, 200)
         self.assertEqual(response_client3.status_code, 200)
@@ -214,22 +225,22 @@ class ProductUpdatePriceViewTest(BaseShopsViewsTest):
 class ProductDeactivateViewTest(BaseShopsViewsTest):
     def test_get_president(self):
         response_client1 = self.client1.get(
-            reverse('url_product_deactivate', kwargs={'group_name': 'presidents', 'pk': '1'}))
+            reverse('url_product_deactivate', kwargs={'group_name': 'presidents', 'pk': str(self.product1.pk)}))
         response_client2 = self.client1.get(
-            reverse('url_product_deactivate', kwargs={'group_name': 'presidents', 'pk': '2'}))
+            reverse('url_product_deactivate', kwargs={'group_name': 'presidents', 'pk': str(self.product2.pk)}))
         response_client3 = self.client1.get(
-            reverse('url_product_deactivate', kwargs={'group_name': 'presidents', 'pk': '3'}))
+            reverse('url_product_deactivate', kwargs={'group_name': 'presidents', 'pk': str(self.product3.pk)}))
         self.assertEqual(response_client1.status_code, 200)
         self.assertEqual(response_client2.status_code, 200)
         self.assertEqual(response_client3.status_code, 200)
 
     def test_get_chief(self):
         response_client1 = self.client3.get(
-            reverse('url_product_deactivate', kwargs={'group_name': 'chiefs-shop1', 'pk': '1'}))
+            reverse('url_product_deactivate', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product1.pk)}))
         response_client2 = self.client3.get(
-            reverse('url_product_deactivate', kwargs={'group_name': 'chiefs-shop1', 'pk': '2'}))
+            reverse('url_product_deactivate', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product2.pk)}))
         response_client3 = self.client3.get(
-            reverse('url_product_deactivate', kwargs={'group_name': 'chiefs-shop1', 'pk': '3'}))
+            reverse('url_product_deactivate', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product3.pk)}))
         self.assertEqual(response_client1.status_code, 200)
         self.assertEqual(response_client2.status_code, 200)
         self.assertEqual(response_client3.status_code, 200)
@@ -244,28 +255,28 @@ class ProductDeactivateViewTest(BaseShopsViewsTest):
 class ProductRemoveViewTest(BaseShopsViewsTest):
     def test_get_president(self):
         response_client1 = self.client1.get(
-            reverse('url_product_remove', kwargs={'group_name': 'presidents', 'pk': '1'}))
+            reverse('url_product_remove', kwargs={'group_name': 'presidents', 'pk': str(self.product1.pk)}))
         response_client2 = self.client1.get(
-            reverse('url_product_remove', kwargs={'group_name': 'presidents', 'pk': '2'}))
+            reverse('url_product_remove', kwargs={'group_name': 'presidents', 'pk': str(self.product2.pk)}))
         response_client3 = self.client1.get(
-            reverse('url_product_remove', kwargs={'group_name': 'presidents', 'pk': '3'}))
+            reverse('url_product_remove', kwargs={'group_name': 'presidents', 'pk': str(self.product3.pk)}))
         self.assertEqual(response_client1.status_code, 200)
         self.assertEqual(response_client2.status_code, 200)
         self.assertEqual(response_client3.status_code, 200)
 
     def test_get_chief(self):
         response_client1 = self.client3.get(
-            reverse('url_product_remove', kwargs={'group_name': 'chiefs-shop1', 'pk': '1'}))
+            reverse('url_product_remove', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product1.pk)}))
         response_client2 = self.client3.get(
-            reverse('url_product_remove', kwargs={'group_name': 'chiefs-shop1', 'pk': '2'}))
+            reverse('url_product_remove', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product2.pk)}))
         response_client3 = self.client3.get(
-            reverse('url_product_remove', kwargs={'group_name': 'chiefs-shop1', 'pk': '3'}))
+            reverse('url_product_remove', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product3.pk)}))
         self.assertEqual(response_client1.status_code, 200)
         self.assertEqual(response_client2.status_code, 200)
         self.assertEqual(response_client3.status_code, 200)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(reverse('url_product_remove', kwargs={
-            'group_name': 'presidents', 'pk': '1'}))
+            'group_name': 'presidents', 'pk': str(self.product1.pk)}))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
