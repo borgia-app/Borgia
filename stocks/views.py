@@ -10,9 +10,7 @@ from django.contrib.auth.models import Group
 from borgia.utils import (GroupPermissionMixin, GroupLateralMenuFormMixin,
                           ShopFromGroupMixin,
                           GroupLateralMenuMixin, shop_from_group)
-from stocks.forms import (StockEntryProductForm, StockEntryListDateForm,
-                            InventoryListDateForm, InventoryProductForm,
-                            BaseInventoryProductFormSet, AdditionnalDataInventoryForm)
+from stocks.forms import *
 from stocks.models import StockEntry, StockEntryProduct, Inventory, InventoryProduct
 from shops.models import Product
 
@@ -36,72 +34,59 @@ class ShopStockEntryCreate(GroupPermissionMixin, ShopFromGroupMixin,
             raise Http404
         except ValueError:
             raise Http404
-        self.form_class = formset_factory(wraps(StockEntryProductForm)(partial(StockEntryProductForm, shop=self.shop)), extra=1)
-        return super(ShopStockEntryCreate,
-                     self).dispatch(request, *args, **kwargs)
+
+        self.StockEntryProductForm = formset_factory(StockEntryProductForm,
+                                        extra=1)
+        return super(ShopStockEntryCreate, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['stockentry_form'] = self.form_class()
+        context['stockentry_form'] = self.StockEntryProductForm(form_kwargs={'shop': self.shop})
+        context['add_inventory_form'] = AdditionnalDataStockEntryForm()
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
         stockentry = StockEntry.objects.create(operator=request.user, shop=self.shop)
 
-        stockentry_form = self.form_class(request.POST)
-        for form in stockentry_form.cleaned_data:
-            """
-            Even if html and js verify and ensure entries, you verify again here.
-            """
-            try:
-                product = Product.objects.get(pk=form['product'].split('/')[0])
-                if product.unit:
-                    # Container
-                    if product.unit == 'G':
-                        if form['unit_quantity'] == 'G':
-                            quantity = Decimal(form['quantity'])
-                            if form['unit_amount'] == 'PACKAGE':
-                                price = Decimal(form['amount'])
-                            elif form['unit_amount'] == 'KG':
-                                price = Decimal(form['amount'] * Decimal(form['quantity'] / 1000))
-                        elif form['unit_quantity'] == 'KG':
-                            quantity = Decimal(form['quantity'] * 1000)
-                            if form['unit_amount'] == 'PACKAGE':
-                                price = Decimal(form['amount'])
-                            elif form['unit_amount'] == 'KG':
-                                price = Decimal(form['amount'] * form['quantity'])
-                    elif product.unit == 'CL':
-                        if form['unit_quantity'] == 'CL':
-                            quantity = Decimal(form['quantity'])
-                            if form['unit_amount'] == 'PACKAGE':
-                                price = Decimal(form['amount'])
-                            elif form['unit_amount'] == 'L':
-                                price = Decimal(form['amount'] * Decimal(form['quantity'] / 100))
-                        elif form['unit_quantity'] == 'L':
-                            quantity = Decimal(form['quantity'] * 100)
-                            if form['unit_amount'] == 'PACKAGE':
-                                price = Decimal(form['amount'])
-                            elif form['unit_amount'] == 'L':
-                                price = Decimal(form['amount'] * form['quantity'])
-                else:
-                    # Single product
-                    quantity = form['quantity']
-                    if form['unit_amount'] == 'UNIT':
-                        price = Decimal(form['amount'] * form['quantity'])
-                    elif form['unit_amount'] == 'PACKAGE':
-                        price = Decimal(form['amount'])
+        stockentry_form = self.StockEntryProductForm(request.POST, form_kwargs={'shop': self.shop})
+        add_inventory_form = AdditionnalDataStockEntryForm(request.POST)
 
-                StockEntryProduct.objects.create(
-                    stockentry=stockentry,
-                    product=product,
-                    quantity=quantity,
-                    price=price
-                )
 
-            except ObjectDoesNotExist:
-                pass
-            except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
-                pass
+
+        if stockentry_form.is_valid() and add_inventory_form.is_valid():
+            is_adding_inventory = False
+            if add_inventory_form.cleaned_data['isAddingInventory'] == 'with':
+                inventory = Inventory.objects.create(operator=request.user, shop=self.shop)
+                is_adding_inventory = True
+
+            for form in stockentry_form.cleaned_data:
+                try:
+                    product =  get_product_from_form(form['product'])
+                    quantity = get_normalized_quantity(product, form['unit_quantity'], form['quantity'])
+                    price = get_normalized_price(form['unit_quantity'], form['quantity'], form['unit_amount'], form['amount'])
+
+                    StockEntryProduct.objects.create(
+                        stockentry=stockentry,
+                        product=product,
+                        quantity=quantity,
+                        price=price
+                    )
+
+                    ## AJOUT DE L'INVENTAIRE SI BESOIN
+                    if is_adding_inventory:
+                        if form['unit_inventory'] and form['inventory_quantity']:
+                            inventory_quantity = get_normalized_quantity(product, form['unit_inventory'], form['inventory_quantity'])
+
+                            InventoryProduct.objects.create(
+                                inventory=inventory,
+                                product=product,
+                                quantity=inventory_quantity+quantity
+                            )
+
+                except ObjectDoesNotExist:
+                    pass
+                except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+                    pass
 
         return redirect(
             reverse('url_stock_entry_list',
@@ -231,57 +216,43 @@ class ShopInventoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
             inventory = Inventory.objects.create(operator=request.user, shop=self.shop)
 
             # Ids in the form
-            for form in inventory_formset.cleaned_data:
-                """
-                Even if html and js verify and ensure entries, you verify again here.
-                """
-                try:
-                    product = Product.objects.get(pk=form['product'].split('/')[0])
-                    if product.unit:
-                        # Container
-                        if product.unit == 'G':
-                            if form['unit_quantity'] == 'G':
-                                quantity = Decimal(form['quantity'])
-                            elif form['unit_quantity'] == 'KG':
-                                quantity = Decimal(form['quantity'] * 1000)
-                        elif product.unit == 'CL':
-                            if form['unit_quantity'] == 'CL':
-                                quantity = Decimal(form['quantity'])
-                            elif form['unit_quantity'] == 'L':
-                                quantity = Decimal(form['quantity'] * 100)
-                    else:
-                        # Single product
-                        quantity = form['quantity']
+            if inventory_formset.is_valid():
+                for form in inventory_formset.cleaned_data:
+                    """
+                    Even if html and js verify and ensure entries, you verify again here.
+                    """
+                    try:
+                        product = get_product_from_form(form['product'])
+                        quantity = get_normalized_quantity(product, form['unit_quantity'], form['quantity'])
 
-                    InventoryProduct.objects.create(
-                        inventory=inventory,
-                        product=product,
-                        quantity=quantity
-                    )
-
-                except ObjectDoesNotExist:
-                    pass
-                except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
-                    pass
-
-            if additionnal_data_form.cleaned_data['type'] == 'full':
-                # Ids not in the form but active in the shop
-                try:
-                    for product in Product.objects.filter(shop=self.shop, is_removed=False, is_active=True).exclude(
-                                pk__in=[form['product'].split('/')[0] for form in inventory_formset.cleaned_data]):
                         InventoryProduct.objects.create(
                             inventory=inventory,
                             product=product,
-                            quantity=Decimal(0)
+                            quantity=quantity
                         )
 
-                except ObjectDoesNotExist:
-                    pass
-                except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
-                    pass
+                    except ObjectDoesNotExist:
+                        pass
 
-            # Update all correcting factors listed
-            inventory.update_correcting_factors()
+                if additionnal_data_form.is_valid():
+                    if additionnal_data_form.cleaned_data['type'] == 'full':
+                        # Ids not in the form but active in the shop
+                        try:
+                            for product in Product.objects.filter(shop=self.shop, is_removed=False, is_active=True).exclude(
+                                        pk__in=[form['product'].split('/')[0] for form in inventory_formset.cleaned_data]):
+                                InventoryProduct.objects.create(
+                                    inventory=inventory,
+                                    product=product,
+                                    quantity=Decimal(0)
+                                )
+
+                        except ObjectDoesNotExist:
+                            pass
+                        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+                            pass
+
+                # Update all correcting factors listed
+                inventory.update_correcting_factors()
 
             return redirect(
                 reverse('url_inventory_list',
@@ -364,3 +335,41 @@ class InventoryRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
         context = self.get_context_data(**kwargs)
         context['object'] = self.object
         return render(request, self.template_name, context=context)
+
+
+def get_product_from_form(form_product):
+    return Product.objects.get(pk=form_product.split('/')[0])
+
+def get_normalized_quantity(product, form_unit_quantity, form_quantity):
+    # Container
+    if product.unit:
+        if product.unit == 'G':
+            if form_unit_quantity == 'G':
+                quantity = Decimal(form_quantity)
+            elif form_unit_quantity == 'KG':
+                quantity = Decimal(form_quantity * 1000)
+        elif product.unit == 'CL':
+            if form_unit_quantity == 'CL':
+                quantity = Decimal(form_quantity)
+            elif form_unit_quantity == 'L':
+                quantity = Decimal(form_quantity * 100)
+    else:
+        # Single product
+        quantity = form_quantity
+
+    return quantity
+
+
+def get_normalized_price(form_unit_quantity, form_quantity, form_unit_amount, form_amount):
+    # Container
+    if form_unit_amount == 'PACKAGE':
+        price = Decimal(form_amount)
+    else:
+        if form_unit_quantity == 'G' and form_unit_amount == 'KG':
+            price = Decimal(form_amount * Decimal(form_quantity / 1000))
+        elif form_unit_quantity == 'CL' and form_unit_amount == 'L':
+            price = Decimal(form_amount * Decimal(form_quantity / 100))
+        else:
+            price = Decimal(form_amount * form_quantity)
+
+    return price

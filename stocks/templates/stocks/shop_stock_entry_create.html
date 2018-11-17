@@ -9,15 +9,17 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    Ajout de produits au stock du magasin {{ shop }}
+    Entrée de stock au magasin {{ shop }}
   </div>
   <div class="panel-body">
     <form method="post">
       {% csrf_token %}
+	  {{ add_inventory_form|bootstrap }}
+      <h3>Ajouter les produits :</h3>
       {{ stockentry_form.management_form }}
       {% for form in stockentry_form %}
         <div class="category_formset row" style="margin-bottom: 15px">
-          <div class="col-md-5">
+            <div class="col-md-3">
               {{ form.product }}
             </div>
             <div class="col-md-3 quantity_unit">
@@ -36,6 +38,15 @@
                 </span>
               </div>
             </div>
+            <div class="col-md-2 product_inventory">
+              <div class="input-group">
+                {{ form.inventory_quantity }}
+                <span class="input-group-btn">
+                  {{ form.unit_inventory }}
+                </span>
+              </div>
+            </div>
+                {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
         </div>
       {% endfor %}
       <button class="btn btn-success" type="submit">Valider</button>
@@ -47,8 +58,8 @@
 $('.category_formset').formset({
   addText: 'Nouveau produit',
   deleteText: 'Supprimer',
-  addCssClass: 'add-row btn btn-success btn-sm',
-  deleteCssClass: 'delete-row',
+  addCssClass: 'btn btn-info',
+  // deleteCssClass: 'btn btn-warning', NOT WORKING. Workaround -> adding_btn_class_to_delete()
   added: function(row) {
     $(row).find('.selectpicker').each(function() {
       $(this).selectpicker()
@@ -56,7 +67,9 @@ $('.category_formset').formset({
     $("[id$='product']").change(function(e) {
       update_units.bind(this)(e)
     })
-    $(row).find('.selectpicker').trigger('change')
+    $(row).find('.selectpicker').trigger('change'),
+    $(update_inventory_form);
+    $(adding_btn_class_to_delete);
   }
 })
 $("[id$='product']").change(function(e) {
@@ -183,28 +196,42 @@ function update_units(e) {
     $(this).closest('.row').find('.unit_amount').selectpicker('val', '')
   }
 }
+
+function update_inventory_form() {
+    var val = $('#id_isAddingInventory').find(':selected').val();
+    if (val == 'with') {
+        $('.product_inventory').show();
+    }
+    else if (val == 'without') {
+        $('.product_inventory').hide();
+    };
+};
+function adding_btn_class_to_delete() {
+    var delete_button = $('.delete-row'); // Default class of delete link
+    delete_button.addClass('btn btn-warning');
+};
+
+$(update_inventory_form);
+$(adding_btn_class_to_delete);
+$('#id_isAddingInventory').change(update_inventory_form);
+
+
 </script>
 <style>
-  .add-row {
-    margin: 15px;
-  }
-  .centered_input {
+    .centered_input {
     text-align: center;
-  }
-  .delete_row {
-    margin-top: 10px;
-  }
-  .unit_quantity {
+    }
+    .unit_quantity {
     width: 60px;
-  }
-  .unit_amount {
-    width: 100px;
-  }
-  .input-group-btn > div > button {
+    }
+    .unit_amount {
+    width: 60px;
+    }
+    .input-group-btn > div > button {
     background-color: #eee;
-  }
-  .input-group .bootstrap-select.form-control {
+    }
+    .input-group .bootstrap-select.form-control {
     z-index: inherit;
-  }
+    }
 </style>
 {% endblock %}

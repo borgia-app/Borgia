@@ -18,23 +18,21 @@ class StockEntryProductForm(forms.Form):
                                                     attrs={'class': 'form-control selectpicker',
                                                     'data-live-search': 'True', 'required':'required'})
                                                     )
-
-
     quantity = forms.IntegerField(
         label='En vente',
         required=False,
         widget=forms.NumberInput(
             attrs={'class': 'form-control centered_input quantity',
                     'placeholder': 'Quantité',
-                    'min':1, 'required':'required'}
+                    'min': 1, 'required':'required'}
         )
     )
     unit_quantity = forms.ChoiceField(
         label='Unité quantité',
         choices=([('UNIT', 'produits'), ('CL', 'cl'), ('L', 'L'), ('G', 'g'), ('KG', 'kg')]),
+        required=False,
         widget=forms.Select(
-            attrs={'class': 'form-control selectpicker unit_quantity', 'required': 'required'}),
-        required=False
+            attrs={'class': 'form-control selectpicker unit_quantity', 'required': 'required'})
     )
     amount = forms.DecimalField(
         label='Prix (€)',
@@ -43,19 +41,58 @@ class StockEntryProductForm(forms.Form):
         widget=forms.NumberInput(
             attrs={'class': 'form-control centered_input amount',
                     'placeholder': 'Montant',
-                    'min':0, 'required':'required'}
+                    'min': 0, 'required':'required'}
         ))
     unit_amount = forms.ChoiceField(
         label='Unité montant',
         choices=([('UNIT', '€ / unité'), ('PACKAGE', '€ / lot'), ('L', '€ / L'), ('KG', '€ / kg')]),
+        required=False,
         widget=forms.Select(
-            attrs={'class': 'form-control selectpicker unit_amount', 'required':'required'}),
-        required=False
+            attrs={'class': 'form-control selectpicker unit_amount', 'required':'required'})
+    )
+    inventory_quantity = forms.IntegerField(
+        label='Stocks restant',
+        required=False,
+        widget=forms.NumberInput(
+            attrs={'class': 'form-control centered_input quantity',
+                    'placeholder': 'Stocks rest.',
+                    'min': 0}
+        ),
+    )
+    unit_inventory = forms.ChoiceField(
+        label='Unité quantité',
+        choices=([('UNIT', 'produits'), ('CL', 'cl'), ('L', 'L'), ('G', 'g'), ('KG', 'kg')]),
+        required=False,
+        widget=forms.Select(
+            attrs={'class': 'form-control selectpicker unit_quantity'})
     )
 
     def clean(self):
         cleaned_data = super(StockEntryProductForm, self).clean()
         # Validation direct in html
+
+
+class BaseInventoryProductFormSet(BaseFormSet):
+    def clean(self):
+        """
+        Check that there is max one inventory for each product
+        """
+        if any(self.errors):
+            # Don't bother validating the formset unless each form is valid on its own
+            return
+
+        products = []
+        for form in self.forms:
+            product = form.cleaned_data['product'].split('/')[0]
+
+            if product in products:
+                raise forms.ValidationError("Impossible de définir deux produits identiques dans le même inventaire")
+            products.append(product)
+
+
+class AdditionnalDataStockEntryForm(forms.Form):
+    isAddingInventory = forms.ChoiceField(label='Faire également un inventaire des stocks',
+                            choices=([('with', 'Avec'), ('without', 'Sans')]))
 
 
 class StockEntryListDateForm(forms.Form):
@@ -80,9 +117,11 @@ class StockEntryListDateForm(forms.Form):
         widget=forms.DateInput(attrs={'class': 'datepicker'}),
         required=False)
 
+
 class AdditionnalDataInventoryForm(forms.Form):
     type = forms.ChoiceField(label='Type d\'Inventaire',
                             choices=([('partial', 'Partiel'), ('full', 'Complet')]))
+
 
 class InventoryProductForm(forms.Form):
     def __init__(self, *args, **kwargs):
@@ -119,6 +158,7 @@ class InventoryProductForm(forms.Form):
     def clean(self):
         cleaned_data = super(InventoryProductForm, self).clean()
         # Validation direct in html
+
 
 class BaseInventoryProductFormSet(BaseFormSet):
     def clean(self):
