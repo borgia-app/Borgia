@@ -1,10 +1,10 @@
 from django.test import Client
 from django.urls import reverse
 
-from users.tests.tests_views import BaseUsersViewsTest
+from borgia.tests.tests_views import BaseBorgiaViewsTestCase
 
 
-class BaseSettingsViewsTest(BaseUsersViewsTest):
+class BaseSettingsViewsTest(BaseBorgiaViewsTestCase):
     url_view = None
 
     def allowed_user_get(self):

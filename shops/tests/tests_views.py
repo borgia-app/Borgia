@@ -5,10 +5,10 @@ from django.urls import reverse
 
 from shops.models import Product, Shop
 from shops.utils import DEFAULT_PERMISSIONS_CHIEFS
-from users.tests.tests_views import BaseUsersViewsTest
+from borgia.tests.tests_views import BaseBorgiaViewsTestCase
 
 
-class BaseShopsViewsTest(BaseUsersViewsTest):
+class BaseShopsViewsTest(BaseBorgiaViewsTestCase):
     def setUp(self):
         super().setUp()
 

@@ -3,13 +3,13 @@ from django.core.exceptions import PermissionDenied
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from users.tests.tests_views import BaseUsersViewsTest
+from borgia.tests.tests_views import BaseBorgiaViewsTestCase
 from finances.models import Recharging, Transfert, Cash  # , Sale
 # from shops.models import Shop
 # from modules.models import ShopModule
 
 
-class UserExceptionnalMovementCreateTest(BaseUsersViewsTest):
+class UserExceptionnalMovementCreateTest(BaseBorgiaViewsTestCase):
     def test_get_allowed_user(self):
         response_client1 = self.client1.get(reverse('url_user_exceptionnalmovement_create',
                                                     kwargs={'group_name': 'presidents', 'user_pk': '2'}))
@@ -42,7 +42,7 @@ class UserExceptionnalMovementCreateTest(BaseUsersViewsTest):
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
-class UserSupplyMoneyTest(BaseUsersViewsTest):
+class UserSupplyMoneyTest(BaseBorgiaViewsTestCase):
     def test_get_allowed_user(self):
         response_client1 = self.client1.get(reverse('url_user_supplymoney',
                                                     kwargs={'group_name': 'presidents', 'user_pk': '2'}))
@@ -75,7 +75,7 @@ class UserSupplyMoneyTest(BaseUsersViewsTest):
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
-class SaleListTest(BaseUsersViewsTest):
+class SaleListTest(BaseBorgiaViewsTestCase):
     def test_get_allowed_user(self):
         response_client1 = self.client1.get(reverse('url_sale_list', kwargs={'group_name': 'presidents'}))
         self.assertEqual(response_client1.status_code, 200)
@@ -125,7 +125,7 @@ class SaleListTest(BaseUsersViewsTest):
 #         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
-class RechargingListTest(BaseUsersViewsTest):
+class RechargingListTest(BaseBorgiaViewsTestCase):
     def test_get_allowed_user(self):
         response_client1 = self.client1.get(reverse('url_recharging_list', kwargs={'group_name': 'presidents'}))
         self.assertEqual(response_client1.status_code, 200)
@@ -151,7 +151,7 @@ class RechargingListTest(BaseUsersViewsTest):
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
-class RechargingRetrieveTest(BaseUsersViewsTest):
+class RechargingRetrieveTest(BaseBorgiaViewsTestCase):
     def setUp(self):
         super().setUp()
         cash = Cash.objects.create(sender=self.user2, recipient=self.user1, amount=20)
@@ -189,7 +189,7 @@ class RechargingRetrieveTest(BaseUsersViewsTest):
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
-class TransfertListTest(BaseUsersViewsTest):
+class TransfertListTest(BaseBorgiaViewsTestCase):
     def test_get_allowed_user(self):
         response_client1 = self.client1.get(reverse('url_transfert_list', kwargs={'group_name': 'presidents'}))
         self.assertEqual(response_client1.status_code, 200)
@@ -215,7 +215,7 @@ class TransfertListTest(BaseUsersViewsTest):
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
-class TransfertRetrieveTest(BaseUsersViewsTest):
+class TransfertRetrieveTest(BaseBorgiaViewsTestCase):
     def setUp(self):
         super().setUp()
         Transfert.objects.create(sender=self.user1, recipient=self.user2, amount=10)
