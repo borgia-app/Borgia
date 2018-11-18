@@ -5,7 +5,7 @@ from django.urls import reverse
 
 from shops.models import Product, Shop
 from shops.utils import DEFAULT_PERMISSIONS_CHIEFS
-from users.tests.test_views import BaseUsersViewsTest
+from users.tests.tests_views import BaseUsersViewsTest
 
 
 class BaseShopsViewsTest(BaseUsersViewsTest):
@@ -32,7 +32,7 @@ class BaseShopsViewsTest(BaseUsersViewsTest):
         # Add chiefs default permissions
         for codename in DEFAULT_PERMISSIONS_CHIEFS:
             perm = Permission.objects.get(codename=codename)
-            chiefs.permissions.add(perm)
+            chief   s.permissions.add(perm)
 
         chiefs.permissions.add(manage_associate_perm)
         chiefs.save()

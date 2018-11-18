@@ -1,7 +1,7 @@
 from django.test import Client
 from django.urls import reverse
 
-from shops.tests.test_views import BaseShopsViewsTest
+from shops.tests.tests_views import BaseShopsViewsTest
 from stocks.models import (Inventory, InventoryProduct, StockEntry,
                            StockEntryProduct)
 

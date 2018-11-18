@@ -3,7 +3,7 @@ from django.core.exceptions import PermissionDenied
 from django.test import Client, TestCase
 from django.urls import reverse
 
-from users.tests.test_views import BaseUsersViewsTest
+from users.tests.tests_views import BaseUsersViewsTest
 from finances.models import Recharging, Transfert, Cash  # , Sale
 # from shops.models import Shop
 # from modules.models import ShopModule
