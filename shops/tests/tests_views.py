@@ -32,7 +32,7 @@ class BaseShopsViewsTest(BaseBorgiaViewsTestCase):
         # Add chiefs default permissions
         for codename in DEFAULT_PERMISSIONS_CHIEFS:
             perm = Permission.objects.get(codename=codename)
-            chief   s.permissions.add(perm)
+            chiefs.permissions.add(perm)
 
         chiefs.permissions.add(manage_associate_perm)
         chiefs.save()
