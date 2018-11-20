@@ -3,169 +3,24 @@ import functools
 import json
 import re
 
-from django.conf import settings
-from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.serializers import serialize
 from django.db.models import Q
 from django.http import HttpResponse, Http404
-from django.shortcuts import redirect, render
-from django.urls import reverse
+from django.shortcuts import render
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.forms import LoginForm
 from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
                           ShopFromGroupMixin)
 from finances.models import (ExceptionnalMovement, Recharging, Sale,
                              SharedEvent, Transfert)
-from modules.models import OperatorSaleModule, SelfSaleModule
+from modules.models import SelfSaleModule
 from shops.models import Shop
 from users.forms import UserQuickSearchForm
 from users.models import User
-
-
-class Login(FormView):
-    template_name = 'login.html'
-    form_class = LoginForm
-    success_url = None
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            if self.kwargs['shop_name']:
-                try:
-                    self.shop = Shop.objects.get(name=self.kwargs['shop_name'])
-                except ObjectDoesNotExist:
-                    raise Http404
-            self.gadzarts = self.kwargs['gadzarts']
-        except KeyError or ObjectDoesNotExist:
-            pass
-        return super(Login, self).dispatch(request, *args, **kwargs)
-
-    def get_form_kwargs(self, **kwargs):
-        kwargs = super(Login, self).get_form_kwargs()
-        try:
-            if self.gadzarts:
-                kwargs['module'], created = SelfSaleModule.objects.get_or_create(
-                    shop=self.shop)
-            else:
-                kwargs['module'], created = OperatorSaleModule.objects.get_or_create(
-                    shop=self.shop)
-        except AttributeError or ObjectDoesNotExist:
-            kwargs['module'] = None
-        return kwargs
-
-    def get_success_url(self, **kwargs):
-        try:
-            self.shop = Shop.objects.get(name=self.kwargs['shop_name'])
-            self.gadzarts = self.kwargs['gadzarts']
-            if self.gadzarts:
-                self.success_url = self.to_shop_selfsale()
-            else:
-                self.success_url = self.to_shop_operatorsale()
-        except KeyError or ObjectDoesNotExist:
-            pass
-
-        try:
-            if self.request.session['after_login']:
-                self.success_url = self.request.session['after_login']
-                del self.request.session['after_login']
-        except KeyError:
-            pass
-
-        if self.success_url is None:
-            self.success_url = reverse(
-                'url_group_workboard',
-                kwargs={'group_name': 'gadzarts'}
-            )
-        return super(Login, self).get_success_url()
-
-    def form_valid(self, form):
-        user = authenticate(
-            username=form.cleaned_data['username'],
-            password=form.cleaned_data['password']
-        )
-        login(self.request, user)
-        # Update forecast_balance on login
-        user.forecast_balance()
-        return super(Login, self).form_valid(form)
-
-    def to_shop_selfsale(self):
-        if (Group.objects.get(name='gadzarts')
-                in self.request.user.groups.all()):
-            return reverse(
-                'url_module_selfsale',
-                kwargs={'group_name': 'gadzarts', 'shop_name': self.shop.name}
-            )
-        else:
-            return None
-
-    def to_shop_operatorsale(self):
-        if (Group.objects.get(name='chiefs-'+self.shop.name)
-                in self.request.user.groups.all()):
-            return reverse(
-                'url_module_operatorsale',
-                kwargs={'group_name': 'chiefs-'+self.shop.name,
-                        'shop_name': self.shop.name}
-            )
-        elif (Group.objects.get(name='associates-'+self.shop.name)
-              in self.request.user.groups.all()):
-            return reverse(
-                'url_module_operatorsale',
-                kwargs={'group_name': 'associates-'+self.shop.name,
-                        'shop_name': self.shop.name}
-            )
-        else:
-            return None
-
-    def get_context_data(self, **kwargs):
-        context = super(Login, self).get_context_data(**kwargs)
-        context['default_theme'] = settings.DEFAULT_TEMPLATE
-        try:
-            if self.shop:
-                if self.gadzarts:
-                    context['next'] = "Gadz'Arts - " + self.shop.__str__()
-                else:
-                    context['next'] = "opérateur - " + self.shop.__str__()
-        except AttributeError:
-            pass
-
-        context['shop_list'] = []
-        for shop in Shop.objects.all().exclude(pk=1):
-            operator_module, created = OperatorSaleModule.objects.get_or_create(
-                shop=shop)
-            self_module, created = SelfSaleModule.objects.get_or_create(
-                shop=shop)
-            context['shop_list'].append({
-                'shop': shop,
-                'operator_module': operator_module,
-                'self_module': self_module
-            })
-        return context
-
-    def get(self, request, *args, **kwargs):
-        if request.user.is_authenticated:
-            return redirect(self.get_success_url())
-        else:
-            return super(Login, self).get(request, *args, **kwargs)
-
-
-class Logout(View):
-    @staticmethod
-    def get(request):
-        try:
-            success_url = request.session['save_login_url']
-        except KeyError:
-            success_url = '/auth/login/'
-        try:
-            del request.session['save_login_url']
-        except KeyError:
-            pass
-        if request.user.is_authenticated:
-            logout(request)
-        return redirect(success_url)
 
 
 def jsi18n_catalog(request):
@@ -383,7 +238,7 @@ def get_list_model(request, model, search_in, props=None):
     try:
         data_load = data_load[int(request.GET[
             'begin']):int(request.GET['end'])]
-    except KeyError or AttributeError:
+    except (KeyError, AttributeError):
         pass
 
     # Ajout de l'information du nombre total d'élément
