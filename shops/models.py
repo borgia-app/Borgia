@@ -1,11 +1,8 @@
-from django.db import models
-from decimal import InvalidOperation, Decimal, DivisionUndefined, DivisionByZero
-from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import RegexValidator, MinValueValidator
+import decimal
 
-from settings_data.models import Setting
-from stocks.models import InventoryProduct, StockEntryProduct
-from finances.models import SaleProduct
+from django.core.validators import MinValueValidator, RegexValidator
+from django.db import models
+
 from settings_data.utils import settings_safe_get
 
 
@@ -68,152 +65,63 @@ class Shop(models.Model):
 
 
 class Product(models.Model):
+    """
+    Define a Product object.
+
+    :param name: Display name, mandatory.
+    :param is_manual: is the price set manually.
+    :param manual_price: price if set manually.
+    :param shop: Related shop.
+    :param is_active: is the product used.
+    :param is_removed: is the product removed.
+    :param unit: unit of the product.
+    :param correcting_factor: for automatic price.
+    :type name: string
+    :type is_manual: bool
+    :type manual_price: decimal
+    :type shop:
+    :type is_active: bool
+    :type is_removed: bool
+    :type unit: string
+    :type correcting_factor: decimal
+    """
     UNIT_CHOICES = (('CL', 'cl'), ('G', 'g'))
+
     name = models.CharField('Nom', max_length=255)
-    is_manual = models.BooleanField('Gestion manuelle du prix', default=False)
-    manual_price = models.DecimalField('Prix manuel', default=0,
-                                       decimal_places=2, max_digits=9,
-                                       validators=[
-                                           MinValueValidator(Decimal(0))])
+    unit = models.CharField('Unité', max_length=255,
+                            choices=UNIT_CHOICES, blank=True, null=True)
     shop = models.ForeignKey(
         'Shop',
         related_name='%(app_label)s_%(class)s_shop',
         on_delete=models.CASCADE)
+    is_manual = models.BooleanField('Gestion manuelle du prix', default=False)
+    manual_price = models.DecimalField('Prix manuel', default=0,
+                                       decimal_places=2, max_digits=9,
+                                       validators=[
+                                           MinValueValidator(decimal.Decimal(0))])
+    correcting_factor = models.DecimalField('Facteur correcteur de ventes', default=1,
+                                            decimal_places=4, max_digits=9,
+                                            validators=[
+                                                MinValueValidator(decimal.Decimal(0))])
     is_active = models.BooleanField('Actif', default=True)
     is_removed = models.BooleanField('Retiré', default=False)
-    unit = models.CharField('Unité', max_length=255, choices=UNIT_CHOICES, blank=True, null=True)
-    correcting_factor = models.DecimalField('Facteur correcteur de ventes', default=1,
-                                       decimal_places=4, max_digits=9,
-                                       validators=[
-                                           MinValueValidator(Decimal(0))])
 
     def __str__(self):
         return self.name
 
-    def get_display_type(self):
+    def get_unit_display(self):
         if self.unit is not None:
-            return 'Vente au ' + self.get_unit_display()
+            return self.unit.lower()
         else:
-            return 'Vente à l\'unité'
+            return 'unit'
 
-    def get_automatic_price(self):
-        """
-        Return the price calculated over the last stockentry concerning the product.
-        """
-        try:
-            margin_profit = settings_safe_get('MARGIN_PROFIT').get_value()
-
-            last_stockentry = sorted(StockEntryProduct.objects.filter(product=self), key=lambda x: x.stockentry.datetime, reverse=True)[0]
-            return round(Decimal(last_stockentry.unit_price() * self.correcting_factor * Decimal(1 + margin_profit / 100)), 4)
-        except IndexError:
-            return Decimal(0)
-
-    def deviating_price_from_auto(self):
-        automatic_price = self.get_automatic_price()
-        if automatic_price == 0:
-            return 0
-        else:
-            return round(( self.manual_price - automatic_price) / automatic_price * 100 , 4)
-
-    def get_price(self):
-        if self.is_manual:
-            return self.manual_price
-        else:
-            return self.get_automatic_price()
-
-    def get_display_price(self):
-        if self.unit:
-            return str(self.get_price()) + '€ / ' + self.upper_quantity()
-        else:
-            return str(self.get_price()) + '€ / produit'
-
-    def get_display_price_with_strategy(self):
-        if self.is_manual:
-            return self.get_display_price() + ' (manuel)'
-        else:
-            return self.get_display_price() + ' (automatique)'
-
-    def upper_quantity(self):
-        if self.unit == 'G':
-            return 'kg'
+    def get_upper_unit_display(self):
+        if self.unit is None:
+            return 'Unit'
+        elif self.unit == 'G':
+            return 'Kg'
         elif self.unit == 'CL':
             return 'L'
-
-    def last_inventoryproduct(self, offset=0):
-        """
-        Return the last inventoryproduct of the current product.
-        Return None if there is no inventory.
-        """
-        try:
-            list_inventoryproduct = InventoryProduct.objects.filter(product=self)
-            if list_inventoryproduct is None:
-                return None
-            else:
-                return list_inventoryproduct.order_by('-id')[0+offset]
-        except IndexError:
-            return None
-
-    def last_inventoryproduct_value(self, offset=0):
-        try:
-            return self.last_inventoryproduct(offset).quantity
-        except AttributeError:
-            return Decimal(0)
-
-    def sales_since_last_inventory(self, offset=0):
-        """
-        Return all SaleProduct concerning the product since the last inventory.
-        """
-        try:
-            return SaleProduct.objects.filter(
-                product=self,
-                sale__datetime__gte=self.last_inventoryproduct(offset).inventory.datetime
-                )
-        except AttributeError:
-            return SaleProduct.objects.filter(
-                product=self
-            )
-
-    def stockentries_since_last_inventory(self, offset=0):
-        """
-        Return all StockEntryProduct concerning the product since the
-        """
-        try:
-            return StockEntryProduct.objects.filter(
-                product=self,
-                stockentry__datetime__gte=self.last_inventoryproduct(offset).inventory.datetime
-            )
-        except AttributeError:
-            return StockEntryProduct.objects.filter(
-                product=self
-            )
-
-    def current_stock_estimated(self, offset=0):
-        """
-        Calculate the theorical stock since the last inventory.
-        Used in order to modify the correcting_factor comparing this value with
-        the value given by the next inventory.
-        """
-        stock_base = self.last_inventoryproduct_value(offset)
-        stock_input = sum(se.quantity for se in self.stockentries_since_last_inventory(offset))
-        stock_output = sum(s.quantity for s in self.sales_since_last_inventory(offset))
-        corrected_stock_output = stock_output * Decimal(self.correcting_factor)
-
-        return stock_base + stock_input - corrected_stock_output
-
-    def get_current_stock_estimated_display(self, offset=0):
-        """
-        Return the current stock estimated using human units
-        cl -> L (if more than 1 L)
-        g -> KG (if more than 1 KG)
-        unit -> unit
-        """
-        current_stock_estimated = self.current_stock_estimated(offset)
-
-        # If negative stock, display 0
-        if current_stock_estimated < 0:
-            return self.get_quantity_display(0)
-
-        return self.get_quantity_display(current_stock_estimated)
 
     def get_quantity_display(self, value):
         if self.unit:
@@ -232,6 +140,115 @@ class Product(models.Model):
                 return str(round(value, 0)) + ' produits'
             else:
                 return str(round(value, 0)) + ' produit'
+
+    def get_automatic_price(self):
+        """
+        Return the price calculated over the last stockentry concerning the product.
+        If there is no stock entry realisated, return 0.
+        """
+        try:
+            margin_profit = settings_safe_get('MARGIN_PROFIT').get_value()
+
+            last_stockentry = self.stockentryproduct_set.order_by('-stockentry__datetime').first()
+            if last_stockentry is not None:
+                return round(decimal.Decimal(last_stockentry.unit_price() * self.correcting_factor * decimal.Decimal(1 + margin_profit / 100)), 4)
+            else:
+                return 0
+        except IndexError:
+            return decimal.Decimal(0)
+
+    def deviating_price_from_auto(self):
+        automatic_price = self.get_automatic_price()
+        if automatic_price == 0:
+            return 0
+        else:
+            return round((self.manual_price - automatic_price) / automatic_price * 100, 4)
+
+    def get_price(self):
+        """
+        Return price for product, depending on is_manual
+        """
+        if self.is_manual:
+            return self.manual_price
+        else:
+            return self.get_automatic_price()
+
+    def get_strategy_display(self):
+        if self.is_manual:
+            return 'manuel'
+        else:
+            return 'automatique'
+
+    def last_inventoryproduct(self, offset=0):
+        """
+        Return the last inventoryproduct of the current product.
+        Return None if there is no inventory.
+        """
+        try:
+            list_inventoryproduct = self.inventoryproduct_set.all()
+            if list_inventoryproduct is None:
+                return None
+            else:
+                return list_inventoryproduct.order_by('-id')[0+offset]
+        except IndexError:
+            return None
+
+    def last_inventoryproduct_value(self, offset=0):
+        try:
+            return self.last_inventoryproduct(offset).quantity
+        except AttributeError:
+            return decimal.Decimal(0)
+
+    def sales_since_last_inventory(self, offset=0):
+        """
+        Return all SaleProduct concerning the product since the last inventory.
+        """
+        try:
+            return self.saleproduct_set.filter(
+                sale__datetime__gte=self.last_inventoryproduct(offset).inventory.datetime)
+        except AttributeError:
+            return self.saleproduct_set.all()
+
+    def stockentries_since_last_inventory(self, offset=0):
+        """
+        Return all StockEntryProduct concerning the product since the last inventory
+        """
+        try:
+            last_inventory = self.last_inventoryproduct(offset).inventory.datetime
+            return self.stockentryproduct_set.filter(stockentry__datetime__gte=last_inventory)
+        except AttributeError:
+            return self.stockentryproduct_set.all()
+
+    def current_stock_estimated(self, offset=0):
+        """
+        Calculate the theorical stock since the last inventory.
+        Used in order to modify the correcting_factor comparing this value with
+        the value given by the next inventory.
+        """
+        stock_base = self.last_inventoryproduct_value(offset)
+        stock_input = sum(
+            se.quantity for se in self.stockentries_since_last_inventory(offset))
+        stock_output = sum(
+            s.quantity for s in self.sales_since_last_inventory(offset))
+        corrected_stock_output = stock_output * \
+            decimal.Decimal(self.correcting_factor)
+
+        return stock_base + stock_input - corrected_stock_output
+
+    def get_current_stock_estimated_display(self, offset=0):
+        """
+        Return the current stock estimated using human units
+        cl -> L (if more than 1 L)
+        g -> KG (if more than 1 KG)
+        unit -> unit
+        """
+        current_stock_estimated = self.current_stock_estimated(offset)
+
+        # If negative stock, display 0
+        if current_stock_estimated < 0:
+            return self.get_quantity_display(0)
+
+        return self.get_quantity_display(current_stock_estimated)
 
     def update_correcting_factor(self, next_stock):
         """
@@ -253,13 +270,15 @@ class Product(models.Model):
         It appends when ZeroDivisionError is raised.
         """
         stock_base = self.last_inventoryproduct_value(1)
-        stock_input = sum(se.quantity for se in self.stockentries_since_last_inventory(1))
-        stock_output = sum(s.quantity for s in self.sales_since_last_inventory(1))
+        stock_input = sum(
+            se.quantity for se in self.stockentries_since_last_inventory(1))
+        stock_output = sum(
+            s.quantity for s in self.sales_since_last_inventory(1))
 
         try:
-            self.correcting_factor = Decimal(
+            self.correcting_factor = decimal.Decimal(
                 (stock_base + stock_input - next_stock) / stock_output
             )
             self.save()
-        except (InvalidOperation, ZeroDivisionError, DivisionUndefined, DivisionByZero):
+        except (ZeroDivisionError, decimal.DivisionByZero, decimal.DivisionUndefined, decimal.InvalidOperation):
             pass

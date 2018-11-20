@@ -9,9 +9,10 @@ https://docs.djangoproject.com/en/1.9/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/1.9/ref/settings/
 """
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
-import os, re
+import os
+import re
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -26,7 +27,8 @@ SECRET_KEY = 'need to be changed'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['*']  # 'www.borgia.iresam.org' en prod, '*' pour une simulation de prod en local.
+# 'www.borgia.iresam.org' en prod, '*' pour une simulation de prod en local.
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -45,7 +47,7 @@ INSTALLED_APPS = [
     'settings_data',
     'modules',
     'stocks',
-	'static_precompiler'
+    'static_precompiler'
 ]
 
 MIDDLEWARE = [
@@ -65,8 +67,7 @@ ROOT_URLCONF = 'borgia.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [os.path.join(BASE_DIR, 'templates')]
-        ,
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -163,7 +164,7 @@ LOGIN_EXEMPT_URL_PATTERNS = [
     re.compile('^%s$' % ('/jwt/new.json')),
     re.compile('^%s.+$' % ('/media/img/avatars/')),
     re.compile('^%s.+$' % ('/static/media/img/'))
-    ]
+]
 
 STATIC_URL = '/static/'
 # STATIC_ROOT = 'static/static_root/'
@@ -181,7 +182,8 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'media')
 MEDIA_URL = '/media/'
 
 # Lydia
-LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/self/lydias/callback/'  # https ou non selon le dns
+# https ou non selon le dns
+LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/self/lydias/callback/'
 LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/gadzarts/self/lydias/confirm/'
 
 # Penser à activer 'autoriser l'acces par les applications moins sécurisées' dans Gmail
@@ -205,7 +207,7 @@ PASSWORD_RESET_TIMEOUT_DAYS = 1  # en jours
 # Deconnection automatique
 SESSION_COOKIE_AGE = 7200
 
-DEFAULT_TEMPLATE = "light" #Default template, en minuscule
+DEFAULT_TEMPLATE = "light"  # Default template, en minuscule
 
 # Application settings default
 # name: (String name, String description, String value_type, String value)
@@ -218,9 +220,9 @@ BALANCE_THRESHOLD_PURCHASE
 """
 SETTINGS_DEFAULT = {
     "CENTER_NAME": ("CENTER_NAME", "Nom du centre Borgia",
-                        "s", "Center Name"),
+                    "s", "Center Name"),
     "MARGIN_PROFIT": ("MARGIN_PROFIT", "Marge (%) à appliquer sur le prix des produits calculés automatiquement",
-                        "f", "5"),
+                      "f", "5"),
     "LYDIA_MIN_PRICE": ("LYDIA_MIN_PRICE", "Valeur minimale (€) de rechargement en automatique par Lydia",
                         "f", "5"),
     "LYDIA_MAX_PRICE": ("LYDIA_MAX_PRICE", "Valeur maximale (€) de rechargement en automatique par Lydia",
@@ -228,11 +230,11 @@ SETTINGS_DEFAULT = {
     "LYDIA_API_TOKEN": ("LYDIA_API_TOKEN", "Clé API (privée)",
                         "s", "non définie"),
     "LYDIA_VENDOR_TOKEN": ("LYDIA_VENDOR_TOKEN", "Clé vendeur (publique)",
-                        "s", "non définie"),
+                           "s", "non définie"),
     "BALANCE_THRESHOLD_MAIL_ALERT": ("BALANCE_THRESHOLD_MAIL_ALERT", "Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée",
-                        "f", "-10"),
+                                     "f", "-10"),
     "BALANCE_FREQUENCY_MAIL_ALERT": ("BALANCE_FREQUENCY_MAIL_ALERT", "Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",
-                        "i", "7"),
+                                     "i", "7"),
     "BALANCE_THRESHOLD_PURCHASE": ("BALANCE_THRESHOLD_PURCHASE", "Valeur seuil (€) en dessous de laquelle (strictement) la commande est impossible",
-                        "f", "0")
+                                   "f", "0")
 }

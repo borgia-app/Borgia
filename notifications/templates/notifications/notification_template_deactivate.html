@@ -8,13 +8,13 @@
   <div class="panel-body">
     <form action="" method="post">
       {% csrf_token %}
-      <label>{% if object.is_activated == True %}
+      <label>{% if notification_template.is_activated == True %}
             Désactiver
         {% else %}
             Activer
         {% endif %}
-            le template {{ object.notification_class }} ?</label>
-        <input type=hidden name="is_active" value="{{ object.is_active }}" />
+            le template {{ notification_template.notification_class }} ?</label>
+        <input type=hidden name="is_active" value="{{ notification_template.is_active }}" />
         <button class="btn btn-danger" type="submit">Valider</button>
     </form>
   </div>

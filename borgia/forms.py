@@ -1,6 +1,6 @@
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.auth import authenticate
+from django.core.exceptions import ObjectDoesNotExist
 
 from users.models import User
 
@@ -14,18 +14,18 @@ class UserSearchForm(forms.Form):
 
 class LoginForm(forms.Form):
     username = forms.CharField(
-		label="Nom d'utilisateur",
+        label="Nom d'utilisateur",
         max_length=255,
         widget=forms.TextInput(attrs={'class': 'form-control autocomplete_username',
                                       'autocomplete': 'off',
-									  'autofocus': 'true',
-									  'placeholder': "Nom d'utilisateur"})
+                                      'autofocus': 'true',
+                                      'placeholder': "Nom d'utilisateur"})
     )
     password = forms.CharField(
         label='Mot de passe',
         max_length=255,
         widget=forms.PasswordInput(attrs={'class': 'form-control',
-										  'placeholder': "Mot de passe"})
+                                          'placeholder': "Mot de passe"})
     )
 
     def __init__(self, **kwargs):

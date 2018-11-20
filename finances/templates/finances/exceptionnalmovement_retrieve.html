@@ -7,12 +7,12 @@
   </div>
   <div class="panel-body">
     <ul>
-      <li>Opérateur : {{ object.operator }}</li>
-      <li>Receveur : {{ object.recipient }}</li>
-      <li>Date : {{ object.datetime }}</li>
-      <li>Montant : {{ object.amount }}€</li>
+      <li>Opérateur : {{ exceptionnalmovement.operator }}</li>
+      <li>Receveur : {{ exceptionnalmovement.recipient }}</li>
+      <li>Date : {{ exceptionnalmovement.datetime }}</li>
+      <li>Montant : {{ exceptionnalmovement.amount }}€</li>
       <li>Type : {% if exceptionnal_movement.is_credit %}Crédit{% else %}Débit{% endif %}</li>
-      <li>Justification : {{ object.justification }}</li>
+      <li>Justification : {{ exceptionnalmovement.justification }}</li>
     </ul>
   </div>
 </div>

@@ -1,9 +1,10 @@
-from django.db import models
-from decimal import Decimal, DivisionUndefined, DivisionByZero
+import decimal
 
-from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.fields import (GenericForeignKey,
+                                                GenericRelation)
 from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
+from django.db import models
 
 
 class Category(models.Model):
@@ -20,7 +21,8 @@ class Category(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     module_id = models.PositiveIntegerField()
     module = GenericForeignKey('content_type', 'module_id')
-    products = models.ManyToManyField('shops.Product', through='CategoryProduct')
+    products = models.ManyToManyField(
+        'shops.Product', through='CategoryProduct')
 
 
 class CategoryProduct(models.Model):
@@ -39,18 +41,16 @@ class CategoryProduct(models.Model):
         """
         try:
             if self.product.unit:
-                """
-                - price for a L, quantity in cl
-                - price for a kg, quantity in kg
-                """
+                # - price for a L, quantity in cl
+                # - price for a kg, quantity in kg
                 if self.product.unit == 'CL':
-                    return Decimal(self.quantity * self.product.get_price() /  100)
+                    return decimal.Decimal(self.quantity * self.product.get_price() / 100)
                 if self.product.unit == 'G':
-                    return Decimal(self.quantity * self.product.get_price() / 1000)
+                    return decimal.Decimal(self.quantity * self.product.get_price() / 1000)
             else:
-                return Decimal(self.product.get_price())
-        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
-            return Decimal(0)
+                return decimal.Decimal(self.product.get_price())
+        except (ZeroDivisionError, decimal.DivisionUndefined, decimal.DivisionByZero):
+            return decimal.Decimal(0)
 
 
 class Module(models.Model):
@@ -86,12 +86,12 @@ class ShopModule(Module):
         object_id_field='module_id')
     delay_post_purchase = models.IntegerField("Durée d'affichage du résumé de commande",
                                               validators=[
-                                                MinValueValidator(Decimal(0))],
+                                                  MinValueValidator(decimal.Decimal(0))],
                                               blank=True, null=True)
     limit_purchase = models.DecimalField('Montant limite de commande',
                                          decimal_places=2, max_digits=9,
                                          validators=[
-                                           MinValueValidator(Decimal(0))],
+                                             MinValueValidator(decimal.Decimal(0))],
                                          blank=True, null=True)
     logout_post_purchase = models.BooleanField('Deconnexion après une vente',
                                                default=False)

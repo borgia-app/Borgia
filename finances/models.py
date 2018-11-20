@@ -1,12 +1,15 @@
-from django.db import models
-from django.utils.timezone import now
-from decimal import Decimal, DivisionUndefined, DivisionByZero
+import decimal
 
-from django.core.validators import MinValueValidator, RegexValidator
-from django.core.exceptions import ObjectDoesNotExist
 from django.contrib.contenttypes.fields import GenericForeignKey
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.validators import MinValueValidator, RegexValidator
+from django.db import models
+from django.utils.timezone import now
+
 from notifications.models import notify
+from users.models import User
+from shops.models import Shop, Product
 
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
@@ -49,17 +52,17 @@ class Sale(models.Model):
 
     """
     datetime = models.DateTimeField('Date', default=now)
-    sender = models.ForeignKey('users.User', related_name='sender_sale',
-    on_delete=models.CASCADE)
-    recipient = models.ForeignKey('users.User', related_name='recipient_sale',
-    on_delete=models.CASCADE)
-    operator = models.ForeignKey('users.User', related_name='operator_sale',
-    on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, related_name='sender_sale',
+                               on_delete=models.CASCADE)
+    recipient = models.ForeignKey(User, related_name='recipient_sale',
+                                  on_delete=models.CASCADE)
+    operator = models.ForeignKey(User, related_name='operator_sale',
+                                 on_delete=models.CASCADE)
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     module_id = models.PositiveIntegerField()
     module = GenericForeignKey('content_type', 'module_id')
-    shop = models.ForeignKey('shops.Shop', on_delete=models.CASCADE)
-    products = models.ManyToManyField('shops.Product', through='SaleProduct')
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    products = models.ManyToManyField(Product, through='SaleProduct')
 
     def __str__(self):
         """
@@ -127,11 +130,11 @@ class Sale(models.Model):
 
 class SaleProduct(models.Model):
     sale = models.ForeignKey('Sale', on_delete=models.CASCADE)
-    product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField('Prix', default=0, decimal_places=2,
-                                 max_digits=9,
-                                 validators=[MinValueValidator(Decimal(0))])
+                                max_digits=9,
+                                validators=[MinValueValidator(decimal.Decimal(0))])
 
     def __str__(self):
         if self.product.unit:
@@ -145,11 +148,12 @@ class SaleProduct(models.Model):
 
 class Recharging(models.Model):
     datetime = models.DateTimeField('Date', default=now)
-    sender = models.ForeignKey('users.User', related_name='sender_recharging',
-    on_delete=models.CASCADE)
-    operator = models.ForeignKey('users.User', related_name='operator_recharging',
-    on_delete=models.CASCADE)
-    payment_solution = models.ForeignKey('PaymentSolution', on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, related_name='sender_recharging',
+                               on_delete=models.CASCADE)
+    operator = models.ForeignKey(User, related_name='operator_recharging',
+                                 on_delete=models.CASCADE)
+    payment_solution = models.ForeignKey(
+        'PaymentSolution', on_delete=models.CASCADE)
 
     def wording(self):
         if self.payment_solution.get_type() == 'cash':
@@ -169,15 +173,16 @@ class Recharging(models.Model):
 
 
 class PaymentSolution(models.Model):
-    sender = models.ForeignKey('users.User', related_name='payment_sender',
-    on_delete=models.CASCADE)
-    recipient = models.ForeignKey('users.User',
+    sender = models.ForeignKey(User, related_name='payment_sender',
+                               on_delete=models.CASCADE)
+    recipient = models.ForeignKey(User,
                                   related_name='payment_recipient',
                                   on_delete=models.CASCADE)
     amount = models.DecimalField('Montant', default=0, decimal_places=2,
                                  max_digits=9,
-                                 validators=[MinValueValidator(Decimal(0))])
+                                 validators=[MinValueValidator(decimal.Decimal(0))])
 
+    # TODO (by eyap) : make the class overridable and implement type in children
     def get_type(self):
         try:
             self.cash
@@ -198,14 +203,14 @@ class PaymentSolution(models.Model):
                         return None
 
     def get_display_type(self):
-        type = self.get_type()
-        if type == 'cash':
+        payment_type = self.get_type()
+        if payment_type == 'cash':
             return 'espèces'
-        if type == 'cheque':
+        if payment_type == 'cheque':
             return 'chèque'
-        if type == 'lydiafacetoface':
+        if payment_type == 'lydiafacetoface':
             return 'lydia face à face'
-        if type == 'lydiaonline':
+        if payment_type == 'lydiaonline':
             return 'lydia en ligne'
         return None
 
@@ -221,12 +226,9 @@ class Cheque(PaymentSolution):
     mandatory.
     :param cheque_number: number of the cheque (written on the paper),
     mandatory.
-    :param bank_account: bank account of the cheque (written on the paper),
-    mandatory.
     :type is_cashed: boolean, default False
     :type signature_date: date string, default now
     :type cheque_number: string, must match ^[0-9]{7}$
-    :type bank_account: BankAccount object
     """
     is_cashed = models.BooleanField('Est encaissé', default=False)
     signature_date = models.DateField('Date de signature', default=now)
@@ -235,9 +237,6 @@ class Cheque(PaymentSolution):
                                          RegexValidator('^[0-9]{7}$',
                                                         '''Numéro de chèque
                                                         invalide''')])
-    bank_account = models.ForeignKey('BankAccount',
-                                     related_name='cheque_bank_account',
-                                     on_delete=models.CASCADE)
 
     def __str__(self):
         return 'Cheque n°' + self.cheque_number
@@ -250,46 +249,6 @@ class Cheque(PaymentSolution):
         )
 
 
-class BankAccount(models.Model):
-    """
-    Define a bank account owned by an User.
-
-    Such information are used in order to identify in an unique way a Cheque
-    (BankAccount + cheque number).
-
-    :param bank: name of the bank, mandatory.
-    :param account: account number, mandatory.
-    :param owner: owner of the account, mandatory.
-    :type bank: string
-    :type account: string
-    :type owner: User object
-    """
-    bank = models.CharField('Banque', max_length=255)
-    account = models.CharField('Numéro de compte', max_length=255)
-    owner = models.ForeignKey('users.User', related_name='owner_bank_account',
-    on_delete=models.CASCADE)
-
-    def __str__(self):
-        """
-        Return the display name of a BankAccount.
-
-        :returns: bank name and account number
-        :rtype: string
-        """
-        return (self.bank
-                + ' '
-                + self.account)
-
-    class Meta:
-        """
-        Define Permissions for BankAccount.
-        """
-        permissions = (
-            ('retrieve_bankaccount', 'Afficher un compte en banque'),
-            ('list_bankaccount', 'Lister les comptes en banque'),
-        )
-
-
 class Cash(PaymentSolution):
     """
     Define a type of payment made by a phycial money (cash).
@@ -297,7 +256,6 @@ class Cash(PaymentSolution):
     :note:: Related to a unique User.
 
     """
-    pass
 
     class Meta:
         """
@@ -374,17 +332,16 @@ class LydiaOnline(PaymentSolution):
 class Transfert(models.Model):
     datetime = models.DateTimeField('Date', default=now)
     justification = models.TextField('Justification', null=True, blank=True)
-    sender = models.ForeignKey('users.User', related_name='sender_transfert',
-    on_delete=models.CASCADE)
-    recipient = models.ForeignKey('users.User', related_name='recipient_transfert',
-    on_delete=models.CASCADE)
+    sender = models.ForeignKey(User, related_name='sender_transfert',
+                               on_delete=models.CASCADE)
+    recipient = models.ForeignKey(User, related_name='recipient_transfert',
+                                  on_delete=models.CASCADE)
     amount = models.DecimalField('Montant', default=0, decimal_places=2,
                                  max_digits=9,
-                                 validators=[MinValueValidator(Decimal(0))])
+                                 validators=[MinValueValidator(decimal.Decimal(0))])
 
     def wording(self):
         return 'Transfert de ' + self.sender.__str__() + ', ' + self.justification
-
 
     def pay(self):
         if self.sender.debit != self.recipient.credit:
@@ -395,13 +352,13 @@ class Transfert(models.Model):
 class ExceptionnalMovement(models.Model):
     datetime = models.DateTimeField('Date', default=now)
     justification = models.TextField('Justification', null=True, blank=True)
-    operator = models.ForeignKey('users.User', related_name='sender_exceptionnal_movement',
-    on_delete=models.CASCADE)
-    recipient = models.ForeignKey('users.User', related_name='recipient_exceptionnal_movement',
-    on_delete=models.CASCADE)
+    operator = models.ForeignKey(User, related_name='sender_exceptionnal_movement',
+                                 on_delete=models.CASCADE)
+    recipient = models.ForeignKey(User, related_name='recipient_exceptionnal_movement',
+                                  on_delete=models.CASCADE)
     amount = models.DecimalField('Montant', default=0, decimal_places=2,
                                  max_digits=9,
-                                 validators=[MinValueValidator(Decimal(0))])
+                                 validators=[MinValueValidator(decimal.Decimal(0))])
     is_credit = models.BooleanField(default=False)
 
     def wording(self):
@@ -429,20 +386,22 @@ class SharedEvent(models.Model):
     datetime = models.DateTimeField('Date Paiement', default=now)
     price = models.DecimalField('Prix', decimal_places=2, max_digits=9,
                                 null=True, blank=True,
-                                validators=[MinValueValidator(Decimal(0))])
+                                validators=[MinValueValidator(decimal.Decimal(0))])
     bills = models.CharField('Facture(s)', max_length=254, null=True,
                              blank=True)
     done = models.BooleanField('Terminé', default=False)
-    payment_by_ponderation = models.BooleanField('Paiement par pondération', default=False)
-    remark = models.CharField('Remarque', max_length=254, null=True, blank=True)
-    manager = models.ForeignKey('users.User', related_name='manager',
-        on_delete=models.CASCADE)
-    users = models.ManyToManyField('users.User',
-                                    through='WeightsUser',
-                                    #related_name='people'
-                                    )
-    allow_self_registeration = models.BooleanField('Autoriser la self-préinscription', default=True)
-    date_end_registration = models.DateField('Date de fin de self-préinscription', blank=True, null=True)
+    payment_by_ponderation = models.BooleanField(
+        'Paiement par pondération', default=False)
+    remark = models.CharField(
+        'Remarque', max_length=254, null=True, blank=True)
+    manager = models.ForeignKey(User, related_name='manager',
+                                on_delete=models.CASCADE)
+    users = models.ManyToManyField(User,
+                                   through='WeightsUser')
+    allow_self_registeration = models.BooleanField(
+        'Autoriser la self-préinscription', default=True)
+    date_end_registration = models.DateField(
+        'Date de fin de self-préinscription', blank=True, null=True)
 
     def __str__(self):
         """
@@ -462,10 +421,12 @@ class SharedEvent(models.Model):
         list_u_all = []
         for user in self.users.all():
             e = self.weightsuser_set.get(user=user, shared_event=self)
-            if isinstance(self.price, Decimal) and e.weights_participation > 0:
-              list_u_all.append([user, e.weights_registeration, e.weights_participation, e.weights_participation * self.price])
+            if isinstance(self.price, decimal.Decimal) and e.weights_participation > 0:
+                list_u_all.append(
+                    [user, e.weights_registeration, e.weights_participation, e.weights_participation * self.price])
             else:
-              list_u_all.append([user, e.weights_registeration, e.weights_participation])
+                list_u_all.append(
+                    [user, e.weights_registeration, e.weights_participation])
         return list_u_all
 
     def list_participants_weight(self):
@@ -480,9 +441,9 @@ class SharedEvent(models.Model):
             weight = e.weights_participation
             if weight > 0:
                 if self.price:
-                  list_u_p.append([user, weight, weight * self.price])
+                    list_u_p.append([user, weight, weight * self.price])
                 else:
-                  list_u_p.append([user, weight])
+                    list_u_p.append([user, weight])
         return list_u_p
 
     def list_registrants_weight(self):
@@ -499,7 +460,7 @@ class SharedEvent(models.Model):
                 list_u_r.append([user, weight])
         return list_u_r
 
-    def remove_user(self, user, isParticipant=True):
+    def remove_user(self, user):
         """
         Suppresion de l'utilisateur, purement et simplement, de l'événement.
         :param user: user à supprimer
@@ -525,9 +486,11 @@ class SharedEvent(models.Model):
         # if the user doesn't exist in the event already
         if user not in self.users.all():
             if isParticipant:
-                WeightsUser.objects.create(user=user, shared_event=self, weights_participation = weight)
+                WeightsUser.objects.create(
+                    user=user, shared_event=self, weights_participation=weight)
             else:
-                WeightsUser.objects.create(user=user, shared_event=self, weights_registeration = weight)
+                WeightsUser.objects.create(
+                    user=user, shared_event=self, weights_registeration=weight)
         else:
             e = self.weightsuser_set.get(user=user, shared_event=self)
             if isParticipant:
@@ -546,16 +509,18 @@ class SharedEvent(models.Model):
         """
 
         # if the user doesn't exist in the event already
-        if not user in self.users.all() :
+        if not user in self.users.all():
             if weight != 0:
                 if isParticipant:
-                    WeightsUser.objects.create(user=user, shared_event=self, weights_participation = weight)
+                    WeightsUser.objects.create(
+                        user=user, shared_event=self, weights_participation=weight)
                 else:
-                    WeightsUser.objects.create(user=user, shared_event=self, weights_registeration = weight)
+                    WeightsUser.objects.create(
+                        user=user, shared_event=self, weights_registeration=weight)
         else:
             e = self.weightsuser_set.get(user=user)
 
-            if weight == 0 and ( ( isParticipant and e.weights_registeration == 0 ) or (  not isParticipant and e.weights_participation == 0 ) ):
+            if weight == 0 and ((isParticipant and e.weights_registeration == 0) or (not isParticipant and e.weights_participation == 0)):
                 e.delete()
                 # Deleted if both values are 0
 
@@ -577,19 +542,19 @@ class SharedEvent(models.Model):
             return 0
 
     def get_price_of_user(self, user):
-	    # Calcul du prix par weight
-        if isinstance(self.price, Decimal):
+            # Calcul du prix par weight
+        if isinstance(self.price, decimal.Decimal):
             weight_of_user = self.get_weight_of_user(user)
             if not self.payment_by_ponderation:
                 total_weights_participants = self.get_total_weights_participants()
                 try:
-                    return round(self.price / total_weights_participants  * weight_of_user, 2)
-                except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+                    return round(self.price / total_weights_participants * weight_of_user, 2)
+                except (ZeroDivisionError, decimal.DivisionUndefined, decimal.DivisionByZero):
                     return 0
             else:
                 return self.price * weight_of_user
         else:
-             return 0
+            return 0
 
     def pay_by_total(self, operator, recipient, total_price):
         """
@@ -608,7 +573,7 @@ class SharedEvent(models.Model):
         total_weight = self.get_total_weights_participants()
         try:
             final_price_per_weight = round(total_price / total_weight, 2)
-        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+        except (ZeroDivisionError, decimal.DivisionUndefined, decimal.DivisionByZero):
             return
 
         for e in self.weightsuser_set.all():
@@ -616,17 +581,18 @@ class SharedEvent(models.Model):
             e.user.debit(user_price)
             recipient.credit(user_price)
             if (e.user.balance < 0):
-			    # If negative balance after event
-		        # We notify
+                            # If negative balance after event
+                        # We notify
                 notify(notification_class_name='negative_balance',
-                   actor=operator,
-                   recipient=e.user,
-                   target_object=self
-                )
+                       actor=operator,
+                       recipient=e.user,
+                       target_object=self
+                       )
 
         self.price = total_price
         self.datetime = now()
-        self.remark = 'Paiement par Borgia (Prix total : ' + str(total_price) + ')'
+        self.remark = 'Paiement par Borgia (Prix total : ' + \
+            str(total_price) + ')'
         self.save()
 
     def pay_by_ponderation(self, operator, recipient, ponderation_price):
@@ -650,18 +616,19 @@ class SharedEvent(models.Model):
                 e.user.debit(user_price)
                 recipient.credit(user_price)
                 if (e.user.balance < 0):
-    			    # If negative balance after event
-    		        # We notify
+                            # If negative balance after event
+                        # We notify
                     notify(notification_class_name='negative_balance',
-                       actor=operator,
-                       recipient=e.user,
-                       target_object=self
-                    )
+                           actor=operator,
+                           recipient=e.user,
+                           target_object=self
+                           )
 
         self.payment_by_ponderation = True
         self.price = ponderation_price
         self.datetime = now()
-        self.remark = 'Paiement par Borgia (Prix par pondération: ' + str(ponderation_price) + ')'
+        self.remark = 'Paiement par Borgia (Prix par pondération: ' + \
+            str(ponderation_price) + ')'
         self.save()
 
     def end_without_payment(self, remark):
@@ -671,7 +638,7 @@ class SharedEvent(models.Model):
         :return:
         """
         self.done = True
-        self.price = Decimal('0.00')
+        self.price = decimal.Decimal('0.00')
         self.datetime = now()
         self.remark = 'Pas de paiement : ' + remark
         self.save()
@@ -695,14 +662,14 @@ class SharedEvent(models.Model):
         total = 0
         for e in self.weightsuser_set.all():
             if e.weights_registeration != 0:
-                total+=1;
+                total += 1
         return total
 
     def get_number_participants(self):
         total = 0
         for e in self.weightsuser_set.all():
             if e.weights_participation != 0:
-                total+=1;
+                total += 1
         return total
 
     class Meta:
@@ -719,15 +686,16 @@ class SharedEvent(models.Model):
             ('self_register_sharedevent', 'Se préinscrire à un événement commun'),
             ('list_sharedevent', 'Lister les événements communs'),
             ('manage_sharedevent', 'Gérer les événements communs'),
-            ('proceed_payment_sharedevent', 'Procéder au paiement des événements communs'),
+            ('proceed_payment_sharedevent',
+             'Procéder au paiement des événements communs'),
         )
 
 
 class WeightsUser(models.Model):
-    user = models.ForeignKey('users.User', on_delete=models.CASCADE) # Supprime la weight si l'utilisateur est supprimé
-    shared_event = models.ForeignKey(SharedEvent, on_delete=models.CASCADE) # Supprime la weight si l'event est supprimé
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    shared_event = models.ForeignKey(SharedEvent, on_delete=models.CASCADE)
     weights_registeration = models.IntegerField(default=0)
     weights_participation = models.IntegerField(default=0)
 
-    def __unicode__(self):
+    def __str__(self):
         return "%s possede %s parts dans l'événement %s" % (self.user, self.weights_participation, self.shared_event)

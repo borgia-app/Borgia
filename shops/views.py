@@ -1,12 +1,29 @@
-from django.db.models import Q
-from django.shortcuts import redirect, render
-from django.views.generic import FormView, View
+import decimal
 
-from borgia.utils import *
-from finances.models import *
+from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import (MultipleObjectsReturned,
+                                    ObjectDoesNotExist, PermissionDenied)
+from django.db.models import Q
+from django.http import Http404
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.utils.timezone import now
+from django.views.generic.base import View
+from django.views.generic.edit import FormView
+
+from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
+                          GroupPermissionMixin, ProductShopFromGroupMixin,
+                          ShopFromGroupMixin)
+from finances.models import Sale
+from modules.models import CategoryProduct
 from settings_data.utils import settings_safe_get
-from shops.forms import *
-from shops.models import *
+from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
+                         ProductUpdatePriceForm, ShopCheckupSearchForm,
+                         ShopCreateForm, ShopUpdateForm)
+from shops.models import Product, Shop
+from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
+                         DEFAULT_PERMISSIONS_CHIEFS)
 
 
 class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
@@ -66,7 +83,7 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         if self.shop:
             shop = self.shop
         else:
-            shop=form.cleaned_data['shop']
+            shop = form.cleaned_data['shop']
         if form.cleaned_data['on_quantity']:
             Product.objects.create(
                 name=form.cleaned_data['name'],
@@ -81,7 +98,7 @@ class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                 correcting_factor=1
             )
         return redirect(reverse('url_product_list',
-                        kwargs={'group_name': self.group.name}))
+                                kwargs={'group_name': self.group.name}))
 
     def get_initial(self):
         initial = super(ProductCreate, self).get_initial()
@@ -116,7 +133,7 @@ class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['product'] = self.object
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
@@ -128,12 +145,12 @@ class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View,
         self.object.save()
 
         return redirect(reverse('url_product_retrieve',
-                        kwargs={'group_name': self.group.name,
-                                'pk': self.object.pk}))
+                                kwargs={'group_name': self.group.name,
+                                        'pk': self.object.pk}))
 
 
 class ProductRemove(GroupPermissionMixin, ProductShopFromGroupMixin, View,
-                        GroupLateralMenuMixin):
+                    GroupLateralMenuMixin):
     """
     Remove a product and redirect to the list of products.
 
@@ -147,7 +164,7 @@ class ProductRemove(GroupPermissionMixin, ProductShopFromGroupMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['product'] = self.object
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
@@ -159,7 +176,7 @@ class ProductRemove(GroupPermissionMixin, ProductShopFromGroupMixin, View,
         CategoryProduct.objects.filter(product=self.object).delete()
 
         return redirect(reverse('url_product_list',
-                        kwargs={'group_name': self.group.name}))
+                                kwargs={'group_name': self.group.name}))
 
 
 class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View,
@@ -176,7 +193,7 @@ class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['product'] = self.object
         return render(request, self.template_name, context=context)
 
 
@@ -196,7 +213,7 @@ class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin, FormView,
 
     def get_context_data(self, **kwargs):
         context = super(ProductUpdate, self).get_context_data(**kwargs)
-        context['object'] = self.object
+        context['product'] = self.object
         return context
 
     def get_initial(self):
@@ -229,8 +246,9 @@ class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
 
     def get_context_data(self, **kwargs):
         context = super(ProductUpdatePrice, self).get_context_data(**kwargs)
-        context['object'] = self.object
-        context['margin_profit'] = settings_safe_get('MARGIN_PROFIT').get_value()
+        context['product'] = self.object
+        context['margin_profit'] = settings_safe_get(
+            'MARGIN_PROFIT').get_value()
         return context
 
     def get_initial(self):
@@ -256,16 +274,6 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     perm_codename = 'add_shop'
     lm_active = 'lm_shop_create'
     form_class = ShopCreateForm
-    perm_chiefs = ['add_user', 'retrieve_user', 'list_user', 'supply_money_user', 'add_product',
-                   'change_product', 'retrieve_product', 'list_product',
-                   'list_sale', 'retrieve_sale', 'use_operatorsalemodule',
-                   'add_stockentry', 'retrieve_stockentry', 'list_stockentry',
-                   'add_inventory', 'retrieve_inventory', 'list_inventory', 'change_price_product']
-    perm_associates = ['add_user', 'retrieve_user', 'list_user', 'supply_money_user', 'add_product',
-                       'change_product', 'retrieve_product', 'list_product',
-                       'list_sale', 'retrieve_sale', 'use_operatorsalemodule',
-                       'add_stockentry', 'retrieve_stockentry', 'list_stockentry',
-                       'add_inventory', 'retrieve_inventory', 'list_inventory']
 
     def form_valid(self, form):
         """
@@ -295,7 +303,7 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
             name='associates-' + shop.name
         )
 
-        for codename in self.perm_chiefs:
+        for codename in DEFAULT_PERMISSIONS_CHIEFS:
             try:
                 chiefs.permissions.add(
                     Permission.objects.get(codename=codename)
@@ -306,7 +314,7 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 pass
         chiefs.permissions.add(manage_associates)
         chiefs.save()
-        for codename in self.perm_associates:
+        for codename in DEFAULT_PERMISSIONS_ASSOCIATES:
             try:
                 associates.permissions.add(
                     Permission.objects.get(codename=codename)
@@ -374,7 +382,7 @@ class ShopUpdate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
 # TODO: infos
 class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                    GroupLateralMenuFormMixin):
+                  GroupLateralMenuFormMixin):
     """
     You can see checkup of your group from shop only.
     If you're not from a group from shop, you need the permission 'list_shop'
@@ -452,7 +460,7 @@ class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         nb = q_sales.count()
         try:
             mean = round(value / nb, 2)
-        except (ZeroDivisionError, DivisionUndefined, DivisionByZero):
+        except (ZeroDivisionError, decimal.DivisionByZero, decimal.DivisionUndefined):
             mean = 0
         return {
             'value': value,
@@ -463,7 +471,8 @@ class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
     def info_checkup(self):
         q_sale = Sale.objects.filter(shop=self.shop_mod)
         if self.products:
-            q_sale = q_sale.filter(products__pk__in=[p.pk for p in self.products])
+            q_sale = q_sale.filter(
+                products__pk__in=[p.pk for p in self.products])
         if self.date_begin:
             q_sale = q_sale.filter(datetime__gte=self.date_begin)
         if self.date_end:

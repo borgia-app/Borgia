@@ -8,17 +8,17 @@
   </div>
   <div class="panel-body">
     <ul>
-      <li>Opérateur : {{ object.operator }}</li>
-      <li>Acheteur : {{ object.sender }}</li>
-      <li>Date & heure : {{ object.datetime }}</li>
-      <li>Montant : {{ object.payment_solution.amount }}€</li>
-      <li>Type : {{ object.payment_solution.get_display_type|title }}
-      {% if object.payment_solution.get_type == "cheque" %}
-        ({{ object.payment_solution.cheque }})
-      {% elif object.payment_solution.get_type == "lydiaonline"  %}
-        ({{ object.payment_solution.lydiaonline }})
-      {% elif object.payment_solution.get_type == "lydiafacetoface"  %}
-        ({{ object.payment_solution.lydiafacetoface }})
+      <li>Opérateur : {{ recharging.operator }}</li>
+      <li>Acheteur : {{ recharging.sender }}</li>
+      <li>Date & heure : {{ recharging.datetime }}</li>
+      <li>Montant : {{ recharging.payment_solution.amount }}€</li>
+      <li>Type : {{ recharging.payment_solution.get_display_type|title }}
+      {% if recharging.payment_solution.get_type == "cheque" %}
+        ({{ recharging.payment_solution.cheque }})
+      {% elif recharging.payment_solution.get_type == "lydiaonline"  %}
+        ({{ recharging.payment_solution.lydiaonline }})
+      {% elif recharging.payment_solution.get_type == "lydiafacetoface"  %}
+        ({{ recharging.payment_solution.lydiafacetoface }})
       {% endif %}
     </ul>
   </div>

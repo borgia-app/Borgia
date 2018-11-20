@@ -1,301 +1,45 @@
-import operator
+import datetime
+import decimal
 import hashlib
-from datetime import timedelta
+import operator
+
+from django.conf import settings
+from django.contrib import messages
+from django.contrib.auth import authenticate
+from django.contrib.auth.models import Group, Permission
+from django.contrib.messages.views import SuccessMessageMixin
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.db.models import Q
+from django.http import Http404
+from django.shortcuts import HttpResponse, redirect, render
+from django.urls import reverse
+from django.utils.encoding import force_text
+from django.utils.timezone import now
+from django.views.decorators.csrf import csrf_exempt
+from django.views.generic import FormView, View
 from openpyxl import Workbook, load_workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
-from django.db.models import Q
-from django.shortcuts import render, HttpResponse, redirect
-from django.utils.encoding import force_text
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
-from django.views.decorators.csrf import csrf_exempt
-from django.contrib import messages
-
-from django.views.generic import FormView, View
-from django.contrib.messages.views import SuccessMessageMixin
-from django.conf import settings
-
-from finances.forms import *
-from finances.models import *
-from borgia.utils import *
-from settings_data.models import Setting
+from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
+                          GroupPermissionMixin, UserMixin, shop_from_group)
+from finances.forms import (ExceptionnalMovementForm,
+                            GenericListSearchDateForm, RechargingListForm,
+                            SaleListSearchDateForm, SelfLydiaCreateForm,
+                            SelfTransfertCreateForm, SharedEventAddWeightForm,
+                            SharedEventCreateForm, SharedEventDeleteForm,
+                            SharedEventDownloadXlsxForm, SharedEventFinishForm,
+                            SharedEventListForm,
+                            SharedEventSelfRegistrationForm,
+                            SharedEventUpdateForm, SharedEventUploadXlsxForm,
+                            UserSupplyMoneyForm)
+from finances.models import (Cash, Cheque, ExceptionnalMovement,
+                             LydiaFaceToFace, LydiaOnline, Recharging, Sale,
+                             SharedEvent, Transfert)
 from notifications.models import notify
+from settings_data.models import Setting
 from settings_data.utils import settings_safe_get
-
-
-class UserBankAccountCreate(GroupPermissionMixin, UserMixin, FormView,
-                            GroupLateralMenuFormMixin):
-    """
-    View to create a bank account for a specific user.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['user_pk']: pk of the specific user, mandatory
-    :type kwargs['user_pk']: positif integer
-    :type kwargs['group_name']: string
-    :raises: Http404 if the group_name doesn't match a group
-    :raises: Http404 if the user_pk doesn't match an user
-    :raises: Http404 if the group doesn't have the permission to add account
-    """
-    template_name = 'finances/user_bankaccount_create.html'
-    perm_codename = 'add_bankaccount'
-    lm_active = None
-    form_class = BankAccountCreateForm
-
-    def form_valid(self, form):
-        """
-        Create a bank account for the user.
-        """
-        bank_account = BankAccount.objects.create(
-            bank=form.cleaned_data['bank'],
-            account=form.cleaned_data['account'],
-            owner=self.user
-        )
-        # We notify
-        notify(notification_class_name='user_bank_account_creation',
-               actor=self.request.user,
-               recipient=bank_account.owner,
-               target_object=bank_account
-               )
-        return super(UserBankAccountCreate, self).form_valid(form)
-
-
-class SelfBankAccountCreate(GroupPermissionMixin, FormView,
-                            GroupLateralMenuFormMixin):
-    """
-    View to create a bank account for the logged user.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :type kwargs['group_name']: string
-    :raises: Http404 if the group_name doesn't match a group
-    :raises: Http404 if the logged user is not in the group
-    """
-    template_name = 'finances/self_bankaccount_create.html'
-    perm_codename = None
-    lm_active = None
-    form_class = BankAccountCreateForm
-
-    def form_valid(self, form):
-        """
-        Create a bank account for the logged user.
-        """
-        BankAccount.objects.create(
-            bank=form.cleaned_data['bank'],
-            account=form.cleaned_data['account'],
-            owner=self.request.user
-        )
-        self.success_url = reverse(
-            'url_self_user_update',
-            kwargs={'group_name': self.group.name}
-        )
-        return super(SelfBankAccountCreate, self).form_valid(form)
-
-
-class UserBankAccountUpdate(GroupPermissionMixin, UserMixin, FormView,
-                            GroupLateralMenuFormMixin):
-    """
-    View to update a bank account for a specific user.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['user_pk']: pk of the specific user, mandatory
-    :param kwargs['pk']: pk of the bankaccount, mandatory
-    :type kwargs['user_pk']: positif integer
-    :type kwargs['group_name']: string
-    :type kwargs['pk']: positiv integer
-    :raises: Http404 if the group_name doesn't match a group
-    :raises: Http404 if the user_pk doesn't match an user
-    :raises: Http404 if the group doesn't have the permission to update account
-    :raises: Http404 if the pk doesn't match a bank account
-    :raises: PermissionDenied if the bank account is not owned by the user
-    """
-    template_name = 'finances/user_bankaccount_update.html'
-    perm_codename = 'change_bankaccount'
-    lm_active = None
-    form_class = BankAccountUpdateForm
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Check if the bank account is owned by the user.
-
-        :raises: PermissionDenied if not.
-        """
-        try:
-            self.object = BankAccount.objects.get(pk=kwargs['pk'])
-            self.user = User.objects.get(pk=kwargs['user_pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        if self.object.owner != self.user:
-            raise PermissionDenied
-        return super(UserBankAccountUpdate, self).dispatch(
-            request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(UserBankAccountUpdate, self).get_context_data(**kwargs)
-        context['object'] = self.object
-        return context
-
-    def get_initial(self):
-        initial = super(UserBankAccountUpdate, self).get_initial()
-        initial['bank'] = self.object.bank
-        initial['account'] = self.object.account
-        return initial
-
-    def form_valid(self, form):
-        self.object.bank = form.cleaned_data['bank']
-        self.object.account = form.cleaned_data['account']
-        self.object.save()
-        # We notify
-        notify(notification_class_name='user_bank_account_update',
-               actor=self.request.user,
-               recipient=self.object.owner,
-               target_object=self.object
-               )
-        return super(UserBankAccountUpdate, self).form_valid(form)
-
-
-class SelfBankAccountUpdate(GroupPermissionMixin, FormView,
-                            GroupLateralMenuFormMixin):
-    """
-    View to update a bank account for the logged user.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['pk']: pk of the bankaccount, mandatory
-    :type kwargs['group_name']: string
-    :type kwargs['pk']: positiv integer
-    :raises: Http404 if the group_name doesn't match a group
-    :raises: Http404 if the pk doesn't match a bank account
-    :raises: PermissionDenied if the bank account is not owned by the user
-    """
-    template_name = 'finances/self_bankaccount_update.html'
-    perm_codename = None
-    lm_active = None
-    form_class = BankAccountUpdateForm
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Check if the bank account is owned by the logged user.
-
-        :raises: PermissionDenied if not.
-        """
-        try:
-            self.object = BankAccount.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        if self.object.owner != request.user:
-            raise PermissionDenied
-        return super(SelfBankAccountUpdate, self).dispatch(
-            request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(SelfBankAccountUpdate, self).get_context_data(**kwargs)
-        context['object'] = self.object
-        return context
-
-    def get_initial(self):
-        initial = super(SelfBankAccountUpdate, self).get_initial()
-        initial['bank'] = self.object.bank
-        initial['account'] = self.object.account
-        return initial
-
-    def form_valid(self, form):
-        self.object.bank = form.cleaned_data['bank']
-        self.object.account = form.cleaned_data['account']
-        self.object.save()
-        self.success_url = reverse(
-            'url_self_user_update',
-            kwargs={'group_name': self.group.name}
-        )
-        return super(SelfBankAccountUpdate, self).form_valid(form)
-
-
-class UserBankAccountDelete(GroupPermissionMixin, UserMixin, View,
-                            GroupLateralMenuMixin):
-    """
-    View to delete a bank account for a specific user.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['user_pk']: pk of the specific user, mandatory
-    :param kwargs['pk']: pk of the bankaccount, mandatory
-    :type kwargs['user_pk']: positif integer
-    :type kwargs['group_name']: string
-    :type kwargs['pk']: positiv integer
-    :raises: Http404 if the group_name doesn't match a group
-    :raises: Http404 if the user_pk doesn't match an user
-    :raises: Http404 if the group doesn't have the permission to delete account
-    :raises: Http404 if the pk doesn't match a bank account
-    :raises: PermissionDenied if the bank account is not owned by the user
-    """
-    template_name = 'finances/user_bankaccount_delete.html'
-    perm_codename = 'delete_bankaccount'
-    lm_active = None
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Check if the bank account is owned by the user.
-
-        :raises: PermissionDenied if not.
-        """
-        try:
-            self.object = BankAccount.objects.get(pk=kwargs['pk'])
-            self.user = User.objects.get(pk=kwargs['user_pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        if self.object.owner != self.user:
-            raise PermissionDenied
-        return super(UserBankAccountDelete, self).dispatch(
-            request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        context['object'] = self.object
-        return render(request, self.template_name, context=context)
-
-    def post(self, request, *args, **kwargs):
-        self.object.delete()
-        return redirect(force_text(self.success_url))
-
-
-class SelfBankAccountDelete(GroupPermissionMixin, View, GroupLateralMenuMixin):
-    """
-    View to delete a bank account for the logged user.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['pk']: pk of the bankaccount, mandatory
-    :type kwargs['group_name']: string
-    :type kwargs['pk']: positiv integer
-    :raises: Http404 if the group_name doesn't match a group
-    :raises: Http404 if the pk doesn't match a bank account
-    :raises: PermissionDenied if the bank account is not owned by the logged
-    user
-    """
-    template_name = 'finances/self_bankaccount_delete.html'
-    perm_codename = None
-    lm_active = None
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Check if the bank account is owned by the logged user.
-
-        :raises: PermissionDenied if not.
-        """
-        try:
-            self.object = BankAccount.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        if self.object.owner != request.user:
-            raise PermissionDenied
-        return super(SelfBankAccountDelete, self).dispatch(
-            request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        context['object'] = self.object
-        return render(request, self.template_name, context=context)
-
-    def post(self, request, *args, **kwargs):
-        self.object.delete()
-        return redirect(reverse(
-            'url_self_user_update',
-            kwargs={'group_name': self.group.name}))
+from users.models import User
 
 
 class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
@@ -346,7 +90,8 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         page = self.request.POST.get('page', 1)
 
         try:
-            context['sale_list'] = Sale.objects.filter(shop=self.shop).order_by('-datetime')
+            context['sale_list'] = Sale.objects.filter(
+                shop=self.shop).order_by('-datetime')
         except AttributeError:
             context['sale_list'] = Sale.objects.all().order_by('-datetime')
 
@@ -467,7 +212,7 @@ class SaleRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['sale'] = self.object
         return render(request, self.template_name, context=context)
 
 
@@ -493,14 +238,15 @@ class RechargingList(GroupPermissionMixin, FormView,
     form_class = RechargingListForm
 
     search = None
-    date_end = now() + timedelta(days=1)
-    date_begin = now() - timedelta(days=7)
+    date_end = now() + datetime.timedelta(days=1)
+    date_begin = now() - datetime.timedelta(days=7)
     operators = None
 
     def get_context_data(self, **kwargs):
         context = super(RechargingList, self).get_context_data(**kwargs)
 
-        context['recharging_list'] = Recharging.objects.all().order_by('-datetime')
+        context['recharging_list'] = Recharging.objects.all().order_by(
+            '-datetime')
 
         context['recharging_list'] = self.form_query(
             context['recharging_list'])[:1000]
@@ -546,19 +292,23 @@ class RechargingList(GroupPermissionMixin, FormView,
             if r.payment_solution.get_type() == 'cash':
                 info['cash']['total'] += r.payment_solution.amount
                 info['cash']['nb'] += 1
-                info['cash']['ids'] |= Cash.objects.filter(pk=r.payment_solution.cash.pk)
+                info['cash']['ids'] |= Cash.objects.filter(
+                    pk=r.payment_solution.cash.pk)
             if r.payment_solution.get_type() == 'cheque':
                 info['cheque']['total'] += r.payment_solution.amount
                 info['cheque']['nb'] += 1
-                info['cheque']['ids'] |= Cheque.objects.filter(pk=r.payment_solution.cheque.pk)
+                info['cheque']['ids'] |= Cheque.objects.filter(
+                    pk=r.payment_solution.cheque.pk)
             if r.payment_solution.get_type() == 'lydiafacetoface':
                 info['lydia_face2face']['total'] += r.payment_solution.amount
                 info['lydia_face2face']['nb'] += 1
-                info['lydia_face2face']['ids'] |= LydiaFaceToFace.objects.filter(pk=r.payment_solution.lydiafacetoface.pk)
+                info['lydia_face2face']['ids'] |= LydiaFaceToFace.objects.filter(
+                    pk=r.payment_solution.lydiafacetoface.pk)
             if r.payment_solution.get_type() == 'lydiaonline':
                 info['lydia_online']['total'] += r.payment_solution.amount
                 info['lydia_online']['nb'] += 1
-                info['lydia_online']['ids'] |= LydiaOnline.objects.filter(pk=r.payment_solution.lydiaonline.pk)
+                info['lydia_online']['ids'] |= LydiaOnline.objects.filter(
+                    pk=r.payment_solution.lydiaonline.pk)
             info['total']['total'] += r.payment_solution.amount
             info['total']['nb'] += 1
         return info
@@ -635,7 +385,7 @@ class RechargingRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['recharging'] = self.object
         return render(request, self.template_name, context=context)
 
 
@@ -739,7 +489,7 @@ class TransfertRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['transfert'] = self.object
         return render(request, self.template_name, context=context)
 
 
@@ -757,7 +507,8 @@ class SelfTransfertCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
         return kwargs
 
     def form_valid(self, form):
-        recipient = form.cleaned_data['recipient'] # Get user or ValidationError
+        # Get user or ValidationError
+        recipient = form.cleaned_data['recipient']
 
         transfert = Transfert.objects.create(
             sender=self.request.user,
@@ -767,9 +518,9 @@ class SelfTransfertCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
         )
         transfert.pay()
         # We notify
-        notify(notification_class_name= 'transfer_creation',
+        notify(notification_class_name='transfer_creation',
                actor=self.request.user,
-               recipient= recipient,
+               recipient=recipient,
                target_object=transfert)
         return super(SelfTransfertCreate, self).form_valid(form)
 
@@ -777,7 +528,7 @@ class SelfTransfertCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
         return self.success_message % dict(
             amount=cleaned_data['amount'],
             recipient=cleaned_data['recipient']
-        )		
+        )
 
 
 class ExceptionnalMovementList(GroupPermissionMixin, FormView,
@@ -810,7 +561,8 @@ class ExceptionnalMovementList(GroupPermissionMixin, FormView,
         context = super(ExceptionnalMovementList, self).get_context_data(
             **kwargs)
 
-        context['exceptionnalmovement_list'] = ExceptionnalMovement.objects.all().order_by('-datetime')
+        context['exceptionnalmovement_list'] = ExceptionnalMovement.objects.all(
+        ).order_by('-datetime')
 
         context['exceptionnalmovement_list'] = self.form_query(
             context['exceptionnalmovement_list'])[:100]
@@ -884,7 +636,7 @@ class ExceptionnalMovementRetrieve(GroupPermissionMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['object'] = self.object
+        context['exceptionnalmovement'] = self.object
         return render(request, self.template_name, context=context)
 
 
@@ -1017,8 +769,7 @@ class UserSupplyMoney(GroupPermissionMixin, UserMixin, FormView,
                 signature_date=form.cleaned_data['signature_date'],
                 cheque_number=form.cleaned_data['unique_number'],
                 sender=sender,
-                recipient=User.objects.get(username='AE_ENSAM'),
-                bank_account=form.cleaned_data['bank_account'])
+                recipient=User.objects.get(username='AE_ENSAM'))
             payment = cheque
 
         elif form.cleaned_data['type'] == 'cash':
@@ -1080,19 +831,19 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
                 name='LYDIA_MIN_PRICE').get_value()
             if min_value is not None:
                 if min_value > 0:
-                    kwargs['min_value'] = Decimal(min_value)
+                    kwargs['min_value'] = decimal.Decimal(min_value)
                 else:
-                    kwargs['min_value'] = Decimal("0.01")
+                    kwargs['min_value'] = decimal.Decimal("0.01")
             else:
-                kwargs['min_value'] = Decimal("0.01")
+                kwargs['min_value'] = decimal.Decimal("0.01")
         except ObjectDoesNotExist:
-            kwargs['min_value'] = Decimal("0.01")
+            kwargs['min_value'] = decimal.Decimal("0.01")
 
         try:
             max_value = Setting.objects.get(
                 name='LYDIA_MAX_PRICE').get_value()
             if max_value is not None:
-                kwargs['max_value'] = Decimal(max_value)
+                kwargs['max_value'] = decimal.Decimal(max_value)
             else:
                 kwargs['max_value'] = None
         except ObjectDoesNotExist:
@@ -1111,7 +862,8 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
             user.save()
 
         context = super(SelfLydiaCreate, self).get_context_data()
-        context['vendor_token'] = settings_safe_get("LYDIA_VENDOR_TOKEN").get_value()
+        context['vendor_token'] = settings_safe_get(
+            "LYDIA_VENDOR_TOKEN").get_value()
         context['confirm_url'] = settings.LYDIA_CONFIRM_URL
         context['callback_url'] = settings.LYDIA_CALLBACK_URL
         context['amount'] = form.cleaned_data['amount']
@@ -1182,23 +934,27 @@ class SharedEventList(GroupPermissionMixin, FormView,
             self.group = Group.objects.get(name=kwargs['group_name'])
         except ObjectDoesNotExist:
             raise Http404
-        except ValueError: # For safety, but it shouldn't be possible with regex pattern in url FOR NOW (If Post is used, url need to be modified)
+        # For safety, but it shouldn't be possible with regex pattern in url FOR NOW (If Post is used, url need to be modified)
+        except ValueError:
             raise Http404
 
         return super(SharedEventList, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super(SharedEventList, self).get_context_data(**kwargs)
-        shared_events = SharedEvent.objects.filter(date__gte=datetime.date.today(), done=False).order_by('-date')
+        shared_events = SharedEvent.objects.filter(
+            date__gte=datetime.date.today(), done=False).order_by('-date')
 
-        for se in shared_events: # Duplicate
-            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
+        for se in shared_events:  # Duplicate
+            # Si fini, on recupere la participation, sinon la preinscription
+            se.weight_of_user = se.get_weight_of_user(
+                self.request.user, se.done)
             se.number_registrants = se.get_number_registrants()
             se.number_participants = se.get_number_participants()
             se.total_weights_registrants = se.get_total_weights_registrants()
             se.total_weights_participants = se.get_total_weights_participants()
-            se.has_perm_manage = (self.request.user == se.manager or 
-                                Permission.objects.get(codename='manage_sharedevent') in self.group.permissions.all() )
+            se.has_perm_manage = (self.request.user == se.manager or
+                                  Permission.objects.get(codename='manage_sharedevent') in self.group.permissions.all())
         context['shared_events'] = shared_events
         # Permission SelfRegistration
         if Permission.objects.get(codename='self_register_sharedevent') in self.group.permissions.all():
@@ -1224,10 +980,11 @@ class SharedEventList(GroupPermissionMixin, FormView,
             else:
                 done = False
 
-            shared_events = SharedEvent.objects.filter(date__range=[date_begin, date_end], done=done)
+            shared_events = SharedEvent.objects.filter(
+                date__range=[date_begin, date_end], done=done)
         else:
-            shared_events = SharedEvent.objects.filter(date__range=[date_begin, date_end])
-
+            shared_events = SharedEvent.objects.filter(
+                date__range=[date_begin, date_end])
 
         context = self.get_context_data(**kwargs)
         if order_by != '-date':
@@ -1235,9 +992,10 @@ class SharedEventList(GroupPermissionMixin, FormView,
         else:
             shared_events = shared_events.order_by('-date')
 
-
-        for se in shared_events: # Duplicate
-            se.weight_of_user = se.get_weight_of_user(self.request.user, se.done) # Si fini, on recupere la participation, sinon la preinscription
+        for se in shared_events:  # Duplicate
+            # Si fini, on recupere la participation, sinon la preinscription
+            se.weight_of_user = se.get_weight_of_user(
+                self.request.user, se.done)
             se.number_registrants = se.get_number_registrants()
             se.number_participants = se.get_number_participants()
             se.total_weights_registrants = se.get_total_weights_registrants()
@@ -1265,7 +1023,7 @@ class SharedEventCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
             allow_self_registeration=form.cleaned_data['allow_self_registeration'],
             manager=self.request.user)
         if form.cleaned_data['price']:
-            se.price = Decimal(form.cleaned_data['price'])
+            se.price = decimal.Decimal(form.cleaned_data['price'])
         if form.cleaned_data['bills']:
             se.bills = form.cleaned_data['bills']
         if form.cleaned_data['date_end_registration']:
@@ -1285,8 +1043,8 @@ class SharedEventCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
 
     def get_success_url(self):
         return reverse('url_sharedevent_update',
-                        kwargs={'group_name': self.group.name, 'pk': self.se.pk}
-                        )
+                       kwargs={'group_name': self.group.name, 'pk': self.se.pk}
+                       )
 
 
 class SharedEventDelete(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
@@ -1333,8 +1091,8 @@ class SharedEventDelete(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
 
     def get_success_url(self):
         return reverse('url_sharedevent_list',
-                kwargs={'group_name': self.group.name}
-                )
+                       kwargs={'group_name': self.group.name}
+                       )
 
 
 class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
@@ -1376,7 +1134,7 @@ class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
             return redirect(reverse(
                 'url_sharedevent_update',
                 kwargs={'group_name': group.name, 'pk': self.se.pk}
-              ) + '?no_participant=True')
+            ) + '?no_participant=True')
 
         # Get some data :
         self.price = self.se.price
@@ -1393,7 +1151,7 @@ class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
         """
         initial = super(SharedEventFinish, self).get_initial()
         initial['total_price'] = self.price
-        initial['ponderation_price'] = round(self.ponderation_price,2)
+        initial['ponderation_price'] = round(self.ponderation_price, 2)
         return initial
 
     def get_context_data(self, **kwargs):
@@ -1401,16 +1159,18 @@ class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
         context['se'] = self.se
         context['total_price'] = self.se.price
         context['total_weights_participants'] = self.total_weights_participants
-        context['ponderation_price'] = round(self.ponderation_price,2)
+        context['ponderation_price'] = round(self.ponderation_price, 2)
         return context
 
     def form_valid(self, form):
         type_payment = form.cleaned_data['type_payment']
         if (type_payment == 'pay_by_total'):
-            self.se.pay_by_total(self.request.user, User.objects.get(pk=1), form.cleaned_data['total_price'])
+            self.se.pay_by_total(self.request.user, User.objects.get(
+                pk=1), form.cleaned_data['total_price'])
 
         if (type_payment == 'pay_by_ponderation'):
-            self.se.pay_by_ponderation(self.request.user, User.objects.get(pk=1), form.cleaned_data['ponderation_price'])
+            self.se.pay_by_ponderation(self.request.user, User.objects.get(
+                pk=1), form.cleaned_data['ponderation_price'])
 
         if (type_payment == 'no_payment'):
             self.se.end_without_payment(form.cleaned_data['remark'])
@@ -1424,8 +1184,8 @@ class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
 
     def get_success_url(self):
         return reverse('url_sharedevent_list',
-                        kwargs={'group_name': self.group.name}
-                        )
+                       kwargs={'group_name': self.group.name}
+                       )
 
 
 class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
@@ -1434,7 +1194,7 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
     """
     form_class = SharedEventUpdateForm
     template_name = 'finances/sharedevent_update.html'
-    perm_codename = None # Checked in dispatch()
+    perm_codename = None  # Checked in dispatch()
     success_message = "'%(description)s' a bien été mis à jour."
 
     manager_changed = False
@@ -1445,7 +1205,8 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
             self.se = SharedEvent.objects.get(pk=int(kwargs['pk']))
         except ObjectDoesNotExist:
             raise Http404
-        except ValueError: # For safety, but it shouldn't be possible with regex pattern in url FOR NOW (If Post is used, url need to be modified)
+        # For safety, but it shouldn't be possible with regex pattern in url FOR NOW (If Post is used, url need to be modified)
+        except ValueError:
             raise Http404
 
         # Permissions
@@ -1456,7 +1217,8 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
         except ObjectDoesNotExist:
             raise Http404
 
-        self.no_participant = request.GET.get('no_participant', False) == "True" # "True" == "True"
+        self.no_participant = request.GET.get(
+            'no_participant', False) == "True"  # "True" == "True"
 
         return super(SharedEventUpdate, self).dispatch(request, *args, **kwargs)
 
@@ -1469,7 +1231,6 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
         return initial
 
     def get_context_data(self, **kwargs):
-
 
         # list_year() contains smth like [2011, 2015, ...]
 
@@ -1496,7 +1257,7 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
             if Permission.objects.get(codename='proceed_payment_sharedevent') in group.permissions.all():
                 context['has_perm_proceed_payment'] = True
         except ObjectDoesNotExist:
-            pass # has_perm not True
+            pass  # has_perm not True
 
         return context
 
@@ -1506,9 +1267,10 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
         if form.cleaned_data['bills']:
             self.se.bills = form.cleaned_data['bills']
         if form.cleaned_data['manager']:
-            form_manager = User.objects.get(username = form.cleaned_data['manager'])
+            form_manager = User.objects.get(
+                username=form.cleaned_data['manager'])
             manage_permission = False
-            if self.se.manager != form_manager :
+            if self.se.manager != form_manager:
                 for group in form_manager.groups.all():
                     if Permission.objects.get(codename='add_sharedevent') in group.permissions.all():
                         manage_permission = True
@@ -1517,9 +1279,9 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
                     self.se.manager = form_manager
                     self.manager_changed = True
                 else:
-                    messages.warning(self.request, 
+                    messages.warning(self.request,
                                      "%(user)s ne dispose pas de droits suffisants pour gérer l'évènement" % dict(
-                                        user = form_manager))
+                                         user=form_manager))
         self.se.allow_self_registeration = form.cleaned_data['allow_self_registeration']
         self.se.save()
 
@@ -1528,7 +1290,7 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
     def get_success_message(self, cleaned_data):
         if self.manager_changed:
             return "%(user)s gère désormais l'évènement" % dict(
-                user = self.se.manager,
+                user=self.se.manager,
             )
         else:
             return self.success_message % dict(
@@ -1538,12 +1300,13 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
     def get_success_url(self):
         if self.manager_changed and Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all():
             return reverse('url_group_workboard',
-                            kwargs={ 'group_name': self.group.name }
-                            )
+                           kwargs={'group_name': self.group.name}
+                           )
         else:
             return reverse('url_sharedevent_update',
-                            kwargs={ 'group_name': self.group.name, 'pk': self.se.pk }
-                            )
+                           kwargs={'group_name': self.group.name,
+                                   'pk': self.se.pk}
+                           )
 
 
 class SharedEventSelfRegistration(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
@@ -1558,13 +1321,13 @@ class SharedEventSelfRegistration(GroupPermissionMixin, SuccessMessageMixin, For
     template_name = 'finances/sharedevent_self_registration.html'
     perm_codename = 'self_register_sharedevent'
 
-
     def dispatch(self, request, *args, **kwargs):
         try:
             self.se = SharedEvent.objects.get(pk=int(kwargs['pk']))
         except ObjectDoesNotExist:
             raise Http404
-        except ValueError: # For safety, but it shouldn't be possible with regex pattern in url FOR NOW (If Post is used, url need to be modified)
+        # For safety, but it shouldn't be possible with regex pattern in url FOR NOW (If Post is used, url need to be modified)
+        except ValueError:
             raise Http404
 
         # Permissions
@@ -1581,14 +1344,17 @@ class SharedEventSelfRegistration(GroupPermissionMixin, SuccessMessageMixin, For
         return super(SharedEventSelfRegistration, self).dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(SharedEventSelfRegistration, self).get_context_data(**kwargs)
+        context = super(SharedEventSelfRegistration,
+                        self).get_context_data(**kwargs)
         context['shared_event'] = self.se
-        context['registeration_of_user'] = self.se.get_weight_of_user(self.request.user, False) ## Duplicate
+        context['registeration_of_user'] = self.se.get_weight_of_user(
+            self.request.user, False)  # Duplicate
         return context
 
     def get_initial(self):
         initial = super(SharedEventSelfRegistration, self).get_initial()
-        initial['weight'] = self.se.get_weight_of_user(self.request.user, False) ## Duplicate
+        initial['weight'] = self.se.get_weight_of_user(
+            self.request.user, False)  # Duplicate
         return initial
 
     def form_valid(self, form):
@@ -1604,8 +1370,8 @@ class SharedEventSelfRegistration(GroupPermissionMixin, SuccessMessageMixin, For
 
     def get_success_url(self):
         return reverse('url_sharedevent_self_registration',
-                        kwargs={'group_name': self.group.name, 'pk': self.se.pk}
-                        )
+                       kwargs={'group_name': self.group.name, 'pk': self.se.pk}
+                       )
 
 
 class SharedEventChangeWeight(GroupPermissionMixin, View):
@@ -1626,9 +1392,9 @@ class SharedEventChangeWeight(GroupPermissionMixin, View):
         try:
             # Variables d'entrées
             se = SharedEvent.objects.get(pk=kwargs['pk'])
-            user = User.objects.get(pk=kwargs['participant_pk'])
+            user = User.objects.get(pk=kwargs['user_pk'])
             pond = int(request.GET['pond'])
-            isParticipant = int(request.GET['isParticipant']) #Boolean
+            isParticipant = int(request.GET['isParticipant'])  # Boolean
 
             # Permission
             if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
@@ -1638,7 +1404,7 @@ class SharedEventChangeWeight(GroupPermissionMixin, View):
                 raise PermissionDenied
 
             if pond > 0:
-                if isParticipant in [0,1]:
+                if isParticipant in [0, 1]:
                     # Changement de la pondération
                     se.change_weight(user, pond, isParticipant)
 
@@ -1661,7 +1427,7 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
     """
     form_class = SharedEventAddWeightForm
     template_name = 'finances/sharedevent_manage_users.html'
-    perm_codename = None # Checked in dispatch()
+    perm_codename = None  # Checked in dispatch()
 
     def get_list_weights(self, state):
         se = SharedEvent.objects.get(pk=self.kwargs['pk'])
@@ -1699,7 +1465,6 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
         state = 'users'
         order_by = 'username'
 
-
         # If an option is provided
         if self.request.GET.get('state') is not None:
             if self.request.GET.get('state') in ['users', 'participants', 'registrants']:
@@ -1715,9 +1480,11 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
         }
 
         # Création des forms
-        list_users_form = SharedEventListUsersForm(initial=initial_list_users_form)
+        list_users_form = SharedEventListUsersForm(
+            initial=initial_list_users_form)
 
-        context = super(SharedEventManageUsers, self).get_context_data(**kwargs)
+        context = super(SharedEventManageUsers,
+                        self).get_context_data(**kwargs)
         context['pk'] = self.se.pk
         context['done'] = self.se.done
         context['price'] = self.se.price
@@ -1725,20 +1492,22 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
         context['order_by'] = order_by
 
         context['list_users_form'] = list_users_form
-        context['list_weights'] = sorted(self.get_list_weights(state), key=lambda item: getattr(item[0], order_by))
+        context['list_weights'] = sorted(self.get_list_weights(
+            state), key=lambda item: getattr(item[0], order_by))
         return context
 
     def form_valid(self, form):
         user = form.cleaned_data['user']
         weight = form.cleaned_data['weight']
-        isParticipant = form.cleaned_data['state'] == 'participant' # True pour un participant
+        # True pour un participant
+        isParticipant = form.cleaned_data['state'] == 'participant'
 
         self.se.add_weight(user, weight, isParticipant)
         return super(SharedEventManageUsers, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('url_sharedevent_manage_users',
-                        kwargs={'group_name': self.group.name, 'pk': self.se.pk })
+                       kwargs={'group_name': self.group.name, 'pk': self.se.pk})
 
 
 class SharedEventRemoveUser(GroupPermissionMixin, View):
@@ -1750,7 +1519,7 @@ class SharedEventRemoveUser(GroupPermissionMixin, View):
         # Permission
         if se.done is True:
             raise PermissionDenied
-        if not ( request.user == se.manager or request.user.has_perm('finances.manage_sharedevent') ):
+        if not (request.user == se.manager or request.user.has_perm('finances.manage_sharedevent')):
             raise PermissionDenied
 
         try:
@@ -1795,7 +1564,7 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
     Download Excel.
     """
     form_class = SharedEventDownloadXlsxForm
-    perm_codename = None # Checked in dispatch()
+    perm_codename = None  # Checked in dispatch()
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -1805,7 +1574,7 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
             raise Http404
 
         # Permission
-        if not ( request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent') ):
+        if not (request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent')):
             raise PermissionDenied
 
         return super(SharedEventDownloadXlsx, self).dispatch(request, *args, **kwargs)
@@ -1816,16 +1585,20 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
         # grab the active worksheet
         ws = wb.active
         ws.title = "Test"
-        ws.append(['Username', 'Pondération', 'Infos (Non utilisées) ->','Nom Prénom', 'Bucque'])
+        ws.append(['Username', 'Pondération',
+                   'Infos (Non utilisées) ->', 'Nom Prénom', 'Bucque'])
 
         if form.cleaned_data['state'] == 'year':
 
             if form.cleaned_data['years']:
-                list_year_result = form.cleaned_data['years'] # Contains the years selected
+                # Contains the years selected
+                list_year_result = form.cleaned_data['years']
 
-                users = User.objects.filter(year__in=list_year_result, is_active=True).exclude(groups=Group.objects.get(pk=1)).order_by('username')
+                users = User.objects.filter(year__in=list_year_result, is_active=True).exclude(
+                    groups=Group.objects.get(pk=1)).order_by('username')
                 for u in users:
-                    ws.append([u.username, '', '',u.last_name + ' ' + u.first_name, u.surname])
+                    ws.append([u.username, '', '', u.last_name +
+                               ' ' + u.first_name, u.surname])
 
             else:
                 raise Http404
@@ -1834,19 +1607,23 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
             list_participants_weight = self.se.list_participants_weight()
             for e in list_participants_weight:
                 u = e[0]
-                ws.append([u.username, e[1], u.last_name + ' ' + u.first_name, u.surname])
+                ws.append([u.username, e[1], u.last_name +
+                           ' ' + u.first_name, u.surname])
 
         elif form.cleaned_data['state'] == 'registrants':
             list_registrants_weight = self.se.list_registrants_weight()
             for e in list_registrants_weight:
                 u = e[0]
-                ws.append([u.username, e[1], u.last_name + ' ' + u.first_name, u.surname])
+                ws.append([u.username, e[1], u.last_name +
+                           ' ' + u.first_name, u.surname])
         else:
             raise Http404
 
         # Return the file
-        response = HttpResponse(save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = ('attachment; filename="' + self.se.__str__() + '.xlsx"')
+        response = HttpResponse(save_virtual_workbook(
+            wb), content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = (
+            'attachment; filename="' + self.se.__str__() + '.xlsx"')
         return response
 
 
@@ -1855,7 +1632,7 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
     Upload Excel.
     """
     form_class = SharedEventUploadXlsxForm
-    perm_codename = None # Checked in dispatch()
+    perm_codename = None  # Checked in dispatch()
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -1867,7 +1644,7 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
         # Permission
         if self.se.done is True:
             raise PermissionDenied
-        if not ( request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent') ):
+        if not (request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent')):
             raise PermissionDenied
 
         return super(SharedEventUploadXlsx, self).dispatch(request, *args, **kwargs)
@@ -1877,7 +1654,7 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
             wb = load_workbook(self.request.FILES['list_user'], read_only=True)
             sheet = wb.active
             rows = sheet.rows
-            next(rows) # Skip the first row
+            next(rows)  # Skip the first row
             data = []
         except:
             raise PermissionDenied
@@ -1894,44 +1671,52 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
 
         # Enregistrement des pondérations
         for row in rows:
-            i += 1;
+            i += 1
             try:
                 if row[min_col].value and row[min_col + 1].value:
-                  username = row[min_col].value.strip() # Should be a str
-                  if User.objects.filter(username=username).count() > 0:
-                      user = User.objects.get(username=username)
-                      try:
-                          pond = int(row[min_col+1].value) # Should be an int. Else, raise an error
-                          if pond > 0:
-                              self.se.change_weight( user, pond, isParticipant )
-                      except:
-                          errors.append( "Erreur avec " + username + " (ligne n*" + str(i) + "). A priori pas ajouté." )
-                  else:
-                      errors.append( "L'utilisateur " + username + " n'existe pas. (ligne n*" + str(i) + ").")
+                    username = row[min_col].value.strip()  # Should be a str
+                    if User.objects.filter(username=username).count() > 0:
+                        user = User.objects.get(username=username)
+                        try:
+                            # Should be an int. Else, raise an error
+                            pond = int(row[min_col+1].value)
+                            if pond > 0:
+                                self.se.change_weight(
+                                    user, pond, isParticipant)
+                        except:
+                            errors.append(
+                                "Erreur avec " + username + " (ligne n*" + str(i) + "). A priori pas ajouté.")
+                    else:
+                        errors.append("L'utilisateur " + username +
+                                      " n'existe pas. (ligne n*" + str(i) + ").")
                 else:
-                  nb_empty_rows += 1
+                    nb_empty_rows += 1
             except:
-                errors.append( "Erreur avec la ligne n*" + str(i) + ". Pas ajouté." )
+                errors.append("Erreur avec la ligne n*" +
+                              str(i) + ". Pas ajouté.")
 
         errors_count = len(errors)
         error_message = ""
-        if errors_count >= 1 :
-            error_message = str(errors_count) + " erreur(s) pendant l'ajout : \n - "
+        if errors_count >= 1:
+            error_message = str(errors_count) + \
+                " erreur(s) pendant l'ajout : \n - "
             if sheet.max_row - nb_empty_rows - 1 == errors_count:
-              error_message += "Aucune donnée ne peut être importée (Vérifiez le format et la syntaxe du contenu du fichier)"
+                error_message += "Aucune donnée ne peut être importée (Vérifiez le format et la syntaxe du contenu du fichier)"
             else:
-              error_message += "\n - ".join(errors)
+                error_message += "\n - ".join(errors)
             messages.warning(self.request, error_message)
             if i - nb_empty_rows - (1 + errors_count) > 0:
-                messages.success(self.request, "Les " + str( i - nb_empty_rows - (1 + errors_count) ) + " autres utilisateurs ont bien été ajoutés.")
+                messages.success(self.request, "Les " + str(i - nb_empty_rows -
+                                                            (1 + errors_count)) + " autres utilisateurs ont bien été ajoutés.")
         else:
-            messages.success(self.request, "Les " + str( i-1 ) + " utilisateurs ont bien été ajoutés.")
+            messages.success(self.request, "Les " + str(i-1) +
+                             " utilisateurs ont bien été ajoutés.")
 
         return super(SharedEventUploadXlsx, self).form_valid(form)
 
     def get_success_url(self):
         return reverse('url_sharedevent_manage_users',
-                        kwargs={'group_name': self.group.name, 'pk': self.se.pk})
+                       kwargs={'group_name': self.group.name, 'pk': self.se.pk})
 
 
 @csrf_exempt
@@ -1983,10 +1768,10 @@ def self_lydia_callback(request):
     if verify_token_algo_lydia(params_dict, settings_safe_get("LYDIA_API_TOKEN").get_value()) is True:
         try:
             lydia = LydiaOnline.objects.create(
-                sender = User.objects.get(pk=request.GET.get('user_pk')),
-                recipient = User.objects.get(username='AE_ENSAM'),
-                amount = Decimal(params_dict['amount']),
-                id_from_lydia = params_dict['transaction_identifier']
+                sender=User.objects.get(pk=request.GET.get('user_pk')),
+                recipient=User.objects.get(username='AE_ENSAM'),
+                amount=decimal.Decimal(params_dict['amount']),
+                id_from_lydia=params_dict['transaction_identifier']
             )
             recharging = Recharging.objects.create(
                 sender=User.objects.get(pk=request.GET.get('user_pk')),
@@ -2001,6 +1786,7 @@ def self_lydia_callback(request):
         return HttpResponse('200')
     else:
         raise PermissionDenied
+
 
 def verify_token_algo_lydia(params, token):
     """

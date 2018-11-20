@@ -1,10 +1,11 @@
-from django.urls import resolve, Resolver404
-from django.db import models
-from django.utils.translation import ugettext_lazy as _
-from django.http import HttpResponseRedirect
-from django.conf import settings
 from re import compile
+
+from django.conf import settings
+from django.db import models
+from django.http import HttpResponseRedirect
+from django.urls import Resolver404, resolve
 from django.utils.deprecation import MiddlewareMixin
+from django.utils.translation import ugettext_lazy as _
 
 
 class TimeStampedDescription(models.Model):
@@ -37,6 +38,7 @@ class LoginRequiredMiddleware(MiddlewareMixin):
     Note : ajout de LOGIN_EXEMPT_URL_PATTERNS qui contient des patterns de re
     plus complexes
     """
+
     def process_request(self, request):
         assert hasattr(request, 'user'), "The Login Required middleware\
  requires authentication middleware to be installed. Edit your\

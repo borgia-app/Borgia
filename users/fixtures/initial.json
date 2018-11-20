@@ -174,12 +174,6 @@
         ["retrieve_transfert", "finances", "sale"],
         ["list_transfert", "finances", "sale"],
 
-        ["add_bankaccount", "finances", "bankaccount"],
-        ["change_bankaccount", "finances", "bankaccount"],
-        ["list_bankaccount", "finances", "bankaccount"],
-        ["delete_bankaccount", "finances", "bankaccount"],
-        ["retrieve_bankaccount", "finances", "bankaccount"],
-
         ["add_sharedevent", "finances", "sharedevent"],
         ["list_sharedevent", "finances", "sharedevent"],
         ["change_sharedevent", "finances", "sharedevent"],
@@ -304,28 +298,6 @@
       "description": "",
       "creation_datetime": "2017-05-07T13:22:40.728Z",
       "last_call_datetime": "2017-05-07T13:22:40.728Z"
-    }
-  },
-  {
-    "model": "notifications.notificationclass",
-    "pk": 6,
-    "fields": {
-      "name": "user_bank_account_creation",
-      "verbose_name": null,
-      "description": "",
-      "creation_datetime": "2017-05-07T18:07:24.427Z",
-      "last_call_datetime": "2017-05-07T18:07:24.425Z"
-    }
-  },
-  {
-    "model": "notifications.notificationclass",
-    "pk": 7,
-    "fields": {
-      "name": "user_bank_account_update",
-      "verbose_name": null,
-      "description": "",
-      "creation_datetime": "2017-05-07T18:07:32.281Z",
-      "last_call_datetime": "2017-05-07T18:07:32.280Z"
     }
   },
   {
