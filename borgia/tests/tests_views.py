@@ -67,7 +67,7 @@ class BaseAuthViewsTestCase(TestCase):
         response_offline_user = Client().get(
             reverse(self.url_view))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, reverse('url_login') + '?next=' + reverse(self.url_view))
+        self.assertRedirects(response_offline_user, '/auth/login/?next=' + reverse(self.url_view))
 
 
 class LoginViewTestCase(BaseAuthViewsTestCase):
@@ -80,7 +80,7 @@ class LoginViewTestCase(BaseAuthViewsTestCase):
         self.assertTemplateUsed(response, self.template_name)
 
     def test_alternative_get(self):
-        response = Client().get('/')
+        response = Client().get('/auth/login/')
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
 
@@ -129,7 +129,7 @@ class LogoutViewTestCase(BaseAuthViewsTestCase):
     def test_redirection(self):
         response = Client().get(reverse(self.url_view))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, reverse('url_login'))
+        self.assertRedirects(response, '/auth/login/')
 
 
 class PasswordChangeViewTestCase(BaseAuthViewsTestCase):
