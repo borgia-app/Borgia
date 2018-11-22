@@ -184,12 +184,12 @@ LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/gadzarts/self/lydias/confirm/'
 
 # Penser à activer 'autoriser l'acces par les applications moins sécurisées' dans Gmail
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = 'ae.ensam.assoc@gmail.com'
-SERVER_EMAIL = 'ae.ensam.assoc@gmail.com'
-EMAIL_HOST = 'smtp.gmail.com'
+DEFAULT_FROM_EMAIL = ''
+SERVER_EMAIL = ''
+EMAIL_HOST = ''
 EMAIL_PORT = 587
-EMAIL_HOST_USER = 'ae.ensam.assoc@gmail.com'
-EMAIL_HOST_PASSWORD = 'Alexandre57'
+EMAIL_HOST_USER = ''
+EMAIL_HOST_PASSWORD = ''
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
 ADMINS = []
