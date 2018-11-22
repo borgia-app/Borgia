@@ -14,6 +14,10 @@ https://docs.djangoproject.com/en/1.9/ref/settings/
 import os
 import re
 
+#####################
+### CORE SETTINGS ###
+#####################
+
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -62,8 +66,6 @@ MIDDLEWARE = [
     'contrib.models.SaveLoginUrlMiddleware',
 ]
 
-ROOT_URLCONF = 'borgia.urls'
-
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
@@ -83,11 +85,9 @@ TEMPLATES = [
     },
 ]
 
+ROOT_URLCONF = 'borgia.urls'
 WSGI_APPLICATION = 'borgia.wsgi.application'
 
-
-# Database
-# https://docs.djangoproject.com/en/1.9/ref/settings/#databases
 
 DATABASES = {
     'default': {
@@ -96,17 +96,21 @@ DATABASES = {
     }
 }
 
-# Password validation
-# https://docs.djangoproject.com/en/1.9/ref/settings/#auth-password-validators
+ADMINS = []
 
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend'
-]
+#####################
+### AUTH SETTINGS ###
+#####################
 
-# Token auth backend
-TOKEN_CHECK_ACTIVE_USER = True
-TOKEN_TIMEOUT_DAYS = 7
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
 
+AUTH_USER_MODEL = 'users.User'
+
+LOGIN_REDIRECT_URL = '/gadzarts/'
+LOGIN_URL = '/auth/login/'
+# LOGOUT_REDIRECT_URL
+
+PASSWORD_RESET_TIMEOUT_DAYS = 1
 AUTH_PASSWORD_VALIDATORS = [
     {
         'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
@@ -122,22 +126,9 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
-# Internationalization
-# https://docs.djangoproject.com/en/1.9/topics/i18n/
-
-LANGUAGE_CODE = 'fr-fr'
-TIME_ZONE = 'Europe/Paris'
-USE_I18N = True
-USE_L10N = True
-USE_TZ = True
-
-
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en²/1.9/howto/static-files/
-AUTH_USER_MODEL = 'users.User'
-LOGIN_REDIRECT_URL = '/gadzarts/'
-LOGIN_URL = '/auth/login/'
+# Token auth backend
+TOKEN_CHECK_ACTIVE_USER = True
+TOKEN_TIMEOUT_DAYS = 7
 
 LOGIN_EXEMPT_URLS = [
     '/',
@@ -162,11 +153,25 @@ LOGIN_EXEMPT_URL_PATTERNS = [
     re.compile('^%s.+$' % ('/static/media/img/'))
 ]
 
+
+#####################
+### I18N SETTINGS ###
+#####################
+
+
+LANGUAGE_CODE = 'fr-fr'
+TIME_ZONE = 'Europe/Paris'
+USE_I18N = True
+USE_L10N = True
+USE_TZ = True
+
+#####################
+### PATH SETTINGS ###
+#####################
+
 STATIC_URL = '/static/'
-# STATIC_ROOT = 'static/static_root/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static', 'static_root')
 STATICFILES_DIRS = (
-    # 'static/static_dirs/',
     os.path.join(BASE_DIR, 'static', 'static_dirs'),
 )
 
@@ -177,10 +182,14 @@ if (DEBUG == True):
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'media')
 MEDIA_URL = '/media/'
 
+#####################
+### MISC SETTINGS ###
+#####################
+
 # Lydia
 # https ou non selon le dns
-LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/self/lydias/callback/'
-LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/gadzarts/self/lydias/confirm/'
+LYDIA_CALLBACK_URL = 'https://some.domain.com/self/lydias/callback/'
+LYDIA_CONFIRM_URL = 'https://some.domain.com/gadzarts/self/lydias/confirm/'
 
 # Penser à activer 'autoriser l'acces par les applications moins sécurisées' dans Gmail
 EMAIL_USE_TLS = True
@@ -192,17 +201,12 @@ EMAIL_HOST_USER = ''
 EMAIL_HOST_PASSWORD = ''
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 
-ADMINS = []
-
-# Durée de validité du token reset password
-PASSWORD_RESET_TIMEOUT_DAYS = 1  # en jours
-
-# Deconnection automatique
+# The age of session cookies, in seconds.
 SESSION_COOKIE_AGE = 7200
 
-DEFAULT_TEMPLATE = "light"  # Default template, en minuscule
+DEFAULT_TEMPLATE = "light"
 
-# Application settings default
+# Application settings_data default
 # name: (String name, String description, String value_type, String value)
 """
 CENTER_NAME,
