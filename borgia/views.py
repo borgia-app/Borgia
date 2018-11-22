@@ -68,15 +68,6 @@ class ModulesLoginView(LoginView):
         return context
 
 
-def jsi18n_catalog(request):
-    """
-    Render le js nécessaire à la jsi18n utilisé dans certains widgets venant
-    de l'app admin
-    Par exemple: FilteredSelectMultiple
-    """
-    return render(request, 'jsi18n.html')
-
-
 def handler403(request, *args, **kwargs):
     context = {}
 

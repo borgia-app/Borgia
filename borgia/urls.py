@@ -1,6 +1,5 @@
 from django.conf import settings
 from django.conf.urls.static import static
-from django.contrib import admin
 from django.contrib.auth.views import (LogoutView, PasswordChangeDoneView,
                                        PasswordChangeView,
                                        PasswordResetCompleteView,
@@ -13,7 +12,7 @@ from borgia.views import (GadzartsGroupWorkboard, ModulesLoginView,
                           PresidentsGroupWorkboard, ShopGroupWorkboard,
                           TreasurersGroupWorkboard,
                           VicePresidentsInternalGroupWorkboard, handler403,
-                          handler404, handler500, jsi18n_catalog)
+                          handler404, handler500)
 from finances.urls import finances_patterns
 from modules.urls import modules_patterns
 from notifications.urls import notifications_patterns
@@ -59,9 +58,6 @@ urlpatterns = [
          {'group_name': 'gadzarts'}, name='url_group_workboard'),
     path('<str:group_name>/', ShopGroupWorkboard.as_view(),
          name='url_group_workboard'),
-    # MISC
-    path('admin/', admin.site.urls),
-    path('local/jsi18n/', jsi18n_catalog),
     ### APPS ###
     path('', include(finances_patterns)),
     path('', include(modules_patterns)),
