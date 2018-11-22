@@ -6,6 +6,8 @@ from django.contrib.contenttypes.models import ContentType
 from django.core.validators import MinValueValidator
 from django.db import models
 
+from shops.models import Shop, Product
+
 
 class Category(models.Model):
     """
@@ -21,13 +23,12 @@ class Category(models.Model):
     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
     module_id = models.PositiveIntegerField()
     module = GenericForeignKey('content_type', 'module_id')
-    products = models.ManyToManyField(
-        'shops.Product', through='CategoryProduct')
+    products = models.ManyToManyField(Product, through='CategoryProduct')
 
 
 class CategoryProduct(models.Model):
-    category = models.ForeignKey('Category', on_delete=models.CASCADE)
-    product = models.ForeignKey('shops.Product', on_delete=models.CASCADE)
+    category = models.ForeignKey(Category, on_delete=models.CASCADE)
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
 
     def __str__(self):
@@ -77,7 +78,7 @@ class ShopModule(Module):
         abstract = True
 
     shop = models.ForeignKey(
-        'shops.Shop',
+        Shop,
         related_name='%(app_label)s_%(class)s_shop',
         on_delete=models.CASCADE)
     categories = GenericRelation(

@@ -2,14 +2,19 @@ import datetime
 import functools
 import json
 import re
+from urllib.parse import urlparse, urlunparse
 
+from django.conf import settings
+from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.models import Group
+from django.contrib.auth.views import LoginView
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.serializers import serialize
 from django.db.models import Q
-from django.http import HttpResponse, Http404
-from django.shortcuts import render
+from django.http import Http404, HttpResponse, QueryDict
+from django.shortcuts import render, resolve_url
+from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
@@ -17,10 +22,50 @@ from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
                           ShopFromGroupMixin)
 from finances.models import (ExceptionnalMovement, Recharging, Sale,
                              SharedEvent, Transfert)
-from modules.models import SelfSaleModule
+from modules.models import OperatorSaleModule, SelfSaleModule
 from shops.models import Shop
 from users.forms import UserQuickSearchForm
 from users.models import User
+
+
+class ModulesLoginView(LoginView):
+    """ Override of auth login view, to include direct login to sales modules """
+    redirect_authenticated_user = True
+
+    def add_next_to_login(self, path_next, redirect_field_name=REDIRECT_FIELD_NAME, login_url=None):
+        """
+        Add the given 'path_next' path to the 'login_url' path.
+        """
+        resolved_url = resolve_url(login_url or settings.LOGIN_URL)
+
+        login_url_parts = list(urlparse(resolved_url))
+        if redirect_field_name:
+            querystring = QueryDict(login_url_parts[4], mutable=True)
+            querystring[redirect_field_name] = path_next
+            login_url_parts[4] = querystring.urlencode(safe='/')
+
+        return urlunparse(login_url_parts)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['default_theme'] = settings.DEFAULT_TEMPLATE
+
+        context['shop_list'] = []
+        for shop in Shop.objects.all().exclude(pk=1):
+            operator_module = shop.modules_operatorsalemodule_shop.first()
+            operator_module_link = self.add_next_to_login(
+                reverse('url_module_operatorsale', kwargs={'group_name': 'associates-' + shop.name, 'shop_name': shop.name}))
+            self_module = shop.modules_selfsalemodule_shop.first()
+            self_module_link = self.add_next_to_login(
+                reverse('url_module_selfsale', kwargs={'group_name': 'gadzarts', 'shop_name': shop.name}))
+            context['shop_list'].append({
+                'shop': shop,
+                'operator_module': operator_module,
+                'operator_module_link' : operator_module_link,
+                'self_module': self_module,
+                'self_module_link' : self_module_link
+            })
+        return context
 
 
 def jsi18n_catalog(request):

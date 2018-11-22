@@ -13,7 +13,7 @@ modules_patterns = [
         # SELF SALE
         path('self_sales/', include([
             path('', SelfSaleShopModuleWorkboard.as_view(), name='url_module_selfsale_workboard'),
-            path('config/', ShopModuleConfig.as_view(), name='url_module_selfsale_config', 
+            path('config/', ShopModuleConfig.as_view(), name='url_module_selfsale_config',
                  kwargs={'module_class': SelfSaleModule}),
             path('<str:shop_name>', SelfSaleShopModuleInterface.as_view(), name='url_module_selfsale'),
             path('categories/', include([

@@ -1,11 +1,17 @@
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
-from django.contrib.auth import views as auth_views
+from django.contrib.auth.views import (LogoutView, PasswordChangeDoneView,
+                                       PasswordChangeView,
+                                       PasswordResetCompleteView,
+                                       PasswordResetConfirmView,
+                                       PasswordResetDoneView,
+                                       PasswordResetView)
 from django.urls import include, path
 
-from borgia.views import (GadzartsGroupWorkboard, PresidentsGroupWorkboard,
-                          ShopGroupWorkboard, TreasurersGroupWorkboard,
+from borgia.views import (GadzartsGroupWorkboard, ModulesLoginView,
+                          PresidentsGroupWorkboard, ShopGroupWorkboard,
+                          TreasurersGroupWorkboard,
                           VicePresidentsInternalGroupWorkboard, handler403,
                           handler404, handler500, jsi18n_catalog)
 from finances.urls import finances_patterns
@@ -23,23 +29,23 @@ handler500 = handler500
 
 urlpatterns = [
     # AUTHENTIFICATIONS
-    path('', auth_views.LoginView.as_view()),
+    path('', ModulesLoginView.as_view(), name='url_login'),
     path('auth/', include([
-        path('login/', auth_views.LoginView.as_view(), name='url_login'),
-        path('logout/', auth_views.LogoutView.as_view(), name='url_logout'),
+        path('login/', ModulesLoginView.as_view()),
+        path('logout/', LogoutView.as_view(), name='url_logout'),
 
-        path('password_change/', auth_views.PasswordChangeView.as_view(),
+        path('password_change/', PasswordChangeView.as_view(),
              name='password_change'),
-        path('password_change/done/', auth_views.PasswordChangeDoneView.as_view(),
+        path('password_change/done/', PasswordChangeDoneView.as_view(),
              name='password_change_done'),
 
-        path('password_reset/', auth_views.PasswordResetView.as_view(),
+        path('password_reset/', PasswordResetView.as_view(),
              name='password_reset'),
-        path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(),
+        path('password_reset/done/', PasswordResetDoneView.as_view(),
              name='password_reset_done'),
-        path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(),
+        path('reset/<uidb64>/<token>/', PasswordResetConfirmView.as_view(),
              name='password_reset_confirm'),
-        path('reset/done/', auth_views.PasswordResetCompleteView.as_view(),
+        path('reset/done/', PasswordResetCompleteView.as_view(),
              name='password_reset_complete'),
     ])),
     # WORKBOARDS
