@@ -13,18 +13,17 @@
     "fields": {
       "name": "presidents",
       "permissions": [
-        ["manage_group_honnored", "users", "user"],
-        ["manage_group_gadzarts", "users", "user"],
-        ["manage_group_treasurers", "users", "user"],
-        ["manage_group_vice-presidents-internal", "users", "user"],
-        ["manage_group_presidents", "users", "user"],
+        ["manage_honnored_group", "users", "user"],
+        ["manage_members_group", "users", "user"],
+        ["manage_treasurers_group", "users", "user"],
+        ["manage_vice_presidents_group", "users", "user"],
+        ["manage_presidents_group", "users", "user"],
 
         ["add_user", "users", "user"],
         ["change_user", "users", "user"],
         ["delete_user", "users", "user"],
-        ["retrieve_user", "users", "user"],
-        ["retrieve_more_user_info", "users", "user"],
-        ["list_user", "users", "user"],
+        ["view_user", "users", "user"],
+        ["advanced_view_user", "users", "user"],
         ["supply_money_user", "users", "user"],
         ["link_token_user", "users", "user"],
 
@@ -79,9 +78,8 @@
         ["add_user", "users", "user"],
         ["change_user", "users", "user"],
         ["delete_user", "users", "user"],
-        ["retrieve_user", "users", "user"],
-        ["retrieve_more_user_info", "users", "user"],
-        ["list_user", "users", "user"],
+        ["view_user", "users", "user"],
+        ["advanced_view_user", "users", "user"],
         ["supply_money_user", "users", "user"],
         ["link_token_user", "users", "user"],
 
@@ -136,9 +134,8 @@
         ["add_user", "users", "user"],
         ["change_user", "users", "user"],
         ["delete_user", "users", "user"],
-        ["retrieve_user", "users", "user"],
-        ["retrieve_more_user_info", "users", "user"],
-        ["list_user", "users", "user"],
+        ["view_user", "users", "user"],
+        ["advanced_view_user", "users", "user"],
         ["supply_money_user", "users", "user"],
         ["link_token_user", "users", "user"],
 
@@ -195,7 +192,7 @@
 
         ["list_sharedevent", "finances", "sharedevent"],
         ["add_sharedevent", "finances", "sharedevent"],
-        ["retrieve_user", "users", "user"],
+        ["view_user", "users", "user"],
 
         ["list_notification", "notifications", "notification"]
       ]

@@ -237,27 +237,22 @@ class User(AbstractUser):
         """
         permissions = (
             # Group management
-            ('manage_group_presidents', 'Gérer le groupe des présidents'),
-            ('manage_group_vice-presidents-internal',
-             '''Gérer le groupe des vices présidents délégués à la vie
-             interne'''),
-            ('manage_group_treasurers', 'Gérer le groupe des trésoriers'),
-            ('manage_group_gadzarts', 'Gérer le groupe des Gadz\'Arts'),
-            ('manage_group_honnored', '''Gérer le groupe des membres
-             d\'honneurs'''),
-            ('manage_group_specials', '''Gérer le groupe des membres
-             spéciaux'''),
+            ('manage_presidents_group', 'Can manage presidents group'),
+            ('manage_vice_presidents_group', 'Can manage vice presidents group'),
+            ('manage_treasurers_group', 'Can manage treasurers group'),
+            ('manage_members_group', 'Can manage members group'),
+            ('manage_honnored_group', 'Can manage honnored group'),
+            ('manage_external_group', 'Can manage external group'),
 
             # CRUDL
             # add_user
             # change_user
             # delete_user
-            ('list_user', 'Lister les users'),
-            ('retrieve_user', 'Afficher les users'),
-            ('retrieve_more_user_info', "Afficher plus d'info sur les users"),
+            # view_user
+            ('advanced_view_user', "Can view advanced data on user"),
 
             # Miscellaneous
-            ('supply_money_user', 'Ajouter de l\'argent à un utilisateur'),
+            ('supply_money_user', 'Can supply money to user'),
         )
 
 

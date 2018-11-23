@@ -47,7 +47,7 @@
             {% endif %}
           </a></th>
         {% endfor %}
-          {% if has_perm_retrieve_user %}
+          {% if has_perm_view_user %}
             <th>Détail</th>
           {% endif %}
       </tr>
@@ -62,7 +62,7 @@
         <td>{{ user.campus }}</td>
         <td>{{ user.year }}</td>
         <td>{{ user.balance }}€</td>
-        {% if has_perm_retrieve_user %}
+        {% if has_perm_view_user %}
           <td>
             <a href="{% url 'url_user_retrieve' group_name=group_name pk=user.pk %}">Détail</a>
           </td>

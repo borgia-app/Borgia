@@ -32,7 +32,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
-    perm_codename = 'list_user'
+    perm_codename = 'view_user'
     template_name = 'users/user_list.html'
     lm_active = 'lm_user_list'
     form_class = UserSearchForm
@@ -78,8 +78,8 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 User.objects.all().exclude(groups=1))
 
         # Permission Retrieveuser
-        if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
-            context['has_perm_retrieve_user'] = True
+        if Permission.objects.get(codename='view_user') in self.group.permissions.all():
+            context['has_perm_view_user'] = True
 
         return context
 
@@ -180,12 +180,12 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
         If not, go to the workboard of the group.
         """
         try:
-            if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
+            if Permission.objects.get(codename='view_user') in self.group.permissions.all():
                 return reverse('url_user_retrieve',
                                kwargs={'group_name': self.group.name,
                                        'pk': self.object.pk})
             else:
-                if Permission.objects.get(codename='list_user') in self.group.permissions.all():
+                if Permission.objects.get(codename='view_user') in self.group.permissions.all():
                     return reverse('url_user_list',
                                    kwargs={'group_name': self.group.name})
                 else:
@@ -204,7 +204,7 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     :param self.perm_codename: codename of the permission checked.
     """
     template_name = 'users/retrieve.html'
-    perm_codename = 'retrieve_user'
+    perm_codename = 'view_user'
 
     def get(self, request, *args, **kwargs):
         try:
