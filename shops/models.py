@@ -20,6 +20,8 @@ class Shop(models.Model):
     :type name: string
     :type description: string
     :type color: string
+
+    :note:: Initial Django Permission (add, change, delete, view) are added.
     """
     name = models.CharField('Code', max_length=255,
                             validators=[RegexValidator(
@@ -41,27 +43,6 @@ class Shop(models.Model):
         :rtype: string
         """
         return self.name.capitalize()
-
-    class Meta:
-        """
-        Define Permissions for Shop.
-
-        :note:: Initial Django Permission (add, change, delete) are added.
-        """
-        permissions = (
-            # CRUDL
-            # add_shop
-            # change_shop
-            # delete_shop
-            ('list_shop', 'Lister les magasins'),
-            ('retrieve_shop', 'Afficher les détails d\'un magasin'),
-
-            # Product management
-            ('list_product', 'Lister les produits'),
-            ('retrieve_product', 'Afficher les détails d\'un produit'),
-            ('change_price_product', 'Changer le prix d\'un produit'),
-            ('change_stock_product', 'Régulariser le stock d\'un produit'),
-        )
 
 
 class Product(models.Model):
@@ -282,3 +263,13 @@ class Product(models.Model):
             self.save()
         except (ZeroDivisionError, decimal.DivisionByZero, decimal.DivisionUndefined, decimal.InvalidOperation):
             pass
+
+    class Meta:
+        """
+        Define Permissions for Product.
+
+        :note:: Initial Django Permission (add, change, delete, view) are added.
+        """
+        permissions = (
+            ('change_price_product', 'Can change price of a product')
+        )

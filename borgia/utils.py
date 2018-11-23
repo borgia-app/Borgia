@@ -84,7 +84,7 @@ def lateral_menu(user, group, active=None):
 
     # Manage products
     try:
-        if Permission.objects.get(codename='list_product') in group.permissions.all():
+        if Permission.objects.get(codename='view_product') in group.permissions.all():
             nav_tree.append(
                 simple_lateral_link(
                     label='Produits',

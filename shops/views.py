@@ -29,7 +29,7 @@ from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
 class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                   GroupLateralMenuFormMixin):
     template_name = 'shops/product_list.html'
-    perm_codename = 'list_product'
+    perm_codename = 'view_product'
     lm_active = 'lm_product_list'
     form_class = ProductListForm
 
@@ -340,7 +340,7 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
 class ShopList(GroupPermissionMixin, View, GroupLateralMenuMixin):
     template_name = 'shops/shop_list.html'
-    perm_codename = 'list_shop'
+    perm_codename = 'view_shop'
     lm_active = 'lm_shop_list'
 
     def get(self, request, *args, **kwargs):
@@ -385,7 +385,7 @@ class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                   GroupLateralMenuFormMixin):
     """
     You can see checkup of your group from shop only.
-    If you're not from a group from shop, you need the permission 'list_shop'
+    If you're not from a group from shop, you need the permission 'view_shop'
     """
     template_name = 'shops/shop_checkup.html'
     perm_codename = None
@@ -410,7 +410,7 @@ class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
             self.lm_active = 'lm_shop_checkup'
         else:
             try:
-                p = Permission.objects.get(codename='list_shop')
+                p = Permission.objects.get(codename='view_shop')
                 if p not in self.group.permissions.all():
                     raise PermissionDenied
             except ObjectDoesNotExist:
@@ -424,7 +424,7 @@ class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
             self.lm_active = 'lm_shop_checkup'
         else:
             try:
-                p = Permission.objects.get(codename='list_shop')
+                p = Permission.objects.get(codename='view_shop')
                 if p not in self.group.permissions.all():
                     raise PermissionDenied
             except ObjectDoesNotExist:

@@ -25,13 +25,13 @@
   <div class="panel-body">
     {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update' group_name=group_name pk=product.pk %}">Modifier les informations</a></p>{% endif %}
     {% if group|has_group_perm:"change_price_product" %}<p><a class="btn btn-default" href="{% url 'url_product_update_price' group_name=group_name pk=product.pk %}">Modifier le prix de vente</a></p> {% endif %}
-    {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-default" href="{% url 'url_product_deactivate' group_name=group_name pk=product.pk %}">
+    {% if group|has_group_perm:"delete_product" %}<p><a class="btn btn-default" href="{% url 'url_product_deactivate' group_name=group_name pk=product.pk %}">
         {% if product.is_active == True %}
             Désactiver le produit
         {% else %}
             Activer le produit
         {% endif %}</a></p>{% endif %}
-    {% if group|has_group_perm:"change_product" %}<p><a class="btn btn-danger" href="{% url 'url_product_remove' group_name=group_name pk=product.pk %}">Supprimer le produit</a></p> {% endif %}
+    {% if group|has_group_perm:"delete_product" %}<p><a class="btn btn-danger" href="{% url 'url_product_remove' group_name=group_name pk=product.pk %}">Supprimer le produit</a></p> {% endif %}
   </div>
 </div>
 
