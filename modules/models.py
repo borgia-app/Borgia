@@ -25,11 +25,23 @@ class Category(models.Model):
     module = GenericForeignKey('content_type', 'module_id')
     products = models.ManyToManyField(Product, through='CategoryProduct')
 
+    class Meta:
+        """
+        Remove default permissions for Category
+        """
+        default_permissions = ()
+
 
 class CategoryProduct(models.Model):
     category = models.ForeignKey(Category, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+
+    class Meta:
+        """
+        Remove default permissions for CategoryProduct
+        """
+        default_permissions = ()
 
     def __str__(self):
         if self.product.unit:
@@ -103,9 +115,9 @@ class SelfSaleModule(ShopModule):
     Define Permissions for SelfSaleModule.
     """
     class Meta:
+        default_permissions = ()
         permissions = (
-            ('use_selfsalemodule',
-             'Consommer aux magasins par libre service'),
+            ('use_selfsalemodule', 'Can use the self sale module')
         )
 
     def __str__(self):
@@ -117,9 +129,9 @@ class OperatorSaleModule(ShopModule):
     Define Permissions for OperatorSaleModule.
     """
     class Meta:
+        default_permissions = ()
         permissions = (
-            ('use_operatorsalemodule',
-             'Consommer aux magasins avec un opérateur'),
+            ('use_operatorsalemodule', 'Can use the operator sale module')
         )
 
     def __str__(self):
