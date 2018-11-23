@@ -888,7 +888,7 @@ def permission_to_manage_group(group):
     :param group:
     :return: (objet permission, permission name formatée pour has_perm)
     """
-    perm = Permission.objects.get(codename=('manage_group_'+group.name))
+    perm = Permission.objects.get(codename=('manage_'+group.name+'_group'))
     perm_name = 'users.' + perm.codename
     return perm, perm_name
 

@@ -287,12 +287,12 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         content_type = ContentType.objects.get(app_label='users', model='user')
         manage_chiefs = Permission.objects.create(
             name='Gérer le groupe des chiefs du magasin '+shop.name,
-            codename='manage_group_chiefs-'+shop.name,
+            codename='manage_chiefs-'+shop.name + '_group',
             content_type=content_type
         )
         manage_associates = Permission.objects.create(
             name='Gérer le groupe des associés du magasin '+shop.name,
-            codename='manage_group_associates-'+shop.name,
+            codename='manage_associates-'+shop.name + '_group',
             content_type=content_type
         )
 
