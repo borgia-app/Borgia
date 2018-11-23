@@ -9,6 +9,11 @@ from users.models import User
 
 
 class StockEntry(models.Model):
+    """
+    Used when buying products for a shop.
+
+    :note:: Initial Django Permission (add, change, delete, view) are added.
+    """
     datetime = models.DateTimeField('Date', default=now)
     operator = models.ForeignKey(User, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product, through='StockEntryProduct')
@@ -25,12 +30,6 @@ class StockEntry(models.Model):
         string = string[0: len(string)-2]
         return string
 
-    class Meta:
-        permissions = (
-            ('list_stockentry', 'Lister les entrées de stock'),
-            ('retrieve_stockentry', 'Afficher les entrées de stock'),
-        )
-
 
 class StockEntryProduct(models.Model):
     """
@@ -43,6 +42,12 @@ class StockEntryProduct(models.Model):
     price = models.DecimalField('Prix', default=0, decimal_places=2,
                                 max_digits=9,
                                 validators=[MinValueValidator(Decimal(0))])
+
+    class Meta:
+        """
+        Remove default permissions for StockEntryProduct
+        """
+        default_permissions = ()
 
     def __str__(self):
         if self.product.unit:
@@ -61,16 +66,16 @@ class StockEntryProduct(models.Model):
 
 
 class Inventory(models.Model):
+    """
+    Used to do an inventory of a shop stock.
+
+    :note:: Initial Django Permission (add, change, delete, view) are added.
+    """
+
     datetime = models.DateTimeField('Date', default=now)
     operator = models.ForeignKey(User, on_delete=models.CASCADE)
     products = models.ManyToManyField(Product, through='InventoryProduct')
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
-
-    class Meta:
-        permissions = (
-            ('list_inventory', 'Lister les inventaires de stock'),
-            ('retrieve_inventory', 'Afficher les inventaires de stock'),
-        )
 
     def update_correcting_factors(self):
         for inventoryproduct in self.inventoryproduct_set.all():
@@ -85,6 +90,12 @@ class InventoryProduct(models.Model):
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
+
+    class Meta:
+        """
+        Remove default permissions for InventoryProduct
+        """
+        default_permissions = ()
 
     def get_quantity_display(self):
         return self.product.get_quantity_display(self.quantity)

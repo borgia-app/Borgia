@@ -471,11 +471,11 @@ def lateral_menu_stock(group):
     add_permission_stockentry = Permission.objects.get(
         codename='add_stockentry')
     list_permission_stockentry = Permission.objects.get(
-        codename='list_stockentry')
+        codename='view_stockentry')
     add_permission_inventory = Permission.objects.get(
         codename='add_inventory')
     list_permission_inventory = Permission.objects.get(
-        codename='list_inventory')
+        codename='view_inventory')
 
     if add_permission_stockentry in group.permissions.all():
         product_tree['subs'].append({

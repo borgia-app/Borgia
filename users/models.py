@@ -94,6 +94,30 @@ class User(AbstractUser):
 
     jwt_iat = models.DateTimeField('Jwt iat', default=timezone.now)
 
+    class Meta:
+        """
+        Define Permissions for User.
+
+        :note:: Initial Django Permission (add, change, delete, view) are added.
+        """
+        permissions = (
+            # Group management
+            ('manage_presidents_group', 'Can manage presidents group'),
+            ('manage_vice_presidents_group', 'Can manage vice presidents group'),
+            ('manage_treasurers_group', 'Can manage treasurers group'),
+            ('manage_members_group', 'Can manage members group'),
+            ('manage_honnored_group', 'Can manage honnored group'),
+            ('manage_external_group', 'Can manage external group'),
+
+            # User management
+            # add_user
+            # change_user
+            # delete_user
+            # view_user
+            ('advanced_view_user', "Can view advanced data on user"),
+            ('supply_money_user', 'Can supply money to user'),
+        )
+
     def __str__(self):
         """
         Return the common string representing an instance of the class User.
@@ -221,40 +245,6 @@ class User(AbstractUser):
         )
 
         return list_transaction
-
-    class Meta:
-        """
-        Permission imposed or not to an instance of User.
-
-        note:: All permission concerning a user in Borgia are defined here.
-        However, please note that Django creates byhimself 3 permissions for
-        the class User : the ability of creating, deleting and editing a User.
-        note:: Permission strings are written in french because they are needed
-        to be understood by every user of Borgia and tend to be directly
-        displayed in the UI. Moreover theses permissions tend to be created by
-        the UI himself, when generating groups or shops. They are going to be
-        deprecated in further versions.
-        """
-        permissions = (
-            # Group management
-            ('manage_presidents_group', 'Can manage presidents group'),
-            ('manage_vice_presidents_group', 'Can manage vice presidents group'),
-            ('manage_treasurers_group', 'Can manage treasurers group'),
-            ('manage_members_group', 'Can manage members group'),
-            ('manage_honnored_group', 'Can manage honnored group'),
-            ('manage_external_group', 'Can manage external group'),
-
-            # CRUDL
-            # add_user
-            # change_user
-            # delete_user
-            # view_user
-            ('advanced_view_user', "Can view advanced data on user"),
-
-            # Miscellaneous
-            ('supply_money_user', 'Can supply money to user'),
-        )
-
 
 def list_year():
     """

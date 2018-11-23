@@ -87,6 +87,16 @@ class Product(models.Model):
     is_active = models.BooleanField('Actif', default=True)
     is_removed = models.BooleanField('Retiré', default=False)
 
+    class Meta:
+        """
+        Define Permissions for Product.
+
+        :note:: Initial Django Permission (add, change, delete, view) are added.
+        """
+        permissions = (
+            ('change_price_product', 'Can change price of a product')
+        )
+        
     def __str__(self):
         return self.name
 
@@ -263,13 +273,3 @@ class Product(models.Model):
             self.save()
         except (ZeroDivisionError, decimal.DivisionByZero, decimal.DivisionUndefined, decimal.InvalidOperation):
             pass
-
-    class Meta:
-        """
-        Define Permissions for Product.
-
-        :note:: Initial Django Permission (add, change, delete, view) are added.
-        """
-        permissions = (
-            ('change_price_product', 'Can change price of a product')
-        )
