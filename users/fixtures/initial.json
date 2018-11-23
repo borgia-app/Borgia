@@ -24,7 +24,6 @@
         ["delete_user", "users", "user"],
         ["view_user", "users", "user"],
         ["advanced_view_user", "users", "user"],
-        ["link_token_user", "users", "user"],
 
         ["add_shop", "shops", "shop"],
         ["change_shop", "shops", "shop"],
@@ -37,11 +36,8 @@
         ["change_price_product", "products", "product"],
         ["view_stockentry", "stocks", "stockentry"],
 
-        ["add_setting", "settings_data", "setting"],
         ["change_setting", "settings_data", "setting"],
-        ["delete_setting", "settings_data", "setting"],
-        ["retrieve_setting", "settings_data", "setting"],
-        ["list_setting", "settings_data", "setting"],
+        ["view_setting", "settings_data", "setting"],
 
         ["add_sale", "finances", "sale"],
         ["view_sale", "finances", "sale"],
@@ -72,7 +68,6 @@
         ["delete_user", "users", "user"],
         ["view_user", "users", "user"],
         ["advanced_view_user", "users", "user"],
-        ["link_token_user", "users", "user"],
 
         ["add_shop", "shops", "shop"],
         ["change_shop", "shops", "shop"],
@@ -85,11 +80,8 @@
         ["change_price_product", "products", "product"],
         ["view_stockentry", "stocks", "stockentry"],
 
-        ["add_setting", "settings_data", "setting"],
         ["change_setting", "settings_data", "setting"],
-        ["delete_setting", "settings_data", "setting"],
-        ["retrieve_setting", "settings_data", "setting"],
-        ["list_setting", "settings_data", "setting"],
+        ["view_setting", "settings_data", "setting"],
 
         ["add_sale", "finances", "sale"],
         ["view_sale", "finances", "sale"],
@@ -120,7 +112,6 @@
         ["delete_user", "users", "user"],
         ["view_user", "users", "user"],
         ["advanced_view_user", "users", "user"],
-        ["link_token_user", "users", "user"],
 
         ["add_shop", "shops", "shop"],
         ["change_shop", "shops", "shop"],
@@ -133,11 +124,8 @@
         ["change_price_product", "products", "product"],
         ["view_stockentry", "stocks", "stockentry"],
 
-        ["add_setting", "settings_data", "setting"],
         ["change_setting", "settings_data", "setting"],
-        ["delete_setting", "settings_data", "setting"],
-        ["retrieve_setting", "settings_data", "setting"],
-        ["list_setting", "settings_data", "setting"],
+        ["view_setting", "settings_data", "setting"],
 
         ["add_sale", "finances", "sale"],
         ["view_sale", "finances", "sale"],
