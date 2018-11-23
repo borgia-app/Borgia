@@ -12,7 +12,7 @@
     {% endif %}
   </div>
   <div class="panel-body">
-    <form action="{% url 'url_user_list' group_name=group_name %}" method="post" class="form-horizontal">
+    <form action="{% url 'url_user_list' group_name=group.name %}" method="post" class="form-horizontal">
       {% csrf_token %}
       {{ form|bootstrap_horizontal }}
       <div class="form-group">
@@ -64,7 +64,7 @@
         <td>{{ user.balance }}€</td>
         {% if has_perm_view_user %}
           <td>
-            <a href="{% url 'url_user_retrieve' group_name=group_name pk=user.pk %}">Détail</a>
+            <a href="{% url 'url_user_retrieve' group_name=group.name pk=user.pk %}">Détail</a>
           </td>
         {% endif %}
       </tr>

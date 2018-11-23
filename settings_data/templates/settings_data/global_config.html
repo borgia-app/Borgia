@@ -6,7 +6,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     Centre Borgia
-    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_center_config' group_name=group_name %}">
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_center_config' group_name=group.name %}">
       <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
       Modifier
     </a>
@@ -21,7 +21,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     Prix de vente
-    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_price_config' group_name=group_name %}">
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_price_config' group_name=group.name %}">
       <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
       Modifier
     </a>
@@ -36,7 +36,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     Rechargement par Lydia
-    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_lydia_config' group_name=group_name %}">
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_lydia_config' group_name=group.name %}">
       <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
       Modifier
     </a>
@@ -83,7 +83,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     Porte-monnaie
-    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_balance_config' group_name=group_name %}">
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_balance_config' group_name=group.name %}">
       <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
       Modifier
     </a>
