@@ -46,10 +46,10 @@
               <td>{{ product.get_price }} € / {{ product.get_upper_unit_display }} ({{ product.get_strategy_display }})</td>
               <td>{% if product.is_active %}Activé{% else %}Désactivé{% endif %}</td>
               {% if group|has_group_perm:"retrieve_product" %}<td>
-                <a href="{% url 'url_product_retrieve' group_name=group_name pk=product.pk %}">Détail</a>
+                <a href="{% url 'url_product_retrieve' group_name=group.name pk=product.pk %}">Détail</a>
               </td>{% endif %}
               {% if group|has_group_perm:"change_price_product" %}<td>
-                {% if product.is_manual %}Manuelle, {% else %}Automatique, {% endif %}<a href="{% url 'url_product_update_price' group_name=group_name pk=product.pk %}">Gestion</a>
+                {% if product.is_manual %}Manuelle, {% else %}Automatique, {% endif %}<a href="{% url 'url_product_update_price' group_name=group.name pk=product.pk %}">Gestion</a>
               </td>{% endif %}
           </tr>
           {% endfor %}

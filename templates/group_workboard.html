@@ -49,7 +49,7 @@
             <td>{{ sale.amount }}€</td>
             <td>{{ sale.from_shop }}</td>
             <td>
-              <a href="{% url 'url_sale_retrieve' group_name=group_name pk=sale.pk %}">Détail</a>
+              <a href="{% url 'url_sale_retrieve' group_name=group.name pk=sale.pk %}">Détail</a>
             </td>
         </tr>
         {% endfor %}
@@ -69,9 +69,9 @@
             id="search"
             class="btn btn-success"
             style="margin-top: 5px"
-            href="{% url 'url_user_list' group_name=group_name %}">Rechercher</a>
+            href="{% url 'url_user_list' group_name=group.name %}">Rechercher</a>
             <script>
-              var base_list_url = "{% url 'url_user_list' group_name=group_name %}"
+              var base_list_url = "{% url 'url_user_list' group_name=group.name %}"
               $("#input_search").change(function () {
                   $("#search").attr(
                     'href',

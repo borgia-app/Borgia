@@ -27,11 +27,11 @@
         </div>
         <div class="panel-body">
           <h4>Utilisateurs</h4>
-          <a class="btn btn-default" href="{% url 'url_user_create' group_name=group_name %}">Ajouter</a>
-          <a class="btn btn-default" href="{% url 'url_user_list' group_name=group_name %}">Lister</a>
+          <a class="btn btn-default" href="{% url 'url_user_create' group_name=group.name %}">Ajouter</a>
+          <a class="btn btn-default" href="{% url 'url_user_list' group_name=group.name %}">Lister</a>
           <h4>Magasins</h4>
-          <a class="btn btn-default" href="{% url 'url_shop_create' group_name=group_name %}">Ajouter</a>
-          <a class="btn btn-default" href="{% url 'url_shop_list' group_name=group_name %}">Lister</a>
+          <a class="btn btn-default" href="{% url 'url_shop_create' group_name=group.name %}">Ajouter</a>
+          <a class="btn btn-default" href="{% url 'url_shop_list' group_name=group.name %}">Lister</a>
         </div>
     </div>
   </div>
@@ -41,7 +41,7 @@
     <div class="panel panel-default">
       <div class="panel-heading">
           Dernières ventes
-          <a class="btn btn-info btn-xs pull-right" href="{% url 'url_sale_list' group_name=group_name %}">
+          <a class="btn btn-info btn-xs pull-right" href="{% url 'url_sale_list' group_name=group.name %}">
               Accéder à la liste des ventes
           </a>
       </div>
@@ -60,7 +60,7 @@
             <td>{{ sale.amount }}€</td>
             <td>{{ sale.from_shop }}</td>
             <td>
-              <a href="{% url 'url_sale_retrieve' group_name=group_name pk=sale.pk %}">Détail</a>
+              <a href="{% url 'url_sale_retrieve' group_name=group.name pk=sale.pk %}">Détail</a>
             </td>
         </tr>
         {% endfor %}

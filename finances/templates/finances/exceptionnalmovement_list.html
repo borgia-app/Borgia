@@ -42,7 +42,7 @@
                 <td>{{ exceptionnal_movement.amount }}€</td>
                 <td>{% if exceptionnal_movement.is_credit %}Crédit{% else %}Débit{% endif %}</td>
                 <td>
-                  <a href="{% url 'url_exceptionnalmovement_retrieve' group_name=group_name pk=exceptionnal_movement.pk %}">Détail</a>
+                  <a href="{% url 'url_exceptionnalmovement_retrieve' group_name=group.name pk=exceptionnal_movement.pk %}">Détail</a>
                 </td>
             </tr>
             {% endfor %}
