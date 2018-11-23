@@ -117,7 +117,7 @@ class SelfSaleModule(ShopModule):
     class Meta:
         default_permissions = ()
         permissions = (
-            ('use_selfsalemodule', 'Can use the self sale module')
+            ('use_selfsalemodule', 'Can use the self sale module'),
         )
 
     def __str__(self):
@@ -131,7 +131,7 @@ class OperatorSaleModule(ShopModule):
     class Meta:
         default_permissions = ()
         permissions = (
-            ('use_operatorsalemodule', 'Can use the operator sale module')
+            ('use_operatorsalemodule', 'Can use the operator sale module'),
         )
 
     def __str__(self):

@@ -94,7 +94,7 @@ class Product(models.Model):
         :note:: Initial Django Permission (add, change, delete, view) are added.
         """
         permissions = (
-            ('change_price_product', 'Can change price of a product')
+            ('change_price_product', 'Can change price of a product'),
         )
         
     def __str__(self):

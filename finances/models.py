@@ -430,7 +430,7 @@ class SharedEvent(models.Model):
             # delete_sharedevent
             # view_sharedevent
             ('self_register_sharedevent', 'Can self register to a shared event'),
-            ('proceed_payment_sharedevent', 'Can proceed to payment for a shared event')
+            ('proceed_payment_sharedevent', 'Can proceed to payment for a shared event'),
         )
 
     def __str__(self):

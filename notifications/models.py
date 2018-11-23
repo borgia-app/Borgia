@@ -49,7 +49,7 @@ class Notification(models.Model):
         then the only permission is to list notifications.
         """
         default_permissions = (
-            'list',
+            'list'
         )
 
     notification_class = models.ForeignKey(
@@ -171,7 +171,7 @@ class NotificationTemplate(models.Model):
             'list',
             'add',
             'change',
-            'deactivate',
+            'deactivate'
         )
 
     TARGET_USERS_CHOICES = (
@@ -272,7 +272,7 @@ class NotificationGroup(models.Model):
         default_permissions = (
             'list',
             'add',
-            'change',
+            'change'
         )
 
     notificationgroup = AutoOneToOneField(
