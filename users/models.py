@@ -114,8 +114,7 @@ class User(AbstractUser):
             # change_user
             # delete_user
             # view_user
-            ('advanced_view_user', "Can view advanced data on user"),
-            ('supply_money_user', 'Can supply money to user'),
+            ('advanced_view_user', "Can view advanced data on user")
         )
 
     def __str__(self):

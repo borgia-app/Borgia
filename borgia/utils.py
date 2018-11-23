@@ -113,7 +113,7 @@ def lateral_menu(user, group, active=None):
     }
 
     try:
-        if (Permission.objects.get(codename='list_sale')
+        if (Permission.objects.get(codename='view_sale')
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Ventes',
@@ -129,7 +129,7 @@ def lateral_menu(user, group, active=None):
 
     # List rechargings
     try:
-        if (Permission.objects.get(codename='list_recharging')
+        if (Permission.objects.get(codename='view_recharging')
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Rechargements',
@@ -145,7 +145,7 @@ def lateral_menu(user, group, active=None):
 
     # List transferts
     try:
-        if (Permission.objects.get(codename='list_transfert')
+        if (Permission.objects.get(codename='view_transfert')
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Transferts',
@@ -161,7 +161,7 @@ def lateral_menu(user, group, active=None):
 
     # List exceptionnal movements
     try:
-        if (Permission.objects.get(codename='list_exceptionnal_movement')
+        if (Permission.objects.get(codename='view_exceptionnalmovement')
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Exceptionnels',
@@ -355,7 +355,7 @@ def lateral_menu_gadz(user, group, active=None):
             reverse('url_self_transaction_list', kwargs={'group_name': group.name})))
 
     try:
-        if Permission.objects.get(codename='list_sharedevent') in group.permissions.all():
+        if Permission.objects.get(codename='view_sharedevent') in group.permissions.all():
             nav_tree.append(
                 simple_lateral_link(
                     'Évènements',

@@ -14,6 +14,7 @@ from shops.models import Shop, Product
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
 # TODO: shared_event line in tables users, products/payments and function.
+# TODO (by eyap) : make the class PaymentSolution overridable (See Proxy ?) and implement type in children
 
 
 class Sale(models.Model):
@@ -49,7 +50,7 @@ class Sale(models.Model):
     :type shop: Shop object
     :type products: Product object
 
-
+    :note:: Initial Django Permission (add, change, delete, view) are added.
     """
     datetime = models.DateTimeField('Date', default=now)
     sender = models.ForeignKey(User, related_name='sender_sale',
@@ -108,25 +109,6 @@ class Sale(models.Model):
             amount += sp.price
         return amount
 
-    class Meta:
-        """
-        Define Permissions for Sale.
-        """
-        permissions = (
-            ('retrieve_sale', 'Afficher une vente'),
-            ('list_sale', 'Lister les ventes'),
-            ('retrieve_recharging', 'Afficher un rechargement'),
-            ('list_recharging', 'Lister les rechargements'),
-            ('retrieve_transfert', 'Afficher un transfert'),
-            ('list_transfert', 'Lister les transferts'),
-            ('add_exceptionnal_movement',
-             'Faire un mouvement exceptionnel'),
-            ('retrieve_exceptionnal_movement',
-             'Afficher un mouvement exceptionnel'),
-            ('list_exceptionnal_movement',
-             'Lister les mouvements exceptionnels')
-        )
-
 
 class SaleProduct(models.Model):
     sale = models.ForeignKey('Sale', on_delete=models.CASCADE)
@@ -136,6 +118,12 @@ class SaleProduct(models.Model):
                                 max_digits=9,
                                 validators=[MinValueValidator(decimal.Decimal(0))])
 
+    class Meta:
+        """
+        Remove default permissions for StockEntryProduct
+        """
+        default_permissions = ()
+
     def __str__(self):
         if self.product.unit:
             return self.product.__str__() + ' x ' + str(self.quantity) + self.product.get_unit_display()
@@ -144,32 +132,6 @@ class SaleProduct(models.Model):
                 return self.product.__str__() + ' x ' + str(self.quantity)
             else:
                 return self.product.__str__()
-
-
-class Recharging(models.Model):
-    datetime = models.DateTimeField('Date', default=now)
-    sender = models.ForeignKey(User, related_name='sender_recharging',
-                               on_delete=models.CASCADE)
-    operator = models.ForeignKey(User, related_name='operator_recharging',
-                                 on_delete=models.CASCADE)
-    payment_solution = models.ForeignKey(
-        'PaymentSolution', on_delete=models.CASCADE)
-
-    def wording(self):
-        if self.payment_solution.get_type() == 'cash':
-            return 'Rechargement par espèces'
-        if self.payment_solution.get_type() == 'cheque':
-            return 'Rechargement par chèque'
-        if self.payment_solution.get_type() == 'lydiafacetoface':
-            return 'Rechargement par Lydia en face à face'
-        if self.payment_solution.get_type() == 'lydiaonline':
-            return 'Rechargement par Lydia en ligne'
-
-    def amount(self):
-        return self.payment_solution.amount
-
-    def pay(self):
-        self.sender.credit(self.payment_solution.amount)
 
 
 class PaymentSolution(models.Model):
@@ -182,7 +144,12 @@ class PaymentSolution(models.Model):
                                  max_digits=9,
                                  validators=[MinValueValidator(decimal.Decimal(0))])
 
-    # TODO (by eyap) : make the class overridable and implement type in children
+    class Meta:
+        """
+        Remove default permissions for PaymentSolution
+        """
+        default_permissions = ()
+
     def get_type(self):
         try:
             self.cash
@@ -238,15 +205,14 @@ class Cheque(PaymentSolution):
                                                         '''Numéro de chèque
                                                         invalide''')])
 
-    def __str__(self):
-        return 'Cheque n°' + self.cheque_number
-
     class Meta:
         """
-        Define Permissions for Cheque.
+        Remove default permissions for Cheque
         """
-        permissions = (
-        )
+        default_permissions = ()
+
+    def __str__(self):
+        return 'Cheque n°' + self.cheque_number
 
 
 class Cash(PaymentSolution):
@@ -254,15 +220,13 @@ class Cash(PaymentSolution):
     Define a type of payment made by a phycial money (cash).
 
     :note:: Related to a unique User.
-
     """
 
     class Meta:
         """
-        Define Permissions for Cash.
+        Remove default permissions for Cash
         """
-        permissions = (
-        )
+        default_permissions = ()
 
 
 class LydiaFaceToFace(PaymentSolution):
@@ -286,15 +250,14 @@ class LydiaFaceToFace(PaymentSolution):
     banked = models.BooleanField('Est encaissé', default=False)
     date_banked = models.DateField('Date encaissement', blank=True, null=True)
 
-    def __str__(self):
-        return 'Payement Lydia n°' + self.id_from_lydia
-
     class Meta:
         """
-        Define Permissions for Lydia.
+        Remove default permissions for LydiaFaceToFace
         """
-        permissions = (
-        )
+        default_permissions = ()
+
+    def __str__(self):
+        return 'Payement Lydia n°' + self.id_from_lydia
 
 
 class LydiaOnline(PaymentSolution):
@@ -318,15 +281,50 @@ class LydiaOnline(PaymentSolution):
     banked = models.BooleanField('Est encaissé', default=False)
     date_banked = models.DateField('Date encaissement', blank=True, null=True)
 
+    class Meta:
+        """
+        Remove default permissions for LydiaOnline
+        """
+        default_permissions = ()
+
     def __str__(self):
         return 'Payement Lydia n°' + self.id_from_lydia
 
+
+class Recharging(models.Model):
+    """
+    Allow a operator to recharge (supply money) the balance of a sender
+    """
+    datetime = models.DateTimeField('Date', default=now)
+    sender = models.ForeignKey(User, related_name='sender_recharging',
+                               on_delete=models.CASCADE)
+    operator = models.ForeignKey(User, related_name='operator_recharging',
+                                 on_delete=models.CASCADE)
+    payment_solution = models.ForeignKey(PaymentSolution, on_delete=models.CASCADE)
+
     class Meta:
         """
-        Define Permissions for Lydia.
+        Define Permissions for Recharging.
+
+        :note:: Initial Django Permission (add, view) are added.
         """
-        permissions = (
-        )
+        default_permissions = ('add', 'view')
+
+    def wording(self):
+        if self.payment_solution.get_type() == 'cash':
+            return 'Rechargement par espèces'
+        if self.payment_solution.get_type() == 'cheque':
+            return 'Rechargement par chèque'
+        if self.payment_solution.get_type() == 'lydiafacetoface':
+            return 'Rechargement par Lydia en face à face'
+        if self.payment_solution.get_type() == 'lydiaonline':
+            return 'Rechargement par Lydia en ligne'
+
+    def amount(self):
+        return self.payment_solution.amount
+
+    def pay(self):
+        self.sender.credit(self.payment_solution.amount)
 
 
 class Transfert(models.Model):
@@ -339,6 +337,14 @@ class Transfert(models.Model):
     amount = models.DecimalField('Montant', default=0, decimal_places=2,
                                  max_digits=9,
                                  validators=[MinValueValidator(decimal.Decimal(0))])
+
+    class Meta:
+        """
+        Define Permissions for Recharging.
+
+        :note:: Initial Django Permission (add, view) are added.
+        """
+        default_permissions = ('add', 'view')
 
     def wording(self):
         return 'Transfert de ' + self.sender.__str__() + ', ' + self.justification
@@ -360,6 +366,14 @@ class ExceptionnalMovement(models.Model):
                                  max_digits=9,
                                  validators=[MinValueValidator(decimal.Decimal(0))])
     is_credit = models.BooleanField(default=False)
+
+    class Meta:
+        """
+        Define Permissions for Recharging.
+
+        :note:: Initial Django Permission (add, view) are added.
+        """
+        default_permissions = ('add', 'view')
 
     def wording(self):
         return 'Mouvement exceptionnel, ' + self.justification
@@ -402,6 +416,22 @@ class SharedEvent(models.Model):
         'Autoriser la self-préinscription', default=True)
     date_end_registration = models.DateField(
         'Date de fin de self-préinscription', blank=True, null=True)
+
+    class Meta:
+        """
+        Define Permissions for SharedEvent.
+
+        :note:: Initial Django Permission (add, change, delete, view) are added.
+        """
+        permissions = (
+            # CRUDL
+            # add_sharedevent
+            # change_sharedevent
+            # delete_sharedevent
+            # view_sharedevent
+            ('self_register_sharedevent', 'Can self register to a shared event'),
+            ('proceed_payment_sharedevent', 'Can proceed to payment for a shared event')
+        )
 
     def __str__(self):
         """
@@ -672,30 +702,18 @@ class SharedEvent(models.Model):
                 total += 1
         return total
 
-    class Meta:
-        """
-        Define Permissions for SharedEvent.
-
-        :note:: Initial Django Permission (add, change, delete) are added.
-        """
-        permissions = (
-            # CRUDL
-            # add_sharedevent
-            # change_sharedevent
-            # delete_sharedevent
-            ('self_register_sharedevent', 'Se préinscrire à un événement commun'),
-            ('list_sharedevent', 'Lister les événements communs'),
-            ('manage_sharedevent', 'Gérer les événements communs'),
-            ('proceed_payment_sharedevent',
-             'Procéder au paiement des événements communs'),
-        )
-
 
 class WeightsUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     shared_event = models.ForeignKey(SharedEvent, on_delete=models.CASCADE)
     weights_registeration = models.IntegerField(default=0)
     weights_participation = models.IntegerField(default=0)
+
+    class Meta:
+        """
+        Remove default permissions for WeightsUser
+        """
+        default_permissions = ()
 
     def __str__(self):
         return "%s possede %s parts dans l'événement %s" % (self.user, self.weights_participation, self.shared_event)
