@@ -9,20 +9,6 @@ from django.db.models import Q
 from django.utils import timezone
 
 
-class ExtendedPermission(Permission):
-
-    class Meta:
-        proxy = True
-        # Resolve the problem about migration. But I don't know the drawbacks. Questionned on StackOverflow
-        auto_created = True
-        default_permissions = ()
-
-    def __str__(self):
-        from borgia.utils import human_permission_name
-        return human_permission_name(
-            self.codename.replace('_', ' ').capitalize())
-
-
 class User(AbstractUser):
     """
     Extend the AbstractUser class from Django to define a common User class.

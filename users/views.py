@@ -22,7 +22,7 @@ from settings_data.utils import settings_safe_get
 from users.forms import (ManageGroupForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserSearchForm,
                          UserUpdateForm)
-from users.models import ExtendedPermission, User
+from users.models import User
 
 
 class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
@@ -458,7 +458,7 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         if self.group_updated.name.startswith('associates-') is True:
             chiefs_group_name = self.group_updated.name.replace(
                 'associates', 'chiefs')
-            kwargs['possible_permissions'] = ExtendedPermission.objects.filter(
+            kwargs['possible_permissions'] = Permission.objects.filter(
                 pk__in=[p.pk for p in Group.objects.get(
                     name=chiefs_group_name).permissions.all().exclude(
                     pk=permission_to_manage_group(self.group_updated)[0].pk).exclude(
@@ -466,7 +466,7 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
             )
 
         else:
-            kwargs['possible_permissions'] = ExtendedPermission.objects.all().exclude(
+            kwargs['possible_permissions'] = Permission.objects.all().exclude(
                 pk__in=human_unused_permissions()
             )
 
@@ -478,7 +478,7 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         initial = super(ManageGroupView, self).get_initial()
         initial['members'] = User.objects.filter(groups=self.group_updated)
         initial['permissions'] = [
-            ExtendedPermission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
+            Permission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
         ]
         return initial
 

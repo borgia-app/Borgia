@@ -1007,8 +1007,7 @@ def human_permission_name(name):
 def human_unused_permissions():
     pks = []
     unused_cud_models = [
-        'logentry',
-        'extendedpermission',
+        'logentry'
         'contenttype',
         'permission',
         'cash',
