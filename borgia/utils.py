@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.urls import NoReverseMatch, reverse
@@ -10,7 +11,6 @@ from notifications.models import (Notification, NotificationGroup,
                                   NotificationTemplate)
 from shops.models import Product, Shop
 from users.models import User
-
 
 def lateral_menu(user, group, active=None):
     """
@@ -1005,46 +1005,26 @@ def human_permission_name(name):
 
 
 def human_unused_permissions():
-    pks = []
-    unused_cud_models = [
-        'logentry'
-        'contenttype',
+    unused_models = [
+        'group',
         'permission',
-        'cash',
-        'lydia',
-        'cheque',
-        'debitbalance',
-        'payment',
+        'contenttype',
         'session',
-        'container',
-        'productbase',
-        'productunit',
-        'singleproduct',
-        'singleproductfromcontainer',
+        'dependency'
     ]
-    unused_permissions = [
-    ]
-    for s in unused_cud_models:
+
+    perms = []
+    for string_model in unused_models:
         try:
-            pks.append(
-                Permission.objects.get(codename='add_' + s).pk
-            )
-            pks.append(
-                Permission.objects.get(codename='change_' + s).pk
-            )
-            pks.append(
-                Permission.objects.get(codename='delete_' + s).pk
-            )
+            contenttype = ContentType.objects.filter(model=string_model).first()
         except ObjectDoesNotExist:
             pass
-    for s in unused_permissions:
-        try:
-            pks.append(
-                Permission.objects.get(codename=s).pk
-            )
-        except ObjectDoesNotExist:
-            pass
-    return pks
+        if contenttype is not None:
+            perms_model = Permission.objects.filter(content_type=contenttype.pk)
+            for perm in perms_model:
+                perms.append(perm.pk)
+
+    return perms
 
 
 def model_from_module_url_name(module_url_name):
