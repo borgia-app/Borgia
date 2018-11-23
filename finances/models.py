@@ -308,7 +308,7 @@ class Recharging(models.Model):
 
         :note:: Initial Django Permission (add, view) are added.
         """
-        default_permissions = ('add', 'view')
+        default_permissions = ('add', 'view',)
 
     def wording(self):
         if self.payment_solution.get_type() == 'cash':
@@ -344,7 +344,7 @@ class Transfert(models.Model):
 
         :note:: Initial Django Permission (add, view) are added.
         """
-        default_permissions = ('add', 'view')
+        default_permissions = ('add', 'view',)
 
     def wording(self):
         return 'Transfert de ' + self.sender.__str__() + ', ' + self.justification
@@ -373,7 +373,7 @@ class ExceptionnalMovement(models.Model):
 
         :note:: Initial Django Permission (add, view) are added.
         """
-        default_permissions = ('add', 'view')
+        default_permissions = ('add', 'view',)
 
     def wording(self):
         return 'Mouvement exceptionnel, ' + self.justification

@@ -49,7 +49,7 @@ class Notification(models.Model):
         then the only permission is to list notifications.
         """
         default_permissions = (
-            'list'
+            'list',
         )
 
     notification_class = models.ForeignKey(
@@ -129,7 +129,7 @@ class NotificationClass(models.Model):
     class Meta:
         default_permissions = (
             'list',
-            'change'
+            'change',
         )
 
     def __str__(self):
@@ -171,7 +171,7 @@ class NotificationTemplate(models.Model):
             'list',
             'add',
             'change',
-            'deactivate'
+            'deactivate',
         )
 
     TARGET_USERS_CHOICES = (

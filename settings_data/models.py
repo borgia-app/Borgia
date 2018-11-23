@@ -56,7 +56,7 @@ class Setting(models.Model):
         """
         :note:: Initial Django Permission (change, view) are added.
         """
-        default_permissions = ('change', 'view')
+        default_permissions = ('change', 'view',)
         
     def __str__(self):
         """
