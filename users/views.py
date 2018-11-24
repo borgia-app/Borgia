@@ -14,10 +14,9 @@ from django.utils.encoding import force_text
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
-                          GroupPermissionMixin, get_members_group,
-                          group_name_display, human_unused_permissions,
-                          permission_to_manage_group)
+from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
+                          get_members_group, group_name_display,
+                          human_unused_permissions, permission_to_manage_group)
 from finances.models import SharedEvent
 from settings_data.utils import settings_safe_get
 from users.forms import (ManageGroupForm, SelfUserUpdateForm,
@@ -26,7 +25,7 @@ from users.forms import (ManageGroupForm, SelfUserUpdateForm,
 from users.models import User
 
 
-class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     """
     List User instances.
 
@@ -129,7 +128,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         return initial
 
 
-class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
+class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
     """
     Create a new user and redirect to the workboard of the group.
 
@@ -218,7 +217,7 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class UserUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
+class UserUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
     """
     Update an user and redirect to the workboard of the group.
 
@@ -373,7 +372,7 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
 
 class UserSelfUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView,
-                     GroupLateralMenuFormMixin):
+                     GroupLateralMenuMixin):
     template_name = 'users/self_user_update.html'
     form_class = SelfUserUpdateForm
     perm_codename = None
@@ -408,7 +407,7 @@ class UserSelfUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView,
 
 
 class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
-                      GroupLateralMenuFormMixin):
+                      GroupLateralMenuMixin):
     template_name = 'users/group_manage.html'
     success_url = None
     form_class = ManageGroupForm

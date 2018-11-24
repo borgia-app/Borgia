@@ -12,9 +12,8 @@ from django.utils.timezone import now
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
-                          GroupPermissionMixin, ProductShopFromGroupMixin,
-                          ShopFromGroupMixin)
+from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
+                          ProductShopFromGroupMixin, ShopFromGroupMixin)
 from finances.models import Sale
 from modules.models import CategoryProduct
 from settings_data.utils import settings_safe_get
@@ -27,7 +26,7 @@ from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
 
 
 class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                  GroupLateralMenuFormMixin):
+                  GroupLateralMenuMixin):
     template_name = 'shops/product_list.html'
     perm_codename = 'view_product'
     lm_active = 'lm_product_list'
@@ -73,7 +72,7 @@ class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
 
 
 class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                    GroupLateralMenuFormMixin):
+                    GroupLateralMenuMixin):
     template_name = 'shops/product_create.html'
     perm_codename = 'add_product'
     lm_active = 'lm_product_create'
@@ -198,7 +197,7 @@ class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View,
 
 
 class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin, FormView,
-                    GroupLateralMenuFormMixin):
+                    GroupLateralMenuMixin):
     """
     Update a product and redirect to the workboard of the group.
 
@@ -236,7 +235,7 @@ class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin, FormView,
 
 
 class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
-                         FormView, GroupLateralMenuFormMixin):
+                         FormView, GroupLateralMenuMixin):
     """
     """
     form_class = ProductUpdatePriceForm
@@ -269,7 +268,7 @@ class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
         return super(ProductUpdatePrice, self).form_valid(form)
 
 
-class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     template_name = 'shops/shop_create.html'
     perm_codename = 'add_shop'
     lm_active = 'lm_shop_create'
@@ -350,7 +349,7 @@ class ShopList(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class ShopUpdate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class ShopUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     template_name = 'shops/shop_update.html'
     perm_codename = 'change_shop'
     form_class = ShopUpdateForm
@@ -382,7 +381,7 @@ class ShopUpdate(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
 # TODO: infos
 class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                  GroupLateralMenuFormMixin):
+                  GroupLateralMenuMixin):
     """
     You can see checkup of your group from shop only.
     If you're not from a group from shop, you need the permission 'view_shop'

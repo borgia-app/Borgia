@@ -9,9 +9,8 @@ from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
-                          GroupPermissionMixin, ShopFromGroupMixin,
-                          shop_from_group)
+from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
+                          ShopFromGroupMixin, shop_from_group)
 from shops.models import Product
 from stocks.forms import (AdditionnalDataInventoryForm,
                           AdditionnalDataStockEntryForm,
@@ -23,7 +22,7 @@ from stocks.models import (Inventory, InventoryProduct, StockEntry,
 
 
 class StockEntryListView(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                     GroupLateralMenuFormMixin):
+                     GroupLateralMenuMixin):
     template_name = 'stocks/stockentry_list.html'
     perm_codename = 'view_stockentry'
     lm_active = 'lm_stockentry_list'
@@ -182,7 +181,7 @@ class StockEntryRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
 
 class InventoryListView(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                    GroupLateralMenuFormMixin):
+                    GroupLateralMenuMixin):
     template_name = 'stocks/inventory_list.html'
     perm_codename = 'view_inventory'
     lm_active = 'lm_inventory_list'

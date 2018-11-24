@@ -21,18 +21,17 @@ from django.views.generic import FormView, View
 from openpyxl import Workbook, load_workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
-from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
-                          GroupPermissionMixin, UserMixin, shop_from_group)
+from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
+                          UserMixin, shop_from_group)
 from finances.forms import (ExceptionnalMovementForm,
-                            GenericListSearchDateForm, RechargingListForm,
-                            SaleListSearchDateForm, SelfLydiaCreateForm,
-                            SelfTransfertCreateForm, SharedEventAddWeightForm,
-                            SharedEventCreateForm, SharedEventDeleteForm,
-                            SharedEventDownloadXlsxForm, SharedEventFinishForm,
-                            SharedEventListForm,
+                            GenericListSearchDateForm, RechargingCreateForm,
+                            RechargingListForm, SaleListSearchDateForm,
+                            SelfLydiaCreateForm, SelfTransfertCreateForm,
+                            SharedEventAddWeightForm, SharedEventCreateForm,
+                            SharedEventDeleteForm, SharedEventDownloadXlsxForm,
+                            SharedEventFinishForm, SharedEventListForm,
                             SharedEventSelfRegistrationForm,
-                            SharedEventUpdateForm, SharedEventUploadXlsxForm,
-                            RechargingCreateForm)
+                            SharedEventUpdateForm, SharedEventUploadXlsxForm)
 from finances.models import (Cash, Cheque, ExceptionnalMovement,
                              LydiaFaceToFace, LydiaOnline, Recharging, Sale,
                              SharedEvent, Transfert)
@@ -42,7 +41,7 @@ from settings_data.utils import settings_safe_get
 from users.models import User
 
 
-class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     """
     View to list sales.
 
@@ -217,7 +216,7 @@ class SaleRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
 
 class RechargingList(GroupPermissionMixin, FormView,
-                     GroupLateralMenuFormMixin):
+                     GroupLateralMenuMixin):
     """
     View to list recharging sales.
 
@@ -389,7 +388,7 @@ class RechargingRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     """
     View to list transfert sales.
 
@@ -494,7 +493,7 @@ class TransfertRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
 
 class SelfTransfertCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
-                          GroupLateralMenuFormMixin):
+                          GroupLateralMenuMixin):
     template_name = 'finances/self_transfert_create.html'
     perm_codename = 'add_transfert'
     lm_active = 'lm_self_transfert_create'
@@ -532,7 +531,7 @@ class SelfTransfertCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
 
 
 class ExceptionnalMovementList(GroupPermissionMixin, FormView,
-                               GroupLateralMenuFormMixin):
+                               GroupLateralMenuMixin):
     """
     View to list exceptionnal movement sales.
 
@@ -641,7 +640,7 @@ class ExceptionnalMovementRetrieve(GroupPermissionMixin, View,
 
 
 class SelfTransactionList(GroupPermissionMixin, FormView,
-                          GroupLateralMenuFormMixin):
+                          GroupLateralMenuMixin):
     """
     View to list transactions of the logged user.
 
@@ -687,7 +686,7 @@ class SelfTransactionList(GroupPermissionMixin, FormView,
 
 
 class UserExceptionnalMovementCreate(GroupPermissionMixin, UserMixin, FormView,
-                                     GroupLateralMenuFormMixin):
+                                     GroupLateralMenuMixin):
     """
     View to create an exceptionnal movement (debit or credit) for a specific
     user.
@@ -742,7 +741,7 @@ class UserExceptionnalMovementCreate(GroupPermissionMixin, UserMixin, FormView,
 
 
 class RechargingCreate(GroupPermissionMixin, UserMixin, FormView,
-                      GroupLateralMenuFormMixin):
+                      GroupLateralMenuMixin):
     template_name = 'finances/user_supplymoney.html'
     perm_codename = 'add_recharging'
     lm_active = None
@@ -809,7 +808,7 @@ class RechargingCreate(GroupPermissionMixin, UserMixin, FormView,
 
 
 class SelfLydiaCreate(GroupPermissionMixin, FormView,
-                      GroupLateralMenuFormMixin):
+                      GroupLateralMenuMixin):
     """
     View to supply himself by Lydia.
 
@@ -923,7 +922,7 @@ class SelfLydiaConfirm(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
 
 class SharedEventList(GroupPermissionMixin, FormView,
-                      GroupLateralMenuFormMixin):
+                      GroupLateralMenuMixin):
     template_name = 'finances/sharedevent_list.html'
     lm_active = 'lm_sharedevent_list'
     perm_codename = 'view_sharedevent'
@@ -1007,7 +1006,7 @@ class SharedEventList(GroupPermissionMixin, FormView,
 
 
 class SharedEventCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
-                        GroupLateralMenuFormMixin):
+                        GroupLateralMenuMixin):
     form_class = SharedEventCreateForm
     template_name = 'finances/sharedevent_create.html'
     success_url = None
@@ -1095,7 +1094,7 @@ class SharedEventDelete(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
                        )
 
 
-class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
+class SharedEventFinish(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
     """
     Finish a sharedevent and redirect to the list of sharedevents.
     This command is used when you want to keep the event in the database, but

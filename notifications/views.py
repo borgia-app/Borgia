@@ -11,8 +11,7 @@ from django.views.generic.edit import CreateView, UpdateView
 from django.views.generic.list import ListView
 from lxml import etree
 
-from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
-                          GroupPermissionMixin)
+from borgia.utils import GroupLateralMenuMixin, GroupPermissionMixin
 from borgia.views import ListCompleteView
 from notifications.forms import (NotificationTemplateCreateViewForm,
                                  NotificationTemplateUpdateViewForm, notiftest)
@@ -89,7 +88,7 @@ class NotificationTemplateListCompleteView(GroupPermissionMixin, ListCompleteVie
         return context
 
 
-class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLateralMenuFormMixin):
+class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLateralMenuMixin):
     """
 
     """
@@ -144,7 +143,7 @@ class NotificationTemplateCreateView(GroupPermissionMixin, CreateView, GroupLate
         return super(NotificationTemplateCreateView, self).form_valid(form)
 
 
-class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLateralMenuFormMixin):
+class NotificationTemplateUpdateView(GroupPermissionMixin, UpdateView, GroupLateralMenuMixin):
     """
 
     """
@@ -234,7 +233,7 @@ class NotificationTemplateDeactivateView(GroupPermissionMixin, View, GroupLatera
         return redirect(force_text(self.success_url))
 
 
-class NotificationGroupListCompleteView(GroupPermissionMixin, ListView, GroupLateralMenuFormMixin):
+class NotificationGroupListCompleteView(GroupPermissionMixin, ListView, GroupLateralMenuMixin):
     """
 
     """
@@ -252,7 +251,7 @@ class NotificationGroupListCompleteView(GroupPermissionMixin, ListView, GroupLat
         return super(NotificationGroupListCompleteView, self).get_queryset()
 
 
-class NotificationGroupCreateView(GroupPermissionMixin, CreateView, GroupLateralMenuFormMixin):
+class NotificationGroupCreateView(GroupPermissionMixin, CreateView, GroupLateralMenuMixin):
     """
 
     """
@@ -263,7 +262,7 @@ class NotificationGroupCreateView(GroupPermissionMixin, CreateView, GroupLateral
     perm_codename = "add_notificationgroup"
 
 
-class NotificationGroupUpdateView(GroupPermissionMixin, UpdateView, GroupLateralMenuFormMixin):
+class NotificationGroupUpdateView(GroupPermissionMixin, UpdateView, GroupLateralMenuMixin):
     """
 
     """

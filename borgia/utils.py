@@ -593,33 +593,6 @@ def simple_lateral_link(label, fa_icon, id_link, url):
     }
 
 
-class GroupLateralMenuFormMixin(ContextMixin):
-    lm_active = None
-
-    def __init__(self):
-        self.request = None
-        self.kwargs = None
-
-    def get_context_data(self, **kwargs):
-        context = super(GroupLateralMenuFormMixin, self).get_context_data(
-            **kwargs)
-        try:
-            context['nav_tree'] = lateral_menu(
-                self.request.user,
-                Group.objects.get(name=self.kwargs['group_name']),
-                self.lm_active)
-            context['group_name'] = self.kwargs['group_name']
-            context['group_name_display'] = group_name_display(
-                Group.objects.get(name=self.kwargs['group_name'])
-            )
-        except KeyError:
-            pass
-        except ObjectDoesNotExist:
-            pass
-        return context
-
-
-# TODO: Fusion with GroupLateralMenuFormMixin
 class GroupLateralMenuMixin(ContextMixin):
     lm_active = None
 

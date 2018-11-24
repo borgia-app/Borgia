@@ -9,7 +9,7 @@ from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
+from borgia.utils import (GroupLateralMenuMixin,
                           GroupPermissionMixin, ShopFromGroupMixin,
                           ShopModuleMixin, lateral_menu, shop_from_group)
 from finances.models import Sale, SaleProduct
@@ -25,7 +25,7 @@ from users.models import User
 
 
 class SaleShopModuleInterface(GroupPermissionMixin, FormView,
-                              GroupLateralMenuFormMixin):
+                              GroupLateralMenuMixin):
     """
     Generic FormView for handling invoice concerning product bases through a
     shop.
@@ -495,7 +495,7 @@ class ShopModuleCategoryDelete(GroupPermissionMixin, ShopFromGroupMixin,
 
 class ShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
                        ShopModuleMixin, FormView,
-                       GroupLateralMenuFormMixin):
+                       GroupLateralMenuMixin):
     """
     View to manage config of a self shop module.
 

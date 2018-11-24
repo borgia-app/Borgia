@@ -3,8 +3,7 @@ from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
-                          GroupPermissionMixin)
+from borgia.utils import GroupLateralMenuMixin, GroupPermissionMixin
 from settings_data.forms import (BalanceConfigForm, CenterConfigForm,
                                  LydiaConfigForm, PriceConfigForm)
 from settings_data.utils import settings_safe_get
@@ -45,7 +44,7 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class CenterConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class CenterConfig(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     """
     Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
@@ -71,7 +70,7 @@ class CenterConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                                 kwargs={'group_name': self.group.name}))
 
 
-class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     """
     Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
@@ -98,7 +97,7 @@ class PriceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                                 kwargs={'group_name': self.group.name}))
 
 
-class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     """
     Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
@@ -149,7 +148,7 @@ class LydiaConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                                 kwargs={'group_name': self.group.name}))
 
 
-class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class BalanceConfig(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     """
     Each config parameter MUST exists..
     However, to ensure that these values still exists, they are recreated if
