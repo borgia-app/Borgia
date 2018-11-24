@@ -6,6 +6,7 @@ from urllib.parse import urlparse, urlunparse
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
+from django.contrib.auth.mixins import AccessMixin, PermissionRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import LoginView
 from django.core.exceptions import ObjectDoesNotExist
@@ -506,10 +507,21 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
         return weeklist
 
 
-class ManagersGroupWorkboard(GroupLateralMenuMixin, View):
+class ManagersGroupWorkboard(AccessMixin, GroupLateralMenuMixin, View):
     template_name = 'workboards/managers_workboard.html'
-    perm_codename = None
     lm_active = 'lm_workboard'
+
+    def is_manager(self):
+        """
+        Is the current user a manager ?
+        """
+        is_manager = get_managers_group_from_user(self.request.user) is not None
+        return is_manager
+
+    def dispatch(self, request, *args, **kwargs):
+        if not self.is_manager():
+            return self.handle_no_permission()
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
