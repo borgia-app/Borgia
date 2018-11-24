@@ -1041,7 +1041,7 @@ def module_url_name_from_model(model):
 ### GROUP RELATED ###
 #####################
 
-INTERNALS_GROUP_NAME = 'members'
+INTERNALS_GROUP_NAME = 'gadzarts'
 EXTERNALS_GROUP_NAME = 'externals'
 
 

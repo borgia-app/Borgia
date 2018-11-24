@@ -3,6 +3,8 @@ from django.test import Client, TestCase
 from django.urls import reverse
 
 from borgia.tests.tests_views import BaseBorgiaViewsTestCase
+from borgia.utils import get_members_group
+from users.models import User
 
 
 class BaseGeneralUserViewsTestCase(BaseBorgiaViewsTestCase):
@@ -71,6 +73,41 @@ class UserCreateViewTestCase(BaseGeneralUserViewsTestCase):
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
+
+    def test_create_internal_member(self):
+        response_creation = self.client1.post(
+            reverse(self.url_view, kwargs={'group_name': 'presidents', }),
+            {'first_name': 'first_name',
+            'last_name': 'last_name',
+            'email': 'not_a_real_email@email.com',
+            'family': '53',
+            'year': 2015,
+            'campus': 'ME',
+            'username': '53Me215',
+            'password': 'password'})
+        
+        self.assertEqual(response_creation.status_code, 302)
+        self.assertTrue(Client().login(username='53Me215', password='password'))
+        user = User.objects.get(username='53Me215')
+        self.assertEqual(user.groups.count(), 1)
+        self.assertEqual(user.groups.first(), get_members_group())
+
+    def test_create_external_member(self):
+        response_creation = self.client1.post(
+            reverse(self.url_view, kwargs={'group_name': 'presidents', }),
+            {'first_name': 'first_name2',
+            'last_name': 'last_name2',
+            'email': 'not_a_real_email2@email.com',
+            'year': 2015,
+            'username': 'External',
+            'is_external_member': True,
+            'password': 'password'})
+        
+        self.assertEqual(response_creation.status_code, 302)
+        self.assertTrue(Client().login(username='External', password='password'))
+        user = User.objects.get(username='External')
+        self.assertEqual(user.groups.count(), 1)
+        self.assertEqual(user.groups.first(), get_members_group(externals=True))
 
 
 class BaseFocusUserViewsTestCase(BaseBorgiaViewsTestCase):
