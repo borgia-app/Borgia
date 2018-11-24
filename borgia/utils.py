@@ -1036,3 +1036,25 @@ def module_url_name_from_model(model):
         return 'self_sale'
     else:
         raise ValueError('model does not match any defined module')
+
+#####################
+### GROUP RELATED ###
+#####################
+
+INTERNALS_GROUP_NAME = 'members'
+EXTERNALS_GROUP_NAME = 'externals'
+
+
+def get_members_group(externals=False):
+    """
+    Get group for members, beeing internals or externals
+
+    Return internal members by default.
+    """
+    if externals:
+        group_name = EXTERNALS_GROUP_NAME
+    else:
+        group_name = INTERNALS_GROUP_NAME
+
+    return Group.objects.get(name=group_name)
+

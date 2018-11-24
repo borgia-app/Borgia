@@ -15,8 +15,9 @@ from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
 from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
-                          GroupPermissionMixin, group_name_display,
-                          human_unused_permissions, permission_to_manage_group)
+                          GroupPermissionMixin, get_members_group,
+                          group_name_display, human_unused_permissions,
+                          permission_to_manage_group)
 from finances.models import SharedEvent
 from settings_data.utils import settings_safe_get
 from users.forms import (ManageGroupForm, SelfUserUpdateForm,
@@ -153,8 +154,9 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
         user.set_password(form.cleaned_data['password'])
         user.save()
 
-        user.groups.add(Group.objects.get(pk=5))
-        
+        is_external_member = form.cleaned_data['is_external_member']
+        user.groups.add(get_members_group(is_external_member))
+
         user.save()
 
         # User object is assigned to self.object (so we can access to it in get_success_url)

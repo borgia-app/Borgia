@@ -14,25 +14,11 @@ class UserCreationCustomForm(forms.Form):
     campus = forms.ChoiceField(
         label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
     year = forms.ChoiceField(
-        label='Prom\'ss', choices=User.YEAR_CHOICES[::-1], required=False)
+        label='Prom\'ss', choices=User.YEAR_CHOICES[::-1], required=True)
     username = forms.CharField(label='Username', max_length=255)
-    honnor_member = forms.BooleanField(
-        label='Membre d\'honneur', required=False)
+    is_external_member = forms.BooleanField(
+        label='Externe à l\'association', required=False)
     password = forms.CharField(label='Mot de passe', widget=PasswordInput)
-    password_bis = forms.CharField(
-        label='Mot de passe (confirmation)', widget=PasswordInput)
-
-    def clean(self):
-        cleaned_data = super(UserCreationCustomForm, self).clean()
-        try:
-
-            if cleaned_data['password'] != cleaned_data['password_bis']:
-                raise forms.ValidationError(
-                    'Les deux mots de passe ne correspondent pas')
-
-        except KeyError:
-            pass
-        return super(UserCreationCustomForm, self).clean()
 
     def clean_username(self):
         data = self.cleaned_data['username']
