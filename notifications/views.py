@@ -244,7 +244,7 @@ class NotificationGroupListCompleteView(GroupPermissionMixin, ListView, GroupLat
     perm_codename = "list_notificationgroup"
 
     def get_queryset(self):
-        for group in Group.objects.all().exclude(name='specials'):
+        for group in Group.objects.all().exclude(name='externals'):
             try:
                 NotificationGroup.objects.get(notificationgroup=group)
             except ObjectDoesNotExist:

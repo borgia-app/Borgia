@@ -32,7 +32,7 @@ class UserExceptionnalMovementCreateTest(BaseBorgiaViewsTestCase):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_user_exceptionnalmovement_create',
-                                                    kwargs={'group_name': 'specials', 'user_pk': '2'}))
+                                                    kwargs={'group_name': 'externals', 'user_pk': '2'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_get_offline_user_redirection(self):
@@ -65,7 +65,7 @@ class RechargingCreateTest(BaseBorgiaViewsTestCase):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_recharging_create',
-                                                    kwargs={'group_name': 'specials', 'user_pk': '2'}))
+                                                    kwargs={'group_name': 'externals', 'user_pk': '2'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_get_offline_user_redirection(self):
@@ -92,7 +92,7 @@ class SaleListTest(BaseBorgiaViewsTestCase):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_sale_list',
-                                                    kwargs={'group_name': 'specials'}))
+                                                    kwargs={'group_name': 'externals'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_get_offline_user_redirection(self):
@@ -142,7 +142,7 @@ class RechargingListTest(BaseBorgiaViewsTestCase):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_recharging_list',
-                                                    kwargs={'group_name': 'specials'}))
+                                                    kwargs={'group_name': 'externals'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_get_offline_user_redirection(self):
@@ -179,7 +179,7 @@ class RechargingRetrieveTest(BaseBorgiaViewsTestCase):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_recharging_retrieve',
-                                                    kwargs={'group_name': 'specials', 'pk': '1'}))
+                                                    kwargs={'group_name': 'externals', 'pk': '1'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_get_offline_user_redirection(self):
@@ -206,7 +206,7 @@ class TransfertListTest(BaseBorgiaViewsTestCase):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_transfert_list',
-                                                    kwargs={'group_name': 'specials'}))
+                                                    kwargs={'group_name': 'externals'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_get_offline_user_redirection(self):
@@ -242,7 +242,7 @@ class TransfertRetrieveTest(BaseBorgiaViewsTestCase):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_transfert_retrieve',
-                                                    kwargs={'group_name': 'specials', 'pk': '1'}))
+                                                    kwargs={'group_name': 'externals', 'pk': '1'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_get_offline_user_redirection(self):

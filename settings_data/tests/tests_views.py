@@ -24,7 +24,7 @@ class BaseSettingsViewsTest(BaseBorgiaViewsTestCase):
 
     def not_allowed_group_get(self):
         response_client2 = self.client2.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'specials'}))
+                                                    kwargs={'group_name': 'externals'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):

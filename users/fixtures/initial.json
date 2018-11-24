@@ -3,7 +3,7 @@
     "model": "auth.group",
     "pk": 1,
     "fields": {
-      "name": "specials",
+      "name": "externals",
       "permissions": []
     }
   },

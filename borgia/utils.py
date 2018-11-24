@@ -924,8 +924,8 @@ def group_name_display(group):
         return 'Chefs ' + group.name.split('-')[1]
     elif 'associates-' in group.name:
         return 'Associés ' + group.name.split('-')[1]
-    elif group.name == 'specials':
-        return 'Membres spéciaux'
+    elif group.name == 'externals':
+        return 'Externes'
     elif group.name == 'gadzarts':
         return 'Gadz\'Arts'
     elif group.name == 'honnored':
@@ -989,7 +989,7 @@ def human_permission_name(name):
         ('presidents', 'présidents'),
         ('chiefs-', 'chefs '),
         ('associates-', 'associés '),
-        ('specials', 'membres spéciaux'),
+        ('externals', 'externes'),
         ('gadzarts', 'Gadz\'Arts'),
         ('honnored', 'membres d\'honneur'),
 

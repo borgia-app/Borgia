@@ -25,7 +25,7 @@ class BaseGeneralUserViewsTestCase(BaseBorgiaViewsTestCase):
 
     def not_allowed_group_get(self):
         response_client2 = self.client2.get(
-            reverse(self.url_view, kwargs={'group_name': 'specials'}))
+            reverse(self.url_view, kwargs={'group_name': 'externals'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):
@@ -98,7 +98,7 @@ class BaseFocusUserViewsTestCase(BaseBorgiaViewsTestCase):
 
     def not_allowed_group_get(self):
         response_client2 = self.client2.get(
-            reverse(self.url_view, kwargs={'group_name': 'specials', 'pk': '2'}))
+            reverse(self.url_view, kwargs={'group_name': 'externals', 'pk': '2'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):
@@ -201,7 +201,7 @@ class UserSelfDeactivateViewTestCase(BaseBorgiaViewsTestCase):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_user_deactivate',
-                                                    kwargs={'group_name': 'specials', 'pk': str(self.user2.pk)}))
+                                                    kwargs={'group_name': 'externals', 'pk': str(self.user2.pk)}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
@@ -229,7 +229,7 @@ class UserSelfUpdateViewTestCase(BaseBorgiaViewsTestCase):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_user_self_update',
-                                                    kwargs={'group_name': 'specials'}))
+                                                    kwargs={'group_name': 'externals'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
@@ -264,7 +264,7 @@ class ManageGroupViewTestCase(BaseBorgiaViewsTestCase):
 
     def not_allowed_group_get(self):
         response_client2 = self.client2.get(
-            reverse(self.url_view, kwargs={'group_name': 'specials', 'pk': '1'}))
+            reverse(self.url_view, kwargs={'group_name': 'externals', 'pk': '1'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):

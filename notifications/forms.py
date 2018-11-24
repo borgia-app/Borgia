@@ -39,7 +39,7 @@ class NotificationTemplateCreateViewForm(forms.ModelForm):
         self.fields['target_groups'] = forms.ModelMultipleChoiceField(
             label='Groupe d\'utilisateurs destinataire de la notification',
             queryset=NotificationGroup.objects.all().exclude(
-                notificationgroup=Group.objects.get(name='specials')),
+                notificationgroup=Group.objects.get(name='externals')),
             widget=forms.SelectMultiple(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
             required=False)
@@ -100,7 +100,7 @@ class NotificationTemplateUpdateViewForm(forms.ModelForm):
         self.fields['target_groups'] = forms.ModelMultipleChoiceField(
             label='Groupe d\'utilisateurs destinataire de la notification',
             queryset=NotificationGroup.objects.all().exclude(
-                notificationgroup=Group.objects.get(name='specials')),
+                notificationgroup=Group.objects.get(name='externals')),
             widget=forms.SelectMultiple(
                 attrs={'class': 'selectpicker', 'data-live-search': 'True'}),
             required=False)

@@ -55,7 +55,7 @@ class StockEntryListViewTest(BaseStocksViewsTest):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_stock_entry_list',
-                                                    kwargs={'group_name': 'specials'}))
+                                                    kwargs={'group_name': 'externals'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
@@ -88,7 +88,7 @@ class StockEntryCreateViewTest(BaseStocksViewsTest):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_stock_entry_create',
-                                                    kwargs={'group_name': 'specials'}))
+                                                    kwargs={'group_name': 'externals'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
@@ -126,7 +126,7 @@ class StockEntryRetrieveViewTest(BaseStocksViewsTest):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_stock_entry_retrieve',
-                                                    kwargs={'group_name': 'specials', 'pk': str(self.stockentry1.pk)}))
+                                                    kwargs={'group_name': 'externals', 'pk': str(self.stockentry1.pk)}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
@@ -159,7 +159,7 @@ class InventoryListViewTest(BaseStocksViewsTest):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_inventory_list',
-                                                    kwargs={'group_name': 'specials'}))
+                                                    kwargs={'group_name': 'externals'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
@@ -192,7 +192,7 @@ class InventoryCreateViewTest(BaseStocksViewsTest):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_inventory_create',
-                                                    kwargs={'group_name': 'specials'}))
+                                                    kwargs={'group_name': 'externals'}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
@@ -230,7 +230,7 @@ class InventoryRetrieveViewTest(BaseStocksViewsTest):
 
     def test_get_not_allowed_group(self):
         response_client2 = self.client2.get(reverse('url_inventory_retrieve',
-                                                    kwargs={'group_name': 'specials', 'pk': str(self.inventory1.pk)}))
+                                                    kwargs={'group_name': 'externals', 'pk': str(self.inventory1.pk)}))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):

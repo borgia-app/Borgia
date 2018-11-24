@@ -316,7 +316,7 @@ def notify(notification_class_name, actor, recipient=False, action_medium=False,
                         filter(notificationtemplate__notification_class=notification_class[0],
                                notificationtemplate__is_activated=True,
                                notificationtemplate__target_users='TARGET_GROUPS').\
-                        exclude(notificationgroup__name='specials').\
+                        exclude(notificationgroup__name='externals').\
                         order_by('-weight'):  # Heavier group, like "President", are more important
 
                     for user in User.objects.filter(groups=group.notificationgroup, is_active=True):
