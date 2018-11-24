@@ -1057,3 +1057,19 @@ def get_members_group(externals=False):
         group_name = INTERNALS_GROUP_NAME
 
     return Group.objects.get(name=group_name)
+
+def get_managers_group_from_user(user):
+    if user.groups.count() == 1:
+        return None
+    else:
+        presidents_query = user.groups.filter(name='presidents')
+        if presidents_query.count() == 1:
+            return presidents_query.first()
+        else:
+            vice_presidents_query = user.groups.filter(name='vice_presidents')
+            if vice_presidents_query.count() == 1:
+                return vice_presidents_query.first()
+            else:
+                treasurer_query = user.groups.filter(name='treasurer')
+                if treasurer_query.count() == 1:
+                    return treasurer_query.first()

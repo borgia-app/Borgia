@@ -19,7 +19,8 @@ from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
 from borgia.utils import (INTERNALS_GROUP_NAME, GroupLateralMenuMixin,
-                          GroupPermissionMixin, ShopFromGroupMixin)
+                          GroupPermissionMixin, ShopFromGroupMixin,
+                          get_managers_group_from_user)
 from finances.models import (ExceptionnalMovement, Recharging, Sale,
                              SharedEvent, Transfert)
 from modules.models import OperatorSaleModule, SelfSaleModule
@@ -505,56 +506,14 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
         return weeklist
 
 
-class PresidentsGroupWorkboard(GroupPermissionMixin, View,
-                               GroupLateralMenuMixin):
-    template_name = 'workboards/presidents_workboard.html'
+class ManagersGroupWorkboard(GroupLateralMenuMixin, View):
+    template_name = 'workboards/managers_workboard.html'
     perm_codename = None
     lm_active = 'lm_workboard'
 
     def get(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
-        context['events'] = []
-        for event in SharedEvent.objects.all():
-            context['events'].append({
-                'title': event.description,
-                'start': event.date
-            })
-
-        # Form Quick user search
-        context['quick_user_search_form'] = UserQuickSearchForm()
-        return render(request, self.template_name, context=context)
-
-
-class VicePresidentsInternalGroupWorkboard(GroupPermissionMixin, View,
-                                           GroupLateralMenuMixin):
-    template_name = 'workboards/vice_presidents_workboard.html'
-    perm_codename = None
-    lm_active = 'lm_workboard'
-
-    def get(self, request, **kwargs):
-        context = self.get_context_data(**kwargs)
-        context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
-        context['events'] = []
-        for event in SharedEvent.objects.all():
-            context['events'].append({
-                'title': event.description,
-                'start': event.date
-            })
-
-        # Form Quick user search
-        context['quick_user_search_form'] = UserQuickSearchForm()
-        return render(request, self.template_name, context=context)
-
-
-class TreasurersGroupWorkboard(GroupPermissionMixin, View,
-                               GroupLateralMenuMixin):
-    template_name = 'workboards/treasurers_workboard.html'
-    perm_codename = None
-    lm_active = 'lm_workboard'
-
-    def get(self, request, **kwargs):
-        context = self.get_context_data(**kwargs)
+        context['group'] = get_managers_group_from_user(request.user)
         context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
         context['events'] = []
         for event in SharedEvent.objects.all():
