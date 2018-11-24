@@ -217,3 +217,36 @@ class PasswordResetDoneViewTestCase(TestCase):
         response = Client().get(reverse(self.url_view))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
+
+
+class BaseWorkboardsTestCase(BaseBorgiaViewsTestCase):
+    """
+    Base for workboards test cases
+    """
+    url_view = None
+    
+    def as_president_get(self):
+        response_client1 = self.client1.get(
+            reverse(self.url_view))
+        self.assertEqual(response_client1.status_code, 200)
+
+    def offline_user_redirection(self):
+        response_offline_user = Client().get(
+            reverse(self.url_view))
+        self.assertEqual(response_offline_user.status_code, 302)
+        self.assertRedirects(response_offline_user, '/auth/login/')
+
+
+class ManagersWorkboardTestCase(BaseWorkboardsTestCase):
+    url_view = 'url_managers_workboard'
+
+    def test_as_president_get(self):
+        super().as_president_get()
+
+    def test_as_members_get(self):
+        response_client2 = self.client2.get(
+            reverse(self.url_view))
+        self.assertEqual(response_client2.status_code, 403)
+
+    def test_offline_user_redirection(self):
+        super().offline_user_redirection()
