@@ -47,7 +47,7 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     View to list sales.
 
     If the group derived from a shop, only sales from this shop are listed.
-    Else (presidents, treasurers or vice-presidents-internal) all sales are
+    Else (presidents, treasurers or vice_presidents) all sales are
     listed with this view. The view handle request of the form to filter
     sales.
     :note:: only sales are listed here. Sales come from a shop, for other

@@ -905,7 +905,7 @@ def group_name_display(group):
     Return a group name which can be read be a human.
 
     Return the name in french, human readable. The group name must be in:
-    [treasurers, presidents, vice-presidents-internal, chiefs-<group_name>,
+    [treasurers, presidents, vice_presidents, chiefs-<group_name>,
     associates-<group_name>]
 
     :param group: group, mandatory
@@ -918,7 +918,7 @@ def group_name_display(group):
         return 'Trésoriers'
     elif group.name == 'presidents':
         return 'Présidents'
-    elif group.name == 'vice-presidents-internal':
+    elif group.name == 'vice_presidents':
         return 'Vice-présidents'
     elif 'chiefs-' in group.name:
         return 'Chefs ' + group.name.split('-')[1]
@@ -985,7 +985,7 @@ def human_permission_name(name):
         ('use', 'Utiliser'),
 
         ('treasurers', 'trésoriers'),
-        ('vice-presidents-internal', 'vice-présidents vie interne'),
+        ('vice_presidents', 'vice-présidents'),
         ('presidents', 'présidents'),
         ('chiefs-', 'chefs '),
         ('associates-', 'associés '),

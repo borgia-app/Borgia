@@ -528,7 +528,7 @@ class PresidentsGroupWorkboard(GroupPermissionMixin, View,
 
 class VicePresidentsInternalGroupWorkboard(GroupPermissionMixin, View,
                                            GroupLateralMenuMixin):
-    template_name = 'workboards/vice-presidents-internal_workboard.html'
+    template_name = 'workboards/vice_presidents_workboard.html'
     perm_codename = None
     lm_active = 'lm_workboard'
 

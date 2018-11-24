@@ -50,8 +50,8 @@ urlpatterns = [
     # WORKBOARDS
     path('presidents/', PresidentsGroupWorkboard.as_view(),
          {'group_name': 'presidents'}, name='url_group_workboard'),
-    path('vice-presidents-internal/', VicePresidentsInternalGroupWorkboard.as_view(),
-         {'group_name': 'vice-presidents-internal'}, name='url_group_workboard'),
+    path('vice_presidents/', VicePresidentsInternalGroupWorkboard.as_view(),
+         {'group_name': 'vice_presidents'}, name='url_group_workboard'),
     path('treasurers/', TreasurersGroupWorkboard.as_view(),
          {'group_name': 'treasurers'}, name='url_group_workboard'),
     path('gadzarts/', GadzartsGroupWorkboard.as_view(),

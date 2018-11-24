@@ -61,7 +61,7 @@
     "model": "auth.group",
     "pk": 3,
     "fields": {
-      "name": "vice-presidents-internal",
+      "name": "vice_presidents",
       "permissions": [
         ["add_user", "users", "user"],
         ["change_user", "users", "user"],
