@@ -18,8 +18,8 @@ from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
-                          ShopFromGroupMixin)
+from borgia.utils import (INTERNALS_GROUP_NAME, GroupLateralMenuMixin,
+                          GroupPermissionMixin, ShopFromGroupMixin)
 from finances.models import (ExceptionnalMovement, Recharging, Sale,
                              SharedEvent, Transfert)
 from modules.models import OperatorSaleModule, SelfSaleModule
@@ -57,7 +57,7 @@ class ModulesLoginView(LoginView):
                 reverse('url_module_operatorsale', kwargs={'group_name': 'associates-' + shop.name, 'shop_name': shop.name}))
             self_module = shop.modules_selfsalemodule_shop.first()
             self_module_link = self.add_next_to_login(
-                reverse('url_module_selfsale', kwargs={'group_name': 'gadzarts', 'shop_name': shop.name}))
+                reverse('url_module_selfsale', kwargs={'group_name': INTERNALS_GROUP_NAME, 'shop_name': shop.name}))
             context['shop_list'].append({
                 'shop': shop,
                 'operator_module': operator_module,
@@ -76,11 +76,11 @@ def handler403(request, *args, **kwargs):
         context['group'] = Group.objects.get(name=group_name)
         context['group_name'] = group_name
     except IndexError:
-        context['group_name'] = 'gadzarts'
-        context['group'] = Group.objects.get(name='gadzarts')
+        context['group_name'] = INTERNALS_GROUP_NAME
+        context['group'] = Group.objects.get(name=INTERNALS_GROUP_NAME)
     except ObjectDoesNotExist:
-        context['group_name'] = 'gadzarts'
-        context['group'] = Group.objects.get(name='gadzarts')
+        context['group_name'] = INTERNALS_GROUP_NAME
+        context['group'] = Group.objects.get(name=INTERNALS_GROUP_NAME)
 
     try:
         if (request.user.groups.all().exclude(
@@ -352,9 +352,9 @@ def get_unique_model(request, pk, model, props=None):
     return HttpResponse(data)
 
 
-class GadzartsGroupWorkboard(GroupPermissionMixin, View,
+class MembersGroupWorkboard(GroupPermissionMixin, View,
                              GroupLateralMenuMixin):
-    template_name = 'workboards/gadzarts_workboard.html'
+    template_name = 'workboards/members_workboard.html'
     perm_codename = None
     lm_active = 'lm_workboard'
 

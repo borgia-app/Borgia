@@ -106,7 +106,7 @@ class User(AbstractUser):
             ('manage_vice_presidents_group', 'Can manage vice presidents group'),
             ('manage_treasurers_group', 'Can manage treasurers group'),
             ('manage_members_group', 'Can manage members group'),
-            ('manage_external_group', 'Can manage external group'),
+            ('manage_externals_group', 'Can manage externals group'),
 
             # User management
             # add_user

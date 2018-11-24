@@ -12,6 +12,9 @@ from notifications.models import (Notification, NotificationGroup,
 from shops.models import Product, Shop
 from users.models import User
 
+INTERNALS_GROUP_NAME = 'members'
+EXTERNALS_GROUP_NAME = 'externals'
+
 def lateral_menu(user, group, active=None):
     """
     Build the object tree used to generate the lateral menu in the template
@@ -34,7 +37,7 @@ def lateral_menu(user, group, active=None):
     nav_tree = []
 
     # If Gadzart, simplify the menu
-    if group.name == 'gadzarts':
+    if group.name == INTERNALS_GROUP_NAME:
         return lateral_menu_gadz(user, group, active)
 
     # Groups of the user
@@ -210,7 +213,7 @@ def lateral_menu(user, group, active=None):
         pass
 
     # Shop sale for Gadz'Arts
-    if group.name == 'gadzarts':
+    if group.name == INTERNALS_GROUP_NAME:
         for shop in Shop.objects.all():
             if lateral_menu_shop_sale(group, shop) is not None:
                 nav_tree.append(lateral_menu_shop_sale(group, shop))
@@ -926,7 +929,7 @@ def group_name_display(group):
         return 'Associés ' + group.name.split('-')[1]
     elif group.name == 'externals':
         return 'Externes'
-    elif group.name == 'gadzarts':
+    elif group.name == INTERNALS_GROUP_NAME:
         return 'Gadz\'Arts'
     else:
         raise ValueError('Unrecognized group name')
@@ -988,7 +991,7 @@ def human_permission_name(name):
         ('chiefs-', 'chefs '),
         ('associates-', 'associés '),
         ('externals', 'externes'),
-        ('gadzarts', 'Gadz\'Arts'),
+        (INTERNALS_GROUP_NAME, 'Gadz\'Arts'),
 
         ('Supply money', 'Ajouter de l\'argent'),
 
@@ -1041,9 +1044,6 @@ def module_url_name_from_model(model):
 ### GROUP RELATED ###
 #####################
 
-INTERNALS_GROUP_NAME = 'gadzarts'
-EXTERNALS_GROUP_NAME = 'externals'
-
 
 def get_members_group(externals=False):
     """
@@ -1057,4 +1057,3 @@ def get_members_group(externals=False):
         group_name = INTERNALS_GROUP_NAME
 
     return Group.objects.get(name=group_name)
-

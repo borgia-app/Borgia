@@ -133,7 +133,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en²/1.9/howto/static-files/
 AUTH_USER_MODEL = 'users.User'
-LOGIN_REDIRECT_URL = '/gadzarts/'
+LOGIN_REDIRECT_URL = '/members/'
 LOGIN_URL = '/auth/login/'
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
@@ -152,7 +152,7 @@ LOGIN_EXEMPT_URLS = [
 ]
 
 LOGIN_EXEMPT_URL_PATTERNS = [
-    re.compile('%s[\w-]+%s' % ('/auth/gadzarts/', '/')),
+    re.compile('%s[\w-]+%s' % ('/auth/members/', '/')),
     re.compile('%s[\w-]+%s' % ('/auth/', '/')),
     re.compile('^%s$' % ('/graphql')),
     re.compile('^%s.+%s[\d]+%s$' % ('/jwt/token/', '/', '.json')),
@@ -180,7 +180,7 @@ MEDIA_URL = '/media/'
 # Lydia
 # https ou non selon le dns
 LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/self/lydias/callback/'
-LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/gadzarts/self/lydias/confirm/'
+LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/members/self/lydias/confirm/'
 
 # Penser à activer 'autoriser l'acces par les applications moins sécurisées' dans Gmail
 EMAIL_USE_TLS = True

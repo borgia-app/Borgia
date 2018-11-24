@@ -8,7 +8,7 @@ from django.contrib.auth.views import (LogoutView, PasswordChangeDoneView,
                                        PasswordResetView)
 from django.urls import include, path
 
-from borgia.views import (GadzartsGroupWorkboard, ModulesLoginView,
+from borgia.views import (MembersGroupWorkboard, ModulesLoginView,
                           PresidentsGroupWorkboard, ShopGroupWorkboard,
                           TreasurersGroupWorkboard,
                           VicePresidentsInternalGroupWorkboard, handler403,
@@ -54,8 +54,8 @@ urlpatterns = [
          {'group_name': 'vice_presidents'}, name='url_group_workboard'),
     path('treasurers/', TreasurersGroupWorkboard.as_view(),
          {'group_name': 'treasurers'}, name='url_group_workboard'),
-    path('gadzarts/', GadzartsGroupWorkboard.as_view(),
-         {'group_name': 'gadzarts'}, name='url_group_workboard'),
+    path('members/', MembersGroupWorkboard.as_view(),
+         {'group_name': 'members'}, name='url_group_workboard'),
     path('<str:group_name>/', ShopGroupWorkboard.as_view(),
          name='url_group_workboard'),
     ### APPS ###

@@ -147,7 +147,7 @@
     "model": "auth.group",
     "pk": 5,
     "fields": {
-      "name": "gadzarts",
+      "name": "members",
       "permissions": [
         ["use_selfsalemodule", "modules", "selfsalemodule"],
         ["add_transfert", "finances", "transfert"],

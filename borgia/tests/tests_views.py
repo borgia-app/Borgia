@@ -9,7 +9,7 @@ from users.models import User
 
 class BaseBorgiaViewsTestCase(TestCase):
     def setUp(self):
-        members_group = Group.objects.create(name='gadzarts')
+        members_group = Group.objects.create(name='members')
         presidents_group = Group.objects.create(name='presidents')
         presidents_group.permissions.set(Permission.objects.all())
         # Group externals NEED to be created (else raises errors) :
@@ -95,7 +95,7 @@ class LoginViewTestCase(BaseAuthViewsTestCase):
 
         self.assertEqual(response.status_code, 302)
         # TODO : See if it works without fetch_redirect_response=False
-        self.assertRedirects(response, '/gadzarts/', fetch_redirect_response=False)
+        self.assertRedirects(response, '/members/', fetch_redirect_response=False)
 
     def test_wrong_credentials(self): 
         self.client = Client()

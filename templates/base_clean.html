@@ -35,7 +35,7 @@
   <nav class="navbar navbar-default">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
+        <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='members' %}{% endif %}">
         </a>
         <p class="navbar-text navbar-text-center">{% get_center_name %}</p>
       </div>
