@@ -9,20 +9,6 @@ from django.db.models import Q
 from django.utils import timezone
 
 
-class ExtendedPermission(Permission):
-
-    class Meta:
-        proxy = True
-        # Resolve the problem about migration. But I don't know the drawbacks. Questionned on StackOverflow
-        auto_created = True
-        default_permissions = ()
-
-    def __str__(self):
-        from borgia.utils import human_permission_name
-        return human_permission_name(
-            self.codename.replace('_', ' ').capitalize())
-
-
 class User(AbstractUser):
     """
     Extend the AbstractUser class from Django to define a common User class.
@@ -108,6 +94,29 @@ class User(AbstractUser):
 
     jwt_iat = models.DateTimeField('Jwt iat', default=timezone.now)
 
+    class Meta:
+        """
+        Define Permissions for User.
+
+        :note:: Initial Django Permission (add, change, delete, view) are added.
+        """
+        permissions = (
+            # Group management
+            ('manage_presidents_group', 'Can manage presidents group'),
+            ('manage_vice_presidents_group', 'Can manage vice presidents group'),
+            ('manage_treasurers_group', 'Can manage treasurers group'),
+            ('manage_members_group', 'Can manage members group'),
+            ('manage_honnored_group', 'Can manage honnored group'),
+            ('manage_external_group', 'Can manage external group'),
+
+            # User management
+            # add_user
+            # change_user
+            # delete_user
+            # view_user
+            ('advanced_view_user', "Can view advanced data on user"),
+        )
+
     def __str__(self):
         """
         Return the common string representing an instance of the class User.
@@ -135,7 +144,7 @@ class User(AbstractUser):
             if not self.surname or not self.family:
                 return self.first_name + ' ' + self.last_name
             else:
-                return self.surname + ' ' + self.family + self.campus + str(self.year_pg())
+                return self.surname + ' ' + self.family + self.campus + self.year_pg()
         except AttributeError:
             return self.username
 
@@ -147,16 +156,15 @@ class User(AbstractUser):
         mandatory, the function will raise an error if there is no year.
         example:: 2014 -> 214
 
-        :returns:  integer formatted year
+        :returns:  string
         :raises: AttributeError when no year
 
         """
         if self.year is not None:
             year = str(self.year)
-            return int( year[:1] + year[-2:] )
+            return year[:1] + year[-2:]
         else:
-            raise AttributeError(
-                'The user does not have a defined year attribute')
+            return ""
 
     def forecast_balance(self):
         """
@@ -236,45 +244,6 @@ class User(AbstractUser):
         )
 
         return list_transaction
-
-    class Meta:
-        """
-        Permission imposed or not to an instance of User.
-
-        note:: All permission concerning a user in Borgia are defined here.
-        However, please note that Django creates byhimself 3 permissions for
-        the class User : the ability of creating, deleting and editing a User.
-        note:: Permission strings are written in french because they are needed
-        to be understood by every user of Borgia and tend to be directly
-        displayed in the UI. Moreover theses permissions tend to be created by
-        the UI himself, when generating groups or shops. They are going to be
-        deprecated in further versions.
-        """
-        permissions = (
-            # Group management
-            ('manage_group_presidents', 'Gérer le groupe des présidents'),
-            ('manage_group_vice-presidents-internal',
-             '''Gérer le groupe des vices présidents délégués à la vie
-             interne'''),
-            ('manage_group_treasurers', 'Gérer le groupe des trésoriers'),
-            ('manage_group_gadzarts', 'Gérer le groupe des Gadz\'Arts'),
-            ('manage_group_honnored', '''Gérer le groupe des membres
-             d\'honneurs'''),
-            ('manage_group_specials', '''Gérer le groupe des membres
-             spéciaux'''),
-
-            # CRUDL
-            # add_user
-            # change_user
-            # delete_user
-            ('list_user', 'Lister les users'),
-            ('retrieve_user', 'Afficher les users'),
-            ('retrieve_more_user_info', "Afficher plus d'info sur les users"),
-
-            # Miscellaneous
-            ('supply_money_user', 'Ajouter de l\'argent à un utilisateur'),
-        )
-
 
 def list_year():
     """

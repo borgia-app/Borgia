@@ -44,8 +44,8 @@ class UserTest(TestCase):
                          'userWithLastName')
 
     def test_year_pg(self):
-        self.assertRaises(AttributeError, self.user_only_username.year_pg)
-        self.assertEqual(self.user_all_fields.year_pg(), 215)
+        self.assertEqual(self.user_all_fields.year_pg(), "215")
+        self.assertEqual(self.user_only_username.year_pg(), "")
 
     def test_credit(self):
         initial_balance = self.user_all_fields.balance
@@ -114,7 +114,7 @@ class UserTest(TestCase):
 
 class ListYearTest(TestCase):
     """
-    Will fail, cause user1 is ignored (in the current BDD, user1 is the admin)
+    Be careful : user1 is ignored (in the current BDD, user1 is the admin)
     """
     def setUp(self):
         self.user1 = User.objects.create(username='user1', year=2010)

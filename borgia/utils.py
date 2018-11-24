@@ -1,4 +1,5 @@
 from django.contrib.auth.models import Group, Permission
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.urls import NoReverseMatch, reverse
@@ -10,7 +11,6 @@ from notifications.models import (Notification, NotificationGroup,
                                   NotificationTemplate)
 from shops.models import Product, Shop
 from users.models import User
-
 
 def lateral_menu(user, group, active=None):
     """
@@ -84,7 +84,7 @@ def lateral_menu(user, group, active=None):
 
     # Manage products
     try:
-        if Permission.objects.get(codename='list_product') in group.permissions.all():
+        if Permission.objects.get(codename='view_product') in group.permissions.all():
             nav_tree.append(
                 simple_lateral_link(
                     label='Produits',
@@ -113,7 +113,7 @@ def lateral_menu(user, group, active=None):
     }
 
     try:
-        if (Permission.objects.get(codename='list_sale')
+        if (Permission.objects.get(codename='view_sale')
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Ventes',
@@ -129,7 +129,7 @@ def lateral_menu(user, group, active=None):
 
     # List rechargings
     try:
-        if (Permission.objects.get(codename='list_recharging')
+        if (Permission.objects.get(codename='view_recharging')
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Rechargements',
@@ -145,7 +145,7 @@ def lateral_menu(user, group, active=None):
 
     # List transferts
     try:
-        if (Permission.objects.get(codename='list_transfert')
+        if (Permission.objects.get(codename='view_transfert')
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Transferts',
@@ -161,7 +161,7 @@ def lateral_menu(user, group, active=None):
 
     # List exceptionnal movements
     try:
-        if (Permission.objects.get(codename='list_exceptionnal_movement')
+        if (Permission.objects.get(codename='view_exceptionnalmovement')
                 in group.permissions.all()):
             nav_sale_lists['subs'].append(simple_lateral_link(
                 label='Exceptionnels',
@@ -355,7 +355,7 @@ def lateral_menu_gadz(user, group, active=None):
             reverse('url_self_transaction_list', kwargs={'group_name': group.name})))
 
     try:
-        if Permission.objects.get(codename='list_sharedevent') in group.permissions.all():
+        if Permission.objects.get(codename='view_sharedevent') in group.permissions.all():
             nav_tree.append(
                 simple_lateral_link(
                     'Évènements',
@@ -471,11 +471,11 @@ def lateral_menu_stock(group):
     add_permission_stockentry = Permission.objects.get(
         codename='add_stockentry')
     list_permission_stockentry = Permission.objects.get(
-        codename='list_stockentry')
+        codename='view_stockentry')
     add_permission_inventory = Permission.objects.get(
         codename='add_inventory')
     list_permission_inventory = Permission.objects.get(
-        codename='list_inventory')
+        codename='view_inventory')
 
     if add_permission_stockentry in group.permissions.all():
         product_tree['subs'].append({
@@ -888,7 +888,7 @@ def permission_to_manage_group(group):
     :param group:
     :return: (objet permission, permission name formatée pour has_perm)
     """
-    perm = Permission.objects.get(codename=('manage_group_'+group.name))
+    perm = Permission.objects.get(codename=('manage_'+group.name+'_group'))
     perm_name = 'users.' + perm.codename
     return perm, perm_name
 
@@ -1005,47 +1005,26 @@ def human_permission_name(name):
 
 
 def human_unused_permissions():
-    pks = []
-    unused_cud_models = [
-        'logentry',
-        'extendedpermission',
-        'contenttype',
+    unused_models = [
+        'group',
         'permission',
-        'cash',
-        'lydia',
-        'cheque',
-        'debitbalance',
-        'payment',
+        'contenttype',
         'session',
-        'container',
-        'productbase',
-        'productunit',
-        'singleproduct',
-        'singleproductfromcontainer',
+        'dependency'
     ]
-    unused_permissions = [
-    ]
-    for s in unused_cud_models:
+
+    perms = []
+    for string_model in unused_models:
         try:
-            pks.append(
-                Permission.objects.get(codename='add_' + s).pk
-            )
-            pks.append(
-                Permission.objects.get(codename='change_' + s).pk
-            )
-            pks.append(
-                Permission.objects.get(codename='delete_' + s).pk
-            )
+            contenttype = ContentType.objects.filter(model=string_model).first()
         except ObjectDoesNotExist:
             pass
-    for s in unused_permissions:
-        try:
-            pks.append(
-                Permission.objects.get(codename=s).pk
-            )
-        except ObjectDoesNotExist:
-            pass
-    return pks
+        if contenttype is not None:
+            perms_model = Permission.objects.filter(content_type=contenttype.pk)
+            for perm in perms_model:
+                perms.append(perm.pk)
+
+    return perms
 
 
 def model_from_module_url_name(module_url_name):

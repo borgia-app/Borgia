@@ -32,7 +32,7 @@ from finances.forms import (ExceptionnalMovementForm,
                             SharedEventListForm,
                             SharedEventSelfRegistrationForm,
                             SharedEventUpdateForm, SharedEventUploadXlsxForm,
-                            UserSupplyMoneyForm)
+                            RechargingCreateForm)
 from finances.models import (Cash, Cheque, ExceptionnalMovement,
                              LydiaFaceToFace, LydiaOnline, Recharging, Sale,
                              SharedEvent, Transfert)
@@ -60,7 +60,7 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     :raises: Http404 if the group doesn't have the permission to list sales
     """
     template_name = 'finances/sale_shop_list.html'
-    perm_codename = 'list_sale'
+    perm_codename = 'view_sale'
     lm_active = 'lm_sale_list'
     form_class = GenericListSearchDateForm
 
@@ -185,7 +185,7 @@ class SaleRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
     :raises: Http404 if the group doesn't have the permission to retrieve sale
     """
     template_name = 'finances/sale_retrieve.html'
-    perm_codename = 'retrieve_sale'
+    perm_codename = 'view_sale'
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -233,7 +233,7 @@ class RechargingList(GroupPermissionMixin, FormView,
     recharging sales
     """
     template_name = 'finances/recharging_list.html'
-    perm_codename = 'list_recharging'
+    perm_codename = 'view_recharging'
     lm_active = 'lm_recharging_list'
     form_class = RechargingListForm
 
@@ -372,7 +372,7 @@ class RechargingRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
     recharging sale
     """
     template_name = 'finances/recharging_retrieve.html'
-    perm_codename = 'retrieve_recharging'
+    perm_codename = 'view_recharging'
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -405,7 +405,7 @@ class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     sales
     """
     template_name = 'finances/transfert_list.html'
-    perm_codename = 'list_transfert'
+    perm_codename = 'view_transfert'
     lm_active = 'lm_transfert_list'
     form_class = GenericListSearchDateForm
 
@@ -476,7 +476,7 @@ class TransfertRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
     transfert sale
     """
     template_name = 'finances/transfert_retrieve.html'
-    perm_codename = 'retrieve_transfert'
+    perm_codename = 'view_transfert'
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -549,7 +549,7 @@ class ExceptionnalMovementList(GroupPermissionMixin, FormView,
     exceptionnal movement sales
     """
     template_name = 'finances/exceptionnalmovement_list.html'
-    perm_codename = 'list_exceptionnal_movement'
+    perm_codename = 'view_exceptionnalmovement'
     lm_active = 'lm_exceptionnalmovement_list'
     form_class = GenericListSearchDateForm
 
@@ -623,7 +623,7 @@ class ExceptionnalMovementRetrieve(GroupPermissionMixin, View,
     exceptionnal movement sale
     """
     template_name = 'finances/exceptionnalmovement_retrieve.html'
-    perm_codename = 'retrieve_exceptionnal_movement'
+    perm_codename = 'view_exceptionnalmovement'
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -702,7 +702,7 @@ class UserExceptionnalMovementCreate(GroupPermissionMixin, UserMixin, FormView,
     exceptionnal movement
     """
     template_name = 'finances/user_exceptionnalmovement_create.html'
-    perm_codename = 'add_exceptionnal_movement'
+    perm_codename = 'add_exceptionnalmovement'
     lm_active = None
     form_class = ExceptionnalMovementForm
 
@@ -741,15 +741,15 @@ class UserExceptionnalMovementCreate(GroupPermissionMixin, UserMixin, FormView,
         return initial
 
 
-class UserSupplyMoney(GroupPermissionMixin, UserMixin, FormView,
+class RechargingCreate(GroupPermissionMixin, UserMixin, FormView,
                       GroupLateralMenuFormMixin):
     template_name = 'finances/user_supplymoney.html'
-    perm_codename = 'supply_money_user'
+    perm_codename = 'add_recharging'
     lm_active = None
-    form_class = UserSupplyMoneyForm
+    form_class = RechargingCreateForm
 
     def get_form_kwargs(self, **kwargs):
-        kwargs = super(UserSupplyMoney, self).get_form_kwargs(**kwargs)
+        kwargs = super(RechargingCreate, self).get_form_kwargs(**kwargs)
         kwargs['user'] = self.user
         return kwargs
 
@@ -795,14 +795,14 @@ class UserSupplyMoney(GroupPermissionMixin, UserMixin, FormView,
         )
         recharging.pay()
 
-        return super(UserSupplyMoney, self).form_valid(form)
+        return super(RechargingCreate, self).form_valid(form)
 
     def get_initial(self):
         """
         Populate the form with the current login user for the operator (only
         username of course).
         """
-        initial = super(UserSupplyMoney, self).get_initial()
+        initial = super(RechargingCreate, self).get_initial()
         initial['signature_date'] = now
         initial['operator_username'] = self.request.user.username
         return initial
@@ -926,7 +926,7 @@ class SharedEventList(GroupPermissionMixin, FormView,
                       GroupLateralMenuFormMixin):
     template_name = 'finances/sharedevent_list.html'
     lm_active = 'lm_sharedevent_list'
-    perm_codename = 'list_sharedevent'
+    perm_codename = 'view_sharedevent'
     form_class = SharedEventListForm
 
     def dispatch(self, request, *args, **kwargs):
@@ -954,7 +954,7 @@ class SharedEventList(GroupPermissionMixin, FormView,
             se.total_weights_registrants = se.get_total_weights_registrants()
             se.total_weights_participants = se.get_total_weights_participants()
             se.has_perm_manage = (self.request.user == se.manager or
-                                  Permission.objects.get(codename='manage_sharedevent') in self.group.permissions.all())
+                                  Permission.objects.get(codename='change_sharedevent') in self.group.permissions.all())
         context['shared_events'] = shared_events
         # Permission SelfRegistration
         if Permission.objects.get(codename='self_register_sharedevent') in self.group.permissions.all():
@@ -1070,7 +1070,7 @@ class SharedEventDelete(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
 
         # Permissions
         try:
-            if Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all():
+            if Permission.objects.get(codename='change_sharedevent') not in self.group.permissions.all():
                 if request.user != self.se.manager:
                     raise Http404
         except ObjectDoesNotExist:
@@ -1211,7 +1211,7 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
 
         # Permissions
         try:
-            if Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all():
+            if Permission.objects.get(codename='change_sharedevent') not in self.group.permissions.all():
                 if request.user != self.se.manager:
                     raise Http404
         except ObjectDoesNotExist:
@@ -1298,7 +1298,7 @@ class SharedEventUpdate(GroupPermissionMixin, SuccessMessageMixin, FormView, Gro
             )
 
     def get_success_url(self):
-        if self.manager_changed and Permission.objects.get(codename='manage_sharedevent') not in self.group.permissions.all():
+        if self.manager_changed and Permission.objects.get(codename='change_sharedevent') not in self.group.permissions.all():
             return reverse('url_group_workboard',
                            kwargs={'group_name': self.group.name}
                            )
@@ -1381,7 +1381,7 @@ class SharedEventChangeWeight(GroupPermissionMixin, View):
         """
         Change la valeur de la pondération d'un participant user pour un événement
         Permissions :   Si événements terminé -> denied,
-                        Si pas manager ou pas la perm 'finances.manage_sharedevent' -> denied
+                        Si pas manager ou pas la perm 'finances.change_sharedevent' -> denied
         :param pk: pk de l'événement
         :param user_pk: paramètre GET correspondant au pk de l'user
         :param pond_pk: paramètre GET correspondant à la nouvelle pondération
@@ -1397,7 +1397,7 @@ class SharedEventChangeWeight(GroupPermissionMixin, View):
             isParticipant = int(request.GET['isParticipant'])  # Boolean
 
             # Permission
-            if request.user != se.manager and request.user.has_perm('finances.manage_sharedevent') is False:
+            if request.user != se.manager and request.user.has_perm('finances.change_sharedevent') is False:
                 raise PermissionDenied
             # Même en ayant la permission, on ne modifie plus une event terminé
             elif se.done is True:
@@ -1446,7 +1446,7 @@ class SharedEventManageUsers(GroupPermissionMixin, FormView, GroupLateralMenuMix
             raise Http404
 
         # Permission
-        if request.user != self.se.manager or not request.user.has_perm('finances.manage_sharedevent'):
+        if request.user != self.se.manager or not request.user.has_perm('finances.change_sharedevent'):
             raise Http404
 
         return super(SharedEventManageUsers, self).dispatch(request, *args, **kwargs)
@@ -1519,7 +1519,7 @@ class SharedEventRemoveUser(GroupPermissionMixin, View):
         # Permission
         if se.done is True:
             raise PermissionDenied
-        if not (request.user == se.manager or request.user.has_perm('finances.manage_sharedevent')):
+        if not (request.user == se.manager or request.user.has_perm('finances.change_sharedevent')):
             raise PermissionDenied
 
         try:
@@ -1574,7 +1574,7 @@ class SharedEventDownloadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMi
             raise Http404
 
         # Permission
-        if not (request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent')):
+        if not (request.user == self.se.manager or request.user.has_perm('finances.change_sharedevent')):
             raise PermissionDenied
 
         return super(SharedEventDownloadXlsx, self).dispatch(request, *args, **kwargs)
@@ -1644,7 +1644,7 @@ class SharedEventUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixi
         # Permission
         if self.se.done is True:
             raise PermissionDenied
-        if not (request.user == self.se.manager or request.user.has_perm('finances.manage_sharedevent')):
+        if not (request.user == self.se.manager or request.user.has_perm('finances.change_sharedevent')):
             raise PermissionDenied
 
         return super(SharedEventUploadXlsx, self).dispatch(request, *args, **kwargs)

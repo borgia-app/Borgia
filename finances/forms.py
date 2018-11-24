@@ -91,7 +91,7 @@ class RechargingListForm(GenericListSearchDateForm):
     def __init__(self, *args, **kwargs):
         super(RechargingListForm, self).__init__(*args, **kwargs)
         try:
-            perm = Permission.objects.get(codename='supply_money_user')
+            perm = Permission.objects.get(codename='add_recharging')
             queryset = User.objects.filter(groups__permissions=perm).distinct()
         except ObjectDoesNotExist:
             queryset = User.objects.none()
@@ -136,7 +136,7 @@ class ExceptionnalMovementForm(forms.Form):
         return super(ExceptionnalMovementForm, self).clean()
 
 
-class UserSupplyMoneyForm(forms.Form):
+class RechargingCreateForm(forms.Form):
     type = forms.ChoiceField(label='Type', choices=(('cash', 'Espèces'),
                                                     ('cheque', 'Chèque'),
                                                     ('lydia', 'Lydia')))
@@ -159,7 +159,7 @@ class UserSupplyMoneyForm(forms.Form):
 
     def __init__(self, **kwargs):
         self.user = kwargs.pop('user')
-        super(UserSupplyMoneyForm, self).__init__(**kwargs)
+        super(RechargingCreateForm, self).__init__(**kwargs)
 
     def clean_unique_number(self):
         data = self.cleaned_data['unique_number']
@@ -185,7 +185,7 @@ class UserSupplyMoneyForm(forms.Form):
 
     def clean(self):
 
-        cleaned_data = super(UserSupplyMoneyForm, self).clean()
+        cleaned_data = super(RechargingCreateForm, self).clean()
 
         try:
             operator_username = cleaned_data['operator_username']

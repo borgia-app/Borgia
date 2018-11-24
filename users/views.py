@@ -22,7 +22,7 @@ from settings_data.utils import settings_safe_get
 from users.forms import (ManageGroupForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserSearchForm,
                          UserUpdateForm)
-from users.models import ExtendedPermission, User
+from users.models import User
 
 
 class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
@@ -32,7 +32,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
-    perm_codename = 'list_user'
+    perm_codename = 'view_user'
     template_name = 'users/user_list.html'
     lm_active = 'lm_user_list'
     form_class = UserSearchForm
@@ -78,8 +78,8 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 User.objects.all().exclude(groups=1))
 
         # Permission Retrieveuser
-        if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
-            context['has_perm_retrieve_user'] = True
+        if Permission.objects.get(codename='view_user') in self.group.permissions.all():
+            context['has_perm_view_user'] = True
 
         return context
 
@@ -180,12 +180,12 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
         If not, go to the workboard of the group.
         """
         try:
-            if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
+            if Permission.objects.get(codename='view_user') in self.group.permissions.all():
                 return reverse('url_user_retrieve',
                                kwargs={'group_name': self.group.name,
                                        'pk': self.object.pk})
             else:
-                if Permission.objects.get(codename='list_user') in self.group.permissions.all():
+                if Permission.objects.get(codename='view_user') in self.group.permissions.all():
                     return reverse('url_user_list',
                                    kwargs={'group_name': self.group.name})
                 else:
@@ -204,7 +204,7 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     :param self.perm_codename: codename of the permission checked.
     """
     template_name = 'users/retrieve.html'
-    perm_codename = 'retrieve_user'
+    perm_codename = 'view_user'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -458,7 +458,7 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         if self.group_updated.name.startswith('associates-') is True:
             chiefs_group_name = self.group_updated.name.replace(
                 'associates', 'chiefs')
-            kwargs['possible_permissions'] = ExtendedPermission.objects.filter(
+            kwargs['possible_permissions'] = Permission.objects.filter(
                 pk__in=[p.pk for p in Group.objects.get(
                     name=chiefs_group_name).permissions.all().exclude(
                     pk=permission_to_manage_group(self.group_updated)[0].pk).exclude(
@@ -466,7 +466,7 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
             )
 
         else:
-            kwargs['possible_permissions'] = ExtendedPermission.objects.all().exclude(
+            kwargs['possible_permissions'] = Permission.objects.all().exclude(
                 pk__in=human_unused_permissions()
             )
 
@@ -478,7 +478,7 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         initial = super(ManageGroupView, self).get_initial()
         initial['members'] = User.objects.filter(groups=self.group_updated)
         initial['permissions'] = [
-            ExtendedPermission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
+            Permission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
         ]
         return initial
 
