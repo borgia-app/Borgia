@@ -3,6 +3,7 @@ import json
 import re
 
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -25,17 +26,17 @@ from users.forms import (ManageGroupForm, SelfUserUpdateForm,
 from users.models import User
 
 
-class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class UserListView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     """
     List User instances.
 
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
-    perm_codename = 'view_user'
+    permission_required = 'users.view_user'
+    form_class = UserSearchForm
     template_name = 'users/user_list.html'
     lm_active = 'lm_user_list'
-    form_class = UserSearchForm
 
     search = None
     year = None
@@ -128,18 +129,18 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         return initial
 
 
-class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
+class UserCreateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
     """
     Create a new user and redirect to the workboard of the group.
 
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
+    permission_required = 'users.add_user'
     form_class = UserCreationCustomForm
     template_name = 'users/create.html'
-    success_url = None
-    perm_codename = 'add_user'
     lm_active = 'lm_user_create'
+    success_url = None
 
     def form_valid(self, form):
         user = User.objects.create(username=form.cleaned_data['username'],
@@ -175,35 +176,23 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
     def get_success_url(self):
         """
         If can retrieve user: go to the user.
-        If not, if can list user: go to the list of users.
         If not, go to the workboard of the group.
         """
-        try:
-            if Permission.objects.get(codename='view_user') in self.group.permissions.all():
-                return reverse('url_user_retrieve',
-                               kwargs={'group_name': self.group.name,
-                                       'pk': self.object.pk})
-            else:
-                if Permission.objects.get(codename='view_user') in self.group.permissions.all():
-                    return reverse('url_user_list',
-                                   kwargs={'group_name': self.group.name})
-                else:
-                    return reverse('url_group_workboard',
-                                   kwargs={'group_name': self.group.name})
-        except ObjectDoesNotExist:
-            return reverse('url_workboard',
-                           kwargs={'group_name': self.group.name})
+        if self.request.user.has_perm('users.view_user'):
+            return reverse('url_user_retrieve', kwargs={'pk': self.object.pk})
+        else:
+            return reverse('url_group_workboard')
 
 
-class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class UserRetrieveView(PermissionRequiredMixin, View, GroupLateralMenuMixin):
     """
     Retrieve a User instance.
 
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
+    permission_required = 'users.view_user'
     template_name = 'users/retrieve.html'
-    perm_codename = 'view_user'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -217,17 +206,17 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class UserUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
+class UserUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
     """
     Update an user and redirect to the workboard of the group.
 
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
-    model = User
+    permission_required = 'users.users.change_user'
     form_class = UserUpdateForm
     template_name = 'users/update_admin.html'
-    perm_codename = 'change_user'
+    model = User
     modified = False
 
     def get_form_kwargs(self):
@@ -265,108 +254,74 @@ class UserUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
 
     def get_success_url(self):
         return reverse('url_user_retrieve',
-                       kwargs={'group_name': self.group.name,
-                               'pk': self.kwargs['pk']})
+                       kwargs={'pk': self.kwargs['pk']})
 
 
-class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class UserDeactivateView(PermissionRequiredMixin, View, GroupLateralMenuMixin):
     """
     Deactivate a user and redirect to the workboard of the group.
 
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
+    permission_required = 'users.delete_user'
     template_name = 'users/deactivate.html'
-    perm_codename = 'delete_user'
     success_message = "Le compte de %(user)s a bien été "
-
-    def get(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404 
-        context = self.get_context_data(**kwargs)
-        context['user'] = user
-        return render(request, 'users/deactivate.html', context=context)
-
-    def post(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404 
-        if user.is_active is True:
-            user.is_active = False
-            # si c'est un gadz. Special members can't be added to other groups
-            if Group.objects.get(pk=5) in user.groups.all():
-                user.groups.clear()
-                user.groups.add(Group.objects.get(pk=5))
-        else:
-            user.is_active = True
-        user.save()
-
-        if user.is_active:
-            self.success_message += 'activé'
-        else:
-            self.success_message += 'désactivé'
-
-        messages.success(request, self.success_message % dict(
-            user=user,
-        ))
-
-        self.success_url = reverse(
-            'url_user_retrieve',
-            kwargs={'group_name': self.group.name,
-                    'pk': self.kwargs['pk']})
-
-        return redirect(force_text(self.success_url))
-
-
-class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
-    """
-    Deactivate own account and disconnect.
-
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
-    """
-    template_name = 'users/deactivate.html'
-    perm_codename = None
     error_sharedevent_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
 
-    def get(self, request, *args, **kwargs):
+    def has_permission(self):
         try:
-            user = User.objects.get(pk=kwargs['pk'])
+            self.user = User.objects.get(pk=self.kwargs['pk'])
         except ObjectDoesNotExist:
-            raise Http404 
+            raise Http404
+        if self.user == self.request.user:
+            return True
+        else:
+            perms = self.get_permission_required()
+            return self.request.user.has_perms(perms)
+
+    def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['user'] = user
+        context['user'] = self.user
         return render(request, 'users/deactivate.html', context=context)
 
     def post(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404 
-        sharedevents = SharedEvent.objects.filter(manager=user, done=False)
-        if user.is_active is True:
+        deactivated = False
+        if self.user.is_active is True:
+            sharedevents = self.user.manager.filter(done=False)
             if sharedevents.count() > 0:
                 for sharedevent in sharedevents:
                     self.error_sharedevent_message += "\n - " + sharedevent.description
                 messages.warning(request, self.error_sharedevent_message)
             else:
-                user.is_active = False
+                deactivated = True
+                self.user.is_active = False
                 # si c'est un gadz. Special members can't be added to other groups
-                if Group.objects.get(pk=5) in user.groups.all():
-                    user.groups.clear()
-                    user.groups.add(Group.objects.get(pk=5))
-
-                user.save()
-        if sharedevents.count() > 0:
-            self.success_url = reverse(
-                'url_sharedevent_list',
-                kwargs={'group_name': self.group.name})
+                if Group.objects.get(pk=5) in self.user.groups.all():
+                    self.user.groups.clear()
+                    self.user.groups.add(Group.objects.get(pk=5))
+                self.user.save()            
         else:
-            self.success_url = reverse(
+            self.user.is_active = True
+        self.user.save()
+
+        if self.user.is_active:
+            self.success_message += 'activé'
+        else:
+            self.success_message += 'désactivé'
+
+        messages.success(request, self.success_message % dict(
+            user=self.user,
+        ))
+
+        if request.user == self.user and deactivated:
+             self.success_url = reverse(
                 'url_logout')
+        else:           
+            self.success_url = reverse(
+                'url_user_retrieve',
+                kwargs={'group_name': self.group.name,
+                        'pk': self.kwargs['pk']})
 
         return redirect(force_text(self.success_url))
 
@@ -406,7 +361,7 @@ class UserSelfUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         return "Vos infos ont bien été mises à jour"
 
 
-class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
+class ManageGroupView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
                       GroupLateralMenuMixin):
     template_name = 'users/group_manage.html'
     success_url = None

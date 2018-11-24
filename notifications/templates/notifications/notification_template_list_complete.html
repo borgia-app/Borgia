@@ -5,7 +5,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     Templates de notifications
-    {% if group|has_group_perm:"add_notificationtemplate" %}
+    {% if request.user|has_perm:"notifications.add_notificationtemplate" %}
         <a class="btn btn-xs btn-success pull-right" href="{% url 'url_notificationtemplate_create' group_name=group.name %}">Nouveau</a>
     {% endif %}
   </div>

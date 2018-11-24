@@ -4,7 +4,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     Magasins
-    {% if group|has_group_perm:"add_shop" %}
+    {% if request.user|has_perm:"shops.add_shop" %}
         <a class="btn btn-xs btn-success pull-right" href="{% url 'url_shop_create' group_name=group.name %}">Nouveau</a>
     {% endif %}
   </div>

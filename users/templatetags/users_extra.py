@@ -10,22 +10,15 @@ from settings_data.utils import settings_safe_get
 register = template.Library()
 
 
+@register.filter(name='has_perm')
+def has_perm(user, perm_codename):
+    return user.has_perm(perm_codename)
+
+
 @register.filter(name='has_group')
 def has_group(user, group_name):
     group = Group.objects.get(name=group_name)
     return True if group in user.groups.all() else False
-
-
-@register.filter(name='has_group_perm')
-def has_group_perm(group, perm_codename):
-    try:
-        if (Permission.objects.get(codename=perm_codename)
-                in group.permissions.all()):
-            return True
-        else:
-            return False
-    except ObjectDoesNotExist:
-        return False
 
 
 @register.filter(name='get_transaction_model')

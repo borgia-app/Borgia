@@ -34,7 +34,7 @@
           <td>Prom'ss :</td> 
           <td>{{ user.campus }}{{ user.year_pg }}</td>
        </tr>
-       {% if group|has_group_perm:"advanced_view_user" or user == request.user %}
+       {% if user == request.user or request.user|has_perm:"users.advanced_view_user" %}
        <tr>
           <td>Solde :</td> 
           <td style="font-weight: bold"

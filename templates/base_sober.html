@@ -60,7 +60,7 @@
 					<div id="navbar" class="hidden-xs hidden-sm" aria-expanded="false">
 						<div class="navbar-right">
 							<ul class="nav navbar-nav" style="text-align: center">
-								<li class="user-profile-link"><a href="{% url 'url_user_retrieve' group_name=group.name pk=request.user.pk %}" style="padding:0;">
+								<li class="user-profile-link"><a href="{% url 'url_user_retrieve' pk=request.user.pk %}" style="padding:0;">
 									{% if request.user.avatar %}
 										<span class="navbar-text-avatar"><img src="{{ request.user.avatar.url }}" class="user-avatar"/></span>
 									{% endif %}
@@ -98,11 +98,11 @@
 										<i class="fa fa-cog" aria-hidden="true"></i> <span class="caret"></span>
 									</a>
 									<ul class="dropdown-menu">
-										<li><a href="{% url 'url_user_self_update' group_name=group.name %}">
+										<li><a href="{% url 'url_user_self_update' %}">
 											<i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>Modifier mes informations
 										</a></li>
 										<li role="separator" class="divider"></li>
-										<li><a href="{% url 'url_self_lydia_create' group_name=group.name %}">
+										<li><a href="{% url 'url_self_lydia_create' }">
 											<i class="fa fa-credit-card" aria-hidden="true" style="margin-right: 5px;"></i>Recharger mon compte
 										</a></li>
 										<li role="separator" class="divider"></li>

@@ -807,7 +807,6 @@ class UserMixin(object):
         except ObjectDoesNotExist:
             raise Http404
         self.success_url = reverse('url_user_retrieve', kwargs={
-            'group_name': self.kwargs['group_name'],
             'pk': self.user.pk})
         return super(UserMixin, self).dispatch(request, *args, **kwargs)
 

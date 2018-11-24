@@ -6,7 +6,7 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
           Evènements
-          {% if group|has_group_perm:"add_sharedevent" %}
+          {% if request.user|has_perm:"finances.add_sharedevent" %}
             <a class="btn btn-xs btn-success pull-right" href="{% url 'url_sharedevent_create' group_name=group.name %}">Nouveau</a>
           {% endif %}
         </div>

@@ -69,9 +69,9 @@
             id="search"
             class="btn btn-success"
             style="margin-top: 5px"
-            href="{% url 'url_user_list' group_name=group.name %}">Rechercher</a>
+            href="{% url 'url_user_list' %}">Rechercher</a>
             <script>
-              var base_list_url = "{% url 'url_user_list' group_name=group.name %}"
+              var base_list_url = "{% url 'url_user_list' %}"
               $("#input_search").change(function () {
                   $("#search").attr(
                     'href',
