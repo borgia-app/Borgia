@@ -62,7 +62,6 @@ class UserListView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         except KeyError:
             pass
 
-        context['group'] = self.group
         if self.sort is not None:
             context['sort'] = self.sort
             if self.headers[self.sort] == "des":
@@ -77,10 +76,6 @@ class UserListView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         else:
             context['user_list'] = self.form_query(
                 User.objects.all().exclude(groups=1))
-
-        # Permission Retrieveuser
-        if Permission.objects.get(codename='view_user') in self.group.permissions.all():
-            context['has_perm_view_user'] = True
 
         return context
 
@@ -213,7 +208,7 @@ class UserUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Gro
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
-    permission_required = 'users.users.change_user'
+    permission_required = 'users.change_user'
     form_class = UserUpdateForm
     template_name = 'users/update_admin.html'
     model = User
