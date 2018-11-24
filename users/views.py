@@ -153,10 +153,8 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
         user.set_password(form.cleaned_data['password'])
         user.save()
 
-        if form.cleaned_data['honnor_member'] is True:
-            user.groups.add(Group.objects.get(pk=6))
-        else:
-            user.groups.add(Group.objects.get(pk=5))
+        user.groups.add(Group.objects.get(pk=5))
+        
         user.save()
 
         # User object is assigned to self.object (so we can access to it in get_success_url)

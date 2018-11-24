@@ -928,8 +928,6 @@ def group_name_display(group):
         return 'Externes'
     elif group.name == 'gadzarts':
         return 'Gadz\'Arts'
-    elif group.name == 'honnored':
-        return 'Membres d\'honneur'
     else:
         raise ValueError('Unrecognized group name')
 
@@ -991,7 +989,6 @@ def human_permission_name(name):
         ('associates-', 'associés '),
         ('externals', 'externes'),
         ('gadzarts', 'Gadz\'Arts'),
-        ('honnored', 'membres d\'honneur'),
 
         ('Supply money', 'Ajouter de l\'argent'),
 

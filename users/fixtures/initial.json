@@ -13,7 +13,6 @@
     "fields": {
       "name": "presidents",
       "permissions": [
-        ["manage_honnored_group", "users", "user"],
         ["manage_members_group", "users", "user"],
         ["manage_treasurers_group", "users", "user"],
         ["manage_vice_presidents_group", "users", "user"],
@@ -156,19 +155,6 @@
         ["view_sharedevent", "finances", "sharedevent"],
         ["add_sharedevent", "finances", "sharedevent"],
         ["view_user", "users", "user"],
-
-        ["list_notification", "notifications", "notification"]
-      ]
-    }
-  },
-  {
-    "model": "auth.group",
-    "pk": 6,
-    "fields": {
-      "name": "honnored",
-      "permissions": [
-        ["use_selfsalemodule", "modules", "selfsalemodule"],
-        ["add_transfert", "finances", "transfert"],
 
         ["list_notification", "notifications", "notification"]
       ]
