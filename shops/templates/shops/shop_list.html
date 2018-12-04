@@ -5,7 +5,7 @@
   <div class="panel-heading">
     Magasins
     {% if request.user|has_perm:"shops.add_shop" %}
-        <a class="btn btn-xs btn-success pull-right" href="{% url 'url_shop_create' group_name=group.name %}">Nouveau</a>
+        <a class="btn btn-xs btn-success pull-right" href="{% url 'url_shop_create' %}">Nouveau</a>
     {% endif %}
   </div>
     <table class="table table-hover table-striped">
@@ -21,8 +21,8 @@
           <td>{{ shop.name }}</td>
           <td>{{ shop.description }}</td>
           <td style="background-color: {{ shop.color }}">{{ shop.color }}</td>
-          <td><a href="{% url 'url_shop_update' group_name=group.name pk=shop.pk %}">Modifier</a></td>
-          <td><a href="{% url 'url_shop_checkup' group_name=group.name pk=shop.pk %}">Bilan</a></td>
+          <td><a href="{% url 'url_shop_update' pk=shop.pk %}">Modifier</a></td>
+          <td><a href="{% url 'url_shop_checkup' pk=shop.pk %}">Bilan</a></td>
       </tr>
       {% endfor %}
     </table>

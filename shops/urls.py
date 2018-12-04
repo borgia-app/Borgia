@@ -8,7 +8,7 @@ from shops.views import (ProductCreate, ProductDeactivate, ProductList,
 
 shops_patterns = [
     # SHOPS
-    path('<str:group_name>/shops/', include([
+    path('shops/', include([
         path('', ShopList.as_view(), name='url_shop_list'),
         path('create/', ShopCreate.as_view(), name='url_shop_create'),
         path('<int:pk>/', include([

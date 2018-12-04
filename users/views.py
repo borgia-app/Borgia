@@ -315,8 +315,7 @@ class UserDeactivateView(PermissionRequiredMixin, View, GroupLateralMenuMixin):
         else:           
             self.success_url = reverse(
                 'url_user_retrieve',
-                kwargs={'group_name': self.group.name,
-                        'pk': self.kwargs['pk']})
+                kwargs={'pk': self.kwargs['pk']})
 
         return redirect(force_text(self.success_url))
 

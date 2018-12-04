@@ -244,8 +244,7 @@ def lateral_menu(user, group, active=None):
             id_link='lm_shop_checkup',
             url=reverse(
                 'url_shop_checkup',
-                kwargs={'group_name': group.name,
-                        'pk': shop.pk})
+                kwargs={'pk': shop.pk})
         ))
 
     except ValueError:

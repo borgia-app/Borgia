@@ -1,5 +1,6 @@
 import decimal
 
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import (MultipleObjectsReturned,
@@ -229,6 +230,7 @@ class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin, FormView,
         return super(ProductUpdate, self).form_valid(form)
 
     def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
         return reverse('url_product_retrieve',
                        kwargs={'group_name': self.group.name,
                                'pk': self.object.pk})
@@ -257,6 +259,7 @@ class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
         return initial
 
     def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
         return reverse('url_product_update_price',
                        kwargs={'group_name': self.group.name,
                                'pk': self.object.pk})
@@ -268,9 +271,9 @@ class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
         return super(ProductUpdatePrice, self).form_valid(form)
 
 
-class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class ShopCreate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     template_name = 'shops/shop_create.html'
-    perm_codename = 'add_shop'
+    permission_required = 'shops.add_shop'
     lm_active = 'lm_shop_create'
     form_class = ShopCreateForm
 
@@ -285,13 +288,13 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
 
         content_type = ContentType.objects.get(app_label='users', model='user')
         manage_chiefs = Permission.objects.create(
-            name='Gérer le groupe des chiefs du magasin '+shop.name,
-            codename='manage_chiefs-'+shop.name + '_group',
+            name='Can manage chiefs of ' + shop.name + ' shop',
+            codename='manage_chiefs-' + shop.name + '_group',
             content_type=content_type
         )
         manage_associates = Permission.objects.create(
-            name='Gérer le groupe des associés du magasin '+shop.name,
-            codename='manage_associates-'+shop.name + '_group',
+            name='Can manage associates of ' + shop.name + ' shop',
+            codename='manage_associates-' + shop.name + '_group',
             content_type=content_type
         )
 
@@ -333,13 +336,16 @@ class ShopCreate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         return super(ShopCreate, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('url_shop_list',
-                       kwargs={'group_name': self.group.name})
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse('url_shop_list')
 
 
-class ShopList(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class ShopList(PermissionRequiredMixin, View, GroupLateralMenuMixin):
+    """
+    View that list the shops.
+    """
     template_name = 'shops/shop_list.html'
-    perm_codename = 'view_shop'
+    permission_required = 'shops.view_shop'
     lm_active = 'lm_shop_list'
 
     def get(self, request, *args, **kwargs):
@@ -349,10 +355,11 @@ class ShopList(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class ShopUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class ShopUpdate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     template_name = 'shops/shop_update.html'
-    perm_codename = 'change_shop'
+    permission_required = 'shops.change_shop'
     form_class = ShopUpdateForm
+    success_url = None
 
     def dispatch(self, request, *args, **kwargs):
         try:
@@ -362,7 +369,7 @@ class ShopUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         return super(ShopUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self, **kwargs):
-        initial = super(ShopUpdate, self).get_initial(**kwargs)
+        initial = super().get_initial(**kwargs)
         initial['description'] = self.shop_mod.description
         initial['color'] = self.shop_mod.color
         return initial
@@ -371,64 +378,41 @@ class ShopUpdate(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         self.shop_mod.description = form.cleaned_data['description']
         self.shop_mod.color = form.cleaned_data['color']
         self.shop_mod.save()
-
-        self.success_url = reverse(
-            'url_shop_list',
-            kwargs={'group_name': self.group.name}
-        )
         return super(ShopUpdate, self).form_valid(form)
 
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse('url_shop_list')
 
 # TODO: infos
-class ShopCheckup(GroupPermissionMixin, ShopFromGroupMixin, FormView,
+class ShopCheckup(PermissionRequiredMixin, FormView,
                   GroupLateralMenuMixin):
     """
-    You can see checkup of your group from shop only.
-    If you're not from a group from shop, you need the permission 'view_shop'
+    Display data about a shop.
+
+    You can see checkup of your own shop only.
+    If you're not a manager of a shop, you need the permission 'view_shop'
     """
+    permission_required = 'shops.view_shop'
     template_name = 'shops/shop_checkup.html'
-    perm_codename = None
-    lm_active = 'lm_shop_list'
+    lm_active = 'lm_shop_checkup'
     form_class = ShopCheckupSearchForm
 
     date_begin = None
     date_end = None
     products = None
 
-    def dispatch(self, request, *args, **kwargs):
+    def has_permission(self):
         try:
-            self.shop_mod = Shop.objects.get(pk=kwargs['pk'])
+            self.shop_mod = Shop.objects.get(pk=self.kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
-        return super(ShopCheckup, self).dispatch(request, *args, **kwargs)
 
-    def get(self, request, *args, **kwargs):
-        if self.shop:
-            if self.shop != self.shop_mod:
-                raise PermissionDenied
-            self.lm_active = 'lm_shop_checkup'
+        if self.request.user in self.shop_mod.managers.all():
+            return True
         else:
-            try:
-                p = Permission.objects.get(codename='view_shop')
-                if p not in self.group.permissions.all():
-                    raise PermissionDenied
-            except ObjectDoesNotExist:
-                raise Http404
-        return super(ShopCheckup, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-        if self.shop:
-            if self.shop != self.shop_mod:
-                raise Http404
-            self.lm_active = 'lm_shop_checkup'
-        else:
-            try:
-                p = Permission.objects.get(codename='view_shop')
-                if p not in self.group.permissions.all():
-                    raise PermissionDenied
-            except ObjectDoesNotExist:
-                raise Http404
-        return super(ShopCheckup, self).post(request, *args, **kwargs)
+            perms = self.get_permission_required()
+            return self.request.user.has_perms(perms)
 
     def get_context_data(self, **kwargs):
         context = super(ShopCheckup, self).get_context_data(**kwargs)
