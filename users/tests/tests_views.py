@@ -197,10 +197,10 @@ class UserSelfUpdateViewTestCase(BaseBorgiaViewsTestCase):
             reverse(self.url_view))
         self.assertEqual(response_client1.status_code, 200)
 
-    def test_not_allowed_user_get(self):
+    def test_other_allowed_user_get(self):
         response_client2 = self.client2.get(
             reverse(self.url_view))
-        self.assertEqual(response_client2.status_code, 403)
+        self.assertEqual(response_client2.status_code, 200)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(

@@ -30,8 +30,6 @@ class UserListView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     """
     List User instances.
 
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
     """
     permission_required = 'users.view_user'
     form_class = UserSearchForm
@@ -128,8 +126,6 @@ class UserCreateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Gro
     """
     Create a new user and redirect to the workboard of the group.
 
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
     """
     permission_required = 'users.add_user'
     form_class = UserCreationCustomForm
@@ -183,8 +179,6 @@ class UserRetrieveView(PermissionRequiredMixin, View, GroupLateralMenuMixin):
     """
     Retrieve a User instance.
 
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
     """
     permission_required = 'users.view_user'
     template_name = 'users/retrieve.html'
@@ -205,8 +199,6 @@ class UserUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Gro
     """
     Update an user and redirect to the workboard of the group.
 
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
     """
     permission_required = 'users.change_user'
     form_class = UserUpdateForm
@@ -256,8 +248,6 @@ class UserDeactivateView(PermissionRequiredMixin, View, GroupLateralMenuMixin):
     """
     Deactivate a user and redirect to the workboard of the group.
 
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
     """
     permission_required = 'users.delete_user'
     template_name = 'users/deactivate.html'
@@ -320,11 +310,10 @@ class UserDeactivateView(PermissionRequiredMixin, View, GroupLateralMenuMixin):
         return redirect(force_text(self.success_url))
 
 
-class UserSelfUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView,
+class UserSelfUpdateView(SuccessMessageMixin, FormView,
                      GroupLateralMenuMixin):
     template_name = 'users/self_user_update.html'
     form_class = SelfUserUpdateForm
-    perm_codename = None
 
     def get_initial(self):
         initial = super(UserSelfUpdateView, self).get_initial()
