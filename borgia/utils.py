@@ -643,13 +643,11 @@ class GroupLateralMenuMixin(ContextMixin):
 
 
 class GroupPermissionMixin(object):
-
-    def __init__(self):
-        self.kwargs = None
-        self.perm_codename = None
-        self.group = None
-        self.success_url = None
-        self.request = None
+    kwargs = None
+    perm_codename = None
+    group = None
+    success_url = None
+    request = None
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -660,7 +658,7 @@ class GroupPermissionMixin(object):
         :raises: Http404 if group_name not given
         :raises: Http404 if group_name doesn't match a group
         :raises: Http404 if codename doesn't match a permission
-        :raises: Http404 if the group doesn't have the permission to access
+        :raises: PermissionDenied if the group doesn't have the permission to access
         the view
         :raises: PermissionDenied if the user is not in the group
         :raises: Http404 if the group doesn't have a workboard to redirect to
@@ -676,17 +674,14 @@ class GroupPermissionMixin(object):
             group = Group.objects.get(name=self.kwargs['group_name'])
             self.group = group
             try:
+                if group not in request.user.groups.all():
+                    raise PermissionDenied
                 if self.perm_codename:
                     permission = Permission.objects.get(
                         codename=self.perm_codename)
                     if permission not in group.permissions.all():
-                        raise Http404
-                    else:
-                        if group not in request.user.groups.all():
-                            raise PermissionDenied
-                else:
-                    if group not in request.user.groups.all():
                         raise PermissionDenied
+
             except ObjectDoesNotExist:
                 raise Http404
         except KeyError:
