@@ -1,6 +1,6 @@
 cffi==1.10.0
-cryptography==1.9
-Django==2.0
+cryptography==2.4.2
+Django==2.0.9
 django-annoying==0.10.3
 django-bootstrap-form==3.3
 idna==2.6
@@ -18,3 +18,4 @@ typing==3.6.2
 django-static-precompiler==1.7
 openpyxl==2.4.9
 psycopg2==2.7
+coverage==4.5.1

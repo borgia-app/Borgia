@@ -1,23 +1,31 @@
-from django.views.generic import FormView, TemplateView, View
-from django.shortcuts import render, redirect, HttpResponse
-from django.contrib.auth import login, authenticate, logout
-from django.db.models import Q
-from functools import reduce
-from django.core.serializers import serialize
-from datetime import datetime, timedelta, date
-from re import compile
-
+import datetime
+import functools
 import json
+import re
 
-from borgia.utils import *
-from finances.models import Sale, SharedEvent, Transfert, Recharging, ExceptionnalMovement
-from borgia.forms import LoginForm
-from users.forms import UserQuickSearchForm
 from django.conf import settings
-
-
-from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
+from django.contrib.auth import authenticate, login, logout
+from django.contrib.auth.models import Group
+from django.core.exceptions import ObjectDoesNotExist
+from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
+from django.core.serializers import serialize
+from django.db.models import Q
+from django.http import HttpResponse, Http404
+from django.shortcuts import redirect, render
+from django.urls import reverse
+from django.views.generic.base import View
 from django.views.generic.edit import FormView
+
+from borgia.forms import LoginForm
+from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
+                          ShopFromGroupMixin)
+from finances.models import (ExceptionnalMovement, Recharging, Sale,
+                             SharedEvent, Transfert)
+from modules.models import OperatorSaleModule, SelfSaleModule
+from shops.models import Shop
+from users.forms import UserQuickSearchForm
+from users.models import User
+
 
 class Login(FormView):
     template_name = 'login.html'
@@ -37,7 +45,7 @@ class Login(FormView):
         return super(Login, self).dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self, **kwargs):
-        kwargs = super(Login, self).get_form_kwargs(**kwargs)
+        kwargs = super(Login, self).get_form_kwargs()
         try:
             if self.gadzarts:
                 kwargs['module'], created = SelfSaleModule.objects.get_or_create(
@@ -56,7 +64,7 @@ class Login(FormView):
             if self.gadzarts:
                 self.success_url = self.to_shop_selfsale()
             else:
-                self.success_url	 = self.to_shop_operatorsale()
+                self.success_url = self.to_shop_operatorsale()
         except KeyError or ObjectDoesNotExist:
             pass
 
@@ -72,7 +80,7 @@ class Login(FormView):
                 'url_group_workboard',
                 kwargs={'group_name': 'gadzarts'}
             )
-        return super(Login, self).get_success_url(**kwargs)
+        return super(Login, self).get_success_url()
 
     def form_valid(self, form):
         user = authenticate(
@@ -80,7 +88,7 @@ class Login(FormView):
             password=form.cleaned_data['password']
         )
         login(self.request, user)
-		# Update forecast_balance on login
+        # Update forecast_balance on login
         user.forecast_balance()
         return super(Login, self).form_valid(form)
 
@@ -103,7 +111,7 @@ class Login(FormView):
                         'shop_name': self.shop.name}
             )
         elif (Group.objects.get(name='associates-'+self.shop.name)
-                in self.request.user.groups.all()):
+              in self.request.user.groups.all()):
             return reverse(
                 'url_module_operatorsale',
                 kwargs={'group_name': 'associates-'+self.shop.name,
@@ -111,7 +119,6 @@ class Login(FormView):
             )
         else:
             return None
-        return success_url
 
     def get_context_data(self, **kwargs):
         context = super(Login, self).get_context_data(**kwargs)
@@ -140,12 +147,14 @@ class Login(FormView):
 
     def get(self, request, *args, **kwargs):
         if request.user.is_authenticated:
-          return redirect(self.get_success_url())
+            return redirect(self.get_success_url())
         else:
-          return super(Login, self).get(request, *args, **kwargs)
+            return super(Login, self).get(request, *args, **kwargs)
+
 
 class Logout(View):
-    def get(self, request, *args, **kwargs):
+    @staticmethod
+    def get(request):
         try:
             success_url = request.session['save_login_url']
         except KeyError:
@@ -168,7 +177,7 @@ def jsi18n_catalog(request):
     return render(request, 'jsi18n.html')
 
 
-def handler403(request):
+def handler403(request, *args, **kwargs):
     context = {}
 
     try:
@@ -177,11 +186,10 @@ def handler403(request):
         context['group_name'] = group_name
     except IndexError:
         context['group_name'] = 'gadzarts'
-        context['group'] = Group.objects.get(name = 'gadzarts')
+        context['group'] = Group.objects.get(name='gadzarts')
     except ObjectDoesNotExist:
         context['group_name'] = 'gadzarts'
-        context['group'] = Group.objects.get(name = 'gadzarts')
-
+        context['group'] = Group.objects.get(name='gadzarts')
 
     try:
         if (request.user.groups.all().exclude(
@@ -191,8 +199,8 @@ def handler403(request):
         context['list_selfsalemodule'] = []
         for shop in Shop.objects.all().exclude(pk=1):
             try:
-                module = SelfSaleModule.objects.get(shop=shop)
-                if module.state is True:
+                module_sale = SelfSaleModule.objects.get(shop=shop)
+                if module_sale.state is True:
                     context['list_selfsalemodule'].append(shop)
             except ObjectDoesNotExist:
                 pass
@@ -209,7 +217,7 @@ def handler403(request):
     return response
 
 
-def handler404(request):
+def handler404(request, *args, **kwargs):
     context = {}
     try:
         group_name = request.path.split('/')[1]
@@ -222,8 +230,8 @@ def handler404(request):
         context['list_selfsalemodule'] = []
         for shop in Shop.objects.all().exclude(pk=1):
             try:
-                module = SelfSaleModule.objects.get(shop=shop)
-                if module.state is True:
+                module_sale = SelfSaleModule.objects.get(shop=shop)
+                if module_sale.state is True:
                     context['list_selfsalemodule'].append(shop)
             except ObjectDoesNotExist:
                 pass
@@ -239,7 +247,7 @@ def handler404(request):
     return response
 
 
-def handler500(request):
+def handler500(request, *args, **kwargs):
     context = {}
     try:
         group_name = request.path.split('/')[1]
@@ -257,10 +265,6 @@ def handler500(request):
     return response
 
 
-def page_clean(request, template_name):
-    return render(request, 'page_clean.html')
-
-
 def get_list_model(request, model, search_in, props=None):
     """
     Permet de sérialiser en JSON les instances de modèle. Il est possible de
@@ -268,6 +272,11 @@ def get_list_model(request, model, search_in, props=None):
     la liste obtenue, plutôt que de faire un traitement en JS.
     Ne renvoie par les informations sensibles comme is_superuser ou password.
 
+    :param request: GET: chaîne de caractère qui doit représenter une
+                         recherche filter dans un des champs de model
+    :type request: GET: doit être dans les champs de model
+    Les paramètres spéciaux sont order_by pour trier et search pour chercher
+    dans search_in
     :param model: Model dont on veut lister les instances
     :type model: héritée de models.Model
     :param search_in: paramètres dans lesquels le paramètre GET search sera
@@ -276,11 +285,6 @@ def get_list_model(request, model, search_in, props=None):
     :param props: méthodes du model à envoyer dans la sérialisation en
     supplément
     :type props: liste de chaînes de caractères de nom de méthodes de model
-    :param request.GET : chaîne de caractère qui doit représenter une
-    recherche filter dans un des champs de model
-    :type request.GET : doit être dans les champs de model
-    Les paramètres spéciaux sont order_by pour trier et search pour chercher
-    dans search_in
     :return HttpResponse(data): liste des instances de model sérialisé
     en JSON, modulée par les parametres
 
@@ -309,7 +313,7 @@ def get_list_model(request, model, search_in, props=None):
 
     # Recherche si précisée
     try:
-        args_search = reduce(
+        args_search = functools.reduce(
             lambda q, where: q | Q(
                 **{where + '__startswith': request.GET['search']}), search_in,
             Q())
@@ -351,16 +355,16 @@ def get_list_model(request, model, search_in, props=None):
     # Trie si précisé
     try:
         if request.GET['reverse'] in ['True', 'true']:
-            reverse = True
+            reverse_url = True
         else:
-            reverse = False
+            reverse_url = False
         # Trie par la valeur d'un field
         if (request.GET['order_by']
                 in [f.name for f in model._meta.get_fields()]):
             data_load = sorted(
                 data_load,
                 key=lambda obj: obj['fields'][request.GET['order_by']],
-                reverse=reverse)
+                reverse=reverse_url)
         # Trie par la valeur d'une méthode
         else:
             data_load = sorted(
@@ -368,7 +372,7 @@ def get_list_model(request, model, search_in, props=None):
                 key=lambda obj: getattr(
                     model.objects.get(pk=obj['pk']),
                     request.GET['order_by'])(),
-                reverse=reverse)
+                reverse=reverse_url)
     except KeyError:
         pass
 
@@ -398,6 +402,8 @@ def get_unique_model(request, pk, model, props=None):
     Ne renvoie par les informations sensibles comme is_superuser ou password
     dans le cas d'un User.
 
+    :param props:
+    :param request:
     :param model: Model dont on veut lister les instances
     :type model: héritée de models.Model
     :param pk: pk de l'instance à retourner
@@ -455,81 +461,25 @@ def get_unique_model(request, pk, model, props=None):
     return HttpResponse(data)
 
 
-class TestBootstrapSober(TemplateView):
-    template_name = 'test_bootstrap.html'
-
-    def get_context_data(self, **kwargs):
-        context = super(TestBootstrapSober, self).get_context_data(**kwargs)
-        context['nav_tree'] = [
-            {
-                'label': 'User',
-                'icon': 'user',
-                'id': 1,
-                'subs': [
-                    {
-                        'label': 'Create',
-                        'icon': 'plus',
-                        'url': '/users/create',
-                        'id': 11
-                    },
-                    {
-                        'label': 'List',
-                        'icon': 'list',
-                        'url': '/users/user',
-                        'id': 12
-                    }
-                    ]
-            },
-            {
-                'label': 'Presidency',
-                'icon': 'book',
-                'url': '#',
-                'id': 2
-            },
-            {
-                'label': 'Foyer',
-                'id': 3,
-                'icon': 'beer',
-                'subs': [
-                    {
-                        'label': 'Workboard',
-                        'icon': 'briefcase',
-                        'url': '/shops/foyer/workboard',
-                        'id': 31
-                    },
-                    {
-                        'label': 'Active kegs',
-                        'icon': 'barcode',
-                        'url': '/shops/foyer/list_active_keg',
-                        'id': 32
-                    }
-                ]
-            }
-        ]
-        return context
-
-
 class GadzartsGroupWorkboard(GroupPermissionMixin, View,
                              GroupLateralMenuMixin):
     template_name = 'workboards/gadzarts_workboard.html'
     perm_codename = None
     lm_active = 'lm_workboard'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['transaction_list'] = self.get_transactions(request)
+        context['transaction_list'] = self.get_transactions()
         return render(request, self.template_name, context=context)
 
-    def get_transactions(self, request):
-        transactions = {}
-        transactions['months'] = self.monthlist(
-            datetime.now() - timedelta(days=365),
-            datetime.now())
-
-        transactions['all'] = self.request.user.list_transaction()[:5]
+    def get_transactions(self):
+        transactions = {'months': self.monthlist(
+            datetime.datetime.now() - datetime.timedelta(days=365),
+            datetime.datetime.now()), 'all': self.request.user.list_transaction()[:5]}
 
         # Shops sales
-        sale_list = Sale.objects.filter(sender=self.request.user).order_by('-datetime')
+        sale_list = Sale.objects.filter(
+            sender=self.request.user).order_by('-datetime')
         transactions['shops'] = []
         for shop in Shop.objects.all().exclude(pk=1):
             list_filtered = sale_list.filter(shop=shop)
@@ -540,7 +490,7 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
                 'shop': shop,
                 'total': total,
                 'sale_list_short': list_filtered[:5],
-                'data_months': self.data_months(request, list_filtered, transactions['months'])
+                'data_months': self.data_months(list_filtered, transactions['months'])
             })
 
         # Transferts
@@ -552,19 +502,22 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
         }
 
         # Rechargings
-        rechargings_list = Recharging.objects.filter(sender=self.request.user).order_by('-datetime')
+        rechargings_list = Recharging.objects.filter(
+            sender=self.request.user).order_by('-datetime')
         transactions['rechargings'] = {
             'recharging_list_short': rechargings_list[:5]
         }
 
         # ExceptionnalMovements
-        exceptionnalmovements_list = ExceptionnalMovement.objects.filter(recipient=self.request.user).order_by('-datetime')
+        exceptionnalmovements_list = ExceptionnalMovement.objects.filter(
+            recipient=self.request.user).order_by('-datetime')
         transactions['exceptionnalmovements'] = {
             'exceptionnalmovement_list_short': exceptionnalmovements_list[:5]
         }
 
         # Shared event
-        sharedevents_list = SharedEvent.objects.filter(done=True, users=self.request.user).order_by('-datetime')
+        sharedevents_list = SharedEvent.objects.filter(
+            done=True, users=self.request.user).order_by('-datetime')
         for obj in sharedevents_list:
             obj.amount = obj.get_price_of_user(self.request.user)
 
@@ -574,21 +527,23 @@ class GadzartsGroupWorkboard(GroupPermissionMixin, View,
 
         return transactions
 
-    def data_months(self, request, list, months):
-        amounts = [0 for i in range(0, len(months))]
-        for object in list:
-            if object.datetime.strftime("%b-%y") in months:
+    @staticmethod
+    def data_months(mlist, months):
+        amounts = [0 for _ in range(0, len(months))]
+        for obj in mlist:
+            if obj.datetime.strftime("%b-%y") in months:
                 amounts[
-                    months.index(object.datetime.strftime("%b-%y"))] +=\
-                        abs(object.amount())
+                    months.index(obj.datetime.strftime("%b-%y"))] +=\
+                    abs(obj.amount())
         return amounts
 
-    def monthlist(self, start, end):
-        total_months = lambda dt: dt.month + 12 * dt.year
+    @staticmethod
+    def monthlist(start, end):
+        def total_months(dt): return dt.month + 12 * dt.year
         mlist = []
         for tot_m in range(total_months(start)-1, total_months(end)):
             y, m = divmod(tot_m, 12)
-            mlist.append(datetime(y, m+1, 1).strftime("%b-%y"))
+            mlist.append(datetime.datetime(y, m+1, 1).strftime("%b-%y"))
         return mlist
 
 
@@ -598,52 +553,55 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
     template_name = 'workboards/shop_workboard.html'
     lm_active = 'lm_workboard'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         if self.shop is None:
             raise Http404
 
         context = self.get_context_data(**kwargs)
-        context['sale_list'] = self.get_sales(request)
-        context['purchase_list'] = self.get_purchases(request)
+        context['sale_list'] = self.get_sales()
+        context['purchase_list'] = self.get_purchases()
         return render(request, self.template_name, context=context)
 
-    def get_sales(self, request):
+    def get_sales(self):
         sales = {}
-        list = Sale.objects.filter(shop=self.shop).order_by('-datetime')
+        s_list = Sale.objects.filter(shop=self.shop).order_by('-datetime')
         sales['weeks'] = self.weeklist(
-            datetime.now() - timedelta(days=30),
-        datetime.now())
-        sales['data_weeks'] = self.sale_data_weeks(list, sales['weeks'])[0]
-        sales['total'] = self.sale_data_weeks(list, sales['weeks'])[1]
-        sales['all'] = list[:7]
+            datetime.datetime.now() - datetime.timedelta(days=30),
+            datetime.datetime.now())
+        sales['data_weeks'] = self.sale_data_weeks(s_list, sales['weeks'])[0]
+        sales['total'] = self.sale_data_weeks(s_list, sales['weeks'])[1]
+        sales['all'] = s_list[:7]
         return sales
 
     # TODO: purchases with stock
-    def get_purchases(self, request):
+    @staticmethod
+    def get_purchases():
         purchases = {}
         return purchases
 
     # TODO: purchases with stock
-    def purchase_data_weeks(self, list_single_products, list_containers,
-                            weeks):
-        amounts = [0 for i in range(0, len(weeks))]
+    @staticmethod
+    def purchase_data_weeks(weeks):
+        amounts = [0 for _ in range(0, len(weeks))]
         total = 0
 
         return amounts, total
 
-    def sale_data_weeks(self, list, weeks):
-        amounts = [0 for i in range(0, len(weeks))]
+    @staticmethod
+    def sale_data_weeks(weeklist, weeks):
+        amounts = [0 for _ in range(0, len(weeks))]
         total = 0
-        for object in list:
-            string = (str(object.datetime.isocalendar()[1])
-                      + '-' + str(object.datetime.year))
+        for obj in weeklist:
+            string = (str(obj.datetime.isocalendar()[1])
+                      + '-' + str(obj.datetime.year))
             if string in weeks:
-                amounts[weeks.index(string)] += object.amount()
-                total += object.amount()
+                amounts[weeks.index(string)] += obj.amount()
+                total += obj.amount()
         return amounts, total
 
-    def weeklist(self, start, end):
-        list = []
+    @staticmethod
+    def weeklist(start, end):
+        weeklist = []
         for i in range(start.year, end.year+1):
             week_start = 1
             week_end = 52
@@ -651,9 +609,9 @@ class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
                 week_start = start.isocalendar()[1]
             if i == end.year:
                 week_end = end.isocalendar()[1]
-            list += [str(j) + '-' + str(i) for j in range(
+            weeklist += [str(j) + '-' + str(i) for j in range(
                 week_start, week_end+1)]
-        return list
+        return weeklist
 
 
 class PresidentsGroupWorkboard(GroupPermissionMixin, View,
@@ -662,7 +620,7 @@ class PresidentsGroupWorkboard(GroupPermissionMixin, View,
     perm_codename = None
     lm_active = 'lm_workboard'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
         context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
         context['events'] = []
@@ -678,12 +636,12 @@ class PresidentsGroupWorkboard(GroupPermissionMixin, View,
 
 
 class VicePresidentsInternalGroupWorkboard(GroupPermissionMixin, View,
-                                   GroupLateralMenuMixin):
+                                           GroupLateralMenuMixin):
     template_name = 'workboards/vice-presidents-internal_workboard.html'
     perm_codename = None
     lm_active = 'lm_workboard'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
         context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
         context['events'] = []
@@ -704,7 +662,7 @@ class TreasurersGroupWorkboard(GroupPermissionMixin, View,
     perm_codename = None
     lm_active = 'lm_workboard'
 
-    def get(self, request, *args, **kwargs):
+    def get(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
         context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
         context['events'] = []
@@ -737,7 +695,7 @@ class ListCompleteView(FormView):
         # Récupération des paramètres GET
 
         # Gestion des dates
-        pattern_date = compile('[0-9]{2}-[0-9]{2}-[0-9]{4}')
+        pattern_date = re.compile('[0-9]{2}-[0-9]{2}-[0-9]{4}')
 
         for name in self.attr.keys():
             if request.GET.get(name) is not None:
@@ -749,7 +707,8 @@ class ListCompleteView(FormView):
                 # Cas des dates
                 elif pattern_date.match(request.GET.get(name)) is not None:
                     split_date = request.GET.get(name).split('-')
-                    self.attr[name] = date(int(split_date[2]), int(split_date[1]), int(split_date[0]))
+                    self.attr[name] = datetime.date(
+                        int(split_date[2]), int(split_date[1]), int(split_date[0]))
                 # Autres
                 else:
                     self.attr[name] = request.GET.get(name)
@@ -780,7 +739,7 @@ class ListCompleteView(FormView):
     def get_context_data(self, **kwargs):
         context = super(ListCompleteView, self).get_context_data(**kwargs)
         for name in self.attr.keys():
-            if isinstance(self.attr[name], date):
+            if isinstance(self.attr[name], datetime.date):
                 context[name] = self.attr[name].strftime('%d-%m-%Y')
             else:
                 context[name] = self.attr[name]

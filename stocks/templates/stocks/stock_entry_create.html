@@ -9,18 +9,17 @@
 
 <div class="panel panel-default">
   <div class="panel-heading">
-    Inventaire du stock du magasin {{ shop }}
+    Entrée de stock au magasin {{ shop }}
   </div>
   <div class="panel-body">
     <form method="post">
       {% csrf_token %}
-      {{ additionnal_data_form|bootstrap }}
-      <h3> Liste des produits :</h3>
-      {{ inventory_formset.management_form }}
-      {{ inventory_formset.non_form_errors }}
-      {% for form in inventory_formset %}
+	  {{ add_inventory_form|bootstrap }}
+      <h3>Ajouter les produits :</h3>
+      {{ stockentry_form.management_form }}
+      {% for form in stockentry_form %}
         <div class="category_formset row" style="margin-bottom: 15px">
-          <div class="col-md-5">
+            <div class="col-md-3">
               {{ form.product }}
             </div>
             <div class="col-md-3 quantity_unit">
@@ -31,6 +30,23 @@
                 </span>
               </div>
             </div>
+            <div class="col-md-3 amount_amount_unit">
+              <div class="input-group">
+                {{ form.amount }}
+                <span class="input-group-btn">
+                  {{ form.unit_amount }}
+                </span>
+              </div>
+            </div>
+            <div class="col-md-2 product_inventory">
+              <div class="input-group">
+                {{ form.inventory_quantity }}
+                <span class="input-group-btn">
+                  {{ form.unit_inventory }}
+                </span>
+              </div>
+            </div>
+                {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
         </div>
       {% endfor %}
       <button class="btn btn-success" type="submit">Valider</button>
@@ -42,8 +58,8 @@
 $('.category_formset').formset({
   addText: 'Nouveau produit',
   deleteText: 'Supprimer',
-  addCssClass: 'add-row btn btn-success btn-sm',
-  deleteCssClass: 'delete-row',
+  addCssClass: 'btn btn-info',
+  // deleteCssClass: 'btn btn-warning', NOT WORKING. Workaround -> adding_btn_class_to_delete()
   added: function(row) {
     $(row).find('.selectpicker').each(function() {
       $(this).selectpicker()
@@ -51,7 +67,9 @@ $('.category_formset').formset({
     $("[id$='product']").change(function(e) {
       update_units.bind(this)(e)
     })
-    $(row).find('.selectpicker').trigger('change')
+    $(row).find('.selectpicker').trigger('change'),
+    $(update_inventory_form);
+    $(adding_btn_class_to_delete);
   }
 })
 $("[id$='product']").change(function(e) {
@@ -72,12 +90,25 @@ function update_units(e) {
           .hide()
         $(this)
           .closest('.row')
+          .find('.unit_amount')
+          .find('select option[value="UNIT"], option[value="KG"]')
+          .hide()
+        $(this)
+          .closest('.row')
           .find('.unit_quantity')
           .find('select option[value="CL"], option[value="L"]')
           .show()
+        $(this)
+          .closest('.row')
+          .find('.unit_amount')
+          .find('select option[value="PACKAGE"], option[value="L"]')
+          .show()
         $(this).closest('.row').find('.unit_quantity').prop('disabled', false)
+        $(this).closest('.row').find('.unit_amount').prop('disabled', false)
         $(this).closest('.row').find('.unit_quantity').selectpicker('refresh')
+        $(this).closest('.row').find('.unit_amount').selectpicker('refresh')
         $(this).closest('.row').find('.unit_quantity').selectpicker('val', 'L')
+        $(this).closest('.row').find('.unit_amount').selectpicker('val', 'L')
       }
       if (unit == 'g') {
         $(this)
@@ -89,12 +120,25 @@ function update_units(e) {
           .hide()
         $(this)
           .closest('.row')
+          .find('.unit_amount')
+          .find('select option[value="UNIT"], option[value="L"]')
+          .hide()
+        $(this)
+          .closest('.row')
           .find('.unit_quantity')
           .find('select option[value="G"], option[value="KG"]')
           .show()
+        $(this)
+          .closest('.row')
+          .find('.unit_amount')
+          .find('select option[value="PACKAGE"], option[value="KG"]')
+          .show()
         $(this).closest('.row').find('.unit_quantity').prop('disabled', false)
+        $(this).closest('.row').find('.unit_amount').prop('disabled', false)
         $(this).closest('.row').find('.unit_quantity').selectpicker('refresh')
+        $(this).closest('.row').find('.unit_amount').selectpicker('refresh')
         $(this).closest('.row').find('.unit_quantity').selectpicker('val', 'KG')
+        $(this).closest('.row').find('.unit_amount').selectpicker('val', 'KG')
       }
     } else {
       $(this)
@@ -106,12 +150,28 @@ function update_units(e) {
         .hide()
       $(this)
         .closest('.row')
+        .find('.unit_amount')
+        .find('select option[value="KG"], option[value="L"]')
+        .hide()
+      $(this)
+        .closest('.row')
         .find('.unit_quantity')
         .find('select option[value="UNIT"]')
         .show()
+      $(this)
+        .closest('.row')
+        .find('.unit_amount')
+        .find('select option[value="UNIT"], option[value="PACKAGE"]')
+        .show()
       $(this).closest('.row').find('.unit_quantity').prop('disabled', false)
+      $(this).closest('.row').find('.unit_amount').prop('disabled', false)
       $(this).closest('.row').find('.unit_quantity').selectpicker('refresh')
+      $(this).closest('.row').find('.unit_amount').selectpicker('refresh')
       $(this).closest('.row').find('.unit_quantity').selectpicker('val', 'UNIT')
+      $(this)
+        .closest('.row')
+        .find('.unit_amount')
+        .selectpicker('val', 'PACKAGE')
     }
   } else {
     $(this)
@@ -121,33 +181,57 @@ function update_units(e) {
         'select option[value="UNIT"], option[value="CL"], option[value="G"], option[value="KG"], option[value="L"]'
       )
       .hide()
+    $(this)
+      .closest('.row')
+      .find('.unit_amount')
+      .find(
+        'select option[value="UNIT"], option[value="PACKAGE"], option[value="CL"], option[value="G"], option[value="KG"], option[value="L"]'
+      )
+      .hide()
     $(this).closest('.row').find('.unit_quantity').prop('disabled', true)
+    $(this).closest('.row').find('.unit_amount').prop('disabled', true)
     $(this).closest('.row').find('.unit_quantity').selectpicker('refresh')
+    $(this).closest('.row').find('.unit_amount').selectpicker('refresh')
     $(this).closest('.row').find('.unit_quantity').selectpicker('val', '')
+    $(this).closest('.row').find('.unit_amount').selectpicker('val', '')
   }
 }
+
+function update_inventory_form() {
+    var val = $('#id_isAddingInventory').find(':selected').val();
+    if (val == 'with') {
+        $('.product_inventory').show();
+    }
+    else if (val == 'without') {
+        $('.product_inventory').hide();
+    };
+};
+function adding_btn_class_to_delete() {
+    var delete_button = $('.delete-row'); // Default class of delete link
+    delete_button.addClass('btn btn-warning');
+};
+
+$(update_inventory_form);
+$(adding_btn_class_to_delete);
+$('#id_isAddingInventory').change(update_inventory_form);
+
+
 </script>
 <style>
-  .add-row {
-    margin: 15px;
-  }
-  .centered_input {
+    .centered_input {
     text-align: center;
-  }
-  .delete_row {
-    margin-top: 10px;
-  }
-  .unit_quantity {
+    }
+    .unit_quantity {
     width: 60px;
-  }
-  .unit_amount {
-    width: 100px;
-  }
-  .input-group-btn > div > button {
+    }
+    .unit_amount {
+    width: 60px;
+    }
+    .input-group-btn > div > button {
     background-color: #eee;
-  }
-  .input-group .bootstrap-select.form-control {
+    }
+    .input-group .bootstrap-select.form-control {
     z-index: inherit;
-  }
+    }
 </style>
 {% endblock %}

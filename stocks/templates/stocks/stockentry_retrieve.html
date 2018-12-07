@@ -3,14 +3,14 @@
 {% block content %}
 <div class="panel panel-default">
   <div class="panel-heading">
-    Détails d'une entrée de stock du magasin {{ object.shop }}
+    Détails d'une entrée de stock du magasin {{ stockentry.shop }}
   </div>
   <div class="panel-body">
     <ul>
-      <li>Magasin : {{ object.shop }}</li>
-      <li>Opérateur : {{ object.operator }}</li>
-      <li>Date : {{ object.datetime }}</li>
-      <li>Montant total : {{ object.total }}€</li>
+      <li>Magasin : {{ stockentry.shop }}</li>
+      <li>Opérateur : {{ stockentry.operator }}</li>
+      <li>Date : {{ stockentry.datetime }}</li>
+      <li>Montant total : {{ stockentry.total }}€</li>
     </ul>
     <table class="table table-hover table-striped">
       <tr>
@@ -18,7 +18,7 @@
         <th>Quantité</th>
         <th>Sous total</th>
       </tr>
-      {% for stockentryproduct in object.stockentryproduct_set.all %}
+      {% for stockentryproduct in stockentry.stockentryproduct_set.all %}
       <tr>
         <td>{{ stockentryproduct.product }}</td>
         <td>

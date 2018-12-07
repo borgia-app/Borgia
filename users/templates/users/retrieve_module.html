@@ -1,6 +1,6 @@
 <div class="col-md-3 col-lg-3 " align="center">
-  {% if object.avatar %}
-       <img src="{{ object.avatar.url }}" class="user-avatar-big"/>
+  {% if user.avatar %}
+       <img src="{{ user.avatar.url }}" class="user-avatar-big"/>
   {% endif %}
 </div>
 <div class=" col-md-9 col-lg-9 "> 
@@ -8,52 +8,52 @@
      <tbody>
        <tr>
           <td>Username :</td>
-          <td>{{ object.username }}</td>
+          <td>{{ user.username }}</td>
        </tr>
        <tr>
           <td>Prénom :</td>
-          <td>{{ object.first_name }}</td>
+          <td>{{ user.first_name }}</td>
        </tr>
        <tr>
           <td>Nom :</td>
-          <td>{{ object.last_name }}</td>
+          <td>{{ user.last_name }}</td>
        </tr>
        <tr>
           <td>E-mail :</td>
-          <td>{{ object.email }}</td>
+          <td>{{ user.email }}</td>
        </tr>
        <tr>
           <td>Bucque :</td>
-          <td>{{ object.surname }}</td>
+          <td>{{ user.surname }}</td>
        </tr>
        <tr>
           <td>Num'ss :</td> 
-          <td>{{ object.family }}</td>
+          <td>{{ user.family }}</td>
        </tr>
        <tr>
           <td>Prom'ss :</td> 
-          <td>{{ object.campus }}{% if object.year %}{{ object.year_pg }}{% endif %}</td>
+          <td>{{ user.campus }}{% if user.year %}{{ user.year_pg }}{% endif %}</td>
        </tr>
-       {% if group|has_group_perm:"retrieve_more_user_info" or object == request.user %}
+       {% if group|has_group_perm:"retrieve_more_user_info" or user == request.user %}
        <tr>
           <td>Solde :</td> 
           <td style="font-weight: bold"
-              class="{% if object.balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ object.balance }} €</td>
+              class="{% if user.balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ user.balance }} €</td>
        </tr>
 	   <tr>
           <td>Solde prévisionnel:</td> 
           <td style="font-weight: bold"
-              class="{% if object.virtual_balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ object.virtual_balance }} €</td>
+              class="{% if user.virtual_balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ user.virtual_balance }} €</td>
        </tr>
        <tr>
           <td>Est actif :</td> 
-          <td>{{ object.is_active|yesno:'oui, non, non' }}</td>
+          <td>{{ user.is_active|yesno:'oui, non, non' }}</td>
        </tr>
        <tr>
           <td>Groupes :</td>
           <td>
             <ul>
-                {% for g in object.groups.all %}
+                {% for g in user.groups.all %}
                     <li>{{ g | group_name }}</li>
                 {% endfor %}
             </ul>

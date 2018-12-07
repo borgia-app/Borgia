@@ -8,7 +8,7 @@
   <div class="panel-body">
     <form action="" method="post">
       {% csrf_token %}
-      <label> Supprimer le produit {{ object }} ?</label>
+      <label> Supprimer le produit {{ product }} ?</label>
       <p>Attention, cette action est irreversible. Le produit ne pourra plus être sélectionné, ni vendu et son stock n'existera plus.</p>
         <button class="btn btn-danger" type="submit">Valider</button>
     </form>

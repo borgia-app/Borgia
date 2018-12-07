@@ -58,7 +58,7 @@ context['nav_tree'] = nav_tree = [
 				 {% if request.user.avatar %}
 					 <span class="navbar-text-avatar"><img src="{{ request.user.avatar.url }}" class="user-avatar"/></span>
 				 {% endif %}
-				 <h2 class="navbar-text">{{ request.user.display_name_navbar }}</p></h2>
+				 <h2 class="navbar-text">{{ request.user.get_full_name }}</p></h2>
 				 </li>
 				 <li class="mp-header-list-item list-group-item text-center">
 					 <span
@@ -73,7 +73,7 @@ context['nav_tree'] = nav_tree = [
 						<i class="fa fa-cog" aria-hidden="true"></i> <span class="caret"></span>
 					</a>
 					<ul class="list-unstyled col-xs-12 collapse" id="sidebarSettings" aria-expanded="false">
-						<li><a href="{% url 'url_self_user_update' group_name=group.name %}">
+						<li><a href="{% url 'url_user_self_update' group_name=group.name %}">
 							<i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>Modifier mes informations
 						</a></li>
 						<li><a href="{% url 'url_self_lydia_create' group_name=group.name %}">
