@@ -71,12 +71,12 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.group = Group.objects.get(name=kwargs['group_name'])
+            group = Group.objects.get(name=kwargs['group_name'])
         except ObjectDoesNotExist:
             raise Http404
 
         try:
-            self.shop = shop_from_group(self.group)
+            self.shop = shop_from_group(group)
         except ValueError:
             self.template_name = 'finances/sale_list.html'
             self.form_class = SaleListSearchDateForm
