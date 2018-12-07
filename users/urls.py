@@ -3,7 +3,7 @@ from django.urls import include, path
 from users.views import (ManageGroupView, UserAddByListXlsxDownload,
                          UserCreateView, UserDeactivateView, UserListView,
                          UserRetrieveView, UserSelfDeactivateView,
-                         UserSelfUpdateView, UserUpdateView, UserUploadXlsx,
+                         UserSelfUpdateView, UserUpdateView, UserUploadXlsxView,
                          balance_from_username, username_from_username_part)
 
 users_patterns = [
@@ -18,7 +18,7 @@ users_patterns = [
         ])),
         path('self/', UserSelfUpdateView.as_view(), name='url_user_self_update'),
 
-        path('add_by_list/xlsx/', UserUploadXlsx.as_view(), name='url_add_by_list_xlsx'),
+        path('add_by_list/xlsx/', UserUploadXlsxView.as_view(), name='url_add_by_list_xlsx'),
         path('add_by_list/xlsx/download/', UserAddByListXlsxDownload.as_view(), name='url_add_by_list_xlsx_download')
     ])),
     path('<str:group_name>/groups/<int:pk>/update/', ManageGroupView.as_view(), name='url_group_update'),
