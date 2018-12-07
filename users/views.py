@@ -349,9 +349,24 @@ class ManageGroupView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
     template_name = 'users/group_manage.html'
     success_url = None
     form_class = ManageGroupForm
-    perm_codename = None
     group_updated = None
     lm_active = None
+
+    def get_permission_required(self):
+        """
+        Override the permission_required attribute.
+        Must return an iterable.
+        """
+        #TODO : Get group
+        # TODO : move dispatch into get_initial and context
+
+        try:
+            self.group = Group.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+        perms = 'manage_' + self.group.name + '_group'
+        self.lm_active = 'lm_group_manage_' + self.group.name
+        return perms
 
     def dispatch(self, request, *args, **kwargs):
         """
@@ -413,16 +428,13 @@ class ManageGroupView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
 
     def get_initial(self):
         initial = super(ManageGroupView, self).get_initial()
-        initial['members'] = User.objects.filter(groups=self.group_updated)
-        initial['permissions'] = [
-            Permission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
-        ]
+        initial['members'] = self.group.user_set.all()
+        initial['permissions'] = self.group.permissions.all()
         return initial
 
     def get_context_data(self, **kwargs):
         context = super(ManageGroupView, self).get_context_data(**kwargs)
-        context['group_updated_name_display'] = group_name_display(
-            self.group_updated)
+        context['group'] = self.group
         return context
 
     def form_valid(self, form):
