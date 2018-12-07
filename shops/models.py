@@ -1,7 +1,9 @@
 import decimal
 
+from django.contrib.auth.models import Group
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
+from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 
 from settings_data.utils import settings_safe_get
 
@@ -43,6 +45,20 @@ class Shop(models.Model):
         :rtype: string
         """
         return self.name.capitalize()
+
+    def get_managers(self):
+        try:
+            chiefs_group = Group.objects.get(name='chiefs-' + self.name)
+            associates_group = Group.objects.get(name='associates-' + self.name)
+        except ObjectDoesNotExist:
+            raise ImproperlyConfigured(
+                '{0} is missing the related managers groups. You should verify the name of '
+                '{0} and/or the managers groups related'.format(self.__class__.__name__)
+            )
+
+        managers = chiefs_group.user_set.union(associates_group.user_set.all())
+        return managers
+
 
 
 class Product(models.Model):

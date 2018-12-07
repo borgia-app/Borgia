@@ -385,8 +385,7 @@ class ShopUpdate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         return reverse('url_shop_list')
 
 # TODO: infos
-class ShopCheckup(PermissionRequiredMixin, FormView,
-                  GroupLateralMenuMixin):
+class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     """
     Display data about a shop.
 
@@ -408,7 +407,7 @@ class ShopCheckup(PermissionRequiredMixin, FormView,
         except ObjectDoesNotExist:
             raise Http404
 
-        if self.request.user in self.shop_mod.managers.all():
+        if self.request.user in self.shop_mod.get_managers():
             return True
         else:
             perms = self.get_permission_required()

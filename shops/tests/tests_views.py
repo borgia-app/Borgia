@@ -16,6 +16,7 @@ class BaseShopsViewsTest(BaseBorgiaViewsTestCase):
         self.shop1 = Shop.objects.create(
             name="shop1", description="The first shop ever", color="#F4FA58")
         chiefs = Group.objects.create(name='chiefs-' + self.shop1.name)
+        associates = Group.objects.create(name='associates-' + self.shop1.name)
 
         content_type = ContentType.objects.get(app_label='users', model='user')
         Permission.objects.create(
