@@ -523,7 +523,6 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         return "Le groupe a bien été mis à jour"
 
 
-
 class UserUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     """
     Download/Upload Excel for adding users.
@@ -533,13 +532,11 @@ class UserUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     perm_codename = 'add_user'
     lm_active = 'lm_user_create'
 
-
     def form_valid(self, form, *args, **kwargs):
         try:
             wb = openpyxl.load_workbook(self.request.FILES['list_user'], read_only=True)
             sheet = wb.active
             rows = sheet.rows
-            data = []
         except:
             raise PermissionDenied
 
@@ -553,23 +550,23 @@ class UserUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         columns = form.cleaned_data['xlsx_columns']
         # Setting column numbers
         for col in range(min_col, max_col+2):
-            if sheet.cell(None,sheet.min_row,col).value == 'username':
+            if sheet.cell(None, sheet.min_row,col).value == 'username':
                 col_username = col - (min_row - 1)
-            elif sheet.cell(None,sheet.min_row,col).value == 'first_name':
+            elif sheet.cell(None, sheet.min_row,col).value == 'first_name':
                 col_first_name = col - (min_row - 1)
-            elif sheet.cell(None,sheet.min_row,col).value == 'last_name':
+            elif sheet.cell(None, sheet.min_row,col).value == 'last_name':
                 col_last_name = col - (min_row - 1)
-            elif sheet.cell(None,sheet.min_row,col).value == 'email':
+            elif sheet.cell(None, sheet.min_row,col).value == 'email':
                 col_email = col - (min_row - 1)
-            elif sheet.cell(None,sheet.min_row,col).value == 'surname':
+            elif sheet.cell(None, sheet.min_row,col).value == 'surname':
                 col_surname = col - (min_row - 1)
-            elif sheet.cell(None,sheet.min_row,col).value == 'family':
+            elif sheet.cell(None, sheet.min_row,col).value == 'family':
                 col_family = col - (min_row - 1)
-            elif sheet.cell(None,sheet.min_row,col).value == 'campus':
+            elif sheet.cell(None, sheet.min_row,col).value == 'campus':
                 col_campus = col - (min_row - 1)
-            elif sheet.cell(None,sheet.min_row,col).value == 'year':
+            elif sheet.cell(None, sheet.min_row,col).value == 'year':
                 col_year = col - (min_row - 1)
-            elif sheet.cell(None,sheet.min_row,col).value == 'balance':
+            elif sheet.cell(None, sheet.min_row,col).value == 'balance':
                 col_balance = col - (min_row - 1)
 
         for _ in range(min_row):
@@ -656,7 +653,8 @@ class UserUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
                     else:
                         user = User.objects.create(**user_dict)
                     user = User.objects.get(username=username)
-                    user.set_password( ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(20)))
+                    user.set_password( ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits)
+                                               for _ in range(20)))
                     user.save()
 
                     user.groups.add(Group.objects.get(pk=5))
@@ -664,16 +662,18 @@ class UserUploadXlsx(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
                     skipped_rows.append(str(i))
             except:
                 if str(i) in skipped_rows:
-                    errors.append("La ligne n*" + str(i) + "n'a pas été traitée car le username est manquant") # TODO: Make this error appear
+                    errors.append("La ligne n*" + str(i) +
+                                  "n'a pas été traitée car le username est manquant") # TODO: Make this error appear
                 elif len(errors_on_required_columns) > 0:
-                    errors.append("Les colonnes " + ", ".join(errors_on_required_columns) + " sont requis et comportent des erreurs (ligne n*" + str(i) + ")")
+                    errors.append("Les colonnes " + ", ".join(errors_on_required_columns) +
+                                  " sont requis et comportent des erreurs (ligne n*" + str(i) + ")")
                 else:
                     errors.append("Une erreur empêche le traitement du fichier Excel (ligne n*" + str(i) + ")")
 
-
         error_message = ""
         error_message += "\n - ".join(errors)
-        messages.success(self.request, str(i - len(skipped_rows) - min_row - len(errors)) + " utilisateurs ont été crées/mis à jour")
+        messages.success(self.request, str(i - len(skipped_rows) - min_row - len(errors)) +
+                         " utilisateurs ont été crées/mis à jour")
         messages.warning(self.request, error_message)
 
         return super(UserUploadXlsx, self).form_valid(form)
@@ -703,14 +703,22 @@ class UserAddByListXlsxDownload(GroupPermissionMixin, View, GroupLateralMenuMixi
         wb = openpyxl.Workbook()
         # grab the active worksheet
         ws = wb.active
-        ws.title = "Test"
-        ws.append(['Username (Ex: 53Me215)', 'Prenom', 'Nom','Email (un valide !)', 'Bucque (Ex: Eyap)', 'Fams (Ex: 53)',
-                        'Tabagns (Ex: Me)', 'Annee (Ex: 2015)'
-                        ])
+        ws.title = "users"
+        ws.append(['username', 'first_name', 'last_name','email', 'surname', 'family',
+                   'campus', 'year'])
 
         # Return the file
-        response = HttpResponse(openpyxl.writer.excel.save_virtual_workbook(wb), content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = ('attachment; filename="AddUsersByExcel.xlsx"')
+        response = HttpResponse(openpyxl.writer.excel.save_virtual_workbook(wb),
+                                content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="UsersList.xlsx"'
+
+        users = User.objects.all().values_list('username', 'first_name', 'last_name',
+                                               'email', 'surname', 'family', 'campus', 'year')
+        for user in users:
+            ws.append(user)
+
+        wb.save(response)
+
         return response
 
 
