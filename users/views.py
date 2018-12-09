@@ -172,7 +172,7 @@ class UserCreateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Gro
         if self.request.user.has_perm('users.view_user'):
             return reverse('url_user_retrieve', kwargs={'pk': self.object.pk})
         else:
-            return reverse('url_group_workboard')
+            return reverse('url_managers_workboard')
 
 
 class UserRetrieveView(PermissionRequiredMixin, View, GroupLateralMenuMixin):

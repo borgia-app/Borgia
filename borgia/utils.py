@@ -52,7 +52,7 @@ def lateral_menu(user, group, active=None):
             'Accueil ' + group_name_display(group),
             'briefcase',
             'lm_workboard',
-            reverse('url_group_workboard', kwargs={'group_name': group.name})))
+            reverse('url_managers_workboard', kwargs={'group_name': group.name})))
 
     # Models
     for model in models_checked:
@@ -752,6 +752,28 @@ class ShopFromGroupMixin(object):
 
     def get_context_data(self, **kwargs):
         context = super(ShopFromGroupMixin, self).get_context_data(**kwargs)
+        context['shop'] = self.shop
+        return context
+
+
+class ShopContextMixin(ContextMixin):
+    """
+    :note:: Be carefull, this mixin doesn't raise 404 if no shop. You must
+    handle the case of no shop with overriden.
+    """
+
+    def __init__(self):
+        self.shop = None
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.shop = Shop.objects.get(name='shop_name')
+        except ValueError:
+            self.shop = None
+        return super().dispatch(request, *args, **kwargs)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context['shop'] = self.shop
         return context
 

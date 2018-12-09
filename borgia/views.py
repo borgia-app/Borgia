@@ -21,7 +21,7 @@ from django.views.generic.edit import FormView
 
 from borgia.utils import (INTERNALS_GROUP_NAME, GroupLateralMenuMixin,
                           GroupPermissionMixin, ShopFromGroupMixin,
-                          get_managers_group_from_user)
+                          get_managers_group_from_user, ShopContextMixin)
 from finances.models import (ExceptionnalMovement, Recharging, Sale,
                              SharedEvent, Transfert)
 from modules.models import OperatorSaleModule, SelfSaleModule
@@ -440,7 +440,7 @@ class MembersGroupWorkboard(GroupPermissionMixin, View,
         return mlist
 
 
-class ShopGroupWorkboard(GroupPermissionMixin, ShopFromGroupMixin, View,
+class ShopWorkboard(GroupPermissionMixin, ShopContextMixin, View,
                          GroupLateralMenuMixin):
     perm_codename = None
     template_name = 'workboards/shop_workboard.html'

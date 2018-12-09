@@ -26,6 +26,204 @@ from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
                          DEFAULT_PERMISSIONS_CHIEFS)
 
 
+class ShopCreate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+    template_name = 'shops/shop_create.html'
+    permission_required = 'shops.add_shop'
+    lm_active = 'lm_shop_create'
+    form_class = ShopCreateForm
+
+    def form_valid(self, form):
+        """
+        Create the shop instance and relating groups and permissions.
+        """
+        shop = Shop.objects.create(
+            name=form.cleaned_data['name'],
+            description=form.cleaned_data['description'],
+            color=form.cleaned_data['color'])
+
+        content_type = ContentType.objects.get(app_label='users', model='user')
+        manage_chiefs = Permission.objects.create(
+            name='Can manage chiefs of ' + shop.name + ' shop',
+            codename='manage_chiefs-' + shop.name + '_group',
+            content_type=content_type
+        )
+        manage_associates = Permission.objects.create(
+            name='Can manage associates of ' + shop.name + ' shop',
+            codename='manage_associates-' + shop.name + '_group',
+            content_type=content_type
+        )
+
+        chiefs = Group.objects.create(
+            name='chiefs-' + shop.name
+        )
+        associates = Group.objects.create(
+            name='associates-' + shop.name
+        )
+
+        for codename in DEFAULT_PERMISSIONS_CHIEFS:
+            try:
+                chiefs.permissions.add(
+                    Permission.objects.get(codename=codename)
+                )
+            except ObjectDoesNotExist:
+                pass
+            except MultipleObjectsReturned:
+                pass
+        chiefs.permissions.add(manage_associates)
+        chiefs.save()
+        for codename in DEFAULT_PERMISSIONS_ASSOCIATES:
+            try:
+                associates.permissions.add(
+                    Permission.objects.get(codename=codename)
+                )
+            except ObjectDoesNotExist:
+                pass
+            except MultipleObjectsReturned:
+                pass
+        associates.save()
+
+        presidents = Group.objects.get(pk=2)
+        presidents.permissions.add(manage_chiefs)
+        presidents.save()
+        vice_presidents = Group.objects.get(pk=3)
+        vice_presidents.permissions.add(manage_chiefs)
+        vice_presidents.save()
+        return super(ShopCreate, self).form_valid(form)
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse('url_shop_list')
+
+
+class ShopList(PermissionRequiredMixin, View, GroupLateralMenuMixin):
+    """
+    View that list the shops.
+    """
+    template_name = 'shops/shop_list.html'
+    permission_required = 'shops.view_shop'
+    lm_active = 'lm_shop_list'
+
+    def get(self, request, *args, **kwargs):
+        context = super(ShopList, self).get_context_data(**kwargs)
+        context['shop_list'] = Shop.objects.all().exclude(pk=1).order_by(
+            'name')
+        return render(request, self.template_name, context=context)
+
+
+class ShopUpdate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+    template_name = 'shops/shop_update.html'
+    permission_required = 'shops.change_shop'
+    form_class = ShopUpdateForm
+    success_url = None
+
+    def dispatch(self, request, *args, **kwargs):
+        try:
+            self.shop_mod = Shop.objects.get(pk=kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+        return super(ShopUpdate, self).dispatch(request, *args, **kwargs)
+
+    def get_initial(self, **kwargs):
+        initial = super().get_initial(**kwargs)
+        initial['description'] = self.shop_mod.description
+        initial['color'] = self.shop_mod.color
+        return initial
+
+    def form_valid(self, form):
+        self.shop_mod.description = form.cleaned_data['description']
+        self.shop_mod.color = form.cleaned_data['color']
+        self.shop_mod.save()
+        return super(ShopUpdate, self).form_valid(form)
+
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse('url_shop_list')
+
+# TODO: infos
+class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+    """
+    Display data about a shop.
+
+    You can see checkup of your own shop only.
+    If you're not a manager of a shop, you need the permission 'view_shop'
+    """
+    permission_required = 'shops.view_shop'
+    template_name = 'shops/shop_checkup.html'
+    lm_active = 'lm_shop_checkup'
+    form_class = ShopCheckupSearchForm
+
+    date_begin = None
+    date_end = None
+    products = None
+
+    def has_permission(self):
+        try:
+            self.shop_mod = Shop.objects.get(pk=self.kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+
+        if self.request.user in self.shop_mod.get_managers():
+            return True
+        else:
+            perms = self.get_permission_required()
+            return self.request.user.has_perms(perms)
+
+    def get_context_data(self, **kwargs):
+        context = super(ShopCheckup, self).get_context_data(**kwargs)
+        context['stock'] = self.info_stock()
+        context['transaction'] = self.info_transaction()
+        context['info'] = self.info_checkup()
+        context['shop_mod'] = self.shop_mod
+        return context
+
+    def get_form_kwargs(self):
+        kwargs_form = super(ShopCheckup, self).get_form_kwargs()
+        kwargs_form['shop'] = self.shop_mod
+        return kwargs_form
+
+    def form_valid(self, form):
+        self.date_begin = form.cleaned_data['date_begin']
+        self.date_end = form.cleaned_data['date_end']
+        self.products = form.cleaned_data['products']
+        return self.get(self.request, self.args, self.kwargs)
+
+    def info_stock(self):
+        return {}
+
+    def info_transaction(self):
+        # All
+        q_sales = Sale.objects.filter(shop=self.shop_mod)
+        value = sum(s.amount() for s in q_sales)
+        nb = q_sales.count()
+        try:
+            mean = round(value / nb, 2)
+        except (ZeroDivisionError, decimal.DivisionByZero, decimal.DivisionUndefined):
+            mean = 0
+        return {
+            'value': value,
+            'nb': nb,
+            'mean': mean
+        }
+
+    def info_checkup(self):
+        q_sale = Sale.objects.filter(shop=self.shop_mod)
+        if self.products:
+            q_sale = q_sale.filter(
+                products__pk__in=[p.pk for p in self.products])
+        if self.date_begin:
+            q_sale = q_sale.filter(datetime__gte=self.date_begin)
+        if self.date_end:
+            q_sale = q_sale.filter(datetime__lte=self.date_end)
+        sale_value = sum(s.amount() for s in q_sale)
+        sale_nb = q_sale.count()
+        return {
+            'sale': {
+                'value': sale_value,
+                'nb': sale_nb
+            }
+        }
+
+
 class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                   GroupLateralMenuMixin):
     template_name = 'shops/product_list.html'
@@ -269,201 +467,3 @@ class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
         self.object.manual_price = form.cleaned_data['manual_price']
         self.object.save()
         return super(ProductUpdatePrice, self).form_valid(form)
-
-
-class ShopCreate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
-    template_name = 'shops/shop_create.html'
-    permission_required = 'shops.add_shop'
-    lm_active = 'lm_shop_create'
-    form_class = ShopCreateForm
-
-    def form_valid(self, form):
-        """
-        Create the shop instance and relating groups and permissions.
-        """
-        shop = Shop.objects.create(
-            name=form.cleaned_data['name'],
-            description=form.cleaned_data['description'],
-            color=form.cleaned_data['color'])
-
-        content_type = ContentType.objects.get(app_label='users', model='user')
-        manage_chiefs = Permission.objects.create(
-            name='Can manage chiefs of ' + shop.name + ' shop',
-            codename='manage_chiefs-' + shop.name + '_group',
-            content_type=content_type
-        )
-        manage_associates = Permission.objects.create(
-            name='Can manage associates of ' + shop.name + ' shop',
-            codename='manage_associates-' + shop.name + '_group',
-            content_type=content_type
-        )
-
-        chiefs = Group.objects.create(
-            name='chiefs-' + shop.name
-        )
-        associates = Group.objects.create(
-            name='associates-' + shop.name
-        )
-
-        for codename in DEFAULT_PERMISSIONS_CHIEFS:
-            try:
-                chiefs.permissions.add(
-                    Permission.objects.get(codename=codename)
-                )
-            except ObjectDoesNotExist:
-                pass
-            except MultipleObjectsReturned:
-                pass
-        chiefs.permissions.add(manage_associates)
-        chiefs.save()
-        for codename in DEFAULT_PERMISSIONS_ASSOCIATES:
-            try:
-                associates.permissions.add(
-                    Permission.objects.get(codename=codename)
-                )
-            except ObjectDoesNotExist:
-                pass
-            except MultipleObjectsReturned:
-                pass
-        associates.save()
-
-        presidents = Group.objects.get(pk=2)
-        presidents.permissions.add(manage_chiefs)
-        presidents.save()
-        vice_presidents = Group.objects.get(pk=3)
-        vice_presidents.permissions.add(manage_chiefs)
-        vice_presidents.save()
-        return super(ShopCreate, self).form_valid(form)
-
-    def get_success_url(self):
-        """Return the URL to redirect to after processing a valid form."""
-        return reverse('url_shop_list')
-
-
-class ShopList(PermissionRequiredMixin, View, GroupLateralMenuMixin):
-    """
-    View that list the shops.
-    """
-    template_name = 'shops/shop_list.html'
-    permission_required = 'shops.view_shop'
-    lm_active = 'lm_shop_list'
-
-    def get(self, request, *args, **kwargs):
-        context = super(ShopList, self).get_context_data(**kwargs)
-        context['shop_list'] = Shop.objects.all().exclude(pk=1).order_by(
-            'name')
-        return render(request, self.template_name, context=context)
-
-
-class ShopUpdate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
-    template_name = 'shops/shop_update.html'
-    permission_required = 'shops.change_shop'
-    form_class = ShopUpdateForm
-    success_url = None
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.shop_mod = Shop.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        return super(ShopUpdate, self).dispatch(request, *args, **kwargs)
-
-    def get_initial(self, **kwargs):
-        initial = super().get_initial(**kwargs)
-        initial['description'] = self.shop_mod.description
-        initial['color'] = self.shop_mod.color
-        return initial
-
-    def form_valid(self, form):
-        self.shop_mod.description = form.cleaned_data['description']
-        self.shop_mod.color = form.cleaned_data['color']
-        self.shop_mod.save()
-        return super(ShopUpdate, self).form_valid(form)
-
-    def get_success_url(self):
-        """Return the URL to redirect to after processing a valid form."""
-        return reverse('url_shop_list')
-
-# TODO: infos
-class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
-    """
-    Display data about a shop.
-
-    You can see checkup of your own shop only.
-    If you're not a manager of a shop, you need the permission 'view_shop'
-    """
-    permission_required = 'shops.view_shop'
-    template_name = 'shops/shop_checkup.html'
-    lm_active = 'lm_shop_checkup'
-    form_class = ShopCheckupSearchForm
-
-    date_begin = None
-    date_end = None
-    products = None
-
-    def has_permission(self):
-        try:
-            self.shop_mod = Shop.objects.get(pk=self.kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-
-        if self.request.user in self.shop_mod.get_managers():
-            return True
-        else:
-            perms = self.get_permission_required()
-            return self.request.user.has_perms(perms)
-
-    def get_context_data(self, **kwargs):
-        context = super(ShopCheckup, self).get_context_data(**kwargs)
-        context['stock'] = self.info_stock()
-        context['transaction'] = self.info_transaction()
-        context['info'] = self.info_checkup()
-        context['shop_mod'] = self.shop_mod
-        return context
-
-    def get_form_kwargs(self):
-        kwargs_form = super(ShopCheckup, self).get_form_kwargs()
-        kwargs_form['shop'] = self.shop_mod
-        return kwargs_form
-
-    def form_valid(self, form):
-        self.date_begin = form.cleaned_data['date_begin']
-        self.date_end = form.cleaned_data['date_end']
-        self.products = form.cleaned_data['products']
-        return self.get(self.request, self.args, self.kwargs)
-
-    def info_stock(self):
-        return {}
-
-    def info_transaction(self):
-        # All
-        q_sales = Sale.objects.filter(shop=self.shop_mod)
-        value = sum(s.amount() for s in q_sales)
-        nb = q_sales.count()
-        try:
-            mean = round(value / nb, 2)
-        except (ZeroDivisionError, decimal.DivisionByZero, decimal.DivisionUndefined):
-            mean = 0
-        return {
-            'value': value,
-            'nb': nb,
-            'mean': mean
-        }
-
-    def info_checkup(self):
-        q_sale = Sale.objects.filter(shop=self.shop_mod)
-        if self.products:
-            q_sale = q_sale.filter(
-                products__pk__in=[p.pk for p in self.products])
-        if self.date_begin:
-            q_sale = q_sale.filter(datetime__gte=self.date_begin)
-        if self.date_end:
-            q_sale = q_sale.filter(datetime__lte=self.date_end)
-        sale_value = sum(s.amount() for s in q_sale)
-        sale_nb = q_sale.count()
-        return {
-            'sale': {
-                'value': sale_value,
-                'nb': sale_nb
-            }
-        }
