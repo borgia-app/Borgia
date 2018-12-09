@@ -361,39 +361,12 @@ class ManageGroupView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
         # TODO : move dispatch into get_initial and context
 
         try:
-            self.group = Group.objects.get(pk=kwargs['pk'])
+            self.group = Group.objects.get(pk=self.kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
-        perms = 'manage_' + self.group.name + '_group'
+        perms = ('users.manage_' + self.group.name + '_group',)
         self.lm_active = 'lm_group_manage_' + self.group.name
         return perms
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Check permission.
-
-        This function is at some parts redundant with the mixin GroupPermission
-        however you cannot set a perm_codename directly, because it depends
-        on the group_name directly.
-
-        :raises: Http404 if the group doesn't exist
-        :raises: Http404 if the group updated doesn't exist
-        :raises: PermissionDenied if the group doesn't have perm
-
-        Save the group_updated in self.
-        """
-        try:
-            self.group = Group.objects.get(name=kwargs['group_name'])
-            self.group_updated = Group.objects.get(pk=kwargs['pk'])
-            self.lm_active = 'lm_group_manage_' + self.group_updated.name
-        except ObjectDoesNotExist:
-            raise Http404
-
-        if (permission_to_manage_group(self.group_updated)[0]
-                not in self.group.permissions.all()):
-            raise PermissionDenied
-
-        return super(ManageGroupView, self).dispatch(request, *args, **kwargs)
 
     def get_form_kwargs(self):
         """
@@ -407,13 +380,13 @@ class ManageGroupView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
         """
         kwargs = super(ManageGroupView, self).get_form_kwargs()
 
-        if self.group_updated.name.startswith('associates-') is True:
-            chiefs_group_name = self.group_updated.name.replace(
+        if self.group.name.startswith('associates-') is True:
+            chiefs_group_name = self.group.name.replace(
                 'associates', 'chiefs')
             kwargs['possible_permissions'] = Permission.objects.filter(
                 pk__in=[p.pk for p in Group.objects.get(
                     name=chiefs_group_name).permissions.all().exclude(
-                    pk=permission_to_manage_group(self.group_updated)[0].pk).exclude(
+                    pk=permission_to_manage_group(self.group)[0].pk).exclude(
                     pk__in=human_unused_permissions())]
             )
 
@@ -441,29 +414,29 @@ class ManageGroupView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
         """
         Update permissions and members of the group updated.
         """
-        old_members = User.objects.filter(groups=self.group_updated)
+        old_members = User.objects.filter(groups=self.group)
         new_members = form.cleaned_data['members']
-        old_permissions = self.group_updated.permissions.all()
+        old_permissions = self.group.permissions.all()
         new_permissions = form.cleaned_data['permissions']
 
         # Modification des membres
         for m in old_members:
             if m not in new_members:
-                m.groups.remove(self.group_updated)
+                m.groups.remove(self.group)
                 m.save()
         for m in new_members:
             if m not in old_members:
-                m.groups.add(self.group_updated)
+                m.groups.add(self.group)
                 m.save()
 
         # Modification des permissions
         for p in old_permissions:
             if p not in new_permissions:
-                self.group_updated.permissions.remove(p)
+                self.group.permissions.remove(p)
         for p in new_permissions:
             if p not in old_permissions:
-                self.group_updated.permissions.add(p)
-        self.group_updated.save()
+                self.group.permissions.add(p)
+        self.group.save()
 
         return super(ManageGroupView, self).form_valid(form)
 
