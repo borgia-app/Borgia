@@ -1,4 +1,5 @@
 {% block content %}
+
 <script>
 
 // In case a user select a product
@@ -80,7 +81,7 @@ $(document).ready(function() {
      } else {
        // Get balance for the client
        $.ajax({
-           url: "/ajax/balance_from_username/",
+           url: "{% url 'url_balance_from_username' %}",
            dataType: "json",
            data: {
                username: client_id
