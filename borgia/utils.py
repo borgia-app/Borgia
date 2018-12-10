@@ -15,6 +15,16 @@ from users.models import User
 INTERNALS_GROUP_NAME = 'members'
 EXTERNALS_GROUP_NAME = 'externals'
 
+
+def simple_lateral_link(label, fa_icon, id_link, url):
+    return {
+        'label': label,
+        'icon': fa_icon,
+        'id': id_link,
+        'url': url
+    }
+
+
 def lateral_menu(user, group, active=None):
     """
     Build the object tree used to generate the lateral menu in the template
@@ -37,8 +47,8 @@ def lateral_menu(user, group, active=None):
     nav_tree = []
 
     # If Gadzart, simplify the menu
-    if group.name == INTERNALS_GROUP_NAME:
-        return lateral_menu_gadz(user, group, active)
+    # if group.name == INTERNALS_GROUP_NAME:
+    return lateral_menu_members(user, active)
 
     # Groups of the user
     if lateral_menu_user_groups(user) is not None:
@@ -197,7 +207,7 @@ def lateral_menu(user, group, active=None):
                 url=reverse(
                     'url_module_selfsale_workboard',
                     kwargs={'group_name': group.name}
-                    )
+                )
             ))
         # TODO: check perm
             nav_tree.append(simple_lateral_link(
@@ -221,7 +231,8 @@ def lateral_menu(user, group, active=None):
     # Shop sale for shop
     try:
         shop = shop_from_group(group)
-        module_sale, created = OperatorSaleModule.objects.get_or_create(shop=shop)
+        module_sale, created = OperatorSaleModule.objects.get_or_create(
+            shop=shop)
         if module_sale.state is True:
             nav_tree.append(simple_lateral_link(
                 label='Module vente',
@@ -284,9 +295,8 @@ def lateral_menu(user, group, active=None):
     return nav_tree
 
 
-def lateral_menu_gadz(user, group, active=None):
+def lateral_menu_members(user, active=None):
     """
-    - Groups
     - List of self sale modules
     - Lydia credit
     - Transferts
@@ -301,11 +311,8 @@ def lateral_menu_gadz(user, group, active=None):
         try:
             module_sale = SelfSaleModule.objects.get(shop=shop)
             if module_sale.state is True:
-                try:
-                    if Permission.objects.get(codename='use_selfsalemodule') in group.permissions.all():
-                        list_selfsalemodule.append(shop)
-                except ObjectDoesNotExist:
-                    pass
+                if user.has_perm('modules.use_selfsalemodule'):
+                    list_selfsalemodule.append(shop)
         except ObjectDoesNotExist:
             pass
 
@@ -317,18 +324,20 @@ def lateral_menu_gadz(user, group, active=None):
 
     nav_tree.append(
         simple_lateral_link(
-            'Accueil ' + group_name_display(group),
+            'Accueil ' + INTERNALS_GROUP_NAME,
             'briefcase',
             'lm_workboard',
-            reverse('url_group_workboard', kwargs={'group_name': group.name})))
+            reverse('url_members_workboard')))
 
     for shop in list_selfsalemodule:
         nav_tree.append(
             simple_lateral_link(
                 'Vente directe ' + shop.name.title(),
                 'shopping-basket',
-                'lm_selfsale_interface_module_' + shop.name,  # Not currently used in modules.view
-                reverse('url_module_selfsale', kwargs={'group_name': group.name, 'shop_name': shop.name})
+                # Not currently used in modules.view
+                'lm_selfsale_interface_module_' + shop.name,
+                reverse('url_module_selfsale', kwargs={
+                        'group_name': 'members', 'shop_name': shop.name})
             ))
 
     nav_tree.append(
@@ -336,36 +345,30 @@ def lateral_menu_gadz(user, group, active=None):
             'Rechargement de compte',
             'credit-card',
             'lm_self_lydia_create',
-            reverse('url_self_lydia_create', kwargs={'group_name': group.name})))
+            reverse('url_self_lydia_create', kwargs={'group_name': 'members'})))
 
-    try:
-        if Permission.objects.get(codename='add_transfert') in group.permissions.all():
-            nav_tree.append(
-                simple_lateral_link(
-                    'Transfert',
-                    'exchange',
-                    'lm_self_transfert_create',
-                    reverse('url_self_transfert_create', kwargs={'group_name': group.name})))
-    except ObjectDoesNotExist:
-        pass
+    if user.has_perm('finances.add_transfert'):
+        nav_tree.append(
+            simple_lateral_link(
+                'Transfert',
+                'exchange',
+                'lm_self_transfert_create',
+                reverse('url_self_transfert_create', kwargs={'group_name': 'members'})))
 
     nav_tree.append(
         simple_lateral_link(
             'Historique des transactions',
             'history',
             'lm_self_transaction_list',
-            reverse('url_self_transaction_list', kwargs={'group_name': 'group.name'})))
+            reverse('url_self_transaction_list', kwargs={'group_name': 'members'})))
 
-    try:
-        if Permission.objects.get(codename='view_sharedevent') in group.permissions.all():
-            nav_tree.append(
-                simple_lateral_link(
-                    'Évènements',
-                    'calendar',
-                    'lm_sharedevent_list',
-                    reverse('url_sharedevent_list', kwargs={'group_name': group.name})))
-    except ObjectDoesNotExist:
-        pass
+    if user.has_perm('finances.view_sharedevent'):
+        nav_tree.append(
+            simple_lateral_link(
+                'Évènements',
+                'calendar',
+                'lm_sharedevent_list',
+                reverse('url_sharedevent_list', kwargs={'group_name': 'members'})))
 
     if active is not None:
         for link in nav_tree:
@@ -528,26 +531,27 @@ def lateral_menu_stock(group):
 def lateral_menu_user_groups(user):
     """
     """
-    if len(user.groups.all()) > 1:
-        user_groups_tree = {
-            'label': 'Groupes',
-            'icon': 'institution',
-            'id': 'lm_user_groups',
-            'class': 'info',
-            'subs': []
-        }
-        for group in user.groups.all():
-            user_groups_tree['subs'].append({
-                'label': group_name_display(group),
-                'icon': 'institution',
-                'id': 'lm_user_groups_' + group.name,
-                'url': reverse(
-                    'url_group_workboard',
-                    kwargs={'group_name': group.name})
-            })
-        return user_groups_tree
-    else:
-        return None
+    # TODO
+    # if len(user.groups.all()) > 1:
+    #     user_groups_tree = {
+    #         'label': 'Groupes',
+    #         'icon': 'institution',
+    #         'id': 'lm_user_groups',
+    #         'class': 'info',
+    #         'subs': []
+    #     }
+    #     for group in user.groups.all():
+    #         user_groups_tree['subs'].append({
+    #             'label': group_name_display(group),
+    #             'icon': 'institution',
+    #             'id': 'lm_user_groups_' + group.name,
+    #             'url': reverse(
+    #                 'url_group_workboard',
+    #                 kwargs={'group_name': group.name})
+    #         })
+    #     return user_groups_tree
+    # else:
+    return None
 
 
 def lateral_menu_shop_sale(group, shop):
@@ -583,15 +587,6 @@ def lateral_menu_shop_sale(group, shop):
         return None
 
 
-def simple_lateral_link(label, fa_icon, id_link, url):
-    return {
-        'label': label,
-        'icon': fa_icon,
-        'id': id_link,
-        'url': url
-    }
-
-
 class GroupLateralMenuMixin(ContextMixin):
     lm_active = None
 
@@ -614,6 +609,21 @@ class GroupLateralMenuMixin(ContextMixin):
             pass
         except ObjectDoesNotExist:
             pass
+        return context
+
+
+class LateralMenuMixin(ContextMixin):
+    lm_active = None
+
+    def __init__(self):
+        self.request = None
+        self.kwargs = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['nav_tree'] = lateral_menu_members(
+            self.request.user,
+            self.lm_active)
         return context
 
 
@@ -711,7 +721,8 @@ class ProductShopMixin(object):
         except ObjectDoesNotExist:
             raise Http404
         try:
-            self.product = Product.objects.get(name=self.kwargs['pk'], is_removed=False)
+            self.product = Product.objects.get(
+                name=self.kwargs['pk'], is_removed=False)
         except ObjectDoesNotExist:
             raise Http404
         if self.product.shop is not self.shop:
@@ -791,7 +802,8 @@ class ProductShopFromGroupMixin(object):
         except ValueError:
             pass
         try:
-            self.object = Product.objects.get(pk=self.kwargs['pk'], is_removed=False)
+            self.object = Product.objects.get(
+                pk=self.kwargs['pk'], is_removed=False)
         except ObjectDoesNotExist:
             raise Http404
         try:
@@ -1009,11 +1021,13 @@ def human_unused_permissions():
     perms = []
     for string_model in unused_models:
         try:
-            contenttype = ContentType.objects.filter(model=string_model).first()
+            contenttype = ContentType.objects.filter(
+                model=string_model).first()
         except ObjectDoesNotExist:
             pass
         if contenttype is not None:
-            perms_model = Permission.objects.filter(content_type=contenttype.pk)
+            perms_model = Permission.objects.filter(
+                content_type=contenttype.pk)
             for perm in perms_model:
                 perms.append(perm.pk)
 
@@ -1050,6 +1064,7 @@ def get_members_group(externals=False):
         group_name = INTERNALS_GROUP_NAME
 
     return Group.objects.get(name=group_name)
+
 
 def get_managers_group_from_user(user):
     if user.groups.count() == 1:

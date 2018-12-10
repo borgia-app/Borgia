@@ -15,7 +15,7 @@ from django.utils.encoding import force_text
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
+from borgia.utils import (LateralMenuMixin, GroupPermissionMixin,
                           get_members_group, group_name_display,
                           human_unused_permissions, permission_to_manage_group)
 from finances.models import SharedEvent
@@ -26,7 +26,7 @@ from users.forms import (ManageGroupForm, SelfUserUpdateForm,
 from users.models import User
 
 
-class UserListView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+class UserListView(PermissionRequiredMixin, FormView, LateralMenuMixin):
     """
     List User instances.
 
@@ -122,7 +122,7 @@ class UserListView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         return initial
 
 
-class UserCreateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
+class UserCreateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, LateralMenuMixin):
     """
     Create a new user and redirect to the workboard of the group.
 
@@ -175,7 +175,7 @@ class UserCreateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Gro
             return reverse('url_managers_workboard')
 
 
-class UserRetrieveView(PermissionRequiredMixin, View, GroupLateralMenuMixin):
+class UserRetrieveView(PermissionRequiredMixin, View, LateralMenuMixin):
     """
     Retrieve a User instance.
 
@@ -195,7 +195,7 @@ class UserRetrieveView(PermissionRequiredMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class UserUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
+class UserUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, LateralMenuMixin):
     """
     Update an user and redirect to the workboard of the group.
 
@@ -244,7 +244,7 @@ class UserUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Gro
                        kwargs={'pk': self.kwargs['pk']})
 
 
-class UserDeactivateView(PermissionRequiredMixin, View, GroupLateralMenuMixin):
+class UserDeactivateView(PermissionRequiredMixin, View, LateralMenuMixin):
     """
     Deactivate a user and redirect to the workboard of the group.
 
@@ -311,7 +311,7 @@ class UserDeactivateView(PermissionRequiredMixin, View, GroupLateralMenuMixin):
 
 
 class UserSelfUpdateView(SuccessMessageMixin, FormView,
-                     GroupLateralMenuMixin):
+                     LateralMenuMixin):
     template_name = 'users/self_user_update.html'
     form_class = SelfUserUpdateForm
 
@@ -345,7 +345,7 @@ class UserSelfUpdateView(SuccessMessageMixin, FormView,
 
 
 class ManageGroupView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
-                      GroupLateralMenuMixin):
+                      LateralMenuMixin):
     template_name = 'users/group_manage.html'
     success_url = None
     form_class = ManageGroupForm

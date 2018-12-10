@@ -183,7 +183,7 @@ def sale_shop_module_resume(request, sale, group, shop, module, success_url):
         'group_name': group.name,
         'success_url': success_url
     }
-    context['nav_tree'] = lateral_menu(
+    context['nav_tree'] = (
         request.user,
         group,
         None)
