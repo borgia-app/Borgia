@@ -1,4 +1,5 @@
 import decimal
+import datetime
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission
@@ -118,28 +119,28 @@ class ShopUpdate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.shop_mod = Shop.objects.get(pk=kwargs['pk'])
+            self.shop = Shop.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
         return super(ShopUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self, **kwargs):
         initial = super().get_initial(**kwargs)
-        initial['description'] = self.shop_mod.description
-        initial['color'] = self.shop_mod.color
+        initial['description'] = self.shop.description
+        initial['color'] = self.shop.color
         return initial
 
     def form_valid(self, form):
-        self.shop_mod.description = form.cleaned_data['description']
-        self.shop_mod.color = form.cleaned_data['color']
-        self.shop_mod.save()
+        self.shop.description = form.cleaned_data['description']
+        self.shop.color = form.cleaned_data['color']
+        self.shop.save()
         return super(ShopUpdate, self).form_valid(form)
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         return reverse('url_shop_list')
 
-# TODO: infos
+
 class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     """
     Display data about a shop.
@@ -158,11 +159,11 @@ class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
 
     def has_permission(self):
         try:
-            self.shop_mod = Shop.objects.get(pk=self.kwargs['pk'])
+            self.shop = Shop.objects.get(pk=self.kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
 
-        if self.request.user in self.shop_mod.get_managers():
+        if self.request.user in self.shop.get_managers():
             return True
         else:
             perms = self.get_permission_required()
@@ -173,12 +174,12 @@ class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         context['stock'] = self.info_stock()
         context['transaction'] = self.info_transaction()
         context['info'] = self.info_checkup()
-        context['shop_mod'] = self.shop_mod
+        context['shop_mod'] = self.shop
         return context
 
     def get_form_kwargs(self):
         kwargs_form = super(ShopCheckup, self).get_form_kwargs()
-        kwargs_form['shop'] = self.shop_mod
+        kwargs_form['shop'] = self.shop
         return kwargs_form
 
     def form_valid(self, form):
@@ -192,7 +193,7 @@ class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
 
     def info_transaction(self):
         # All
-        q_sales = Sale.objects.filter(shop=self.shop_mod)
+        q_sales = Sale.objects.filter(shop=self.shop)
         value = sum(s.amount() for s in q_sales)
         nb = q_sales.count()
         try:
@@ -206,7 +207,7 @@ class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         }
 
     def info_checkup(self):
-        q_sale = Sale.objects.filter(shop=self.shop_mod)
+        q_sale = Sale.objects.filter(shop=self.shop)
         if self.products:
             q_sale = q_sale.filter(
                 products__pk__in=[p.pk for p in self.products])
@@ -222,6 +223,82 @@ class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
                 'nb': sale_nb
             }
         }
+
+
+class ShopWorkboard(PermissionRequiredMixin, View, GroupLateralMenuMixin):
+    template_name = 'shops/shop_workboard.html'
+    lm_active = 'lm_workboard'
+
+    def has_permission(self):
+        try:
+            self.shop = Shop.objects.get(pk=self.kwargs['pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+
+        if self.request.user in self.shop.get_managers():
+            return True
+        else:
+            return False
+
+    def get(self, request, **kwargs):
+        if self.shop is None:
+            raise Http404
+
+        context = self.get_context_data(**kwargs)
+        context['sale_list'] = self.get_sales()
+        context['purchase_list'] = self.get_purchases()
+        return render(request, self.template_name, context=context)
+
+    def get_sales(self):
+        sales = {}
+        s_list = Sale.objects.filter(shop=self.shop).order_by('-datetime')
+        sales['weeks'] = self.weeklist(
+            datetime.datetime.now() - datetime.timedelta(days=30),
+            datetime.datetime.now())
+        sales['data_weeks'] = self.sale_data_weeks(s_list, sales['weeks'])[0]
+        sales['total'] = self.sale_data_weeks(s_list, sales['weeks'])[1]
+        sales['all'] = s_list[:7]
+        return sales
+
+    # TODO: purchases with stock
+    @staticmethod
+    def get_purchases():
+        purchases = {}
+        return purchases
+
+    # TODO: purchases with stock
+    @staticmethod
+    def purchase_data_weeks(weeks):
+        amounts = [0 for _ in range(0, len(weeks))]
+        total = 0
+
+        return amounts, total
+
+    @staticmethod
+    def sale_data_weeks(weeklist, weeks):
+        amounts = [0 for _ in range(0, len(weeks))]
+        total = 0
+        for obj in weeklist:
+            string = (str(obj.datetime.isocalendar()[1])
+                      + '-' + str(obj.datetime.year))
+            if string in weeks:
+                amounts[weeks.index(string)] += obj.amount()
+                total += obj.amount()
+        return amounts, total
+
+    @staticmethod
+    def weeklist(start, end):
+        weeklist = []
+        for i in range(start.year, end.year+1):
+            week_start = 1
+            week_end = 52
+            if i == start.year:
+                week_start = start.isocalendar()[1]
+            if i == end.year:
+                week_end = end.isocalendar()[1]
+            weeklist += [str(j) + '-' + str(i) for j in range(
+                week_start, week_end+1)]
+        return weeklist
 
 
 class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,

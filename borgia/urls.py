@@ -8,8 +8,8 @@ from django.contrib.auth.views import (LogoutView, PasswordChangeDoneView,
                                        PasswordResetView)
 from django.urls import include, path
 
-from borgia.views import (ManagersGroupWorkboard, MembersGroupWorkboard,
-                          ModulesLoginView, ShopWorkboard, handler403,
+from borgia.views import (ManagersWorkboard, MembersWorkboard,
+                          ModulesLoginView, handler403,
                           handler404, handler500)
 from finances.urls import finances_patterns
 from modules.urls import modules_patterns
@@ -46,10 +46,9 @@ urlpatterns = [
              name='password_reset_complete'),
     ])),
     # WORKBOARDS
-    path('members/', MembersGroupWorkboard.as_view(), name='url_members_workboard'),
-    path('managers/', ManagersGroupWorkboard.as_view(), name='url_managers_workboard'),
-    path('<str:shop_name>/', ShopWorkboard.as_view(),
-         name='url_group_workboard'),
+    path('members/', MembersWorkboard.as_view(), name='url_members_workboard'),
+    path('managers/', ManagersWorkboard.as_view(), name='url_managers_workboard'),
+
     ### APPS ###
     path('', include(finances_patterns)),
     path('', include(modules_patterns)),

@@ -354,7 +354,7 @@ def get_unique_model(request, pk, model, props=None):
     return HttpResponse(data)
 
 
-class MembersGroupWorkboard(GroupPermissionMixin, View,
+class MembersWorkboard(GroupPermissionMixin, View,
                              GroupLateralMenuMixin):
     template_name = 'workboards/members_workboard.html'
     perm_codename = None
@@ -440,74 +440,7 @@ class MembersGroupWorkboard(GroupPermissionMixin, View,
         return mlist
 
 
-class ShopWorkboard(GroupPermissionMixin, ShopContextMixin, View,
-                         GroupLateralMenuMixin):
-    perm_codename = None
-    template_name = 'workboards/shop_workboard.html'
-    lm_active = 'lm_workboard'
-
-    def get(self, request, **kwargs):
-        if self.shop is None:
-            raise Http404
-
-        context = self.get_context_data(**kwargs)
-        context['sale_list'] = self.get_sales()
-        context['purchase_list'] = self.get_purchases()
-        return render(request, self.template_name, context=context)
-
-    def get_sales(self):
-        sales = {}
-        s_list = Sale.objects.filter(shop=self.shop).order_by('-datetime')
-        sales['weeks'] = self.weeklist(
-            datetime.datetime.now() - datetime.timedelta(days=30),
-            datetime.datetime.now())
-        sales['data_weeks'] = self.sale_data_weeks(s_list, sales['weeks'])[0]
-        sales['total'] = self.sale_data_weeks(s_list, sales['weeks'])[1]
-        sales['all'] = s_list[:7]
-        return sales
-
-    # TODO: purchases with stock
-    @staticmethod
-    def get_purchases():
-        purchases = {}
-        return purchases
-
-    # TODO: purchases with stock
-    @staticmethod
-    def purchase_data_weeks(weeks):
-        amounts = [0 for _ in range(0, len(weeks))]
-        total = 0
-
-        return amounts, total
-
-    @staticmethod
-    def sale_data_weeks(weeklist, weeks):
-        amounts = [0 for _ in range(0, len(weeks))]
-        total = 0
-        for obj in weeklist:
-            string = (str(obj.datetime.isocalendar()[1])
-                      + '-' + str(obj.datetime.year))
-            if string in weeks:
-                amounts[weeks.index(string)] += obj.amount()
-                total += obj.amount()
-        return amounts, total
-
-    @staticmethod
-    def weeklist(start, end):
-        weeklist = []
-        for i in range(start.year, end.year+1):
-            week_start = 1
-            week_end = 52
-            if i == start.year:
-                week_start = start.isocalendar()[1]
-            if i == end.year:
-                week_end = end.isocalendar()[1]
-            weeklist += [str(j) + '-' + str(i) for j in range(
-                week_start, week_end+1)]
-        return weeklist
-
-
-class ManagersGroupWorkboard(AccessMixin, GroupLateralMenuMixin, View):
+class ManagersWorkboard(AccessMixin, GroupLateralMenuMixin, View):
     template_name = 'workboards/managers_workboard.html'
     lm_active = 'lm_workboard'
 

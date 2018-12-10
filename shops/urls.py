@@ -3,7 +3,7 @@ from django.urls import include, path
 from shops.views import (ProductCreate, ProductDeactivate, ProductList,
                          ProductRemove, ProductRetrieve, ProductUpdate,
                          ProductUpdatePrice, ShopCheckup, ShopCreate, ShopList,
-                         ShopUpdate)
+                         ShopUpdate, ShopWorkboard)
 
 
 shops_patterns = [
@@ -14,6 +14,7 @@ shops_patterns = [
         path('<int:pk>/', include([
             path('update/', ShopUpdate.as_view(), name='url_shop_update'),
             path('checkup/', ShopCheckup.as_view(), name='url_shop_checkup'),
+            path('workboard/', ShopWorkboard.as_view(), name='url_group_workboard'),
         ]))
     ])),
     # PRODUCTS
