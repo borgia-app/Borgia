@@ -6,7 +6,7 @@ from urllib.parse import urlparse, urlunparse
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.mixins import AccessMixin, PermissionRequiredMixin
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import LoginView
 from django.core.exceptions import ObjectDoesNotExist
@@ -20,8 +20,8 @@ from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
 from borgia.utils import (INTERNALS_GROUP_NAME, GroupLateralMenuMixin,
-                          GroupPermissionMixin, ShopFromGroupMixin,
-                          get_managers_group_from_user, ShopContextMixin)
+                          GroupPermissionMixin, ShopContextMixin,
+                          ShopFromGroupMixin, get_managers_group_from_user)
 from finances.models import (ExceptionnalMovement, Recharging, Sale,
                              SharedEvent, Transfert)
 from modules.models import OperatorSaleModule, SelfSaleModule
@@ -67,6 +67,216 @@ class ModulesLoginView(LoginView):
                 'self_module': self_module,
                 'self_module_link' : self_module_link
             })
+        return context
+
+
+class MembersWorkboard(GroupLateralMenuMixin, View):
+    template_name = 'workboards/members_workboard.html'
+    perm_codename = None
+    lm_active = 'lm_workboard'
+
+    def get(self, request, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['transaction_list'] = self.get_transactions()
+        return render(request, self.template_name, context=context)
+
+    def get_transactions(self):
+        transactions = {'months': self.monthlist(
+            datetime.datetime.now() - datetime.timedelta(days=365),
+            datetime.datetime.now()), 'all': self.request.user.list_transaction()[:5]}
+
+        # Shops sales
+        sale_list = Sale.objects.filter(
+            sender=self.request.user).order_by('-datetime')
+        transactions['shops'] = []
+        for shop in Shop.objects.all().exclude(pk=1):
+            list_filtered = sale_list.filter(shop=shop)
+            total = 0
+            for sale in list_filtered:
+                total += sale.amount()
+            transactions['shops'].append({
+                'shop': shop,
+                'total': total,
+                'sale_list_short': list_filtered[:5],
+                'data_months': self.data_months(list_filtered, transactions['months'])
+            })
+
+        # Transferts
+        transfert_list = Transfert.objects.filter(
+            Q(sender=self.request.user) | Q(recipient=self.request.user)
+        ).order_by('-datetime')
+        transactions['transferts'] = {
+            'transfert_list_short': transfert_list[:5]
+        }
+
+        # Rechargings
+        rechargings_list = Recharging.objects.filter(
+            sender=self.request.user).order_by('-datetime')
+        transactions['rechargings'] = {
+            'recharging_list_short': rechargings_list[:5]
+        }
+
+        # ExceptionnalMovements
+        exceptionnalmovements_list = ExceptionnalMovement.objects.filter(
+            recipient=self.request.user).order_by('-datetime')
+        transactions['exceptionnalmovements'] = {
+            'exceptionnalmovement_list_short': exceptionnalmovements_list[:5]
+        }
+
+        # Shared event
+        sharedevents_list = SharedEvent.objects.filter(
+            done=True, users=self.request.user).order_by('-datetime')
+        for obj in sharedevents_list:
+            obj.amount = obj.get_price_of_user(self.request.user)
+
+        transactions['sharedevents'] = {
+            'sharedevent_list_short': sharedevents_list[:5]
+        }
+
+        return transactions
+
+    @staticmethod
+    def data_months(mlist, months):
+        amounts = [0 for _ in range(0, len(months))]
+        for obj in mlist:
+            if obj.datetime.strftime("%b-%y") in months:
+                amounts[
+                    months.index(obj.datetime.strftime("%b-%y"))] +=\
+                    abs(obj.amount())
+        return amounts
+
+    @staticmethod
+    def monthlist(start, end):
+        def total_months(dt): return dt.month + 12 * dt.year
+        mlist = []
+        for tot_m in range(total_months(start)-1, total_months(end)):
+            y, m = divmod(tot_m, 12)
+            mlist.append(datetime.datetime(y, m+1, 1).strftime("%b-%y"))
+        return mlist
+
+
+class ManagersWorkboard(PermissionRequiredMixin, GroupLateralMenuMixin, View):
+    template_name = 'workboards/managers_workboard.html'
+    lm_active = 'lm_workboard'
+
+    def has_permission(self):
+        if get_managers_group_from_user(self.request.user) is not None:
+            return True
+        else:
+            return False
+
+    def get(self, request, **kwargs):
+        context = self.get_context_data(**kwargs)
+        context['group'] = get_managers_group_from_user(request.user)
+        context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
+        context['events'] = []
+        for event in SharedEvent.objects.all():
+            context['events'].append({
+                'title': event.description,
+                'start': event.date
+            })
+
+        # Form Quick user search
+        context['quick_user_search_form'] = UserQuickSearchForm()
+        return render(request, self.template_name, context=context)
+
+
+class ListCompleteView(FormView):
+    """
+    A faire par l'utilisateur de cette classe:
+    renseigner form_class, template_name, success_url, attr (avec les valeurs initiales)
+    get_form_kwargs
+    form_valid -> mettre à jour les valeurs dans attr en fonction des réponses
+    """
+    form_class = None
+    template_name = None
+    success_url = None
+    attr = {}
+    query = None
+    paginate_by = 25
+
+    def get(self, request, *args, **kwargs):
+        # Récupération des paramètres GET
+
+        # Gestion des dates
+        pattern_date = re.compile('[0-9]{2}-[0-9]{2}-[0-9]{4}')
+
+        for name in self.attr.keys():
+            if request.GET.get(name) is not None:
+                # Cas des bools
+                if request.GET.get(name) == 'False':
+                    self.attr[name] = False
+                elif request.GET.get(name) == 'True':
+                    self.attr[name] = True
+                # Cas des dates
+                elif pattern_date.match(request.GET.get(name)) is not None:
+                    split_date = request.GET.get(name).split('-')
+                    self.attr[name] = datetime.date(
+                        int(split_date[2]), int(split_date[1]), int(split_date[0]))
+                # Autres
+                else:
+                    self.attr[name] = request.GET.get(name)
+
+        return super(ListCompleteView, self).get(request, *args, **kwargs)
+
+    def post(self, request, *args, **kwargs):
+
+        # Récupération des paramètres POST
+        for name in self.attr.keys():
+            if request.POST.get(name) is not None:
+                # Cas des bools
+                if request.POST.get(name) == 'False':
+                    self.attr[name] = False
+                elif request.POST.get(name) == 'True':
+                    self.attr[name] = True
+                # Autres
+                else:
+                    self.attr[name] = request.POST.get(name)
+        return super(ListCompleteView, self).post(request, *args, **kwargs)
+
+    def get_initial(self):
+        initial = super(ListCompleteView, self).get_initial()
+        for name in self.attr.keys():
+            initial[name] = self.attr[name]
+        return initial
+
+    def get_context_data(self, **kwargs):
+        context = super(ListCompleteView, self).get_context_data(**kwargs)
+        for name in self.attr.keys():
+            if isinstance(self.attr[name], datetime.date):
+                context[name] = self.attr[name].strftime('%d-%m-%Y')
+            else:
+                context[name] = self.attr[name]
+
+        # Pagination
+        notifications_list_paginator = Paginator(self.query, self.paginate_by, orphans=0,
+                                                 allow_empty_first_page=True)
+        context['paginator'] = notifications_list_paginator
+        # Filtre de la page à afficher en fonction de la requête
+        page = self.request.GET.get('page')
+        if page == 'last':
+            # If page is 'last', deliver first page.
+            page = notifications_list_paginator.num_pages
+        elif page == 'first':
+            # If page is 'first', deliver first first.
+            page = 1
+        try:
+            notifications_list_page = notifications_list_paginator.page(page)
+        except PageNotAnInteger:
+            # If page is not an integer, deliver first page.
+            page = 1
+            notifications_list_page = notifications_list_paginator.page(page)
+        except EmptyPage:
+            # If page is out of range (e.g. 9999), deliver last page of results.
+            page = notifications_list_paginator.num_pages
+            notifications_list_page = notifications_list_paginator.page(page)
+        context['page'] = notifications_list_page
+
+        page_links = []
+        for page_number in notifications_list_paginator.page_range:
+            if (int(page) - 1) <= page_number <= (int(page) + 1):
+                page_links.append(page_number)
+        context['page_links'] = page_links
         return context
 
 
@@ -352,220 +562,3 @@ def get_unique_model(request, pk, model, props=None):
         data = [[]]
 
     return HttpResponse(data)
-
-
-class MembersWorkboard(GroupPermissionMixin, View,
-                             GroupLateralMenuMixin):
-    template_name = 'workboards/members_workboard.html'
-    perm_codename = None
-    lm_active = 'lm_workboard'
-
-    def get(self, request, **kwargs):
-        context = self.get_context_data(**kwargs)
-        context['transaction_list'] = self.get_transactions()
-        return render(request, self.template_name, context=context)
-
-    def get_transactions(self):
-        transactions = {'months': self.monthlist(
-            datetime.datetime.now() - datetime.timedelta(days=365),
-            datetime.datetime.now()), 'all': self.request.user.list_transaction()[:5]}
-
-        # Shops sales
-        sale_list = Sale.objects.filter(
-            sender=self.request.user).order_by('-datetime')
-        transactions['shops'] = []
-        for shop in Shop.objects.all().exclude(pk=1):
-            list_filtered = sale_list.filter(shop=shop)
-            total = 0
-            for sale in list_filtered:
-                total += sale.amount()
-            transactions['shops'].append({
-                'shop': shop,
-                'total': total,
-                'sale_list_short': list_filtered[:5],
-                'data_months': self.data_months(list_filtered, transactions['months'])
-            })
-
-        # Transferts
-        transfert_list = Transfert.objects.filter(
-            Q(sender=self.request.user) | Q(recipient=self.request.user)
-        ).order_by('-datetime')
-        transactions['transferts'] = {
-            'transfert_list_short': transfert_list[:5]
-        }
-
-        # Rechargings
-        rechargings_list = Recharging.objects.filter(
-            sender=self.request.user).order_by('-datetime')
-        transactions['rechargings'] = {
-            'recharging_list_short': rechargings_list[:5]
-        }
-
-        # ExceptionnalMovements
-        exceptionnalmovements_list = ExceptionnalMovement.objects.filter(
-            recipient=self.request.user).order_by('-datetime')
-        transactions['exceptionnalmovements'] = {
-            'exceptionnalmovement_list_short': exceptionnalmovements_list[:5]
-        }
-
-        # Shared event
-        sharedevents_list = SharedEvent.objects.filter(
-            done=True, users=self.request.user).order_by('-datetime')
-        for obj in sharedevents_list:
-            obj.amount = obj.get_price_of_user(self.request.user)
-
-        transactions['sharedevents'] = {
-            'sharedevent_list_short': sharedevents_list[:5]
-        }
-
-        return transactions
-
-    @staticmethod
-    def data_months(mlist, months):
-        amounts = [0 for _ in range(0, len(months))]
-        for obj in mlist:
-            if obj.datetime.strftime("%b-%y") in months:
-                amounts[
-                    months.index(obj.datetime.strftime("%b-%y"))] +=\
-                    abs(obj.amount())
-        return amounts
-
-    @staticmethod
-    def monthlist(start, end):
-        def total_months(dt): return dt.month + 12 * dt.year
-        mlist = []
-        for tot_m in range(total_months(start)-1, total_months(end)):
-            y, m = divmod(tot_m, 12)
-            mlist.append(datetime.datetime(y, m+1, 1).strftime("%b-%y"))
-        return mlist
-
-
-class ManagersWorkboard(AccessMixin, GroupLateralMenuMixin, View):
-    template_name = 'workboards/managers_workboard.html'
-    lm_active = 'lm_workboard'
-
-    def is_manager(self):
-        """
-        Is the current user a manager ?
-        """
-        is_manager = get_managers_group_from_user(self.request.user) is not None
-        return is_manager
-
-    def dispatch(self, request, *args, **kwargs):
-        if not self.is_manager():
-            return self.handle_no_permission()
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, **kwargs):
-        context = self.get_context_data(**kwargs)
-        context['group'] = get_managers_group_from_user(request.user)
-        context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
-        context['events'] = []
-        for event in SharedEvent.objects.all():
-            context['events'].append({
-                'title': event.description,
-                'start': event.date
-            })
-
-        # Form Quick user search
-        context['quick_user_search_form'] = UserQuickSearchForm()
-        return render(request, self.template_name, context=context)
-
-
-class ListCompleteView(FormView):
-    """
-    A faire par l'utilisateur de cette classe:
-    renseigner form_class, template_name, success_url, attr (avec les valeurs initiales)
-    get_form_kwargs
-    form_valid -> mettre à jour les valeurs dans attr en fonction des réponses
-    """
-    form_class = None
-    template_name = None
-    success_url = None
-    attr = {}
-    query = None
-    paginate_by = 25
-
-    def get(self, request, *args, **kwargs):
-        # Récupération des paramètres GET
-
-        # Gestion des dates
-        pattern_date = re.compile('[0-9]{2}-[0-9]{2}-[0-9]{4}')
-
-        for name in self.attr.keys():
-            if request.GET.get(name) is not None:
-                # Cas des bools
-                if request.GET.get(name) == 'False':
-                    self.attr[name] = False
-                elif request.GET.get(name) == 'True':
-                    self.attr[name] = True
-                # Cas des dates
-                elif pattern_date.match(request.GET.get(name)) is not None:
-                    split_date = request.GET.get(name).split('-')
-                    self.attr[name] = datetime.date(
-                        int(split_date[2]), int(split_date[1]), int(split_date[0]))
-                # Autres
-                else:
-                    self.attr[name] = request.GET.get(name)
-
-        return super(ListCompleteView, self).get(request, *args, **kwargs)
-
-    def post(self, request, *args, **kwargs):
-
-        # Récupération des paramètres POST
-        for name in self.attr.keys():
-            if request.POST.get(name) is not None:
-                # Cas des bools
-                if request.POST.get(name) == 'False':
-                    self.attr[name] = False
-                elif request.POST.get(name) == 'True':
-                    self.attr[name] = True
-                # Autres
-                else:
-                    self.attr[name] = request.POST.get(name)
-        return super(ListCompleteView, self).post(request, *args, **kwargs)
-
-    def get_initial(self):
-        initial = super(ListCompleteView, self).get_initial()
-        for name in self.attr.keys():
-            initial[name] = self.attr[name]
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super(ListCompleteView, self).get_context_data(**kwargs)
-        for name in self.attr.keys():
-            if isinstance(self.attr[name], datetime.date):
-                context[name] = self.attr[name].strftime('%d-%m-%Y')
-            else:
-                context[name] = self.attr[name]
-
-        # Pagination
-        notifications_list_paginator = Paginator(self.query, self.paginate_by, orphans=0,
-                                                 allow_empty_first_page=True)
-        context['paginator'] = notifications_list_paginator
-        # Filtre de la page à afficher en fonction de la requête
-        page = self.request.GET.get('page')
-        if page == 'last':
-            # If page is 'last', deliver first page.
-            page = notifications_list_paginator.num_pages
-        elif page == 'first':
-            # If page is 'first', deliver first first.
-            page = 1
-        try:
-            notifications_list_page = notifications_list_paginator.page(page)
-        except PageNotAnInteger:
-            # If page is not an integer, deliver first page.
-            page = 1
-            notifications_list_page = notifications_list_paginator.page(page)
-        except EmptyPage:
-            # If page is out of range (e.g. 9999), deliver last page of results.
-            page = notifications_list_paginator.num_pages
-            notifications_list_page = notifications_list_paginator.page(page)
-        context['page'] = notifications_list_page
-
-        page_links = []
-        for page_number in notifications_list_paginator.page_range:
-            if (int(page) - 1) <= page_number <= (int(page) + 1):
-                page_links.append(page_number)
-        context['page_links'] = page_links
-        return context

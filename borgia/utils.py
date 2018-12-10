@@ -354,7 +354,7 @@ def lateral_menu_gadz(user, group, active=None):
             'Historique des transactions',
             'history',
             'lm_self_transaction_list',
-            reverse('url_self_transaction_list', kwargs={'group_name': group.name})))
+            reverse('url_self_transaction_list', kwargs={'group_name': 'group.name'})))
 
     try:
         if Permission.objects.get(codename='view_sharedevent') in group.permissions.all():
