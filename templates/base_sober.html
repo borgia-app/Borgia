@@ -19,30 +19,10 @@
     {% set_template request.user.theme as template %}
     <link rel="stylesheet" href="{% static template|compile %}" />
 
-    <!-- Favicon parameters -->
-    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'img/favicons/apple-touch-icon.png' %}">
-    <link rel="shortcut icon" type="image/png" sizes="32x32" href="{% static 'img/favicons/favicon-32x32.png' %}">
-    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'img/favicons/favicon-16x16.png' %}">
-    <link rel="manifest" href="{% static 'img/favicons/site.webmanifest' %}">
-    <link rel="mask-icon" href="{% static 'img/favicons/safari-pinned-tab.svg' %}" color="#5bbad5">
-    <link rel="shortcut icon" href="{% static 'img/favicons/favicon.ico' %}">
-    <meta name="apple-mobile-web-app-title" content="Borgia">
-    <meta name="application-name" content="Borgia">
-    <meta name="msapplication-TileColor" content="#b91d47">
-    <meta name="msapplication-config" content="{% static 'img/favicons/browserconfig.xml' %}">
-    <meta name="theme-color" content="#ffffff">
-    <!-- End -->
-	
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <script src="{% static 'js/jquery-ui.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
+	{% include "partials/favicon_metadata.html" %}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/locales/bootstrap-datepicker.fr.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.standalone.min.css">
+    {% include "partials/ext_dependencies_metadata.html" %}
 
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/widgets.js' %}"></script>
     <script src="{% static 'js/local.js' %}"></script>
 	<script src="{% static 'js/classie.js' %}"></script>

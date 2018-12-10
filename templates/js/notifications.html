@@ -1,0 +1,19 @@
+<script type="text/javascript">
+    $(".navbar li.notification").click(function () {
+        $("#notif-count").text('0')
+        if ($(".navbar li.notification.open").length > 0) {
+            {% for notification in notifications %}
+            {% if notification.read_datetime is None %}
+            $.ajax({
+                url: "{% url 'url_read_notification' %}",
+                dataType: "json",
+                data: {
+                    notification_id: {{ notification.pk }}
+    }
+                  })
+    {% endif %}
+    {% endfor %}
+    $("#notif-count").text('0')
+      }
+    })
+</script>

@@ -20,16 +20,8 @@
 
     {% include "partials/favicon_metadata.html" %}
 
-    <script src="https://code.jquery.com/jquery-3.1.1.min.js"></script>
-    <script src="{% static 'js/jquery-ui.min.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/jquery-ui.min.css' %}">
+    {% include "partials/ext_dependencies_metadata.html" %}
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/locales/bootstrap-datepicker.fr.min.js"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.standalone.min.css">
-
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.5.2/animate.min.css">
-    <script src="{% static 'js/bootstrap.min.js' %}"></script>
     <script src="{% static 'js/widgets.js' %}"></script>
 </head>
 <body class="body-clean">
@@ -51,7 +43,5 @@
   </div>
 
     {% include "partials/footer.html" %}
-
-
 </body>
 </html>
