@@ -36,7 +36,7 @@
         ["change_product", "shops", "product"],
         ["delete_product", "shops", "product"],
         ["retrieve_product", "shops", "shop"],
-        ["list_product", "shops", "shop"],cd 
+        ["list_product", "shops", "shop"],
         ["change_price_product", "shops", "shop"],
         ["list_stockentry", "stocks", "stockentry"],
         ["retrieve_stockentry", "stocks", "stockentry"],
