@@ -18,7 +18,7 @@ from django.views.generic.edit import FormView
 from borgia.utils import (LateralMenuMixin, GroupPermissionMixin,
                           get_members_group, group_name_display,
                           human_unused_permissions, permission_to_manage_group)
-from finances.models import SharedEvent
+from events.models import Event
 from settings_data.utils import settings_safe_get
 from users.forms import (ManageGroupForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserSearchForm,
@@ -252,7 +252,7 @@ class UserDeactivateView(PermissionRequiredMixin, View, LateralMenuMixin):
     permission_required = 'users.delete_user'
     template_name = 'users/deactivate.html'
     success_message = "Le compte de %(user)s a bien été "
-    error_sharedevent_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
+    error_event_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
 
     def has_permission(self):
         try:
@@ -273,11 +273,11 @@ class UserDeactivateView(PermissionRequiredMixin, View, LateralMenuMixin):
     def post(self, request, *args, **kwargs):
         deactivated = False
         if self.user.is_active is True:
-            sharedevents = self.user.manager.filter(done=False)
-            if sharedevents.count() > 0:
-                for sharedevent in sharedevents:
-                    self.error_sharedevent_message += "\n - " + sharedevent.description
-                messages.warning(request, self.error_sharedevent_message)
+            events = self.user.manager.filter(done=False)
+            if events.count() > 0:
+                for event in events:
+                    self.error_event_message += "\n - " + event.description
+                messages.warning(request, self.error_event_message)
             else:
                 deactivated = True
                 self.user.is_active = False

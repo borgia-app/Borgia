@@ -54,7 +54,7 @@
                 </a>
               </li>
               {% endif %}
-              {% if transaction_list.sharedevents.sharedevent_list_short %}
+              {% if transaction_list.events.event_list_short %}
               <li role="presentation">
                 <a href="#shared_events"
                   aria-controles="shared_events"
@@ -94,7 +94,7 @@
                           {% else %}
                             -{{ transaction.amount }}€
                           {% endif %}
-                        {% elif transaction|get_transaction_model == 'SharedEvent' %}
+                        {% elif transaction|get_transaction_model == 'Event' %}
                           -{{ transaction.amount }}€
                         {% else %}
                           {{ transaction.amount }}€
@@ -212,7 +212,7 @@
                     </tr>
                   </thead>
                   <tbody>
-                    {% for sale in transaction_list.sharedevents.sharedevent_list_short %}
+                    {% for sale in transaction_list.events.event_list_short %}
                     <tr>
                       <td>{{ sale.datetime|date:"d/m/Y H:i:s" }}</td>
                       <td>{{ sale.wording }}</td>

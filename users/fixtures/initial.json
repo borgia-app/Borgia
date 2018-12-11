@@ -47,10 +47,10 @@
         ["add_transfert", "finances", "transfert"],
         ["view_transfert", "finances", "transfert"],
 
-        ["add_sharedevent", "finances", "sharedevent"],
-        ["view_sharedevent", "finances", "sharedevent"],
-        ["change_sharedevent", "finances", "sharedevent"],
-        ["proceed_payment_sharedevent", "finances", "sharedevent"],
+        ["add_event", "events", "event"],
+        ["view_event", "events", "event"],
+        ["change_event", "events", "event"],
+        ["proceed_payment_event", "events", "event"],
 
         ["list_notification", "notifications", "notification"]
       ]
@@ -91,10 +91,10 @@
         ["add_transfert", "finances", "transfert"],
         ["view_transfert", "finances", "transfert"],
 
-        ["add_sharedevent", "finances", "sharedevent"],
-        ["view_sharedevent", "finances", "sharedevent"],
-        ["change_sharedevent", "finances", "sharedevent"],
-        ["proceed_payment_sharedevent", "finances", "sharedevent"],
+        ["add_event", "events", "event"],
+        ["view_event", "events", "event"],
+        ["change_event", "events", "event"],
+        ["proceed_payment_event", "events", "event"],
 
         ["list_notification", "notifications", "notification"]
       ]
@@ -134,10 +134,10 @@
         ["view_exceptionnalmovement", "finances", "exceptionnalmovement"],
         ["add_transfert", "finances", "transfert"],
 
-        ["add_sharedevent", "finances", "sharedevent"],
-        ["view_sharedevent", "finances", "sharedevent"],
-        ["change_sharedevent", "finances", "sharedevent"],
-        ["proceed_payment_sharedevent", "finances", "sharedevent"],
+        ["add_event", "events", "event"],
+        ["view_event", "events", "event"],
+        ["change_event", "events", "event"],
+        ["proceed_payment_event", "events", "event"],
 
         ["list_notification", "notifications", "notification"]
       ]
@@ -152,8 +152,8 @@
         ["use_selfsalemodule", "modules", "selfsalemodule"],
         ["add_transfert", "finances", "transfert"],
 
-        ["view_sharedevent", "finances", "sharedevent"],
-        ["add_sharedevent", "finances", "sharedevent"],
+        ["add_event", "events", "event"],
+        ["view_event", "events", "event"],
         ["view_user", "users", "user"],
 
         ["list_notification", "notifications", "notification"]

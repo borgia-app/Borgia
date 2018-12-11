@@ -169,10 +169,10 @@ class User(AbstractUser):
         """
         Get all undone shared events where user is involved as participant
 
-        TODO : Strongly dependent of Sharedevents, should be moved there.
+        TODO : Strongly dependent of events, should be moved there.
         TODO : notify if forecast balance is negative
         """
-        shared_events = self.sharedevent_set.filter(done = False)
+        shared_events = self.event_set.filter(done = False)
         solde_prev = 0
         for se in shared_events:
             solde_prev += se.get_price_of_user(self)
@@ -232,7 +232,7 @@ class User(AbstractUser):
         transferts = self.recipient_transfert.union(self.sender_transfert.all())
         rechargings = self.sender_recharging.all()
         exceptionnal_movements = self.recipient_exceptionnal_movement.all()
-        shared_events = self.sharedevent_set.filter(done=True)
+        shared_events = self.event_set.filter(done=True)
         for event in shared_events:
             event.amount = event.get_price_of_user(self)
 

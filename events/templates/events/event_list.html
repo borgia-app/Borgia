@@ -6,8 +6,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
           Evènements
-          {% if request.user|has_perm:"finances.add_sharedevent" %}
-            <a class="btn btn-xs btn-success pull-right" href="{% url 'url_sharedevent_create' group_name=group.name %}">Nouveau</a>
+          {% if request.user|has_perm:"events.add_event" %}
+            <a class="btn btn-xs btn-success pull-right" href="{% url 'url_event_create' group_name=group.name %}">Nouveau</a>
           {% endif %}
         </div>
         <div class="panel-body">
@@ -38,21 +38,21 @@
           <th>Remarque</th>
           <th>Gestion</th>
         </tr>
-        {% for sharedevent in shared_events %}
+        {% for event in shared_events %}
         <tr>
-          <td>{{ sharedevent.date|date:"d/m/Y" }}</td>
-          <td>{{ sharedevent.description }}</td>
-          <td>{{ sharedevent.manager }}</td>
-          <td>{{ sharedevent.number_registrants }}/{{ sharedevent.total_weights_registrants }}</td>
-          <td>{{ sharedevent.number_participants}}/{{ sharedevent.total_weights_participants }}</td>
-          {% if sharedevent.done %}
+          <td>{{ event.date|date:"d/m/Y" }}</td>
+          <td>{{ event.description }}</td>
+          <td>{{ event.manager }}</td>
+          <td>{{ event.number_registrants }}/{{ event.total_weights_registrants }}</td>
+          <td>{{ event.number_participants}}/{{ event.total_weights_participants }}</td>
+          {% if event.done %}
             <td>Terminé</td>
-            <td>Participation : {{ sharedevent.weight_of_user }}</td>
+            <td>Participation : {{ event.weight_of_user }}</td>
           {% else %}
             <td>En attente</td>
-            <td>Préinscrit : {{ sharedevent.weight_of_user }}
-              {% if has_perm_self_register_sharedevent and sharedevent.allow_self_registeration and not done  %},
-                <a href="{% url 'url_sharedevent_self_registration' group_name=group.name pk=sharedevent.pk %}"
+            <td>Préinscrit : {{ event.weight_of_user }}
+              {% if has_perm_self_register_event and event.allow_self_registeration and not done  %},
+                <a href="{% url 'url_event_self_registration' group_name=group.name pk=event.pk %}"
                   class="btn btn-xs">
                   Se préinscrire
                 </a>
@@ -60,8 +60,8 @@
             </td>
           {% endif %}
           <td>
-              {% if sharedevent.has_perm_manage %}
-                  <a href="{% url 'url_sharedevent_update' group_name=group.name pk=sharedevent.pk %}">Gérer</a>
+              {% if event.has_perm_manage %}
+                  <a href="{% url 'url_event_update' group_name=group.name pk=event.pk %}">Gérer</a>
               {% endif %}
           </td>
         </tr>

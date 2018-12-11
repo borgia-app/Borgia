@@ -5,7 +5,7 @@ from django.http import Http404
 from django.urls import NoReverseMatch, reverse
 from django.views.generic.base import ContextMixin
 
-from finances.models import SharedEvent
+from events.models import Event
 from modules.models import OperatorSaleModule, SelfSaleModule
 from notifications.models import (Notification, NotificationGroup,
                                   NotificationTemplate)
@@ -40,7 +40,7 @@ def lateral_menu(user, group, active=None):
         (Shop, 'Magasins', 'shopping-basket', 'noSubs', 'List'),
         (Notification, 'Notifications', 'bell', 'noSubs', 'List'),
         (NotificationTemplate, 'Templates notification', 'list-alt', 'noSubs', 'List'),
-        (SharedEvent, 'Evènements', 'calendar', 'noSubs', 'List'),
+        (Event, 'Evènements', 'calendar', 'noSubs', 'List'),
         (NotificationGroup, 'Groupes', '', 'List', 'Add'),
     ]
 
@@ -362,13 +362,13 @@ def lateral_menu_members(user, active=None):
             'lm_self_transaction_list',
             reverse('url_self_transaction_list', kwargs={'group_name': 'members'})))
 
-    if user.has_perm('finances.view_sharedevent'):
+    if user.has_perm('events.view_event'):
         nav_tree.append(
             simple_lateral_link(
                 'Évènements',
                 'calendar',
-                'lm_sharedevent_list',
-                reverse('url_sharedevent_list', kwargs={'group_name': 'members'})))
+                'lm_event_list',
+                reverse('url_event_list', kwargs={'group_name': 'members'})))
 
     if active is not None:
         for link in nav_tree:
@@ -959,7 +959,7 @@ def human_permission_name(name):
         ('sale', 'vente'),
         ('transfert', 'transfert'),
         ('recharging', 'rechargement'),
-        ('sharedevent', 'évènement'),
+        ('event', 'évènement'),
         ('category', 'categorie de produits'),
         ('notification', 'notification'),
         ('notificationclass', 'classe de notifications'),
@@ -1063,6 +1063,7 @@ def get_managers_group_from_user(user):
                 treasurer_query = user.groups.filter(name='treasurer')
                 if treasurer_query.count() == 1:
                     return treasurer_query.first()
+
 
 def is_association_manager(user):
     if get_managers_group_from_user(user) is not None:

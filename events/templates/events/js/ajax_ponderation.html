@@ -4,11 +4,11 @@
     // Apres la modification (blur ou enter), requete ajax pour modifier la pondération
     {% for u in list_weights %}
         $('#weight_participant_{{ u.0.pk }}').change( function (){
-          send_data("{% url 'url_sharedevent_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}", $(this).val(), 1);
+          send_data("{% url 'url_event_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}", $(this).val(), 1);
         });
 
         $('#weight_registered_{{ u.0.pk }}').change( function (){
-          send_data("{% url 'url_sharedevent_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}", $(this).val(), 0);
+          send_data("{% url 'url_event_change_weight' group_name=group.name pk=pk participant_pk=u.0.pk %}", $(this).val(), 0);
         });
     {% endfor %}
 

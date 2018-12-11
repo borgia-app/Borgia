@@ -21,10 +21,9 @@ from django.views.generic.edit import FormView
 
 from borgia.utils import (INTERNALS_GROUP_NAME, GroupLateralMenuMixin,
                           GroupPermissionMixin, LateralMenuMixin,
-                          ShopContextMixin, ShopFromGroupMixin,
                           get_managers_group_from_user, is_association_manager)
-from finances.models import (ExceptionnalMovement, Recharging, Sale,
-                             SharedEvent, Transfert)
+from events.models import Event
+from finances.models import ExceptionnalMovement, Recharging, Sale, Transfert
 from modules.models import OperatorSaleModule, SelfSaleModule
 from shops.models import Shop
 from users.forms import UserQuickSearchForm
@@ -125,13 +124,13 @@ class MembersWorkboard(LateralMenuMixin, View):
         }
 
         # Shared event
-        sharedevents_list = SharedEvent.objects.filter(
+        events_list = Event.objects.filter(
             done=True, users=self.request.user).order_by('-datetime')
-        for obj in sharedevents_list:
+        for obj in events_list:
             obj.amount = obj.get_price_of_user(self.request.user)
 
-        transactions['sharedevents'] = {
-            'sharedevent_list_short': sharedevents_list[:5]
+        transactions['events'] = {
+            'event_list_short': events_list[:5]
         }
 
         return transactions
@@ -168,7 +167,7 @@ class ManagersWorkboard(PermissionRequiredMixin, LateralMenuMixin, View):
         context['group'] = get_managers_group_from_user(request.user)
         context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
         context['events'] = []
-        for event in SharedEvent.objects.all():
+        for event in Event.objects.all():
             context['events'].append({
                 'title': event.description,
                 'start': event.date

@@ -1,19 +1,13 @@
 from django.urls import include, path
 
 from finances.views import (ExceptionnalMovementList,
-                            ExceptionnalMovementRetrieve, RechargingList,
-                            RechargingRetrieve, SaleList, SaleRetrieve,
-                            SelfLydiaConfirm, SelfLydiaCreate,
+                            ExceptionnalMovementRetrieve, RechargingCreate,
+                            RechargingList, RechargingRetrieve, SaleList,
+                            SaleRetrieve, SelfLydiaConfirm, SelfLydiaCreate,
                             SelfTransactionList, SelfTransfertCreate,
-                            SharedEventChangeWeight, SharedEventCreate,
-                            SharedEventDelete, SharedEventDownloadXlsx,
-                            SharedEventFinish, SharedEventList,
-                            SharedEventManageUsers, SharedEventRemoveUser,
-                            SharedEventSelfRegistration, SharedEventUpdate,
-                            SharedEventUploadXlsx, TransfertList,
-                            TransfertRetrieve, UserExceptionnalMovementCreate,
-                            RechargingCreate, self_lydia_callback)
-
+                            TransfertList, TransfertRetrieve,
+                            UserExceptionnalMovementCreate,
+                            self_lydia_callback)
 
 finances_patterns = [
     path('<str:group_name>/', include([
@@ -48,23 +42,6 @@ finances_patterns = [
             path('transaction/', SelfTransactionList.as_view(), name='url_self_transaction_list'),
             path('lydias/create/', SelfLydiaCreate.as_view(), name='url_self_lydia_create'),
             path('lydias/confirm/', SelfLydiaConfirm.as_view(), name='url_self_lydia_confirm')
-        ])),
-        # SHARED EVENTS
-        path('shared_events/', include([
-            path('', SharedEventList.as_view(), name='url_sharedevent_list'),
-            path('create/', SharedEventCreate.as_view(), name='url_sharedevent_create'),
-            path('<int:pk>/', include([
-                path('update/', SharedEventUpdate.as_view(), name='url_sharedevent_update'),
-                path('delete/', SharedEventDelete.as_view(), name='url_sharedevent_delete'),
-                path('finish/', SharedEventFinish.as_view(), name='url_sharedevent_finish'),
-                path('remove/', SharedEventFinish.as_view(), name='url_sharedevent_finish'),
-                path('self_registration/', SharedEventSelfRegistration.as_view(), name='url_sharedevent_self_registration'),
-                path('users/', SharedEventManageUsers.as_view(), name='url_sharedevent_manage_users'),
-                path('users/<int:user_pk>/remove/', SharedEventRemoveUser.as_view(), name='url_sharedevent_remove_user'),
-                path('users/<int:user_pk>/change_weight', SharedEventChangeWeight.as_view(), name='url_sharedevent_change_weight'),
-                path('xlsx/download/', SharedEventDownloadXlsx.as_view(), name='url_sharedevent_download_xlsx'),
-                path('xlsx/upload/', SharedEventUploadXlsx.as_view(), name='url_sharedevent_upload_xlsx')
-            ]))
         ]))
     ])),
     path('self/lydias/callback/', self_lydia_callback, name='url_self_lydia_callback')

@@ -14,8 +14,7 @@ from django.utils.timezone import now
 from django.views.generic.base import View
 from django.views.generic.edit import FormView, UpdateView
 
-from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
-                          ProductShopFromGroupMixin, ShopFromGroupMixin)
+from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin)
 from finances.models import Sale
 from modules.models import CategoryProduct
 from settings_data.utils import settings_safe_get
