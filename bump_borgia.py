@@ -19,7 +19,7 @@ def main():
     new_version = str(args.version)
     old_version = get_and_replace_old_version(new_version)
     replace_in_file('README.md', old_version, new_version)
-    footer = os.path.join("templates", "footer.html")
+    footer = os.path.join("templates", "partials", "footer.html")
     replace_in_file(footer, old_version, new_version)
         
 def get_and_replace_old_version(new_version):
