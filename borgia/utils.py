@@ -730,18 +730,6 @@ class ProductShopMixin(object):
         return super(ProductShopMixin, self).dispatch(request, *args, **kwargs)
 
 
-class ShopMixin(object):
-    def __init__(self):
-        self.shop = None
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.shop = Shop.objects.get(name='shop_name')
-        except ObjectDoesNotExist:
-            raise Http404
-        return super(ShopMixin, self).dispatch(request, *args, **kwargs)
-
-
 class ShopFromGroupMixin(object):
     """
     :note:: Be carefull, this mixin doesn't raise 404 if no shop. You must
@@ -1051,7 +1039,6 @@ def module_url_name_from_model(model):
 ### GROUP RELATED ###
 #####################
 
-
 def get_members_group(externals=False):
     """
     Get group for members, beeing internals or externals
@@ -1081,3 +1068,9 @@ def get_managers_group_from_user(user):
                 treasurer_query = user.groups.filter(name='treasurer')
                 if treasurer_query.count() == 1:
                     return treasurer_query.first()
+
+def is_association_manager(user):
+    if get_managers_group_from_user(user) is not None:
+        return True
+    else:
+        return False

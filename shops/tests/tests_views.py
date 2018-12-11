@@ -101,27 +101,27 @@ class BaseFocusShopViewsTest(BaseShopsViewsTest):
 
     def as_president_get(self):
         response_client1 = self.client1.get(
-            reverse(self.url_view, kwargs={'pk': str(self.shop1.pk)}))
+            reverse(self.url_view, kwargs={'shop_pk': str(self.shop1.pk)}))
         self.assertEqual(response_client1.status_code, 200)
 
     def as_chief_get(self):
         response_client3 = self.client3.get(
-            reverse(self.url_view, kwargs={'pk': str(self.shop1.pk)}))
+            reverse(self.url_view, kwargs={'shop_pk': str(self.shop1.pk)}))
         self.assertEqual(response_client3.status_code, 200)
 
     def not_existing_shop_get(self):
         response_client1 = self.client1.get(reverse(self.url_view,
-                                                    kwargs={'pk': '5353'}))
+                                                    kwargs={'shop_pk': '5353'}))
         self.assertEqual(response_client1.status_code, 404)
 
     def not_allowed_user_get(self):
         response_client2 = self.client2.get(reverse(self.url_view,
-                                                    kwargs={'pk': str(self.shop1.pk)}))
+                                                    kwargs={'shop_pk': str(self.shop1.pk)}))
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):
         response_offline_user = Client().get(reverse(self.url_view, kwargs={
-            'pk': str(self.shop1.pk)}))
+            'shop_pk': str(self.shop1.pk)}))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 

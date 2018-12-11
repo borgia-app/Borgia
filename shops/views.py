@@ -1,5 +1,5 @@
-import decimal
 import datetime
+import decimal
 
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission
@@ -24,7 +24,8 @@ from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
                          ShopCreateForm, ShopUpdateForm)
 from shops.models import Product, Shop
 from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
-                         DEFAULT_PERMISSIONS_CHIEFS)
+                         DEFAULT_PERMISSIONS_CHIEFS,
+                         ShopPermissionAndContextMixin)
 
 
 class ShopCreate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
@@ -111,18 +112,11 @@ class ShopList(PermissionRequiredMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class ShopUpdate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+class ShopUpdate(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
     template_name = 'shops/shop_update.html'
     permission_required = 'shops.change_shop'
     form_class = ShopUpdateForm
     success_url = None
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.shop = Shop.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        return super(ShopUpdate, self).dispatch(request, *args, **kwargs)
 
     def get_initial(self, **kwargs):
         initial = super().get_initial(**kwargs)
@@ -134,14 +128,14 @@ class ShopUpdate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         self.shop.description = form.cleaned_data['description']
         self.shop.color = form.cleaned_data['color']
         self.shop.save()
-        return super(ShopUpdate, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         return reverse('url_shop_list')
 
 
-class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+class ShopCheckup(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
     """
     Display data about a shop.
 
@@ -157,28 +151,15 @@ class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     date_end = None
     products = None
 
-    def has_permission(self):
-        try:
-            self.shop = Shop.objects.get(pk=self.kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-
-        if self.request.user in self.shop.get_managers():
-            return True
-        else:
-            perms = self.get_permission_required()
-            return self.request.user.has_perms(perms)
-
     def get_context_data(self, **kwargs):
-        context = super(ShopCheckup, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['stock'] = self.info_stock()
         context['transaction'] = self.info_transaction()
         context['info'] = self.info_checkup()
-        context['shop_mod'] = self.shop
         return context
 
     def get_form_kwargs(self):
-        kwargs_form = super(ShopCheckup, self).get_form_kwargs()
+        kwargs_form = super().get_form_kwargs()
         kwargs_form['shop'] = self.shop
         return kwargs_form
 
@@ -186,7 +167,7 @@ class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         self.date_begin = form.cleaned_data['date_begin']
         self.date_end = form.cleaned_data['date_end']
         self.products = form.cleaned_data['products']
-        return self.get(self.request, self.args, self.kwargs)
+        return super().form_valid(form)
 
     def info_stock(self):
         return {}
@@ -225,29 +206,16 @@ class ShopCheckup(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         }
 
 
-class ShopWorkboard(PermissionRequiredMixin, View, GroupLateralMenuMixin):
+class ShopWorkboard(ShopPermissionAndContextMixin, View, GroupLateralMenuMixin):
+    permission_required = 'shops.view_shop'
     template_name = 'shops/shop_workboard.html'
     lm_active = 'lm_workboard'
 
-    def has_permission(self):
-        try:
-            self.shop = Shop.objects.get(pk=self.kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-
-        if self.request.user in self.shop.get_managers():
-            return True
-        else:
-            return False
-
-    def get(self, request, **kwargs):
-        if self.shop is None:
-            raise Http404
-
-        context = self.get_context_data(**kwargs)
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
         context['sale_list'] = self.get_sales()
         context['purchase_list'] = self.get_purchases()
-        return render(request, self.template_name, context=context)
+        return context
 
     def get_sales(self):
         sales = {}

@@ -11,14 +11,14 @@ shops_patterns = [
     path('shops/', include([
         path('', ShopList.as_view(), name='url_shop_list'),
         path('create/', ShopCreate.as_view(), name='url_shop_create'),
-        path('<int:pk>/', include([
+        path('<int:shop_pk>/', include([
             path('update/', ShopUpdate.as_view(), name='url_shop_update'),
             path('checkup/', ShopCheckup.as_view(), name='url_shop_checkup'),
-            path('workboard/', ShopWorkboard.as_view(), name='url_group_workboard'),
+            path('workboard/', ShopWorkboard.as_view(), name='url_group_workboard')
         ]))
     ])),
     # PRODUCTS
-    path('<str:group_name>/products/', include([
+    path('products/', include([
         path('', ProductList.as_view(), name='url_product_list'),
         path('create/', ProductCreate.as_view(), name='url_product_create'),
         path('<int:pk>/', include([

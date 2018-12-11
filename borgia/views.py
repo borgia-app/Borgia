@@ -22,7 +22,7 @@ from django.views.generic.edit import FormView
 from borgia.utils import (INTERNALS_GROUP_NAME, GroupLateralMenuMixin,
                           GroupPermissionMixin, LateralMenuMixin,
                           ShopContextMixin, ShopFromGroupMixin,
-                          get_managers_group_from_user)
+                          get_managers_group_from_user, is_association_manager)
 from finances.models import (ExceptionnalMovement, Recharging, Sale,
                              SharedEvent, Transfert)
 from modules.models import OperatorSaleModule, SelfSaleModule
@@ -161,10 +161,7 @@ class ManagersWorkboard(PermissionRequiredMixin, LateralMenuMixin, View):
     lm_active = 'lm_workboard'
 
     def has_permission(self):
-        if get_managers_group_from_user(self.request.user) is not None:
-            return True
-        else:
-            return False
+        return is_association_manager(self.request.user)
 
     def get(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
