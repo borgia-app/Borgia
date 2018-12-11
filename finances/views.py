@@ -70,12 +70,12 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
 
     def dispatch(self, request, *args, **kwargs):
         try:
-            self.group = Group.objects.get(name=kwargs['group_name'])
+            group = Group.objects.get(name=kwargs['group_name'])
         except ObjectDoesNotExist:
             raise Http404
 
         try:
-            self.shop = shop_from_group(self.group)
+            self.shop = shop_from_group(group)
         except ValueError:
             self.template_name = 'finances/sale_list.html'
             self.form_class = SaleListSearchDateForm
@@ -952,12 +952,19 @@ class SharedEventList(GroupPermissionMixin, FormView,
             se.number_participants = se.get_number_participants()
             se.total_weights_registrants = se.get_total_weights_registrants()
             se.total_weights_participants = se.get_total_weights_participants()
-            se.has_perm_manage = (self.request.user == se.manager or
+            try:
+                se.has_perm_manage = (self.request.user == se.manager or
+                                      Permission.objects.get(codename='change_sharedevent') in self.group.permissions.all())
+            except ObjectDoesNotExist:
+                se.has_perm_manage = False
                                   Permission.objects.get(codename='change_sharedevent') in self.group.permissions.all())
         context['shared_events'] = shared_events
         # Permission SelfRegistration
-        if Permission.objects.get(codename='self_register_sharedevent') in self.group.permissions.all():
-            context['has_perm_self_register_sharedevent'] = True
+        try:
+            if Permission.objects.get(codename='self_register_sharedevent') in self.group.permissions.all():
+                context['has_perm_self_register_sharedevent'] = True
+        except ObjectDoesNotExist:
+            pass
 
         return context
 

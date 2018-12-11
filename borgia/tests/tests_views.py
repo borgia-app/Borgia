@@ -14,7 +14,6 @@ class BaseBorgiaViewsTestCase(TestCase):
         presidents_group.permissions.set(Permission.objects.all())
         # Group externals NEED to be created (else raises errors) :
         externals_group = Group.objects.create(name='externals')
-        externals_group.permissions.set([])
 
         self.user1 = User.objects.create(username='user1', balance=53)
         self.user1.groups.add(members_group)

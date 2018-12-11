@@ -18,5 +18,5 @@ users_patterns = [
     ])),
     path('groups/<int:pk>/update/', ManageGroupView.as_view(), name='url_group_update'),
     path('ajax/username_from_username_part/', username_from_username_part, name='url_ajax_username_from_username_part'),
-    path('ajax/balance_from_username', balance_from_username, name='url_balance_from_username')
+    path('ajax/balance_from_username/', balance_from_username, name='url_balance_from_username')
 ]
