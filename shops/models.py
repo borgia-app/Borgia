@@ -88,7 +88,7 @@ class Product(models.Model):
     unit = models.CharField('Unité', max_length=255,
                             choices=UNIT_CHOICES, blank=True, null=True)
     shop = models.ForeignKey(
-        'Shop',
+        Shop,
         related_name='%(app_label)s_%(class)s_shop',
         on_delete=models.CASCADE)
     is_manual = models.BooleanField('Gestion manuelle du prix', default=False)

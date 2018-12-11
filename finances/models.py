@@ -111,7 +111,7 @@ class Sale(models.Model):
 
 
 class SaleProduct(models.Model):
-    sale = models.ForeignKey('Sale', on_delete=models.CASCADE)
+    sale = models.ForeignKey(Sale, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
     price = models.DecimalField('Prix', default=0, decimal_places=2,

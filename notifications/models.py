@@ -11,101 +11,8 @@ from django.utils.html import conditional_escape
 from django.utils.timezone import now
 from lxml import etree
 
-
-# TODO: make it work with users.models
-# Classes
-class Notification(models.Model):
-    """"
-    A notification represents an user side log, saved for informative purposes.
-    Notifications are saved when the "notify" method is called and only if the app is well configured.
-    :param notification_class : a notification class represents the action for which the "notify" method is called
-    :param shop_category : when a notification is related with a shop, null otherwise
-    :param target_category : defines for which user category the notification stands for. Can't be null.
-    :param group_category : if target_category is set to "TARGET_GROUPS", specifies which group
-    :param type : string must be in TYPE_CHOICES
-    :param actor_type : GenericForeignKey. The actor is the user or the entity which performs the action
-    :param actor_id : GenericForeignKey
-    :param actor_object : GenericForeignKey
-    :param target_user : is the target of the notification, i.e. its recipient
-    :param action_medium_type : GenericForeignKey. It's the medium through which the action is performed, e.g. a shop.
-    :param action_medium_id : GenericForeignKey
-    :param action_medium_object : GenericForeignKey
-    :param target_type : GenericForeignKey. It's the object on which the action is performed, e.g. a product.
-    :param target_id : GenericForeignKey
-    :param target_object : GenericForeignKey
-    :param creation_datetime : the notification creation date
-    :param displayed_datetime : null if the notification was never displayed
-    :param read_datetime : null if the notification is unread
-    """
-
-    # TODO : décider si on_delete=models.CASCADE ou non
-    # TODO : mails
-    # TODO : sms
-    # TODO : fuseau horaire/ utc?
-
-    class Meta:
-        """
-        Defines auto-generated permissions. Allow an user to add, edit or delete a notification does not make sense,
-        then the only permission is to list notifications.
-        """
-        default_permissions = (
-            'list',
-        )
-
-    notification_class = models.ForeignKey(
-        'NotificationClass', blank=True, null=True, on_delete=models.CASCADE)
-
-    shop_category = models.ForeignKey(
-        'shops.Shop', blank=True, null=True, on_delete=models.CASCADE)
-
-    target_category = models.CharField(max_length=20, default='ACTOR')
-
-    group_category = models.ForeignKey(
-        'NotificationGroup', blank=True, null=True, on_delete=models.CASCADE)
-
-    TYPE_CHOICES = (
-        ('DEBUG', 'debug'),
-        ('SUCCESS', 'success'),
-        ('INFO', 'info'),
-        ('WARNING', 'warning'),
-        ('ERROR', 'error'),
-    )
-
-    type = models.CharField(choices=TYPE_CHOICES,
-                            max_length=10, default='INFO')
-
-    actor_type = models.ForeignKey(
-        ContentType, related_name='notification_actor', on_delete=models.CASCADE)
-    # CASCADE : the notification is deleted if the related actor object is deleted
-    actor_id = models.PositiveIntegerField()
-    actor_object = GenericForeignKey('actor_type', 'actor_id')
-
-    target_user = models.ForeignKey(
-        'users.User', related_name='notification_target_user', on_delete=models.CASCADE)
-
-    action_medium_type = models.ForeignKey(ContentType,
-                                           related_name='notification_action_medium',
-                                           blank=True,
-                                           null=True,
-                                           on_delete=models.CASCADE)
-    action_medium_id = models.PositiveIntegerField(blank=True, null=True)
-    action_medium_object = GenericForeignKey(
-        'action_medium_type', 'action_medium_id')
-
-    target_type = models.ForeignKey(ContentType,
-                                    related_name='notification_target',
-                                    blank=True,
-                                    null=True,
-                                    on_delete=models.CASCADE)
-    target_id = models.PositiveIntegerField(blank=True, null=True)
-    target_object = GenericForeignKey('target_type', 'target_id')
-
-    creation_datetime = models.DateTimeField(auto_now_add=True, editable=False)
-
-    displayed_datetime = models.DateTimeField(
-        blank=True, null=True, editable=False)
-
-    read_datetime = models.DateTimeField(blank=True, null=True)
+from shops.models import Shop
+from users.models import User
 
 
 class NotificationClass(models.Model):
@@ -116,18 +23,19 @@ class NotificationClass(models.Model):
     :param creation_datetime : the class notification creation date
     :param last_call_datetime : used to see when the notify method was last called with this notification class
     """
-    name = models.CharField(max_length=255, unique=True)
+    name=models.CharField(max_length = 255, unique = True)
 
-    verbose_name = models.CharField(max_length=255, blank=True, null=True)
+    verbose_name=models.CharField(max_length = 255, blank = True, null = True)
 
-    description = models.TextField()
+    description=models.TextField()
 
-    creation_datetime = models.DateTimeField(auto_now_add=True, editable=False)
+    creation_datetime=models.DateTimeField(
+        auto_now_add = True, editable = False)
 
-    last_call_datetime = models.DateTimeField(blank=True, null=True)
+    last_call_datetime=models.DateTimeField(blank = True, null = True)
 
     class Meta:
-        default_permissions = (
+        default_permissions=(
             'list',
             'change',
         )
@@ -157,11 +65,11 @@ class NotificationTemplate(models.Model):
     :param last_call_datetime : used to see when this template was last used
     :param is_activated : True if the notification template is activated (and used)
     """
-    notification_class = models.ForeignKey('NotificationClass',
-                                           verbose_name='Action déclenchant la notification',
-                                           on_delete=models.CASCADE)
+    notification_class=models.ForeignKey(NotificationClass,
+                                           verbose_name = 'Action déclenchant la notification',
+                                           on_delete = models.CASCADE)
 
-    xml_template = models.TextField(blank=True,
+    xml_template=models.TextField(blank = True,
                                     null=True,
                                     verbose_name='Template XML',
                                     default='Une notification.')
@@ -189,7 +97,7 @@ class NotificationTemplate(models.Model):
                                            verbose_name='Groupe d\'utilisateurs destinataire de la notification',
                                            blank=True)
 
-    shop_category = models.ForeignKey('shops.Shop',
+    shop_category = models.ForeignKey(Shop,
                                       verbose_name='Magasin concerné par la notification',
                                       blank=True,
                                       null=True,
@@ -287,7 +195,100 @@ class NotificationGroup(models.Model):
         """
         return self.notificationgroup.name
 
-# Methods
+
+class Notification(models.Model):
+    """"
+    A notification represents an user side log, saved for informative purposes.
+    Notifications are saved when the "notify" method is called and only if the app is well configured.
+    :param notification_class : a notification class represents the action for which the "notify" method is called
+    :param shop_category : when a notification is related with a shop, null otherwise
+    :param target_category : defines for which user category the notification stands for. Can't be null.
+    :param group_category : if target_category is set to "TARGET_GROUPS", specifies which group
+    :param type : string must be in TYPE_CHOICES
+    :param actor_type : GenericForeignKey. The actor is the user or the entity which performs the action
+    :param actor_id : GenericForeignKey
+    :param actor_object : GenericForeignKey
+    :param target_user : is the target of the notification, i.e. its recipient
+    :param action_medium_type : GenericForeignKey. It's the medium through which the action is performed, e.g. a shop.
+    :param action_medium_id : GenericForeignKey
+    :param action_medium_object : GenericForeignKey
+    :param target_type : GenericForeignKey. It's the object on which the action is performed, e.g. a product.
+    :param target_id : GenericForeignKey
+    :param target_object : GenericForeignKey
+    :param creation_datetime : the notification creation date
+    :param displayed_datetime : null if the notification was never displayed
+    :param read_datetime : null if the notification is unread
+    """
+
+    # TODO : décider si on_delete=models.CASCADE ou non
+    # TODO : mails
+    # TODO : sms
+    # TODO : fuseau horaire/ utc?
+
+    class Meta:
+        """
+        Defines auto-generated permissions. Allow an user to add, edit or delete a notification does not make sense,
+        then the only permission is to list notifications.
+        """
+        default_permissions = (
+            'list',
+        )
+
+    notification_class = models.ForeignKey(
+        NotificationClass, blank=True, null=True, on_delete=models.CASCADE)
+
+    shop_category = models.ForeignKey(
+        Shop, blank=True, null=True, on_delete=models.CASCADE)
+
+    target_category = models.CharField(max_length=20, default='ACTOR')
+
+    group_category = models.ForeignKey(
+        NotificationGroup, blank=True, null=True, on_delete=models.CASCADE)
+
+    TYPE_CHOICES = (
+        ('DEBUG', 'debug'),
+        ('SUCCESS', 'success'),
+        ('INFO', 'info'),
+        ('WARNING', 'warning'),
+        ('ERROR', 'error'),
+    )
+
+    type = models.CharField(choices=TYPE_CHOICES,
+                            max_length=10, default='INFO')
+
+    actor_type = models.ForeignKey(
+        ContentType, related_name='notification_actor', on_delete=models.CASCADE)
+    # CASCADE : the notification is deleted if the related actor object is deleted
+    actor_id = models.PositiveIntegerField()
+    actor_object = GenericForeignKey('actor_type', 'actor_id')
+
+    target_user = models.ForeignKey(
+        User, related_name='notification_target_user', on_delete=models.CASCADE)
+
+    action_medium_type = models.ForeignKey(ContentType,
+                                           related_name='notification_action_medium',
+                                           blank=True,
+                                           null=True,
+                                           on_delete=models.CASCADE)
+    action_medium_id = models.PositiveIntegerField(blank=True, null=True)
+    action_medium_object = GenericForeignKey(
+        'action_medium_type', 'action_medium_id')
+
+    target_type = models.ForeignKey(ContentType,
+                                    related_name='notification_target',
+                                    blank=True,
+                                    null=True,
+                                    on_delete=models.CASCADE)
+    target_id = models.PositiveIntegerField(blank=True, null=True)
+    target_object = GenericForeignKey('target_type', 'target_id')
+
+    creation_datetime=models.DateTimeField(
+        auto_now_add = True, editable = False)
+
+    displayed_datetime=models.DateTimeField(
+        blank = True, null = True, editable = False)
+
+    read_datetime=models.DateTimeField(blank = True, null = True)
 
 
 def notify(notification_class_name, actor, recipient=False, action_medium=False, target_object=False):
