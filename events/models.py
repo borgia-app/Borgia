@@ -71,7 +71,7 @@ class Event(models.Model):
         """
         list_u_all = []
         for user in self.users.all():
-            e = self.weightsuser_set.get(user=user, shared_event=self)
+            e = self.weightsuser_set.get(user=user, event=self)
             if isinstance(self.price, decimal.Decimal) and e.weights_participation > 0:
                 list_u_all.append(
                     [user, e.weights_registeration, e.weights_participation, e.weights_participation * self.price])
@@ -88,7 +88,7 @@ class Event(models.Model):
         """
         list_u_p = []
         for user in self.users.all():
-            e = self.weightsuser_set.get(user=user, shared_event=self)
+            e = self.weightsuser_set.get(user=user, event=self)
             weight = e.weights_participation
             if weight > 0:
                 if self.price:
@@ -105,7 +105,7 @@ class Event(models.Model):
         """
         list_u_r = []
         for user in self.users.all():
-            e = self.weightsuser_set.get(user=user, shared_event=self)
+            e = self.weightsuser_set.get(user=user, event=self)
             weight = e.weights_registeration
             if weight > 0:
                 list_u_r.append([user, weight])
@@ -119,7 +119,7 @@ class Event(models.Model):
         """
         try:
             # Suppresion de l'user dans users.
-            WeightsUser.objects.filter(user=user, shared_event=self).delete()
+            WeightsUser.objects.filter(user=user, event=self).delete()
         except ObjectDoesNotExist:
             pass
         except ValueError:
@@ -138,12 +138,12 @@ class Event(models.Model):
         if user not in self.users.all():
             if isParticipant:
                 WeightsUser.objects.create(
-                    user=user, shared_event=self, weights_participation=weight)
+                    user=user, event=self, weights_participation=weight)
             else:
                 WeightsUser.objects.create(
-                    user=user, shared_event=self, weights_registeration=weight)
+                    user=user, event=self, weights_registeration=weight)
         else:
-            e = self.weightsuser_set.get(user=user, shared_event=self)
+            e = self.weightsuser_set.get(user=user, event=self)
             if isParticipant:
                 e.weights_participation += weight
             else:
@@ -164,10 +164,10 @@ class Event(models.Model):
             if weight != 0:
                 if isParticipant:
                     WeightsUser.objects.create(
-                        user=user, shared_event=self, weights_participation=weight)
+                        user=user, event=self, weights_participation=weight)
                 else:
                     WeightsUser.objects.create(
-                        user=user, shared_event=self, weights_registeration=weight)
+                        user=user, event=self, weights_registeration=weight)
         else:
             e = self.weightsuser_set.get(user=user)
 
@@ -326,7 +326,7 @@ class Event(models.Model):
 
 class WeightsUser(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    shared_event = models.ForeignKey(Event, on_delete=models.CASCADE)
+    event = models.ForeignKey(Event, on_delete=models.CASCADE)
     weights_registeration = models.IntegerField(default=0)
     weights_participation = models.IntegerField(default=0)
 
@@ -337,4 +337,4 @@ class WeightsUser(models.Model):
         default_permissions = ()
 
     def __str__(self):
-        return "%s possede %s parts dans l'événement %s" % (self.user, self.weights_participation, self.shared_event)
+        return "%s possede %s parts dans l'événement %s" % (self.user, self.weights_participation, self.event)

@@ -172,9 +172,9 @@ class User(AbstractUser):
         TODO : Strongly dependent of events, should be moved there.
         TODO : notify if forecast balance is negative
         """
-        shared_events = self.event_set.filter(done = False)
+        events = self.event_set.filter(done = False)
         solde_prev = 0
-        for se in shared_events:
+        for se in events:
             solde_prev += se.get_price_of_user(self)
         self.virtual_balance = self.balance - solde_prev
         self.save()
@@ -232,13 +232,13 @@ class User(AbstractUser):
         transferts = self.recipient_transfert.union(self.sender_transfert.all())
         rechargings = self.sender_recharging.all()
         exceptionnal_movements = self.recipient_exceptionnal_movement.all()
-        shared_events = self.event_set.filter(done=True)
-        for event in shared_events:
+        events = self.event_set.filter(done=True)
+        for event in events:
             event.amount = event.get_price_of_user(self)
 
         list_transaction = sorted(
             list(itertools.chain(sales, transferts, rechargings,
-                                 exceptionnal_movements, shared_events)),
+                                 exceptionnal_movements, events)),
             key=lambda instance: instance.datetime, reverse=True
         )
 

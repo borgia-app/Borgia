@@ -368,7 +368,7 @@ def lateral_menu_members(user, active=None):
                 'Évènements',
                 'calendar',
                 'lm_event_list',
-                reverse('url_event_list', kwargs={'group_name': 'members'})))
+                reverse('url_event_list')))
 
     if active is not None:
         for link in nav_tree:

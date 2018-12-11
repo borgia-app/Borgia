@@ -8,7 +8,7 @@
     Liste {% if not done %}et gestion manuelle {% endif %}des utilisateurs concernés.
   </div>
   <div class="panel-body">
-    <form class="form-horizontal" action="{% url 'url_event_manage_users' pk=pk group_name=group.name %}#table_users" method='get'>
+    <form class="form-horizontal" action="{% url 'url_event_manage_users' pk=pk %}#table_users" method='get'>
         {{ list_users_form|bootstrap_horizontal }}
         <div class="form-group">
           <div class="col-sm-offset-2 col-sm-10">
@@ -20,7 +20,7 @@
     <div class="col-sm-12"><hr></div>
 
     {% if not done %}
-        <form class="form-horizontal" action="{% url 'url_event_manage_users' pk=pk group_name=group.name %}" method='post'>
+        <form class="form-horizontal" action="{% url 'url_event_manage_users' pk=pk %}" method='post'>
             {% csrf_token %}
             {{ form|bootstrap_horizontal }}
             <div class="form-group">
@@ -31,7 +31,7 @@
         </form>
     {% endif %}
 
-    <a href="{% url 'url_event_update' pk=pk group_name=group.name %}" class="btn btn-info pull-right">Retour a la gestion générale de l'évènement</a>
+    <a href="{% url 'url_event_update' pk=pk %}" class="btn btn-info pull-right">Retour a la gestion générale de l'évènement</a>
 
   </div>
 </div>

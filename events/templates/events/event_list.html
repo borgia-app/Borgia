@@ -7,7 +7,7 @@
         <div class="panel-heading">
           Evènements
           {% if request.user|has_perm:"events.add_event" %}
-            <a class="btn btn-xs btn-success pull-right" href="{% url 'url_event_create' group_name=group.name %}">Nouveau</a>
+            <a class="btn btn-xs btn-success pull-right" href="{% url 'url_event_create' %}">Nouveau</a>
           {% endif %}
         </div>
         <div class="panel-body">
@@ -38,7 +38,7 @@
           <th>Remarque</th>
           <th>Gestion</th>
         </tr>
-        {% for event in shared_events %}
+        {% for event in events %}
         <tr>
           <td>{{ event.date|date:"d/m/Y" }}</td>
           <td>{{ event.description }}</td>
@@ -52,7 +52,7 @@
             <td>En attente</td>
             <td>Préinscrit : {{ event.weight_of_user }}
               {% if has_perm_self_register_event and event.allow_self_registeration and not done  %},
-                <a href="{% url 'url_event_self_registration' group_name=group.name pk=event.pk %}"
+                <a href="{% url 'url_event_self_registration' pk=event.pk %}"
                   class="btn btn-xs">
                   Se préinscrire
                 </a>
@@ -61,7 +61,7 @@
           {% endif %}
           <td>
               {% if event.has_perm_manage %}
-                  <a href="{% url 'url_event_update' group_name=group.name pk=event.pk %}">Gérer</a>
+                  <a href="{% url 'url_event_update' pk=event.pk %}">Gérer</a>
               {% endif %}
           </td>
         </tr>

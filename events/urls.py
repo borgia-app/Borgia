@@ -12,9 +12,8 @@ events_patterns = [
     path('create/', EventCreate.as_view(), name='url_event_create'),
     path('<int:pk>/', include([
         path('update/', EventUpdate.as_view(), name='url_event_update'),
-        path('delete/', EventDelete.as_view(), name='url_event_delete'),
         path('finish/', EventFinish.as_view(), name='url_event_finish'),
-        path('remove/', EventFinish.as_view(), name='url_event_finish'),
+        path('delete/', EventDelete.as_view(), name='url_event_delete'),
         path('self_registration/', EventSelfRegistration.as_view(), name='url_event_self_registration'),
         path('users/', EventManageUsers.as_view(), name='url_event_manage_users'),
         path('users/<int:user_pk>/remove/', EventRemoveUser.as_view(), name='url_event_remove_user'),
