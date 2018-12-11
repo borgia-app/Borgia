@@ -12,7 +12,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.utils.timezone import now
 from django.views.generic.base import View
-from django.views.generic.edit import FormView
+from django.views.generic.edit import FormView, UpdateView
 
 from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
                           ProductShopFromGroupMixin, ShopFromGroupMixin)
@@ -25,6 +25,7 @@ from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
 from shops.models import Product, Shop
 from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
                          DEFAULT_PERMISSIONS_CHIEFS,
+                         ProductPermissionAndContextMixin,
                          ShopPermissionAndContextMixin)
 
 
@@ -90,11 +91,13 @@ class ShopCreate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         vice_presidents = Group.objects.get(pk=3)
         vice_presidents.permissions.add(manage_chiefs)
         vice_presidents.save()
-        return super(ShopCreate, self).form_valid(form)
+
+        self.shop = shop
+        return super().form_valid(form)
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        return reverse('url_shop_list')
+        return reverse('url_shop_checkup', kwargs={'shop_pk': self.shop.pk})
 
 
 class ShopList(PermissionRequiredMixin, View, GroupLateralMenuMixin):
@@ -106,7 +109,7 @@ class ShopList(PermissionRequiredMixin, View, GroupLateralMenuMixin):
     lm_active = 'lm_shop_list'
 
     def get(self, request, *args, **kwargs):
-        context = super(ShopList, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['shop_list'] = Shop.objects.all().exclude(pk=1).order_by(
             'name')
         return render(request, self.template_name, context=context)
@@ -132,7 +135,7 @@ class ShopUpdate(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin)
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        return reverse('url_shop_list')
+        return reverse('url_shop_checkup', kwargs={'shop_pk': self.shop.pk})
 
 
 class ShopCheckup(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
@@ -269,10 +272,9 @@ class ShopWorkboard(ShopPermissionAndContextMixin, View, GroupLateralMenuMixin):
         return weeklist
 
 
-class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                  GroupLateralMenuMixin):
+class ProductList(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+    permission_required = 'shops.view_product'
     template_name = 'shops/product_list.html'
-    perm_codename = 'view_product'
     lm_active = 'lm_product_list'
     form_class = ProductListForm
 
@@ -280,27 +282,16 @@ class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
     shop_query = None
 
     def get_context_data(self, **kwargs):
-        context = super(ProductList, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['product_list'] = self.form_query(
             Product.objects.filter(is_removed=False))
         return context
 
-    def get_form_kwargs(self):
-        kwargs_form = super(ProductList, self).get_form_kwargs()
-        kwargs_form['shop'] = self.shop
-        return kwargs_form
-
     def form_valid(self, form):
-        try:
-            if form.cleaned_data['shop']:
-                self.shop_query = form.cleaned_data['shop']
-        except KeyError:
-            pass
-
         if form.cleaned_data['search']:
             self.search = form.cleaned_data['search']
 
-        return self.get(self.request, self.args, self.kwargs)
+        return super().form_valid(form)
 
     def form_query(self, query):
         if self.shop:
@@ -315,200 +306,168 @@ class ProductList(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         return query
 
 
-class ProductCreate(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                    GroupLateralMenuMixin):
+class ProductCreate(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+    permission_required = 'shops.add_product'
     template_name = 'shops/product_create.html'
-    perm_codename = 'add_product'
-    lm_active = 'lm_product_create'
     form_class = ProductCreateForm
+    lm_active = 'lm_product_create'
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['on_quantity'] = False
+        return initial
 
     def form_valid(self, form):
-        if self.shop:
-            shop = self.shop
-        else:
-            shop = form.cleaned_data['shop']
         if form.cleaned_data['on_quantity']:
-            Product.objects.create(
+            product = Product.objects.create(
                 name=form.cleaned_data['name'],
-                shop=shop,
+                shop=self.shop,
                 unit=form.cleaned_data['unit'],
                 correcting_factor=1
             )
         else:
-            Product.objects.create(
+            product = Product.objects.create(
                 name=form.cleaned_data['name'],
-                shop=shop,
+                shop=self.shop,
                 correcting_factor=1
             )
-        return redirect(reverse('url_product_list',
-                                kwargs={'group_name': self.group.name}))
+        self.product = product
+        return super().form_valid(form)
 
-    def get_initial(self):
-        initial = super(ProductCreate, self).get_initial()
-        initial['purchase_date'] = now
-        initial['on_quantity'] = False
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super(ProductCreate, self).get_context_data(**kwargs)
-        context['shop'] = self.shop
-        context['group'] = self.group
-        return context
-
-    def get_form_kwargs(self):
-        kwargs_form = super(ProductCreate, self).get_form_kwargs()
-        kwargs_form['shop'] = self.shop
-        return kwargs_form
+    def get_success_url(self):
+        """Return the URL to redirect to after processing a valid form."""
+        return reverse('url_product_retrieve', kwargs={
+            'shop_pk': self.shop.pk,
+            'product_pk': self.product.pk})
 
 
-class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View,
-                        GroupLateralMenuMixin):
+class ProductDeactivate(ProductPermissionAndContextMixin, View, GroupLateralMenuMixin):
     """
     Deactivate a product and redirect to the retrieve of the product.
 
     :param kwargs['group_name']: name of the group used.
     :param kwargs['pk']: pk of the product
-    :param self.perm_codename: codename of the permission checked.
     """
+    permission_required = 'shops.delete_product'
     template_name = 'shops/product_deactivate.html'
-    success_url = None
-    perm_codename = None
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['product'] = self.object
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
         # Set to True or False, activation is reversible.
-        if self.object.is_active is True:
-            self.object.is_active = False
+        if self.product.is_active is True:
+            self.product.is_active = False
         else:
-            self.object.is_active = True
-        self.object.save()
+            self.product.is_active = True
+        self.product.save()
 
         return redirect(reverse('url_product_retrieve',
-                                kwargs={'group_name': self.group.name,
-                                        'pk': self.object.pk}))
+                                kwargs={'shop_pk': self.shop.pk,
+                                        'product_pk': self.product.pk}))
 
 
-class ProductRemove(GroupPermissionMixin, ProductShopFromGroupMixin, View,
-                    GroupLateralMenuMixin):
+class ProductRemove(ProductPermissionAndContextMixin, View, GroupLateralMenuMixin):
     """
     Remove a product and redirect to the list of products.
 
     :param kwargs['group_name']: name of the group used.
     :param kwargs['pk']: pk of the product
-    :param self.perm_codename: codename of the permission checked.
     """
+    permission_required = 'shops.change_product'
     template_name = 'shops/product_remove.html'
-    success_url = None
-    perm_codename = None
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['product'] = self.object
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
         # Set always to True, removing is non-reversible.
-        self.object.is_removed = True
-        self.object.save()
+        self.product.is_removed = True
+        self.product.save()
 
         # Delete all category_product which use the product.
-        CategoryProduct.objects.filter(product=self.object).delete()
+        CategoryProduct.objects.filter(product=self.product).delete()
 
-        return redirect(reverse('url_product_list',
-                                kwargs={'group_name': self.group.name}))
+        return redirect(reverse('url_product_list', kwargs={'shop_pk': self.shop.pk}))
 
 
-class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View,
-                      GroupLateralMenuMixin):
+class ProductRetrieve(ProductPermissionAndContextMixin, View, GroupLateralMenuMixin):
     """
     Retrieve a Product.
 
-    :param kwargs['group_name']: name of the group used.
-    :param kwargs['pk']: pk of the product
-    :param self.perm_codename: codename of the permission checked.
+    :param kwargs['shop_pk']: name of the group used.
+    :param kwargs['product_pk']: pk of the product
     """
+    permission_required = 'shops.view_product'
     template_name = 'shops/product_retrieve.html'
-    perm_codename = None
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['product'] = self.object
         return render(request, self.template_name, context=context)
 
 
-class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin, FormView,
-                    GroupLateralMenuMixin):
+class ProductUpdate(ProductPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
     """
-    Update a product and redirect to the workboard of the group.
+    Update a product and redirect to the product.
 
-    :param kwargs['group_name']: name of the group used.
-    :param kwargs['pk']: pk of the product
-    :param self.perm_codename: codename of the permission checked.
+    :param kwargs['shop_pk']: pk of the shop
+    :param kwargs['product_pk']: pk of the product
     """
-    form_class = ProductUpdateForm
+    permission_required = 'shops.change_product'
     template_name = 'shops/product_update.html'
-    success_url = None
-    perm_codename = None
+    form_class = ProductUpdateForm
+    model = Product
 
-    def get_context_data(self, **kwargs):
-        context = super(ProductUpdate, self).get_context_data(**kwargs)
-        context['product'] = self.object
-        return context
-
-    def get_initial(self):
-        initial = super(ProductUpdate, self).get_initial()
-        for k in ProductUpdateForm().fields.keys():
-            initial[k] = getattr(self.object, k)
+    def get_initial(self, **kwargs):
+        initial = super().get_initial(**kwargs)
+        initial['name'] = self.product.name
         return initial
 
     def form_valid(self, form):
-        for k in form.fields.keys():
-            if form.cleaned_data[k] != getattr(self.object, k):
-                setattr(self.object, k, form.cleaned_data[k])
-        self.object.save()
-        return super(ProductUpdate, self).form_valid(form)
+        self.product.name = form.cleaned_data['name']
+        self.product.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
         return reverse('url_product_retrieve',
-                       kwargs={'group_name': self.group.name,
-                               'pk': self.object.pk})
+                       kwargs={'shop_pk': self.shop.pk,
+                               'product_pk': self.product.pk})
 
 
-class ProductUpdatePrice(GroupPermissionMixin, ProductShopFromGroupMixin,
-                         FormView, GroupLateralMenuMixin):
+class ProductUpdatePrice(ProductPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
     """
+    Update the price of a product and redirect to the product.
+
+    :param kwargs['shop_pk']: pk of the shop
+    :param kwargs['product_pk']: pk of the product
     """
-    form_class = ProductUpdatePriceForm
+    permission_required = 'shops.change_price_product'
     template_name = 'shops/product_update_price.html'
-    success_url = None
-    perm_codename = 'change_price_product'
+    form_class = ProductUpdatePriceForm
 
     def get_context_data(self, **kwargs):
-        context = super(ProductUpdatePrice, self).get_context_data(**kwargs)
-        context['product'] = self.object
+        context = super().get_context_data(**kwargs)
         context['margin_profit'] = settings_safe_get(
             'MARGIN_PROFIT').get_value()
         return context
 
     def get_initial(self):
-        initial = super(ProductUpdatePrice, self).get_initial()
-        initial['is_manual'] = self.object.is_manual
-        initial['manual_price'] = self.object.manual_price
+        initial = super().get_initial()
+        initial['is_manual'] = self.product.is_manual
+        initial['manual_price'] = self.product.manual_price
         return initial
+
+    def form_valid(self, form):
+        self.product.is_manual = form.cleaned_data['is_manual']
+        self.product.manual_price = form.cleaned_data['manual_price']
+        self.product.save()
+        return super().form_valid(form)
 
     def get_success_url(self):
         """Return the URL to redirect to after processing a valid form."""
-        return reverse('url_product_update_price',
-                       kwargs={'group_name': self.group.name,
-                               'pk': self.object.pk})
-
-    def form_valid(self, form):
-        self.object.is_manual = form.cleaned_data['is_manual']
-        self.object.manual_price = form.cleaned_data['manual_price']
-        self.object.save()
-        return super(ProductUpdatePrice, self).form_valid(form)
+        return reverse('url_product_retrieve',
+                       kwargs={'shop_pk': self.shop.pk,
+                               'product_pk': self.product.pk})
