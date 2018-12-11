@@ -152,8 +152,8 @@ class EventDownloadXlsxForm(forms.Form):
     years = forms.MultipleChoiceField(
         label='Année(s) à inclure', required=False)
 
-    def __init__(self, **kwargs):
-        super(EventDownloadXlsxForm, self).__init__(**kwargs)
+    def __init__(self):
+        super().__init__()
         YEAR_CHOICES = []
         for year in list_year():
             YEAR_CHOICES.append(

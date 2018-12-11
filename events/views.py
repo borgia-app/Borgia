@@ -153,7 +153,7 @@ class EventUpdate(EventPermissionAndContextMixin, SuccessMessageMixin, FormView,
     manager_changed = False
 
     def get_initial(self):
-        initial = super(EventUpdate, self).get_initial()
+        initial = super().get_initial()
         initial['bills'] = self.event.bills
         initial['manager'] = self.event.manager.username
         initial['allow_self_registeration'] = self.event.allow_self_registeration
@@ -163,7 +163,7 @@ class EventUpdate(EventPermissionAndContextMixin, SuccessMessageMixin, FormView,
 
         # list_year() contains smth like [2011, 2015, ...]
 
-        context = super(EventUpdate, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['pk'] = self.event.pk
 
         # Pour les users
@@ -268,7 +268,7 @@ class EventFinish(EventPermissionAndContextMixin, SuccessMessageMixin, FormView,
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(EventFinish, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['se'] = self.event
         context['total_weights_participants'] = self.total_weights_participants
         context['ponderation_price'] = round(self.ponderation_price, 2)
@@ -436,7 +436,7 @@ class EventManageUsers(EventPermissionAndContextMixin, FormView, GroupLateralMen
             return self.event.list_registrants_weight()
 
     def get_initial(self):
-        initial = super(EventManageUsers, self).get_initial()
+        initial = super().get_initial()
         if self.request.GET.get('state') is not None and self.request.GET.get('state') == "registrants":
             initial['state'] = 'registered'
         else:
@@ -467,8 +467,7 @@ class EventManageUsers(EventPermissionAndContextMixin, FormView, GroupLateralMen
         list_users_form = EventListUsersForm(
             initial=initial_list_users_form)
 
-        context = super(EventManageUsers,
-                        self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['pk'] = self.event.pk
         context['done'] = self.event.done
         context['price'] = self.event.price
