@@ -87,11 +87,11 @@ class UserUpdateForm(forms.Form):
         return data
 
 
-class ManageGroupForm(forms.Form):
+class GroupUpdateForm(forms.Form):
     def __init__(self, *args, **kwargs):
         possible_members = kwargs.pop('possible_members')
         possible_permissions = kwargs.pop('possible_permissions')
-        super(ManageGroupForm, self).__init__(*args, **kwargs)
+        super(GroupUpdateForm, self).__init__(*args, **kwargs)
         self.fields['members'] = forms.ModelMultipleChoiceField(
             queryset=possible_members,
             widget=forms.SelectMultiple(

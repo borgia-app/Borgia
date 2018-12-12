@@ -20,7 +20,7 @@ from borgia.utils import (LateralMenuMixin, GroupPermissionMixin,
                           human_unused_permissions, permission_to_manage_group)
 from events.models import Event
 from configurations.utils import configurations_safe_get
-from users.forms import (ManageGroupForm, SelfUserUpdateForm,
+from users.forms import (GroupUpdateForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserSearchForm,
                          UserUpdateForm)
 from users.models import User
@@ -129,7 +129,7 @@ class UserCreateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Lat
     """
     permission_required = 'users.add_user'
     form_class = UserCreationCustomForm
-    template_name = 'users/create.html'
+    template_name = 'users/user_create.html'
     lm_active = 'lm_user_create'
     success_url = None
 
@@ -181,7 +181,7 @@ class UserRetrieveView(PermissionRequiredMixin, View, LateralMenuMixin):
 
     """
     permission_required = 'users.view_user'
-    template_name = 'users/retrieve.html'
+    template_name = 'users/user_retrieve.html'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -202,7 +202,7 @@ class UserUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Lat
     """
     permission_required = 'users.change_user'
     form_class = UserUpdateForm
-    template_name = 'users/update_admin.html'
+    template_name = 'users/user_update.html'
     model = User
     modified = False
 
@@ -250,7 +250,7 @@ class UserDeactivateView(PermissionRequiredMixin, View, LateralMenuMixin):
 
     """
     permission_required = 'users.delete_user'
-    template_name = 'users/deactivate.html'
+    template_name = 'users/user_deactivate.html'
     success_message = "Le compte de %(user)s a bien été "
     error_event_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
 
@@ -268,7 +268,7 @@ class UserDeactivateView(PermissionRequiredMixin, View, LateralMenuMixin):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         context['user'] = self.user
-        return render(request, 'users/deactivate.html', context=context)
+        return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
         deactivated = False
@@ -312,7 +312,7 @@ class UserDeactivateView(PermissionRequiredMixin, View, LateralMenuMixin):
 
 class UserSelfUpdateView(SuccessMessageMixin, FormView,
                      LateralMenuMixin):
-    template_name = 'users/self_user_update.html'
+    template_name = 'users/user_self_update.html'
     form_class = SelfUserUpdateForm
 
     def get_initial(self):
@@ -344,11 +344,11 @@ class UserSelfUpdateView(SuccessMessageMixin, FormView,
         return "Vos infos ont bien été mises à jour"
 
 
-class ManageGroupView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
+class GroupUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
                       LateralMenuMixin):
-    template_name = 'users/group_manage.html'
+    template_name = 'users/group_update.html'
     success_url = None
-    form_class = ManageGroupForm
+    form_class = GroupUpdateForm
     group_updated = None
     lm_active = None
 
@@ -378,7 +378,7 @@ class ManageGroupView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
         group of chiefs and group of associates. If the group of associates is
         managed, possible permissions are only permissions of the chiefs group.
         """
-        kwargs = super(ManageGroupView, self).get_form_kwargs()
+        kwargs = super(GroupUpdateView, self).get_form_kwargs()
 
         if self.group.name.startswith('associates-') is True:
             chiefs_group_name = self.group.name.replace(
@@ -400,13 +400,13 @@ class ManageGroupView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
         return kwargs
 
     def get_initial(self):
-        initial = super(ManageGroupView, self).get_initial()
+        initial = super(GroupUpdateView, self).get_initial()
         initial['members'] = self.group.user_set.all()
         initial['permissions'] = self.group.permissions.all()
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(ManageGroupView, self).get_context_data(**kwargs)
+        context = super(GroupUpdateView, self).get_context_data(**kwargs)
         context['group'] = self.group
         return context
 
@@ -438,7 +438,7 @@ class ManageGroupView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
                 self.group.permissions.add(p)
         self.group.save()
 
-        return super(ManageGroupView, self).form_valid(form)
+        return super(GroupUpdateView, self).form_valid(form)
 
     def get_success_message(self, cleaned_data):
         return "Le groupe a bien été mis à jour"

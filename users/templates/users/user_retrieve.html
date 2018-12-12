@@ -19,16 +19,16 @@
           </a>
         {% endif %}
         {% if request.user|has_perm:"finances.add_exceptionnalmovement" %}
-          <a class="btn btn-primary" href="{% url 'url_user_exceptionnalmovement_create' group_name=group.name user_pk=user.pk %}">Mouvement exceptionnel</a>
+          <a class="btn btn-primary" href="{% url 'url_user_exceptionnalmovement_create' group_name='group.name' user_pk=user.pk %}">Mouvement exceptionnel</a>
         {% endif %}
         {% if request.user|has_perm:"finances.add_recharging" %}
-          <a class="btn btn-primary" href="{% url 'url_recharging_create' group_name=group.name user_pk=user.pk %}">Ajout d'argent</a>
+          <a class="btn btn-primary" href="{% url 'url_recharging_create' group_name='group.name' user_pk=user.pk %}">Ajout d'argent</a>
         {% endif %}
       </div>
   </div>
   <div class="panel-body">
     <div class="row">
-        {% include "users/retrieve_module.html" %}
+        {% include "users/partials/display_user_data.html" %}
     </div>
   </div>
 </div>
