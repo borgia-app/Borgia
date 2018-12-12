@@ -31,8 +31,8 @@ from finances.models import (Cash, Cheque, ExceptionnalMovement,
                              LydiaFaceToFace, LydiaOnline, Recharging, Sale,
                              Transfert)
 from notifications.models import notify
-from settings_data.models import Setting
-from settings_data.utils import settings_safe_get
+from configurations.models import Configuration
+from configurations.utils import configurations_safe_get
 from users.models import User
 
 
@@ -821,7 +821,7 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
 
         # Min value is always 0.01
         try:
-            min_value = Setting.objects.get(
+            min_value = Configuration.objects.get(
                 name='LYDIA_MIN_PRICE').get_value()
             if min_value is not None:
                 if min_value > 0:
@@ -834,7 +834,7 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
             kwargs['min_value'] = decimal.Decimal("0.01")
 
         try:
-            max_value = Setting.objects.get(
+            max_value = Configuration.objects.get(
                 name='LYDIA_MAX_PRICE').get_value()
             if max_value is not None:
                 kwargs['max_value'] = decimal.Decimal(max_value)
@@ -856,7 +856,7 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
             user.save()
 
         context = super(SelfLydiaCreate, self).get_context_data()
-        context['vendor_token'] = settings_safe_get(
+        context['vendor_token'] = configurations_safe_get(
             "LYDIA_VENDOR_TOKEN").get_value()
         context['confirm_url'] = settings.LYDIA_CONFIRM_URL
         context['callback_url'] = settings.LYDIA_CALLBACK_URL
@@ -877,7 +877,7 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
     def get_context_data(self, **kwargs):
         context = super(SelfLydiaCreate, self).get_context_data(**kwargs)
         try:
-            if settings_safe_get("LYDIA_API_TOKEN").get_value() in ['', 'non définie']:
+            if configurations_safe_get("LYDIA_API_TOKEN").get_value() in ['', 'non définie']:
                 context['no_module'] = True
             else:
                 context['no_module'] = False
@@ -962,7 +962,7 @@ def self_lydia_callback(request):
         "vendor_token": request.POST.get("vendor_token"),
         "sig": request.POST.get("sig")
     }
-    if verify_token_algo_lydia(params_dict, settings_safe_get("LYDIA_API_TOKEN").get_value()) is True:
+    if verify_token_algo_lydia(params_dict, configurations_safe_get("LYDIA_API_TOKEN").get_value()) is True:
         try:
             lydia = LydiaOnline.objects.create(
                 sender=User.objects.get(pk=request.GET.get('user_pk')),

@@ -1,9 +1,9 @@
 from django.conf import settings
 
-from settings_data.models import Setting
+from configurations.models import Configuration
 
 
-def settings_safe_get(name):
+def configurations_safe_get(name):
     """
     Get the setting object regarding the name.
     If it doesn't exists, create one with default value in settings.py.
@@ -13,8 +13,8 @@ def settings_safe_get(name):
     stop Borgia. These settings are crucial and an error means that settings.py
     isn't well configured.
     """
-    default = settings.SETTINGS_DEFAULT[name]
-    setting, created = Setting.objects.get_or_create(
+    default = settings.CONFIGURATIONS_DEFAULT[name]
+    setting, created = Configuration.objects.get_or_create(
         name=default[0],
         description=default[1],
         value_type=default[2]

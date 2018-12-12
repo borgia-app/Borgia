@@ -17,7 +17,7 @@ from django.views.generic.edit import FormView, UpdateView
 from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin)
 from finances.models import Sale
 from modules.models import CategoryProduct
-from settings_data.utils import settings_safe_get
+from configurations.utils import configurations_safe_get
 from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
                          ProductUpdatePriceForm, ShopCheckupSearchForm,
                          ShopCreateForm, ShopUpdateForm)
@@ -449,7 +449,7 @@ class ProductUpdatePrice(ProductPermissionAndContextMixin, FormView, GroupLatera
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['margin_profit'] = settings_safe_get(
+        context['margin_profit'] = configurations_safe_get(
             'MARGIN_PROFIT').get_value()
         return context
 

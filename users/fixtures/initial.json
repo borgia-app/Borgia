@@ -35,8 +35,8 @@
         ["change_price_product", "shops", "product"],
         ["view_stockentry", "stocks", "stockentry"],
 
-        ["change_setting", "settings_data", "setting"],
-        ["view_setting", "settings_data", "setting"],
+        ["change_configuration", "configurations", "configuration"],
+        ["view_configuration", "configurations", "configuration"],
 
         ["add_sale", "finances", "sale"],
         ["view_sale", "finances", "sale"],
@@ -79,8 +79,8 @@
         ["change_price_product", "shops", "product"],
         ["view_stockentry", "stocks", "stockentry"],
 
-        ["change_setting", "settings_data", "setting"],
-        ["view_setting", "settings_data", "setting"],
+        ["change_configuration", "configurations", "configuration"],
+        ["view_configuration", "configurations", "configuration"],
 
         ["add_sale", "finances", "sale"],
         ["view_sale", "finances", "sale"],
@@ -123,8 +123,8 @@
         ["change_price_product", "shops", "product"],
         ["view_stockentry", "stocks", "stockentry"],
 
-        ["change_setting", "settings_data", "setting"],
-        ["view_setting", "settings_data", "setting"],
+        ["change_configuration", "configurations", "configuration"],
+        ["view_configuration", "configurations", "configuration"],
 
         ["add_sale", "finances", "sale"],
         ["view_sale", "finances", "sale"],

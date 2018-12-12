@@ -19,7 +19,7 @@ from borgia.utils import (LateralMenuMixin, GroupPermissionMixin,
                           get_members_group, group_name_display,
                           human_unused_permissions, permission_to_manage_group)
 from events.models import Event
-from settings_data.utils import settings_safe_get
+from configurations.utils import configurations_safe_get
 from users.forms import (ManageGroupForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserSearchForm,
                          UserUpdateForm)
@@ -94,7 +94,7 @@ class UserListView(PermissionRequiredMixin, FormView, LateralMenuMixin):
             if self.state == 'negative_balance':
                 query = query.filter(balance__lt=0.0, is_active=True)
             elif self.state == 'threshold':
-                threshold = settings_safe_get(
+                threshold = configurations_safe_get(
                     'BALANCE_THRESHOLD_PURCHASE').get_value()
                 query = query.filter(balance__lt=threshold, is_active=True)
             elif self.state == 'unactive':

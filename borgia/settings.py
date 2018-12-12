@@ -42,7 +42,7 @@ INSTALLED_APPS = [
     'finances',
     'events',
     'notifications',
-    'settings_data',
+    'configurations',
     'modules',
     'stocks',
     'static_precompiler'
@@ -215,7 +215,7 @@ LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, LYDIA_API_TOKEN, LYDIA_VENDOR_TOKEN,
 BALANCE_THRESHOLD_MAIL_ALERT, BALANCE_FREQUENCY_MAIL_ALERT,
 BALANCE_THRESHOLD_PURCHASE
 """
-SETTINGS_DEFAULT = {
+CONFIGURATIONS_DEFAULT = {
     "CENTER_NAME": ("CENTER_NAME", "Nom du centre Borgia",
                     "s", "Center Name"),
     "MARGIN_PROFIT": ("MARGIN_PROFIT", "Marge (%) à appliquer sur le prix des produits calculés automatiquement",

@@ -3,18 +3,18 @@ from django.core.exceptions import ValidationError
 from django.core.validators import MinValueValidator
 
 
-class CenterConfigForm(forms.Form):
+class ConfigurationCenterForm(forms.Form):
     center_name = forms.CharField(label='Nom du centre Borgia', max_length=255)
 
 
-class PriceConfigForm(forms.Form):
+class ConfigurationProfitForm(forms.Form):
     margin_profit = forms.DecimalField(label='Marge appliquée aux prix en mode automatique (%)',
                                        decimal_places=2, max_digits=9,
                                        validators=[
                                            MinValueValidator(0, 'Le montant doit être positif')])
 
 
-class LydiaConfigForm(forms.Form):
+class ConfigurationLydiaForm(forms.Form):
     lydia_min_price = forms.DecimalField(label='Montant minimal de rechargement (€)',
                                          decimal_places=2, max_digits=9,
                                          validators=[
@@ -34,7 +34,7 @@ class LydiaConfigForm(forms.Form):
         If min and max:
             max >= min
         """
-        cleaned_data = super(LydiaConfigForm, self).clean()
+        cleaned_data = super(ConfigurationLydiaForm, self).clean()
         lydia_min_price = cleaned_data.get("lydia_min_price", None)
         lydia_max_price = cleaned_data.get("lydia_max_price", None)
         if lydia_min_price is not None and lydia_max_price is not None:
@@ -43,7 +43,7 @@ class LydiaConfigForm(forms.Form):
                     "Le montant maximal doit être supérieur ou égal au montant minimal")
 
 
-class BalanceConfigForm(forms.Form):
+class ConfigurationBalanceForm(forms.Form):
     balance_threshold_purchase = forms.DecimalField(label='Valeur seuil (€) pour pouvoir acheter',
                                                     decimal_places=2, max_digits=9)
     """

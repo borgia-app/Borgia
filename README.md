@@ -24,7 +24,7 @@ Load initial data
 -----------------
 
 * Make migrations and load some pre-made content
-  + `python manage.py makemigrations users shops finances modules settings_data notifications stocks`,
+  + `python manage.py makemigrations users shops finances events modules configurations notifications stocks`,
   + `python manage.py migrate`,
   + `python manage.py loaddata initial`.
 * Change admin password

@@ -19,7 +19,7 @@ from modules.forms import (ModuleCategoryCreateForm,
                            ShopModuleConfigForm)
 from modules.models import (Category, CategoryProduct, OperatorSaleModule,
                             SelfSaleModule)
-from settings_data.utils import settings_safe_get
+from configurations.utils import configurations_safe_get
 from shops.models import Product, Shop
 from users.models import User
 
@@ -55,7 +55,7 @@ class SaleShopModuleInterface(GroupPermissionMixin, FormView,
         kwargs = super(SaleShopModuleInterface,
                        self).get_form_kwargs(**kwargs)
         kwargs['module'] = self.module
-        kwargs['balance_threshold_purchase'] = settings_safe_get(
+        kwargs['balance_threshold_purchase'] = configurations_safe_get(
             'BALANCE_THRESHOLD_PURCHASE')
         return kwargs
 

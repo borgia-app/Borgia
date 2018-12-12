@@ -4,7 +4,7 @@ from django.urls import reverse
 from borgia.tests.tests_views import BaseBorgiaViewsTestCase
 
 
-class BaseSettingsViewsTest(BaseBorgiaViewsTestCase):
+class BaseConfigurationsViewsTest(BaseBorgiaViewsTestCase):
     url_view = None
 
     def allowed_user_get(self):
@@ -33,7 +33,7 @@ class BaseSettingsViewsTest(BaseBorgiaViewsTestCase):
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
-class GlobalConfigTest(BaseSettingsViewsTest):
+class GlobalConfigTest(BaseConfigurationsViewsTest):
     url_view = 'url_global_config'
 
     def test_allowed_user_get(self):
@@ -51,7 +51,7 @@ class GlobalConfigTest(BaseSettingsViewsTest):
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
 
-class CenterConfigTest(BaseSettingsViewsTest):
+class CenterConfigTest(BaseConfigurationsViewsTest):
     url_view = 'url_center_config'
 
     def test_allowed_user_get(self):
@@ -69,7 +69,7 @@ class CenterConfigTest(BaseSettingsViewsTest):
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
 
-class PriceConfigTest(BaseSettingsViewsTest):
+class PriceConfigTest(BaseConfigurationsViewsTest):
     url_view = 'url_price_config'
 
     def test_allowed_user_get(self):
@@ -87,7 +87,7 @@ class PriceConfigTest(BaseSettingsViewsTest):
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
 
-class LydiaConfigTest(BaseSettingsViewsTest):
+class LydiaConfigTest(BaseConfigurationsViewsTest):
     url_view = 'url_lydia_config'
 
     def test_allowed_user_get(self):
@@ -105,7 +105,7 @@ class LydiaConfigTest(BaseSettingsViewsTest):
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
 
-class BalanceConfigTest(BaseSettingsViewsTest):
+class BalanceConfigTest(BaseConfigurationsViewsTest):
     url_view = 'url_balance_config'
 
     def test_allowed_user_get(self):

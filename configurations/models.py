@@ -1,11 +1,11 @@
 from django.db import models
 
 
-class Setting(models.Model):
+class Configuration(models.Model):
     """
-    Define a Setting parameter.
+    Define a configuration parameter.
 
-    Such settings are set in option in the Borgia UI but administrators. They
+    Such configurations are set in option in the Borgia UI but administrators. They
     define how the application behave and which modules are enable. For Shop
     modules, please refer to attributes in the Shop model.
 
@@ -60,7 +60,7 @@ class Setting(models.Model):
         
     def __str__(self):
         """
-        Return the display name of Setting object.
+        Return the display name of Configuration object.
 
         :returns: name
         :rtype: string

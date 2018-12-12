@@ -5,7 +5,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
 from borgia.utils import *
-from settings_data.utils import settings_safe_get
+from configurations.utils import configurations_safe_get
 
 register = template.Library()
 
@@ -56,7 +56,7 @@ def order_by(attr, request):
 
 @register.simple_tag
 def get_center_name():
-    return settings_safe_get("CENTER_NAME").get_value()
+    return configurations_safe_get("CENTER_NAME").get_value()
 
 @register.simple_tag
 def set_template(template):
