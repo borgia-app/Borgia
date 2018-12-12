@@ -1,15 +1,18 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.views.generic.base import View
+from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
-from borgia.utils import GroupLateralMenuMixin, GroupPermissionMixin
-from configurations.forms import (ConfigurationBalanceForm, ConfigurationCenterForm,
-                                 ConfigurationLydiaForm, ConfigurationProfitForm)
+from borgia.utils import GroupLateralMenuMixin
+from configurations.forms import (ConfigurationBalanceForm,
+                                  ConfigurationCenterForm,
+                                  ConfigurationLydiaForm,
+                                  ConfigurationProfitForm)
 from configurations.utils import configurations_safe_get
 
 
-class ConfigurationListView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class ConfigurationListView(PermissionRequiredMixin, TemplateView, GroupLateralMenuMixin):
     """
     View to manage config of the application.
 
@@ -17,16 +20,13 @@ class ConfigurationListView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     However, to ensure that these values still exists, they are recreated if
     necessary in get_initial with a get_or_create. Default values are specified
     in borgia/settings.py.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :type kwargs['group_name']: string
     """
+    permission_required = 'configurations.view_configuration'
     template_name = 'configurations/global_config.html'
-    perm_codename = 'view_configuration'
     lm_active = 'lm_global_config'
 
     def get_context_data(self, **kwargs):
-        context = super(ConfigurationListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['center_name'] = configurations_safe_get('CENTER_NAME')
         context['margin_profit'] = configurations_safe_get('MARGIN_PROFIT')
         context['lydia_min_price'] = configurations_safe_get('LYDIA_MIN_PRICE')
@@ -39,25 +39,21 @@ class ConfigurationListView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         #context['balance_frequency_mail_alert'] = configurations_safe_get("BALANCE_FREQUENCY_MAIL_ALERT")
         return context
 
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        return render(request, self.template_name, context=context)
 
-
-class ConfigurationCenterView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class ConfigurationCenterView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     """
     Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
     necessary in get_initial with a get_or_create. Default values are specified
     in borgia/settings.py.
     """
+    permission_required = 'configurations.change_configuration'
     template_name = 'configurations/center_config.html'
-    perm_codename = 'change_configuration'
-    lm_active = 'lm_global_config'
     form_class = ConfigurationCenterForm
+    lm_active = 'lm_global_config'
 
     def get_initial(self, **kwargs):
-        initial = super(ConfigurationCenterView, self).get_initial(**kwargs)
+        initial = super().get_initial(**kwargs)
         initial['center_name'] = configurations_safe_get('CENTER_NAME').get_value()
         return initial
 
@@ -66,24 +62,26 @@ class ConfigurationCenterView(GroupPermissionMixin, FormView, GroupLateralMenuMi
         center_name = configurations_safe_get('CENTER_NAME')
         center_name.value = form.cleaned_data['center_name']
         center_name.save()
-        return redirect(reverse('url_global_config',
-                                kwargs={'group_name': self.group.name}))
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('url_list_config')
 
 
-class ConfigurationProfitView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class ConfigurationProfitView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     """
     Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
     necessary in get_initial with a get_or_create. Default values are specified
     in borgia/settings.py.
     """
+    permission_required = 'configurations.change_configuration'
     template_name = 'configurations/price_config.html'
-    perm_codename = 'change_configuration'
-    lm_active = 'lm_global_config'
     form_class = ConfigurationProfitForm
+    lm_active = 'lm_global_config'
 
     def get_initial(self, **kwargs):
-        initial = super(ConfigurationProfitView, self).get_initial(**kwargs)
+        initial = super().get_initial(**kwargs)
         initial['margin_profit'] = configurations_safe_get(
             'MARGIN_PROFIT').get_value()
         return initial
@@ -93,24 +91,26 @@ class ConfigurationProfitView(GroupPermissionMixin, FormView, GroupLateralMenuMi
         margin_profit = configurations_safe_get('MARGIN_PROFIT')
         margin_profit.value = form.cleaned_data['margin_profit']
         margin_profit.save()
-        return redirect(reverse('url_global_config',
-                                kwargs={'group_name': self.group.name}))
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('url_list_config')
 
 
-class ConfigurationLydiaView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class ConfigurationLydiaView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     """
     Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
     necessary in get_initial with a get_or_create. Default values are specified
     in borgia/settings.py.
     """
+    permission_required = 'configurations.change_configuration'
     template_name = 'configurations/lydia_config.html'
-    perm_codename = 'change_configuration'
-    lm_active = 'lm_global_config'
     form_class = ConfigurationLydiaForm
+    lm_active = 'lm_global_config'
 
     def get_initial(self, **kwargs):
-        initial = super(ConfigurationLydiaView, self).get_initial(**kwargs)
+        initial = super().get_initial(**kwargs)
         initial['lydia_min_price'] = configurations_safe_get(
             'LYDIA_MIN_PRICE').get_value()
         initial['lydia_max_price'] = configurations_safe_get(
@@ -144,24 +144,26 @@ class ConfigurationLydiaView(GroupPermissionMixin, FormView, GroupLateralMenuMix
         lydia_vendor_token = configurations_safe_get('LYDIA_VENDOR_TOKEN')
         lydia_vendor_token.value = form.cleaned_data['lydia_vendor_token']
         lydia_vendor_token.save()
-        return redirect(reverse('url_global_config',
-                                kwargs={'group_name': self.group.name}))
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('url_list_config')
 
 
-class ConfigurationBalanceView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class ConfigurationBalanceView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     """
     Each config parameter MUST exists..
     However, to ensure that these values still exists, they are recreated if
     necessary in get_initial with a get_or_create. Default values are specified
     in borgia/settings.py.
     """
+    permission_required = 'configurations.change_configuration'
     template_name = 'configurations/balance_config.html'
-    perm_codename = 'change_configuration'
-    lm_active = 'lm_global_config'
     form_class = ConfigurationBalanceForm
+    lm_active = 'lm_global_config'
 
     def get_initial(self, **kwargs):
-        initial = super(ConfigurationBalanceView, self).get_initial(**kwargs)
+        initial = super().get_initial(**kwargs)
         initial['balance_threshold_purchase'] = configurations_safe_get(
             'BALANCE_THRESHOLD_PURCHASE').get_value()
         #initial['balance_threshold_mail_alert'] = configurations_safe_get('BALANCE_THRESHOLD_MAIL_ALERT').get_value()
@@ -190,5 +192,7 @@ class ConfigurationBalanceView(GroupPermissionMixin, FormView, GroupLateralMenuM
             balance_frequency_mail_alert.value = form.cleaned_data['balance_frequency_mail_alert']
         balance_frequency_mail_alert.save()
         """
-        return redirect(reverse('url_global_config',
-                                kwargs={'group_name': self.group.name}))
+        return super().form_valid(form)
+
+    def get_success_url(self):
+        return reverse('url_list_config')

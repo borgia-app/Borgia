@@ -10,11 +10,11 @@ from django.urls import include, path
 
 from borgia.views import (ManagersWorkboard, MembersWorkboard,
                           ModulesLoginView, handler403, handler404, handler500)
+from configurations.urls import configurations_patterns
 from events.urls import events_patterns
 from finances.urls import finances_patterns
 from modules.urls import modules_patterns
 from notifications.urls import notifications_patterns
-from configurations.urls import configurations_patterns
 from shops.urls import shops_patterns
 from stocks.urls import stocks_patterns
 from users.urls import users_patterns
@@ -50,11 +50,11 @@ urlpatterns = [
     path('managers/', ManagersWorkboard.as_view(), name='url_managers_workboard'),
 
     ### APPS ###
+    path('configurations/', include(configurations_patterns)),
     path('events/', include(events_patterns)),
     path('', include(finances_patterns)),
     path('', include(modules_patterns)),
     path('', include(notifications_patterns)),
-    path('', include(configurations_patterns)),
     path('', include(shops_patterns)),
     path('', include(stocks_patterns)),
     path('', include(users_patterns))
