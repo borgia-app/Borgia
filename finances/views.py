@@ -23,6 +23,8 @@ from openpyxl.writer.excel import save_virtual_workbook
 
 from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
                           UserMixin, shop_from_group)
+from configurations.models import Configuration
+from configurations.utils import configurations_safe_get
 from finances.forms import (ExceptionnalMovementForm,
                             GenericListSearchDateForm, RechargingCreateForm,
                             RechargingListForm, SaleListSearchDateForm,
@@ -31,8 +33,6 @@ from finances.models import (Cash, Cheque, ExceptionnalMovement,
                              LydiaFaceToFace, LydiaOnline, Recharging, Sale,
                              Transfert)
 from notifications.models import notify
-from configurations.models import Configuration
-from configurations.utils import configurations_safe_get
 from users.models import User
 
 

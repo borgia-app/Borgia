@@ -1,11 +1,9 @@
 from django.urls import include, path
 
-from events.views import (EventChangeWeight, EventCreate,
-                          EventDelete, EventDownloadXlsx,
-                          EventFinish, EventList,
+from events.views import (EventChangeWeight, EventCreate, EventDelete,
+                          EventDownloadXlsx, EventFinish, EventList,
                           EventManageUsers, EventRemoveUser,
-                          EventSelfRegistration, EventUpdate,
-                          EventUploadXlsx)
+                          EventSelfRegistration, EventUpdate, EventUploadXlsx)
 
 events_patterns = [
     path('', EventList.as_view(), name='url_event_list'),

@@ -9,9 +9,10 @@ from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupLateralMenuMixin,
-                          GroupPermissionMixin, ShopFromGroupMixin,
-                          ShopModuleMixin, lateral_menu, shop_from_group)
+from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
+                          ShopFromGroupMixin, ShopModuleMixin, lateral_menu,
+                          shop_from_group)
+from configurations.utils import configurations_safe_get
 from finances.models import Sale, SaleProduct
 from modules.forms import (ModuleCategoryCreateForm,
                            ModuleCategoryCreateNameForm,
@@ -19,7 +20,6 @@ from modules.forms import (ModuleCategoryCreateForm,
                            ShopModuleConfigForm)
 from modules.models import (Category, CategoryProduct, OperatorSaleModule,
                             SelfSaleModule)
-from configurations.utils import configurations_safe_get
 from shops.models import Product, Shop
 from users.models import User
 

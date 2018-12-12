@@ -8,8 +8,9 @@ from django.db import models
 from django.utils.timezone import now
 
 from notifications.models import notify
+from shops.models import Product, Shop
 from users.models import User
-from shops.models import Shop, Product
+
 
 class Event(models.Model):
     """

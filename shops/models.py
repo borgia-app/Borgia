@@ -1,9 +1,9 @@
 import decimal
 
 from django.contrib.auth.models import Group
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
-from django.core.exceptions import ObjectDoesNotExist, ImproperlyConfigured
 
 from configurations.utils import configurations_safe_get
 

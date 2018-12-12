@@ -15,11 +15,11 @@ from django.utils.encoding import force_text
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (LateralMenuMixin, GroupPermissionMixin,
+from borgia.utils import (GroupPermissionMixin, LateralMenuMixin,
                           get_members_group, group_name_display,
                           human_unused_permissions, permission_to_manage_group)
-from events.models import Event
 from configurations.utils import configurations_safe_get
+from events.models import Event
 from users.forms import (GroupUpdateForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserSearchForm,
                          UserUpdateForm)
