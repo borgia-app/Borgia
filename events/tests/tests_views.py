@@ -69,7 +69,7 @@ class EventListViewTests(BaseGeneralEventViewsTestCase):
         super().offline_user_redirection()
 
 
-class ShopCreateViewTests(BaseGeneralEventViewsTestCase):
+class EventCreateViewTests(BaseGeneralEventViewsTestCase):
     url_view = 'url_event_create'
 
     def test_allowed_user_get(self):
@@ -136,7 +136,8 @@ class EventFinishViewTests(BaseFocusEventViewsTestCase):
     url_view = 'url_event_finish'
 
     def test_as_president_get(self):
-        super().as_president_get()
+        response_client1 = self.client1.get(self.get_url(self.event1.pk))
+        self.assertEqual(response_client1.status_code, 403)
 
     def test_as_manager_get(self):
         response_client3 = self.client3.get(self.get_url(self.event1.pk))
