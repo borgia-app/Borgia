@@ -160,18 +160,14 @@ class EventUpdate(EventPermissionAndContextMixin, SuccessMessageMixin, FormView,
         return initial
 
     def get_context_data(self, **kwargs):
-
-        # list_year() contains smth like [2011, 2015, ...]
-
         context = super().get_context_data(**kwargs)
-        context['pk'] = self.event.pk
 
         # Pour les users
-        number_participants = self.event.get_number_participants
-        context['number_registrants'] = self.event.get_number_registrants
+        number_participants = self.event.get_number_participants()
+        context['number_registrants'] = self.event.get_number_registrants()
         context['number_participants'] = number_participants
-        context['total_weights_registrants'] = self.event.get_total_weights_registrants
-        context['total_weights_participants'] = self.event.get_total_weights_participants
+        context['total_weights_registrants'] = self.event.get_total_weights_registrants()
+        context['total_weights_participants'] = self.event.get_total_weights_participants()
         context['no_participant'] = number_participants == 0
 
         # Création des forms excel
@@ -245,18 +241,28 @@ class EventFinish(EventPermissionAndContextMixin, SuccessMessageMixin, FormView,
     success_message = "'%(description)s' a bien été terminé."
     need_ongoing_event = True
 
-    # # Check if there are participants
-    # self.total_weights_participants = self.event.get_total_weights_participants()
-    # if self.total_weights_participants == 0:
-    #     return redirect(reverse(
-    #         'url_event_update',
-    #         kwargs={'group_name': group.name, 'pk': self.event.pk}
-    #     ) + '?no_participant=True')
+    def __init__(self):
+        self.total_weights_participants = None
+        self.ponderation_price = None
 
-    # try:
-    #     self.ponderation_price = self.price / self.total_weights_participants
-    # except TypeError:
-    #     self.ponderation_price = 0
+    def has_permission(self):
+        """
+        Check if event exists, then permission.
+        Then check potentially on-going / manager attributes.
+        Then, check if there at least one participant.
+        """
+        if not super().has_permission():
+            return False
+        else:
+            self.total_weights_participants = self.event.get_total_weights_participants()
+            if self.total_weights_participants == 0:
+                return False
+
+            try:
+                self.ponderation_price = round(self.event.price / self.total_weights_participants, 2)
+            except TypeError:
+                self.ponderation_price = 0
+            return True
 
     def get_initial(self):
         """
@@ -264,14 +270,13 @@ class EventFinish(EventPermissionAndContextMixin, SuccessMessageMixin, FormView,
         """
         initial = super().get_initial()
         initial['total_price'] = self.event.price
-        initial['ponderation_price'] = round(self.ponderation_price, 2)
+        initial['ponderation_price'] = self.ponderation_price
         return initial
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['se'] = self.event
         context['total_weights_participants'] = self.total_weights_participants
-        context['ponderation_price'] = round(self.ponderation_price, 2)
+        context['ponderation_price'] = self.ponderation_price
         return context
 
     def form_valid(self, form):
