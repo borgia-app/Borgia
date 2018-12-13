@@ -443,6 +443,9 @@ class GroupUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
     def get_success_message(self, cleaned_data):
         return "Le groupe a bien été mis à jour"
 
+    def get_success_url(self):
+        return reverse('url_managers_workboard')
+
 
 def username_from_username_part(request):
     data = []
