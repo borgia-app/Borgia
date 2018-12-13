@@ -237,7 +237,7 @@ class SaleShopModuleResume(ShopModulePermissionAndContextMixin, View, GroupLater
         return render(request, self.template_name, context=context)
 
 
-class SelfSaleShopModuleConfig(ShopModulePermissionAndContextMixin, View,
+class ShopModuleConfigView(ShopModulePermissionAndContextMixin, View,
                                   GroupLateralMenuMixin):
     """
     View of the workboard of an SelfSale module of a shop.
@@ -269,7 +269,6 @@ class OperatorSaleShopModuleConfig(ShopModulePermissionAndContextMixin, View,
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['type'] = "operator_sale"
         return render(request, self.template_name, context=context)
 
 

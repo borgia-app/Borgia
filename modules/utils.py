@@ -21,6 +21,7 @@ class ShopModulePermissionAndContextMixin(PermissionRequiredMixin, ContextMixin)
 
     def __init__(self):
         self.shop = None
+        self.module_class = None
         self.module = None
 
     def add_shop_object(self):
@@ -52,5 +53,6 @@ class ShopModulePermissionAndContextMixin(PermissionRequiredMixin, ContextMixin)
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['shop'] = self.shop
+        context['module_class'] = self.module_class
         context['module'] = self.module
         return context

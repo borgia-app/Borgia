@@ -2,11 +2,10 @@ from django.urls import include, path
 
 from modules.models import OperatorSaleModule, SelfSaleModule
 from modules.views import (OperatorSaleShopModuleInterface,
-                           OperatorSaleShopModuleConfig,
                            SelfSaleShopModuleInterface,
-                           SelfSaleShopModuleConfig,
                            ShopModuleCategoryCreate, ShopModuleCategoryDelete,
-                           ShopModuleCategoryUpdate, ShopModuleConfigUpdate)
+                           ShopModuleCategoryUpdate, ShopModuleConfigUpdate,
+                           ShopModuleConfigView)
 
 modules_patterns = [
     path('shops/<int:shop_pk>/modules/', include([
@@ -14,7 +13,7 @@ modules_patterns = [
         path('<str:module_class>/', include([
             path('', SelfSaleShopModuleInterface.as_view(),
                  name='url_module_selfsale'),
-            path('config/', SelfSaleShopModuleConfig.as_view(),
+            path('config/', ShopModuleConfigView.as_view(),
                  name='url_module_selfsale_config'),
             path('config/update/', ShopModuleConfigUpdate.as_view(), name='url_module_selfsale_config_update'),
             path('categories/', include([
@@ -27,7 +26,7 @@ modules_patterns = [
         path('<str:module_class>/', include([
             path('', OperatorSaleShopModuleInterface.as_view(
             ), name='url_module_operatorsale'),
-            path('config/', OperatorSaleShopModuleConfig.as_view(),
+            path('config/', ShopModuleConfigView.as_view(),
                  name='url_module_operatorsale_config'),
             path('config/update', ShopModuleConfigUpdate.as_view(), name='url_module_operatorsale_config_update'),
             path('categories/', include([

@@ -4,7 +4,7 @@
 {% block content %}
 <div class="panel panel-primary">
   <div class="panel-heading">
-    {% if type == "operator_sale" %}
+    {% if module_class == "operator_sales" %}
       Accueil du module de vente par opérateur pour le magasin {{ shop }}
     {% else %}
       Accueil du module de vente libre service pour le magasin {{ shop }}
@@ -28,7 +28,7 @@
         {% if module.delay_post_purchase %}{{ module.delay_post_purchase }} secondes{% else %}pas de résumé{% endif %}
       </li>
     </ul>
-    {% if type == "operator_sale" %}
+    {% if module_class == "operator_sales" %}
       <a href="{% url 'url_module_operatorsale_config_update' %}" class="btn btn-default">Modifier</a>
     {% else %}
       <a href="{% url 'url_module_selfsale_config_update' %}" class="btn btn-default">Modifier</a>
@@ -38,7 +38,7 @@
 <div class="panel panel-default">
   <div class="panel-heading">
     En vente au module
-    {% if type == "operator_sale" %}
+    {% if module_class == "operator_sales" %}
       <a href="{% url 'url_module_operatorsale_categories_create' %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Ajouter une catégorie</a>
     {% else %}
       <a href="{% url 'url_module_selfsale_categories_create' %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Ajouter une catégorie</a>
@@ -54,7 +54,7 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             {{ category.name }}
-            {% if type == "operator_sale" %}
+            {% if module_class == "operator_sales" %}
             <a href="{% url 'url_module_operatorsale_categories_update' pk=category.pk %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Modifier</a>
             <a href="{% url 'url_module_operatorsale_categories_delete' pk=category.pk %}"role="button" class="btn btn-xs btn-danger" style='margin-left: 10px'>Supprimer</a>
             {% else %}
