@@ -40,14 +40,23 @@ class ConfigurationListView(PermissionRequiredMixin, TemplateView, GroupLateralM
         return context
 
 
-class ConfigurationCenterView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+class ConfigurationChangeBaseView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+    """
+    Override this base view for configuration changes.
+    """
+    permission_required = 'configurations.change_configuration'
+
+    def get_success_url(self):
+        return reverse('url_list_config')
+
+
+class ConfigurationCenterView(ConfigurationChangeBaseView):
     """
     Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
     necessary in get_initial with a get_or_create. Default values are specified
     in borgia/settings.py.
     """
-    permission_required = 'configurations.change_configuration'
     template_name = 'configurations/center_config.html'
     form_class = ConfigurationCenterForm
     lm_active = 'lm_global_config'
@@ -64,18 +73,14 @@ class ConfigurationCenterView(PermissionRequiredMixin, FormView, GroupLateralMen
         center_name.save()
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse('url_list_config')
 
-
-class ConfigurationProfitView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+class ConfigurationProfitView(ConfigurationChangeBaseView):
     """
     Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
     necessary in get_initial with a get_or_create. Default values are specified
     in borgia/settings.py.
     """
-    permission_required = 'configurations.change_configuration'
     template_name = 'configurations/price_config.html'
     form_class = ConfigurationProfitForm
     lm_active = 'lm_global_config'
@@ -93,18 +98,15 @@ class ConfigurationProfitView(PermissionRequiredMixin, FormView, GroupLateralMen
         margin_profit.save()
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse('url_list_config')
 
 
-class ConfigurationLydiaView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+class ConfigurationLydiaView(ConfigurationChangeBaseView):
     """
     Each config parameter MUST exists.
     However, to ensure that these values still exists, they are recreated if
     necessary in get_initial with a get_or_create. Default values are specified
     in borgia/settings.py.
     """
-    permission_required = 'configurations.change_configuration'
     template_name = 'configurations/lydia_config.html'
     form_class = ConfigurationLydiaForm
     lm_active = 'lm_global_config'
@@ -146,18 +148,14 @@ class ConfigurationLydiaView(PermissionRequiredMixin, FormView, GroupLateralMenu
         lydia_vendor_token.save()
         return super().form_valid(form)
 
-    def get_success_url(self):
-        return reverse('url_list_config')
 
-
-class ConfigurationBalanceView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+class ConfigurationBalanceView(ConfigurationChangeBaseView):
     """
     Each config parameter MUST exists..
     However, to ensure that these values still exists, they are recreated if
     necessary in get_initial with a get_or_create. Default values are specified
     in borgia/settings.py.
     """
-    permission_required = 'configurations.change_configuration'
     template_name = 'configurations/balance_config.html'
     form_class = ConfigurationBalanceForm
     lm_active = 'lm_global_config'
@@ -193,6 +191,3 @@ class ConfigurationBalanceView(PermissionRequiredMixin, FormView, GroupLateralMe
         balance_frequency_mail_alert.save()
         """
         return super().form_valid(form)
-
-    def get_success_url(self):
-        return reverse('url_list_config')
