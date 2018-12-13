@@ -129,7 +129,7 @@ class ProductDeactivate(GroupPermissionMixin, ProductShopFromGroupMixin, View,
     """
     template_name = 'shops/product_deactivate.html'
     success_url = None
-    perm_codename = None
+    perm_codename = 'delete_product'
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -160,7 +160,7 @@ class ProductRemove(GroupPermissionMixin, ProductShopFromGroupMixin, View,
     """
     template_name = 'shops/product_remove.html'
     success_url = None
-    perm_codename = None
+    perm_codename = 'change_product'
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -189,7 +189,7 @@ class ProductRetrieve(GroupPermissionMixin, ProductShopFromGroupMixin, View,
     :param self.perm_codename: codename of the permission checked.
     """
     template_name = 'shops/product_retrieve.html'
-    perm_codename = None
+    perm_codename = 'change_product'
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -209,7 +209,7 @@ class ProductUpdate(GroupPermissionMixin, ProductShopFromGroupMixin, FormView,
     form_class = ProductUpdateForm
     template_name = 'shops/product_update.html'
     success_url = None
-    perm_codename = None
+    perm_codename = 'change_product'
 
     def get_context_data(self, **kwargs):
         context = super(ProductUpdate, self).get_context_data(**kwargs)

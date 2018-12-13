@@ -227,11 +227,6 @@ class UserSelfUpdateViewTestCase(BaseBorgiaViewsTestCase):
                                                     kwargs={'group_name': 'gadzarts'}))
         self.assertEqual(response_client3.status_code, 403)
 
-    def test_get_not_allowed_group(self):
-        response_client2 = self.client2.get(reverse('url_user_self_update',
-                                                    kwargs={'group_name': 'specials'}))
-        self.assertEqual(response_client2.status_code, 403)
-
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(
             reverse('url_user_self_update', kwargs={'group_name': 'presidents'}))

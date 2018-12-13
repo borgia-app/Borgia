@@ -13,7 +13,8 @@ class BaseBorgiaViewsTestCase(TestCase):
         # Group specials NEED to be created (else raises errors) :
         specials_group = Group.objects.create(name='specials')
         specials_group.permissions.set([])
-
+        specials_group.save()
+        
         self.user1 = User.objects.create(username='user1', balance=53)
         self.user1.groups.add(members_group)
         self.user1.groups.add(presidents_group)

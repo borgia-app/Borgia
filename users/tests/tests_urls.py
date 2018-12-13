@@ -51,4 +51,4 @@ class UserUrlsTest(TestCase):
 
     def test_url_balance_from_username(self):
         self.assertEqual(reverse('url_balance_from_username'),
-                         '/ajax/balance_from_username')
+                         '/ajax/balance_from_username/')
