@@ -1,14 +1,10 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.http import Http404
-from django.urls import reverse
-from django.views.generic.base import ContextMixin
 
 from modules.models import OperatorSaleModule, SelfSaleModule, Category
-from shops.models import Shop
+from shops.utils import ShopPermissionAndContextMixin
 
-
-class ShopModuleMixin(PermissionRequiredMixin, ContextMixin):
+class ShopModuleMixin(ShopPermissionAndContextMixin):
     """
     Mixin for Module Shop views.
     For Permission :
@@ -21,19 +17,8 @@ class ShopModuleMixin(PermissionRequiredMixin, ContextMixin):
     permission_required_operator = None
 
     def __init__(self):
-        self.shop = None
         self.module_class = None
         self.module = None
-
-    def add_shop_object(self):
-        """
-        Define shop object. 
-        Raise Http404 is shop doesn't exist.
-        """
-        try:
-            self.shop = Shop.objects.get(pk=self.kwargs['shop_pk'])
-        except ObjectDoesNotExist:
-            raise Http404
 
     def add_module_object(self):
         """
@@ -51,10 +36,7 @@ class ShopModuleMixin(PermissionRequiredMixin, ContextMixin):
             raise Http404
 
     def add_context_objects(self):
-        """
-        Define context objects
-        """
-        self.add_shop_object()
+        super().add_context_objects()
         self.add_module_object()
 
     def verify_permission(self, permission_required):
@@ -79,18 +61,9 @@ class ShopModuleMixin(PermissionRequiredMixin, ContextMixin):
             return self.verify_permission(self.permission_required_operator)
         else:
             return self.handle_unexpected_module_class()
-        
-    def has_permission(self):
-        """
-        Define context object, only then check for permissions
-        (Shop and modules need to be defined before checking perms)
-        """
-        self.add_context_objects()
-        return super().has_permission()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['shop'] = self.shop
         context['module_class'] = self.module_class
         context['module'] = self.module
         return context
@@ -111,8 +84,8 @@ class ShopModuleCategoryMixin(ShopModuleMixin):
 
     def add_category_object(self):
         """
-        Define shop object.
-        Raise Http404 is shop doesn't exist.
+        Define category object.
+        Raise Http404 is category doesn't exist.
         """
         try:
             self.category = Category.objects.get(pk=self.kwargs['category_pk'])
@@ -132,6 +105,3 @@ class ShopModuleCategoryMixin(ShopModuleMixin):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
         return context
-
-    def get_success_url(self):
-        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})

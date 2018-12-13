@@ -236,11 +236,25 @@ class ShopModuleConfigUpdateView(ShopModuleMixin, FormView, GroupLateralMenuMixi
     def get_success_url(self):
         return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
 
-class ShopModuleCategoryCreateView(ShopModuleMixin, View, GroupLateralMenuMixin):
+
+class ShopModuleCategoryBaseView(View, GroupLateralMenuMixin):
     """
+    Base for shop module category views
     """
     permission_required_self = 'modules.change_config_selfsalemodule'
     permission_required_operator = 'modules.change_config_operatorsalemodule'
+
+    def __init__(self):
+        self.shop = None
+        self.module_class = None
+
+    def get_success_url(self):
+        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
+
+
+class ShopModuleCategoryCreateView(ShopModuleMixin, ShopModuleCategoryBaseView):
+    """
+    """
     template_name = 'modules/shop_module_category_create.html'
 
     def __init__(self):
@@ -289,15 +303,10 @@ class ShopModuleCategoryCreateView(ShopModuleMixin, View, GroupLateralMenuMixin)
                 pass
         return redirect(self.get_success_url())
 
-    def get_success_url(self):
-        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
 
-
-class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, View, GroupLateralMenuMixin):
+class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, ShopModuleCategoryBaseView):
     """
     """
-    permission_required_self = 'modules.change_config_selfsalemodule'
-    permission_required_operator = 'modules.change_config_operatorsalemodule'
     template_name = 'modules/shop_module_category_update.html'
 
     def __init__(self):
@@ -349,15 +358,10 @@ class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, View, GroupLateralMe
         return redirect(self.get_success_url())
 
 
-class ShopModuleCategoryDeleteView(ShopModuleCategoryMixin, View, GroupLateralMenuMixin):
+class ShopModuleCategoryDeleteView(ShopModuleCategoryMixin, ShopModuleCategoryBaseView):
     """
     """
-    permission_required_self = 'modules.change_config_selfsalemodule'
-    permission_required_operator = 'modules.change_config_operatorsalemodule'
     template_name = 'modules/shop_module_category_delete.html'
-
-    def __init__(self):
-        self.form_class = None
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)

@@ -42,8 +42,13 @@ class ShopPermissionAndContextMixin(PermissionRequiredMixin, ContextMixin):
 
     def __init__(self):
         self.shop = None
+        self.is_association_manager = None
 
     def add_shop_object(self):
+        """
+        Define shop object.
+        Raise Http404 is shop doesn't exist.
+        """
         try:
             self.shop = Shop.objects.get(pk=self.kwargs['shop_pk'])
         except ObjectDoesNotExist:
@@ -56,12 +61,11 @@ class ShopPermissionAndContextMixin(PermissionRequiredMixin, ContextMixin):
         self.add_shop_object()
 
     def has_permission(self):
+        self.add_context_objects()
         has_perms = super().has_permission()
         if not has_perms:
             return False
         else:
-            self.add_context_objects()
-
             if is_association_manager(self.request.user):
                 self.is_association_manager = True
                 return True
