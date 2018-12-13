@@ -7,6 +7,7 @@ from configurations.views import (ConfigurationBalanceView,
                                   ConfigurationProfitView)
 
 configurations_patterns = [
+     path('configurations/', include([
         path('', ConfigurationListView.as_view(), name='url_list_config'),
         path('center/', ConfigurationCenterView.as_view(),
              name='url_center_config'),
@@ -14,4 +15,5 @@ configurations_patterns = [
         path('lydia/', ConfigurationLydiaView.as_view(), name='url_lydia_config'),
         path('balance/', ConfigurationBalanceView.as_view(),
              name='url_balance_config')
+     ]))
 ]

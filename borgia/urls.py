@@ -50,8 +50,8 @@ urlpatterns = [
     path('managers/', ManagersWorkboard.as_view(), name='url_managers_workboard'),
 
     ### APPS ###
-    path('configurations/', include(configurations_patterns)),
-    path('events/', include(events_patterns)),
+    path('', include(configurations_patterns)),
+    path('', include(events_patterns)),
     path('', include(finances_patterns)),
     path('', include(modules_patterns)),
     path('', include(notifications_patterns)),
