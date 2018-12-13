@@ -279,6 +279,46 @@ class OperatorSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
         return render(request, self.template_name, context=context)
 
 
+class ShopModuleConfig(ShopFromGroupMixin,
+                       ShopModuleMixin, FormView,
+                       GroupLateralMenuMixin):
+    """
+    View to manage config of a self shop module.
+
+    :param kwargs['group_name']: name of the group, mandatory
+    :param kwargs['module_class']: class of the shop module, mandatory
+    :type kwargs['group_name']: string
+    :type kwargs['module_class']: class object
+    """
+    template_name = 'modules/shop_module_config.html'
+    form_class = ShopModuleConfigForm
+    perm_codename = None
+    lm_active = None
+
+    def get_initial(self):
+        initial = super(ShopModuleConfig, self).get_initial()
+        initial['state'] = self.module.state
+        initial['logout_post_purchase'] = self.module.logout_post_purchase
+        initial['limit_purchase'] = self.module.limit_purchase
+        if self.module.delay_post_purchase:
+            initial['infinite_delay_post_purchase'] = False
+        else:
+            initial['infinite_delay_post_purchase'] = True
+        initial['delay_post_purchase'] = self.module.delay_post_purchase
+        return initial
+
+    def form_valid(self, form):
+        self.module.state = form.cleaned_data['state']
+        self.module.logout_post_purchase = form.cleaned_data['logout_post_purchase']
+        self.module.limit_purchase = form.cleaned_data['limit_purchase']
+        if form.cleaned_data['infinite_delay_post_purchase'] is True:
+            self.module.delay_post_purchase = None
+        else:
+            self.module.delay_post_purchase = form.cleaned_data['delay_post_purchase']
+        self.module.save()
+        return super(ShopModuleConfig, self).form_valid(form)
+
+
 class ShopModuleCategoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                                ShopModuleMixin,
                                View, GroupLateralMenuMixin):
@@ -481,43 +521,3 @@ class ShopModuleCategoryDelete(ShopFromGroupMixin,
             self.success_url = reverse(
                 'url_module_operatorsale_workboard')
         return self.success_url
-
-
-class ShopModuleConfig(ShopFromGroupMixin,
-                       ShopModuleMixin, FormView,
-                       GroupLateralMenuMixin):
-    """
-    View to manage config of a self shop module.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['module_class']: class of the shop module, mandatory
-    :type kwargs['group_name']: string
-    :type kwargs['module_class']: class object
-    """
-    template_name = 'modules/shop_module_config.html'
-    form_class = ShopModuleConfigForm
-    perm_codename = None
-    lm_active = None
-
-    def get_initial(self):
-        initial = super(ShopModuleConfig, self).get_initial()
-        initial['state'] = self.module.state
-        initial['logout_post_purchase'] = self.module.logout_post_purchase
-        initial['limit_purchase'] = self.module.limit_purchase
-        if self.module.delay_post_purchase:
-            initial['infinite_delay_post_purchase'] = False
-        else:
-            initial['infinite_delay_post_purchase'] = True
-        initial['delay_post_purchase'] = self.module.delay_post_purchase
-        return initial
-
-    def form_valid(self, form):
-        self.module.state = form.cleaned_data['state']
-        self.module.logout_post_purchase = form.cleaned_data['logout_post_purchase']
-        self.module.limit_purchase = form.cleaned_data['limit_purchase']
-        if form.cleaned_data['infinite_delay_post_purchase'] is True:
-            self.module.delay_post_purchase = None
-        else:
-            self.module.delay_post_purchase = form.cleaned_data['delay_post_purchase']
-        self.module.save()
-        return super(ShopModuleConfig, self).form_valid(form)
