@@ -55,7 +55,7 @@ class BaseGeneralShopViewsTest(BaseShopsViewsTest):
     def get_url(self):
         return reverse(self.url_view)
 
-    def allowed_user_get(self):
+    def as_president_get(self):
         response_client1 = self.client1.get(self.get_url())
         self.assertEqual(response_client1.status_code, 200)
 
@@ -72,8 +72,12 @@ class BaseGeneralShopViewsTest(BaseShopsViewsTest):
 class ShopListViewTest(BaseGeneralShopViewsTest):
     url_view = 'url_shop_list'
 
-    def test_allowed_user_get(self):
-        super().allowed_user_get()
+    def test_as_president_get(self):
+        super().as_president_get()
+
+    def test_as_chief_get(self):
+        response_client3 = self.client3.get(self.get_url())
+        self.assertEqual(response_client3.status_code, 200)
 
     def test_not_allowed_user_get(self):
         super().not_allowed_user_get()
@@ -85,8 +89,12 @@ class ShopListViewTest(BaseGeneralShopViewsTest):
 class ShopCreateViewTest(BaseGeneralShopViewsTest):
     url_view = 'url_shop_create'
 
-    def test_allowed_user_get(self):
-        super().allowed_user_get()
+    def test_as_president_get(self):
+        super().as_president_get()
+
+    def test_as_chief_get(self):
+        response_client3 = self.client3.get(self.get_url())
+        self.assertEqual(response_client3.status_code, 403)
 
     def test_not_allowed_user_get(self):
         super().not_allowed_user_get()
