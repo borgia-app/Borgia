@@ -4,22 +4,17 @@ import hashlib
 import operator
 
 from django.conf import settings
-from django.contrib import messages
 from django.contrib.auth import authenticate
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.http import Http404
-from django.shortcuts import HttpResponse, redirect, render
-from django.urls import reverse
-from django.utils.encoding import force_text
+from django.shortcuts import HttpResponse, render
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import FormView, View
-from openpyxl import Workbook, load_workbook
-from openpyxl.writer.excel import save_virtual_workbook
 
 from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
                           UserMixin, shop_from_group)
