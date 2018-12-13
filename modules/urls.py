@@ -2,22 +2,20 @@ from django.urls import include, path
 
 from modules.models import OperatorSaleModule, SelfSaleModule
 from modules.views import (OperatorSaleShopModuleInterface,
-                           OperatorSaleShopModuleWorkboard,
+                           OperatorSaleShopModuleConfig,
                            SelfSaleShopModuleInterface,
-                           SelfSaleShopModuleWorkboard,
+                           SelfSaleShopModuleConfig,
                            ShopModuleCategoryCreate, ShopModuleCategoryDelete,
-                           ShopModuleCategoryUpdate, ShopModuleConfig)
+                           ShopModuleCategoryUpdate, ShopModuleConfigUpdate)
 
 modules_patterns = [
     path('shops/<int:shop_pk>/modules/', include([
         # SELF SALE
         path('self_sales/', include([
-            path('', SelfSaleShopModuleWorkboard.as_view(),
-                 name='url_module_selfsale_workboard'),
-            path('config/', ShopModuleConfig.as_view(), name='url_module_selfsale_config',
+            path('', SelfSaleShopModuleInterface.as_view(), name='url_module_selfsale'),
+            path('config/', SelfSaleShopModuleConfig.as_view(), name='url_module_selfsale_config'),
+            path('config/update/', ShopModuleConfigUpdate.as_view(), name='url_module_selfsale_config_update',
                  kwargs={'module_class': SelfSaleModule}),
-            path('<str:shop_name>', SelfSaleShopModuleInterface.as_view(),
-                 name='url_module_selfsale'),
             path('categories/', include([
                 path('create/', ShopModuleCategoryCreate.as_view(), name='url_module_selfsale_categories_create',
                      kwargs={'module_class': SelfSaleModule}),
@@ -29,12 +27,12 @@ modules_patterns = [
         ])),
         # OPERATOR SALE
         path('operator_sales/', include([
-            path('', OperatorSaleShopModuleWorkboard.as_view(),
-                 name='url_module_operatorsale_workboard'),
-            path('config/', ShopModuleConfig.as_view(), name='url_module_operatorsale_config',
-                 kwargs={'module_class': OperatorSaleModule}),
-            path('<str:shop_name>', OperatorSaleShopModuleInterface.as_view(
+            path('', OperatorSaleShopModuleInterface.as_view(
             ), name='url_module_operatorsale'),
+            path('config/', OperatorSaleShopModuleConfig.as_view(),
+                 name='url_module_operatorsale_config'),
+            path('config/update', ShopModuleConfigUpdate.as_view(), name='url_module_operatorsale_config_update',
+                 kwargs={'module_class': OperatorSaleModule}),
             path('categories/', include([
                 path('create/', ShopModuleCategoryCreate.as_view(), name='url_module_operatorsale_categories_create',
                      kwargs={'module_class': OperatorSaleModule}),

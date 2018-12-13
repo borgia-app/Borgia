@@ -237,7 +237,7 @@ class SaleShopModuleResume(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class SelfSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
+class SelfSaleShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
                                   ShopModuleMixin, View,
                                   GroupLateralMenuMixin):
     """
@@ -258,7 +258,7 @@ class SelfSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
         return render(request, self.template_name, context=context)
 
 
-class OperatorSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
+class OperatorSaleShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
                                       ShopModuleMixin, View,
                                       GroupLateralMenuMixin):
     """
@@ -279,7 +279,7 @@ class OperatorSaleShopModuleWorkboard(GroupPermissionMixin, ShopFromGroupMixin,
         return render(request, self.template_name, context=context)
 
 
-class ShopModuleConfig(ShopFromGroupMixin,
+class ShopModuleConfigUpdate(ShopFromGroupMixin,
                        ShopModuleMixin, FormView,
                        GroupLateralMenuMixin):
     """
@@ -296,7 +296,7 @@ class ShopModuleConfig(ShopFromGroupMixin,
     lm_active = None
 
     def get_initial(self):
-        initial = super(ShopModuleConfig, self).get_initial()
+        initial = super(ShopModuleConfigUpdate, self).get_initial()
         initial['state'] = self.module.state
         initial['logout_post_purchase'] = self.module.logout_post_purchase
         initial['limit_purchase'] = self.module.limit_purchase
@@ -316,7 +316,7 @@ class ShopModuleConfig(ShopFromGroupMixin,
         else:
             self.module.delay_post_purchase = form.cleaned_data['delay_post_purchase']
         self.module.save()
-        return super(ShopModuleConfig, self).form_valid(form)
+        return super(ShopModuleConfigUpdate, self).form_valid(form)
 
 
 class ShopModuleCategoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
@@ -384,10 +384,10 @@ class ShopModuleCategoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
 
     def get_success_url(self):
         if self.kwargs['module_class'] == SelfSaleModule:
-            self.success_url = reverse('url_module_selfsale_workboard')
+            self.success_url = reverse('url_module_selfsale_config')
         elif self.kwargs['module_class'] == OperatorSaleModule:
             self.success_url = reverse(
-                'url_module_operatorsale_workboard')
+                'url_module_operatorsale_config')
         return self.success_url
 
 
@@ -464,10 +464,10 @@ class ShopModuleCategoryUpdate(ShopFromGroupMixin,
 
     def get_success_url(self):
         if self.kwargs['module_class'] == SelfSaleModule:
-            self.success_url = reverse('url_module_selfsale_workboard')
+            self.success_url = reverse('url_module_selfsale_config')
         elif self.kwargs['module_class'] == OperatorSaleModule:
             self.success_url = reverse(
-                'url_module_operatorsale_workboard')
+                'url_module_operatorsale_config')
         return self.success_url
 
 
@@ -516,8 +516,8 @@ class ShopModuleCategoryDelete(ShopFromGroupMixin,
 
     def get_success_url(self):
         if self.kwargs['module_class'] == SelfSaleModule:
-            self.success_url = reverse('url_module_selfsale_workboard')
+            self.success_url = reverse('url_module_selfsale_config')
         elif self.kwargs['module_class'] == OperatorSaleModule:
             self.success_url = reverse(
-                'url_module_operatorsale_workboard')
+                'url_module_operatorsale_config')
         return self.success_url

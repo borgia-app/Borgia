@@ -204,7 +204,7 @@ def lateral_menu(user, group, active=None):
                 label='Module vente libre service',
                 fa_icon='shopping-basket',
                 id_link='lm_selfsale_module',
-                url=reverse('url_module_selfsale_workboard')
+                url=reverse('url_module_selfsale_config')
             ))
         # TODO: check perm
             nav_tree.append(simple_lateral_link(
@@ -212,7 +212,7 @@ def lateral_menu(user, group, active=None):
                 fa_icon='coffee',
                 id_link='lm_operatorsale_module',
                 url=reverse(
-                    'url_module_operatorsale_workboard'
+                    'url_module_operatorsale_config'
                 )
             ))
     except ValueError:

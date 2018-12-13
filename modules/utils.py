@@ -31,12 +31,12 @@ class ShopModuleMixin(object):
         if module_class == SelfSaleModule:
             self.module, created = SelfSaleModule.objects.get_or_create(
                 shop=self.shop)
-            self.success_url = reverse('url_module_selfsale_workboard')
+            self.success_url = reverse('url_module_selfsale_config')
         elif module_class == OperatorSaleModule:
             self.module, created = OperatorSaleModule.objects.get_or_create(
                 shop=self.shop)
             self.success_url = reverse(
-                'url_module_operatorsale_workboard')
+                'url_module_operatorsale_config')
         return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
