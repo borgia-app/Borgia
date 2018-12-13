@@ -118,6 +118,8 @@ class SelfSaleModule(ShopModule):
         default_permissions = ()
         permissions = (
             ('use_selfsalemodule', 'Can use the self sale module'),
+            ('change_config_selfsalemodule', 'Can change the config for self sale module'),
+            ('view_config_selfsalemodule', 'Can view the config for self sale module')
         )
 
     def __str__(self):
@@ -132,6 +134,8 @@ class OperatorSaleModule(ShopModule):
         default_permissions = ()
         permissions = (
             ('use_operatorsalemodule', 'Can use the operator sale module'),
+            ('change_config_operatorsalemodule', 'Can change the config for operator sale module'),
+            ('view_config_operatorsalemodule', 'Can view the config for operator sale module')
         )
 
     def __str__(self):

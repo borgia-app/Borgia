@@ -31,29 +31,18 @@ class ShopModuleSaleView(ShopModulePermissionAndContextMixin, FormView,
 
     :param self.template_name: template, mandatory.
     :param self.form_class: form class, mandatory.
-    :param self.module_class: module class, mandatory.
-    :param self.perm_codename: permission to check
+    :param self.permission_required_selfsale: permission to check for self sale
+    :param self.permission_required_operatorsale: permission to check for operator sale
     :type self.template_name: string
     :type self.form_class: Form class object
-    :type self.module_class: ShopModule class object
-    :type self.perm_codename: string
+    :type self.permission_required_selfsale: string
+    :type self.permission_required_operatorsale: string
     """
-    permission_required_selfsale = 'modules.use_selfsalemodule'
-    permission_required_operatorsale = 'modules.use_operatorsalemodule'
+    permission_required_self = 'modules.use_selfsalemodule'
+    permission_required_operator = 'modules.use_operatorsalemodule'
     template_name = 'modules/shop_module_sale.html'
     form_class = ShopModuleSaleForm
 
-    def get_permission_required(self):
-        """
-        Override the method to check perms related to module.
-        """
-        if self.module_class == 'self_sales':
-            return (self.permission_required_selfsale,)
-        elif self.module_class == 'operator_sales':
-            return (self.permission_required_operatorsale,)
-        else:
-            return self.handle_unexpected_module_class()
-        
     def has_permission(self):
         has_perms = super().has_permission()
         if not has_perms:
@@ -201,12 +190,10 @@ class SaleShopModuleResume(ShopModulePermissionAndContextMixin, View, GroupLater
 class ShopModuleConfigView(ShopModulePermissionAndContextMixin, View,
                            GroupLateralMenuMixin):
     """
-    View of the workboard of an SelfSale module of a shop.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :type kwargs['group_name']: strings
-    :raises: Http404 if the group_name doesn't match a group
+    ConfigView for a shopModule.
     """
+    permission_required_self = 'modules.view_config_selfsalemodule'
+    permission_required_operator = 'modules.view_config_operatorsalemodule'
     template_name = 'modules/shop_module_config.html'
     lm_active = 'lm_selfsale_module'
 
@@ -226,9 +213,10 @@ class ShopModuleConfigUpdateView(ShopModulePermissionAndContextMixin, FormView,
     :type kwargs['group_name']: string
     :type kwargs['module_class']: class object
     """
+    permission_required_self = 'modules.change_config_selfsalemodule'
+    permission_required_operator = 'modules.change_config_operatorsalemodule'
     template_name = 'modules/shop_module_config_update.html'
     form_class = ShopModuleConfigForm
-    lm_active = None
 
     def get_initial(self):
         initial = super(ShopModuleConfigUpdateView, self).get_initial()
@@ -258,6 +246,8 @@ class ShopModuleCategoryCreateView(ShopModulePermissionAndContextMixin,
                                    View, GroupLateralMenuMixin):
     """
     """
+    permission_required_self = 'modules.change_config_selfsalemodule'
+    permission_required_operator = 'modules.change_config_operatorsalemodule'
     template_name = 'modules/shop_module_category_create.html'
     form_class = None
     lm_active = None
@@ -314,6 +304,8 @@ class ShopModuleCategoryUpdateView(ShopModulePermissionAndContextMixin,
                                    View, GroupLateralMenuMixin):
     """
     """
+    permission_required_self = 'modules.change_config_selfsalemodule'
+    permission_required_operator = 'modules.change_config_operatorsalemodule'
     template_name = 'modules/shop_module_category_update.html'
     form_class = None
     lm_active = None
@@ -378,6 +370,8 @@ class ShopModuleCategoryDeleteView(ShopModulePermissionAndContextMixin,
                                    View, GroupLateralMenuMixin):
     """
     """
+    permission_required_self = 'modules.change_config_selfsalemodule'
+    permission_required_operator = 'modules.change_config_operatorsalemodule'
     template_name = 'modules/shop_module_category_delete.html'
     form_class = None
     lm_active = None

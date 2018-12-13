@@ -17,7 +17,8 @@ class ShopModulePermissionAndContextMixin(PermissionRequiredMixin, ContextMixin)
     - shop, Shop object
     - module, a ShopModule object
     """
-    permission_required = None
+    permission_required_self = None
+    permission_required_operator = None
 
     def __init__(self):
         self.shop = None
@@ -56,6 +57,29 @@ class ShopModulePermissionAndContextMixin(PermissionRequiredMixin, ContextMixin)
         self.add_shop_object()
         self.add_module_object()
 
+    def verify_permission(self, permission_required):
+        if permission_required is None:
+            raise ImproperlyConfigured(
+                '{0} is missing the permission_required_... attribute. Define {0}.permission_required_..., or override '
+                '{0}.get_permission_required().'.format(self.__class__.__name__)
+            )
+        if isinstance(permission_required, str):
+            perms = (permission_required,)
+        else:
+            perms = permission_required
+        return perms
+
+    def get_permission_required(self):
+        """
+        Override the method to check perms related to module.
+        """
+        if self.module_class == 'self_sales':
+            return self.verify_permission(self.permission_required_self)
+        elif self.module_class == 'operator_sales':
+            return self.verify_permission(self.permission_required_operator)
+        else:
+            return self.handle_unexpected_module_class()
+        
     def has_permission(self):
         """
         Define context object, only then check for permissions
