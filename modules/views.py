@@ -10,8 +10,7 @@ from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
 from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
-                          ShopFromGroupMixin, ShopModuleMixin, lateral_menu,
-                          shop_from_group)
+                          lateral_menu, shop_from_group)
 from configurations.utils import configurations_safe_get
 from finances.models import Sale, SaleProduct
 from modules.forms import (ModuleCategoryCreateForm,
@@ -20,6 +19,7 @@ from modules.forms import (ModuleCategoryCreateForm,
                            ShopModuleConfigForm)
 from modules.models import (Category, CategoryProduct, OperatorSaleModule,
                             SelfSaleModule)
+from modules.utils import ShopModulePermissionAndContextMixin
 from shops.models import Product, Shop
 from users.models import User
 
@@ -206,7 +206,7 @@ def sale_shop_module_resume(request, sale, group, shop, module, success_url):
     return render(request, template_name, context=context)
 
 
-class SaleShopModuleResume(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class SaleShopModuleResume(ShopModulePermissionAndContextMixin, View, GroupLateralMenuMixin):
     sale = None
     delay = None
     success_url = None
@@ -237,8 +237,7 @@ class SaleShopModuleResume(GroupPermissionMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class SelfSaleShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
-                                  ShopModuleMixin, View,
+class SelfSaleShopModuleConfig(ShopModulePermissionAndContextMixin, View,
                                   GroupLateralMenuMixin):
     """
     View of the workboard of an SelfSale module of a shop.
@@ -248,9 +247,7 @@ class SelfSaleShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
     :raises: Http404 if the group_name doesn't match a group
     """
     template_name = 'modules/shop_module_sale_workboard.html'
-    perm_codename = None
     lm_active = 'lm_selfsale_module'
-    module_class = SelfSaleModule
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -258,8 +255,7 @@ class SelfSaleShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
         return render(request, self.template_name, context=context)
 
 
-class OperatorSaleShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
-                                      ShopModuleMixin, View,
+class OperatorSaleShopModuleConfig(ShopModulePermissionAndContextMixin, View,
                                       GroupLateralMenuMixin):
     """
     View of the workboard of an OperatorSale module of a shop.
@@ -269,9 +265,7 @@ class OperatorSaleShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
     :raises: Http404 if the group_name doesn't match a group
     """
     template_name = 'modules/shop_module_sale_workboard.html'
-    perm_codename = None
     lm_active = 'lm_operatorsale_module'
-    module_class = OperatorSaleModule
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -279,8 +273,7 @@ class OperatorSaleShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
         return render(request, self.template_name, context=context)
 
 
-class ShopModuleConfigUpdate(ShopFromGroupMixin,
-                       ShopModuleMixin, FormView,
+class ShopModuleConfigUpdate(ShopModulePermissionAndContextMixin, FormView,
                        GroupLateralMenuMixin):
     """
     View to manage config of a self shop module.
@@ -292,7 +285,6 @@ class ShopModuleConfigUpdate(ShopFromGroupMixin,
     """
     template_name = 'modules/shop_module_config.html'
     form_class = ShopModuleConfigForm
-    perm_codename = None
     lm_active = None
 
     def get_initial(self):
@@ -319,34 +311,18 @@ class ShopModuleConfigUpdate(ShopFromGroupMixin,
         return super(ShopModuleConfigUpdate, self).form_valid(form)
 
 
-class ShopModuleCategoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
-                               ShopModuleMixin,
+class ShopModuleCategoryCreate(ShopModulePermissionAndContextMixin,
                                View, GroupLateralMenuMixin):
     """
     """
     template_name = 'modules/shop_module_category_create.html'
     form_class = None
-    perm_codename = None
     lm_active = None
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.group = Group.objects.get(name=kwargs['group_name'])
-            self.shop = shop_from_group(self.group)
-            if kwargs['module_class'] == SelfSaleModule:
-                self.module, created = SelfSaleModule.objects.get_or_create(
-                    shop=self.shop)
-            elif kwargs['module_class'] == OperatorSaleModule:
-                self.module, created = OperatorSaleModule.objects.get_or_create(
-                    shop=self.shop)
-        except ObjectDoesNotExist:
-            raise Http404
-        except ValueError:
-            raise Http404
-        self.form_class = formset_factory(wraps(ModuleCategoryCreateForm)(
-            partial(ModuleCategoryCreateForm, shop=self.shop)), extra=1)
-        return super(ShopModuleCategoryCreate,
-                     self).dispatch(request, *args, **kwargs)
+    # def dispatch(self, request, *args, **kwargs):
+    #     self.form_class = formset_factory(wraps(ModuleCategoryCreateForm)(
+    #         partial(ModuleCategoryCreateForm, shop=self.shop)), extra=1)
+    #     return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -382,49 +358,33 @@ class ShopModuleCategoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
                 pass
         return redirect(self.get_success_url())
 
-    def get_success_url(self):
-        if self.kwargs['module_class'] == SelfSaleModule:
-            self.success_url = reverse('url_module_selfsale_config')
-        elif self.kwargs['module_class'] == OperatorSaleModule:
-            self.success_url = reverse(
-                'url_module_operatorsale_config')
-        return self.success_url
+    # def get_success_url(self):
+    #     if self.kwargs['module_class'] == "self_sales":
+    #         self.success_url = reverse('url_module_selfsale_config')
+    #     elif self.kwargs['module_class'] == "operator_sales":
+    #         self.success_url = reverse(
+    #             'url_module_operatorsale_config')
+    #     return self.success_url
 
 
-class ShopModuleCategoryUpdate(ShopFromGroupMixin,
-                               ShopModuleMixin,
+class ShopModuleCategoryUpdate(ShopModulePermissionAndContextMixin,
                                View, GroupLateralMenuMixin):
     """
     """
     template_name = 'modules/shop_module_category_update.html'
     form_class = None
-    perm_codename = None
     lm_active = None
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.group = Group.objects.get(name=kwargs['group_name'])
-            self.shop = shop_from_group(self.group)
-            if kwargs['module_class'] == SelfSaleModule:
-                self.module, created = SelfSaleModule.objects.get_or_create(
-                    shop=self.shop)
-            elif kwargs['module_class'] == OperatorSaleModule:
-                self.module, created = OperatorSaleModule.objects.get_or_create(
-                    shop=self.shop)
-        except ObjectDoesNotExist:
-            raise Http404
-        except ValueError:
-            raise Http404
-        try:
-            self.category = Category.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        if self.category.module.pk != self.module.pk:
-            raise Http404
-        self.form_class = formset_factory(wraps(ModuleCategoryCreateForm)(
-            partial(ModuleCategoryCreateForm, shop=self.shop)), extra=1)
-        return super(ShopModuleCategoryUpdate,
-                     self).dispatch(request, *args, **kwargs)
+    # def dispatch(self, request, *args, **kwargs):
+    #     try:
+    #         self.category = Category.objects.get(pk=kwargs['pk'])
+    #     except ObjectDoesNotExist:
+    #         raise Http404
+    #     if self.category.module.pk != self.module.pk:
+    #         raise Http404
+    #     self.form_class = formset_factory(wraps(ModuleCategoryCreateForm)(
+    #         partial(ModuleCategoryCreateForm, shop=self.shop)), extra=1)
+    #     return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -462,47 +422,31 @@ class ShopModuleCategoryUpdate(ShopFromGroupMixin,
                 pass
         return redirect(self.get_success_url())
 
-    def get_success_url(self):
-        if self.kwargs['module_class'] == SelfSaleModule:
-            self.success_url = reverse('url_module_selfsale_config')
-        elif self.kwargs['module_class'] == OperatorSaleModule:
-            self.success_url = reverse(
-                'url_module_operatorsale_config')
-        return self.success_url
+    # def get_success_url(self):
+    #     if self.kwargs['module_class'] == SelfSaleModule:
+    #         self.success_url = reverse('url_module_selfsale_config')
+    #     elif self.kwargs['module_class'] == OperatorSaleModule:
+    #         self.success_url = reverse(
+    #             'url_module_operatorsale_config')
+    #     return self.success_url
 
 
-class ShopModuleCategoryDelete(ShopFromGroupMixin,
-                               ShopModuleMixin,
+class ShopModuleCategoryDelete(ShopModulePermissionAndContextMixin,
                                View, GroupLateralMenuMixin):
     """
     """
     template_name = 'modules/shop_module_category_delete.html'
     form_class = None
-    perm_codename = None
     lm_active = None
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.group = Group.objects.get(name=kwargs['group_name'])
-            self.shop = shop_from_group(self.group)
-            if kwargs['module_class'] == SelfSaleModule:
-                self.module, created = SelfSaleModule.objects.get_or_create(
-                    shop=self.shop)
-            elif kwargs['module_class'] == OperatorSaleModule:
-                self.module, created = OperatorSaleModule.objects.get_or_create(
-                    shop=self.shop)
-        except ObjectDoesNotExist:
-            raise Http404
-        except ValueError:
-            raise Http404
-        try:
-            self.category = Category.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        if self.category.module.pk != self.module.pk:
-            raise Http404
-        return super(ShopModuleCategoryDelete,
-                     self).dispatch(request, *args, **kwargs)
+    # def dispatch(self, request, *args, **kwargs):
+    #     try:
+    #         self.category = Category.objects.get(pk=kwargs['pk'])
+    #     except ObjectDoesNotExist:
+    #         raise Http404
+    #     if self.category.module.pk != self.module.pk:
+    #         raise Http404
+    #     return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -514,10 +458,10 @@ class ShopModuleCategoryDelete(ShopFromGroupMixin,
         self.category.delete()
         return redirect(self.get_success_url())
 
-    def get_success_url(self):
-        if self.kwargs['module_class'] == SelfSaleModule:
-            self.success_url = reverse('url_module_selfsale_config')
-        elif self.kwargs['module_class'] == OperatorSaleModule:
-            self.success_url = reverse(
-                'url_module_operatorsale_config')
-        return self.success_url
+    # def get_success_url(self):
+    #     if self.kwargs['module_class'] == SelfSaleModule:
+    #         self.success_url = reverse('url_module_selfsale_config')
+    #     elif self.kwargs['module_class'] == OperatorSaleModule:
+    #         self.success_url = reverse(
+    #             'url_module_operatorsale_config')
+    #     return self.success_url
