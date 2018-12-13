@@ -204,10 +204,7 @@ def lateral_menu(user, group, active=None):
                 label='Module vente libre service',
                 fa_icon='shopping-basket',
                 id_link='lm_selfsale_module',
-                url=reverse(
-                    'url_module_selfsale_workboard',
-                    kwargs={'group_name': group.name}
-                )
+                url=reverse('url_module_selfsale_workboard')
             ))
         # TODO: check perm
             nav_tree.append(simple_lateral_link(
@@ -215,8 +212,7 @@ def lateral_menu(user, group, active=None):
                 fa_icon='coffee',
                 id_link='lm_operatorsale_module',
                 url=reverse(
-                    'url_module_operatorsale_workboard',
-                    kwargs={'group_name': group.name}
+                    'url_module_operatorsale_workboard'
                 )
             ))
     except ValueError:
@@ -240,8 +236,7 @@ def lateral_menu(user, group, active=None):
                 id_link='lm_operatorsale_interface_module',
                 url=reverse(
                     'url_module_operatorsale',
-                    kwargs={'group_name': group.name,
-                            'shop_name': shop.name})
+                    kwargs={'shop_name': shop.name})
             ))
     except ValueError:
         pass
@@ -337,7 +332,7 @@ def lateral_menu_members(user, active=None):
                 # Not currently used in modules.view
                 'lm_selfsale_interface_module_' + shop.name,
                 reverse('url_module_selfsale', kwargs={
-                        'group_name': 'members', 'shop_name': shop.name})
+                        'shop_name': shop.name})
             ))
 
     nav_tree.append(
@@ -575,8 +570,7 @@ def lateral_menu_shop_sale(group, shop):
                     id_link='lm_selfsale_module_'+shop.name,
                     url=reverse(
                         'url_module_selfsale',
-                        kwargs={'group_name': group.name,
-                                'shop_name': shop.name})
+                        kwargs={'shop_name': shop.name})
                 ))
     except ObjectDoesNotExist:
         pass
@@ -829,46 +823,6 @@ class UserMixin(object):
     def get_context_data(self, **kwargs):
         context = super(UserMixin, self).get_context_data(**kwargs)
         context['user'] = self.user
-        return context
-
-
-class ShopModuleMixin(object):
-    def __init__(self):
-        self.kwargs = None
-        self.module_class = None
-        self.shop = None
-        self.module = None
-        self.success_url = None
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Add self.module and modify success_url to be the workboard of the shop
-        module by default.
-
-        If no module, create one.
-        """
-        try:
-            module_class = self.kwargs['module_class']
-        except KeyError:
-            module_class = self.module_class
-        if module_class == SelfSaleModule:
-            self.module, created = SelfSaleModule.objects.get_or_create(
-                shop=self.shop)
-            self.success_url = reverse(
-                'url_module_selfsale_workboard', kwargs={
-                    'group_name': self.kwargs['group_name']})
-        elif module_class == OperatorSaleModule:
-            self.module, created = OperatorSaleModule.objects.get_or_create(
-                shop=self.shop)
-            self.success_url = reverse(
-                'url_module_operatorsale_workboard', kwargs={
-                    'group_name': self.kwargs['group_name']})
-        return super(ShopModuleMixin,
-                     self).dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(ShopModuleMixin, self).get_context_data(**kwargs)
-        context['module'] = self.module
         return context
 
 

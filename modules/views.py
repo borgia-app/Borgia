@@ -162,7 +162,6 @@ class OperatorSaleShopModuleInterface(SaleShopModuleInterface):
         self.success_url = reverse(
             'url_module_operatorsale',
             kwargs={
-                'group_name': self.group.name,
                 'shop_name': self.shop.name
             }
         )
@@ -345,17 +344,14 @@ class ShopModuleCategoryCreate(GroupPermissionMixin, ShopFromGroupMixin,
 
     def get_success_url(self):
         if self.kwargs['module_class'] == SelfSaleModule:
-            self.success_url = reverse(
-                'url_module_selfsale_workboard', kwargs={
-                    'group_name': self.kwargs['group_name']})
+            self.success_url = reverse('url_module_selfsale_workboard')
         elif self.kwargs['module_class'] == OperatorSaleModule:
             self.success_url = reverse(
-                'url_module_operatorsale_workboard', kwargs={
-                    'group_name': self.kwargs['group_name']})
+                'url_module_operatorsale_workboard')
         return self.success_url
 
 
-class ShopModuleCategoryUpdate(GroupPermissionMixin, ShopFromGroupMixin,
+class ShopModuleCategoryUpdate(ShopFromGroupMixin,
                                ShopModuleMixin,
                                View, GroupLateralMenuMixin):
     """
@@ -428,17 +424,14 @@ class ShopModuleCategoryUpdate(GroupPermissionMixin, ShopFromGroupMixin,
 
     def get_success_url(self):
         if self.kwargs['module_class'] == SelfSaleModule:
-            self.success_url = reverse(
-                'url_module_selfsale_workboard', kwargs={
-                    'group_name': self.kwargs['group_name']})
+            self.success_url = reverse('url_module_selfsale_workboard')
         elif self.kwargs['module_class'] == OperatorSaleModule:
             self.success_url = reverse(
-                'url_module_operatorsale_workboard', kwargs={
-                    'group_name': self.kwargs['group_name']})
+                'url_module_operatorsale_workboard')
         return self.success_url
 
 
-class ShopModuleCategoryDelete(GroupPermissionMixin, ShopFromGroupMixin,
+class ShopModuleCategoryDelete(ShopFromGroupMixin,
                                ShopModuleMixin,
                                View, GroupLateralMenuMixin):
     """
@@ -483,17 +476,14 @@ class ShopModuleCategoryDelete(GroupPermissionMixin, ShopFromGroupMixin,
 
     def get_success_url(self):
         if self.kwargs['module_class'] == SelfSaleModule:
-            self.success_url = reverse(
-                'url_module_selfsale_workboard', kwargs={
-                    'group_name': self.kwargs['group_name']})
+            self.success_url = reverse('url_module_selfsale_workboard')
         elif self.kwargs['module_class'] == OperatorSaleModule:
             self.success_url = reverse(
-                'url_module_operatorsale_workboard', kwargs={
-                    'group_name': self.kwargs['group_name']})
+                'url_module_operatorsale_workboard')
         return self.success_url
 
 
-class ShopModuleConfig(GroupPermissionMixin, ShopFromGroupMixin,
+class ShopModuleConfig(ShopFromGroupMixin,
                        ShopModuleMixin, FormView,
                        GroupLateralMenuMixin):
     """
