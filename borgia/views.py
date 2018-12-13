@@ -56,10 +56,10 @@ class ModulesLoginView(LoginView):
         for shop in Shop.objects.all().exclude(pk=1):
             operator_module = shop.modules_operatorsalemodule_shop.first()
             operator_module_link = self.add_next_to_login(
-                reverse('url_shop_module_sale', kwargs={'shop_name': shop.name}))
+                reverse('url_shop_module_sale', kwargs={'shop_pk': shop.pk, 'module_class': 'operator_sales'}))
             self_module = shop.modules_selfsalemodule_shop.first()
             self_module_link = self.add_next_to_login(
-                reverse('url_shop_module_sale', kwargs={'shop_name': shop.name}))
+                reverse('url_shop_module_sale', kwargs={'shop_pk': shop.pk, 'module_class': 'self_sales'}))
             context['shop_list'].append({
                 'shop': shop,
                 'operator_module': operator_module,

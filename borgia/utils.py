@@ -204,16 +204,18 @@ def lateral_menu(user, group, active=None):
                 label='Module vente libre service',
                 fa_icon='shopping-basket',
                 id_link='lm_selfsale_module',
-                url=reverse('url_shop_module_config')
+                url=reverse('url_shop_module_config',
+                            kwargs={'shop_pk': shop.pk, 'module_class': 'self_sales'}
+                            )
             ))
         # TODO: check perm
             nav_tree.append(simple_lateral_link(
                 label='Module vente par opérateur',
                 fa_icon='coffee',
                 id_link='lm_operatorsale_module',
-                url=reverse(
-                    'url_shop_module_config'
-                )
+                url=reverse('url_shop_module_config',
+                            kwargs={'shop_pk': shop.pk, 'module_class': 'self_sales'}
+                            )
             ))
     except ValueError:
         pass
@@ -236,7 +238,7 @@ def lateral_menu(user, group, active=None):
                 id_link='lm_operatorsale_interface_module',
                 url=reverse(
                     'url_shop_module_sale',
-                    kwargs={'shop_name': shop.name})
+                    kwargs={'shop_pk': shop.pk, 'module_class': 'operator_sales'})
             ))
     except ValueError:
         pass
@@ -332,7 +334,7 @@ def lateral_menu_members(user, active=None):
                 # Not currently used in modules.view
                 'lm_selfsale_interface_module_' + shop.name,
                 reverse('url_shop_module_sale', kwargs={
-                        'shop_name': shop.name})
+                        'shop_pk': shop.pk, 'module_class': 'self_sales'})
             ))
 
     nav_tree.append(
@@ -570,7 +572,7 @@ def lateral_menu_shop_sale(group, shop):
                     id_link='lm_selfsale_module_'+shop.name,
                     url=reverse(
                         'url_shop_module_sale',
-                        kwargs={'shop_name': shop.name})
+                        kwargs={'shop_pk': shop.pk, 'module_class': 'operator_sales'})
                 ))
     except ObjectDoesNotExist:
         pass
@@ -987,6 +989,7 @@ def module_url_name_from_model(model):
 #####################
 ### GROUP RELATED ###
 #####################
+
 
 def get_members_group(externals=False):
     """

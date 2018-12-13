@@ -28,21 +28,13 @@
         {% if module.delay_post_purchase %}{{ module.delay_post_purchase }} secondes{% else %}pas de résumé{% endif %}
       </li>
     </ul>
-    {% if module_class == "operator_sales" %}
-      <a href="{% url 'url_shop_module_config_update' %}" class="btn btn-default">Modifier</a>
-    {% else %}
-      <a href="{% url 'url_shop_module_config_update' %}" class="btn btn-default">Modifier</a>
-    {% endif %}
+      <a href="{% url 'url_shop_module_config_update' shop_pk=shop.pk module_class=module_class %}" class="btn btn-default">Modifier</a>
   </div>
 </div>
 <div class="panel panel-default">
   <div class="panel-heading">
     En vente au module
-    {% if module_class == "operator_sales" %}
-      <a href="{% url 'url_shop_module_category_create' %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Ajouter une catégorie</a>
-    {% else %}
-      <a href="{% url 'url_shop_module_category_create' %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Ajouter une catégorie</a>
-    {% endif %}
+      <a href="{% url 'url_shop_module_category_create' shop_pk=shop.pk module_class=module_class %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Ajouter une catégorie</a>
   </div>
   <div class="panel-body">
     {% if module.categories.all.count == 0 %}
@@ -54,13 +46,8 @@
         <div class="panel panel-default">
           <div class="panel-heading">
             {{ category.name }}
-            {% if module_class == "operator_sales" %}
-            <a href="{% url 'url_shop_module_category_update' pk=category.pk %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Modifier</a>
-            <a href="{% url 'url_shop_module_category_delete' pk=category.pk %}"role="button" class="btn btn-xs btn-danger" style='margin-left: 10px'>Supprimer</a>
-            {% else %}
-            <a href="{% url 'url_shop_module_category_update' pk=category.pk %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Modifier</a>
-            <a href="{% url 'url_shop_module_category_delete' pk=category.pk %}"role="button" class="btn btn-xs btn-danger" style='margin-left: 10px'>Supprimer</a>
-            {% endif %}
+            <a href="{% url 'url_shop_module_category_update' shop_pk=shop.pk module_class=module_class category_pk=category.pk %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Modifier</a>
+            <a href="{% url 'url_shop_module_category_delete' shop_pk=shop.pk module_class=module_class category_pk=category.pk %}"role="button" class="btn btn-xs btn-danger" style='margin-left: 10px'>Supprimer</a>
           </div>
           <div class="panel-body">
             <ul>
