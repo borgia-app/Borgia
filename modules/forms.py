@@ -7,18 +7,17 @@ from shops.models import Product
 from users.models import User
 
 
-class SelfSaleShopModule(forms.Form):
+class ShopModuleSaleForm(forms.Form):
     def __init__(self, *args, **kwargs):
+        self.module_class = kwargs.pop('module_class')
         self.module = kwargs.pop('module')
         self.client = kwargs.pop('client')
         self.balance_threshold_purchase = kwargs.pop(
             'balance_threshold_purchase')
-        super(SelfSaleShopModule, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-        try:
+        if self.module_class == 'operator_sales':
             self.fields['client'] = self.get_client_field()
-        except AttributeError:
-            pass
 
         for category in self.module.categories.all():
             for category_product in category.categoryproduct_set.all():
@@ -41,7 +40,7 @@ class SelfSaleShopModule(forms.Form):
                     )
 
     def clean(self):
-        super(SelfSaleShopModule, self).clean()
+        super().clean()
         if self.client is None:
             try:
                 self.client = User.objects.get(
@@ -75,8 +74,6 @@ class SelfSaleShopModule(forms.Form):
         self.cleaned_data['client'] = self.client
         return self.cleaned_data
 
-
-class OperatorSaleShopModule(SelfSaleShopModule):
     def get_client_field(self):
         return forms.CharField(
             label="Client",
@@ -86,7 +83,6 @@ class OperatorSaleShopModule(SelfSaleShopModule):
                                           'autocomplete': 'off',
                                           'autofocus': 'true',
                                           'placeholder': "Nom d'utilisateur"}))
-
 
 class ModuleCategoryCreateForm(forms.Form):
     def __init__(self, *args, **kwargs):

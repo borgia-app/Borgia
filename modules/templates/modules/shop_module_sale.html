@@ -28,7 +28,7 @@
           </div>
           {% endif %}
           <div class="row">
-            {% if type == "operator_sale" %}
+            {% if module_class == "operator_sales" %}
             <div class="form-group col-md-12">
               {{ form.client }}
               <span class="glyphicon glyphicon-user"></span>
@@ -40,11 +40,11 @@
             {% endif %}
           </div>
           <div class="row" id="figures">
-            <div class="col-md-2"><span id="initial">{% if type == "self_sale" %}{{ user.balance|unlocalize }}{% else %}0.00{% endif %}</span>€</div>
+            <div class="col-md-2"><span id="initial">{% if module_class == "self_sales" %}{{ user.balance|unlocalize }}{% else %}0.00{% endif %}</span>€</div>
             <div class="col-md-2">-</div>
             <div class="col-md-2"><span id="total">0.00</span>€</div>
             <div class="col-md-2">=</div>
-            <div class="col-md-4" id="result_line"><span id="result">{% if type == "self_sale" %}{{ user.balance|unlocalize }}{% else %}0.00{% endif %}</span>€</div>
+            <div class="col-md-4" id="result_line"><span id="result">{% if module_class == "self_sales" %}{{ user.balance|unlocalize }}{% else %}0.00{% endif %}</span>€</div>
           </div>
           <div class="row">
             <div class="col-md-12">
@@ -119,7 +119,7 @@
 </form>
 
 
-{% include 'modules/js/update_total_sales.html' with type=type %}
-{% include 'modules/js/navigation_sales.html' with type=type categories=categories%}
+{% include 'modules/js/update_total_sales.html' with module_class=module_class %}
+{% include 'modules/js/navigation_sales.html' with module_class=module_class categories=categories%}
 
 {% endblock %}

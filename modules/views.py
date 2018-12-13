@@ -14,9 +14,8 @@ from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
 from configurations.utils import configurations_safe_get
 from finances.models import Sale, SaleProduct
 from modules.forms import (ModuleCategoryCreateForm,
-                           ModuleCategoryCreateNameForm,
-                           OperatorSaleShopModule, SelfSaleShopModule,
-                           ShopModuleConfigForm)
+                           ModuleCategoryCreateNameForm, ShopModuleConfigForm,
+                           ShopModuleSaleForm)
 from modules.models import (Category, CategoryProduct, OperatorSaleModule,
                             SelfSaleModule)
 from modules.utils import ShopModulePermissionAndContextMixin
@@ -24,8 +23,8 @@ from shops.models import Product, Shop
 from users.models import User
 
 
-class ShopModuleBaseSaleView(GroupPermissionMixin, FormView,
-                              GroupLateralMenuMixin):
+class ShopModuleSaleView(ShopModulePermissionAndContextMixin, FormView,
+                             GroupLateralMenuMixin):
     """
     Generic FormView for handling invoice concerning product bases through a
     shop.
@@ -39,30 +38,49 @@ class ShopModuleBaseSaleView(GroupPermissionMixin, FormView,
     :type self.module_class: ShopModule class object
     :type self.perm_codename: string
     """
+    permission_required_selfsale = 'modules.use_selfsalemodule'
+    permission_required_operatorsale = 'modules.use_operatorsalemodule'
+    template_name = 'modules/shop_module_sale.html'
+    form_class = ShopModuleSaleForm
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.shop = Shop.objects.get(name=kwargs['shop_name'])
-            self.module = self.module_class.objects.get(shop=self.shop)
-        except ObjectDoesNotExist:
-            raise Http404
-        if self.module.state is False:
-            raise Http404
-        return super(ShopModuleBaseSaleView,
-                     self).dispatch(request, *args, **kwargs)
+    def get_permission_required(self):
+        """
+        Override the method to check perms related to module.
+        """
+        if self.module_class == 'self_sales':
+            return (self.permission_required_selfsale,)
+        elif self.module_class == 'operator_sales':
+            return (self.permission_required_operatorsale,)
+        else:
+            return self.handle_unexpected_module_class()
+        
+    def has_permission(self):
+        has_perms = super().has_permission()
+        if not has_perms:
+            return False
+        else:
+            if self.module.state is False:
+                raise Http404
+            else:
+                return True
 
     def get_form_kwargs(self, **kwargs):
-        kwargs = super(ShopModuleBaseSaleView,
-                       self).get_form_kwargs(**kwargs)
+        kwargs = super().get_form_kwargs(**kwargs)
+        kwargs['module_class'] = self.module_class
         kwargs['module'] = self.module
         kwargs['balance_threshold_purchase'] = configurations_safe_get(
             'BALANCE_THRESHOLD_PURCHASE')
+        
+        if self.module_class == "self_sales":
+            kwargs['client'] = self.request.user
+        elif self.module_class == "operator_sales":
+            kwargs['client'] = None
+        else:
+            self.handle_unexpected_module_class()
         return kwargs
 
     def get_context_data(self, **kwargs):
-        context = super(ShopModuleBaseSaleView,
-                        self).get_context_data(**kwargs)
-        context['shop'] = self.shop
+        context = super().get_context_data(**kwargs)
         context['categories'] = self.module.categories.all()
         return context
 
@@ -70,9 +88,16 @@ class ShopModuleBaseSaleView(GroupPermissionMixin, FormView,
         """
         Create a sale and like all products via SaleProduct objects.
         """
+        if self.module_class == "self_sales":
+            client = self.request.user
+        elif self.module_class == "operator_sales":
+            client = form.cleaned_data['client']
+        else:
+            self.handle_unexpected_module_class()
+
         sale = Sale.objects.create(
             operator=self.request.user,
-            sender=self.client,
+            sender=client,
             recipient=User.objects.get(pk=1),
             module=self.module,
             shop=self.shop
@@ -94,81 +119,17 @@ class ShopModuleBaseSaleView(GroupPermissionMixin, FormView,
                         pass
         sale.pay()
         return sale_shop_module_resume(
-            self.request, sale, self.group, self.shop, self.module, self.success_url
+            self.request, sale, self.shop, self.module, self.success_url
         )
 
-
-class ShopModuleSelfSaleView(ShopModuleBaseSaleView):
-    """
-    Sale View for SelfSaleModule.
-    """
-    template_name = 'modules/shop_module_sale.html'
-    form_class = SelfSaleShopModule
-    module_class = SelfSaleModule
-    perm_codename = 'use_selfsalemodule'
-    lm_active = None
-
-    def get_form_kwargs(self, **kwargs):
-        kwargs = super(ShopModuleSelfSaleView,
-                       self).get_form_kwargs(**kwargs)
-        kwargs['client'] = self.request.user
-
-        self.lm_active = 'lm_selfsale_interface_module_' + self.shop.name
-        return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super(ShopModuleSelfSaleView,
-                        self).get_context_data(**kwargs)
-        context['type'] = "self_sale"
-        return context
-
-    def form_valid(self, form):
-        self.client = self.request.user
-        self.success_url = reverse(
+    def get_success_url(self):
+        return reverse(
             'url_module_selfsale',
-            kwargs={
-                'group_name': self.group.name,
-                'shop_name': self.shop.name
-            }
+            kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class}
         )
-        return super(ShopModuleSelfSaleView, self).form_valid(form)
 
 
-class ShopModuleOperatorSaleView(ShopModuleBaseSaleView):
-    """
-    Sale View for SelfOperatorModule.
-    """
-    template_name = 'modules/shop_module_sale.html'
-    form_class = OperatorSaleShopModule
-    module_class = OperatorSaleModule
-    perm_codename = 'use_operatorsalemodule'
-    lm_active = 'lm_operatorsale_interface_module'
-
-    def get_form_kwargs(self, **kwargs):
-        kwargs = super(ShopModuleOperatorSaleView,
-                       self).get_form_kwargs(**kwargs)
-        kwargs['client'] = None
-        return kwargs
-
-    def get_context_data(self, **kwargs):
-        context = super(ShopModuleOperatorSaleView,
-                        self).get_context_data(**kwargs)
-        context['type'] = "operator_sale"
-        return context
-
-    def form_valid(self, form):
-        self.client = form.cleaned_data['client']
-
-        self.success_url = reverse(
-            'url_module_operatorsale',
-            kwargs={
-                'shop_name': self.shop.name
-            }
-        )
-        return super(ShopModuleOperatorSaleView, self).form_valid(form)
-
-
-def sale_shop_module_resume(request, sale, group, shop, module, success_url):
+def sale_shop_module_resume(request, sale, shop, module, success_url):
     template_name = 'modules/shop_module_sale_resume.html'
 
     # Context construction, based on LateralMenuViewMixin and
@@ -238,7 +199,7 @@ class SaleShopModuleResume(ShopModulePermissionAndContextMixin, View, GroupLater
 
 
 class ShopModuleConfigView(ShopModulePermissionAndContextMixin, View,
-                                  GroupLateralMenuMixin):
+                           GroupLateralMenuMixin):
     """
     View of the workboard of an SelfSale module of a shop.
 
@@ -256,7 +217,7 @@ class ShopModuleConfigView(ShopModulePermissionAndContextMixin, View,
 
 
 class ShopModuleConfigUpdateView(ShopModulePermissionAndContextMixin, FormView,
-                       GroupLateralMenuMixin):
+                                 GroupLateralMenuMixin):
     """
     View to manage config of a self shop module.
 
@@ -294,7 +255,7 @@ class ShopModuleConfigUpdateView(ShopModulePermissionAndContextMixin, FormView,
 
 
 class ShopModuleCategoryCreateView(ShopModulePermissionAndContextMixin,
-                               View, GroupLateralMenuMixin):
+                                   View, GroupLateralMenuMixin):
     """
     """
     template_name = 'modules/shop_module_category_create.html'
@@ -350,7 +311,7 @@ class ShopModuleCategoryCreateView(ShopModulePermissionAndContextMixin,
 
 
 class ShopModuleCategoryUpdateView(ShopModulePermissionAndContextMixin,
-                               View, GroupLateralMenuMixin):
+                                   View, GroupLateralMenuMixin):
     """
     """
     template_name = 'modules/shop_module_category_update.html'
@@ -414,7 +375,7 @@ class ShopModuleCategoryUpdateView(ShopModulePermissionAndContextMixin,
 
 
 class ShopModuleCategoryDeleteView(ShopModulePermissionAndContextMixin,
-                               View, GroupLateralMenuMixin):
+                                   View, GroupLateralMenuMixin):
     """
     """
     template_name = 'modules/shop_module_category_delete.html'

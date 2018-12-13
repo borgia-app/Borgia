@@ -1,8 +1,7 @@
 from django.urls import include, path
 
 from modules.models import OperatorSaleModule, SelfSaleModule
-from modules.views import (ShopModuleOperatorSaleView,
-                           ShopModuleSelfSaleView,
+from modules.views import (ShopModuleSaleView,
                            ShopModuleCategoryCreateView, ShopModuleCategoryDeleteView,
                            ShopModuleCategoryUpdateView, ShopModuleConfigUpdateView,
                            ShopModuleConfigView)
@@ -11,7 +10,7 @@ modules_patterns = [
     path('shops/<int:shop_pk>/modules/', include([
         # SELF SALE
         path('<str:module_class>/', include([
-            path('', ShopModuleSelfSaleView.as_view(),
+            path('', ShopModuleSaleView.as_view(),
                  name='url_module_selfsale'),
             path('config/', ShopModuleConfigView.as_view(),
                  name='url_module_selfsale_config'),
@@ -24,7 +23,7 @@ modules_patterns = [
         ])),
         # OPERATOR SALE
         path('<str:module_class>/', include([
-            path('', ShopModuleOperatorSaleView.as_view(
+            path('', ShopModuleSaleView.as_view(
             ), name='url_module_operatorsale'),
             path('config/', ShopModuleConfigView.as_view(),
                  name='url_module_operatorsale_config'),

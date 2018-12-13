@@ -1,5 +1,5 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.http import Http404
 from django.urls import reverse
 from django.views.generic.base import ContextMixin
@@ -25,12 +25,20 @@ class ShopModulePermissionAndContextMixin(PermissionRequiredMixin, ContextMixin)
         self.module = None
 
     def add_shop_object(self):
+        """
+        Define shop object. 
+        Raise Http404 is shop doesn't exist.
+        """
         try:
             self.shop = Shop.objects.get(pk=self.kwargs['shop_pk'])
         except ObjectDoesNotExist:
             raise Http404
 
     def add_module_object(self):
+        """
+        Define module object.
+        Raise Http404 is module doesn't exist.
+        """
         module_class = self.kwargs['module_class']
         if module_class == "self_sales":
             self.module = SelfSaleModule.objects.get_or_create(
@@ -41,14 +49,20 @@ class ShopModulePermissionAndContextMixin(PermissionRequiredMixin, ContextMixin)
         else:
             raise Http404
 
+    def add_context_objects(self):
+        """
+        Define context objects
+        """
+        self.add_shop_object()
+        self.add_module_object()
+
     def has_permission(self):
-        has_perms = super().has_permission()
-        if not has_perms:
-            return False
-        else:
-            self.add_shop_object()
-            self.add_module_object()
-            return True
+        """
+        Define context object, only then check for permissions
+        (Shop and modules need to be defined before checking perms)
+        """
+        self.add_context_objects()
+        return super().has_permission()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -56,3 +70,12 @@ class ShopModulePermissionAndContextMixin(PermissionRequiredMixin, ContextMixin)
         context['module_class'] = self.module_class
         context['module'] = self.module
         return context
+
+    def handle_unexpected_module_class(self):
+        """
+        Raise error when module_class is not expected
+        """
+        raise ImproperlyConfigured(
+            'Error in {0}. {1} value should be either self_sales or operator_sales'.format(
+                self.__class__.__name__, self.module_class)
+            )
