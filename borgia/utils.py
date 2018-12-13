@@ -267,7 +267,7 @@ def lateral_menu(user, group, active=None):
                 fa_icon='cogs',
                 id_link='lm_global_config',
                 url=reverse(
-                    'url_list_config',
+                    'url_index_config',
                     kwargs={'group_name': group.name})
             ))
     except ObjectDoesNotExist:

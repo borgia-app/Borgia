@@ -22,7 +22,7 @@ class BaseConfigurationsViewsTest(BaseBorgiaViewsTestCase):
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 class GlobalConfigTest(BaseConfigurationsViewsTest):
-    url_view = 'url_list_config'
+    url_view = 'url_index_config'
 
     def test_allowed_user_get(self):
         super().allowed_user_get()

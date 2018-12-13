@@ -2,13 +2,13 @@ from django.urls import include, path
 
 from configurations.views import (ConfigurationBalanceView,
                                   ConfigurationCenterView,
-                                  ConfigurationListView,
+                                  ConfigurationIndexView,
                                   ConfigurationLydiaView,
                                   ConfigurationProfitView)
 
 configurations_patterns = [
      path('configurations/', include([
-        path('', ConfigurationListView.as_view(), name='url_list_config'),
+        path('', ConfigurationIndexView.as_view(), name='url_index_config'),
         path('center/', ConfigurationCenterView.as_view(),
              name='url_center_config'),
         path('price/', ConfigurationProfitView.as_view(), name='url_price_config'),

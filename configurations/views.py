@@ -12,7 +12,7 @@ from configurations.forms import (ConfigurationBalanceForm,
 from configurations.utils import configurations_safe_get
 
 
-class ConfigurationListView(PermissionRequiredMixin, TemplateView, GroupLateralMenuMixin):
+class ConfigurationIndexView(PermissionRequiredMixin, TemplateView, GroupLateralMenuMixin):
     """
     View to manage config of the application.
 
@@ -47,7 +47,7 @@ class ConfigurationChangeBaseView(PermissionRequiredMixin, FormView, GroupLatera
     permission_required = 'configurations.change_configuration'
 
     def get_success_url(self):
-        return reverse('url_list_config')
+        return reverse('url_index_config')
 
 
 class ConfigurationCenterView(ConfigurationChangeBaseView):
@@ -97,7 +97,6 @@ class ConfigurationProfitView(ConfigurationChangeBaseView):
         margin_profit.value = form.cleaned_data['margin_profit']
         margin_profit.save()
         return super().form_valid(form)
-
 
 
 class ConfigurationLydiaView(ConfigurationChangeBaseView):
