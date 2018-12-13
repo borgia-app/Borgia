@@ -4,11 +4,11 @@ from django.http import Http404
 from django.urls import reverse
 from django.views.generic.base import ContextMixin
 
-from modules.models import OperatorSaleModule, SelfSaleModule
+from modules.models import OperatorSaleModule, SelfSaleModule, Category
 from shops.models import Shop
 
 
-class ShopModulePermissionAndContextMixin(PermissionRequiredMixin, ContextMixin):
+class ShopModuleMixin(PermissionRequiredMixin, ContextMixin):
     """
     Mixin for Module Shop views.
     For Permission :
@@ -103,3 +103,35 @@ class ShopModulePermissionAndContextMixin(PermissionRequiredMixin, ContextMixin)
             'Error in {0}. {1} value should be either self_sales or operator_sales'.format(
                 self.__class__.__name__, self.module_class)
             )
+
+
+class ShopModuleCategoryMixin(ShopModuleMixin):
+    """
+    """
+
+    def add_category_object(self):
+        """
+        Define shop object.
+        Raise Http404 is shop doesn't exist.
+        """
+        try:
+            self.category = Category.objects.get(pk=self.kwargs['category_pk'])
+        except ObjectDoesNotExist:
+            raise Http404
+        if self.category.module.shop.pk != self.shop.pk:
+            raise Http404
+
+    def add_context_objects(self):
+        """
+        Define context objects
+        """
+        super().add_context_objects()
+        self.add_module_object()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['category'] = self.category
+        return context
+
+    def get_success_url(self):
+        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})

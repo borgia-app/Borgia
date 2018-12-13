@@ -1,6 +1,5 @@
 from functools import partial, wraps
 
-from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.formsets import formset_factory
 from django.http import Http404
@@ -9,22 +8,20 @@ from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
-                          lateral_menu, shop_from_group)
+from borgia.utils import GroupLateralMenuMixin
 from configurations.utils import configurations_safe_get
 from finances.models import Sale, SaleProduct
 from modules.forms import (ModuleCategoryCreateForm,
                            ModuleCategoryCreateNameForm, ShopModuleConfigForm,
                            ShopModuleSaleForm)
-from modules.models import (Category, CategoryProduct, OperatorSaleModule,
-                            SelfSaleModule)
-from modules.utils import ShopModulePermissionAndContextMixin
+from modules.models import Category, CategoryProduct, SelfSaleModule
+from modules.utils import (ShopModuleCategoryMixin,
+                           ShopModuleMixin)
 from shops.models import Product, Shop
 from users.models import User
 
 
-class ShopModuleSaleView(ShopModulePermissionAndContextMixin, FormView,
-                             GroupLateralMenuMixin):
+class ShopModuleSaleView(ShopModuleMixin, FormView, GroupLateralMenuMixin):
     """
     Generic FormView for handling invoice concerning product bases through a
     shop.
@@ -59,7 +56,7 @@ class ShopModuleSaleView(ShopModulePermissionAndContextMixin, FormView,
         kwargs['module'] = self.module
         kwargs['balance_threshold_purchase'] = configurations_safe_get(
             'BALANCE_THRESHOLD_PURCHASE')
-        
+
         if self.module_class == "self_sales":
             kwargs['client'] = self.request.user
         elif self.module_class == "operator_sales":
@@ -124,17 +121,14 @@ def sale_shop_module_resume(request, sale, shop, module, success_url):
     # Context construction, based on LateralMenuViewMixin and
     # GroupPermissionMixin in borgia.utils
     context = {
-        'group': group,
         'shop': shop,
         'module': module,
         'sale': sale,
         'delay': module.delay_post_purchase,
-        'group_name': group.name,
         'success_url': success_url
     }
     context['nav_tree'] = (
         request.user,
-        group,
         None)
     if (request.user.groups.all().exclude(
             pk__in=[1, 5, 6]).count() > 0):
@@ -156,7 +150,7 @@ def sale_shop_module_resume(request, sale, shop, module, success_url):
     return render(request, template_name, context=context)
 
 
-class SaleShopModuleResume(ShopModulePermissionAndContextMixin, View, GroupLateralMenuMixin):
+class SaleShopModuleResume(ShopModuleMixin, View, GroupLateralMenuMixin):
     sale = None
     delay = None
     success_url = None
@@ -187,8 +181,7 @@ class SaleShopModuleResume(ShopModulePermissionAndContextMixin, View, GroupLater
         return render(request, self.template_name, context=context)
 
 
-class ShopModuleConfigView(ShopModulePermissionAndContextMixin, View,
-                           GroupLateralMenuMixin):
+class ShopModuleConfigView(ShopModuleMixin, View, GroupLateralMenuMixin):
     """
     ConfigView for a shopModule.
     """
@@ -203,8 +196,7 @@ class ShopModuleConfigView(ShopModulePermissionAndContextMixin, View,
         return render(request, self.template_name, context=context)
 
 
-class ShopModuleConfigUpdateView(ShopModulePermissionAndContextMixin, FormView,
-                                 GroupLateralMenuMixin):
+class ShopModuleConfigUpdateView(ShopModuleMixin, FormView, GroupLateralMenuMixin):
     """
     View to manage config of a self shop module.
 
@@ -242,20 +234,24 @@ class ShopModuleConfigUpdateView(ShopModulePermissionAndContextMixin, FormView,
         return super(ShopModuleConfigUpdateView, self).form_valid(form)
 
 
-class ShopModuleCategoryCreateView(ShopModulePermissionAndContextMixin,
-                                   View, GroupLateralMenuMixin):
+class ShopModuleCategoryCreateView(ShopModuleMixin, View, GroupLateralMenuMixin):
     """
     """
     permission_required_self = 'modules.change_config_selfsalemodule'
     permission_required_operator = 'modules.change_config_operatorsalemodule'
     template_name = 'modules/shop_module_category_create.html'
-    form_class = None
-    lm_active = None
 
-    # def dispatch(self, request, *args, **kwargs):
-    #     self.form_class = formset_factory(wraps(ModuleCategoryCreateForm)(
-    #         partial(ModuleCategoryCreateForm, shop=self.shop)), extra=1)
-    #     return super().dispatch(request, *args, **kwargs)
+    def __init__(self):
+        self.form_class = None
+
+    def has_permission(self):
+        has_perms = super().has_permission()
+        if not has_perms:
+            return False
+        else:
+            self.form_class = formset_factory(wraps(ModuleCategoryCreateForm)(
+                partial(ModuleCategoryCreateForm, shop=self.shop)), extra=1)
+            return True
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -291,35 +287,28 @@ class ShopModuleCategoryCreateView(ShopModulePermissionAndContextMixin,
                 pass
         return redirect(self.get_success_url())
 
-    # def get_success_url(self):
-    #     if self.kwargs['module_class'] == "self_sales":
-    #         self.success_url = reverse('url_shop_module_config')
-    #     elif self.kwargs['module_class'] == "operator_sales":
-    #         self.success_url = reverse(
-    #             'url_shop_module_config')
-    #     return self.success_url
+    def get_success_url(self):
+        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
 
 
-class ShopModuleCategoryUpdateView(ShopModulePermissionAndContextMixin,
-                                   View, GroupLateralMenuMixin):
+class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, View, GroupLateralMenuMixin):
     """
     """
     permission_required_self = 'modules.change_config_selfsalemodule'
     permission_required_operator = 'modules.change_config_operatorsalemodule'
     template_name = 'modules/shop_module_category_update.html'
-    form_class = None
-    lm_active = None
 
-    # def dispatch(self, request, *args, **kwargs):
-    #     try:
-    #         self.category = Category.objects.get(pk=kwargs['pk'])
-    #     except ObjectDoesNotExist:
-    #         raise Http404
-    #     if self.category.module.pk != self.module.pk:
-    #         raise Http404
-    #     self.form_class = formset_factory(wraps(ModuleCategoryCreateForm)(
-    #         partial(ModuleCategoryCreateForm, shop=self.shop)), extra=1)
-    #     return super().dispatch(request, *args, **kwargs)
+    def __init__(self):
+        self.form_class = None
+
+    def has_permission(self):
+        has_perms = super().has_permission()
+        if not has_perms:
+            return False
+        else:
+            self.form_class = formset_factory(wraps(ModuleCategoryCreateForm)(
+                partial(ModuleCategoryCreateForm, shop=self.shop)), extra=1)
+            return True
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -357,48 +346,22 @@ class ShopModuleCategoryUpdateView(ShopModulePermissionAndContextMixin,
                 pass
         return redirect(self.get_success_url())
 
-    # def get_success_url(self):
-    #     if self.kwargs['module_class'] == SelfSaleModule:
-    #         self.success_url = reverse('url_shop_module_config')
-    #     elif self.kwargs['module_class'] == OperatorSaleModule:
-    #         self.success_url = reverse(
-    #             'url_shop_module_config')
-    #     return self.success_url
 
-
-class ShopModuleCategoryDeleteView(ShopModulePermissionAndContextMixin,
-                                   View, GroupLateralMenuMixin):
+class ShopModuleCategoryDeleteView(ShopModuleCategoryMixin, View, GroupLateralMenuMixin):
     """
     """
     permission_required_self = 'modules.change_config_selfsalemodule'
     permission_required_operator = 'modules.change_config_operatorsalemodule'
     template_name = 'modules/shop_module_category_delete.html'
-    form_class = None
-    lm_active = None
 
-    # def dispatch(self, request, *args, **kwargs):
-    #     try:
-    #         self.category = Category.objects.get(pk=kwargs['pk'])
-    #     except ObjectDoesNotExist:
-    #         raise Http404
-    #     if self.category.module.pk != self.module.pk:
-    #         raise Http404
-    #     return super().dispatch(request, *args, **kwargs)
+    def __init__(self):
+        self.form_class = None
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['category'] = self.category
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
         CategoryProduct.objects.filter(category=self.category).delete()
         self.category.delete()
         return redirect(self.get_success_url())
-
-    # def get_success_url(self):
-    #     if self.kwargs['module_class'] == SelfSaleModule:
-    #         self.success_url = reverse('url_shop_module_config')
-    #     elif self.kwargs['module_class'] == OperatorSaleModule:
-    #         self.success_url = reverse(
-    #             'url_shop_module_config')
-    #     return self.success_url
