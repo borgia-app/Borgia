@@ -21,11 +21,11 @@ from modules.models import CategoryProduct
 from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
                          ProductUpdatePriceForm, ShopCheckupSearchForm,
                          ShopCreateForm, ShopUpdateForm)
+from shops.mixins import (ProductPermissionAndContextMixin,
+                          ShopPermissionAndContextMixin)
 from shops.models import Product, Shop
 from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
-                         DEFAULT_PERMISSIONS_CHIEFS,
-                         ProductPermissionAndContextMixin,
-                         ShopPermissionAndContextMixin)
+                         DEFAULT_PERMISSIONS_CHIEFS)
 
 
 class ShopCreate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):

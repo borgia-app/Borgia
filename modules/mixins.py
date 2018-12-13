@@ -2,7 +2,7 @@ from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.http import Http404
 
 from modules.models import OperatorSaleModule, SelfSaleModule, Category
-from shops.utils import ShopPermissionAndContextMixin
+from shops.mixins import ShopPermissionAndContextMixin
 
 class ShopModuleMixin(ShopPermissionAndContextMixin):
     """

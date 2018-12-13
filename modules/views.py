@@ -15,7 +15,7 @@ from modules.forms import (ModuleCategoryCreateForm,
                            ModuleCategoryCreateNameForm, ShopModuleConfigForm,
                            ShopModuleSaleForm)
 from modules.models import Category, CategoryProduct, SelfSaleModule
-from modules.utils import (ShopModuleCategoryMixin,
+from modules.mixins import (ShopModuleCategoryMixin,
                            ShopModuleMixin)
 from shops.models import Product, Shop
 from users.models import User
