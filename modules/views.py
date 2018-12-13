@@ -124,7 +124,7 @@ class ShopModuleSaleView(ShopModulePermissionAndContextMixin, FormView,
 
     def get_success_url(self):
         return reverse(
-            'url_module_selfsale',
+            'url_shop_module_sale',
             kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class}
         )
 
@@ -303,10 +303,10 @@ class ShopModuleCategoryCreateView(ShopModulePermissionAndContextMixin,
 
     # def get_success_url(self):
     #     if self.kwargs['module_class'] == "self_sales":
-    #         self.success_url = reverse('url_module_selfsale_config')
+    #         self.success_url = reverse('url_shop_module_config')
     #     elif self.kwargs['module_class'] == "operator_sales":
     #         self.success_url = reverse(
-    #             'url_module_operatorsale_config')
+    #             'url_shop_module_config')
     #     return self.success_url
 
 
@@ -367,10 +367,10 @@ class ShopModuleCategoryUpdateView(ShopModulePermissionAndContextMixin,
 
     # def get_success_url(self):
     #     if self.kwargs['module_class'] == SelfSaleModule:
-    #         self.success_url = reverse('url_module_selfsale_config')
+    #         self.success_url = reverse('url_shop_module_config')
     #     elif self.kwargs['module_class'] == OperatorSaleModule:
     #         self.success_url = reverse(
-    #             'url_module_operatorsale_config')
+    #             'url_shop_module_config')
     #     return self.success_url
 
 
@@ -403,8 +403,8 @@ class ShopModuleCategoryDeleteView(ShopModulePermissionAndContextMixin,
 
     # def get_success_url(self):
     #     if self.kwargs['module_class'] == SelfSaleModule:
-    #         self.success_url = reverse('url_module_selfsale_config')
+    #         self.success_url = reverse('url_shop_module_config')
     #     elif self.kwargs['module_class'] == OperatorSaleModule:
     #         self.success_url = reverse(
-    #             'url_module_operatorsale_config')
+    #             'url_shop_module_config')
     #     return self.success_url

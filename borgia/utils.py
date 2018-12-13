@@ -204,7 +204,7 @@ def lateral_menu(user, group, active=None):
                 label='Module vente libre service',
                 fa_icon='shopping-basket',
                 id_link='lm_selfsale_module',
-                url=reverse('url_module_selfsale_config')
+                url=reverse('url_shop_module_config')
             ))
         # TODO: check perm
             nav_tree.append(simple_lateral_link(
@@ -212,7 +212,7 @@ def lateral_menu(user, group, active=None):
                 fa_icon='coffee',
                 id_link='lm_operatorsale_module',
                 url=reverse(
-                    'url_module_operatorsale_config'
+                    'url_shop_module_config'
                 )
             ))
     except ValueError:
@@ -235,7 +235,7 @@ def lateral_menu(user, group, active=None):
                 fa_icon='shopping-basket',
                 id_link='lm_operatorsale_interface_module',
                 url=reverse(
-                    'url_module_operatorsale',
+                    'url_shop_module_sale',
                     kwargs={'shop_name': shop.name})
             ))
     except ValueError:
@@ -331,7 +331,7 @@ def lateral_menu_members(user, active=None):
                 'shopping-basket',
                 # Not currently used in modules.view
                 'lm_selfsale_interface_module_' + shop.name,
-                reverse('url_module_selfsale', kwargs={
+                reverse('url_shop_module_sale', kwargs={
                         'shop_name': shop.name})
             ))
 
@@ -569,7 +569,7 @@ def lateral_menu_shop_sale(group, shop):
                     fa_icon='shopping-basket',
                     id_link='lm_selfsale_module_'+shop.name,
                     url=reverse(
-                        'url_module_selfsale',
+                        'url_shop_module_sale',
                         kwargs={'shop_name': shop.name})
                 ))
     except ObjectDoesNotExist:

@@ -8,30 +8,16 @@ from modules.views import (ShopModuleSaleView,
 
 modules_patterns = [
     path('shops/<int:shop_pk>/modules/', include([
-        # SELF SALE
         path('<str:module_class>/', include([
             path('', ShopModuleSaleView.as_view(),
-                 name='url_module_selfsale'),
+                 name='url_shop_module_sale'),
             path('config/', ShopModuleConfigView.as_view(),
-                 name='url_module_selfsale_config'),
-            path('config/update/', ShopModuleConfigUpdateView.as_view(), name='url_module_selfsale_config_update'),
-            path('categories/', include([
-                path('create/', ShopModuleCategoryCreateView.as_view(), name='url_module_selfsale_categories_create'),
-                path('<int:pk>/update/', ShopModuleCategoryUpdateView.as_view(), name='url_module_selfsale_categories_update'),
-                path('<int:pk>/delete/', ShopModuleCategoryDeleteView.as_view(), name='url_module_selfsale_categories_delete')
-            ]))
-        ])),
-        # OPERATOR SALE
-        path('<str:module_class>/', include([
-            path('', ShopModuleSaleView.as_view(
-            ), name='url_module_operatorsale'),
-            path('config/', ShopModuleConfigView.as_view(),
-                 name='url_module_operatorsale_config'),
-            path('config/update', ShopModuleConfigUpdateView.as_view(), name='url_module_operatorsale_config_update'),
-            path('categories/', include([
-                path('create/', ShopModuleCategoryCreateView.as_view(), name='url_module_operatorsale_categories_create'),
-                path('<int:pk>/update/', ShopModuleCategoryUpdateView.as_view(), name='url_module_operatorsale_categories_update'),
-                path('<int:pk>/delete/', ShopModuleCategoryDeleteView.as_view(), name='url_module_operatorsale_categories_delete')
+                 name='url_shop_module_config'),
+            path('config/update/', ShopModuleConfigUpdateView.as_view(), name='url_shop_module_config_update'),
+            path('category/', include([
+                path('create/', ShopModuleCategoryCreateView.as_view(), name='url_shop_module_category_create'),
+                path('<int:pk>/update/', ShopModuleCategoryUpdateView.as_view(), name='url_shop_module_category_update'),
+                path('<int:pk>/delete/', ShopModuleCategoryDeleteView.as_view(), name='url_shop_module_category_delete')
             ]))
         ]))
     ]))
