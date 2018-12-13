@@ -485,8 +485,8 @@ def lateral_menu_stock(group):
             'icon': 'plus',
             'id': 'lm_stockentry_create',
             'url': reverse(
-                'url_stock_entry_create',
-                kwargs={'group_name': group.name})
+                'url_stockentry_create',
+                kwargs={'shop_pk': 0})
         })
 
     if list_permission_stockentry in group.permissions.all():
@@ -495,8 +495,8 @@ def lateral_menu_stock(group):
             'icon': 'list',
             'id': 'lm_stockentry_list',
             'url': reverse(
-                'url_stock_entry_list',
-                kwargs={'group_name': group.name})
+                'url_stockentry_list',
+                kwargs={'shop_pk': 0})
         })
 
     if add_permission_inventory in group.permissions.all():
@@ -506,7 +506,7 @@ def lateral_menu_stock(group):
             'id': 'lm_inventory_create',
             'url': reverse(
                 'url_inventory_create',
-                kwargs={'group_name': group.name})
+                kwargs={'shop_pk': 0})
         })
 
     if list_permission_inventory in group.permissions.all():
@@ -516,7 +516,7 @@ def lateral_menu_stock(group):
             'id': 'lm_inventory_list',
             'url': reverse(
                 'url_inventory_list',
-                kwargs={'group_name': group.name})
+                kwargs={'shop_pk': 0})
         })
 
     if len(product_tree['subs']) > 0:

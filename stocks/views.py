@@ -63,14 +63,14 @@ class StockEntryCreateView(ShopPermissionAndContextMixin, View, GroupLateralMenu
     """
     """
     permission_required = 'stocks.add_stockentry'
-    template_name = 'stocks/stock_entry_create.html'
+    template_name = 'stocks/stockentry_create.html'
     lm_active = 'lm_stockentry_create'
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        stock_entry_product_form = formset_factory(StockEntryProductForm,
+        stockentry_product_form = formset_factory(StockEntryProductForm,
                                                    extra=1)
-        context['stockentry_form'] = stock_entry_product_form(
+        context['stockentry_form'] = stockentry_product_form(
             form_kwargs={'shop': self.shop})
         context['add_inventory_form'] = AdditionnalDataStockEntryForm()
         return render(request, self.template_name, context=context)
@@ -79,9 +79,9 @@ class StockEntryCreateView(ShopPermissionAndContextMixin, View, GroupLateralMenu
         stockentry = StockEntry.objects.create(
             operator=request.user, shop=self.shop)
 
-        stock_entry_product_form = formset_factory(StockEntryProductForm,
+        stockentry_product_form = formset_factory(StockEntryProductForm,
                                                    extra=1)
-        stockentry_form = stock_entry_product_form(
+        stockentry_form = stockentry_product_form(
             request.POST, form_kwargs={'shop': self.shop})
         add_inventory_form = AdditionnalDataStockEntryForm(request.POST)
 
@@ -125,7 +125,7 @@ class StockEntryCreateView(ShopPermissionAndContextMixin, View, GroupLateralMenu
                     pass
 
         return redirect(
-            reverse('url_stock_entry_list',
+            reverse('url_stockentry_list',
                     kwargs={'shop_pk': self.shop.pk})
         )
 

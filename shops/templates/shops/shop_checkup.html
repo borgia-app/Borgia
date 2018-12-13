@@ -29,7 +29,7 @@
       <div class="panel-heading">
         Stocks
         <a class="btn btn-info btn-xs" href="{% url 'url_product_list' shop_pk=shop.pk %}">Liste complète des produits</a>
-        <a class="btn btn-info btn-xs" href="{% url 'url_stock_entry_list' group_name='group.name' %}">Liste complète des entrées de stock</a>
+        <a class="btn btn-info btn-xs" href="{% url 'url_stockentry_list' shop_pk=shop.pk %}">Liste complète des entrées de stock</a>
       </div>
       <div class="panel-body">
         <ul>
