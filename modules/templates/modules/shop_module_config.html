@@ -2,29 +2,82 @@
 {% load bootstrap %}
 
 {% block content %}
-<div class="panel panel-default">
+<div class="panel panel-primary">
   <div class="panel-heading">
-    Configuration du {{ module }}
+    {% if module_class == "operator_sales" %}
+      Accueil du module de vente par opérateur pour le magasin {{ shop }}
+    {% else %}
+      Accueil du module de vente libre service pour le magasin {{ shop }}
+    {% endif %}
   </div>
   <div class="panel-body">
-    <form method="post">
-      {% csrf_token %}
-      {{ form|bootstrap }}
-      <button class="btn btn-success" type="submit">Valider</button>
-    </form>
+    <ul class="list-group">
+      <li class="list-group-item list-group-item-{% if module.state == True %}success{% else %}danger{% endif %}">
+        Etat : {{ module.state|yesno:"activé, désactivé, peut-être"}}
+      </li>
+      <li class="list-group-item">
+        Déconnexion après la vente :
+        {{ module.logout_post_purchase|yesno:"oui, non, non" }}
+      </li>
+      <li class="list-group-item">
+        Montant limite de commande :
+        {% if module.limit_purchase %}{{ module.limit_purchase }} €{% else %}aucune{% endif %}
+      </li>
+      <li class="list-group-item">
+        Durée de l'affichage du résumé de commande :
+        {% if module.delay_post_purchase %}{{ module.delay_post_purchase }} secondes{% else %}pas de résumé{% endif %}
+      </li>
+    </ul>
+    {% if module_class == "operator_sales" %}
+      <a href="{% url 'url_module_operatorsale_config_update' %}" class="btn btn-default">Modifier</a>
+    {% else %}
+      <a href="{% url 'url_module_selfsale_config_update' %}" class="btn btn-default">Modifier</a>
+    {% endif %}
   </div>
 </div>
-
-<script>
-  $("#id_infinite_delay_post_purchase").change(function() {
-    if ($(this).is(":checked")) {
-      $("#id_delay_post_purchase").hide()
-      $("label[for='id_delay_post_purchase']").hide()
-    } else {
-      $("#id_delay_post_purchase").show()
-      $("label[for='id_delay_post_purchase']").show()
-    }
-  })
-  $("#id_infinite_delay_post_purchase").trigger("change")
-</script>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    En vente au module
+    {% if module_class == "operator_sales" %}
+      <a href="{% url 'url_module_operatorsale_categories_create' %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Ajouter une catégorie</a>
+    {% else %}
+      <a href="{% url 'url_module_selfsale_categories_create' %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Ajouter une catégorie</a>
+    {% endif %}
+  </div>
+  <div class="panel-body">
+    {% if module.categories.all.count == 0 %}
+      <p style="opacity: 0.54;">Rien n'est en vente actuellement dans ce module.</p>
+    {% endif %}
+    <div class="row">
+      {% for category in module.categories.all %}
+      <div class="col-md-4">
+        <div class="panel panel-default">
+          <div class="panel-heading">
+            {{ category.name }}
+            {% if module_class == "operator_sales" %}
+            <a href="{% url 'url_module_operatorsale_categories_update' pk=category.pk %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Modifier</a>
+            <a href="{% url 'url_module_operatorsale_categories_delete' pk=category.pk %}"role="button" class="btn btn-xs btn-danger" style='margin-left: 10px'>Supprimer</a>
+            {% else %}
+            <a href="{% url 'url_module_selfsale_categories_update' pk=category.pk %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Modifier</a>
+            <a href="{% url 'url_module_selfsale_categories_delete' pk=category.pk %}"role="button" class="btn btn-xs btn-danger" style='margin-left: 10px'>Supprimer</a>
+            {% endif %}
+          </div>
+          <div class="panel-body">
+            <ul>
+              {% for category_product in category.categoryproduct_set.all %}
+              <li {% if category_product.product.is_active == False %}style="color: red;"{% endif %}>{{ category_product.product }}
+                {% if category_product.product.unit %}
+                 / {{ category_product.quantity }} {{ category_product.product.get_unit_display }}
+                {% endif %}
+                {% if category_product.product.is_active == False %} / DESACTIVE{% endif %}
+              </li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
 {% endblock %}
