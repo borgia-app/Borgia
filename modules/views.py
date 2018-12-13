@@ -233,6 +233,8 @@ class ShopModuleConfigUpdateView(ShopModuleMixin, FormView, GroupLateralMenuMixi
         self.module.save()
         return super(ShopModuleConfigUpdateView, self).form_valid(form)
 
+    def get_success_url(self):
+        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
 
 class ShopModuleCategoryCreateView(ShopModuleMixin, View, GroupLateralMenuMixin):
     """

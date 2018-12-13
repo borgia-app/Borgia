@@ -126,7 +126,7 @@ class ShopModuleCategoryMixin(ShopModuleMixin):
         Define context objects
         """
         super().add_context_objects()
-        self.add_module_object()
+        self.add_category_object()
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
