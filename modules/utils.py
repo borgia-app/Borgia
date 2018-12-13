@@ -39,11 +39,11 @@ class ShopModulePermissionAndContextMixin(PermissionRequiredMixin, ContextMixin)
         Define module object.
         Raise Http404 is module doesn't exist.
         """
-        module_class = self.kwargs['module_class']
-        if module_class == "self_sales":
+        self.module_class = self.kwargs['module_class']
+        if self.module_class == "self_sales":
             self.module = SelfSaleModule.objects.get_or_create(
                 shop=self.shop)[0]
-        elif module_class == "operator_sales":
+        elif self.module_class == "operator_sales":
             self.module = OperatorSaleModule.objects.get_or_create(
                 shop=self.shop)[0]
         else:
