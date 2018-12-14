@@ -7,9 +7,13 @@
 <div class="panel panel-primary">
   <div class="panel-heading">
     Utilisateurs
-    {% if group|has_group_perm:"add_user" %}
-        <a class="btn btn-xs btn-success pull-right" href="{% url 'url_user_create' group_name=group.name %}">Nouveau</a>
-    {% endif %}
+
+    <div class="btn-group pull-right" role="group" aria-label="change user">
+       {% if group|has_group_perm:"add_user" %}
+          <a class="btn btn-xs btn-warning" href="{% url 'url_add_by_list_xlsx' group_name=group.name %}">Upload et téléchargement</a>
+          <a class="btn btn-xs btn-success" href="{% url 'url_user_create' group_name=group.name %}">Nouveau</a>
+       {% endif %}
+    </div>
   </div>
   <div class="panel-body">
     <form action="{% url 'url_user_list' group_name=group_name %}" method="post" class="form-horizontal">

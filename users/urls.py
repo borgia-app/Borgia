@@ -1,8 +1,9 @@
 from django.urls import include, path
 
-from users.views import (ManageGroupView, UserSelfUpdateView, UserCreateView,
-                         UserDeactivateView, UserListView, UserRetrieveView,
-                         UserSelfDeactivateView, UserUpdateView,
+from users.views import (ManageGroupView, UserAddByListXlsxDownload,
+                         UserCreateView, UserDeactivateView, UserListView,
+                         UserRetrieveView, UserSelfDeactivateView,
+                         UserSelfUpdateView, UserUpdateView, UserUploadXlsxView,
                          balance_from_username, username_from_username_part)
 
 users_patterns = [
@@ -15,7 +16,10 @@ users_patterns = [
             path('deactivate/', UserDeactivateView.as_view(), name='url_user_deactivate'),
             path('self_deactivate/', UserSelfDeactivateView.as_view(), name='url_self_deactivate'),
         ])),
-        path('self/', UserSelfUpdateView.as_view(), name='url_user_self_update')
+        path('self/', UserSelfUpdateView.as_view(), name='url_user_self_update'),
+
+        path('add_by_list/xlsx/', UserUploadXlsxView.as_view(), name='url_add_by_list_xlsx'),
+        path('add_by_list/xlsx/download/', UserAddByListXlsxDownload.as_view(), name='url_add_by_list_xlsx_download')
     ])),
     path('<str:group_name>/groups/<int:pk>/update/', ManageGroupView.as_view(), name='url_group_update'),
     path('ajax/username_from_username_part/', username_from_username_part, name='url_ajax_username_from_username_part'),
