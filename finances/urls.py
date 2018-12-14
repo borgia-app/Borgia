@@ -29,12 +29,12 @@ finances_patterns = [
         # TRANSFERTS
         path('transferts/', include([
             path('', TransfertList.as_view(), name='url_transfert_list'),
-            path('<int:pk>/', TransfertRetrieve.as_view(), name='url_transfert_retrieve')
+            path('<int:transfert_pk>/', TransfertRetrieve.as_view(), name='url_transfert_retrieve')
         ])),
         # EXCEPTIONNAL MOVEMENTS
         path('exceptionnal_movements/', include([
             path('', ExceptionnalMovementList.as_view(), name='url_exceptionnalmovement_list'),
-            path('<int:pk>/', ExceptionnalMovementRetrieve.as_view(), name='url_exceptionnalmovement_retrieve')
+            path('<int:exceptionnalmovement_pk>/', ExceptionnalMovementRetrieve.as_view(), name='url_exceptionnalmovement_retrieve')
         ])),
         # SELF OPERATIONS
         path('self/', include([
