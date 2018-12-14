@@ -7,32 +7,22 @@
     Détails de l'utilisateur
       <div class="btn-group" role="group" aria-label="change user">
         {% if group|has_group_perm:"change_user" %}
-          <a class="btn btn-primary" href="{% url 'url_user_update' group_name=group_name pk=user.pk %}">Modifier les informations</a>
+          <a class="btn btn-primary" href="{% url 'url_user_update' group_name=group.name pk=user.pk %}">Modifier les informations</a>
         {% endif %}
         {% if group|has_group_perm:"delete_user" or user.pk == request.user.pk %}
-          {% if user.pk == request.user.pk %}
-            <a class="btn btn-primary" href="{% url 'url_self_deactivate' group_name=group_name pk=user.pk %}">
-                {% if user.is_active == True %}
-                    Désactiver mon compte
-                {% else %}
-                    Activer mon compte
-                {% endif %}
-            </a>
-          {% else %}
-            <a class="btn btn-primary" href="{% url 'url_user_deactivate' group_name=group_name pk=user.pk %}">
-                {% if user.is_active == True %}
-                    Désactiver le compte
-                {% else %}
-                    Activer le compte
-                {% endif %}
-            </a>
-          {% endif %}
+          <a class="btn btn-primary" href="{% url 'url_user_deactivate' group_name=group.name pk=user.pk %}">
+            {% if user.is_active == True %}
+              Désactiver le compte
+            {% else %}
+              Activer le compte
+            {% endif %}
+          </a>
         {% endif %}
-        {% if group|has_group_perm:"add_exceptionnal_movement" %}
-          <a class="btn btn-primary" href="{% url 'url_user_exceptionnalmovement_create' group_name=group_name user_pk=user.pk %}">Mouvement exceptionnel</a>
+        {% if group|has_group_perm:"add_exceptionnalmovement" %}
+          <a class="btn btn-primary" href="{% url 'url_user_exceptionnalmovement_create' group_name=group.name user_pk=user.pk %}">Mouvement exceptionnel</a>
         {% endif %}
-        {% if group|has_group_perm:"supply_money_user" %}
-          <a class="btn btn-primary" href="{% url 'url_user_supplymoney' group_name=group_name user_pk=user.pk %}">Ajout d'argent</a>
+        {% if group|has_group_perm:"add_recharging" %}
+          <a class="btn btn-primary" href="{% url 'url_recharging_create' group_name=group.name user_pk=user.pk %}">Ajout d'argent</a>
         {% endif %}
       </div>
   </div>
@@ -42,7 +32,7 @@
     </div>
   </div>
 </div>
-{% if group|has_group_perm:"retrieve_more_user_info" %}
+{% if group|has_group_perm:"advanced_view_user" %}
 <div class="panel panel-default">
   <div class="panel-heading">
     Dernières transactions
@@ -53,7 +43,7 @@
         <th>Date</th>
         <th>Libellé</th>
         <th>Montant</th>
-        {% if group|has_group_perm:"retrieve_sale" %}
+        {% if group|has_group_perm:"view_sale" %}
           <th>Détail</th>
         {% endif %}
       </tr>
@@ -107,16 +97,16 @@
             {{ transaction.amount }}€
           {% endif %}
         </td>
-        {% if group|has_group_perm:"retrieve_sale" %}
+        {% if group|has_group_perm:"view_sale" %}
           <td><a href="
             {% if transaction|get_transaction_model == 'Sale' %}
-              {% url 'url_sale_retrieve' group_name=group_name pk=transaction.pk %}
+              {% url 'url_sale_retrieve' group_name=group.name pk=transaction.pk %}
             {% elif transaction|get_transaction_model == 'Recharging' %}
-              {% url 'url_recharging_retrieve' group_name=group_name pk=transaction.pk %}
+              {% url 'url_recharging_retrieve' group_name=group.name pk=transaction.pk %}
             {% elif transaction|get_transaction_model == 'Transfert' %}
-              {% url 'url_transfert_retrieve' group_name=group_name pk=transaction.pk %}
+              {% url 'url_transfert_retrieve' group_name=group.name pk=transaction.pk %}
             {% elif transaction|get_transaction_model == 'ExceptionnalMovement' %}
-              {% url 'url_exceptionnalmovement_retrieve' group_name=group_name pk=transaction.pk %}
+              {% url 'url_exceptionnalmovement_retrieve' group_name=group.name pk=transaction.pk %}
             {% endif %}
             ">Détail</a></td>
           {% endif %}

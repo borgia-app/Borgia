@@ -114,7 +114,7 @@ class UserTest(TestCase):
 
 class ListYearTest(TestCase):
     """
-    Will fail, cause user1 is ignored (in the current BDD, user1 is the admin)
+    Be careful : user1 is ignored (in the current BDD, user1 is the admin)
     """
     def setUp(self):
         self.user1 = User.objects.create(username='user1', year=2010)

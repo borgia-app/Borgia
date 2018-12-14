@@ -129,7 +129,7 @@ class NotificationClass(models.Model):
     class Meta:
         default_permissions = (
             'list',
-            'change'
+            'change',
         )
 
     def __str__(self):
@@ -272,7 +272,7 @@ class NotificationGroup(models.Model):
         default_permissions = (
             'list',
             'add',
-            'change',
+            'change'
         )
 
     notificationgroup = AutoOneToOneField(

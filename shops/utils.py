@@ -1,10 +1,11 @@
-DEFAULT_PERMISSIONS_CHIEFS = ['add_user', 'retrieve_user', 'list_user', 'supply_money_user', 'add_product',
-                              'change_product', 'retrieve_product', 'list_product',
-                              'list_sale', 'retrieve_sale', 'use_operatorsalemodule',
-                              'add_stockentry', 'retrieve_stockentry', 'list_stockentry',
-                              'add_inventory', 'retrieve_inventory', 'list_inventory', 'change_price_product']
-DEFAULT_PERMISSIONS_ASSOCIATES = ['add_user', 'retrieve_user', 'list_user', 'supply_money_user', 'add_product',
-                                  'change_product', 'retrieve_product', 'list_product',
-                                  'list_sale', 'retrieve_sale', 'use_operatorsalemodule',
-                                  'add_stockentry', 'retrieve_stockentry', 'list_stockentry',
-                                  'add_inventory', 'retrieve_inventory', 'list_inventory']
+DEFAULT_PERMISSIONS_CHIEFS = ['add_user', 'view_user', 'add_recharging',
+                              'add_product', 'change_product', 'delete_product', 'view_product',
+                              'change_price_product',
+                              'view_sale', 'use_operatorsalemodule',
+                              'add_stockentry', 'view_stockentry',
+                              'add_inventory', 'view_inventory']
+DEFAULT_PERMISSIONS_ASSOCIATES = ['add_user', 'view_user',
+                                  'add_product', 'change_product', 'view_product',
+                                  'view_sale', 'use_operatorsalemodule',
+                                  'add_stockentry', 'view_stockentry',
+                                  'add_inventory', 'view_inventory']

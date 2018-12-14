@@ -52,6 +52,12 @@ class Setting(models.Model):
     value = models.CharField('Valeur', max_length=500)
     value_type = models.CharField('Type', max_length=1, choices=TYPE_CHOICES)
 
+    class Meta:
+        """
+        :note:: Initial Django Permission (change, view) are added.
+        """
+        default_permissions = ('change', 'view',)
+        
     def __str__(self):
         """
         Return the display name of Setting object.
@@ -94,13 +100,3 @@ class Setting(models.Model):
                 return False
             else:
                 return ""
-
-    class Meta:
-        permissions = (
-            # CRUDL
-            # add_setting
-            # change_setting
-            # delete_setting
-            ('list_setting', 'Lister les paramètres généraux'),
-            ('retrieve_setting', 'Afficher un paramètre général')
-        )
