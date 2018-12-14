@@ -332,12 +332,6 @@ class TransfertList(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     :note:: only transfert sales are listed here. For other types of
     transactions, please refer to other classes (SaleList, RechargingList and
     ExceptionnalMovementList).
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :type kwargs['group_name']: string
-    :raises: Http404 if the group_name doesn't match a group
-    :raises: Http404 if the group doesn't have the permission to list transfert
-    sales
     """
     permission_required = 'finances.view_transfert'
     template_name = 'finances/transfert_list.html'
@@ -733,10 +727,6 @@ class RechargingCreate(UserMixin, FormView, GroupLateralMenuMixin):
 class SelfLydiaCreate(FormView, GroupLateralMenuMixin):
     """
     View to supply himself by Lydia.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :type kwargs['group_name']: string
-    :raises: Http404 if the group_name doesn't match a group
     """
     template_name = 'finances/self_lydia_create.html'
     form_class = SelfLydiaCreateForm

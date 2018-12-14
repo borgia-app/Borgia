@@ -343,9 +343,6 @@ class ProductCreate(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMix
 class ProductDeactivate(ProductPermissionAndContextMixin, View, GroupLateralMenuMixin):
     """
     Deactivate a product and redirect to the retrieve of the product.
-
-    :param kwargs['group_name']: name of the group used.
-    :param kwargs['pk']: pk of the product
     """
     permission_required = 'shops.delete_product'
     template_name = 'shops/product_deactivate.html'
@@ -370,9 +367,6 @@ class ProductDeactivate(ProductPermissionAndContextMixin, View, GroupLateralMenu
 class ProductRemove(ProductPermissionAndContextMixin, View, GroupLateralMenuMixin):
     """
     Remove a product and redirect to the list of products.
-
-    :param kwargs['group_name']: name of the group used.
-    :param kwargs['pk']: pk of the product
     """
     permission_required = 'shops.change_product'
     template_name = 'shops/product_remove.html'

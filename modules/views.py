@@ -200,11 +200,6 @@ class ShopModuleConfigView(ShopModuleMixin, View, GroupLateralMenuMixin):
 class ShopModuleConfigUpdateView(ShopModuleMixin, FormView, GroupLateralMenuMixin):
     """
     View to manage config of a self shop module.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['module_class']: class of the shop module, mandatory
-    :type kwargs['group_name']: string
-    :type kwargs['module_class']: class object
     """
     permission_required_self = 'modules.change_config_selfsalemodule'
     permission_required_operator = 'modules.change_config_operatorsalemodule'
