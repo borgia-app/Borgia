@@ -13,12 +13,13 @@ from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import HttpResponse, render
+from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import FormView, View
 
 from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
-                          UserMixin, shop_from_group)
+                          shop_from_group)
 from configurations.models import Configuration
 from configurations.utils import configurations_safe_get
 from finances.forms import (ExceptionnalMovementForm,
@@ -31,6 +32,7 @@ from finances.models import (Cash, Cheque, ExceptionnalMovement,
                              Transfert)
 from notifications.models import notify
 from shops.mixins import ShopPermissionAndContextMixin
+from users.mixins import UserMixin
 from users.models import User
 
 
@@ -179,7 +181,7 @@ class RechargingList(PermissionRequiredMixin, FormView,
 
         context['recharging_list'] = self.form_query(
             Recharging.objects.all().order_by(
-            '-datetime'))[:1000]
+                '-datetime'))[:1000]
 
         context['info'] = self.info(context['recharging_list'])
         return context
@@ -303,7 +305,8 @@ class RechargingRetrieve(PermissionRequiredMixin, View, GroupLateralMenuMixin):
         Raise Http404 is shop doesn't exist.
         """
         try:
-            self.recharging = Recharging.objects.get(pk=self.kwargs['recharging_pk'])
+            self.recharging = Recharging.objects.get(
+                pk=self.kwargs['recharging_pk'])
         except ObjectDoesNotExist:
             raise Http404
 
@@ -350,7 +353,7 @@ class TransfertList(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
 
         context['transfert_list'] = self.form_query(
             Transfert.objects.all().order_by('-datetime')
-            )[:100]
+        )[:100]
 
         return context
 
@@ -409,7 +412,8 @@ class TransfertRetrieve(PermissionRequiredMixin, View, GroupLateralMenuMixin):
         Raise Http404 is shop doesn't exist.
         """
         try:
-            self.transfert = Transfert.objects.get(pk=self.kwargs['transfert_pk'])
+            self.transfert = Transfert.objects.get(
+                pk=self.kwargs['transfert_pk'])
         except ObjectDoesNotExist:
             raise Http404
 
@@ -464,6 +468,9 @@ class SelfTransfertCreate(PermissionRequiredMixin, SuccessMessageMixin, FormView
             recipient=cleaned_data['recipient']
         )
 
+    def get_success_url(self):
+        return reverse('url_members_workboard')
+
 
 class ExceptionnalMovementList(PermissionRequiredMixin, FormView,
                                GroupLateralMenuMixin):
@@ -490,7 +497,7 @@ class ExceptionnalMovementList(PermissionRequiredMixin, FormView,
         context = super().get_context_data(**kwargs)
         context['exceptionnalmovement_list'] = self.form_query(
             ExceptionnalMovement.objects.all().order_by('-datetime')
-            )[:100]
+        )[:100]
         return context
 
     def form_query(self, query):
@@ -548,7 +555,8 @@ class ExceptionnalMovementRetrieve(PermissionRequiredMixin, View,
         Raise Http404 is shop doesn't exist.
         """
         try:
-            self.exceptionnalmovement = ExceptionnalMovement.objects.get(pk=self.kwargs['exceptionnalmovement_pk'])
+            self.exceptionnalmovement = ExceptionnalMovement.objects.get(
+                pk=self.kwargs['exceptionnalmovement_pk'])
         except ObjectDoesNotExist:
             raise Http404
 
@@ -605,8 +613,7 @@ class SelfTransactionList(FormView, GroupLateralMenuMixin):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class UserExceptionnalMovementCreate(PermissionRequiredMixin, UserMixin, FormView,
-                                     GroupLateralMenuMixin):
+class UserExceptionnalMovementCreate(UserMixin, FormView, GroupLateralMenuMixin):
     """
     View to create an exceptionnal movement (debit or credit) for a specific
     user.
@@ -650,9 +657,11 @@ class UserExceptionnalMovementCreate(PermissionRequiredMixin, UserMixin, FormVie
         initial['operator_username'] = self.request.user.username
         return initial
 
+    def get_success_url(self):
+        return reverse('url_user_retrieve', kwargs={'user_pk': self.user.pk})
 
-class RechargingCreate(PermissionRequiredMixin, UserMixin, FormView,
-                       GroupLateralMenuMixin):
+
+class RechargingCreate(UserMixin, FormView, GroupLateralMenuMixin):
     permission_required = 'finances.add_recharging'
     template_name = 'finances/user_supplymoney.html'
     form_class = RechargingCreateForm
@@ -712,14 +721,16 @@ class RechargingCreate(PermissionRequiredMixin, UserMixin, FormView,
         Populate the form with the current login user for the operator (only
         username of course).
         """
-        initial = super((RechargingCreate, self)).get_initial()
+        initial = super().get_initial()
         initial['signature_date'] = now
         initial['operator_username'] = self.request.user.username
         return initial
 
+    def get_success_url(self):
+        return reverse('url_user_retrieve', kwargs={'user_pk': self.user.pk})
 
-class SelfLydiaCreate(FormView,
-                      GroupLateralMenuMixin):
+
+class SelfLydiaCreate(FormView, GroupLateralMenuMixin):
     """
     View to supply himself by Lydia.
 
