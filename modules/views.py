@@ -89,20 +89,21 @@ class ShopModuleSaleView(ShopModuleMixin, FormView, GroupLateralMenuMixin):
             shop=self.shop
         )
         for field in form.cleaned_data:
-            if field != 'client':
-                invoice = form.cleaned_data[field]
-                if invoice > 0 and isinstance(invoice, int):
+            if field != 'client' and form.cleaned_data[field] != '':
+                invoice = int(form.cleaned_data[field])
+                if invoice > 0:
                     try:
                         category_product = CategoryProduct.objects.get(
                             pk=field.split('-')[0])
+                    except ObjectDoesNotExist:
+                        pass
+                    else:
                         SaleProduct.objects.create(
                             sale=sale,
                             product=category_product.product,
                             quantity=category_product.quantity * invoice,
                             price=category_product.get_price() * invoice
                         )
-                    except ObjectDoesNotExist:
-                        pass
         sale.pay()
         return sale_shop_module_resume(
             self.request, sale, self.shop, self.module, self.success_url

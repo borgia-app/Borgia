@@ -1,7 +1,7 @@
 ![Borgia](./static/static_dirs/img/borgia-logo-light.png "Borgia")
 ==================================================================
 
-Last Build : [4.6.1](https://github.com/borgia-app/Borgia/releases/tag/4.6.1)  
+Current Version : 4.7.0
 Licence : [GNU GPL version 3](./license.txt)  
 Chat (en/fr): [Join us on Slack](https://borgia-app.slack.com)
 
