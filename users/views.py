@@ -52,7 +52,7 @@ class UserListView(PermissionRequiredMixin, FormView, LateralMenuMixin):
     sort = None
 
     def get_context_data(self, **kwargs):
-        context = super(UserListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         # Header List
         context['list_header'] = [["username", "Username"], ["last_name", "Nom Prénom"], ["surname", "Bucque"], [
@@ -313,7 +313,7 @@ class UserDeactivateView(PermissionRequiredMixin, View, LateralMenuMixin):
         return redirect(force_text(self.success_url))
 
 
-class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class UserSelfDeactivateView(GroupPermissionMixin, View, LateralMenuMixin):
     """
     Deactivate own account and disconnect.
 
@@ -322,7 +322,7 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     """
     template_name = 'users/deactivate.html'
     perm_codename = None
-    error_sharedevent_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
+    error_event_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
 
     def get(self, request, *args, **kwargs):
         try:
@@ -338,32 +338,26 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
             user = User.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
-        sharedevents = SharedEvent.objects.filter(manager=user, done=False)
+        events = Event.objects.filter(manager=user, done=False)
         if user.is_active is True:
-            if sharedevents.count() > 0:
-                for sharedevent in sharedevents:
-                    self.error_sharedevent_message += "\n - " + sharedevent.description
-                messages.warning(request, self.error_sharedevent_message)
+            if events.count() > 0:
+                for event in events:
+                    self.error_event_message += "\n - " + event.description
+                messages.warning(request, self.error_event_message)
             else:
                 user.is_active = False
                 # si c'est un gadz. Special members can't be added to other groups
                 if Group.objects.get(pk=5) in user.groups.all():
                     user.groups.clear()
                     user.groups.add(Group.objects.get(pk=5))
-
                 user.save()
-        if sharedevents.count() > 0:
+        if events.count() > 0:
             self.success_url = reverse(
-                'url_sharedevent_list',
+                'url_event_list',
                 kwargs={'group_name': self.group.name})
         else:
             self.success_url = reverse(
                 'url_logout')
-        else:           
-            self.success_url = reverse(
-                'url_user_retrieve',
-                kwargs={'pk': self.kwargs['pk']})
-
         return redirect(force_text(self.success_url))
 
 
@@ -503,7 +497,7 @@ class GroupUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
         return reverse('url_managers_workboard')
 
 
-class UserUploadXlsxView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class UserUploadXlsxView(GroupPermissionMixin, FormView, LateralMenuMixin):
     """
     Download/Upload Excel for adding users.
     """
@@ -681,7 +675,7 @@ class UserUploadXlsxView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
                            kwargs={'group_name': self.group.name})
 
 
-class UserAddByListXlsxDownload(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class UserAddByListXlsxDownload(GroupPermissionMixin, View, LateralMenuMixin):
     """
     Download Excel for adding users.
     """

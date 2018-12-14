@@ -1,5 +1,4 @@
 {% extends 'base_sober.html' %}
-{% load finances_extra %}
 {% load users_extra %}
 {% load bootstrap %}
 
@@ -8,10 +7,10 @@
   <div class="panel-heading">
     Utilisateurs
 
-    {% request.user|has_perm:"users.add_user" %}
+    {% if request.user|has_perm:"users.add_user" %}
         <div class="btn-group pull-right" role="group" aria-label="change user">
-          <a class="btn btn-xs btn-warning" href="{% url 'url_add_by_list_xlsx' group_name=group.name %}">Upload et téléchargement</a>
-          <a class="btn btn-xs btn-success" href="{% url 'url_user_create' group_name=group.name %}">Nouveau</a>
+          <a class="btn btn-xs btn-warning" href="{% url 'url_add_by_list_xlsx' %}">Upload et téléchargement</a>
+          <a class="btn btn-xs btn-success" href="{% url 'url_user_create' %}">Nouveau</a>
         </div>
     {% endif %}
   </div>

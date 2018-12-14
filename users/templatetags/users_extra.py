@@ -1,24 +1,17 @@
 from django import template
-from django.contrib.auth.models import Group, Permission
+from django.contrib.auth.models import Group
 from django.template.defaultfilters import stringfilter
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 
-from borgia.utils import *
+from borgia.utils import group_name_display
 from configurations.utils import configurations_safe_get
 
 register = template.Library()
 
 
-@register.filter(name='has_perm')
-def has_perm(user, perm_codename):
-    return user.has_perm(perm_codename)
-
-
-@register.filter(name='has_group')
-def has_group(user, group_name):
-    group = Group.objects.get(name=group_name)
-    return True if group in user.groups.all() else False
+@register.filter()
+def has_perm(user, permission_required):
+    return user.has_perm(permission_required)
 
 
 @register.filter(name='get_transaction_model')
@@ -51,7 +44,6 @@ def order_by(attr, request):
         return '-' + attr
     else:
         return attr
-
 
 
 @register.simple_tag
