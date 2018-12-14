@@ -171,8 +171,7 @@ class SaleShopModuleResume(ShopModuleMixin, View, GroupLateralMenuMixin):
             self.success_url = kwargs['success_url']
         except KeyError:
             pass
-        return super(SaleShopModuleResume,
-                     self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)

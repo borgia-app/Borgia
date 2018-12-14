@@ -20,7 +20,7 @@ from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
 from borgia.utils import (INTERNALS_GROUP_NAME, GroupLateralMenuMixin,
-                          GroupPermissionMixin, LateralMenuMixin,
+                          LateralMenuMixin,
                           get_managers_group_from_user, is_association_manager)
 from events.models import Event
 from finances.models import ExceptionnalMovement, Recharging, Sale, Transfert

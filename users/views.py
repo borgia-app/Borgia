@@ -121,7 +121,7 @@ class UserListView(PermissionRequiredMixin, FormView, LateralMenuMixin):
         return self.get(self.request, self.args, self.kwargs)
 
     def get_initial(self):
-        initial = super(UserListView, self).get_initial()
+        initial = super().get_initial()
         initial['search'] = self.search
         return initial
 
@@ -157,10 +157,10 @@ class UserCreateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Lat
         # User object is assigned to self.object (so we can access to it in get_success_url)
         self.object = user
 
-        return super(UserCreateView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_initial(self):
-        initial = super(UserCreateView, self).get_initial()
+        initial = super().get_initial()
         initial['campus'] = 'Me'
         initial['year'] = datetime.datetime.now().year - 1
         return initial
@@ -347,7 +347,7 @@ class UserSelfUpdateView(SuccessMessageMixin, FormView, LateralMenuMixin):
     form_class = SelfUserUpdateForm
 
     def get_initial(self):
-        initial = super(UserSelfUpdateView, self).get_initial()
+        initial = super().get_initial()
         initial['email'] = self.request.user.email
         initial['phone'] = self.request.user.phone
         initial['avatar'] = self.request.user.avatar
@@ -355,7 +355,7 @@ class UserSelfUpdateView(SuccessMessageMixin, FormView, LateralMenuMixin):
         return initial
 
     def get_form_kwargs(self):
-        kwargs = super(UserSelfUpdateView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -369,7 +369,7 @@ class UserSelfUpdateView(SuccessMessageMixin, FormView, LateralMenuMixin):
             if self.request.user.avatar:
                 self.request.user.avatar.delete(True)
         self.request.user.save()
-        return super(UserSelfUpdateView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_message(self, cleaned_data):
         return "Vos infos ont bien été mises à jour"
@@ -409,7 +409,7 @@ class GroupUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
         group of chiefs and group of associates. If the group of associates is
         managed, possible permissions are only permissions of the chiefs group.
         """
-        kwargs = super(GroupUpdateView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
 
         if self.group.name.startswith('associates-') is True:
             chiefs_group_name = self.group.name.replace(
@@ -431,13 +431,13 @@ class GroupUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
         return kwargs
 
     def get_initial(self):
-        initial = super(GroupUpdateView, self).get_initial()
+        initial = super().get_initial()
         initial['members'] = self.group.user_set.all()
         initial['permissions'] = self.group.permissions.all()
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(GroupUpdateView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['group'] = self.group
         return context
 
@@ -469,7 +469,7 @@ class GroupUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
                 self.group.permissions.add(p)
         self.group.save()
 
-        return super(GroupUpdateView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_message(self, cleaned_data):
         return "Le groupe a bien été mis à jour"
@@ -489,7 +489,7 @@ class UserUploadXlsxView(GroupPermissionMixin, FormView, LateralMenuMixin):
     lm_active = 'lm_user_create'
 
     def get_context_data(self, **kwargs):
-        context = super(UserUploadXlsxView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         if 'upload_form' not in context:
             context['upload_form'] = self.form_class()
         if 'download_form' not in context:
@@ -641,7 +641,7 @@ class UserUploadXlsxView(GroupPermissionMixin, FormView, LateralMenuMixin):
                          " utilisateurs ont été crées/mis à jour")
         messages.warning(self.request, error_message)
 
-        return super(UserUploadXlsxView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_url(self):
         try:

@@ -40,7 +40,7 @@ class SelfUserUpdateForm(forms.ModelForm):
 
     def __init__(self, **kwargs):
         self.user = kwargs.pop('user')
-        super(SelfUserUpdateForm, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def clean_email(self):
         data = self.cleaned_data['email']
@@ -91,7 +91,7 @@ class GroupUpdateForm(forms.Form):
     def __init__(self, *args, **kwargs):
         possible_members = kwargs.pop('possible_members')
         possible_permissions = kwargs.pop('possible_permissions')
-        super(GroupUpdateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['members'] = forms.ModelMultipleChoiceField(
             queryset=possible_members,
             widget=forms.SelectMultiple(
@@ -122,7 +122,7 @@ class UserSearchForm(forms.Form):
                               required=False)
 
     def __init__(self, **kwargs):
-        super(UserSearchForm, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         YEAR_CHOICES = [('all', 'Toutes')]
         for year in list_year():

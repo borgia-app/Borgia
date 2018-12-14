@@ -87,7 +87,7 @@ class ShopModuleSaleForm(forms.Form):
 class ModuleCategoryCreateForm(forms.Form):
     def __init__(self, *args, **kwargs):
         shop = kwargs.pop('shop')
-        super(ModuleCategoryCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['product'] = forms.ChoiceField(
             label='Produit',
             choices=([(None, 'Sélectionner un produit')] + [

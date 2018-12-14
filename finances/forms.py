@@ -16,7 +16,7 @@ from users.models import User, list_year
 class SelfTransfertCreateForm(forms.Form):
     def __init__(self, **kwargs):
         self.sender = kwargs.pop('sender')
-        super(SelfTransfertCreateForm, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         self.fields['recipient'] = forms.CharField(
             label="Receveur",
@@ -89,7 +89,7 @@ class SaleListSearchDateForm(forms.Form):
 
 class RechargingListForm(GenericListSearchDateForm):
     def __init__(self, *args, **kwargs):
-        super(RechargingListForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         try:
             perm = Permission.objects.get(codename='add_recharging')
             queryset = User.objects.filter(groups__permissions=perm).distinct()
@@ -121,7 +121,7 @@ class ExceptionnalMovementForm(forms.Form):
                                         widget=PasswordInput)
 
     def clean(self):
-        cleaned_data = super(ExceptionnalMovementForm, self).clean()
+        cleaned_data = super().clean()
 
         try:
             operator_username = cleaned_data['operator_username']
@@ -133,7 +133,7 @@ class ExceptionnalMovementForm(forms.Form):
         except KeyError:
             pass
 
-        return super(ExceptionnalMovementForm, self).clean()
+        return super().clean()
 
 
 class RechargingCreateForm(forms.Form):
@@ -159,7 +159,7 @@ class RechargingCreateForm(forms.Form):
 
     def __init__(self, **kwargs):
         self.user = kwargs.pop('user')
-        super(RechargingCreateForm, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def clean_unique_number(self):
         data = self.cleaned_data['unique_number']
@@ -185,7 +185,7 @@ class RechargingCreateForm(forms.Form):
 
     def clean(self):
 
-        cleaned_data = super(RechargingCreateForm, self).clean()
+        cleaned_data = super().clean()
 
         try:
             operator_username = cleaned_data['operator_username']
@@ -206,7 +206,7 @@ class SelfLydiaCreateForm(forms.Form):
     def __init__(self, **kwargs):
         min_value = kwargs.pop('min_value')
         max_value = kwargs.pop('max_value')
-        super(SelfLydiaCreateForm, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         self.fields['amount'] = forms.DecimalField(
             label='Montant (€)',
             decimal_places=2, max_digits=9,

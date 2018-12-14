@@ -34,7 +34,7 @@ class ConfigurationLydiaForm(forms.Form):
         If min and max:
             max >= min
         """
-        cleaned_data = super(ConfigurationLydiaForm, self).clean()
+        cleaned_data = super().clean()
         lydia_min_price = cleaned_data.get("lydia_min_price", None)
         lydia_max_price = cleaned_data.get("lydia_max_price", None)
         if lydia_min_price is not None and lydia_max_price is not None:

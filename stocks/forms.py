@@ -7,7 +7,7 @@ from shops.models import Product, Shop
 class StockEntryProductForm(forms.Form):
     def __init__(self, *args, **kwargs):
         shop = kwargs.pop('shop')
-        super(StockEntryProductForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         product_choice = ([(None, 'Sélectionner un produit')] +
                           [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
                            for product in Product.objects.filter(shop=shop, is_removed=False)]
@@ -69,7 +69,7 @@ class StockEntryProductForm(forms.Form):
     )
 
     def clean(self):
-        cleaned_data = super(StockEntryProductForm, self).clean()
+        cleaned_data = super().clean()
         # Validation direct in html
 
 
@@ -100,7 +100,7 @@ class AdditionnalDataStockEntryForm(forms.Form):
 class StockEntryListDateForm(forms.Form):
     def __init__(self, **kwargs):
         shop = kwargs.pop('shop')
-        super(StockEntryListDateForm, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if shop is None:
             self.fields['shop'] = forms.ModelChoiceField(
                 label='Magasin',
@@ -130,7 +130,7 @@ class AdditionnalDataInventoryForm(forms.Form):
 class InventoryProductForm(forms.Form):
     def __init__(self, *args, **kwargs):
         shop = kwargs.pop('shop')
-        super(InventoryProductForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
         product_choice = ([(None, 'Sélectionner un produit')] +
                           [(str(product.pk)+'/'+str(product.get_unit_display()), product.__str__())
@@ -159,14 +159,14 @@ class InventoryProductForm(forms.Form):
     )
 
     def clean(self):
-        cleaned_data = super(InventoryProductForm, self).clean()
+        cleaned_data = super().clean()
         # Validation direct in html
 
 
 class InventoryListDateForm(forms.Form):
     def __init__(self, **kwargs):
         shop = kwargs.pop('shop')
-        super(InventoryListDateForm, self).__init__(**kwargs)
+        super().__init__(**kwargs)
         if shop is None:
             self.fields['shop'] = forms.ModelChoiceField(
                 label='Magasin',

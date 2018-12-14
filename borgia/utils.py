@@ -577,7 +577,7 @@ class GroupLateralMenuMixin(ContextMixin):
         self.kwargs = None
 
     def get_context_data(self, **kwargs):
-        context = super(GroupLateralMenuMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         try:
             context['nav_tree'] = lateral_menu(
                 self.request.user,
@@ -663,11 +663,10 @@ class GroupPermissionMixin(object):
         except NoReverseMatch:
             raise Http404
 
-        return super(GroupPermissionMixin,
-                     self).dispatch(request, *args, **kwargs)
+        return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
-        context = super(GroupPermissionMixin, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['group'] = self.group
 
         if (self.request.user.groups.all().exclude(
@@ -684,101 +683,6 @@ class GroupPermissionMixin(object):
             except ObjectDoesNotExist:
                 pass
         return context
-
-
-class ProductShopMixin(object):
-    def __init__(self):
-        self.kwargs = None
-        self.shop = None
-        self.product = None
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.shop = Shop.objects.get(name='shop_name')
-        except ObjectDoesNotExist:
-            raise Http404
-        try:
-            self.product = Product.objects.get(
-                name=self.kwargs['pk'], is_removed=False)
-        except ObjectDoesNotExist:
-            raise Http404
-        if self.product.shop is not self.shop:
-            raise PermissionDenied
-        return super(ProductShopMixin, self).dispatch(request, *args, **kwargs)
-
-
-class ShopFromGroupMixin(object):
-    """
-    :note:: Be carefull, this mixin doesn't raise 404 if no shop. You must
-    handle the case of no shop with overriden.
-    """
-
-    def __init__(self):
-        self.group = None
-        self.shop = None
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.shop = shop_from_group(self.group)
-        except ValueError:
-            self.shop = None
-
-        return super(ShopFromGroupMixin,
-                     self).dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(ShopFromGroupMixin, self).get_context_data(**kwargs)
-        context['shop'] = self.shop
-        return context
-
-
-class ShopContextMixin(ContextMixin):
-    """
-    :note:: Be carefull, this mixin doesn't raise 404 if no shop. You must
-    handle the case of no shop with overriden.
-    """
-
-    def __init__(self):
-        self.shop = None
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.shop = Shop.objects.get(name='shop_name')
-        except ValueError:
-            self.shop = None
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['shop'] = self.shop
-        return context
-
-
-class ProductShopFromGroupMixin(object):
-    def __init__(self):
-        self.shop = None
-        self.object = None
-        self.group = None
-        self.kwargs = None
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.shop = shop_from_group(self.group)
-        except ValueError:
-            pass
-        try:
-            self.object = Product.objects.get(
-                pk=self.kwargs['pk'], is_removed=False)
-        except ObjectDoesNotExist:
-            raise Http404
-        try:
-            if self.shop:
-                if self.object.shop != self.shop:
-                    raise PermissionDenied
-        except AttributeError:
-            pass
-        return super(ProductShopFromGroupMixin,
-                     self).dispatch(request, *args, **kwargs)
 
 
 def permission_to_manage_group(group):

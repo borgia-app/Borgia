@@ -18,7 +18,7 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import FormView, View
 
-from borgia.utils import (GroupLateralMenuMixin, GroupPermissionMixin,
+from borgia.utils import (GroupLateralMenuMixin,
                           shop_from_group)
 from configurations.models import Configuration
 from configurations.utils import configurations_safe_get
