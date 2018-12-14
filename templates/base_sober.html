@@ -53,7 +53,7 @@
 					<div id="navbar" class="hidden-xs hidden-sm" aria-expanded="false">
 						<div class="navbar-right">
 							<ul class="nav navbar-nav" style="text-align: center">
-								<li class="user-profile-link"><a href="{% url 'url_user_retrieve' pk=request.user.pk %}" style="padding:0;">
+								<li class="user-profile-link"><a href="{% url 'url_user_retrieve' user_pk=request.user.pk %}" style="padding:0;">
 									{% if request.user.avatar %}
 										<span class="navbar-text-avatar"><img src="{{ request.user.avatar.url }}" class="user-avatar"/></span>
 									{% endif %}

@@ -519,7 +519,7 @@ def get_allowed_tags():
     :rtype : dict
     """
     tag_dictionary = {'bold': ('<strong>', '</strong>'),
-                      'actor': ('<span class="notification-actor" data-link="{% url "url_user_retrieve" pk=actor.pk %}">'
+                      'actor': ('<span class="notification-actor" data-link="{% url "url_user_retrieve" user_pk=actor.pk %}">'
                                 '{{actor}}</span>', ''),
                       'target_object': ('{{target_object}}', ''),
                       'transfer.amount': ('{{target_object.amount}}', ''),

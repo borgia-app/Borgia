@@ -64,7 +64,7 @@
         <td>{{ user.year }}</td>
         <td>{{ user.balance }}€</td>
           <td>
-            <a href="{% url 'url_user_retrieve' pk=user.pk %}">Détail</a>
+            <a href="{% url 'url_user_retrieve' user_pk=user.pk %}">Détail</a>
           </td>
       </tr>
       {% endfor %}

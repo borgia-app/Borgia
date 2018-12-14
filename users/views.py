@@ -24,8 +24,9 @@ from borgia.utils import (GroupPermissionMixin, LateralMenuMixin,
 from configurations.utils import configurations_safe_get
 from events.models import Event
 from users.forms import (GroupUpdateForm, SelfUserUpdateForm,
-                         UserCreationCustomForm, UserSearchForm,
-                         UserUpdateForm, UserUploadXlsxForm, UserDownloadXlsxForm)
+                         UserCreationCustomForm, UserDownloadXlsxForm,
+                         UserSearchForm, UserUpdateForm, UserUploadXlsxForm)
+from users.mixins import UserMixin
 from users.models import User
 
 
@@ -173,12 +174,12 @@ class UserCreateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Lat
         If not, go to the workboard of the group.
         """
         if self.request.user.has_perm('users.view_user'):
-            return reverse('url_user_retrieve', kwargs={'pk': self.object.pk})
+            return reverse('url_user_retrieve', kwargs={'user_pk': self.object.pk})
         else:
             return reverse('url_managers_workboard')
 
 
-class UserRetrieveView(PermissionRequiredMixin, View, LateralMenuMixin):
+class UserRetrieveView(UserMixin, View, LateralMenuMixin):
     """
     Retrieve a User instance.
 
@@ -187,18 +188,11 @@ class UserRetrieveView(PermissionRequiredMixin, View, LateralMenuMixin):
     template_name = 'users/user_retrieve.html'
 
     def get(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=self.kwargs['pk'])
-            user.forecast_balance()
-        except ObjectDoesNotExist:
-            raise Http404
-
         context = self.get_context_data(**kwargs)
-        context['user'] = user
         return render(request, self.template_name, context=context)
 
 
-class UserUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, LateralMenuMixin):
+class UserUpdateView(UserMixin, SuccessMessageMixin, FormView, LateralMenuMixin):
     """
     Update an user and redirect to the workboard of the group.
 
@@ -210,44 +204,36 @@ class UserUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Lat
     modified = False
 
     def get_form_kwargs(self):
-        kwargs = super(UserUpdateView, self).get_form_kwargs()
-        kwargs['user_modified'] = User.objects.get(pk=self.kwargs['pk'])
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.user
         return kwargs
 
-    def get_context_data(self, **kwargs):
-        context = super(UserUpdateView, self).get_context_data(**kwargs)
-        context['user_modified'] = User.objects.get(pk=self.kwargs['pk'])
-        return context
-
     def get_initial(self):
-        initial = super(UserUpdateView, self).get_initial()
-        try:
-            user_modified = User.objects.get(pk=self.kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        for k in UserUpdateForm(user_modified=user_modified).fields.keys():
-            initial[k] = getattr(user_modified, k)
+        initial = super().get_initial()
+        user = self.user
+        for k in UserUpdateForm(user=user).fields.keys():
+            initial[k] = getattr(user, k)
         return initial
 
     def form_valid(self, form):
-        user_modified = User.objects.get(pk=self.kwargs['pk'])
+        user = self.user
         for k in form.fields.keys():
-            if form.cleaned_data[k] != getattr(user_modified, k):
+            if form.cleaned_data[k] != getattr(user, k):
                 self.modified = True
-                setattr(user_modified, k, form.cleaned_data[k])
-        user_modified.save()
+                setattr(user, k, form.cleaned_data[k])
+        user.save()
 
-        return super(UserUpdateView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_message(self, cleaned_data):
         return "Les informations ont bien été mises à jour"
 
     def get_success_url(self):
         return reverse('url_user_retrieve',
-                       kwargs={'pk': self.kwargs['pk']})
+                       kwargs={'user_pk': self.user.pk})
 
 
-class UserDeactivateView(PermissionRequiredMixin, View, LateralMenuMixin):
+class UserDeactivateView(UserMixin, View, LateralMenuMixin):
     """
     Deactivate a user and redirect to the workboard of the group.
 
@@ -258,19 +244,14 @@ class UserDeactivateView(PermissionRequiredMixin, View, LateralMenuMixin):
     error_event_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
 
     def has_permission(self):
-        try:
-            self.user = User.objects.get(pk=self.kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        if self.user == self.request.user:
+        has_perm = super().has_permission()
+        if has_perm:
             return True
         else:
-            perms = self.get_permission_required()
-            return self.request.user.has_perms(perms)
+            return self.user == self.request.user
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['user'] = self.user
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
@@ -308,7 +289,7 @@ class UserDeactivateView(PermissionRequiredMixin, View, LateralMenuMixin):
         else:           
             self.success_url = reverse(
                 'url_user_retrieve',
-                kwargs={'pk': self.kwargs['pk']})
+                kwargs={'user_pk': self.user.pk})
 
         return redirect(force_text(self.success_url))
 

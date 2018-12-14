@@ -795,39 +795,6 @@ class ProductShopFromGroupMixin(object):
                      self).dispatch(request, *args, **kwargs)
 
 
-class UserMixin(object):
-    def __init__(self):
-        self.kwargs = None
-        self.user = None
-        self.success_url = None
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Add self.user and modify success_url to be the retrieve of the user by
-        default.
-
-        Add the user to self and to context. Modify the success_url to be the
-        retrieve of the user.
-
-        :param request:
-        :param kwargs: ['user_pk'] pk of the user
-        :type kwargs: ['user_pk'] positive integer
-        :raises: Http404 if no user found
-        """
-        try:
-            self.user = User.objects.get(pk=self.kwargs['user_pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        self.success_url = reverse('url_user_retrieve', kwargs={
-            'pk': self.user.pk})
-        return super(UserMixin, self).dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super(UserMixin, self).get_context_data(**kwargs)
-        context['user'] = self.user
-        return context
-
-
 def permission_to_manage_group(group):
     """
     Récupère la permission qui permet de gérer le groupe 'group'

@@ -11,7 +11,7 @@ users_patterns = [
     path('users/', include([
         path('', UserListView.as_view(), name='url_user_list'),
         path('create/', UserCreateView.as_view(), name='url_user_create'),
-        path('<int:pk>/', include([
+        path('<int:user_pk>/', include([
             path('', UserRetrieveView.as_view(), name='url_user_retrieve'),
             path('update/', UserUpdateView.as_view(), name='url_user_update'),
             path('deactivate/', UserDeactivateView.as_view(), name='url_user_deactivate')

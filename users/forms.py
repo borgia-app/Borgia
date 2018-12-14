@@ -63,8 +63,8 @@ class UserUpdateForm(forms.Form):
         label='Prom\'ss', choices=User.YEAR_CHOICES, required=False)
 
     def __init__(self, **kwargs):
-        self.user_modified = kwargs.pop('user_modified')
-        super(UserUpdateForm, self).__init__(**kwargs)
+        self.user = kwargs.pop('user')
+        super().__init__(**kwargs)
 
     def clean_first_name(self):
         data = self.cleaned_data['first_name']
@@ -82,7 +82,7 @@ class UserUpdateForm(forms.Form):
         data = self.cleaned_data['email']
         if data == '':
             raise ValidationError('Ce champ ne peut pas être vide')
-        if User.objects.filter(email=data).exclude(pk=self.user_modified.pk).exists():
+        if User.objects.filter(email=data).exclude(pk=self.user.pk).exists():
             raise ValidationError('Un autre utilisateur existe avec cet email')
         return data
 
