@@ -170,7 +170,6 @@ class User(AbstractUser):
         Get all undone shared events where user is involved as participant
 
         TODO : Strongly dependent of events, should be moved there.
-        TODO : notify if forecast balance is negative
         """
         events = self.event_set.filter(done = False)
         solde_prev = 0
@@ -202,7 +201,7 @@ class User(AbstractUser):
 
     def debit(self, amount):
         """
-        Debit the user of a certain amount of money. If the balance is negative, a notification is created.
+        Debit the user of a certain amount of money.
 
         note:: In both credit and debit cases, the amount must be positive.
         There is no function allowed to credit or debit a negative amount.

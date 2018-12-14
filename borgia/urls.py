@@ -14,7 +14,6 @@ from configurations.urls import configurations_patterns
 from events.urls import events_patterns
 from finances.urls import finances_patterns
 from modules.urls import modules_patterns
-from notifications.urls import notifications_patterns
 from shops.urls import shops_patterns
 from stocks.urls import stocks_patterns
 from users.urls import users_patterns
@@ -54,7 +53,6 @@ urlpatterns = [
     path('', include(events_patterns)),
     path('', include(finances_patterns)),
     path('', include(modules_patterns)),
-    path('', include(notifications_patterns)),
     path('', include(shops_patterns)),
     path('', include(stocks_patterns)),
     path('', include(users_patterns))

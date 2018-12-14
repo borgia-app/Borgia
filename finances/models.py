@@ -7,7 +7,6 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.utils.timezone import now
 
-from notifications.models import notify
 from shops.models import Product, Shop
 from users.models import User
 

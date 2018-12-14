@@ -1,6 +1,5 @@
 {% load compile_static %}
 {% load static %}
-{% load notifications_extra %}
 {% load users_extra %}
 {% load bootstrap %}
 {% load l10n %}
@@ -64,27 +63,6 @@
 									class="{% if request.user.balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ request.user.balance }} €</span>
 								</p></li>
 								<li role="separator" class="divider"></li>
-								<li class="notification">
-									<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false" >
-										<i class="fa fa-bell" aria-hidden="true"></i>{% if notifications %}<span class="badge" id="notif-count">{{ notifications.count }}</span>{% endif %}
-									</a>
-									<ul class="dropdown-menu dropdown-menu-right scrollable-menu" role="menu">
-										{% if notifications %}
-											{% for notification in notifications %}
-												<li class="dropdown-item scrollable-menu"><a><i class="fa fa-fw {% notification_icon notification %}" aria-hidden="true"></i>{% html_rendering_tag notification %}</a></li>
-												<li role="separator" class="divider"></li>
-											{% endfor %}
-										{%  else %}
-											<li class="dropdown-item scrollable-menu"><a href="#">Pas de nouvelle notification</a></li>
-											<li role="separator" class="divider"></li>
-										{% endif %}
-										<li class="scrollable-menu text-center">
-											<a href="{% if group %}{% url 'url_notification_list' group_name=group.name %}{% endif %}">
-												Voir tout {{ test42 }}
-											</a>
-										</li>
-									</ul>
-								</li>
 
 								<li class="dropdown">
 									<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
@@ -151,7 +129,6 @@
 		type : 'cover'
 	});
 </script>
-{% include "js/notifications.html" %}
 
 {% if messages %}
   {% include 'js/timer_flash_message.html' with messages=messages %}

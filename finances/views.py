@@ -30,7 +30,6 @@ from finances.mixins import SaleMixin
 from finances.models import (Cash, Cheque, ExceptionnalMovement,
                              LydiaFaceToFace, LydiaOnline, Recharging, Sale,
                              Transfert)
-from notifications.models import notify
 from shops.mixins import ShopPermissionAndContextMixin
 from users.mixins import UserMixin
 from users.models import User
@@ -449,11 +448,6 @@ class SelfTransfertCreate(PermissionRequiredMixin, SuccessMessageMixin, FormView
             justification=form.cleaned_data['justification']
         )
         transfert.pay()
-        # We notify
-        notify(notification_class_name='transfer_creation',
-               actor=self.request.user,
-               recipient=recipient,
-               target_object=transfert)
         return super(SelfTransfertCreate, self).form_valid(form)
 
     def get_success_message(self, cleaned_data):

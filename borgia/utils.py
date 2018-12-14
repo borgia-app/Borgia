@@ -7,8 +7,6 @@ from django.views.generic.base import ContextMixin
 
 from events.models import Event
 from modules.models import OperatorSaleModule, SelfSaleModule
-from notifications.models import (Notification, NotificationGroup,
-                                  NotificationTemplate)
 from shops.models import Product, Shop
 from users.models import User
 
@@ -38,10 +36,7 @@ def lateral_menu(user, group, active=None):
     models_checked = [
         (User, 'Utilisateurs', 'user', 'noSubs', 'List'),
         (Shop, 'Magasins', 'shopping-basket', 'noSubs', 'List'),
-        (Notification, 'Notifications', 'bell', 'noSubs', 'List'),
-        (NotificationTemplate, 'Templates notification', 'list-alt', 'noSubs', 'List'),
         (Event, 'Evènements', 'calendar', 'noSubs', 'List'),
-        (NotificationGroup, 'Groupes', '', 'List', 'Add'),
     ]
 
     nav_tree = []
@@ -875,10 +870,6 @@ def human_permission_name(name):
         ('recharging', 'rechargement'),
         ('event', 'évènement'),
         ('category', 'categorie de produits'),
-        ('notification', 'notification'),
-        ('notificationclass', 'classe de notifications'),
-        ('notificationgroup', 'groupe de notifications'),
-        ('notificationtemplate', 'template de notifications'),
         ('setting', 'paramètre global'),
         ('shop', 'magasin'),
         ('product', 'produits'),

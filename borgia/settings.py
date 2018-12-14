@@ -43,7 +43,6 @@ INSTALLED_APPS = [
     'shops',
     'finances',
     'events',
-    'notifications',
     'modules',
     'stocks'
 ]
@@ -72,8 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'notifications.context_processors.notifications'
+                'django.contrib.messages.context_processors.messages'
             ],
             # Permet de rajouter extra à la
             'builtins': ['users.templatetags.users_extra']

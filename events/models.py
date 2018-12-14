@@ -7,7 +7,6 @@ from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 from django.utils.timezone import now
 
-from notifications.models import notify
 from shops.models import Product, Shop
 from users.models import User
 
@@ -232,14 +231,6 @@ class Event(models.Model):
             user_price = final_price_per_weight * e.weights_participation
             e.user.debit(user_price)
             recipient.credit(user_price)
-            if (e.user.balance < 0):
-                            # If negative balance after event
-                        # We notify
-                notify(notification_class_name='negative_balance',
-                       actor=operator,
-                       recipient=e.user,
-                       target_object=self
-                       )
 
         self.price = total_price
         self.datetime = now()
@@ -267,14 +258,6 @@ class Event(models.Model):
                 user_price = ponderation_price * weight
                 e.user.debit(user_price)
                 recipient.credit(user_price)
-                if (e.user.balance < 0):
-                            # If negative balance after event
-                        # We notify
-                    notify(notification_class_name='negative_balance',
-                           actor=operator,
-                           recipient=e.user,
-                           target_object=self
-                           )
 
         self.payment_by_ponderation = True
         self.price = ponderation_price
