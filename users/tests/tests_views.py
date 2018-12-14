@@ -1,33 +1,10 @@
 from django.contrib.auth.models import Group, Permission
 from django.test import Client, TestCase
-from django.urls import NoReverseMatch, reverse
+from django.urls import reverse
 
 from borgia.tests.tests_views import BaseBorgiaViewsTestCase
 from borgia.utils import get_members_group
 from users.models import User
-
-
-class UsersViewNamedURLTests(TestCase):
-
-    def test_named_urls(self):
-        "Named users URLs should be reversible"
-        expected_named_urls = [
-            ('url_user_list', [], {}),
-            ('url_user_create', [], {}),
-            ('url_user_retrieve', [], {'pk': 53}),
-            ('url_user_update', [], {'pk': 53}),
-            ('url_user_deactivate', [], {'pk': 53}),
-            ('url_user_self_update', [], {}),
-            ('url_group_update', [], {'pk': 53}),
-            ('url_ajax_username_from_username_part', [], {}),
-            ('url_balance_from_username', [], {}),
-        ]
-        for name, args, kwargs in expected_named_urls:
-            with self.subTest(name=name):
-                try:
-                    reverse(name, args=args, kwargs=kwargs)
-                except NoReverseMatch:
-                    self.fail("Reversal of url named '%s' failed with NoReverseMatch" % name)
 
 
 class BaseGeneralUserViewsTestCase(BaseBorgiaViewsTestCase):
@@ -114,24 +91,23 @@ class UserCreateViewTestCase(BaseGeneralUserViewsTestCase):
 class BaseFocusUserViewsTestCase(BaseBorgiaViewsTestCase):
     url_view = None
 
+    def get_url(self, user_pk):
+        return reverse(self.url_view, kwargs={'user_pk': user_pk})
+
     def allowed_user_get(self):
-        response_client1 = self.client1.get(
-            reverse(self.url_view, kwargs={'pk': '2'}))
+        response_client1 = self.client1.get(self.get_url(2))
         self.assertEqual(response_client1.status_code, 200)
 
     def not_existing_user_get(self):
-        response_client1 = self.client1.get(
-            reverse(self.url_view, kwargs={'pk': '535353'}))
+        response_client1 = self.client1.get(self.get_url(5353))
         self.assertEqual(response_client1.status_code, 404)
 
     def not_allowed_user_get(self):
-        response_client2 = self.client2.get(
-            reverse(self.url_view, kwargs={'pk': '3'}))
+        response_client2 = self.client2.get(self.get_url(3))
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):
-        response_offline_user = Client().get(
-            reverse(self.url_view, kwargs={'pk': '2'}))
+        response_offline_user = Client().get(self.get_url(2))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -180,8 +156,7 @@ class UserDeactivateViewTestCase(BaseFocusUserViewsTestCase):
         super().not_allowed_user_get()
 
     def test_self_deactivate_get(self):
-        response_client2 = self.client2.get(
-            reverse(self.url_view, kwargs={'pk': str(self.user2.pk)}))
+        response_client2 = self.client2.get(self.get_url(self.user2.pk))
         self.assertEqual(response_client2.status_code, 200)
 
     def test_offline_user_redirection(self):
