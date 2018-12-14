@@ -482,8 +482,6 @@ class UserUploadXlsxView(PermissionRequiredMixin, FormView, LateralMenuMixin):
                 col_campus = col - min_row
             elif sheet.cell(None, sheet.min_row, col).value == 'year':
                 col_year = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'balance':
-                col_balance = col - min_row
 
         for _ in range(min_row):
             next(rows)
@@ -555,13 +553,6 @@ class UserUploadXlsxView(PermissionRequiredMixin, FormView, LateralMenuMixin):
                     except:
                         errors_on_required_columns.append('year')
 
-                if 'balance' in columns:
-                    try:
-                        if row[col_balance].value:
-                            user_dict['balance'] = str(row[col_balance].value).strip()
-                    except:
-                        errors_on_required_columns.append('balance')
-
                 if not skipped_row:
                     username = user_dict['username']
                     if User.objects.filter(username=username).count() > 0:
@@ -610,7 +601,7 @@ class UserAddByListXlsxDownload(PermissionRequiredMixin, View, LateralMenuMixin)
 
         if len(columns) == 0 or columns is None:
             columns = ['first_name', 'last_name', 'email', 'surname',
-                       'family', 'campus', 'year', 'balance']
+                       'family', 'campus', 'year']
 
         columns.insert(0, 'username')
 
