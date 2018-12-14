@@ -5,6 +5,7 @@ import operator
 
 from django.conf import settings
 from django.contrib.auth import authenticate
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -24,56 +25,38 @@ from finances.forms import (ExceptionnalMovementForm,
                             GenericListSearchDateForm, RechargingCreateForm,
                             RechargingListForm, SaleListSearchDateForm,
                             SelfLydiaCreateForm, SelfTransfertCreateForm)
+from finances.mixins import SaleMixin
 from finances.models import (Cash, Cheque, ExceptionnalMovement,
                              LydiaFaceToFace, LydiaOnline, Recharging, Sale,
                              Transfert)
 from notifications.models import notify
+from shops.mixins import ShopPermissionAndContextMixin
 from users.models import User
 
 
-class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class SaleList(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
     """
     View to list sales.
 
-    If the group derived from a shop, only sales from this shop are listed.
-    Else (presidents, treasurers or vice_presidents) all sales are
-    listed with this view. The view handle request of the form to filter
-    sales.
+    The sale are displayed for a shop. A manager of a shop can only see sales
+    relatives to his own shop. Association managers can switch to see other shops.
+
     :note:: only sales are listed here. Sales come from a shop, for other
     types of transactions, please refer to other classes (RechargingList,
     TransfertList and ExceptionnalMovementList).
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :type kwargs['group_name']: string
-    :raises: Http404 if the group_name doesn't match a group
-    :raises: Http404 if the group doesn't have the permission to list sales
     """
+    permission_required = 'finances.view_sale'
     template_name = 'finances/sale_shop_list.html'
-    perm_codename = 'view_sale'
-    lm_active = 'lm_sale_list'
     form_class = GenericListSearchDateForm
+    lm_active = 'lm_sale_list'
 
     query_shop = None
     search = None
     date_begin = None
     date_end = None
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            group = Group.objects.get(name=kwargs['group_name'])
-        except ObjectDoesNotExist:
-            raise Http404
-
-        try:
-            self.shop = shop_from_group(group)
-        except ValueError:
-            self.template_name = 'finances/sale_list.html'
-            self.form_class = SaleListSearchDateForm
-
-        return super(SaleList, self).dispatch(request, *args, **kwargs)
-
     def get_context_data(self, **kwargs):
-        context = super(SaleList, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         sales_tab_header = []
         seen = set(sales_tab_header)
         page = self.request.POST.get('page', 1)
@@ -155,57 +138,23 @@ class SaleList(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class SaleRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class SaleRetrieve(SaleMixin, View, GroupLateralMenuMixin):
     """
     Retrieve a sale.
 
     A sale comes from a shop, for other type of transaction, please refer to
     other classes (RechargingRetrieve, TransfertRetrieve,
     ExceptionnalMovementRetrieve).
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['pk']: pk of the sale, mandatory
-    :type kwargs['group_name']: string
-    :type kwargs['pk']: positiv integer
-    :raises: Http404 if group_name doesn't match a group
-    :raises: Http404 if the pk doesn't match a sale
-    :raises: Http404 if the sale is not from a shop
-    :raises: Http404 if the sale is not from the shop derived from the group
-    :raises: Http404 if the group doesn't have the permission to retrieve sale
     """
+    permission_required = 'finances.view_sale'
     template_name = 'finances/sale_retrieve.html'
-    perm_codename = 'view_sale'
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.object = Sale.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-
-        try:
-            self.group = Group.objects.get(name=kwargs['group_name'])
-        except ObjectDoesNotExist:
-            raise Http404
-
-        if self.object.from_shop() is None:
-            raise Http404
-
-        try:
-            self.shop = shop_from_group(self.group)
-            if self.object.from_shop() != self.shop:
-                raise Http404
-        except ValueError:
-            pass
-
-        return super(SaleRetrieve, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['sale'] = self.object
         return render(request, self.template_name, context=context)
 
 
-class RechargingList(GroupPermissionMixin, FormView,
+class RechargingList(PermissionRequiredMixin, FormView,
                      GroupLateralMenuMixin):
     """
     View to list recharging sales.
@@ -214,17 +163,11 @@ class RechargingList(GroupPermissionMixin, FormView,
     :note:: only recharging sales are listed here. For other types of
     transactions, please refer to other classes (SaleList, TransfertList and
     ExceptionnalMovementList).
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :type kwargs['group_name']: string
-    :raises: Http404 if the group_name doesn't match a group
-    :raises: Http404 if the group doesn't have the permission to list
-    recharging sales
     """
+    permission_required = 'finances.view_recharging'
     template_name = 'finances/recharging_list.html'
-    perm_codename = 'view_recharging'
-    lm_active = 'lm_recharging_list'
     form_class = RechargingListForm
+    lm_active = 'lm_recharging_list'
 
     search = None
     date_end = now() + datetime.timedelta(days=1)
@@ -232,19 +175,17 @@ class RechargingList(GroupPermissionMixin, FormView,
     operators = None
 
     def get_context_data(self, **kwargs):
-        context = super(RechargingList, self).get_context_data(**kwargs)
-
-        context['recharging_list'] = Recharging.objects.all().order_by(
-            '-datetime')
+        context = super().get_context_data(**kwargs)
 
         context['recharging_list'] = self.form_query(
-            context['recharging_list'])[:1000]
+            Recharging.objects.all().order_by(
+            '-datetime'))[:1000]
 
         context['info'] = self.info(context['recharging_list'])
         return context
 
     def get_initial(self, **kwargs):
-        initial = super(RechargingList, self).get_initial(**kwargs)
+        initial = super().get_initial(**kwargs)
         initial['date_begin'] = self.date_begin
         initial['date_end'] = self.date_end
         return initial
@@ -343,42 +284,44 @@ class RechargingList(GroupPermissionMixin, FormView,
         return self.get(self.request, self.args, self.kwargs)
 
 
-class RechargingRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class RechargingRetrieve(PermissionRequiredMixin, View, GroupLateralMenuMixin):
     """
     Retrieve a recharging sale.
 
     For other type of transaction, please refer to other classes (SaleRetrieve,
     TransfertRetrieve, ExceptionnalMovementRetrieve).
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['pk']: pk of the sale, mandatory
-    :type kwargs['group_name']: string
-    :type kwargs['pk']: positiv integer
-    :raises: Http404 if group_name doesn't match a group
-    :raises: Http404 if the pk doesn't match a sale
-    :raises: Http404 if the sale is not a recharging sale
-    :raises: Http404 if the group doesn't have the permission to retrieve
-    recharging sale
     """
+    permission_required = 'finances.view_recharging'
     template_name = 'finances/recharging_retrieve.html'
-    perm_codename = 'view_recharging'
 
-    def dispatch(self, request, *args, **kwargs):
+    def __init__(self):
+        self.recharging = None
+
+    def add_recharging_object(self):
+        """
+        Define shop object.
+        Raise Http404 is shop doesn't exist.
+        """
         try:
-            self.object = Recharging.objects.get(pk=kwargs['pk'])
+            self.recharging = Recharging.objects.get(pk=self.kwargs['recharging_pk'])
         except ObjectDoesNotExist:
             raise Http404
 
-        return super(RechargingRetrieve, self).dispatch(request, *args,
-                                                        **kwargs)
+    def has_permission(self):
+        has_perms = super().has_permission()
+        if not has_perms:
+            return False
+        else:
+            self.add_recharging_object()
+            return True
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['recharging'] = self.object
+        context['recharging'] = self.recharging
         return render(request, self.template_name, context=context)
 
 
-class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+class TransfertList(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
     """
     View to list transfert sales.
 
@@ -393,22 +336,21 @@ class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
     :raises: Http404 if the group doesn't have the permission to list transfert
     sales
     """
+    permission_required = 'finances.view_transfert'
     template_name = 'finances/transfert_list.html'
-    perm_codename = 'view_transfert'
-    lm_active = 'lm_transfert_list'
     form_class = GenericListSearchDateForm
+    lm_active = 'lm_transfert_list'
 
     search = None
     date_begin = None
     date_end = None
 
     def get_context_data(self, **kwargs):
-        context = super(TransfertList, self).get_context_data(**kwargs)
-
-        context['transfert_list'] = Transfert.objects.all().order_by('-datetime')
+        context = super().get_context_data(**kwargs)
 
         context['transfert_list'] = self.form_query(
-            context['transfert_list'])[:100]
+            Transfert.objects.all().order_by('-datetime')
+            )[:100]
 
         return context
 
@@ -447,51 +389,54 @@ class TransfertList(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class TransfertRetrieve(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class TransfertRetrieve(PermissionRequiredMixin, View, GroupLateralMenuMixin):
     """
     Retrieve a transfert sale.
 
     For other type of transaction, please refer to other classes (SaleRetrieve,
     RechargingRetrieve, ExceptionnalMovementRetrieve).
 
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['pk']: pk of the sale, mandatory
-    :type kwargs['group_name']: string
-    :type kwargs['pk']: positiv integer
-    :raises: Http404 if group_name doesn't match a group
-    :raises: Http404 if the pk doesn't match a sale
-    :raises: Http404 if the sale is not a transfert sale
-    :raises: Http404 if the group doesn't have the permission to retrieve
-    transfert sale
     """
+    permission_required = 'finances.view_transfert'
     template_name = 'finances/transfert_retrieve.html'
-    perm_codename = 'view_transfert'
 
-    def dispatch(self, request, *args, **kwargs):
+    def __init__(self):
+        self.transfert = None
+
+    def add_transfert_object(self):
+        """
+        Define shop object.
+        Raise Http404 is shop doesn't exist.
+        """
         try:
-            self.object = Transfert.objects.get(pk=kwargs['pk'])
+            self.transfert = Transfert.objects.get(pk=self.kwargs['transfert_pk'])
         except ObjectDoesNotExist:
             raise Http404
 
-        return super(TransfertRetrieve, self).dispatch(request, *args,
-                                                       **kwargs)
+    def has_permission(self):
+        has_perms = super().has_permission()
+        if not has_perms:
+            return False
+        else:
+            self.add_transfert_object()
+            return True
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['transfert'] = self.object
+        context['transfert'] = self.transfert
         return render(request, self.template_name, context=context)
 
 
-class SelfTransfertCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
+class SelfTransfertCreate(PermissionRequiredMixin, SuccessMessageMixin, FormView,
                           GroupLateralMenuMixin):
+    permission_required = 'finances.add_transfert'
     template_name = 'finances/self_transfert_create.html'
-    perm_codename = 'add_transfert'
-    lm_active = 'lm_self_transfert_create'
     form_class = SelfTransfertCreateForm
+    lm_active = 'lm_self_transfert_create'
     success_message = "Le montant de %(amount)s€ a bien été transféré à %(recipient)s."
 
     def get_form_kwargs(self, **kwargs):
-        kwargs = super(SelfTransfertCreate, self).get_form_kwargs(**kwargs)
+        kwargs = super().get_form_kwargs(**kwargs)
         kwargs['sender'] = self.request.user
         return kwargs
 
@@ -520,7 +465,7 @@ class SelfTransfertCreate(GroupPermissionMixin, SuccessMessageMixin, FormView,
         )
 
 
-class ExceptionnalMovementList(GroupPermissionMixin, FormView,
+class ExceptionnalMovementList(PermissionRequiredMixin, FormView,
                                GroupLateralMenuMixin):
     """
     View to list exceptionnal movement sales.
@@ -531,31 +476,21 @@ class ExceptionnalMovementList(GroupPermissionMixin, FormView,
     of transactions, please refer to other classes (SaleList, TransfertList and
     SaleList).
 
-    :param kwargs['group_name']: name of the group, mandatory
-    :type kwargs['group_name']: string
-    :raises: Http404 if the group_name doesn't match a group
-    :raises: Http404 if the group doesn't have the permission to list
-    exceptionnal movement sales
     """
+    permission_required = 'finances.view_exceptionnalmovement'
     template_name = 'finances/exceptionnalmovement_list.html'
-    perm_codename = 'view_exceptionnalmovement'
-    lm_active = 'lm_exceptionnalmovement_list'
     form_class = GenericListSearchDateForm
+    lm_active = 'lm_exceptionnalmovement_list'
 
     search = None
     date_begin = None
     date_end = None
 
     def get_context_data(self, **kwargs):
-        context = super(ExceptionnalMovementList, self).get_context_data(
-            **kwargs)
-
-        context['exceptionnalmovement_list'] = ExceptionnalMovement.objects.all(
-        ).order_by('-datetime')
-
+        context = super().get_context_data(**kwargs)
         context['exceptionnalmovement_list'] = self.form_query(
-            context['exceptionnalmovement_list'])[:100]
-
+            ExceptionnalMovement.objects.all().order_by('-datetime')
+            )[:100]
         return context
 
     def form_query(self, query):
@@ -593,55 +528,51 @@ class ExceptionnalMovementList(GroupPermissionMixin, FormView,
         return self.get(self.request, self.args, self.kwargs)
 
 
-class ExceptionnalMovementRetrieve(GroupPermissionMixin, View,
+class ExceptionnalMovementRetrieve(PermissionRequiredMixin, View,
                                    GroupLateralMenuMixin):
     """
     Retrieve an exceptionnal movement sale.
 
     For other type of transaction, please refer to other classes (SaleRetrieve,
     TransfertRetrieve, RechargingRetrieve).
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['pk']: pk of the sale, mandatory
-    :type kwargs['group_name']: string
-    :type kwargs['pk']: positiv integer
-    :raises: Http404 if group_name doesn't match a group
-    :raises: Http404 if the pk doesn't match a sale
-    :raises: Http404 if the sale is not an exceptionnal movement sale
-    :raises: Http404 if the group doesn't have the permission to retrieve
-    exceptionnal movement sale
     """
+    permission_required = 'finances.view_exceptionnalmovement'
     template_name = 'finances/exceptionnalmovement_retrieve.html'
-    perm_codename = 'view_exceptionnalmovement'
 
-    def dispatch(self, request, *args, **kwargs):
+    def __init__(self):
+        self.exceptionnalmovement = None
+
+    def add_exceptionnalmovement_object(self):
+        """
+        Define shop object.
+        Raise Http404 is shop doesn't exist.
+        """
         try:
-            self.object = ExceptionnalMovement.objects.get(pk=kwargs['pk'])
+            self.exceptionnalmovement = ExceptionnalMovement.objects.get(pk=self.kwargs['exceptionnalmovement_pk'])
         except ObjectDoesNotExist:
             raise Http404
 
-        return super(ExceptionnalMovementRetrieve, self).dispatch(
-            request, *args, **kwargs)
+    def has_permission(self):
+        has_perms = super().has_permission()
+        if not has_perms:
+            return False
+        else:
+            self.add_exceptionnalmovement_object()
+            return True
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['exceptionnalmovement'] = self.object
+        context['exceptionnalmovement'] = self.exceptionnalmovement
         return render(request, self.template_name, context=context)
 
 
-class SelfTransactionList(GroupPermissionMixin, FormView,
-                          GroupLateralMenuMixin):
+class SelfTransactionList(FormView, GroupLateralMenuMixin):
     """
     View to list transactions of the logged user.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :type kwargs['group_name']: string
-    :raises: Http404 if the group_name doesn't match a group
     """
     template_name = 'finances/self_transaction_list.html'
-    perm_codename = None
-    lm_active = 'lm_self_transaction_list'
     form_class = GenericListSearchDateForm
+    lm_active = 'lm_self_transaction_list'
 
     search = None
     date_begin = None
@@ -649,7 +580,6 @@ class SelfTransactionList(GroupPermissionMixin, FormView,
 
     def get_context_data(self, **kwargs):
         context = super(SelfTransactionList, self).get_context_data(**kwargs)
-
         context['transaction_list'] = self.form_query(
             self.request.user.list_transaction())[:100]
         return context
@@ -675,25 +605,16 @@ class SelfTransactionList(GroupPermissionMixin, FormView,
         return self.get(self.request, self.args, self.kwargs)
 
 
-class UserExceptionnalMovementCreate(GroupPermissionMixin, UserMixin, FormView,
+class UserExceptionnalMovementCreate(PermissionRequiredMixin, UserMixin, FormView,
                                      GroupLateralMenuMixin):
     """
     View to create an exceptionnal movement (debit or credit) for a specific
     user.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :param kwargs['user_pk']: pk of the specific user, mandatory
-    :type kwargs['user_pk']: positif integer
-    :type kwargs['group_name']: string
-    :raises: Http404 if the group_name doesn't match a group
-    :raises: Http404 if the user_pk doesn't match an user
-    :raises: Http404 if the group doesn't have the permission to add an
-    exceptionnal movement
     """
+    permission_required = 'finances.add_exceptionnalmovement'
     template_name = 'finances/user_exceptionnalmovement_create.html'
-    perm_codename = 'add_exceptionnalmovement'
-    lm_active = None
     form_class = ExceptionnalMovementForm
+    lm_active = None
 
     def form_valid(self, form):
         """
@@ -718,27 +639,27 @@ class UserExceptionnalMovementCreate(GroupPermissionMixin, UserMixin, FormView,
         )
         exceptionnal_movement.pay()
 
-        return super(UserExceptionnalMovementCreate, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_initial(self):
         """
         Populate the form with the current login user for the operator (only
         username of course).
         """
-        initial = super(UserExceptionnalMovementCreate, self).get_initial()
+        initial = super().get_initial()
         initial['operator_username'] = self.request.user.username
         return initial
 
 
-class RechargingCreate(GroupPermissionMixin, UserMixin, FormView,
-                      GroupLateralMenuMixin):
+class RechargingCreate(PermissionRequiredMixin, UserMixin, FormView,
+                       GroupLateralMenuMixin):
+    permission_required = 'finances.add_recharging'
     template_name = 'finances/user_supplymoney.html'
-    perm_codename = 'add_recharging'
-    lm_active = None
     form_class = RechargingCreateForm
+    lm_active = None
 
     def get_form_kwargs(self, **kwargs):
-        kwargs = super(RechargingCreate, self).get_form_kwargs(**kwargs)
+        kwargs = super().get_form_kwargs(**kwargs)
         kwargs['user'] = self.user
         return kwargs
 
@@ -784,20 +705,20 @@ class RechargingCreate(GroupPermissionMixin, UserMixin, FormView,
         )
         recharging.pay()
 
-        return super(RechargingCreate, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_initial(self):
         """
         Populate the form with the current login user for the operator (only
         username of course).
         """
-        initial = super(RechargingCreate, self).get_initial()
+        initial = super((RechargingCreate, self)).get_initial()
         initial['signature_date'] = now
         initial['operator_username'] = self.request.user.username
         return initial
 
 
-class SelfLydiaCreate(GroupPermissionMixin, FormView,
+class SelfLydiaCreate(FormView,
                       GroupLateralMenuMixin):
     """
     View to supply himself by Lydia.
@@ -806,9 +727,8 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
     :type kwargs['group_name']: string
     :raises: Http404 if the group_name doesn't match a group
     """
-    form_class = SelfLydiaCreateForm
     template_name = 'finances/self_lydia_create.html'
-    perm_codename = None
+    form_class = SelfLydiaCreateForm
     lm_active = 'lm_self_lydia_create'
 
     def get_form_kwargs(self):
@@ -850,7 +770,7 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
             user.phone = form.cleaned_data['tel_number']
             user.save()
 
-        context = super(SelfLydiaCreate, self).get_context_data()
+        context = super().get_context_data()
         context['vendor_token'] = configurations_safe_get(
             "LYDIA_VENDOR_TOKEN").get_value()
         context['confirm_url'] = settings.LYDIA_CONFIRM_URL
@@ -865,12 +785,12 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
                       context=context)
 
     def get_initial(self):
-        initial = super(SelfLydiaCreate, self).get_initial()
+        initial = super().get_initial()
         initial['tel_number'] = self.request.user.phone
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(SelfLydiaCreate, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         try:
             if configurations_safe_get("LYDIA_API_TOKEN").get_value() in ['', 'non définie']:
                 context['no_module'] = True
@@ -881,7 +801,7 @@ class SelfLydiaCreate(GroupPermissionMixin, FormView,
         return context
 
 
-class SelfLydiaConfirm(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class SelfLydiaConfirm(View, GroupLateralMenuMixin):
     """
     View to confirm supply by Lydia.
 
@@ -890,22 +810,13 @@ class SelfLydiaConfirm(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
     :note:: transaction and order parameters are given by Lydia but aren't
     used here.
-
-    :param kwargs['group_name']: name of the group, mandatory
-    :type kwargs['group_name']: string
-    :param GET['transaction']: id of the Lydia transaction, mandatory.
-    :type GET['transaction']: string
-    :param GET['order']: id of the order from Lydia, mandatory.
-    :type GET['order']: string
-    :raises: Http404 if the group_name doesn't match a group
     """
-    perm_codename = None
     template_name = 'finances/self_lydia_confirm.html'
 
     # TODO: check if a Lydia object exist and if it's from the current day,
     # else raise Error
     def get(self, request, *args, **kwargs):
-        context = super(SelfLydiaConfirm, self).get_context_data()
+        context = super().get_context_data()
         context['transaction'] = self.request.GET.get('transaction')
         context['order'] = self.request.GET.get('order_ref')
         return render(request, self.template_name, context=context)
