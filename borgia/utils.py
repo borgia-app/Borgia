@@ -134,7 +134,7 @@ def lateral_menu(user, group, active=None):
                 id_link='lm_sale_list',
                 url=reverse(
                     'url_sale_list',
-                    kwargs={'group_name': group.name}
+                    kwargs={'shop_pk': 0}
                 )
             ))
     except ObjectDoesNotExist:
@@ -148,10 +148,7 @@ def lateral_menu(user, group, active=None):
                 label='Rechargements',
                 fa_icon='money',
                 id_link='lm_recharging_list',
-                url=reverse(
-                    'url_recharging_list',
-                    kwargs={'group_name': group.name}
-                )
+                url=reverse('url_recharging_list')
             ))
     except ObjectDoesNotExist:
         pass
@@ -164,10 +161,7 @@ def lateral_menu(user, group, active=None):
                 label='Transferts',
                 fa_icon='exchange',
                 id_link='lm_transfert_list',
-                url=reverse(
-                    'url_transfert_list',
-                    kwargs={'group_name': group.name}
-                )
+                url=reverse('url_transfert_list')
             ))
     except ObjectDoesNotExist:
         pass
@@ -180,10 +174,7 @@ def lateral_menu(user, group, active=None):
                 label='Exceptionnels',
                 fa_icon='exclamation-triangle',
                 id_link='lm_exceptionnalmovement_list',
-                url=reverse(
-                    'url_exceptionnalmovement_list',
-                    kwargs={'group_name': group.name}
-                )
+                url=reverse('url_exceptionnalmovement_list')
             ))
     except ObjectDoesNotExist:
         pass
@@ -342,7 +333,7 @@ def lateral_menu_members(user, active=None):
             'Rechargement de compte',
             'credit-card',
             'lm_self_lydia_create',
-            reverse('url_self_lydia_create', kwargs={'group_name': 'members'})))
+            reverse('url_self_lydia_create')))
 
     if user.has_perm('finances.add_transfert'):
         nav_tree.append(
@@ -350,14 +341,14 @@ def lateral_menu_members(user, active=None):
                 'Transfert',
                 'exchange',
                 'lm_self_transfert_create',
-                reverse('url_self_transfert_create', kwargs={'group_name': 'members'})))
+                reverse('url_self_transfert_create')))
 
     nav_tree.append(
         simple_lateral_link(
             'Historique des transactions',
             'history',
             'lm_self_transaction_list',
-            reverse('url_self_transaction_list', kwargs={'group_name': 'members'})))
+            reverse('url_self_transaction_list')))
 
     if user.has_perm('events.view_event'):
         nav_tree.append(

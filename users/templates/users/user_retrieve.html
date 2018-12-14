@@ -19,10 +19,10 @@
           </a>
         {% endif %}
         {% if request.user|has_perm:"finances.add_exceptionnalmovement" %}
-          <a class="btn btn-primary" href="{% url 'url_user_exceptionnalmovement_create' group_name='group.name' user_pk=user.pk %}">Mouvement exceptionnel</a>
+          <a class="btn btn-primary" href="{% url 'url_user_exceptionnalmovement_create' user_pk=user.pk %}">Mouvement exceptionnel</a>
         {% endif %}
         {% if request.user|has_perm:"finances.add_recharging" %}
-          <a class="btn btn-primary" href="{% url 'url_recharging_create' group_name='group.name' user_pk=user.pk %}">Ajout d'argent</a>
+          <a class="btn btn-primary" href="{% url 'url_recharging_create' user_pk=user.pk %}">Ajout d'argent</a>
         {% endif %}
       </div>
   </div>
@@ -99,14 +99,12 @@
         </td>
         {% if request.user|has_perm:"finances.view_sale" %}
           <td><a href="
-            {% if transaction|get_transaction_model == 'Sale' %}
-              {% url 'url_sale_retrieve' group_name=group.name pk=transaction.pk %}
-            {% elif transaction|get_transaction_model == 'Recharging' %}
-              {% url 'url_recharging_retrieve' group_name=group.name pk=transaction.pk %}
+            {% if transaction|get_transaction_model == 'Recharging' %}
+              {% url 'url_recharging_retrieve' recharging_pk=transaction.pk %}
             {% elif transaction|get_transaction_model == 'Transfert' %}
-              {% url 'url_transfert_retrieve' group_name=group.name pk=transaction.pk %}
+              {% url 'url_transfert_retrieve' transfert_pk=transaction.pk %}
             {% elif transaction|get_transaction_model == 'ExceptionnalMovement' %}
-              {% url 'url_exceptionnalmovement_retrieve' group_name=group.name pk=transaction.pk %}
+              {% url 'url_exceptionnalmovement_retrieve' exceptionnalmovement_pk=transaction.pk %}
             {% endif %}
             ">Détail</a></td>
           {% endif %}

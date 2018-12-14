@@ -40,7 +40,7 @@
                 <td>{{ transfert.datetime|time:"H:i" }}</td>
                 <td>{{ transfert.amount }}€</td>
                 <td>
-                  <a href="{% url 'url_transfert_retrieve' group_name=group.name pk=transfert.pk %}">Détail</a>
+                  <a href="{% url 'url_transfert_retrieve' transfert_pk=transfert.pk %}">Détail</a>
                 </td>
             </tr>
             {% endfor %}

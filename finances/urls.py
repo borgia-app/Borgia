@@ -10,21 +10,21 @@ from finances.views import (ExceptionnalMovementList,
                             self_lydia_callback)
 
 finances_patterns = [
-    path('<str:group_name>/', include([
+    path('finances/', include([
+        # SALES
+        path('shops/<int:shop_pk>/sales/', include([
+            path('', SaleList.as_view(), name='url_sale_list'),
+            path('<int:pk>/', SaleRetrieve.as_view(), name='url_sale_retrieve')
+        ])),
         # TO USERS
         path('users/<int:user_pk>/', include([
             path('exceptionnal_movement/create/', UserExceptionnalMovementCreate.as_view(), name='url_user_exceptionnalmovement_create'),
-            path('supply_money', RechargingCreate.as_view(), name='url_recharging_create')
-        ])),
-        # SALES
-        path('sales/', include([
-            path('', SaleList.as_view(), name='url_sale_list'),
-            path('<int:pk>/', SaleRetrieve.as_view(), name='url_sale_retrieve')
+            path('rechargings/create', RechargingCreate.as_view(), name='url_recharging_create')
         ])),
         # RECHARGINGS
         path('rechargings/', include([
             path('', RechargingList.as_view(), name='url_recharging_list'),
-            path('<int:pk>/', RechargingRetrieve.as_view(), name='url_recharging_retrieve')
+            path('<int:recharging_pk>/', RechargingRetrieve.as_view(), name='url_recharging_retrieve')
         ])),
         # TRANSFERTS
         path('transferts/', include([

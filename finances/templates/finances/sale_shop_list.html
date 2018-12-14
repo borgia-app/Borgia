@@ -40,7 +40,7 @@
                 <td>{{ sale.string_products }}</td>
                 <td>{{ sale.amount }}€</td>
                 <td>
-                  <a href="{% url 'url_sale_retrieve' group_name=group.name pk=sale.pk %}">Détail</a>
+                  <a href="{% url 'url_sale_retrieve' shop_pk=shop.pk sale_pk=sale.pk %}">Détail</a>
                 </td>
             </tr>
             {% endfor %}
