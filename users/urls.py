@@ -2,7 +2,7 @@ from django.urls import include, path
 
 from users.views import (GroupUpdateView, UserAddByListXlsxDownload,
                          UserCreateView, UserDeactivateView, UserListView,
-                         UserRetrieveView, UserSelfDeactivateView,
+                         UserRetrieveView,
                          UserSelfUpdateView, UserUpdateView,
                          UserUploadXlsxView, balance_from_username,
                          username_from_username_part)

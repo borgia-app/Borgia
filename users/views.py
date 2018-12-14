@@ -294,54 +294,6 @@ class UserDeactivateView(UserMixin, View, LateralMenuMixin):
         return redirect(force_text(self.success_url))
 
 
-class UserSelfDeactivateView(GroupPermissionMixin, View, LateralMenuMixin):
-    """
-    Deactivate own account and disconnect.
-
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
-    """
-    template_name = 'users/deactivate.html'
-    perm_codename = None
-    error_event_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
-
-    def get(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        context = self.get_context_data(**kwargs)
-        context['user'] = user
-        return render(request, 'users/deactivate.html', context=context)
-
-    def post(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        events = Event.objects.filter(manager=user, done=False)
-        if user.is_active is True:
-            if events.count() > 0:
-                for event in events:
-                    self.error_event_message += "\n - " + event.description
-                messages.warning(request, self.error_event_message)
-            else:
-                user.is_active = False
-                # si c'est un gadz. Special members can't be added to other groups
-                if Group.objects.get(pk=5) in user.groups.all():
-                    user.groups.clear()
-                    user.groups.add(Group.objects.get(pk=5))
-                user.save()
-        if events.count() > 0:
-            self.success_url = reverse(
-                'url_event_list',
-                kwargs={'group_name': self.group.name})
-        else:
-            self.success_url = reverse(
-                'url_logout')
-        return redirect(force_text(self.success_url))
-
-
 class UserSelfUpdateView(SuccessMessageMixin, FormView, LateralMenuMixin):
     template_name = 'users/user_self_update.html'
     form_class = SelfUserUpdateForm
@@ -478,14 +430,14 @@ class GroupUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
         return reverse('url_managers_workboard')
 
 
-class UserUploadXlsxView(GroupPermissionMixin, FormView, LateralMenuMixin):
+class UserUploadXlsxView(PermissionRequiredMixin, FormView, LateralMenuMixin):
     """
     Download/Upload Excel for adding users.
     """
+    permission_required = 'users.add_user'
     template_name = 'users/bulk_edit.html'
     form_class = UserUploadXlsxForm
     second_form_class = UserDownloadXlsxForm
-    perm_codename = 'add_user'
     lm_active = 'lm_user_create'
 
     def get_context_data(self, **kwargs):
@@ -497,7 +449,6 @@ class UserUploadXlsxView(GroupPermissionMixin, FormView, LateralMenuMixin):
         return context
 
     def form_valid(self, form, *args, **kwargs):
-
         try:
             wb = openpyxl.load_workbook(self.request.FILES['list_user'], read_only=True)
             sheet = wb.active
@@ -644,23 +595,14 @@ class UserUploadXlsxView(GroupPermissionMixin, FormView, LateralMenuMixin):
         return super().form_valid(form)
 
     def get_success_url(self):
-        try:
-            if Permission.objects.get(codename='list_user') in self.group.permissions.all():
-                return reverse('url_user_list',
-                               kwargs={'group_name': self.group.name})
-            else:
-                return reverse('url_group_workboard',
-                               kwargs={'group_name': self.group.name})
-        except ObjectDoesNotExist:
-            return reverse('url_workboard',
-                           kwargs={'group_name': self.group.name})
+        return reverse('url_user_list')
 
 
-class UserAddByListXlsxDownload(GroupPermissionMixin, View, LateralMenuMixin):
+class UserAddByListXlsxDownload(PermissionRequiredMixin, View, LateralMenuMixin):
     """
     Download Excel for adding users.
     """
-    perm_codename = 'add_user'
+    permission_required = 'users.add_user'
     lm_active = 'lm_user_create'
 
     def get(self, request, *args, **kwargs):
@@ -688,23 +630,19 @@ class UserAddByListXlsxDownload(GroupPermissionMixin, View, LateralMenuMixin):
             ws.append(user)
 
         wb.save(response)
-
         return response
 
 
 def username_from_username_part(request):
     data = []
-
     try:
         key = request.GET.get('keywords')
-
         regex = r"^" + re.escape(key) + r"(\W|$)"
 
         # Fam'ss en entier
         # where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
         where_search = User.objects.exclude(groups=1).filter(
             family__regex=regex, is_active=True).order_by('-year')
-
         if len(key) > 2:
             if key.isalpha():
                 # Nom de famille, début ou entier à partir de 3 caractères
@@ -722,7 +660,6 @@ def username_from_username_part(request):
 
         for e in where_search:
             data.append(e.username)
-
     except KeyError:
         pass
 
@@ -730,23 +667,7 @@ def username_from_username_part(request):
 
 
 def balance_from_username(request):
-    # Check permissions
-
-    # User is authentified, if not the he can't access the view
     operator = request.user
-
-    # try:
-    #     shop_name = request.GET.get('shop_name')
-    #     shop = Shop.objects.get(name = shop_name)
-    #     module = OperatorSaleModule.objects.get(shop = shop)
-    # except KeyError:
-    #         raise Http404
-    # except ObjectDoesNotExist:
-    #     raise Http404
-
-    # If deactivate
-    # if module.state is False:
-    #     raise Http404
 
     if operator.has_perm('modules.use_operatorsalemodule'):
         try:
@@ -757,7 +678,5 @@ def balance_from_username(request):
             return HttpResponseBadRequest()
         except ObjectDoesNotExist:
             return HttpResponseBadRequest()
-
-    # If user don't have the permission
     else:
         raise PermissionDenied
