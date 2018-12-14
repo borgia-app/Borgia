@@ -25,7 +25,7 @@ from stocks.models import (Inventory, InventoryProduct, StockEntry,
 class StockEntryListView(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                      GroupLateralMenuFormMixin):
     template_name = 'stocks/stockentry_list.html'
-    perm_codename = 'list_stockentry'
+    perm_codename = 'view_stockentry'
     lm_active = 'lm_stockentry_list'
     form_class = StockEntryListDateForm
 
@@ -163,7 +163,7 @@ class StockEntryCreateView(GroupPermissionMixin, ShopFromGroupMixin,
 
 class StockEntryRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     template_name = 'stocks/stockentry_retrieve.html'
-    perm_codename = 'retrieve_stockentry'
+    perm_codename = 'view_stockentry'
     lm_active = 'lm_stockentry_list'
 
     def dispatch(self, request, *args, **kwargs):
@@ -184,7 +184,7 @@ class StockEntryRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
 class InventoryListView(GroupPermissionMixin, ShopFromGroupMixin, FormView,
                     GroupLateralMenuFormMixin):
     template_name = 'stocks/inventory_list.html'
-    perm_codename = 'list_inventory'
+    perm_codename = 'view_inventory'
     lm_active = 'lm_inventory_list'
     form_class = InventoryListDateForm
 
@@ -332,7 +332,7 @@ class InventoryCreateView(GroupPermissionMixin, ShopFromGroupMixin,
 
 class InventoryRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     template_name = 'stocks/inventory_retrieve.html'
-    perm_codename = 'retrieve_inventory'
+    perm_codename = 'view_inventory'
     lm_active = 'lm_inventory_list'
 
     def dispatch(self, request, *args, **kwargs):

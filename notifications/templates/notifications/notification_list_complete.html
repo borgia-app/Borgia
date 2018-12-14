@@ -32,9 +32,9 @@
                 <table class="table table-default">
                   <thead>
                     <tr>
-                        <th><a href="{% url 'url_notification_list' group_name=group_name %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
+                        <th><a href="{% url 'url_notification_list' group_name=group.name %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
                         <th>Message</th>
-                        <th><a href="{% url 'url_notification_list' group_name=group_name %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
+                        <th><a href="{% url 'url_notification_list' group_name=group.name %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
                      </tr>
                   </thead>
                   <tbody>
@@ -54,9 +54,9 @@
                 <table class="table table-default">
                   <thead>
                     <tr>
-                        <th><a href="{% url 'url_notification_list' group_name=group_name %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
+                        <th><a href="{% url 'url_notification_list' group_name=group.name %}?order_by={{ 'type'|order_by:request }}&page={{ page.number }}">Type</a></th>
                         <th>Message</th>
-                        <th><a href="{% url 'url_notification_list' group_name=group_name %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
+                        <th><a href="{% url 'url_notification_list' group_name=group.name %}?order_by={{ 'creation_datetime'|order_by:request }}&page={{ page.number }}">Date</a></th>
                      </tr>
                   </thead>
                   <tbody>

@@ -1,7 +1,10 @@
 import datetime
 import json
+import random
 import re
+import string
 
+import openpyxl
 from django.contrib import messages
 from django.contrib.auth.models import Group, Permission
 from django.contrib.messages.views import SuccessMessageMixin
@@ -21,8 +24,8 @@ from finances.models import SharedEvent
 from settings_data.utils import settings_safe_get
 from users.forms import (ManageGroupForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserSearchForm,
-                         UserUpdateForm)
-from users.models import ExtendedPermission, User
+                         UserUpdateForm, UserUploadXlsxForm, UserDownloadXlsxForm)
+from users.models import User
 
 
 class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
@@ -32,7 +35,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     :param kwargs['group_name']: name of the group used.
     :param self.perm_codename: codename of the permission checked.
     """
-    perm_codename = 'list_user'
+    perm_codename = 'view_user'
     template_name = 'users/user_list.html'
     lm_active = 'lm_user_list'
     form_class = UserSearchForm
@@ -78,8 +81,8 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
                 User.objects.all().exclude(groups=1))
 
         # Permission Retrieveuser
-        if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
-            context['has_perm_retrieve_user'] = True
+        if Permission.objects.get(codename='view_user') in self.group.permissions.all():
+            context['has_perm_view_user'] = True
 
         return context
 
@@ -180,12 +183,12 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
         If not, go to the workboard of the group.
         """
         try:
-            if Permission.objects.get(codename='retrieve_user') in self.group.permissions.all():
+            if Permission.objects.get(codename='view_user') in self.group.permissions.all():
                 return reverse('url_user_retrieve',
                                kwargs={'group_name': self.group.name,
                                        'pk': self.object.pk})
             else:
-                if Permission.objects.get(codename='list_user') in self.group.permissions.all():
+                if Permission.objects.get(codename='view_user') in self.group.permissions.all():
                     return reverse('url_user_list',
                                    kwargs={'group_name': self.group.name})
                 else:
@@ -204,7 +207,7 @@ class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
     :param self.perm_codename: codename of the permission checked.
     """
     template_name = 'users/retrieve.html'
-    perm_codename = 'retrieve_user'
+    perm_codename = 'view_user'
 
     def get(self, request, *args, **kwargs):
         try:
@@ -285,7 +288,7 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         try:
             user = User.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
-            raise Http404 
+            raise Http404
         context = self.get_context_data(**kwargs)
         context['user'] = user
         return render(request, 'users/deactivate.html', context=context)
@@ -294,7 +297,7 @@ class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         try:
             user = User.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
-            raise Http404 
+            raise Http404
         if user.is_active is True:
             user.is_active = False
             # si c'est un gadz. Special members can't be added to other groups
@@ -337,7 +340,7 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         try:
             user = User.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
-            raise Http404 
+            raise Http404
         context = self.get_context_data(**kwargs)
         context['user'] = user
         return render(request, 'users/deactivate.html', context=context)
@@ -346,7 +349,7 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
         try:
             user = User.objects.get(pk=kwargs['pk'])
         except ObjectDoesNotExist:
-            raise Http404 
+            raise Http404
         sharedevents = SharedEvent.objects.filter(manager=user, done=False)
         if user.is_active is True:
             if sharedevents.count() > 0:
@@ -373,7 +376,7 @@ class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
 
 
 class UserSelfUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView,
-                     GroupLateralMenuFormMixin):
+                         GroupLateralMenuFormMixin):
     template_name = 'users/self_user_update.html'
     form_class = SelfUserUpdateForm
     perm_codename = None
@@ -438,7 +441,7 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
             raise Http404
 
         if (permission_to_manage_group(self.group_updated)[0]
-                not in self.group.permissions.all()):
+            not in self.group.permissions.all()):
             raise PermissionDenied
 
         return super(ManageGroupView, self).dispatch(request, *args, **kwargs)
@@ -458,7 +461,7 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         if self.group_updated.name.startswith('associates-') is True:
             chiefs_group_name = self.group_updated.name.replace(
                 'associates', 'chiefs')
-            kwargs['possible_permissions'] = ExtendedPermission.objects.filter(
+            kwargs['possible_permissions'] = Permission.objects.filter(
                 pk__in=[p.pk for p in Group.objects.get(
                     name=chiefs_group_name).permissions.all().exclude(
                     pk=permission_to_manage_group(self.group_updated)[0].pk).exclude(
@@ -466,7 +469,7 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
             )
 
         else:
-            kwargs['possible_permissions'] = ExtendedPermission.objects.all().exclude(
+            kwargs['possible_permissions'] = Permission.objects.all().exclude(
                 pk__in=human_unused_permissions()
             )
 
@@ -478,7 +481,7 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         initial = super(ManageGroupView, self).get_initial()
         initial['members'] = User.objects.filter(groups=self.group_updated)
         initial['permissions'] = [
-            ExtendedPermission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
+            Permission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
         ]
         return initial
 
@@ -522,6 +525,220 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         return "Le groupe a bien été mis à jour"
 
 
+class UserUploadXlsxView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+    """
+    Download/Upload Excel for adding users.
+    """
+    template_name = 'users/bulk_edit.html'
+    form_class = UserUploadXlsxForm
+    second_form_class = UserDownloadXlsxForm
+    perm_codename = 'add_user'
+    lm_active = 'lm_user_create'
+
+    def get_context_data(self, **kwargs):
+        context = super(UserUploadXlsxView, self).get_context_data(**kwargs)
+        if 'upload_form' not in context:
+            context['upload_form'] = self.form_class()
+        if 'download_form' not in context:
+            context['download_form'] = self.second_form_class()
+        return context
+
+    def form_valid(self, form, *args, **kwargs):
+
+        try:
+            wb = openpyxl.load_workbook(self.request.FILES['list_user'], read_only=True)
+            sheet = wb.active
+            rows = sheet.rows
+        except:
+            raise PermissionDenied
+
+        errors = []
+        nb_empty_rows = 0
+        min_col = sheet.min_column
+        max_col = sheet.max_column
+        min_row = sheet.min_row
+        i = min_row
+
+        columns = form.cleaned_data['xlsx_columns']
+        # Setting column numbers
+        for col in range(min_col, max_col+1):
+            if sheet.cell(None, sheet.min_row, col).value == 'username':
+                col_username = col - min_row
+            elif sheet.cell(None, sheet.min_row, col).value == 'first_name':
+                col_first_name = col - min_row
+            elif sheet.cell(None, sheet.min_row, col).value == 'last_name':
+                col_last_name = col - min_row
+            elif sheet.cell(None, sheet.min_row, col).value == 'email':
+                col_email = col - min_row
+            elif sheet.cell(None, sheet.min_row, col).value == 'surname':
+                col_surname = col - min_row
+            elif sheet.cell(None, sheet.min_row, col).value == 'family':
+                col_family = col - min_row
+            elif sheet.cell(None, sheet.min_row, col).value == 'campus':
+                col_campus = col - min_row
+            elif sheet.cell(None, sheet.min_row, col).value == 'year':
+                col_year = col - min_row
+            elif sheet.cell(None, sheet.min_row, col).value == 'balance':
+                col_balance = col - min_row
+
+        for _ in range(min_row):
+            next(rows)
+
+        skipped_rows = []
+        # Saving users
+        for row in rows:
+            i += 1
+            try:
+                user_dict = {}
+                errors_on_required_columns = []
+                skipped_row = False
+                try:
+                    if row[col_username].value:
+                        user_dict['username'] = row[col_username].value.strip()
+                    else:
+                        skipped_row = True
+                        nb_empty_rows += 1
+                except:
+                    skipped_row = True
+                    errors_on_required_columns.append('username')
+
+                if 'first_name' in columns:
+                    try:
+                        if row[col_first_name].value:
+                            user_dict['first_name'] = row[col_first_name].value.strip()
+                    except:
+                        errors_on_required_columns.append('first_name')
+
+                if 'last_name' in columns:
+                    try:
+                        if row[col_last_name].value:
+                            user_dict['last_name'] = row[col_last_name].value.strip()
+                    except:
+                        errors_on_required_columns.append('last_name')
+
+                if 'email' in columns:
+                    try:
+                        if row[col_email].value:
+                            user_dict['email'] = row[col_email].value.strip()
+                    except:
+                        errors_on_required_columns.append('email')
+
+                if 'surname' in columns:
+                    try:
+                        if row[col_surname].value:
+                            user_dict['surname'] = row[col_surname].value.strip()
+                    except:
+                        errors_on_required_columns.append('surname')
+
+                if 'family' in columns:
+                    try:
+                        if row[col_family].value:
+                            user_dict['family'] = str(row[col_family].value).strip()
+                    except:
+                        errors_on_required_columns.append('family')
+
+                if 'campus' in columns:
+                    try:
+                        if row[col_campus].value:
+                            user_dict['campus'] = row[col_campus].value.strip()
+                    except:
+                        errors_on_required_columns.append('campus')
+
+                if 'year' in columns:
+                    try:
+                        if row[col_year].value:
+                            user_dict['year'] = int(row[col_year].value)
+                    except:
+                        errors_on_required_columns.append('year')
+
+                if 'balance' in columns:
+                    try:
+                        if row[col_balance].value:
+                            user_dict['balance'] = str(row[col_balance].value).strip()
+                    except:
+                        errors_on_required_columns.append('balance')
+
+                if not skipped_row:
+                    username = user_dict['username']
+                    if User.objects.filter(username=username).count() > 0:
+                        User.objects.filter(username=username).update(**user_dict)
+                    else:
+                        user = User.objects.create(**user_dict)
+                        user.set_password(''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits)
+                                                  for _ in range(20)))
+                    user = User.objects.get(username=username)
+                    user.save()
+
+                    user.groups.add(Group.objects.get(pk=5))
+                else:
+                    skipped_rows.append(str(i))
+            except:
+                if str(i) in skipped_rows:
+                    errors.append("La ligne n*" + str(i) +
+                                  "n'a pas été traitée car le username est manquant")  # TODO: Make this error appear
+                elif len(errors_on_required_columns) > 0:
+                    errors.append("Les colonnes " + ", ".join(errors_on_required_columns) +
+                                  " sont requis et comportent des erreurs (ligne n*" + str(i) + ")")
+                else:
+                    errors.append("Une erreur empêche le traitement du fichier Excel (ligne n*" + str(i) + ")")
+
+        error_message = ""
+        error_message += "\n - ".join(errors)
+        messages.success(self.request, str(i - len(skipped_rows) - min_row - len(errors)) +
+                         " utilisateurs ont été crées/mis à jour")
+        messages.warning(self.request, error_message)
+
+        return super(UserUploadXlsxView, self).form_valid(form)
+
+    def get_success_url(self):
+        try:
+            if Permission.objects.get(codename='list_user') in self.group.permissions.all():
+                return reverse('url_user_list',
+                               kwargs={'group_name': self.group.name})
+            else:
+                return reverse('url_group_workboard',
+                               kwargs={'group_name': self.group.name})
+        except ObjectDoesNotExist:
+            return reverse('url_workboard',
+                           kwargs={'group_name': self.group.name})
+
+
+class UserAddByListXlsxDownload(GroupPermissionMixin, View, GroupLateralMenuMixin):
+    """
+    Download Excel for adding users.
+    """
+    perm_codename = 'add_user'
+    lm_active = 'lm_user_create'
+
+    def get(self, request, *args, **kwargs):
+        columns = request.GET.getlist('xlsx_columns')
+
+        if len(columns) == 0 or columns is None:
+            columns = ['first_name', 'last_name', 'email', 'surname',
+                       'family', 'campus', 'year', 'balance']
+
+        columns.insert(0, 'username')
+
+        wb = openpyxl.Workbook()
+        # grab the active worksheet
+        ws = wb.active
+        ws.title = "users"
+        ws.append(columns)
+
+        # Return the file
+        response = HttpResponse(openpyxl.writer.excel.save_virtual_workbook(wb),
+                                content_type='application/vnd.ms-excel')
+        response['Content-Disposition'] = 'attachment; filename="UsersList.xlsx"'
+
+        users = User.objects.all().values_list(*columns)
+        for user in users:
+            ws.append(user)
+
+        wb.save(response)
+
+        return response
+
+
 def username_from_username_part(request):
     data = []
 
@@ -560,7 +777,6 @@ def username_from_username_part(request):
 
 
 def balance_from_username(request):
-
     # Check permissions
 
     # User is authentified, if not the he can't access the view

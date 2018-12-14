@@ -20,12 +20,12 @@ class BaseShopsViewsTest(BaseBorgiaViewsTestCase):
         content_type = ContentType.objects.get(app_label='users', model='user')
         Permission.objects.create(
             name='Gérer le groupe des chiefs du magasin ' + self.shop1.name,
-            codename='manage_group_chiefs-' + self.shop1.name,
+            codename='manage_chiefs-' + self.shop1.name + '_group',
             content_type=content_type
         )
         manage_associate_perm = Permission.objects.create(
             name='Gérer le groupe des associés du magasin ' + self.shop1.name,
-            codename='manage_group_associates-' + self.shop1.name,
+            codename='manage_associates-' + self.shop1.name + '_group',
             content_type=content_type
         )
 

@@ -32,9 +32,9 @@
        </tr>
        <tr>
           <td>Prom'ss :</td> 
-          <td>{{ user.campus }}{{ user.year_pg }}</td>
+          <td>{{ user.campus }}{% if user.year %}{{ user.year_pg }}{% endif %}</td>
        </tr>
-       {% if group|has_group_perm:"retrieve_more_user_info" or user == request.user %}
+       {% if group|has_group_perm:"advanced_view_user" or user == request.user %}
        <tr>
           <td>Solde :</td> 
           <td style="font-weight: bold"

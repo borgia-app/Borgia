@@ -12,7 +12,7 @@ from finances.views import (ExceptionnalMovementList,
                             SharedEventSelfRegistration, SharedEventUpdate,
                             SharedEventUploadXlsx, TransfertList,
                             TransfertRetrieve, UserExceptionnalMovementCreate,
-                            UserSupplyMoney, self_lydia_callback)
+                            RechargingCreate, self_lydia_callback)
 
 
 finances_patterns = [
@@ -20,7 +20,7 @@ finances_patterns = [
         # TO USERS
         path('users/<int:user_pk>/', include([
             path('exceptionnal_movement/create/', UserExceptionnalMovementCreate.as_view(), name='url_user_exceptionnalmovement_create'),
-            path('supply_money', UserSupplyMoney.as_view(), name='url_user_supplymoney')
+            path('supply_money', RechargingCreate.as_view(), name='url_recharging_create')
         ])),
         # SALES
         path('sales/', include([

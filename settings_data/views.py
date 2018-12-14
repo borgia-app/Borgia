@@ -23,7 +23,7 @@ class GlobalConfig(GroupPermissionMixin, View, GroupLateralMenuMixin):
     :type kwargs['group_name']: string
     """
     template_name = 'settings_data/global_config.html'
-    perm_codename = 'change_setting'
+    perm_codename = 'view_setting'
     lm_active = 'lm_global_config'
 
     def get_context_data(self, **kwargs):

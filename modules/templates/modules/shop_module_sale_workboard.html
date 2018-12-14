@@ -29,9 +29,9 @@
       </li>
     </ul>
     {% if type == "operator_sale" %}
-      <a href="{% url 'url_module_operatorsale_config' group_name=group_name %}" class="btn btn-default">Modifier</a>
+      <a href="{% url 'url_module_operatorsale_config' group_name=group.name %}" class="btn btn-default">Modifier</a>
     {% else %}
-      <a href="{% url 'url_module_selfsale_config' group_name=group_name %}" class="btn btn-default">Modifier</a>
+      <a href="{% url 'url_module_selfsale_config' group_name=group.name %}" class="btn btn-default">Modifier</a>
     {% endif %}
   </div>
 </div>
