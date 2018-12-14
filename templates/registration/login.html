@@ -31,7 +31,7 @@
              <span class="glyphicon glyphicon-lock"></span>
           </div>
 				<p class="text-right password-reset-button">
-				  <a class="btn btn-warning btn-xs" href="{% url 'reset_password_reset1' %}">Mot de passe oublié ?</a>
+				  <a class="btn btn-warning btn-xs" href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
 				</p>
 				<button
 					type="submit"
@@ -80,10 +80,10 @@
                 {% for object in shop_list %}
                 <tr>
                   <td>{{ object.shop.name|capfirst }}</td>
-                  <td><a href="{% url 'url_login_direct_module_selfsale' shop_name=object.shop.name %}"
+                  <td><a href="{{ object.self_module_link }}"
                     class="btn btn-xs btn-block
                     {% if object.self_module.state %}btn-success{% else %}btn-danger disabled{% endif %}">Lien direct</a></td>
-                  <td><a href="{% url 'url_login_direct_module_operatorsale' shop_name=object.shop.name %}"
+                  <td><a href="{{ object.operator_module_link }}"
                     class="btn btn-xs btn-block
                     {% if object.operator_module.state %}btn-success{% else %}btn-danger disabled{% endif %}">Lien direct</a></td>
                 </tr>

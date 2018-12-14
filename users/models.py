@@ -135,7 +135,7 @@ class User(AbstractUser):
             if not self.surname or not self.family:
                 return self.first_name + ' ' + self.last_name
             else:
-                return self.surname + ' ' + self.family + self.campus + str(self.year_pg())
+                return self.surname + ' ' + self.family + self.campus + self.year_pg()
         except AttributeError:
             return self.username
 
@@ -147,16 +147,15 @@ class User(AbstractUser):
         mandatory, the function will raise an error if there is no year.
         example:: 2014 -> 214
 
-        :returns:  integer formatted year
+        :returns:  string
         :raises: AttributeError when no year
 
         """
         if self.year is not None:
             year = str(self.year)
-            return int( year[:1] + year[-2:] )
+            return year[:1] + year[-2:]
         else:
-            raise AttributeError(
-                'The user does not have a defined year attribute')
+            return ""
 
     def forecast_balance(self):
         """
