@@ -5,8 +5,9 @@ from django.views.generic.base import ContextMixin
 
 from borgia.utils import (INTERNALS_GROUP_NAME,
                           get_permission_name_group_managing,
-                          group_name_display, simple_lateral_link)
+                          group_name_display, simple_lateral_link, is_association_manager)
 from modules.models import SelfSaleModule
+from shops.utils import get_shops_tree
 
 
 class LateralMenuBaseMixin(ContextMixin):
@@ -28,12 +29,40 @@ class LateralMenuBaseMixin(ContextMixin):
         """
         nav_tree = []
 
-        ## TODO : Add groups of user !
-        # if lateral_menu_user_groups(user) is not None:
-        #     nav_tree.append(
-        #         lateral_menu_user_groups(user)
-        #     )
-    
+        is_manager = is_association_manager(self.request.user)
+
+        shop_tree = get_shops_tree(self.request.user, is_manager)
+
+        if is_manager or len(shop_tree) >= 1:
+            management_tree = {
+                'label': 'Managements',
+                'icon': 'institution',
+                'id': 'lm_user_groups',
+                'class': 'info',
+                'subs': []
+            }
+            management_tree['subs'].append(
+                simple_lateral_link(
+                    'Actions Membre',
+                    'briefcase',
+                    'lm_workboard',
+                    reverse('url_members_workboard')
+                )
+            )
+            if is_manager:
+                management_tree['subs'].append(
+                    simple_lateral_link(
+                        'Association',
+                        'briefcase',
+                        'lm_workboard',
+                        reverse('url_managers_workboard')
+                    )
+                )
+            for nav_shop in shop_tree:
+                management_tree['subs'].append(nav_shop)
+            
+            nav_tree.append(management_tree)
+
         return nav_tree
 
 

@@ -127,7 +127,7 @@ class LateralMenuShopsMixin(LateralMenuBaseMixin):
                 'Accueil Magasin ' + shop.name.title(),
                 'briefcase',
                 'lm_workboard',
-                reverse('url_shop_workboard', 
+                reverse('url_shop_workboard',
                         kwargs={'shop_pk': shop.pk})
             ))
 
@@ -195,10 +195,10 @@ class LateralMenuShopsMixin(LateralMenuBaseMixin):
             )
         
         # Inventories
-        if user.has_perm('stocks.view_stockentry'):
+        if user.has_perm('stocks.view_inventory'):
             nav_tree.append(
                 simple_lateral_link(
-                    'Entrées de stock',
+                    'Inventaires',
                     'list',
                     'lm_inventory_list',
                     reverse(
