@@ -211,11 +211,11 @@ class ShopWorkboard(ShopMixin, View):
     template_name = 'shops/shop_workboard.html'
     lm_active = 'lm_workboard'
 
-    def get_context_data(self, **kwargs):
+    def get(self, request, *args, **kwargs):
         context = super().get_context_data(**kwargs)
         context['sale_list'] = self.get_sales()
         context['purchase_list'] = self.get_purchases()
-        return context
+        return render(request, self.template_name, context=context)
 
     def get_sales(self):
         sales = {}
