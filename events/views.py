@@ -13,18 +13,19 @@ from django.views.generic import FormView, View
 from openpyxl import Workbook, load_workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
-from borgia.utils import GroupLateralMenuMixin
+from borgia.mixins import MembersMixin
 from events.forms import (EventAddWeightForm, EventCreateForm, EventDeleteForm,
                           EventDownloadXlsxForm, EventFinishForm,
                           EventListForm, EventListUsersForm,
                           EventSelfRegistrationForm, EventUpdateForm,
                           EventUploadXlsxForm)
+from events.mixins import (EventMixin, EventPermissionAndContextMixin,
+                           EventRestrictedMixin)
 from events.models import Event
-from events.utils import EventPermissionAndContextMixin
 from users.models import User
 
 
-class EventList(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+class EventList(MembersMixin, FormView):
     permission_required = 'events.view_event'
     template_name = 'events/event_list.html'
     lm_active = 'lm_event_list'
@@ -98,8 +99,7 @@ class EventList(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         return self.render_to_response(context)
 
 
-class EventCreate(PermissionRequiredMixin, SuccessMessageMixin, FormView,
-                  GroupLateralMenuMixin):
+class EventCreate(MembersMixin, SuccessMessageMixin, FormView):
     permission_required = 'events.add_event'
     template_name = 'events/event_create.html'
     form_class = EventCreateForm
@@ -140,7 +140,7 @@ class EventCreate(PermissionRequiredMixin, SuccessMessageMixin, FormView,
                        )
 
 
-class EventUpdate(EventPermissionAndContextMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
+class EventUpdate(EventMixin, SuccessMessageMixin, FormView):
     """
     Update the Shared Event
     """
@@ -225,7 +225,7 @@ class EventUpdate(EventPermissionAndContextMixin, SuccessMessageMixin, FormView,
                            )
 
 
-class EventFinish(EventPermissionAndContextMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
+class EventFinish(EventRestrictedMixin, SuccessMessageMixin, FormView):
     """
     Finish a event and redirect to the list of events.
     This command is used when you want to keep the event in the database, but
@@ -303,7 +303,7 @@ class EventFinish(EventPermissionAndContextMixin, SuccessMessageMixin, FormView,
         return reverse('url_event_list')
 
 
-class EventDelete(EventPermissionAndContextMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
+class EventDelete(EventMixin, SuccessMessageMixin, FormView):
     """
     Delete a event and redirect to the list of events.
 
@@ -324,7 +324,7 @@ class EventDelete(EventPermissionAndContextMixin, SuccessMessageMixin, FormView,
         return reverse('url_event_list')
 
 
-class EventSelfRegistration(EventPermissionAndContextMixin, SuccessMessageMixin, FormView, GroupLateralMenuMixin):
+class EventSelfRegistration(EventMixin, SuccessMessageMixin, FormView):
     """
     Allow a user to register himself
 
@@ -383,7 +383,7 @@ class EventSelfRegistration(EventPermissionAndContextMixin, SuccessMessageMixin,
                        )
 
 
-class EventChangeWeight(EventPermissionAndContextMixin, View):
+class EventChangeWeight(EventMixin, View):
     permission_required = 'events.change_event'
     allow_manager = True
     need_ongoing_event = True
@@ -422,7 +422,7 @@ class EventChangeWeight(EventPermissionAndContextMixin, View):
         return HttpResponse(response)
 
 
-class EventManageUsers(EventPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class EventManageUsers(EventMixin, FormView):
     """
     Manage the users. The get displays the list of concerned users. The post form add weight to one of them.
     """
@@ -498,7 +498,7 @@ class EventManageUsers(EventPermissionAndContextMixin, FormView, GroupLateralMen
                        kwargs={'pk': self.event.pk})
 
 
-class EventRemoveUser(EventPermissionAndContextMixin, View):
+class EventRemoveUser(EventMixin, View):
     """
     Remove a user
     """
@@ -546,7 +546,7 @@ class EventRemoveUser(EventPermissionAndContextMixin, View):
         ) + "?state=" + state + "&order_by=" + order_by + "#table_users")
 
 
-class EventDownloadXlsx(EventPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class EventDownloadXlsx(EventMixin, FormView):
     """
     Download Excel.
     """
@@ -602,7 +602,7 @@ class EventDownloadXlsx(EventPermissionAndContextMixin, FormView, GroupLateralMe
         return response
 
 
-class EventUploadXlsx(EventPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class EventUploadXlsx(EventMixin, FormView):
     """
     Upload Excel.
     """

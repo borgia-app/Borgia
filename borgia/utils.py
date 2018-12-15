@@ -9,6 +9,25 @@ INTERNALS_GROUP_NAME = 'members'
 EXTERNALS_GROUP_NAME = 'externals'
 
 
+def simple_lateral_link(label, fa_icon, id_link, url):
+    return {
+        'label': label,
+        'icon': fa_icon,
+        'id': id_link,
+        'url': url
+    }
+
+
+def permission_to_manage_group(group):
+    """
+    DEPRECATED. Use get_permission_name_group_managing instead
+    Get Permission to manage group.
+    """
+    perm = Permission.objects.get(codename=('manage_'+group.name+'_group'))
+    perm_name = 'users.' + perm.codename
+    return perm, perm_name
+
+    
 def get_permission_name_group_managing(group):
     return 'users.manage_' + group.name + '_group'
 

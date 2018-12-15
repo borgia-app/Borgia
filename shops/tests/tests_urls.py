@@ -17,7 +17,7 @@ class ShopsNamedURLTests(TestCase):
             ('url_shop_create', [], {}),
             ('url_shop_update', [], {'shop_pk': 53}),
             ('url_shop_checkup', [], {'shop_pk': 53}),
-            ('url_group_workboard', [], {'shop_pk': 53})
+            ('url_shop_workboard', [], {'shop_pk': 53})
         ]
         for name, args, kwargs in expected_named_urls:
             with self.subTest(name=name):

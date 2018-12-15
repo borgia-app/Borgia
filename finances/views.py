@@ -5,8 +5,6 @@ import operator
 
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.models import Group
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -18,24 +16,23 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 from django.views.generic import FormView, View
 
-from borgia.utils import (GroupLateralMenuMixin,
-                          shop_from_group)
+from borgia.mixins import LateralMenuMembersMixin, ManagerMixin
 from configurations.models import Configuration
 from configurations.utils import configurations_safe_get
 from finances.forms import (ExceptionnalMovementForm,
                             GenericListSearchDateForm, RechargingCreateForm,
-                            RechargingListForm, SaleListSearchDateForm,
+                            RechargingListForm,
                             SelfLydiaCreateForm, SelfTransfertCreateForm)
 from finances.mixins import SaleMixin
 from finances.models import (Cash, Cheque, ExceptionnalMovement,
                              LydiaFaceToFace, LydiaOnline, Recharging, Sale,
                              Transfert)
-from shops.mixins import ShopPermissionAndContextMixin
+from shops.mixins import ShopMixin
 from users.mixins import UserMixin
 from users.models import User
 
 
-class SaleList(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class SaleList(ShopMixin, FormView):
     """
     View to list sales.
 
@@ -139,7 +136,7 @@ class SaleList(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class SaleRetrieve(SaleMixin, View, GroupLateralMenuMixin):
+class SaleRetrieve(SaleMixin, View):
     """
     Retrieve a sale.
 
@@ -155,8 +152,7 @@ class SaleRetrieve(SaleMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class RechargingList(PermissionRequiredMixin, FormView,
-                     GroupLateralMenuMixin):
+class RechargingList(ManagerMixin, FormView):
     """
     View to list recharging sales.
 
@@ -285,7 +281,7 @@ class RechargingList(PermissionRequiredMixin, FormView,
         return self.get(self.request, self.args, self.kwargs)
 
 
-class RechargingRetrieve(PermissionRequiredMixin, View, GroupLateralMenuMixin):
+class RechargingRetrieve(ManagerMixin, View):
     """
     Retrieve a recharging sale.
 
@@ -323,7 +319,7 @@ class RechargingRetrieve(PermissionRequiredMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class TransfertList(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+class TransfertList(ManagerMixin, FormView):
     """
     View to list transfert sales.
 
@@ -385,7 +381,7 @@ class TransfertList(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class TransfertRetrieve(PermissionRequiredMixin, View, GroupLateralMenuMixin):
+class TransfertRetrieve(ManagerMixin, View):
     """
     Retrieve a transfert sale.
 
@@ -424,8 +420,7 @@ class TransfertRetrieve(PermissionRequiredMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class SelfTransfertCreate(PermissionRequiredMixin, SuccessMessageMixin, FormView,
-                          GroupLateralMenuMixin):
+class SelfTransfertCreate(ManagerMixin, SuccessMessageMixin, FormView):
     permission_required = 'finances.add_transfert'
     template_name = 'finances/self_transfert_create.html'
     form_class = SelfTransfertCreateForm
@@ -460,8 +455,7 @@ class SelfTransfertCreate(PermissionRequiredMixin, SuccessMessageMixin, FormView
         return reverse('url_members_workboard')
 
 
-class ExceptionnalMovementList(PermissionRequiredMixin, FormView,
-                               GroupLateralMenuMixin):
+class ExceptionnalMovementList(ManagerMixin, FormView):
     """
     View to list exceptionnal movement sales.
 
@@ -523,8 +517,7 @@ class ExceptionnalMovementList(PermissionRequiredMixin, FormView,
         return self.get(self.request, self.args, self.kwargs)
 
 
-class ExceptionnalMovementRetrieve(PermissionRequiredMixin, View,
-                                   GroupLateralMenuMixin):
+class ExceptionnalMovementRetrieve(ManagerMixin, View):
     """
     Retrieve an exceptionnal movement sale.
 
@@ -562,7 +555,7 @@ class ExceptionnalMovementRetrieve(PermissionRequiredMixin, View,
         return render(request, self.template_name, context=context)
 
 
-class SelfTransactionList(FormView, GroupLateralMenuMixin):
+class SelfTransactionList(LateralMenuMembersMixin, FormView):
     """
     View to list transactions of the logged user.
     """
@@ -601,7 +594,7 @@ class SelfTransactionList(FormView, GroupLateralMenuMixin):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class UserExceptionnalMovementCreate(UserMixin, FormView, GroupLateralMenuMixin):
+class UserExceptionnalMovementCreate(UserMixin, FormView):
     """
     View to create an exceptionnal movement (debit or credit) for a specific
     user.
@@ -649,7 +642,7 @@ class UserExceptionnalMovementCreate(UserMixin, FormView, GroupLateralMenuMixin)
         return reverse('url_user_retrieve', kwargs={'user_pk': self.user.pk})
 
 
-class RechargingCreate(UserMixin, FormView, GroupLateralMenuMixin):
+class RechargingCreate(UserMixin, FormView):
     permission_required = 'finances.add_recharging'
     template_name = 'finances/user_supplymoney.html'
     form_class = RechargingCreateForm
@@ -718,7 +711,7 @@ class RechargingCreate(UserMixin, FormView, GroupLateralMenuMixin):
         return reverse('url_user_retrieve', kwargs={'user_pk': self.user.pk})
 
 
-class SelfLydiaCreate(FormView, GroupLateralMenuMixin):
+class SelfLydiaCreate(LateralMenuMembersMixin, FormView):
     """
     View to supply himself by Lydia.
     """
@@ -796,7 +789,7 @@ class SelfLydiaCreate(FormView, GroupLateralMenuMixin):
         return context
 
 
-class SelfLydiaConfirm(View, GroupLateralMenuMixin):
+class SelfLydiaConfirm(LateralMenuMembersMixin, View):
     """
     View to confirm supply by Lydia.
 

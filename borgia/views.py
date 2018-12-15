@@ -19,9 +19,9 @@ from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (INTERNALS_GROUP_NAME, GroupLateralMenuMixin,
-                          LateralMenuMixin,
-                          get_managers_group_from_user, is_association_manager)
+from borgia.mixins import LateralMenuMembersMixin, ManagerMixin
+from borgia.utils import (INTERNALS_GROUP_NAME, get_managers_group_from_user,
+                          is_association_manager)
 from events.models import Event
 from finances.models import ExceptionnalMovement, Recharging, Sale, Transfert
 from modules.models import OperatorSaleModule, SelfSaleModule
@@ -70,7 +70,7 @@ class ModulesLoginView(LoginView):
         return context
 
 
-class MembersWorkboard(LateralMenuMixin, View):
+class MembersWorkboard(LateralMenuMembersMixin, View):
     template_name = 'workboards/members_workboard.html'
     perm_codename = None
     lm_active = 'lm_workboard'
@@ -155,7 +155,7 @@ class MembersWorkboard(LateralMenuMixin, View):
         return mlist
 
 
-class ManagersWorkboard(PermissionRequiredMixin, LateralMenuMixin, View):
+class ManagersWorkboard(ManagerMixin, View):
     template_name = 'workboards/managers_workboard.html'
     lm_active = 'lm_workboard'
 

@@ -15,7 +15,7 @@ shops_patterns = [
             path('update/', ShopUpdate.as_view(), name='url_shop_update'),
             path('checkup/', ShopCheckup.as_view(), name='url_shop_checkup'),
             path('workboard/', ShopWorkboard.as_view(),
-                 name='url_group_workboard'),
+                 name='url_shop_workboard'),
 
             # PRODUCTS
             path('products/', include([

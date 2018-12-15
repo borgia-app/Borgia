@@ -8,8 +8,7 @@ from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import GroupLateralMenuMixin
-from shops.mixins import ShopPermissionAndContextMixin
+from shops.mixins import ShopMixin
 from shops.models import Product
 from stocks.forms import (AdditionnalDataInventoryForm,
                           AdditionnalDataStockEntryForm,
@@ -20,7 +19,7 @@ from stocks.models import (Inventory, InventoryProduct, StockEntry,
                            StockEntryProduct)
 
 
-class StockEntryListView(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class StockEntryListView(ShopMixin, FormView):
     permission_required = 'stocks.view_stockentry'
     template_name = 'stocks/stockentry_list.html'
     form_class = StockEntryListDateForm
@@ -59,7 +58,7 @@ class StockEntryListView(ShopPermissionAndContextMixin, FormView, GroupLateralMe
         return query
 
 
-class StockEntryCreateView(ShopPermissionAndContextMixin, View, GroupLateralMenuMixin):
+class StockEntryCreateView(ShopMixin, View):
     """
     """
     permission_required = 'stocks.add_stockentry'
@@ -130,7 +129,7 @@ class StockEntryCreateView(ShopPermissionAndContextMixin, View, GroupLateralMenu
         )
 
 
-class StockEntryRetrieveView(ShopPermissionAndContextMixin, View, GroupLateralMenuMixin):
+class StockEntryRetrieveView(ShopMixin, View):
     permission_required = 'stocks.view_stockentry'
     template_name = 'stocks/stockentry_retrieve.html'
     lm_active = 'lm_stockentry_list'
@@ -163,7 +162,7 @@ class StockEntryRetrieveView(ShopPermissionAndContextMixin, View, GroupLateralMe
         return render(request, self.template_name, context=context)
 
 
-class InventoryListView(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class InventoryListView(ShopMixin, FormView):
     permission_required = 'stocks.view_inventory'
     template_name = 'stocks/inventory_list.html'
     form_class = InventoryListDateForm
@@ -202,7 +201,7 @@ class InventoryListView(ShopPermissionAndContextMixin, FormView, GroupLateralMen
         return query
 
 
-class InventoryCreateView(ShopPermissionAndContextMixin, View, GroupLateralMenuMixin):
+class InventoryCreateView(ShopMixin, View):
     """
     """
     permission_required = 'stocks.add_inventory'
@@ -280,7 +279,7 @@ class InventoryCreateView(ShopPermissionAndContextMixin, View, GroupLateralMenuM
             return self.get(request)
 
 
-class InventoryRetrieveView(ShopPermissionAndContextMixin, View, GroupLateralMenuMixin):
+class InventoryRetrieveView(ShopMixin, View):
     permission_required = 'stocks.view_inventory'
     template_name = 'stocks/inventory_retrieve.html'
     lm_active = 'lm_inventory_list'

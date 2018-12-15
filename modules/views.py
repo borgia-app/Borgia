@@ -8,20 +8,19 @@ from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import GroupLateralMenuMixin
 from configurations.utils import configurations_safe_get
 from finances.models import Sale, SaleProduct
 from modules.forms import (ModuleCategoryCreateForm,
                            ModuleCategoryCreateNameForm, ShopModuleConfigForm,
                            ShopModuleSaleForm)
+from modules.mixins import (ShopModuleCategoryMixin, ShopModuleMixin,
+                            ShopModulePermissionAndContextMixin)
 from modules.models import Category, CategoryProduct, SelfSaleModule
-from modules.mixins import (ShopModuleCategoryMixin,
-                           ShopModuleMixin)
 from shops.models import Product, Shop
 from users.models import User
 
 
-class ShopModuleSaleView(ShopModuleMixin, FormView, GroupLateralMenuMixin):
+class ShopModuleSaleView(ShopModulePermissionAndContextMixin, FormView):
     """
     Generic FormView for handling invoice concerning product bases through a
     shop.
@@ -149,7 +148,7 @@ def sale_shop_module_resume(request, sale, shop, module, success_url):
     return render(request, template_name, context=context)
 
 
-class SaleShopModuleResume(ShopModuleMixin, View, GroupLateralMenuMixin):
+class SaleShopModuleResume(ShopModulePermissionAndContextMixin, View):
     sale = None
     delay = None
     success_url = None
@@ -179,7 +178,7 @@ class SaleShopModuleResume(ShopModuleMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class ShopModuleConfigView(ShopModuleMixin, View, GroupLateralMenuMixin):
+class ShopModuleConfigView(ShopModuleMixin, View):
     """
     ConfigView for a shopModule.
     """
@@ -194,7 +193,7 @@ class ShopModuleConfigView(ShopModuleMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class ShopModuleConfigUpdateView(ShopModuleMixin, FormView, GroupLateralMenuMixin):
+class ShopModuleConfigUpdateView(ShopModuleMixin, FormView):
     """
     View to manage config of a self shop module.
     """
@@ -230,7 +229,7 @@ class ShopModuleConfigUpdateView(ShopModuleMixin, FormView, GroupLateralMenuMixi
         return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
 
 
-class ShopModuleCategoryBaseView(View, GroupLateralMenuMixin):
+class ShopModuleCategoryBaseView(View):
     """
     Base for shop module category views
     """

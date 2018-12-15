@@ -1,7 +1,6 @@
 import datetime
 import decimal
 
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import (MultipleObjectsReturned,
@@ -14,21 +13,20 @@ from django.utils.timezone import now
 from django.views.generic.base import View
 from django.views.generic.edit import FormView, UpdateView
 
-from borgia.utils import GroupLateralMenuMixin
+from borgia.mixins import ManagerMixin
 from configurations.utils import configurations_safe_get
 from finances.models import Sale
 from modules.models import CategoryProduct
 from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
                          ProductUpdatePriceForm, ShopCheckupSearchForm,
                          ShopCreateForm, ShopUpdateForm)
-from shops.mixins import (ProductPermissionAndContextMixin,
-                          ShopPermissionAndContextMixin)
+from shops.mixins import ProductMixin, ShopMixin
 from shops.models import Product, Shop
 from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
                          DEFAULT_PERMISSIONS_CHIEFS)
 
 
-class ShopCreate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+class ShopCreate(ManagerMixin, FormView):
     template_name = 'shops/shop_create.html'
     permission_required = 'shops.add_shop'
     lm_active = 'lm_shop_create'
@@ -99,7 +97,7 @@ class ShopCreate(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
         return reverse('url_shop_checkup', kwargs={'shop_pk': self.shop.pk})
 
 
-class ShopList(PermissionRequiredMixin, View, GroupLateralMenuMixin):
+class ShopList(ManagerMixin, View):
     """
     View that list the shops.
     """
@@ -114,7 +112,7 @@ class ShopList(PermissionRequiredMixin, View, GroupLateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class ShopUpdate(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class ShopUpdate(ShopMixin, FormView):
     template_name = 'shops/shop_update.html'
     permission_required = 'shops.change_shop'
     form_class = ShopUpdateForm
@@ -137,7 +135,7 @@ class ShopUpdate(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin)
         return reverse('url_shop_checkup', kwargs={'shop_pk': self.shop.pk})
 
 
-class ShopCheckup(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class ShopCheckup(ShopMixin, FormView):
     """
     Display data about a shop.
 
@@ -208,7 +206,7 @@ class ShopCheckup(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin
         }
 
 
-class ShopWorkboard(ShopPermissionAndContextMixin, View, GroupLateralMenuMixin):
+class ShopWorkboard(ShopMixin, View):
     permission_required = 'shops.view_shop'
     template_name = 'shops/shop_workboard.html'
     lm_active = 'lm_workboard'
@@ -271,7 +269,7 @@ class ShopWorkboard(ShopPermissionAndContextMixin, View, GroupLateralMenuMixin):
         return weeklist
 
 
-class ProductList(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class ProductList(ShopMixin, FormView):
     permission_required = 'shops.view_product'
     template_name = 'shops/product_list.html'
     lm_active = 'lm_product_list'
@@ -305,7 +303,7 @@ class ProductList(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin
         return query
 
 
-class ProductCreate(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class ProductCreate(ShopMixin, FormView):
     permission_required = 'shops.add_product'
     template_name = 'shops/product_create.html'
     form_class = ProductCreateForm
@@ -340,7 +338,7 @@ class ProductCreate(ShopPermissionAndContextMixin, FormView, GroupLateralMenuMix
             'product_pk': self.product.pk})
 
 
-class ProductDeactivate(ProductPermissionAndContextMixin, View, GroupLateralMenuMixin):
+class ProductDeactivate(ProductMixin, View):
     """
     Deactivate a product and redirect to the retrieve of the product.
     """
@@ -364,7 +362,7 @@ class ProductDeactivate(ProductPermissionAndContextMixin, View, GroupLateralMenu
                                         'product_pk': self.product.pk}))
 
 
-class ProductRemove(ProductPermissionAndContextMixin, View, GroupLateralMenuMixin):
+class ProductRemove(ProductMixin, View):
     """
     Remove a product and redirect to the list of products.
     """
@@ -386,7 +384,7 @@ class ProductRemove(ProductPermissionAndContextMixin, View, GroupLateralMenuMixi
         return redirect(reverse('url_product_list', kwargs={'shop_pk': self.shop.pk}))
 
 
-class ProductRetrieve(ProductPermissionAndContextMixin, View, GroupLateralMenuMixin):
+class ProductRetrieve(ProductMixin, View):
     """
     Retrieve a Product.
 
@@ -401,7 +399,7 @@ class ProductRetrieve(ProductPermissionAndContextMixin, View, GroupLateralMenuMi
         return render(request, self.template_name, context=context)
 
 
-class ProductUpdate(ProductPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class ProductUpdate(ProductMixin, FormView):
     """
     Update a product and redirect to the product.
 
@@ -430,7 +428,7 @@ class ProductUpdate(ProductPermissionAndContextMixin, FormView, GroupLateralMenu
                                'product_pk': self.product.pk})
 
 
-class ProductUpdatePrice(ProductPermissionAndContextMixin, FormView, GroupLateralMenuMixin):
+class ProductUpdatePrice(ProductMixin, FormView):
     """
     Update the price of a product and redirect to the product.
 

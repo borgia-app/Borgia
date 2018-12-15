@@ -6,7 +6,6 @@ import string
 
 import openpyxl
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -18,11 +17,10 @@ from django.utils.encoding import force_text
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (LateralMenuMixin,
-                          get_members_group, group_name_display,
+from borgia.mixins import ManagerMixin, MembersMixin, LateralMenuMembersMixin
+from borgia.utils import (get_members_group,
                           human_unused_permissions, permission_to_manage_group)
 from configurations.utils import configurations_safe_get
-from events.models import Event
 from users.forms import (GroupUpdateForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserDownloadXlsxForm,
                          UserSearchForm, UserUpdateForm, UserUploadXlsxForm)
@@ -30,7 +28,7 @@ from users.mixins import UserMixin
 from users.models import User
 
 
-class UserListView(PermissionRequiredMixin, FormView, LateralMenuMixin):
+class UserListView(MembersMixin, FormView):
     """
     List User instances.
 
@@ -126,7 +124,7 @@ class UserListView(PermissionRequiredMixin, FormView, LateralMenuMixin):
         return initial
 
 
-class UserCreateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, LateralMenuMixin):
+class UserCreateView(ManagerMixin, SuccessMessageMixin, FormView):
     """
     Create a new user and redirect to the workboard of the group.
 
@@ -179,7 +177,7 @@ class UserCreateView(PermissionRequiredMixin, SuccessMessageMixin, FormView, Lat
             return reverse('url_managers_workboard')
 
 
-class UserRetrieveView(UserMixin, View, LateralMenuMixin):
+class UserRetrieveView(UserMixin, View):
     """
     Retrieve a User instance.
 
@@ -192,7 +190,7 @@ class UserRetrieveView(UserMixin, View, LateralMenuMixin):
         return render(request, self.template_name, context=context)
 
 
-class UserUpdateView(UserMixin, SuccessMessageMixin, FormView, LateralMenuMixin):
+class UserUpdateView(UserMixin, SuccessMessageMixin, FormView):
     """
     Update an user and redirect to the workboard of the group.
 
@@ -233,7 +231,7 @@ class UserUpdateView(UserMixin, SuccessMessageMixin, FormView, LateralMenuMixin)
                        kwargs={'user_pk': self.user.pk})
 
 
-class UserDeactivateView(UserMixin, View, LateralMenuMixin):
+class UserDeactivateView(UserMixin, View):
     """
     Deactivate a user and redirect to the workboard of the group.
 
@@ -294,7 +292,7 @@ class UserDeactivateView(UserMixin, View, LateralMenuMixin):
         return redirect(force_text(self.success_url))
 
 
-class UserSelfUpdateView(SuccessMessageMixin, FormView, LateralMenuMixin):
+class UserSelfUpdateView(LateralMenuMembersMixin, SuccessMessageMixin, FormView):
     template_name = 'users/user_self_update.html'
     form_class = SelfUserUpdateForm
 
@@ -327,8 +325,7 @@ class UserSelfUpdateView(SuccessMessageMixin, FormView, LateralMenuMixin):
         return "Vos infos ont bien été mises à jour"
 
 
-class GroupUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
-                      LateralMenuMixin):
+class GroupUpdateView(ManagerMixin, SuccessMessageMixin, FormView):
     template_name = 'users/group_update.html'
     success_url = None
     form_class = GroupUpdateForm
@@ -430,7 +427,7 @@ class GroupUpdateView(PermissionRequiredMixin, SuccessMessageMixin, FormView,
         return reverse('url_managers_workboard')
 
 
-class UserUploadXlsxView(PermissionRequiredMixin, FormView, LateralMenuMixin):
+class UserUploadXlsxView(ManagerMixin, FormView):
     """
     Download/Upload Excel for adding users.
     """
@@ -589,7 +586,7 @@ class UserUploadXlsxView(PermissionRequiredMixin, FormView, LateralMenuMixin):
         return reverse('url_user_list')
 
 
-class UserAddByListXlsxDownload(PermissionRequiredMixin, View, LateralMenuMixin):
+class UserAddByListXlsxDownload(ManagerMixin, View):
     """
     Download Excel for adding users.
     """

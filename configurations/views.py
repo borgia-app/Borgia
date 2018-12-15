@@ -1,10 +1,9 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
-from borgia.utils import GroupLateralMenuMixin
+from configurations.mixins import ConfigurationMixin
 from configurations.forms import (ConfigurationBalanceForm,
                                   ConfigurationCenterForm,
                                   ConfigurationLydiaForm,
@@ -12,7 +11,7 @@ from configurations.forms import (ConfigurationBalanceForm,
 from configurations.utils import configurations_safe_get
 
 
-class ConfigurationIndexView(PermissionRequiredMixin, TemplateView, GroupLateralMenuMixin):
+class ConfigurationIndexView(ConfigurationMixin, TemplateView):
     """
     View to manage config of the application.
 
@@ -40,7 +39,7 @@ class ConfigurationIndexView(PermissionRequiredMixin, TemplateView, GroupLateral
         return context
 
 
-class ConfigurationChangeBaseView(PermissionRequiredMixin, FormView, GroupLateralMenuMixin):
+class ConfigurationChangeBaseView(ConfigurationMixin, FormView):
     """
     Override this base view for configuration changes.
     """
