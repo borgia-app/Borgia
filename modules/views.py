@@ -119,8 +119,6 @@ class ShopModuleSaleView(ShopModuleMixin, FormView, GroupLateralMenuMixin):
 def sale_shop_module_resume(request, sale, shop, module, success_url):
     template_name = 'modules/shop_module_sale_resume.html'
 
-    # Context construction, based on LateralMenuViewMixin and
-    # GroupPermissionMixin in borgia.utils
     context = {
         'shop': shop,
         'module': module,

@@ -60,7 +60,6 @@ class Shop(models.Model):
         return managers
 
 
-
 class Product(models.Model):
     """
     Define a Product object.

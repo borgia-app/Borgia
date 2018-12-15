@@ -41,10 +41,6 @@ def lateral_menu(user, group, active=None):
 
     nav_tree = []
 
-    # If Gadzart, simplify the menu
-    # if group.name == INTERNALS_GROUP_NAME:
-    return lateral_menu_members(user, active)
-
     # Groups of the user
     if lateral_menu_user_groups(user) is not None:
         nav_tree.append(
@@ -278,96 +274,6 @@ def lateral_menu(user, group, active=None):
     return nav_tree
 
 
-def lateral_menu_members(user, active=None):
-    """
-    - List of self sale modules
-    - Lydia credit
-    - Transferts
-    - History of transactions
-    - Shared events
-    """
-
-    nav_tree = []
-
-    list_selfsalemodule = []
-    for shop in Shop.objects.all().exclude(pk=1):
-        try:
-            module_sale = SelfSaleModule.objects.get(shop=shop)
-            if module_sale.state is True:
-                if user.has_perm('modules.use_selfsalemodule'):
-                    list_selfsalemodule.append(shop)
-        except ObjectDoesNotExist:
-            pass
-
-    # Groups of the user
-    if lateral_menu_user_groups(user) is not None:
-        nav_tree.append(
-            lateral_menu_user_groups(user)
-        )
-
-    nav_tree.append(
-        simple_lateral_link(
-            'Accueil ' + INTERNALS_GROUP_NAME,
-            'briefcase',
-            'lm_workboard',
-            reverse('url_members_workboard')))
-
-    for shop in list_selfsalemodule:
-        nav_tree.append(
-            simple_lateral_link(
-                'Vente directe ' + shop.name.title(),
-                'shopping-basket',
-                # Not currently used in modules.view
-                'lm_selfsale_interface_module_' + shop.name,
-                reverse('url_shop_module_sale', kwargs={
-                        'shop_pk': shop.pk, 'module_class': 'self_sales'})
-            ))
-
-    nav_tree.append(
-        simple_lateral_link(
-            'Rechargement de compte',
-            'credit-card',
-            'lm_self_lydia_create',
-            reverse('url_self_lydia_create')))
-
-    if user.has_perm('finances.add_transfert'):
-        nav_tree.append(
-            simple_lateral_link(
-                'Transfert',
-                'exchange',
-                'lm_self_transfert_create',
-                reverse('url_self_transfert_create')))
-
-    nav_tree.append(
-        simple_lateral_link(
-            'Historique des transactions',
-            'history',
-            'lm_self_transaction_list',
-            reverse('url_self_transaction_list')))
-
-    if user.has_perm('events.view_event'):
-        nav_tree.append(
-            simple_lateral_link(
-                'Évènements',
-                'calendar',
-                'lm_event_list',
-                reverse('url_event_list')))
-
-    if active is not None:
-        for link in nav_tree:
-            try:
-                for sub in link['subs']:
-                    if sub['id'] == active:
-                        sub['active'] = True
-                        break
-            except KeyError:
-                if link['id'] == active:
-                    link['active'] = True
-                    break
-
-    return nav_tree
-
-
 def lateral_menu_model(model, group):
     """
     Build the object tree related to a model used to generate the lateral menu
@@ -591,97 +497,6 @@ class GroupLateralMenuMixin(ContextMixin):
             pass
         except ObjectDoesNotExist:
             pass
-        return context
-
-
-class LateralMenuMixin(ContextMixin):
-    lm_active = None
-
-    def __init__(self):
-        self.request = None
-        self.kwargs = None
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['nav_tree'] = lateral_menu_members(
-            self.request.user,
-            self.lm_active)
-        return context
-
-
-class GroupPermissionMixin(object):
-    kwargs = None
-    perm_codename = None
-    group = None
-    success_url = None
-    request = None
-
-    def dispatch(self, request, *args, **kwargs):
-        """
-        Check permissions for the view regarding a group.
-
-        :param request:
-        :param kwargs: ['group_name'] name of the group
-        :raises: Http404 if group_name not given
-        :raises: Http404 if group_name doesn't match a group
-        :raises: Http404 if codename doesn't match a permission
-        :raises: PermissionDenied if the group doesn't have the permission to access
-        the view
-        :raises: PermissionDenied if the user is not in the group
-        :raises: Http404 if the group doesn't have a workboard to redirect to
-
-        Define the self.success_url based on the group.
-        perm_codename: codename of the permission to be
-        checked
-
-        :note:: self.success_url is defined here, even if not used in the
-        original view, for instance when there is no form.
-        """
-        try:
-            group = Group.objects.get(name=self.kwargs['group_name'])
-            self.group = group
-            try:
-                if group not in request.user.groups.all():
-                    raise PermissionDenied
-                if self.perm_codename:
-                    permission = Permission.objects.get(
-                        codename=self.perm_codename)
-                    if permission not in group.permissions.all():
-                        raise PermissionDenied
-
-            except ObjectDoesNotExist:
-                raise Http404
-        except KeyError:
-            raise Http404
-        except ObjectDoesNotExist:
-            raise Http404
-
-        try:
-            self.success_url = reverse(
-                'url_group_workboard',
-                kwargs={'group_name': self.kwargs['group_name']})
-        except NoReverseMatch:
-            raise Http404
-
-        return super().dispatch(request, *args, **kwargs)
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['group'] = self.group
-
-        if (self.request.user.groups.all().exclude(
-                pk__in=[1, 5, 6]).count() > 0):
-            context['first_job'] = self.request.user.groups.all().exclude(
-                pk__in=[1, 5, 6])[0]
-        context['list_selfsalemodule'] = []
-
-        for shop in Shop.objects.all().exclude(pk=1):
-            try:
-                module_sale = SelfSaleModule.objects.get(shop=shop)
-                if module_sale.state is True:
-                    context['list_selfsalemodule'].append(shop)
-            except ObjectDoesNotExist:
-                pass
         return context
 
 

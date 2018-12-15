@@ -4,6 +4,7 @@ from django.http import Http404
 from modules.models import OperatorSaleModule, SelfSaleModule, Category
 from shops.mixins import ShopPermissionAndContextMixin
 
+
 class ShopModuleMixin(ShopPermissionAndContextMixin):
     """
     Mixin for Module Shop views.

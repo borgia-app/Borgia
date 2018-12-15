@@ -18,7 +18,7 @@ from django.utils.encoding import force_text
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupPermissionMixin, LateralMenuMixin,
+from borgia.utils import (LateralMenuMixin,
                           get_members_group, group_name_display,
                           human_unused_permissions, permission_to_manage_group)
 from configurations.utils import configurations_safe_get
