@@ -1,8 +1,7 @@
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.http import Http404
-from django.urls import NoReverseMatch, reverse
+from django.core.exceptions import ObjectDoesNotExist
+from django.urls import reverse
 from django.views.generic.base import ContextMixin
 
 from events.models import Event
@@ -34,9 +33,9 @@ def lateral_menu(user, group, active=None):
     # TODO: try for reverse urls
 
     models_checked = [
-        (User, 'Utilisateurs', 'user', 'noSubs', 'List'),
-        (Shop, 'Magasins', 'shopping-basket', 'noSubs', 'List'),
-        (Event, 'Evènements', 'calendar', 'noSubs', 'List'),
+        (User, 'Utilisateurs', 'user'),
+        (Shop, 'Magasins', 'shopping-basket'),
+        (Event, 'Evènements', 'calendar'),
     ]
 
     nav_tree = []
@@ -55,11 +54,6 @@ def lateral_menu(user, group, active=None):
             'lm_workboard',
             reverse('url_managers_workboard', kwargs={'group_name': group.name})))
 
-    # Models
-    for model in models_checked:
-        if lateral_menu_model(model, group) is not None:
-            nav_tree.append(lateral_menu_model(model, group))
-
     # Groups management
     nav_management_groups = {
         'label': 'Gestion des groupes',
@@ -67,22 +61,21 @@ def lateral_menu(user, group, active=None):
         'id': 'lm_group_management',
         'subs': []
     }
-    for g in Group.objects.all():
-        if permission_to_manage_group(g)[0] in group.permissions.all():
-            nav_management_groups['subs'].append(simple_lateral_link(
-                'Gestion ' + group_name_display(g),
-                'users',
-                'lm_group_manage_' + g.name,
-                reverse('url_group_update', kwargs={
-                    'group_name': group.name,
-                    'pk': g.pk})
-            ))
+    for group in Group.objects.all():
+        if user.has_perm(get_permission_name_group_managing(group)):
+            nav_management_groups['subs'].append(
+                    simple_lateral_link(
+                    'Gestion ' + group_name_display(group),
+                    'users',
+                    'lm_group_manage_' + group.name,
+                    reverse('url_group_update', kwargs={
+                        'group_name': group.name,
+                        'pk': group.pk})
+                ))
     if len(nav_management_groups['subs']) > 1:
         nav_tree.append(nav_management_groups)
     elif len(nav_management_groups['subs']) == 1:
         nav_tree.append(nav_management_groups['subs'][0])
-    else:
-        pass
 
     # Functions
 
@@ -110,8 +103,8 @@ def lateral_menu(user, group, active=None):
 
     # List sales
     nav_sale_lists = {
-        'label': 'Ventes',
-        'icon': 'shopping-cart',
+        'label': 'Finances',
+        'icon': 'database',
         'id': 'lm_sale_lists',
         'subs': []
     }
@@ -129,52 +122,6 @@ def lateral_menu(user, group, active=None):
                 )
             ))
     except ObjectDoesNotExist:
-        pass
-
-    # List rechargings
-    try:
-        if (Permission.objects.get(codename='view_recharging')
-                in group.permissions.all()):
-            nav_sale_lists['subs'].append(simple_lateral_link(
-                label='Rechargements',
-                fa_icon='money',
-                id_link='lm_recharging_list',
-                url=reverse('url_recharging_list')
-            ))
-    except ObjectDoesNotExist:
-        pass
-
-    # List transferts
-    try:
-        if (Permission.objects.get(codename='view_transfert')
-                in group.permissions.all()):
-            nav_sale_lists['subs'].append(simple_lateral_link(
-                label='Transferts',
-                fa_icon='exchange',
-                id_link='lm_transfert_list',
-                url=reverse('url_transfert_list')
-            ))
-    except ObjectDoesNotExist:
-        pass
-
-    # List exceptionnal movements
-    try:
-        if (Permission.objects.get(codename='view_exceptionnalmovement')
-                in group.permissions.all()):
-            nav_sale_lists['subs'].append(simple_lateral_link(
-                label='Exceptionnels',
-                fa_icon='exclamation-triangle',
-                id_link='lm_exceptionnalmovement_list',
-                url=reverse('url_exceptionnalmovement_list')
-            ))
-    except ObjectDoesNotExist:
-        pass
-
-    if len(nav_sale_lists['subs']) > 1:
-        nav_tree.append(nav_sale_lists)
-    elif len(nav_sale_lists['subs']) == 1:
-        nav_tree.append(nav_sale_lists['subs'][0])
-    else:
         pass
 
     # module of shop
@@ -240,21 +187,6 @@ def lateral_menu(user, group, active=None):
     except ValueError:
         pass
 
-    # Global config
-    try:
-        if (Permission.objects.get(codename='change_setting')
-                in group.permissions.all()):
-            nav_tree.append(simple_lateral_link(
-                label='Configuration',
-                fa_icon='cogs',
-                id_link='lm_global_config',
-                url=reverse(
-                    'url_index_config',
-                    kwargs={'group_name': group.name})
-            ))
-    except ObjectDoesNotExist:
-        pass
-
     if active is not None:
         for link in nav_tree:
             try:
@@ -272,85 +204,6 @@ def lateral_menu(user, group, active=None):
                     break
 
     return nav_tree
-
-
-def lateral_menu_model(model, group):
-    """
-    Build the object tree related to a model used to generate the lateral menu
-    in the template lateral_menu.html.
-
-    This function checks permissions of the group regarding the model,
-    concerning the following actions :
-        - list instances of model,
-        - create instance of model
-
-    :param model: Model to be used, mandatory. id/id_link: Id used in the nav tree, mandatory.
-                                               fa_icon: Font Awesome icon used
-    :param group: Group whose permissions are checked, mandatory.
-    :type model: Model object
-    :type group: Group object
-    """
-    if model[2]:
-        fa_icon = model[2]
-    else:
-        fa_icon = "database"
-
-    if 'noSubs' in model:
-        model_tree = {
-            'label': model[1],
-            'icon': fa_icon,
-            'id': 'lm_' + model[0]._meta.model_name,
-            'url': '',
-            'subs': []
-        }
-    else:
-        model_tree = {
-            'label': model[1],
-            'icon': fa_icon,
-            'id': 'lm_' + model[0]._meta.model_name,
-            'subs': []
-        }
-
-    if 'Add' in model:
-        add_permission = Permission.objects.get(
-            codename='add_' + model[0]._meta.model_name)
-
-        if add_permission in group.permissions.all():
-            model_tree['subs'].append({
-                'label': 'Nouveau',
-                'icon': 'plus',
-                'id': 'lm_' + model[0]._meta.model_name + '_create',
-                'url': reverse(
-                    'url_' + model[0]._meta.model_name + '_create',
-                    kwargs={'group_name': group.name})
-            })
-
-    if 'List' in model:
-        list_permission = Permission.objects.get(
-            codename='list_' + model[0]._meta.model_name)
-
-        if list_permission in group.permissions.all():
-            if 'noSubs' in model:
-                model_tree['url'] = reverse('url_' + model[0]._meta.model_name + '_list',
-                                            kwargs={'group_name': group.name})
-                model_tree['id'] = 'lm_' + model[0]._meta.model_name + '_list'
-            else:
-                model_tree['subs'].append({
-                    'label': 'Liste',
-                    'icon': 'list',
-                    'id': 'lm_' + model[0]._meta.model_name + '_list',
-                    'url': reverse(
-                        'url_' + model[0]._meta.model_name + '_list',
-                        kwargs={'group_name': group.name})
-                })
-        else:
-            return None
-
-    if len(model_tree['subs']) > 0 or 'noSubs' in model:
-        return model_tree
-    else:
-        return None
-
 
 def lateral_menu_stock(group):
     """
@@ -502,14 +355,16 @@ class GroupLateralMenuMixin(ContextMixin):
 
 def permission_to_manage_group(group):
     """
-    Récupère la permission qui permet de gérer le groupe 'group'
-    Utilisable directement dans has_perm
-    :param group:
-    :return: (objet permission, permission name formatée pour has_perm)
+    DEPRECATED.
+    Get Permission to manage group.
     """
     perm = Permission.objects.get(codename=('manage_'+group.name+'_group'))
     perm_name = 'users.' + perm.codename
     return perm, perm_name
+
+
+def get_permission_name_group_managing(group):
+    return 'users.manage_' + group.name + '_group'
 
 
 def shop_from_group(group):

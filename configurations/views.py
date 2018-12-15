@@ -23,7 +23,7 @@ class ConfigurationIndexView(PermissionRequiredMixin, TemplateView, GroupLateral
     """
     permission_required = 'configurations.view_configuration'
     template_name = 'configurations/global_config.html'
-    lm_active = 'lm_global_config'
+    lm_active = 'lm_index_config'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)

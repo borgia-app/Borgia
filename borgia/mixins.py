@@ -1,9 +1,11 @@
-from django.core.exceptions import ImproperlyConfigured
+from django.contrib.auth.models import Group
 from django.urls import reverse
 from django.views.generic.base import ContextMixin
 
-from borgia.utils import INTERNALS_GROUP_NAME, simple_lateral_link
-from modules.models import OperatorSaleModule, SelfSaleModule
+from borgia.utils import (INTERNALS_GROUP_NAME,
+                          get_permission_name_group_managing,
+                          group_name_display, simple_lateral_link)
+from modules.models import SelfSaleModule
 
 
 class LateralMenuBaseMixin(ContextMixin):
@@ -39,6 +41,7 @@ class LateralMenuMembersMixin(LateralMenuBaseMixin):
     Lateral Menu for members.
 
     Add :
+    - Home page members
     - List of self sale modules
     - Lydia credit
     - Transferts
@@ -52,7 +55,7 @@ class LateralMenuMembersMixin(LateralMenuBaseMixin):
 
         nav_tree.append(
             simple_lateral_link(
-                'Accueil ' + INTERNALS_GROUP_NAME,
+                'Acceuil ' + INTERNALS_GROUP_NAME,
                 'briefcase',
                 'lm_workboard',
                 reverse('url_members_workboard')))
@@ -105,6 +108,133 @@ class LateralMenuMembersMixin(LateralMenuBaseMixin):
                     'calendar',
                     'lm_event_list',
                     reverse('url_event_list')))
+
+        if self.lm_active is not None:
+            for link in nav_tree:
+                try:
+                    for sub in link['subs']:
+                        if sub['id'] == self.lm_active:
+                            sub['active'] = True
+                            break
+                except KeyError:
+                    if link['id'] == self.lm_active:
+                        link['active'] = True
+                        break
+        return nav_tree
+
+
+class LateralMenuManagersMixin(LateralMenuBaseMixin):
+    """
+    Lateral Menu for association managers.
+
+    Add :
+    - Home page managers
+    - Users page (list)
+    - Shops page (list)
+    - Events page (list)
+    - Groups Management
+    - Transferts List
+    - Rechargings List
+    - ExceptionnalMovements List
+    - Configuration
+    """
+
+    def lateral_menu(self):
+        nav_tree = super().lateral_menu()
+        user = self.request.user
+
+        nav_tree.append(
+            simple_lateral_link(
+                'Accueil Managers',
+                'briefcase',
+                'lm_workboard',
+                reverse('url_managers_workboard')))
+
+        if user.has_perm('users.view_user'):
+            nav_tree.append(
+                simple_lateral_link(
+                    'Utilisateurs',
+                    'user',
+                    'lm_user_list',
+                    reverse('url_user_list'))
+            )
+
+        if user.has_perm('shops.view_shop'):
+            nav_tree.append(
+                simple_lateral_link(
+                    'Magasins',
+                    'shopping-basket',
+                    'lm_shop_list',
+                    reverse('url_shop_list'))
+            )
+
+        if user.has_perm('events.view_event'):
+            nav_tree.append(
+                simple_lateral_link(
+                    'Evenements',
+                    'calendar',
+                    'lm_event_list',
+                    reverse('url_event_list'))
+            )
+
+        # Groups management
+        nav_management_groups = {
+            'label': 'Gestion des groupes',
+            'icon': 'users',
+            'id': 'lm_group_management',
+            'subs': []
+        }
+        for group in Group.objects.all():
+            if user.has_perm(get_permission_name_group_managing(group)):
+                nav_management_groups['subs'].append(
+                        simple_lateral_link(
+                        'Gestion ' + group_name_display(group),
+                        'users',
+                        'lm_group_manage_' + group.name,
+                        reverse('url_group_update', kwargs={
+                            'group_name': group.name,
+                            'pk': group.pk})
+                    ))
+        if len(nav_management_groups['subs']) > 1:
+            nav_tree.append(nav_management_groups)
+        elif len(nav_management_groups['subs']) == 1:
+            nav_tree.append(nav_management_groups['subs'][0])
+
+        # List rechargings
+        if user.has_perm('finances.view_recharging'):
+            nav_tree.append(simple_lateral_link(
+                label='Rechargements',
+                fa_icon='money',
+                id_link='lm_recharging_list',
+                url=reverse('url_recharging_list')
+            ))
+
+        # List transferts
+        if user.has_perm('finances.view_transfert'):
+            nav_tree.append(simple_lateral_link(
+                label='Rechargements',
+                fa_icon='exchange',
+                id_link='lm_transfert_list',
+                url=reverse('url_transfert_list')
+            ))
+
+        # List transferts
+        if user.has_perm('finances.view_exceptionnalmovement'):
+            nav_tree.append(simple_lateral_link(
+                label='Rechargements',
+                fa_icon='exclamation-triangle',
+                id_link='lm_exceptionnalmovement_list',
+                url=reverse('url_exceptionnalmovement_list')
+            ))
+
+        # Global config
+        if user.has_perm('configurations.change_configuration'):
+            nav_tree.append(simple_lateral_link(
+                label='Configuration',
+                fa_icon='cogs',
+                id_link='lm_index_config',
+                url=reverse('url_index_config')
+            ))
 
         if self.lm_active is not None:
             for link in nav_tree:
