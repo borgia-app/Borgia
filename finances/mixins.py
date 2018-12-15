@@ -2,11 +2,13 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
 from finances.models import Sale
-from shops.mixins import ShopPermissionAndContextMixin
+from shops.mixins import ShopPermissionAndContextMixin, LateralMenuShopsMixin
 
 
-class SaleMixin(ShopPermissionAndContextMixin):
-
+class SalePermissionAndContextMixin(ShopPermissionAndContextMixin):
+    """
+    Mixin that check permission and give context for sales
+    """
     def add_sale_object(self):
         """
         Define Sale object.
@@ -31,3 +33,9 @@ class SaleMixin(ShopPermissionAndContextMixin):
         context = super().get_context_data(**kwargs)
         context['sale'] = self.sale
         return context
+
+
+class SaleMixin(SalePermissionAndContextMixin, LateralMenuShopsMixin):
+    """
+    Mixin that check permission, give context for sales and add SHOPS lateral menu.
+    """

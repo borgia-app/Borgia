@@ -1,11 +1,11 @@
 from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.http import Http404
 
-from modules.models import OperatorSaleModule, SelfSaleModule, Category
-from shops.mixins import ShopPermissionAndContextMixin
+from modules.models import Category, OperatorSaleModule, SelfSaleModule
+from shops.mixins import LateralMenuShopsMixin, ShopPermissionAndContextMixin
 
 
-class ShopModuleMixin(ShopPermissionAndContextMixin):
+class ShopModulePermissionAndContextMixin(ShopPermissionAndContextMixin):
     """
     Mixin for Module Shop views.
     For Permission :
@@ -79,7 +79,7 @@ class ShopModuleMixin(ShopPermissionAndContextMixin):
             )
 
 
-class ShopModuleCategoryMixin(ShopModuleMixin):
+class ShopModuleCategoryPermissionAndContextMixin(ShopModulePermissionAndContextMixin):
     """
     """
 
@@ -106,3 +106,15 @@ class ShopModuleCategoryMixin(ShopModuleMixin):
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
         return context
+
+
+class ShopModuleMixin(ShopModulePermissionAndContextMixin, LateralMenuShopsMixin):
+    """
+    Mixin that check permission, give context for shop modules and add SHOPS lateral menu.
+    """
+
+
+class ShopModuleCategoryMixin(ShopModuleCategoryPermissionAndContextMixin, LateralMenuShopsMixin):
+    """
+    Mixin that check permission, give context for shop module categories and add SHOPS lateral menu.
+    """
