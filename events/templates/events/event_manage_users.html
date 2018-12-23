@@ -47,12 +47,12 @@
     <p>
         {% if not done %}
             {% if state == "users" %}
-            <a class="btn btn-danger" href="{% url 'url_event_remove_user' group_name=group.name pk=pk user_pk='ALL' %}?state={{ state }}&order_by={{ order_by }}">
+            <a class="btn btn-danger" href="{% url 'url_event_remove_user' pk=pk user_pk='ALL' %}?state={{ state }}&order_by={{ order_by }}">
               Supprimer tous les utilisateurs
             </a>
             {% else %}
               <a class="btn btn-warning"
-              href="{% url 'url_event_remove_user' group_name=group.name pk=pk user_pk='ALL' %}?state={{ state }}&order_by={{ order_by }}">
+              href="{% url 'url_event_remove_user' pk=pk user_pk='ALL' %}?state={{ state }}&order_by={{ order_by }}">
               RAZ de tous les users</a>
             {% endif %}
         {% endif %}
@@ -155,10 +155,10 @@
                 <td>
                   {% if state == 'users' %}
                       <a class="btn btn-small btn-danger"
-                      href="{% url 'url_event_remove_user' group_name=group.name pk=pk user_pk=u.0.pk %}?state={{ state }}&order_by={{ order_by }}">Supprimer</a>
+                      href="{% url 'url_event_remove_user' pk=pk user_pk=u.0.pk %}?state={{ state }}&order_by={{ order_by }}">Supprimer</a>
                   {% else %}
                       <a class="btn btn-small btn-warning"
-                      href="{% url 'url_event_remove_user' group_name=group.name pk=pk user_pk=u.0.pk %}?state={{ state }}&order_by={{ order_by }}">RAZ</a>
+                      href="{% url 'url_event_remove_user' pk=pk user_pk=u.0.pk %}?state={{ state }}&order_by={{ order_by }}">RAZ</a>
                   {% endif %}
                 </td>
               {% endif %}
