@@ -67,10 +67,10 @@ class CategoryProduct(models.Model):
 
 
 class Module(models.Model):
+    state = models.BooleanField('Activé', default=False)
+
     class Meta:
         abstract = True
-
-    state = models.BooleanField('Activé', default=False)
 
 
 class ShopModule(Module):
@@ -86,9 +86,6 @@ class ShopModule(Module):
     :type limit_purchase: Float (Decimal).
     :type logout_post_purchase: Boolean.
     """
-    class Meta:
-        abstract = True
-
     shop = models.ForeignKey(
         Shop,
         related_name='%(app_label)s_%(class)s_shop',
@@ -108,6 +105,9 @@ class ShopModule(Module):
                                          blank=True, null=True)
     logout_post_purchase = models.BooleanField('Deconnexion après une vente',
                                                default=False)
+
+    class Meta:
+        abstract = True
 
 
 class SelfSaleModule(ShopModule):
