@@ -170,3 +170,22 @@ class EventDeleteViewTests(BaseFocusEventViewsTestCase):
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
+
+
+class EventManageUsersTests(BaseFocusEventViewsTestCase):
+    url_view = 'url_event_manage_users'
+
+    def test_as_president_get(self):
+        super().as_president_get()
+
+    def test_as_manager_get(self):
+        super().as_manager_get()
+
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
+        
+    def test_not_existing_event_get(self):
+        super().not_existing_event_get()
+
+    def test_offline_user_redirection(self):
+        super().offline_user_redirection()
