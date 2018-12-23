@@ -2,10 +2,10 @@ from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.http import Http404
 
 from modules.models import Category, OperatorSaleModule, SelfSaleModule
-from shops.mixins import LateralMenuShopsMixin, ShopPermissionAndContextMixin
+from shops.mixins import ShopMixin
 
 
-class ShopModulePermissionAndContextMixin(ShopPermissionAndContextMixin):
+class ShopModuleMixin(ShopMixin):
     """
     Mixin for Module Shop views.
     For Permission :
@@ -43,7 +43,7 @@ class ShopModulePermissionAndContextMixin(ShopPermissionAndContextMixin):
     def verify_permission(self, permission_required):
         if permission_required is None:
             raise ImproperlyConfigured(
-                '{0} is missing the permission_required_... attribute. Define {0}.permission_required_..., or override '
+                '{0} is missing the permission_required_self/operator attribute. Define {0}.permission_required_self/operator, or override '
                 '{0}.get_permission_required().'.format(self.__class__.__name__)
             )
         if isinstance(permission_required, str):
@@ -79,7 +79,7 @@ class ShopModulePermissionAndContextMixin(ShopPermissionAndContextMixin):
             )
 
 
-class ShopModuleCategoryPermissionAndContextMixin(ShopModulePermissionAndContextMixin):
+class ShopModuleCategoryMixin(ShopModuleMixin):
     """
     """
 
@@ -106,15 +106,3 @@ class ShopModuleCategoryPermissionAndContextMixin(ShopModulePermissionAndContext
         context = super().get_context_data(**kwargs)
         context['category'] = self.category
         return context
-
-
-class ShopModuleMixin(ShopModulePermissionAndContextMixin, LateralMenuShopsMixin):
-    """
-    Mixin that check permission, give context for shop modules and add SHOPS lateral menu.
-    """
-
-
-class ShopModuleCategoryMixin(ShopModuleCategoryPermissionAndContextMixin, LateralMenuShopsMixin):
-    """
-    Mixin that check permission, give context for shop module categories and add SHOPS lateral menu.
-    """

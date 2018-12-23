@@ -5,6 +5,7 @@ import operator
 
 from django.conf import settings
 from django.contrib.auth import authenticate
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
@@ -14,15 +15,15 @@ from django.shortcuts import HttpResponse, render
 from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import FormView, View
 
-from borgia.mixins import LateralMenuMembersMixin, ManagerMixin
+from borgia.mixins import LateralMenuMixin
+from borgia.views import BorgiaFormView, BorgiaView
 from configurations.models import Configuration
 from configurations.utils import configurations_safe_get
 from finances.forms import (ExceptionnalMovementForm,
                             GenericListSearchDateForm, RechargingCreateForm,
-                            RechargingListForm,
-                            SelfLydiaCreateForm, SelfTransfertCreateForm)
+                            RechargingListForm, SelfLydiaCreateForm,
+                            SelfTransfertCreateForm)
 from finances.mixins import SaleMixin
 from finances.models import (Cash, Cheque, ExceptionnalMovement,
                              LydiaFaceToFace, LydiaOnline, Recharging, Sale,
@@ -32,7 +33,7 @@ from users.mixins import UserMixin
 from users.models import User
 
 
-class SaleList(ShopMixin, FormView):
+class SaleList(ShopMixin, BorgiaFormView):
     """
     View to list sales.
 
@@ -44,6 +45,7 @@ class SaleList(ShopMixin, FormView):
     TransfertList and ExceptionnalMovementList).
     """
     permission_required = 'finances.view_sale'
+    menu_type = 'shops'
     template_name = 'finances/sale_shop_list.html'
     form_class = GenericListSearchDateForm
     lm_active = 'lm_sale_list'
@@ -136,7 +138,7 @@ class SaleList(ShopMixin, FormView):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class SaleRetrieve(SaleMixin, View):
+class SaleRetrieve(SaleMixin, BorgiaView):
     """
     Retrieve a sale.
 
@@ -145,6 +147,7 @@ class SaleRetrieve(SaleMixin, View):
     ExceptionnalMovementRetrieve).
     """
     permission_required = 'finances.view_sale'
+    menu_type = 'shops'
     template_name = 'finances/sale_retrieve.html'
 
     def get(self, request, *args, **kwargs):
@@ -152,7 +155,7 @@ class SaleRetrieve(SaleMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class RechargingList(ManagerMixin, FormView):
+class RechargingList(PermissionRequiredMixin, BorgiaFormView):
     """
     View to list recharging sales.
 
@@ -162,6 +165,7 @@ class RechargingList(ManagerMixin, FormView):
     ExceptionnalMovementList).
     """
     permission_required = 'finances.view_recharging'
+    menu_type = 'managers'
     template_name = 'finances/recharging_list.html'
     form_class = RechargingListForm
     lm_active = 'lm_recharging_list'
@@ -281,7 +285,7 @@ class RechargingList(ManagerMixin, FormView):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class RechargingRetrieve(ManagerMixin, View):
+class RechargingRetrieve(PermissionRequiredMixin, BorgiaView):
     """
     Retrieve a recharging sale.
 
@@ -289,6 +293,7 @@ class RechargingRetrieve(ManagerMixin, View):
     TransfertRetrieve, ExceptionnalMovementRetrieve).
     """
     permission_required = 'finances.view_recharging'
+    menu_type = 'managers'
     template_name = 'finances/recharging_retrieve.html'
 
     def __init__(self):
@@ -319,7 +324,7 @@ class RechargingRetrieve(ManagerMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class TransfertList(ManagerMixin, FormView):
+class TransfertList(PermissionRequiredMixin, BorgiaFormView):
     """
     View to list transfert sales.
 
@@ -329,6 +334,7 @@ class TransfertList(ManagerMixin, FormView):
     ExceptionnalMovementList).
     """
     permission_required = 'finances.view_transfert'
+    menu_type = 'managers'
     template_name = 'finances/transfert_list.html'
     form_class = GenericListSearchDateForm
     lm_active = 'lm_transfert_list'
@@ -381,7 +387,7 @@ class TransfertList(ManagerMixin, FormView):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class TransfertRetrieve(ManagerMixin, View):
+class TransfertRetrieve(PermissionRequiredMixin, BorgiaView):
     """
     Retrieve a transfert sale.
 
@@ -390,6 +396,7 @@ class TransfertRetrieve(ManagerMixin, View):
 
     """
     permission_required = 'finances.view_transfert'
+    menu_type = 'managers'
     template_name = 'finances/transfert_retrieve.html'
 
     def __init__(self):
@@ -420,12 +427,13 @@ class TransfertRetrieve(ManagerMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class SelfTransfertCreate(ManagerMixin, SuccessMessageMixin, FormView):
+class SelfTransfertCreate(PermissionRequiredMixin, BorgiaFormView):
     permission_required = 'finances.add_transfert'
+    menu_type = 'members'
+    success_message = "Le montant de %(amount)s€ a bien été transféré à %(recipient)s."
     template_name = 'finances/self_transfert_create.html'
     form_class = SelfTransfertCreateForm
     lm_active = 'lm_self_transfert_create'
-    success_message = "Le montant de %(amount)s€ a bien été transféré à %(recipient)s."
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super().get_form_kwargs(**kwargs)
@@ -455,7 +463,7 @@ class SelfTransfertCreate(ManagerMixin, SuccessMessageMixin, FormView):
         return reverse('url_members_workboard')
 
 
-class ExceptionnalMovementList(ManagerMixin, FormView):
+class ExceptionnalMovementList(PermissionRequiredMixin, BorgiaFormView):
     """
     View to list exceptionnal movement sales.
 
@@ -467,6 +475,7 @@ class ExceptionnalMovementList(ManagerMixin, FormView):
 
     """
     permission_required = 'finances.view_exceptionnalmovement'
+    menu_type = 'managers'
     template_name = 'finances/exceptionnalmovement_list.html'
     form_class = GenericListSearchDateForm
     lm_active = 'lm_exceptionnalmovement_list'
@@ -517,7 +526,7 @@ class ExceptionnalMovementList(ManagerMixin, FormView):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class ExceptionnalMovementRetrieve(ManagerMixin, View):
+class ExceptionnalMovementRetrieve(PermissionRequiredMixin, BorgiaView):
     """
     Retrieve an exceptionnal movement sale.
 
@@ -525,6 +534,7 @@ class ExceptionnalMovementRetrieve(ManagerMixin, View):
     TransfertRetrieve, RechargingRetrieve).
     """
     permission_required = 'finances.view_exceptionnalmovement'
+    menu_type = 'managers'
     template_name = 'finances/exceptionnalmovement_retrieve.html'
 
     def __init__(self):
@@ -555,10 +565,11 @@ class ExceptionnalMovementRetrieve(ManagerMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class SelfTransactionList(LateralMenuMembersMixin, FormView):
+class SelfTransactionList(BorgiaFormView):
     """
     View to list transactions of the logged user.
     """
+    menu_type = 'members'
     template_name = 'finances/self_transaction_list.html'
     form_class = GenericListSearchDateForm
     lm_active = 'lm_self_transaction_list'
@@ -594,12 +605,13 @@ class SelfTransactionList(LateralMenuMembersMixin, FormView):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class UserExceptionnalMovementCreate(UserMixin, FormView):
+class UserExceptionnalMovementCreate(UserMixin, BorgiaFormView):
     """
     View to create an exceptionnal movement (debit or credit) for a specific
     user.
     """
     permission_required = 'finances.add_exceptionnalmovement'
+    menu_type = 'managers'
     template_name = 'finances/user_exceptionnalmovement_create.html'
     form_class = ExceptionnalMovementForm
     lm_active = None
@@ -642,8 +654,9 @@ class UserExceptionnalMovementCreate(UserMixin, FormView):
         return reverse('url_user_retrieve', kwargs={'user_pk': self.user.pk})
 
 
-class RechargingCreate(UserMixin, FormView):
+class RechargingCreate(UserMixin, BorgiaFormView):
     permission_required = 'finances.add_recharging'
+    menu_type = 'managers'
     template_name = 'finances/user_supplymoney.html'
     form_class = RechargingCreateForm
     lm_active = None
@@ -711,10 +724,11 @@ class RechargingCreate(UserMixin, FormView):
         return reverse('url_user_retrieve', kwargs={'user_pk': self.user.pk})
 
 
-class SelfLydiaCreate(LateralMenuMembersMixin, FormView):
+class SelfLydiaCreate(BorgiaFormView):
     """
     View to supply himself by Lydia.
     """
+    menu_type = 'members'
     template_name = 'finances/self_lydia_create.html'
     form_class = SelfLydiaCreateForm
     lm_active = 'lm_self_lydia_create'
@@ -789,7 +803,7 @@ class SelfLydiaCreate(LateralMenuMembersMixin, FormView):
         return context
 
 
-class SelfLydiaConfirm(LateralMenuMembersMixin, View):
+class SelfLydiaConfirm(BorgiaView):
     """
     View to confirm supply by Lydia.
 
@@ -799,6 +813,7 @@ class SelfLydiaConfirm(LateralMenuMembersMixin, View):
     :note:: transaction and order parameters are given by Lydia but aren't
     used here.
     """
+    menu_type = 'members'
     template_name = 'finances/self_lydia_confirm.html'
 
     # TODO: check if a Lydia object exist and if it's from the current day,

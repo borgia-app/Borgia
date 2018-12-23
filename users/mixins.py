@@ -3,11 +3,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.views.generic.base import ContextMixin
 
-from borgia.mixins import LateralMenuManagersMixin
 from users.models import User
 
 
-class UserPermissionAndContextMixin(PermissionRequiredMixin, ContextMixin):
+class UserMixin(PermissionRequiredMixin, ContextMixin):
     """
     Permission and context mixin for user model.
     """
@@ -39,9 +38,3 @@ class UserPermissionAndContextMixin(PermissionRequiredMixin, ContextMixin):
         context = super().get_context_data(**kwargs)
         context['user'] = self.user
         return context
-
-
-class UserMixin(UserPermissionAndContextMixin, LateralMenuManagersMixin):
-    """
-    Mixin that check permission, give context for users and add MANAGERS lateral menu.
-    """

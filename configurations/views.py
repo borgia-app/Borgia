@@ -1,9 +1,11 @@
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 from django.views.generic.edit import FormView
 
-from configurations.mixins import ConfigurationMixin
+from borgia.mixins import LateralMenuMixin
+from borgia.views import BorgiaFormView
 from configurations.forms import (ConfigurationBalanceForm,
                                   ConfigurationCenterForm,
                                   ConfigurationLydiaForm,
@@ -11,7 +13,7 @@ from configurations.forms import (ConfigurationBalanceForm,
 from configurations.utils import configurations_safe_get
 
 
-class ConfigurationIndexView(ConfigurationMixin, TemplateView):
+class ConfigurationIndexView(PermissionRequiredMixin, LateralMenuMixin, TemplateView):
     """
     View to manage config of the application.
 
@@ -21,6 +23,7 @@ class ConfigurationIndexView(ConfigurationMixin, TemplateView):
     in borgia/settings.py.
     """
     permission_required = 'configurations.view_configuration'
+    menu_type = 'managers'
     template_name = 'configurations/global_config.html'
     lm_active = 'lm_index_config'
 
@@ -39,11 +42,12 @@ class ConfigurationIndexView(ConfigurationMixin, TemplateView):
         return context
 
 
-class ConfigurationChangeBaseView(ConfigurationMixin, FormView):
+class ConfigurationChangeBaseView(PermissionRequiredMixin, BorgiaFormView):
     """
     Override this base view for configuration changes.
     """
     permission_required = 'configurations.change_configuration'
+    menu_type = 'managers'
 
     def get_success_url(self):
         return reverse('url_index_config')

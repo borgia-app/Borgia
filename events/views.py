@@ -4,29 +4,27 @@ import decimal
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission
-from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
 from django.shortcuts import HttpResponse, redirect
 from django.urls import reverse
-from django.views.generic import FormView, View
 from openpyxl import Workbook, load_workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
-from borgia.mixins import MembersMixin
+from borgia.views import BorgiaFormView, BorgiaView
 from events.forms import (EventAddWeightForm, EventCreateForm, EventDeleteForm,
                           EventDownloadXlsxForm, EventFinishForm,
                           EventListForm, EventListUsersForm,
                           EventSelfRegistrationForm, EventUpdateForm,
                           EventUploadXlsxForm)
-from events.mixins import (EventMixin, EventPermissionAndContextMixin,
-                           EventRestrictedMixin)
+from events.mixins import EventMixin
 from events.models import Event
 from users.models import User
 
 
-class EventList(MembersMixin, FormView):
+class EventList(PermissionRequiredMixin, BorgiaFormView):
     permission_required = 'events.view_event'
+    menu_type = 'members'
     template_name = 'events/event_list.html'
     lm_active = 'lm_event_list'
     form_class = EventListForm
@@ -99,12 +97,13 @@ class EventList(MembersMixin, FormView):
         return self.render_to_response(context)
 
 
-class EventCreate(MembersMixin, SuccessMessageMixin, FormView):
+class EventCreate(PermissionRequiredMixin, BorgiaFormView):
     permission_required = 'events.add_event'
+    menu_type = 'members'
+    success_message = "'%(description)s' a bien été créé."
     template_name = 'events/event_create.html'
     form_class = EventCreateForm
     lm_active = 'lm_event_create'
-    success_message = "'%(description)s' a bien été créé."
 
     def __init__(self):
         self.event = None
@@ -140,14 +139,15 @@ class EventCreate(MembersMixin, SuccessMessageMixin, FormView):
                        )
 
 
-class EventUpdate(EventMixin, SuccessMessageMixin, FormView):
+class EventUpdate(EventMixin, BorgiaFormView):
     """
     Update the Shared Event
     """
-    form_class = EventUpdateForm
-    template_name = 'events/event_update.html'
     permission_required = 'events.change_event'
+    menu_type = 'members'
     success_message = "'%(description)s' a bien été mis à jour."
+    template_name = 'events/event_update.html'
+    form_class = EventUpdateForm
     allow_manager = True
 
     manager_changed = False
@@ -225,7 +225,7 @@ class EventUpdate(EventMixin, SuccessMessageMixin, FormView):
                            )
 
 
-class EventFinish(EventRestrictedMixin, SuccessMessageMixin, FormView):
+class EventFinish(EventMixin, BorgiaFormView):
     """
     Finish a event and redirect to the list of events.
     This command is used when you want to keep the event in the database, but
@@ -236,10 +236,12 @@ class EventFinish(EventRestrictedMixin, SuccessMessageMixin, FormView):
     :param self.perm_codename: codename of the permission checked.
     """
     permission_required = 'events.proceed_payment_event'
+    menu_type = 'managers'
+    success_message = "'%(description)s' a bien été terminé."
     template_name = 'events/event_finish.html'
     form_class = EventFinishForm
-    success_message = "'%(description)s' a bien été terminé."
     need_ongoing_event = True
+
 
     def __init__(self):
         self.total_weights_participants = None
@@ -303,16 +305,17 @@ class EventFinish(EventRestrictedMixin, SuccessMessageMixin, FormView):
         return reverse('url_event_list')
 
 
-class EventDelete(EventMixin, SuccessMessageMixin, FormView):
+class EventDelete(EventMixin, BorgiaFormView):
     """
     Delete a event and redirect to the list of events.
 
     :param kwargs['pk']: pk of the event
     """
     permission_required = 'events.delete_event'
+    menu_type = 'members'
+    success_message = "L'évènement a bien été supprimé."
     template_name = 'events/event_delete.html'
     form_class = EventDeleteForm
-    success_message = "L'évènement a bien été supprimé."
     allow_manager = True
     need_ongoing_event = True
 
@@ -324,7 +327,7 @@ class EventDelete(EventMixin, SuccessMessageMixin, FormView):
         return reverse('url_event_list')
 
 
-class EventSelfRegistration(EventMixin, SuccessMessageMixin, FormView):
+class EventSelfRegistration(EventMixin, BorgiaFormView):
     """
     Allow a user to register himself
 
@@ -333,6 +336,7 @@ class EventSelfRegistration(EventMixin, SuccessMessageMixin, FormView):
     :param self.perm_codename: codename of the permission checked.
     """
     permission_required = 'events.self_register_event'
+    menu_type = 'members'
     template_name = 'events/event_self_registration.html'
     form_class = EventSelfRegistrationForm
     need_ongoing_event = True
@@ -383,8 +387,9 @@ class EventSelfRegistration(EventMixin, SuccessMessageMixin, FormView):
                        )
 
 
-class EventChangeWeight(EventMixin, View):
+class EventChangeWeight(EventMixin, BorgiaView):
     permission_required = 'events.change_event'
+    menu_type = 'members'
     allow_manager = True
     need_ongoing_event = True
 
@@ -422,11 +427,12 @@ class EventChangeWeight(EventMixin, View):
         return HttpResponse(response)
 
 
-class EventManageUsers(EventMixin, FormView):
+class EventManageUsers(EventMixin, BorgiaFormView):
     """
     Manage the users. The get displays the list of concerned users. The post form add weight to one of them.
     """
     permission_required = 'events.change_event'
+    menu_type = 'members'
     template_name = 'events/event_manage_users.html'
     form_class = EventAddWeightForm
     allow_manager = True
@@ -498,11 +504,12 @@ class EventManageUsers(EventMixin, FormView):
                        kwargs={'pk': self.event.pk})
 
 
-class EventRemoveUser(EventMixin, View):
+class EventRemoveUser(EventMixin, BorgiaView):
     """
     Remove a user
     """
     permission_required = 'events.change_event'
+    menu_type = 'members'
     allow_manager = True
     need_ongoing_event = True
 
@@ -546,11 +553,12 @@ class EventRemoveUser(EventMixin, View):
         ) + "?state=" + state + "&order_by=" + order_by + "#table_users")
 
 
-class EventDownloadXlsx(EventMixin, FormView):
+class EventDownloadXlsx(EventMixin, BorgiaFormView):
     """
     Download Excel.
     """
     permission_required = 'events.change_event'
+    menu_type = 'members'
     form_class = EventDownloadXlsxForm
     allow_manager = True
 
@@ -602,11 +610,12 @@ class EventDownloadXlsx(EventMixin, FormView):
         return response
 
 
-class EventUploadXlsx(EventMixin, FormView):
+class EventUploadXlsx(EventMixin, BorgiaFormView):
     """
     Upload Excel.
     """
     perm_codename = 'events.change_event'
+    menu_type = 'members'
     form_class = EventUploadXlsxForm
     allow_manager = True
     need_ongoing_event = True

@@ -1,19 +1,15 @@
 import datetime
 import decimal
 
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import (MultipleObjectsReturned,
-                                    ObjectDoesNotExist, PermissionDenied)
+from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
-from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.utils.timezone import now
-from django.views.generic.base import View
-from django.views.generic.edit import FormView, UpdateView
 
-from borgia.mixins import ManagerMixin
+from borgia.views import BorgiaFormView, BorgiaView
 from configurations.utils import configurations_safe_get
 from finances.models import Sale
 from modules.models import CategoryProduct
@@ -26,9 +22,10 @@ from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
                          DEFAULT_PERMISSIONS_CHIEFS)
 
 
-class ShopCreate(ManagerMixin, FormView):
-    template_name = 'shops/shop_create.html'
+class ShopCreate(PermissionRequiredMixin, BorgiaFormView):
     permission_required = 'shops.add_shop'
+    menu_type = 'managers'
+    template_name = 'shops/shop_create.html'
     lm_active = 'lm_shop_create'
     form_class = ShopCreateForm
 
@@ -97,12 +94,13 @@ class ShopCreate(ManagerMixin, FormView):
         return reverse('url_shop_checkup', kwargs={'shop_pk': self.shop.pk})
 
 
-class ShopList(ManagerMixin, View):
+class ShopList(PermissionRequiredMixin, BorgiaView):
     """
     View that list the shops.
     """
-    template_name = 'shops/shop_list.html'
     permission_required = 'shops.view_shop'
+    menu_type = 'managers'
+    template_name = 'shops/shop_list.html'
     lm_active = 'lm_shop_list'
 
     def get(self, request, *args, **kwargs):
@@ -112,11 +110,11 @@ class ShopList(ManagerMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class ShopUpdate(ShopMixin, FormView):
-    template_name = 'shops/shop_update.html'
+class ShopUpdate(ShopMixin, BorgiaFormView):
     permission_required = 'shops.change_shop'
+    menu_type = 'shops'
+    template_name = 'shops/shop_update.html'
     form_class = ShopUpdateForm
-    success_url = None
 
     def get_initial(self, **kwargs):
         initial = super().get_initial(**kwargs)
@@ -135,7 +133,7 @@ class ShopUpdate(ShopMixin, FormView):
         return reverse('url_shop_checkup', kwargs={'shop_pk': self.shop.pk})
 
 
-class ShopCheckup(ShopMixin, FormView):
+class ShopCheckup(ShopMixin, BorgiaFormView):
     """
     Display data about a shop.
 
@@ -143,9 +141,10 @@ class ShopCheckup(ShopMixin, FormView):
     If you're not a manager of a shop, you need the permission 'view_shop'
     """
     permission_required = 'shops.view_shop'
+    menu_type = 'shops'
     template_name = 'shops/shop_checkup.html'
-    lm_active = 'lm_shop_checkup'
     form_class = ShopCheckupSearchForm
+    lm_active = 'lm_shop_checkup'
 
     date_begin = None
     date_end = None
@@ -206,8 +205,9 @@ class ShopCheckup(ShopMixin, FormView):
         }
 
 
-class ShopWorkboard(ShopMixin, View):
+class ShopWorkboard(ShopMixin, BorgiaView):
     permission_required = 'shops.view_shop'
+    menu_type = 'shops'
     template_name = 'shops/shop_workboard.html'
     lm_active = 'lm_workboard'
 
@@ -269,11 +269,12 @@ class ShopWorkboard(ShopMixin, View):
         return weeklist
 
 
-class ProductList(ShopMixin, FormView):
+class ProductList(ShopMixin, BorgiaFormView):
     permission_required = 'shops.view_product'
+    menu_type = 'shops'
     template_name = 'shops/product_list.html'
-    lm_active = 'lm_product_list'
     form_class = ProductListForm
+    lm_active = 'lm_product_list'
 
     search = None
     shop_query = None
@@ -303,8 +304,9 @@ class ProductList(ShopMixin, FormView):
         return query
 
 
-class ProductCreate(ShopMixin, FormView):
+class ProductCreate(ShopMixin, BorgiaFormView):
     permission_required = 'shops.add_product'
+    menu_type = 'shops'
     template_name = 'shops/product_create.html'
     form_class = ProductCreateForm
     lm_active = 'lm_product_create'
@@ -338,11 +340,12 @@ class ProductCreate(ShopMixin, FormView):
             'product_pk': self.product.pk})
 
 
-class ProductDeactivate(ProductMixin, View):
+class ProductDeactivate(ProductMixin, BorgiaView):
     """
     Deactivate a product and redirect to the retrieve of the product.
     """
     permission_required = 'shops.delete_product'
+    menu_type = 'shops'
     template_name = 'shops/product_deactivate.html'
 
     def get(self, request, *args, **kwargs):
@@ -362,11 +365,12 @@ class ProductDeactivate(ProductMixin, View):
                                         'product_pk': self.product.pk}))
 
 
-class ProductRemove(ProductMixin, View):
+class ProductRemove(ProductMixin, BorgiaView):
     """
     Remove a product and redirect to the list of products.
     """
     permission_required = 'shops.change_product'
+    menu_type = 'shops'
     template_name = 'shops/product_remove.html'
 
     def get(self, request, *args, **kwargs):
@@ -384,7 +388,7 @@ class ProductRemove(ProductMixin, View):
         return redirect(reverse('url_product_list', kwargs={'shop_pk': self.shop.pk}))
 
 
-class ProductRetrieve(ProductMixin, View):
+class ProductRetrieve(ProductMixin, BorgiaView):
     """
     Retrieve a Product.
 
@@ -392,6 +396,7 @@ class ProductRetrieve(ProductMixin, View):
     :param kwargs['product_pk']: pk of the product
     """
     permission_required = 'shops.view_product'
+    menu_type = 'shops'
     template_name = 'shops/product_retrieve.html'
 
     def get(self, request, *args, **kwargs):
@@ -399,7 +404,7 @@ class ProductRetrieve(ProductMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class ProductUpdate(ProductMixin, FormView):
+class ProductUpdate(ProductMixin, BorgiaFormView):
     """
     Update a product and redirect to the product.
 
@@ -407,6 +412,7 @@ class ProductUpdate(ProductMixin, FormView):
     :param kwargs['product_pk']: pk of the product
     """
     permission_required = 'shops.change_product'
+    menu_type = 'shops'
     template_name = 'shops/product_update.html'
     form_class = ProductUpdateForm
     model = Product
@@ -428,7 +434,7 @@ class ProductUpdate(ProductMixin, FormView):
                                'product_pk': self.product.pk})
 
 
-class ProductUpdatePrice(ProductMixin, FormView):
+class ProductUpdatePrice(ProductMixin, BorgiaFormView):
     """
     Update the price of a product and redirect to the product.
 
@@ -436,6 +442,7 @@ class ProductUpdatePrice(ProductMixin, FormView):
     :param kwargs['product_pk']: pk of the product
     """
     permission_required = 'shops.change_price_product'
+    menu_type = 'shops'
     template_name = 'shops/product_update_price.html'
     form_class = ProductUpdatePriceForm
 

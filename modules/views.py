@@ -5,22 +5,20 @@ from django.forms.formsets import formset_factory
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.views.generic.base import View
-from django.views.generic.edit import FormView
 
+from borgia.views import BorgiaFormView, BorgiaView
 from configurations.utils import configurations_safe_get
 from finances.models import Sale, SaleProduct
 from modules.forms import (ModuleCategoryCreateForm,
                            ModuleCategoryCreateNameForm, ShopModuleConfigForm,
                            ShopModuleSaleForm)
-from modules.mixins import (ShopModuleCategoryMixin, ShopModuleMixin,
-                            ShopModulePermissionAndContextMixin)
+from modules.mixins import ShopModuleCategoryMixin, ShopModuleMixin
 from modules.models import Category, CategoryProduct, SelfSaleModule
 from shops.models import Product, Shop
 from users.models import User
 
 
-class ShopModuleSaleView(ShopModulePermissionAndContextMixin, FormView):
+class ShopModuleSaleView(ShopModuleMixin, BorgiaFormView):
     """
     Generic FormView for handling invoice concerning product bases through a
     shop.
@@ -48,6 +46,12 @@ class ShopModuleSaleView(ShopModulePermissionAndContextMixin, FormView):
                 raise Http404
             else:
                 return True
+
+    def get_menu_type(self):
+        if self.module_class == "self_sales":
+            return 'members'
+        elif self.module_class == "operator_sales":
+            return 'shops'
 
     def get_form_kwargs(self, **kwargs):
         kwargs = super().get_form_kwargs(**kwargs)
@@ -148,7 +152,7 @@ def sale_shop_module_resume(request, sale, shop, module, success_url):
     return render(request, template_name, context=context)
 
 
-class SaleShopModuleResume(ShopModulePermissionAndContextMixin, View):
+class SaleShopModuleResume(ShopModuleMixin, BorgiaView):
     sale = None
     delay = None
     success_url = None
@@ -178,12 +182,13 @@ class SaleShopModuleResume(ShopModulePermissionAndContextMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class ShopModuleConfigView(ShopModuleMixin, View):
+class ShopModuleConfigView(ShopModuleMixin, BorgiaView):
     """
     ConfigView for a shopModule.
     """
     permission_required_self = 'modules.view_config_selfsalemodule'
     permission_required_operator = 'modules.view_config_operatorsalemodule'
+    menu_type = 'shops'
     template_name = 'modules/shop_module_config.html'
     lm_active = 'lm_selfsale_module'
 
@@ -193,12 +198,13 @@ class ShopModuleConfigView(ShopModuleMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class ShopModuleConfigUpdateView(ShopModuleMixin, FormView):
+class ShopModuleConfigUpdateView(ShopModuleMixin, BorgiaFormView):
     """
     View to manage config of a self shop module.
     """
     permission_required_self = 'modules.change_config_selfsalemodule'
     permission_required_operator = 'modules.change_config_operatorsalemodule'
+    menu_type = 'shops'
     template_name = 'modules/shop_module_config_update.html'
     form_class = ShopModuleConfigForm
 
@@ -229,27 +235,17 @@ class ShopModuleConfigUpdateView(ShopModuleMixin, FormView):
         return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
 
 
-class ShopModuleCategoryBaseView(View):
+class ShopModuleCategoryCreateView(ShopModuleMixin, BorgiaView):
     """
-    Base for shop module category views
     """
     permission_required_self = 'modules.change_config_selfsalemodule'
     permission_required_operator = 'modules.change_config_operatorsalemodule'
+    menu_type = 'shops'
+    template_name = 'modules/shop_module_category_create.html'
 
     def __init__(self):
         self.shop = None
         self.module_class = None
-
-    def get_success_url(self):
-        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
-
-
-class ShopModuleCategoryCreateView(ShopModuleMixin, ShopModuleCategoryBaseView):
-    """
-    """
-    template_name = 'modules/shop_module_category_create.html'
-
-    def __init__(self):
         self.form_class = None
 
     def has_permission(self):
@@ -295,13 +291,21 @@ class ShopModuleCategoryCreateView(ShopModuleMixin, ShopModuleCategoryBaseView):
                 pass
         return redirect(self.get_success_url())
 
+    def get_success_url(self):
+        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
 
-class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, ShopModuleCategoryBaseView):
+
+class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, BorgiaView):
     """
     """
+    permission_required_self = 'modules.change_config_selfsalemodule'
+    permission_required_operator = 'modules.change_config_operatorsalemodule'
+    menu_type = 'shops'
     template_name = 'modules/shop_module_category_update.html'
 
     def __init__(self):
+        self.shop = None
+        self.module_class = None
         self.form_class = None
 
     def has_permission(self):
@@ -349,11 +353,21 @@ class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, ShopModuleCategoryBa
                 pass
         return redirect(self.get_success_url())
 
+    def get_success_url(self):
+        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
 
-class ShopModuleCategoryDeleteView(ShopModuleCategoryMixin, ShopModuleCategoryBaseView):
+
+class ShopModuleCategoryDeleteView(ShopModuleCategoryMixin, BorgiaView):
     """
     """
+    permission_required_self = 'modules.change_config_selfsalemodule'
+    permission_required_operator = 'modules.change_config_operatorsalemodule'
+    menu_type = 'shops'
     template_name = 'modules/shop_module_category_delete.html'
+
+    def __init__(self):
+        self.shop = None
+        self.module_class = None
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
@@ -363,3 +377,6 @@ class ShopModuleCategoryDeleteView(ShopModuleCategoryMixin, ShopModuleCategoryBa
         CategoryProduct.objects.filter(category=self.category).delete()
         self.category.delete()
         return redirect(self.get_success_url())
+
+    def get_success_url(self):
+        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})

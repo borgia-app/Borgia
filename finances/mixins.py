@@ -2,10 +2,10 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
 from finances.models import Sale
-from shops.mixins import ShopPermissionAndContextMixin, LateralMenuShopsMixin
+from shops.mixins import ShopMixin
 
 
-class SalePermissionAndContextMixin(ShopPermissionAndContextMixin):
+class SaleMixin(ShopMixin):
     """
     Mixin that check permission and give context for sales
     """
@@ -33,9 +33,3 @@ class SalePermissionAndContextMixin(ShopPermissionAndContextMixin):
         context = super().get_context_data(**kwargs)
         context['sale'] = self.sale
         return context
-
-
-class SaleMixin(SalePermissionAndContextMixin, LateralMenuShopsMixin):
-    """
-    Mixin that check permission, give context for sales and add SHOPS lateral menu.
-    """

@@ -5,9 +5,8 @@ from django.forms.formsets import formset_factory
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.views.generic.base import View
-from django.views.generic.edit import FormView
 
+from borgia.views import BorgiaFormView, BorgiaView
 from shops.mixins import ShopMixin
 from shops.models import Product
 from stocks.forms import (AdditionnalDataInventoryForm,
@@ -19,8 +18,9 @@ from stocks.models import (Inventory, InventoryProduct, StockEntry,
                            StockEntryProduct)
 
 
-class StockEntryListView(ShopMixin, FormView):
+class StockEntryListView(ShopMixin, BorgiaFormView):
     permission_required = 'stocks.view_stockentry'
+    menu_type = 'shops'
     template_name = 'stocks/stockentry_list.html'
     form_class = StockEntryListDateForm
     lm_active = 'lm_stockentry_list'
@@ -58,10 +58,11 @@ class StockEntryListView(ShopMixin, FormView):
         return query
 
 
-class StockEntryCreateView(ShopMixin, View):
+class StockEntryCreateView(ShopMixin, BorgiaView):
     """
     """
     permission_required = 'stocks.add_stockentry'
+    menu_type = 'shops'
     template_name = 'stocks/stockentry_create.html'
     lm_active = 'lm_stockentry_create'
 
@@ -129,8 +130,9 @@ class StockEntryCreateView(ShopMixin, View):
         )
 
 
-class StockEntryRetrieveView(ShopMixin, View):
+class StockEntryRetrieveView(ShopMixin, BorgiaView):
     permission_required = 'stocks.view_stockentry'
+    menu_type = 'shops'
     template_name = 'stocks/stockentry_retrieve.html'
     lm_active = 'lm_stockentry_list'
 
@@ -162,8 +164,9 @@ class StockEntryRetrieveView(ShopMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class InventoryListView(ShopMixin, FormView):
+class InventoryListView(ShopMixin, BorgiaFormView):
     permission_required = 'stocks.view_inventory'
+    menu_type = 'shops'
     template_name = 'stocks/inventory_list.html'
     form_class = InventoryListDateForm
     lm_active = 'lm_inventory_list'
@@ -201,10 +204,11 @@ class InventoryListView(ShopMixin, FormView):
         return query
 
 
-class InventoryCreateView(ShopMixin, View):
+class InventoryCreateView(ShopMixin, BorgiaView):
     """
     """
     permission_required = 'stocks.add_inventory'
+    menu_type = 'shops'
     template_name = 'stocks/inventory_create.html'
     lm_active = 'lm_inventory_create'
 
@@ -279,8 +283,9 @@ class InventoryCreateView(ShopMixin, View):
             return self.get(request)
 
 
-class InventoryRetrieveView(ShopMixin, View):
+class InventoryRetrieveView(ShopMixin, BorgiaView):
     permission_required = 'stocks.view_inventory'
+    menu_type = 'shops'
     template_name = 'stocks/inventory_retrieve.html'
     lm_active = 'lm_inventory_list'
 

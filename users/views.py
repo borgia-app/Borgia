@@ -6,6 +6,7 @@ import string
 
 import openpyxl
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission
 from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -14,12 +15,10 @@ from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import HttpResponse, redirect, render
 from django.urls import reverse
 from django.utils.encoding import force_text
-from django.views.generic.base import View
-from django.views.generic.edit import FormView
 
-from borgia.mixins import ManagerMixin, MembersMixin, LateralMenuMembersMixin
-from borgia.utils import (get_members_group,
-                          human_unused_permissions, permission_to_manage_group)
+from borgia.utils import (get_members_group, human_unused_permissions,
+                          permission_to_manage_group)
+from borgia.views import BorgiaFormView, BorgiaView
 from configurations.utils import configurations_safe_get
 from users.forms import (GroupUpdateForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserDownloadXlsxForm,
@@ -28,15 +27,16 @@ from users.mixins import UserMixin
 from users.models import User
 
 
-class UserListView(MembersMixin, FormView):
+class UserListView(PermissionRequiredMixin, BorgiaFormView):
     """
     List User instances.
 
     """
     permission_required = 'users.view_user'
-    form_class = UserSearchForm
-    template_name = 'users/user_list.html'
+    menu_type = 'managers'
     lm_active = 'lm_user_list'
+    template_name = 'users/user_list.html'
+    form_class = UserSearchForm
 
     search = None
     year = None
@@ -124,16 +124,16 @@ class UserListView(MembersMixin, FormView):
         return initial
 
 
-class UserCreateView(ManagerMixin, SuccessMessageMixin, FormView):
+class UserCreateView(PermissionRequiredMixin, BorgiaFormView):
     """
     Create a new user and redirect to the workboard of the group.
 
     """
     permission_required = 'users.add_user'
-    form_class = UserCreationCustomForm
-    template_name = 'users/user_create.html'
+    menu_type = 'managers'
     lm_active = 'lm_user_create'
-    success_url = None
+    template_name = 'users/user_create.html'
+    form_class = UserCreationCustomForm
 
     def form_valid(self, form):
         user = User.objects.create(username=form.cleaned_data['username'],
@@ -177,12 +177,13 @@ class UserCreateView(ManagerMixin, SuccessMessageMixin, FormView):
             return reverse('url_managers_workboard')
 
 
-class UserRetrieveView(UserMixin, View):
+class UserRetrieveView(UserMixin, BorgiaView):
     """
     Retrieve a User instance.
 
     """
     permission_required = 'users.view_user'
+    menu_type = "managers"
     template_name = 'users/user_retrieve.html'
 
     def get(self, request, *args, **kwargs):
@@ -190,14 +191,15 @@ class UserRetrieveView(UserMixin, View):
         return render(request, self.template_name, context=context)
 
 
-class UserUpdateView(UserMixin, SuccessMessageMixin, FormView):
+class UserUpdateView(UserMixin, BorgiaFormView):
     """
     Update an user and redirect to the workboard of the group.
 
     """
     permission_required = 'users.change_user'
-    form_class = UserUpdateForm
+    menu_type = 'managers'
     template_name = 'users/user_update.html'
+    form_class = UserUpdateForm
     model = User
     modified = False
 
@@ -231,12 +233,13 @@ class UserUpdateView(UserMixin, SuccessMessageMixin, FormView):
                        kwargs={'user_pk': self.user.pk})
 
 
-class UserDeactivateView(UserMixin, View):
+class UserDeactivateView(UserMixin, BorgiaView):
     """
     Deactivate a user and redirect to the workboard of the group.
 
     """
     permission_required = 'users.delete_user'
+    menu_type = 'managers'
     template_name = 'users/user_deactivate.html'
     success_message = "Le compte de %(user)s a bien été "
     error_event_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
@@ -292,7 +295,8 @@ class UserDeactivateView(UserMixin, View):
         return redirect(force_text(self.success_url))
 
 
-class UserSelfUpdateView(LateralMenuMembersMixin, SuccessMessageMixin, FormView):
+class UserSelfUpdateView(BorgiaFormView):
+    menu_type = 'members'
     template_name = 'users/user_self_update.html'
     form_class = SelfUserUpdateForm
 
@@ -325,12 +329,11 @@ class UserSelfUpdateView(LateralMenuMembersMixin, SuccessMessageMixin, FormView)
         return "Vos infos ont bien été mises à jour"
 
 
-class GroupUpdateView(ManagerMixin, SuccessMessageMixin, FormView):
+class GroupUpdateView(BorgiaFormView):
+    menu_type = 'managers'
     template_name = 'users/group_update.html'
-    success_url = None
     form_class = GroupUpdateForm
     group_updated = None
-    lm_active = None
 
     def get_permission_required(self):
         """
@@ -427,11 +430,12 @@ class GroupUpdateView(ManagerMixin, SuccessMessageMixin, FormView):
         return reverse('url_managers_workboard')
 
 
-class UserUploadXlsxView(ManagerMixin, FormView):
+class UserUploadXlsxView(PermissionRequiredMixin, BorgiaFormView):
     """
     Download/Upload Excel for adding users.
     """
     permission_required = 'users.add_user'
+    menu_type = 'managers'
     template_name = 'users/bulk_edit.html'
     form_class = UserUploadXlsxForm
     second_form_class = UserDownloadXlsxForm
@@ -586,11 +590,12 @@ class UserUploadXlsxView(ManagerMixin, FormView):
         return reverse('url_user_list')
 
 
-class UserAddByListXlsxDownload(ManagerMixin, View):
+class UserAddByListXlsxDownload(PermissionRequiredMixin, BorgiaView):
     """
     Download Excel for adding users.
     """
     permission_required = 'users.add_user'
+    menu_type = 'managers'
     lm_active = 'lm_user_create'
 
     def get(self, request, *args, **kwargs):

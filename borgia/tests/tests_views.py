@@ -72,7 +72,7 @@ class BaseAuthViewsTestCase(TestCase):
         self.assertRedirects(response_offline_user, '/auth/login/?next=' + reverse(self.url_view))
 
 
-class LoginViewTestCase(BaseAuthViewsTestCase):
+class LoginViewTests(BaseAuthViewsTestCase):
     url_view = 'url_login'
     template_name = 'registration/login.html'
 
@@ -111,7 +111,7 @@ class LoginViewTestCase(BaseAuthViewsTestCase):
         self.assertTemplateUsed(response, self.template_name)
 
 
-class LogoutViewTestCase(BaseAuthViewsTestCase):
+class LogoutViewTests(BaseAuthViewsTestCase):
     url_view = 'url_logout'
 
     def setUp(self):
@@ -134,7 +134,7 @@ class LogoutViewTestCase(BaseAuthViewsTestCase):
         self.assertRedirects(response, '/auth/login/')
 
 
-class PasswordChangeViewTestCase(BaseAuthViewsTestCase):
+class PasswordChangeViewTests(BaseAuthViewsTestCase):
     url_view = 'password_change'
     template_name = 'registration/password_change_form.html'
 
@@ -172,7 +172,7 @@ class PasswordChangeViewTestCase(BaseAuthViewsTestCase):
         super().offline_user_redirection()
 
 
-class PasswordChangeDoneViewTestCase(BaseAuthViewsTestCase):
+class PasswordChangeDoneViewTests(BaseAuthViewsTestCase):
     url_view = 'password_change_done'
     template_name = 'registration/password_change_done.html'
 
@@ -190,7 +190,7 @@ class PasswordChangeDoneViewTestCase(BaseAuthViewsTestCase):
         super().offline_user_redirection()
 
 
-class PasswordResetViewTestCase(TestCase):
+class PasswordResetViewTests(TestCase):
     url_view = 'password_reset'
     template_name = 'registration/password_reset_form.html'
 
@@ -211,7 +211,7 @@ class PasswordResetViewTestCase(TestCase):
         self.assertRedirects(response, reverse('password_reset_done'))
 
 
-class PasswordResetDoneViewTestCase(TestCase):
+class PasswordResetDoneViewTests(TestCase):
     url_view = 'password_reset_done'
     template_name = 'registration/password_reset_done.html'
 
@@ -239,7 +239,7 @@ class BaseWorkboardsTestCase(BaseBorgiaViewsTestCase):
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
-class ManagersWorkboardTestCase(BaseWorkboardsTestCase):
+class ManagersWorkboardTests(BaseWorkboardsTestCase):
     url_view = 'url_managers_workboard'
 
     def test_as_president_get(self):

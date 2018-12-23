@@ -3,11 +3,11 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.views.generic.base import ContextMixin
 
-from borgia.mixins import LateralMenuManagersMixin, LateralMenuMembersMixin
+from borgia.mixins import LateralMenuMixin
 from events.models import Event
 
 
-class EventPermissionAndContextMixin(PermissionRequiredMixin, ContextMixin):
+class EventMixin(PermissionRequiredMixin, ContextMixin):
     """
     Mixin for Event views.
     For Permission :
@@ -45,14 +45,3 @@ class EventPermissionAndContextMixin(PermissionRequiredMixin, ContextMixin):
         context = super().get_context_data(**kwargs)
         context['event'] = self.event
         return context
-
-
-class EventMixin(EventPermissionAndContextMixin, LateralMenuMembersMixin):
-    """
-    Mixin that check permission and give context for events, and add MEMBERS lateral menu.
-    """
-
-class EventRestrictedMixin(EventPermissionAndContextMixin, LateralMenuManagersMixin):
-    """
-    Mixin that check permission and give context for events, and add MANAGERS lateral menu.
-    """

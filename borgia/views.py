@@ -1,7 +1,6 @@
 import datetime
 import functools
 import json
-import re
 from urllib.parse import urlparse, urlunparse
 
 from django.conf import settings
@@ -9,26 +8,36 @@ from django.contrib.auth import REDIRECT_FIELD_NAME
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import LoginView
+from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.core.serializers import serialize
 from django.db.models import Q
-from django.http import Http404, HttpResponse, QueryDict
+from django.http import HttpResponse, QueryDict
 from django.shortcuts import render, resolve_url
 from django.urls import reverse
 from django.views.generic.base import View
 from django.views.generic.edit import FormView
 
-from borgia.mixins import LateralMenuMembersMixin, ManagerMixin
+from borgia.mixins import LateralMenuMixin
 from borgia.utils import (INTERNALS_GROUP_NAME, get_managers_group_from_user,
                           is_association_manager)
 from events.models import Event
 from finances.models import ExceptionnalMovement, Recharging, Sale, Transfert
-from modules.models import OperatorSaleModule, SelfSaleModule
+from modules.models import SelfSaleModule
 from shops.models import Shop
 from users.forms import UserQuickSearchForm
 from users.models import User
 
+
+class BorgiaView(LateralMenuMixin, View):
+    """
+    Add Lateral menu mixin to View.
+    """
+
+class BorgiaFormView(LateralMenuMixin, SuccessMessageMixin, FormView):
+    """
+    Add Lateral menu and success message mixins to FormView.
+    """
 
 class ModulesLoginView(LoginView):
     """ Override of auth login view, to include direct login to sales modules """
@@ -70,9 +79,9 @@ class ModulesLoginView(LoginView):
         return context
 
 
-class MembersWorkboard(LateralMenuMembersMixin, View):
+class MembersWorkboard(BorgiaView):
+    menu_type = 'members'
     template_name = 'workboards/members_workboard.html'
-    perm_codename = None
     lm_active = 'lm_workboard'
 
     def get(self, request, **kwargs):
@@ -155,7 +164,8 @@ class MembersWorkboard(LateralMenuMembersMixin, View):
         return mlist
 
 
-class ManagersWorkboard(ManagerMixin, View):
+class ManagersWorkboard(PermissionRequiredMixin, BorgiaView):
+    menu_type = 'managers'
     template_name = 'workboards/managers_workboard.html'
     lm_active = 'lm_workboard'
 
