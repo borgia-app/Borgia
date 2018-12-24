@@ -10,12 +10,15 @@ DEFAULT_PERMISSIONS_CHIEFS = ['add_user', 'view_user', 'add_recharging',
                               'add_product', 'change_product', 'delete_product', 'view_product',
                               'change_price_product',
                               'view_sale', 'use_operatorsalemodule',
+                              'change_config_operatorsalemodule', 'view_config_operatorsalemodule',
+                              'change_config_selfsalemodule', 'view_config_selfsalemodule',
                               'add_stockentry', 'view_stockentry',
                               'add_inventory', 'view_inventory']
 DEFAULT_PERMISSIONS_ASSOCIATES = ['add_user', 'view_user',
                                   'view_shop',
                                   'add_product', 'change_product', 'view_product',
                                   'view_sale', 'use_operatorsalemodule',
+                                  'view_config_operatorsalemodule', 'view_config_selfsalemodule',
                                   'add_stockentry', 'view_stockentry',
                                   'add_inventory', 'view_inventory']
 
