@@ -94,6 +94,8 @@ class ShopModuleCategoryMixin(ShopModuleMixin):
             raise Http404
         if self.category.module.shop.pk != self.shop.pk:
             raise Http404
+        if self.category.module.get_module_class() != self.module_class:
+            raise Http404
 
     def add_context_objects(self):
         """

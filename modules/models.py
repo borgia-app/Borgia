@@ -3,10 +3,11 @@ import decimal
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ImproperlyConfigured
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from shops.models import Shop, Product
+from shops.models import Product, Shop
 
 
 class Category(models.Model):
@@ -109,6 +110,15 @@ class ShopModule(Module):
     class Meta:
         abstract = True
 
+    def get_module_class(self):
+        """
+        Return the module type.
+        Must be overridden.
+        """
+        raise ImproperlyConfigured(
+            '{0} is using get_module_class() of ShopModule model.'
+            'You must override {0}.get_module_class().'.format(self.__class__.__name__)
+        )  
 
 class SelfSaleModule(ShopModule):
     """
@@ -123,7 +133,10 @@ class SelfSaleModule(ShopModule):
         )
 
     def __str__(self):
-        return 'module de vente en libre service du magasin ' + self.shop.__str__()
+        return 'Module de vente en libre service du magasin ' + self.shop.__str__()
+    
+    def get_module_class(self):
+        return 'self_sales'
 
 
 class OperatorSaleModule(ShopModule):
@@ -139,4 +152,7 @@ class OperatorSaleModule(ShopModule):
         )
 
     def __str__(self):
-        return 'module de vente par opérateur du magasin ' + self.shop.__str__()
+        return 'Module de vente par opérateur du magasin ' + self.shop.__str__()
+
+    def get_module_class(self):
+        return 'operator_sales'

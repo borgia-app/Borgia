@@ -13,7 +13,7 @@ from users.models import User
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
 # TODO: event line in tables users, products/payments and function.
-# TODO (by eyap) : make the class PaymentSolution overridable (See Abstract / Proxy ?) and implement type in children
+# TODO (by eyap) : make the class PaymentSolution overridable (See Abstract) and implement type in children
 
 
 class Sale(models.Model):
