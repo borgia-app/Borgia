@@ -39,6 +39,10 @@ class BaseGeneralShopModuleViewsTest(BaseShopModuleViewsTest):
         response_client3 = self.client3.get(self.get_url('5353', 'operator_sales'))
         self.assertEqual(response_client3.status_code, 404)
 
+    def not_existing_module_get(self):
+        response_client3 = self.client3.get(self.get_url(self.shop1.pk, 'NE_module'))
+        self.assertEqual(response_client3.status_code, 404)
+
     def offline_user_redirection(self):
         """
         Test offline user redirection to login page
@@ -67,6 +71,9 @@ class ShopModuleSaleViewTests(BaseGeneralShopModuleViewsTest):
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
 
+    def test_not_existing_module_get(self):
+        super().not_existing_module_get()
+
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
 
@@ -82,6 +89,9 @@ class ShopModuleConfigViewTests(BaseGeneralShopModuleViewsTest):
 
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
+
+    def test_not_existing_module_get(self):
+        super().not_existing_module_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -99,6 +109,9 @@ class ShopModuleConfigUpdateViewTests(BaseGeneralShopModuleViewsTest):
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
 
+    def test_not_existing_module_get(self):
+        super().not_existing_module_get()
+
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
 
@@ -114,6 +127,9 @@ class ShopModuleCategoryCreateViewTests(BaseGeneralShopModuleViewsTest):
 
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
+
+    def test_not_existing_module_get(self):
+        super().not_existing_module_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -154,6 +170,14 @@ class BaseFocusShopModuleCategoryViewsTest(BaseShopModuleCategoryViewsTest):
         response_client3 = self.client3.get(self.get_url('5353', 'self_sales', self.category1.pk))
         self.assertEqual(response_client3.status_code, 404)
 
+    def not_existing_module_get(self):
+        response_client3 = self.client3.get(self.get_url(self.shop1.pk, 'NE_module', self.category1.pk))
+        self.assertEqual(response_client3.status_code, 404)
+
+    def not_existing_category_get(self):
+        response_client3 = self.client3.get(self.get_url(self.shop1.pk, 'self_sales', 5353))
+        self.assertEqual(response_client3.status_code, 404)
+
     def category_not_in_shop(self):
         response_client3 = self.client3.get(self.get_url(self.shop2.pk, 'self_sales', self.category1.pk))
         self.assertEqual(response_client3.status_code, 404)
@@ -189,6 +213,12 @@ class ShopModuleCategoryUpdateViewTests(BaseFocusShopModuleCategoryViewsTest):
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
 
+    def test_not_existing_module_get(self):
+        super().not_existing_module_get()
+
+    def test_not_existing_category_get(self):
+        super().not_existing_category_get()
+
     def test_category_not_in_shop(self):
         super().category_not_in_shop()
         
@@ -210,6 +240,12 @@ class ShopModuleCategoryDeleteViewTests(BaseFocusShopModuleCategoryViewsTest):
 
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
+
+    def test_not_existing_module_get(self):
+        super().not_existing_module_get()
+
+    def test_not_existing_category_get(self):
+        super().not_existing_category_get()
 
     def test_category_not_in_shop(self):
         super().category_not_in_shop()
