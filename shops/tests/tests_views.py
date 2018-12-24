@@ -14,9 +14,18 @@ class BaseShopsViewsTest(BaseBorgiaViewsTestCase):
 
         # SHOP CREATION
         self.shop1 = Shop.objects.create(
-            name="shop1", description="The first shop ever", color="#F4FA58")
-        chiefs = Group.objects.create(name='chiefs-' + self.shop1.name)
-        associates = Group.objects.create(name='associates-' + self.shop1.name)
+            name="shop1",
+            description="The first shop ever.",
+            color="#F4FA58")
+        self.shop2 = Shop.objects.create(
+            name="shop2",
+            description="The second shop. Maybe the best after the first one.",
+            color="#F4FA58"
+        )
+        chiefs1 = Group.objects.create(name='chiefs-' + self.shop1.name)
+        Group.objects.create(name='associates-' + self.shop1.name)
+        chiefs2 = Group.objects.create(name='chiefs-' + self.shop2.name)
+        Group.objects.create(name='associates-' + self.shop2.name)
 
         content_type = ContentType.objects.get(app_label='users', model='user')
         Permission.objects.create(
@@ -33,12 +42,13 @@ class BaseShopsViewsTest(BaseBorgiaViewsTestCase):
         # Add chiefs default permissions
         for codename in DEFAULT_PERMISSIONS_CHIEFS:
             perm = Permission.objects.get(codename=codename)
-            chiefs.permissions.add(perm)
+            chiefs1.permissions.add(perm)
 
-        chiefs.permissions.add(manage_associate_perm)
-        chiefs.save()
+        chiefs1.permissions.add(manage_associate_perm)
+        chiefs1.save()
 
-        self.user3.groups.add(chiefs)
+        self.user3.groups.add(chiefs1)
+        self.user3.groups.add(chiefs2)
         self.user3.save()
 
         self.product1 = Product.objects.create(

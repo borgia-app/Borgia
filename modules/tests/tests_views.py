@@ -151,7 +151,11 @@ class BaseFocusShopModuleCategoryViewsTest(BaseShopModuleCategoryViewsTest):
         self.assertEqual(response_client2_operatorsales.status_code, 403)
 
     def not_existing_shop_get(self):
-        response_client3 = self.client3.get(self.get_url('5353', 'operator_sales', self.category1.pk))
+        response_client3 = self.client3.get(self.get_url('5353', 'self_sales', self.category1.pk))
+        self.assertEqual(response_client3.status_code, 404)
+
+    def category_not_in_shop(self):
+        response_client3 = self.client3.get(self.get_url(self.shop2.pk, 'self_sales', self.category1.pk))
         self.assertEqual(response_client3.status_code, 404)
 
     def category_not_in_module(self):
@@ -185,6 +189,9 @@ class ShopModuleCategoryUpdateViewTests(BaseFocusShopModuleCategoryViewsTest):
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
 
+    def test_category_not_in_shop(self):
+        super().category_not_in_shop()
+        
     def test_category_not_in_module(self):
         super().category_not_in_module()
 
@@ -203,6 +210,9 @@ class ShopModuleCategoryDeleteViewTests(BaseFocusShopModuleCategoryViewsTest):
 
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
+
+    def test_category_not_in_shop(self):
+        super().category_not_in_shop()
 
     def test_category_not_in_module(self):
         super().category_not_in_module()
