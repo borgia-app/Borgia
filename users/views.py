@@ -8,7 +8,6 @@ import openpyxl
 from django.contrib import messages
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission
-from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest
@@ -134,6 +133,9 @@ class UserCreateView(PermissionRequiredMixin, BorgiaFormView):
     lm_active = 'lm_user_create'
     template_name = 'users/user_create.html'
     form_class = UserCreationCustomForm
+
+    def __init__(self):
+        self.object = None
 
     def form_valid(self, form):
         user = User.objects.create(username=form.cleaned_data['username'],
@@ -285,7 +287,7 @@ class UserDeactivateView(UserMixin, BorgiaView):
         ))
 
         if request.user == self.user and deactivated:
-             self.success_url = reverse(
+            self.success_url = reverse(
                 'url_logout')
         else:           
             self.success_url = reverse(

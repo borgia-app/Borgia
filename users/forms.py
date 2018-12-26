@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
 from django.forms.widgets import PasswordInput
 
-from users.models import User, list_year
+from users.models import User, get_list_year
 
 
 class UserCreationCustomForm(forms.Form):
@@ -125,7 +125,7 @@ class UserSearchForm(forms.Form):
         super().__init__(**kwargs)
 
         YEAR_CHOICES = [('all', 'Toutes')]
-        for year in list_year():
+        for year in get_list_year():
             YEAR_CHOICES.append(
                 (year, year)
             )

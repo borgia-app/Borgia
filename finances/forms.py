@@ -10,7 +10,7 @@ from django.forms.widgets import PasswordInput
 
 from borgia.validators import autocomplete_username_validator
 from shops.models import Shop
-from users.models import User, list_year
+from users.models import User, get_list_year
 
 
 class SelfTransfertCreateForm(forms.Form):

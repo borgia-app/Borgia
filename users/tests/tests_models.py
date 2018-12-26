@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from users.models import User, list_year
+from users.models import User, get_list_year
 
 
 class UserTest(TestCase):
@@ -123,4 +123,4 @@ class ListYearTest(TestCase):
         self.user4 = User.objects.create(username='user4', year=1901)
 
     def test_list_year(self):
-        self.assertListEqual(list_year(), [2016, 2011, 1901])
+        self.assertListEqual(get_list_year(), [2016, 2011, 1901])

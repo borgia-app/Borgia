@@ -2,10 +2,9 @@ import datetime
 import decimal
 import itertools
 
-from django.contrib.auth.models import AbstractUser, Permission
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Q
 from django.utils import timezone
 
 
@@ -171,7 +170,7 @@ class User(AbstractUser):
 
         TODO : Strongly dependent of events, should be moved there.
         """
-        events = self.event_set.filter(done = False)
+        events = self.event_set.filter(done=False)
         solde_prev = 0
         for se in events:
             solde_prev += se.get_price_of_user(self)
@@ -243,7 +242,7 @@ class User(AbstractUser):
 
         return list_transaction
 
-def list_year():
+def get_list_year():
     """
     Return the list of current used years in all the users.
 
@@ -251,8 +250,8 @@ def list_year():
     """
     list_year = []
     # Parmis tout les users moins les gadz d'honn'ss et l'admin
-    for u in User.objects.filter(is_active=True).exclude(groups=6).exclude(pk=1):
-        if u.year not in list_year:
-            if u.year is not None:  # year is not mandatory
-                list_year.append(u.year)
+    for user in User.objects.filter(is_active=True).exclude(groups=6).exclude(pk=1):
+        if user.year not in list_year:
+            if user.year is not None:  # year is not mandatory
+                list_year.append(user.year)
     return sorted(list_year, reverse=True)

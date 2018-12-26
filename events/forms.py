@@ -10,7 +10,7 @@ from django.forms.widgets import PasswordInput
 
 from borgia.validators import autocomplete_username_validator
 from shops.models import Shop
-from users.models import User, list_year
+from users.models import User, get_list_year
 
 
 class EventListForm(forms.Form):
@@ -155,7 +155,7 @@ class EventDownloadXlsxForm(forms.Form):
     def __init__(self):
         super().__init__()
         YEAR_CHOICES = []
-        for year in list_year():
+        for year in get_list_year():
             YEAR_CHOICES.append(
                 (year, year)
             )

@@ -244,6 +244,7 @@ class ShopModuleCategoryCreateView(ShopModuleMixin, BorgiaView):
     template_name = 'modules/shop_module_category_create.html'
 
     def __init__(self):
+        super().__init__()
         self.shop = None
         self.module_class = None
         self.form_class = None
@@ -304,6 +305,7 @@ class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, BorgiaView):
     template_name = 'modules/shop_module_category_update.html'
 
     def __init__(self):
+        super().__init__()
         self.shop = None
         self.module_class = None
         self.form_class = None
@@ -366,6 +368,7 @@ class ShopModuleCategoryDeleteView(ShopModuleCategoryMixin, BorgiaView):
     template_name = 'modules/shop_module_category_delete.html'
 
     def __init__(self):
+        super().__init__()
         self.shop = None
         self.module_class = None
 
