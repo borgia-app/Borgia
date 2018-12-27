@@ -1,7 +1,8 @@
+#-*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
-from finances.models import Sale
+from sales.models import Sale
 from shops.mixins import ShopMixin
 
 

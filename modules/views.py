@@ -8,12 +8,12 @@ from django.urls import reverse
 
 from borgia.views import BorgiaFormView, BorgiaView
 from configurations.utils import configurations_safe_get
-from finances.models import Sale, SaleProduct
 from modules.forms import (ModuleCategoryCreateForm,
                            ModuleCategoryCreateNameForm, ShopModuleConfigForm,
                            ShopModuleSaleForm)
 from modules.mixins import ShopModuleCategoryMixin, ShopModuleMixin
 from modules.models import Category, CategoryProduct, SelfSaleModule
+from sales.models import Sale, SaleProduct
 from shops.models import Product, Shop
 from users.models import User
 

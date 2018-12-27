@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 import re
 
 from django import forms
@@ -8,7 +9,6 @@ from django.core.validators import RegexValidator
 from django.forms.widgets import PasswordInput
 
 from borgia.validators import autocomplete_username_validator
-from shops.models import Shop
 from users.models import User
 
 
@@ -54,25 +54,6 @@ class SelfTransfertCreateForm(forms.Form):
 
 
 class GenericListSearchDateForm(forms.Form):
-    search = forms.CharField(label='Recherche', max_length=255, required=False)
-    date_begin = forms.DateField(
-        label='Date de début',
-        input_formats=['%d/%m/%Y'],
-        widget=forms.DateInput(attrs={'class': 'datepicker'}),
-        required=False)
-    date_end = forms.DateField(
-        label='Date de fin',
-        input_formats=['%d/%m/%Y'],
-        widget=forms.DateInput(attrs={'class': 'datepicker'}),
-        required=False)
-
-
-class SaleListSearchDateForm(forms.Form):
-    shop = forms.ModelChoiceField(
-        label='Magasin',
-        queryset=Shop.objects.all().exclude(pk=1),
-        empty_label="Tous",
-        required=False)
     search = forms.CharField(label='Recherche', max_length=255, required=False)
     date_begin = forms.DateField(
         label='Date de début',

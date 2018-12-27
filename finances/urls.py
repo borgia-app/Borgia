@@ -1,9 +1,10 @@
+#-*- coding: utf-8 -*-
 from django.urls import include, path
 
 from finances.views import (ExceptionnalMovementList,
                             ExceptionnalMovementRetrieve, RechargingCreate,
-                            RechargingList, RechargingRetrieve, SaleList,
-                            SaleRetrieve, SelfLydiaConfirm, SelfLydiaCreate,
+                            RechargingList, RechargingRetrieve,
+                            SelfLydiaConfirm, SelfLydiaCreate,
                             SelfTransactionList, SelfTransfertCreate,
                             TransfertList, TransfertRetrieve,
                             UserExceptionnalMovementCreate,
@@ -11,11 +12,6 @@ from finances.views import (ExceptionnalMovementList,
 
 finances_patterns = [
     path('finances/', include([
-        # SALES
-        path('shops/<int:shop_pk>/sales/', include([
-            path('', SaleList.as_view(), name='url_sale_list'),
-            path('<int:pk>/', SaleRetrieve.as_view(), name='url_sale_retrieve')
-        ])),
         # TO USERS
         path('users/<int:user_pk>/', include([
             path('exceptionnal_movement/create/', UserExceptionnalMovementCreate.as_view(), name='url_user_exceptionnalmovement_create'),

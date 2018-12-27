@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 from django.test import TestCase
 from django.urls import NoReverseMatch, reverse
 
@@ -7,8 +8,6 @@ class FinancesNamedURLTests(TestCase):
     def test_named_urls(self):
         "Named finances URLs should be reversible"
         expected_named_urls = [
-            ('url_sale_list', [], {'shop_pk': 53}),
-            ('url_sale_retrieve', [], {'shop_pk': 53, 'pk': 53}),
             ('url_user_exceptionnalmovement_create', [], {'user_pk': 53}),
             ('url_recharging_create', [], {'user_pk': 53}),
             ('url_recharging_list', [], {}),

@@ -22,8 +22,9 @@ from borgia.mixins import LateralMenuMixin
 from borgia.utils import (INTERNALS_GROUP_NAME, get_managers_group_from_user,
                           is_association_manager)
 from events.models import Event
-from finances.models import ExceptionnalMovement, Recharging, Sale, Transfert
+from finances.models import ExceptionnalMovement, Recharging, Transfert
 from modules.models import SelfSaleModule
+from sales.models import Sale
 from shops.models import Shop
 from users.forms import UserQuickSearchForm
 from users.models import User
