@@ -18,6 +18,7 @@ class ShopModuleMixin(ShopMixin):
     permission_required_operator = None
 
     def __init__(self):
+        super().__init__()
         self.module_class = None
         self.module = None
 

@@ -1,14 +1,9 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
-from django.urls import reverse
 from django.views.generic.base import ContextMixin
 
-from borgia.mixins import LateralMenuMixin
-from borgia.utils import (get_permission_name_group_managing,
-                          group_name_display, is_association_manager,
-                          simple_lateral_link)
+from borgia.utils import is_association_manager
 from shops.models import Product, Shop
 from shops.utils import is_shop_manager
 
@@ -75,6 +70,7 @@ class ProductMixin(ShopMixin):
     """
 
     def __init__(self):
+        super().__init__()
         self.product = None
 
     def add_product_object(self):

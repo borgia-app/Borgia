@@ -66,7 +66,7 @@ class SaleListTests(BaseFocusShopViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
 

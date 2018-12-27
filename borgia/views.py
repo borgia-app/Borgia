@@ -156,7 +156,9 @@ class MembersWorkboard(BorgiaView):
 
     @staticmethod
     def monthlist(start, end):
-        def total_months(dt): return dt.month + 12 * dt.year
+        def total_months(dt):
+            return dt.month + 12 * dt.year
+
         mlist = []
         for tot_m in range(total_months(start)-1, total_months(end)):
             y, m = divmod(tot_m, 12)

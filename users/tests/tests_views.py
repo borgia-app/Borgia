@@ -1,5 +1,4 @@
-from django.contrib.auth.models import Group, Permission
-from django.test import Client, TestCase
+from django.test import Client
 from django.urls import reverse
 
 from borgia.tests.tests_views import BaseBorgiaViewsTestCase
@@ -56,13 +55,13 @@ class UserCreateViewTestCase(BaseGeneralUserViewsTestCase):
         response_creation = self.client1.post(
             reverse(self.url_view),
             {'first_name': 'first_name',
-            'last_name': 'last_name',
-            'email': 'not_a_real_email@email.com',
-            'family': '53',
-            'year': 2015,
-            'campus': 'ME',
-            'username': '53Me215',
-            'password': 'password'})
+             'last_name': 'last_name',
+             'email': 'not_a_real_email@email.com',
+             'family': '53',
+             'year': 2015,
+             'campus': 'ME',
+             'username': '53Me215',
+             'password': 'password'})
         
         self.assertEqual(response_creation.status_code, 302)
         self.assertTrue(Client().login(username='53Me215', password='password'))
@@ -74,12 +73,12 @@ class UserCreateViewTestCase(BaseGeneralUserViewsTestCase):
         response_creation = self.client1.post(
             reverse(self.url_view),
             {'first_name': 'first_name2',
-            'last_name': 'last_name2',
-            'email': 'not_a_real_email2@email.com',
-            'year': 2015,
-            'username': 'External',
-            'is_external_member': True,
-            'password': 'password'})
+             'last_name': 'last_name2',
+             'email': 'not_a_real_email2@email.com',
+             'year': 2015,
+             'username': 'External',
+             'is_external_member': True,
+             'password': 'password'})
         
         self.assertEqual(response_creation.status_code, 302)
         self.assertTrue(Client().login(username='External', password='password'))

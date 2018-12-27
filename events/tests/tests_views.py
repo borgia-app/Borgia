@@ -1,7 +1,7 @@
 import datetime
 import decimal
 
-from django.test import Client, TestCase
+from django.test import Client
 from django.urls import reverse
 
 from borgia.tests.tests_views import BaseBorgiaViewsTestCase
@@ -12,7 +12,7 @@ class BaseEventsViewsTestCase(BaseBorgiaViewsTestCase):
     """
     Base for Events views tests.
     Users : user1 (all permissions), user2 (no permissions), user3 (manager of event1).
-    Event : 
+    Event :
      - event1, managed by user3.
      - event2, managed by user3, done
     """
@@ -88,8 +88,8 @@ class BaseFocusEventViewsTestCase(BaseEventsViewsTestCase):
     """
     url_view = None
 
-    def get_url(self, pk):
-        return reverse(self.url_view, kwargs={'pk': pk})
+    def get_url(self, event_pk):
+        return reverse(self.url_view, kwargs={'pk': event_pk})
 
     def as_president_get(self):
         response_client1 = self.client1.get(self.get_url(self.event1.pk))
@@ -124,7 +124,7 @@ class EventUpdateViewTests(BaseFocusEventViewsTestCase):
 
     def test_not_allowed_user_get(self):
         super().not_allowed_user_get()
-        
+
     def test_not_existing_event_get(self):
         super().not_existing_event_get()
 
@@ -145,7 +145,7 @@ class EventFinishViewTests(BaseFocusEventViewsTestCase):
 
     def test_not_allowed_user_get(self):
         super().not_allowed_user_get()
-        
+
     def test_not_existing_event_get(self):
         super().not_existing_event_get()
 
@@ -164,7 +164,7 @@ class EventDeleteViewTests(BaseFocusEventViewsTestCase):
 
     def test_not_allowed_user_get(self):
         super().not_allowed_user_get()
-        
+
     def test_not_existing_event_get(self):
         super().not_existing_event_get()
 
@@ -183,7 +183,7 @@ class EventManageUsersTests(BaseFocusEventViewsTestCase):
 
     def test_not_allowed_user_get(self):
         super().not_allowed_user_get()
-        
+
     def test_not_existing_event_get(self):
         super().not_existing_event_get()
 

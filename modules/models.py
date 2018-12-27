@@ -118,7 +118,7 @@ class ShopModule(Module):
         raise ImproperlyConfigured(
             '{0} is using get_module_class() of ShopModule model.'
             'You must override {0}.get_module_class().'.format(self.__class__.__name__)
-        )  
+        )
 
 class SelfSaleModule(ShopModule):
     """
@@ -134,7 +134,7 @@ class SelfSaleModule(ShopModule):
 
     def __str__(self):
         return 'Module de vente en libre service du magasin ' + self.shop.__str__()
-    
+
     def get_module_class(self):
         return 'self_sales'
 

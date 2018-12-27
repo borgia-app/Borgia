@@ -29,6 +29,9 @@ class ShopCreate(PermissionRequiredMixin, BorgiaFormView):
     lm_active = 'lm_shop_create'
     form_class = ShopCreateForm
 
+    def __init__(self):
+        self.shop = None
+
     def form_valid(self, form):
         """
         Create the shop instance and relating groups and permissions.
@@ -116,8 +119,8 @@ class ShopUpdate(ShopMixin, BorgiaFormView):
     template_name = 'shops/shop_update.html'
     form_class = ShopUpdateForm
 
-    def get_initial(self, **kwargs):
-        initial = super().get_initial(**kwargs)
+    def get_initial(self):
+        initial = super().get_initial()
         initial['description'] = self.shop.description
         initial['color'] = self.shop.color
         return initial
@@ -311,6 +314,10 @@ class ProductCreate(ShopMixin, BorgiaFormView):
     form_class = ProductCreateForm
     lm_active = 'lm_product_create'
 
+    def __init__(self):
+        super().__init__()
+        self.product = None
+
     def get_initial(self):
         initial = super().get_initial()
         initial['on_quantity'] = False
@@ -417,8 +424,8 @@ class ProductUpdate(ProductMixin, BorgiaFormView):
     form_class = ProductUpdateForm
     model = Product
 
-    def get_initial(self, **kwargs):
-        initial = super().get_initial(**kwargs)
+    def get_initial(self):
+        initial = super().get_initial()
         initial['name'] = self.product.name
         return initial
 

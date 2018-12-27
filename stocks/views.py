@@ -69,7 +69,7 @@ class StockEntryCreateView(ShopMixin, BorgiaView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         stockentry_product_form = formset_factory(StockEntryProductForm,
-                                                   extra=1)
+                                                  extra=1)
         context['stockentry_form'] = stockentry_product_form(
             form_kwargs={'shop': self.shop})
         context['add_inventory_form'] = AdditionnalDataStockEntryForm()
@@ -80,7 +80,7 @@ class StockEntryCreateView(ShopMixin, BorgiaView):
             operator=request.user, shop=self.shop)
 
         stockentry_product_form = formset_factory(StockEntryProductForm,
-                                                   extra=1)
+                                                  extra=1)
         stockentry_form = stockentry_product_form(
             request.POST, form_kwargs={'shop': self.shop})
         add_inventory_form = AdditionnalDataStockEntryForm(request.POST)
@@ -137,6 +137,7 @@ class StockEntryRetrieveView(ShopMixin, BorgiaView):
     lm_active = 'lm_stockentry_list'
 
     def __init__(self):
+        super().__init__()
         self.stockentry = None
 
     def add_stockentry_object(self):
@@ -290,6 +291,7 @@ class InventoryRetrieveView(ShopMixin, BorgiaView):
     lm_active = 'lm_inventory_list'
 
     def __init__(self):
+        super().__init__()
         self.inventory = None
 
     def add_inventory_object(self):

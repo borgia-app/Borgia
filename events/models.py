@@ -1,13 +1,10 @@
 import decimal
 
-from django.contrib.contenttypes.fields import GenericForeignKey
-from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import MinValueValidator, RegexValidator
+from django.core.validators import MinValueValidator
 from django.db import models
 from django.utils.timezone import now
 
-from shops.models import Product, Shop
 from users.models import User
 
 
@@ -71,13 +68,16 @@ class Event(models.Model):
         """
         list_u_all = []
         for user in self.users.all():
-            e = self.weightsuser_set.get(user=user, event=self)
-            if isinstance(self.price, decimal.Decimal) and e.weights_participation > 0:
+            weightsuser = self.weightsuser_set.get(user=user)
+            if isinstance(self.price, decimal.Decimal) and weightsuser.weights_participation > 0:
                 list_u_all.append(
-                    [user, e.weights_registeration, e.weights_participation, e.weights_participation * self.price])
+                    [user, weightsuser.weights_registeration,
+                     weightsuser.weights_participation,
+                     weightsuser.weights_participation * self.price])
             else:
                 list_u_all.append(
-                    [user, e.weights_registeration, e.weights_participation])
+                    [user, weightsuser.weights_registeration,
+                     weightsuser.weights_participation])
         return list_u_all
 
     def list_participants_weight(self):
@@ -88,8 +88,8 @@ class Event(models.Model):
         """
         list_u_p = []
         for user in self.users.all():
-            e = self.weightsuser_set.get(user=user, event=self)
-            weight = e.weights_participation
+            weights = self.weightsuser_set.get(user=user, event=self)
+            weight = weights.weights_participation
             if weight > 0:
                 if self.price:
                     list_u_p.append([user, weight, weight * self.price])
@@ -105,8 +105,8 @@ class Event(models.Model):
         """
         list_u_r = []
         for user in self.users.all():
-            e = self.weightsuser_set.get(user=user, event=self)
-            weight = e.weights_registeration
+            weightsuser = self.weightsuser_set.get(user=user, event=self)
+            weight = weightsuser.weights_registeration
             if weight > 0:
                 list_u_r.append([user, weight])
         return list_u_r
@@ -125,44 +125,44 @@ class Event(models.Model):
         except ValueError:
             pass
 
-    def add_weight(self, user, weight, isParticipant=True):
+    def add_weight(self, user, weight, is_participant=True):
         """
         Ajout d'un nombre de weight à l'utilisateur.
         :param user: user associé
         :param weight: weight à ajouter
-        :param isParticipant: est ce qu'on ajoute un participant ?
+        :param is_participant: est ce qu'on ajoute un participant ?
         :return:
         """
 
         # if the user doesn't exist in the event already
         if user not in self.users.all():
-            if isParticipant:
+            if is_participant:
                 WeightsUser.objects.create(
                     user=user, event=self, weights_participation=weight)
             else:
                 WeightsUser.objects.create(
                     user=user, event=self, weights_registeration=weight)
         else:
-            e = self.weightsuser_set.get(user=user, event=self)
-            if isParticipant:
-                e.weights_participation += weight
+            weightsuser = self.weightsuser_set.get(user=user, event=self)
+            if is_participant:
+                weightsuser.weights_participation += weight
             else:
-                e.weights_registeration += weight
-            e.save()
+                weightsuser.weights_registeration += weight
+            weightsuser.save()
 
-    def change_weight(self, user, weight, isParticipant=True):
+    def change_weight(self, user, weight, is_participant=True):
         """
         Changement du nombre de weight de l'utilisateur.
         :param user: user associé
         :param weight: weight à changer
-        :param isParticipant: est ce qu'on ajoute un participant ?
+        :param is_participant: est ce qu'on ajoute un participant ?
         :return:
         """
 
         # if the user doesn't exist in the event already
         if not user in self.users.all():
             if weight != 0:
-                if isParticipant:
+                if is_participant:
                     WeightsUser.objects.create(
                         user=user, event=self, weights_participation=weight)
                 else:
@@ -171,21 +171,22 @@ class Event(models.Model):
         else:
             e = self.weightsuser_set.get(user=user)
 
-            if weight == 0 and ((isParticipant and e.weights_registeration == 0) or (not isParticipant and e.weights_participation == 0)):
+            if weight == 0 and ((is_participant and e.weights_registeration == 0)
+                or (not is_participant and e.weights_participation == 0)):
                 e.delete()
                 # Deleted if both values are 0
 
             else:
-                if isParticipant:
+                if is_participant:
                     e.weights_participation = weight
                 else:
                     e.weights_registeration = weight
 
                 e.save()
 
-    def get_weight_of_user(self, user, isParticipant=True):
+    def get_weight_of_user(self, user, is_participant=True):
         try:
-            if isParticipant:
+            if is_participant:
                 return self.weightsuser_set.get(user=user).weights_participation
             else:
                 return self.weightsuser_set.get(user=user).weights_registeration
@@ -252,11 +253,11 @@ class Event(models.Model):
         self.done = True
         self.save()
 
-        for e in self.weightsuser_set.all():
-            weight = e.weights_participation
+        for weights in self.weightsuser_set.all():
+            weight = weights.weights_participation
             if weight != 0:
                 user_price = ponderation_price * weight
-                e.user.debit(user_price)
+                weights.user.debit(user_price)
                 recipient.credit(user_price)
 
         self.payment_by_ponderation = True
@@ -321,4 +322,5 @@ class WeightsUser(models.Model):
         default_permissions = ()
 
     def __str__(self):
-        return "%s possede %s parts dans l'événement %s" % (self.user, self.weights_participation, self.event)
+        return '{0} possede {1} parts dans l\'événement {3}'.format(
+            self.user, self.weights_participation, self.event)

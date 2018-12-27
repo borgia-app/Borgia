@@ -68,9 +68,7 @@ class StockEntryProductForm(forms.Form):
         required=False
     )
 
-    def clean(self):
-        cleaned_data = super().clean()
-        # Validation direct in html
+    # TODO : Validation
 
 
 class BaseInventoryProductFormSet(BaseFormSet):
@@ -158,9 +156,7 @@ class InventoryProductForm(forms.Form):
         required=False
     )
 
-    def clean(self):
-        cleaned_data = super().clean()
-        # Validation direct in html
+    # TODO : Validation
 
 
 class InventoryListDateForm(forms.Form):

@@ -10,11 +10,11 @@ class BaseShopModuleViewsTest(BaseShopsViewsTest):
         super().setUp()
         self.selfsalemodule1 = SelfSaleModule.objects.create(
             shop=self.shop1,
-            state = True
+            state=True
         )
         self.operatorsalemodule1 = OperatorSaleModule.objects.create(
             shop=self.shop1,
-            state = True
+            state=True
         )
 
 class BaseGeneralShopModuleViewsTest(BaseShopModuleViewsTest):
@@ -221,7 +221,7 @@ class ShopModuleCategoryUpdateViewTests(BaseFocusShopModuleCategoryViewsTest):
 
     def test_category_not_in_shop(self):
         super().category_not_in_shop()
-        
+
     def test_category_not_in_module(self):
         super().category_not_in_module()
 

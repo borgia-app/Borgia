@@ -1,8 +1,6 @@
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.shortcuts import redirect, render
 from django.urls import reverse
 from django.views.generic.base import TemplateView
-from django.views.generic.edit import FormView
 
 from borgia.mixins import LateralMenuMixin
 from borgia.views import BorgiaFormView
@@ -64,8 +62,8 @@ class ConfigurationCenterView(ConfigurationChangeBaseView):
     form_class = ConfigurationCenterForm
     lm_active = 'lm_global_config'
 
-    def get_initial(self, **kwargs):
-        initial = super().get_initial(**kwargs)
+    def get_initial(self):
+        initial = super().get_initial()
         initial['center_name'] = configurations_safe_get('CENTER_NAME').get_value()
         return initial
 
@@ -88,8 +86,8 @@ class ConfigurationProfitView(ConfigurationChangeBaseView):
     form_class = ConfigurationProfitForm
     lm_active = 'lm_global_config'
 
-    def get_initial(self, **kwargs):
-        initial = super().get_initial(**kwargs)
+    def get_initial(self):
+        initial = super().get_initial()
         initial['margin_profit'] = configurations_safe_get(
             'MARGIN_PROFIT').get_value()
         return initial
@@ -113,8 +111,8 @@ class ConfigurationLydiaView(ConfigurationChangeBaseView):
     form_class = ConfigurationLydiaForm
     lm_active = 'lm_global_config'
 
-    def get_initial(self, **kwargs):
-        initial = super().get_initial(**kwargs)
+    def get_initial(self):
+        initial = super().get_initial()
         initial['lydia_min_price'] = configurations_safe_get(
             'LYDIA_MIN_PRICE').get_value()
         initial['lydia_max_price'] = configurations_safe_get(
@@ -162,8 +160,8 @@ class ConfigurationBalanceView(ConfigurationChangeBaseView):
     form_class = ConfigurationBalanceForm
     lm_active = 'lm_global_config'
 
-    def get_initial(self, **kwargs):
-        initial = super().get_initial(**kwargs)
+    def get_initial(self):
+        initial = super().get_initial()
         initial['balance_threshold_purchase'] = configurations_safe_get(
             'BALANCE_THRESHOLD_PURCHASE').get_value()
         #initial['balance_threshold_mail_alert'] = configurations_safe_get('BALANCE_THRESHOLD_MAIL_ALERT').get_value()
@@ -176,20 +174,20 @@ class ConfigurationBalanceView(ConfigurationChangeBaseView):
             'BALANCE_THRESHOLD_PURCHASE')
         balance_threshold_purchase.value = form.cleaned_data['balance_threshold_purchase']
         balance_threshold_purchase.save()
-        """
-        # balance_threshold_mail_alert
-        balance_threshold_mail_alert = configurations_safe_get('BALANCE_THRESHOLD_MAIL_ALERT')
-        if not form.cleaned_data['balance_threshold_mail_alert']:
-            balance_threshold_mail_alert.value = ''
-        else:
-            balance_threshold_mail_alert.value = form.cleaned_data['balance_threshold_mail_alert']
-        balance_threshold_mail_alert.save()
-        # balance_frequency_mail_alert
-        balance_frequency_mail_alert = configurations_safe_get('BALANCE_FREQUENCY_MAIL_ALERT')
-        if not form.cleaned_data['balance_frequency_mail_alert']:
-            balance_frequency_mail_alert.value = ''
-        else:
-            balance_frequency_mail_alert.value = form.cleaned_data['balance_frequency_mail_alert']
-        balance_frequency_mail_alert.save()
-        """
+
+        # # balance_threshold_mail_alert
+        # balance_threshold_mail_alert = configurations_safe_get('BALANCE_THRESHOLD_MAIL_ALERT')
+        # if not form.cleaned_data['balance_threshold_mail_alert']:
+        #     balance_threshold_mail_alert.value = ''
+        # else:
+        #     balance_threshold_mail_alert.value = form.cleaned_data['balance_threshold_mail_alert']
+        # balance_threshold_mail_alert.save()
+        # # balance_frequency_mail_alert
+        # balance_frequency_mail_alert = configurations_safe_get('BALANCE_FREQUENCY_MAIL_ALERT')
+        # if not form.cleaned_data['balance_frequency_mail_alert']:
+        #     balance_frequency_mail_alert.value = ''
+        # else:
+        #     balance_frequency_mail_alert.value = form.cleaned_data['balance_frequency_mail_alert']
+        # balance_frequency_mail_alert.save()
+
         return super().form_valid(form)

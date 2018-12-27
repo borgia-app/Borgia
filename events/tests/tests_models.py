@@ -57,35 +57,35 @@ class EventModelTestCase(TestCase):
 
     def test_add_and_remove_user(self):
         # INIT
-        self.event1.change_weight(self.user1, 100, isParticipant=True)
-        self.event1.change_weight(self.user1, 30, isParticipant=True)
-        self.event1.add_weight(self.user1, 23, isParticipant=True)
-        self.event1.change_weight(self.user1, 10, isParticipant=False)
-        self.event1.change_weight(self.user1, 1, isParticipant=False)
-        self.event1.add_weight(self.user1, 2, isParticipant=False)
+        self.event1.change_weight(self.user1, 100, is_participant=True)
+        self.event1.change_weight(self.user1, 30, is_participant=True)
+        self.event1.add_weight(self.user1, 23, is_participant=True)
+        self.event1.change_weight(self.user1, 10, is_participant=False)
+        self.event1.change_weight(self.user1, 1, is_participant=False)
+        self.event1.add_weight(self.user1, 2, is_participant=False)
         # User 1 now should have 3 in registration, and 53 in participation
-        self.event1.add_weight(self.user2, 200, isParticipant=False)
-        self.event1.add_weight(self.user2, 2, isParticipant=False)
+        self.event1.add_weight(self.user2, 200, is_participant=False)
+        self.event1.add_weight(self.user2, 2, is_participant=False)
         # User 2 now should have 202 in registration
-        self.event1.add_weight(self.user3, 400, isParticipant=True)
-        self.event1.change_weight(self.user3, 47, isParticipant=True)
+        self.event1.add_weight(self.user3, 400, is_participant=True)
+        self.event1.change_weight(self.user3, 47, is_participant=True)
         # User 3 now should have 303 in participation
         registration_u1 = self.event1.get_weight_of_user(
-            self.user1, isParticipant=False)
+            self.user1, is_participant=False)
         participation_u1 = self.event1.get_weight_of_user(
-            self.user1, isParticipant=True)
+            self.user1, is_participant=True)
         registration_u2 = self.event1.get_weight_of_user(
-            self.user2, isParticipant=False)
+            self.user2, is_participant=False)
         participation_u2 = self.event1.get_weight_of_user(
-            self.user2, isParticipant=True)
+            self.user2, is_participant=True)
         registration_u3 = self.event1.get_weight_of_user(
-            self.user3, isParticipant=False)
+            self.user3, is_participant=False)
         participation_u3 = self.event1.get_weight_of_user(
-            self.user3, isParticipant=True)
+            self.user3, is_participant=True)
         registration_u4 = self.event1.get_weight_of_user(
-            self.user4, isParticipant=False)
+            self.user4, is_participant=False)
         participation_u4 = self.event1.get_weight_of_user(
-            self.user4, isParticipant=True)
+            self.user4, is_participant=True)
 
         # TESTS
         self.assertEqual(registration_u1, 3)
@@ -107,21 +107,21 @@ class EventModelTestCase(TestCase):
         self.event1.remove_user(self.user4)
 
         self.assertEqual(self.event1.get_weight_of_user(
-            self.user1, isParticipant=False), 0)
+            self.user1, is_participant=False), 0)
         self.assertEqual(self.event1.get_weight_of_user(
-            self.user1, isParticipant=True), 0)
+            self.user1, is_participant=True), 0)
         self.assertEqual(self.event1.get_weight_of_user(
-            self.user2, isParticipant=False), 0)
+            self.user2, is_participant=False), 0)
         self.assertEqual(self.event1.get_weight_of_user(
-            self.user2, isParticipant=True), 0)
+            self.user2, is_participant=True), 0)
         self.assertEqual(self.event1.get_weight_of_user(
-            self.user3, isParticipant=False), 0)
+            self.user3, is_participant=False), 0)
         self.assertEqual(self.event1.get_weight_of_user(
-            self.user3, isParticipant=True), 0)
+            self.user3, is_participant=True), 0)
         self.assertEqual(self.event1.get_weight_of_user(
-            self.user4, isParticipant=False), 0)
+            self.user4, is_participant=False), 0)
         self.assertEqual(self.event1.get_weight_of_user(
-            self.user4, isParticipant=True), 0)
+            self.user4, is_participant=True), 0)
 
     def test_get_price_of_user(self):
         # INIT
@@ -137,10 +137,10 @@ class EventModelTestCase(TestCase):
 
     def test_get_total_weights(self):
         # INIT
-        self.event1.change_weight(self.user1, 10, isParticipant=True)
-        self.event1.change_weight(self.user1, 5, isParticipant=False)
-        self.event1.change_weight(self.user2, 40, isParticipant=True)
-        self.event1.change_weight(self.user2, 25, isParticipant=False)
+        self.event1.change_weight(self.user1, 10, is_participant=True)
+        self.event1.change_weight(self.user1, 5, is_participant=False)
+        self.event1.change_weight(self.user2, 40, is_participant=True)
+        self.event1.change_weight(self.user2, 25, is_participant=False)
         # TESTS
         self.assertEqual(self.event1.get_total_weights_registrants(), 30)
         self.assertEqual(self.event1.get_total_weights_participants(), 50)
@@ -150,9 +150,9 @@ class EventModelTestCase(TestCase):
 
     def test_get_total_users(self):
         # INIT
-        self.event1.change_weight(self.user1, 10, isParticipant=True)
-        self.event1.change_weight(self.user1, 5, isParticipant=False)
-        self.event1.change_weight(self.user2, 40, isParticipant=True)
+        self.event1.change_weight(self.user1, 10, is_participant=True)
+        self.event1.change_weight(self.user1, 5, is_participant=False)
+        self.event1.change_weight(self.user2, 40, is_participant=True)
         # TESTS
         self.assertEqual(self.event1.get_number_registrants(), 1)
         self.assertEqual(self.event1.get_number_participants(), 2)
@@ -172,9 +172,9 @@ class EventModelTestCase(TestCase):
         user2_initial_balance = self.user2.balance
         banker_initial_balance = self.banker.balance
 
-        event_total_price.change_weight(self.user1, 10, isParticipant=True)
-        event_total_price.change_weight(self.user2, 5, isParticipant=False)
-        event_total_price.change_weight(self.user2, 40, isParticipant=True)
+        event_total_price.change_weight(self.user1, 10, is_participant=True)
+        event_total_price.change_weight(self.user2, 5, is_participant=False)
+        event_total_price.change_weight(self.user2, 40, is_participant=True)
         event_total_price.pay_by_total(self.manager, self.banker, decimal.Decimal(100.00))
 
         # Get users with updated balance
@@ -203,9 +203,9 @@ class EventModelTestCase(TestCase):
         user2_initial_balance = self.user2.balance
         banker_initial_balance = self.banker.balance
 
-        event_pond_price.change_weight(self.user1, 10, isParticipant=True)
-        event_pond_price.change_weight(self.user2, 5, isParticipant=False)
-        event_pond_price.change_weight(self.user2, 40, isParticipant=True)
+        event_pond_price.change_weight(self.user1, 10, is_participant=True)
+        event_pond_price.change_weight(self.user2, 5, is_participant=False)
+        event_pond_price.change_weight(self.user2, 40, is_participant=True)
         event_pond_price.pay_by_ponderation(self.manager, self.banker, 3)
 
         # Get users with updated balance

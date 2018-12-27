@@ -20,7 +20,7 @@ class ConfigurationTestCase(TestCase):
     """
     def setUp(self):
         integer_values = [
-            ('1', 'i'), ('1.0', 'i'), ('1.23', 'i'), 
+            ('1', 'i'), ('1.0', 'i'), ('1.23', 'i'),
             (1, 'i'), (1.0, 'i'), (1.1, 'i')
         ]
         float_values = [
@@ -33,7 +33,7 @@ class ConfigurationTestCase(TestCase):
             ('True', 'b'), ('true', 'b'), (True, 'b'),
             ('False', 'b'), ('false', 'b'), (False, 'b'),
             (1, 'b'), (0, 'b')
-            
+
         ]
 
         self.integer_configurations = []
@@ -81,4 +81,3 @@ class ConfigurationTestCase(TestCase):
         self.assertEqual(self.boolean_configurations[5].get_value(), False)
         self.assertEqual(self.boolean_configurations[6].get_value(), True)
         self.assertEqual(self.boolean_configurations[7].get_value(), False)
-

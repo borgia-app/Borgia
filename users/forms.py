@@ -1,5 +1,5 @@
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.forms.widgets import PasswordInput
 
 from users.models import User, get_list_year

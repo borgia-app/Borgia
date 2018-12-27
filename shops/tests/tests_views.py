@@ -152,7 +152,7 @@ class ShopUpdateViewTest(BaseFocusShopViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
 
@@ -171,7 +171,7 @@ class ShopCheckupViewTest(BaseFocusShopViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
 
@@ -289,7 +289,7 @@ class ProductRetrieveViewTest(BaseFocusProductViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_product_get(self):
         super().not_existing_product_get()
 
@@ -311,7 +311,7 @@ class ProductUpdateViewTest(BaseFocusProductViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_product_get(self):
         super().not_existing_product_get()
 
@@ -333,7 +333,7 @@ class ProductUpdatePriceViewTest(BaseFocusProductViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_product_get(self):
         super().not_existing_product_get()
 
@@ -355,7 +355,7 @@ class ProductDeactivateViewTest(BaseFocusProductViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_product_get(self):
         super().not_existing_product_get()
 
@@ -377,7 +377,7 @@ class ProductRemoveViewTest(BaseFocusProductViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_product_get(self):
         super().not_existing_product_get()
 

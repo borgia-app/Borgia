@@ -24,7 +24,7 @@ class LateralMenuMixin(ContextMixin):
             raise ImproperlyConfigured(
                 '{0} is missing the menu_type attribute. Define {0}.menu_type with either '
                 'members, managers or shops.'.format(self.__class__.__name__)
-            )    
+            )
         else:
             return self.menu_type
 
@@ -49,13 +49,14 @@ class LateralMenuMixin(ContextMixin):
         elif menu_type == 'shops':
             if self.shop is None:
                 raise ImproperlyConfigured(
-                    '{0}.menu_type shops should only be used when self.shop is defined. Define {0}.menu_type with either '
-                    'members or managers, or define self.shop.'.format(self.__class__.__name__)
-                )                   
+                    '{0}.menu_type shops should only be used when self.shop is defined. '
+                    'Define {0}.menu_type with either members or managers, '
+                    'or define self.shop.'.format(self.__class__.__name__)
+                )
             else:
                 return shops_lateral_menu(nav_tree, self.request.user, self.shop)
 
-    
+
     def get_menu(self):
         """
         Override it with your custom menu.
@@ -94,7 +95,7 @@ class LateralMenuMixin(ContextMixin):
                 )
             for nav_shop in shop_tree:
                 management_tree['subs'].append(nav_shop)
-            
+
             nav_tree.append(management_tree)
 
             nav_tree = self.get_specific_menu(nav_tree)

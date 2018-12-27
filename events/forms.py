@@ -1,15 +1,9 @@
 import datetime
-import re
 
 from django import forms
-from django.contrib.auth import authenticate
-from django.contrib.auth.models import Permission
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.validators import RegexValidator
-from django.forms.widgets import PasswordInput
 
 from borgia.validators import autocomplete_username_validator
-from shops.models import Shop
 from users.models import User, get_list_year
 
 
@@ -95,10 +89,8 @@ class EventUpdateForm(forms.Form):
     bills = forms.CharField(label='Factures liées', required=False)
     manager = forms.CharField(label='Gestionnaire', required=False,
                               widget=forms.TextInput(
-                                    attrs={'class':
-                                           'autocomplete_username'}),
-                              validators=[
-                                    autocomplete_username_validator])
+                                  attrs={'class': 'autocomplete_username'}),
+                              validators=[autocomplete_username_validator])
     allow_self_registeration = forms.BooleanField(
         label='Autoriser la préinscription', required=False)
 
@@ -106,10 +98,10 @@ class EventUpdateForm(forms.Form):
 class EventListUsersForm(forms.Form):
     order_by = forms.ChoiceField(label='Trier par', choices=(
         ('username', 'Username'), ('last_name', 'Nom'), ('surname', 'Bucque'), ('year', 'Année')))
-    state = forms.ChoiceField(label='Lister', choices=(('users', 'Tous les concernés'),
-                                                       ('registrants',
-                                                        'Uniquement les préinscrits'),
-                                                       ('participants', 'Uniquement les participants')))
+    state = forms.ChoiceField(label='Lister', choices=(
+        ('users', 'Tous les concernés'),
+        ('registrants', 'Uniquement les préinscrits'),
+        ('participants', 'Uniquement les participants')))
 
 
 class EventSelfRegistrationForm(forms.Form):
@@ -147,8 +139,10 @@ class EventAddWeightForm(forms.Form):
 
 class EventDownloadXlsxForm(forms.Form):
     state = forms.ChoiceField(label='Selection',
-                              choices=(('year', 'Listes de promotions'), ('registrants', 'Préinscrit'),
-                                       ('participants', 'Participants')))
+                              choices=(
+                                  ('year', 'Listes de promotions'),
+                                  ('registrants', 'Préinscrit'),
+                                  ('participants', 'Participants')))
     years = forms.MultipleChoiceField(
         label='Année(s) à inclure', required=False)
 
@@ -167,4 +161,3 @@ class EventUploadXlsxForm(forms.Form):
     state = forms.ChoiceField(
         label='Liste de ',
         choices=(('registrants', 'Préinscrits'), ('participants', 'Participants')))
-

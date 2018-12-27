@@ -46,12 +46,11 @@ class ConfigurationLydiaForm(forms.Form):
 class ConfigurationBalanceForm(forms.Form):
     balance_threshold_purchase = forms.DecimalField(label='Valeur seuil (€) pour pouvoir acheter',
                                                     decimal_places=2, max_digits=9)
-    """
-    balance_threshold_mail_alert = forms.DecimalField(label='Valeur seuil (€) de l\'alerte par email',
-                                        decimal_places=2, max_digits=9,
-                                        required=False)
-    balance_frequency_mail_alert = forms.IntegerField(label='Fréquence de l\'alerte par email',
-                                        validators=[
-                                          MinValueValidator(1, 'La fréquence doit être d\'au moins 1 jour')],
-                                        required=False)
-    """
+
+    # balance_threshold_mail_alert = forms.DecimalField(label='Valeur seuil (€) de l\'alerte par email',
+    #                                     decimal_places=2, max_digits=9,
+    #                                     required=False)
+    # balance_frequency_mail_alert = forms.IntegerField(label='Fréquence de l\'alerte par email',
+    #                                     validators=[
+    #                                       MinValueValidator(1, 'La fréquence doit être d\'au moins 1 jour')],
+    #                                     required=False)

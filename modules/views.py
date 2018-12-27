@@ -53,8 +53,8 @@ class ShopModuleSaleView(ShopModuleMixin, BorgiaFormView):
         elif self.module_class == "operator_sales":
             return 'shops'
 
-    def get_form_kwargs(self, **kwargs):
-        kwargs = super().get_form_kwargs(**kwargs)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
         kwargs['module_class'] = self.module_class
         kwargs['module'] = self.module
         kwargs['balance_threshold_purchase'] = configurations_safe_get(
@@ -137,11 +137,11 @@ def sale_shop_module_resume(request, sale, shop, module, success_url):
         context['first_job'] = request.user.groups.all().exclude(
             pk__in=[1, 5, 6])[0]
     context['list_selfsalemodule'] = []
-    for s in Shop.objects.all().exclude(pk=1):
+    for shop in Shop.objects.all().exclude(pk=1):
         try:
-            m = SelfSaleModule.objects.get(shop=s)
-            if m.state is True:
-                context['list_selfsalemodule'].append(s)
+            module = SelfSaleModule.objects.get(shop=shop)
+            if module.state is True:
+                context['list_selfsalemodule'].append(shop)
         except ObjectDoesNotExist:
             pass
 
@@ -232,7 +232,8 @@ class ShopModuleConfigUpdateView(ShopModuleMixin, BorgiaFormView):
         return super(ShopModuleConfigUpdateView, self).form_valid(form)
 
     def get_success_url(self):
-        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
+        return reverse('url_shop_module_config',
+                       kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
 
 
 class ShopModuleCategoryCreateView(ShopModuleMixin, BorgiaView):
@@ -293,7 +294,8 @@ class ShopModuleCategoryCreateView(ShopModuleMixin, BorgiaView):
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
+        return reverse('url_shop_module_config',
+                       kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
 
 
 class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, BorgiaView):
@@ -321,7 +323,9 @@ class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, BorgiaView):
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        cat_form_data = [{'product': str(category_product.product.pk) + '/' + str(category_product.product.get_unit_display()), 'quantity': category_product.quantity}
+        cat_form_data = [{'product': str(category_product.product.pk) + '/' +
+                                     str(category_product.product.get_unit_display()),
+                          'quantity': category_product.quantity}
                          for category_product in self.category.categoryproduct_set.all()]
         context['cat_form'] = self.form_class(initial=cat_form_data)
         context['cat_name_form'] = ModuleCategoryCreateNameForm(
@@ -356,7 +360,8 @@ class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, BorgiaView):
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
+        return reverse('url_shop_module_config',
+                       kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
 
 
 class ShopModuleCategoryDeleteView(ShopModuleCategoryMixin, BorgiaView):
@@ -382,4 +387,5 @@ class ShopModuleCategoryDeleteView(ShopModuleCategoryMixin, BorgiaView):
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse('url_shop_module_config', kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
+        return reverse('url_shop_module_config',
+                       kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})

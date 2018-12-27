@@ -1,4 +1,3 @@
-import datetime
 import re
 
 from django import forms
@@ -10,7 +9,7 @@ from django.forms.widgets import PasswordInput
 
 from borgia.validators import autocomplete_username_validator
 from shops.models import Shop
-from users.models import User, get_list_year
+from users.models import User
 
 
 class SelfTransfertCreateForm(forms.Form):
@@ -127,7 +126,7 @@ class ExceptionnalMovementForm(forms.Form):
             operator_username = cleaned_data['operator_username']
             operator_password = cleaned_data['operator_password']
             if (authenticate(
-                username=operator_username,
+                    username=operator_username,
                     password=operator_password) is None):
                 raise forms.ValidationError('Echec d\'authentification')
         except KeyError:
@@ -193,7 +192,7 @@ class RechargingCreateForm(forms.Form):
 
             if operator_password and operator_password:
                 if (authenticate(
-                    username=operator_username,
+                        username=operator_username,
                         password=operator_password) is None):
                     raise forms.ValidationError('Echec d\'authentification')
         except KeyError:

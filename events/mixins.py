@@ -3,7 +3,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.views.generic.base import ContextMixin
 
-from borgia.mixins import LateralMenuMixin
 from events.models import Event
 
 
@@ -11,7 +10,8 @@ class EventMixin(PermissionRequiredMixin, ContextMixin):
     """
     Mixin for Event views.
     For Permission :
-    This mixin check if the user has the permission required OR if the user is the manager of the event.
+    This mixin check if the user has the permission required OR
+    if allow_manager is true and the user is the manager of the event.
     Then, it check if the event exists.
     Then, if it is not already done.
 

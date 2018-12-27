@@ -244,6 +244,7 @@ class EventFinish(EventMixin, BorgiaFormView):
 
 
     def __init__(self):
+        super().__init__()
         self.total_weights_participants = None
         self.ponderation_price = None
 
@@ -341,6 +342,10 @@ class EventSelfRegistration(EventMixin, BorgiaFormView):
     form_class = EventSelfRegistrationForm
     need_ongoing_event = True
 
+    def __init__(self):
+        super().__init__()
+        self.new_weight = None
+
     def has_permission(self):
         """
         Check permission, and if event exists, and if it is not done yet.
@@ -408,7 +413,7 @@ class EventChangeWeight(EventMixin, BorgiaView):
         try:
             user = User.objects.get(pk=kwargs['user_pk'])
             pond = int(request.GET['pond'])
-            isParticipant = int(request.GET['isParticipant'])
+            is_participant = int(request.GET['is_participant'])
         except KeyError:
             pass
         except ObjectDoesNotExist:
@@ -417,9 +422,9 @@ class EventChangeWeight(EventMixin, BorgiaView):
             pass
 
         if pond > 0:
-            if isParticipant in [0, 1]:
+            if is_participant in [0, 1]:
                 # Changement de la pondération
-                self.event.change_weight(user, pond, isParticipant)
+                self.event.change_weight(user, pond, is_participant)
 
                 # Réponse
                 response = 1
@@ -494,9 +499,9 @@ class EventManageUsers(EventMixin, BorgiaFormView):
         user = form.cleaned_data['user']
         weight = form.cleaned_data['weight']
         # True pour un participant
-        isParticipant = form.cleaned_data['state'] == 'participant'
+        is_participant = form.cleaned_data['state'] == 'participant'
 
-        self.event.add_weight(user, weight, isParticipant)
+        self.event.add_weight(user, weight, is_participant)
         return super().form_valid(form)
 
     def get_success_url(self):
@@ -626,14 +631,13 @@ class EventUploadXlsx(EventMixin, BorgiaFormView):
             sheet = wb.active
             rows = sheet.rows
             next(rows)  # Skip the first row
-            data = []
         except:
             raise PermissionDenied
 
         if form.cleaned_data['state'] == 'participants':
-            isParticipant = True
+            is_participant = True
         else:
-            isParticipant = False
+            is_participant = False
 
         errors = []
         nb_empty_rows = 0
@@ -653,10 +657,10 @@ class EventUploadXlsx(EventMixin, BorgiaFormView):
                             pond = int(row[min_col+1].value)
                             if pond > 0:
                                 self.event.change_weight(
-                                    user, pond, isParticipant)
+                                    user, pond, is_participant)
                         except:
                             errors.append(
-                                "Erreur avec " + username + " (ligne n*" + str(i) + "). A priori pas ajouté.")
+                                'Erreur avec ' + username + ' (ligne n*' + str(i) + '). A priori pas ajouté.')
                     else:
                         errors.append("L'utilisateur " + username +
                                       " n'existe pas. (ligne n*" + str(i) + ").")

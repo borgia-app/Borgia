@@ -45,8 +45,7 @@ def members_lateral_menu(nav_tree, user):
             if user.has_perm('modules.use_selfsalemodule'):
                 shop = selfsale_module.shop
                 url = reverse('url_shop_module_sale',
-                                kwargs={'shop_pk': shop.pk, 'module_class': 'self_sales'}
-                        )
+                              kwargs={'shop_pk': shop.pk, 'module_class': 'self_sales'})
                 nav_tree.append(
                     simple_lateral_link(
                         'Vente directe ' + shop.name.title(),
@@ -177,7 +176,7 @@ def managers_lateral_menu(nav_tree, user):
     for group in Group.objects.all():
         if user.has_perm(get_permission_name_group_managing(group)):
             nav_management_groups['subs'].append(
-                    simple_lateral_link(
+                simple_lateral_link(
                     'Gestion ' + group_name_display(group),
                     'users',
                     'lm_group_manage_' + group.name,
@@ -200,7 +199,7 @@ def managers_lateral_menu(nav_tree, user):
 
     return nav_tree
 
-    
+
 def permission_to_manage_group(group):
     """
     DEPRECATED. Use get_permission_name_group_managing instead
@@ -210,7 +209,7 @@ def permission_to_manage_group(group):
     perm_name = 'users.' + perm.codename
     return perm, perm_name
 
-    
+
 def get_permission_name_group_managing(group):
     return 'users.manage_' + group.name + '_group'
 

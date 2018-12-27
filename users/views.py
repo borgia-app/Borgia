@@ -272,7 +272,7 @@ class UserDeactivateView(UserMixin, BorgiaView):
                 if Group.objects.get(pk=5) in self.user.groups.all():
                     self.user.groups.clear()
                     self.user.groups.add(Group.objects.get(pk=5))
-                self.user.save()            
+                self.user.save()
         else:
             self.user.is_active = True
         self.user.save()
@@ -287,14 +287,14 @@ class UserDeactivateView(UserMixin, BorgiaView):
         ))
 
         if request.user == self.user and deactivated:
-            self.success_url = reverse(
+            success_url = reverse(
                 'url_logout')
-        else:           
-            self.success_url = reverse(
+        else:
+            success_url = reverse(
                 'url_user_retrieve',
                 kwargs={'user_pk': self.user.pk})
 
-        return redirect(force_text(self.success_url))
+        return redirect(force_text(success_url))
 
 
 class UserSelfUpdateView(BorgiaFormView):
@@ -337,14 +337,14 @@ class GroupUpdateView(BorgiaFormView):
     form_class = GroupUpdateForm
     group_updated = None
 
+    def __init__(self):
+        self.group = None
+
     def get_permission_required(self):
         """
         Override the permission_required attribute.
         Must return an iterable.
         """
-        #TODO : Get group
-        # TODO : move dispatch into get_initial and context
-
         try:
             self.group = Group.objects.get(pk=self.kwargs['pk'])
         except ObjectDoesNotExist:
@@ -371,8 +371,8 @@ class GroupUpdateView(BorgiaFormView):
             kwargs['possible_permissions'] = Permission.objects.filter(
                 pk__in=[p.pk for p in Group.objects.get(
                     name=chiefs_group_name).permissions.all().exclude(
-                    pk=permission_to_manage_group(self.group)[0].pk).exclude(
-                    pk__in=human_unused_permissions())]
+                        pk=permission_to_manage_group(self.group)[0].pk).exclude(
+                        pk__in=human_unused_permissions())]
             )
 
         else:
@@ -451,7 +451,7 @@ class UserUploadXlsxView(PermissionRequiredMixin, BorgiaFormView):
             context['download_form'] = self.second_form_class()
         return context
 
-    def form_valid(self, form, *args, **kwargs):
+    def form_valid(self, form):
         try:
             wb = openpyxl.load_workbook(self.request.FILES['list_user'], read_only=True)
             sheet = wb.active
@@ -574,7 +574,7 @@ class UserUploadXlsxView(PermissionRequiredMixin, BorgiaFormView):
                 if str(i) in skipped_rows:
                     errors.append("La ligne n*" + str(i) +
                                   "n'a pas été traitée car le username est manquant")  # TODO: Make this error appear
-                elif len(errors_on_required_columns) > 0:
+                elif errors_on_required_columns:
                     errors.append("Les colonnes " + ", ".join(errors_on_required_columns) +
                                   " sont requis et comportent des erreurs (ligne n*" + str(i) + ")")
                 else:
@@ -603,7 +603,7 @@ class UserAddByListXlsxDownload(PermissionRequiredMixin, BorgiaView):
     def get(self, request, *args, **kwargs):
         columns = request.GET.getlist('xlsx_columns')
 
-        if len(columns) == 0 or columns is None:
+        if columns:
             columns = ['first_name', 'last_name', 'email', 'surname',
                        'family', 'campus', 'year']
 

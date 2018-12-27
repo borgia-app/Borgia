@@ -35,7 +35,7 @@ def get_shops_managed(user):
     for shop in Shop.objects.all():
         if is_shop_manager(shop, user):
             shop_list.append(shop)
-    
+
     return shop_list
 
 
@@ -45,7 +45,7 @@ def get_shops_tree(user, is_association_manager):
         shop_managed = Shop.objects.all().exclude(pk=1)
     else:
         shop_managed = get_shops_managed(user)
-        if len(shop_managed) == 0:
+        if shop_managed:
             return []
 
     for shop in shop_managed:
@@ -62,147 +62,146 @@ def get_shops_tree(user, is_association_manager):
 
 
 def shops_lateral_menu(nav_tree, user, shop):
-        """
-        Lateral Menu for shops managers.
+    """
+    Lateral Menu for shops managers.
 
-        Add :
-        - Home page shops
-        - Checkup
-        - OperatorSale module
-        - Sales
-        - Products
-        - StockEntries
-        - Inventories
-        - OperatorSale Configuration
-        - SelfSale Configuration
-        - Shop groups management
-        """
+    Add :
+    - Home page shops
+    - Checkup
+    - OperatorSale module
+    - Sales
+    - Products
+    - StockEntries
+    - Inventories
+    - OperatorSale Configuration
+    - SelfSale Configuration
+    - Shop groups management
+    """
+    nav_tree.append(
+        simple_lateral_link(
+            'Accueil Magasin ' + shop.name.title(),
+            'briefcase',
+            'lm_workboard',
+            reverse('url_shop_workboard',
+                    kwargs={'shop_pk': shop.pk})
+        ))
+
+    if user.has_perm('shops.view_shop'):
         nav_tree.append(
             simple_lateral_link(
-                'Accueil Magasin ' + shop.name.title(),
-                'briefcase',
-                'lm_workboard',
-                reverse('url_shop_workboard',
+                'Checkup',
+                'user',
+                'lm_shop_checkup',
+                reverse('url_shop_checkup',
                         kwargs={'shop_pk': shop.pk})
             ))
 
-        if user.has_perm('shops.view_shop'):
-            nav_tree.append(
-                simple_lateral_link(
-                    'Checkup',
-                    'user',
-                    'lm_shop_checkup',
-                    reverse('url_shop_checkup',
-                            kwargs={'shop_pk': shop.pk})
-                ))
-
-        # OperatorSale Module
-        if shop.modules_operatorsalemodule_shop.first() is not None:
-            if shop.modules_operatorsalemodule_shop.first().state is True:
-                if user.has_perm('modules.use_operatorsalemodule'):
-                    nav_tree.append(simple_lateral_link(
-                        label='Module vente',
-                        fa_icon='shopping-basket',
-                        id_link='lm_operatorsale_interface_module',
-                        url=reverse(
-                            'url_shop_module_sale',
-                            kwargs={'shop_pk': shop.pk, 'module_class': 'operator_sales'})
-                        )
-                    )
-
-        # Sales
-        if user.has_perm('finances.view_sale'):
-            nav_tree.append(
-                simple_lateral_link(
-                    'Ventes',
-                    'shopping-cart',
-                    'lm_sale_list',
-                    reverse(
-                        'url_sale_list', 
-                        kwargs={'shop_pk': shop.pk})
-                )
-            )
-
-        # Products
-        if user.has_perm('shops.view_product'):
-            nav_tree.append(
-                simple_lateral_link(
-                    label='Produits',
-                    fa_icon='cube',
-                    id_link='lm_product_list',
-                    url=reverse(
-                        'url_product_list',
-                        kwargs={'shop_pk': shop.pk})
-                )
-            )
-
-        # StockEntries
-        if user.has_perm('stocks.view_stockentry'):
-            nav_tree.append(
-                simple_lateral_link(
-                    'Entrées de stock',
-                    'list',
-                    'lm_stockentry_list',
-                    reverse(
-                        'url_stockentry_list', 
-                        kwargs={'shop_pk': shop.pk})
-                )
-            )
-        
-        # Inventories
-        if user.has_perm('stocks.view_inventory'):
-            nav_tree.append(
-                simple_lateral_link(
-                    'Inventaires',
-                    'list',
-                    'lm_inventory_list',
-                    reverse(
-                        'url_inventory_list', 
-                        kwargs={'shop_pk': shop.pk})
-                )
-            )
-
-        if user.has_perm('modules.view_config_selfsalemodule'):
-            nav_tree.append(
-                simple_lateral_link(
-                    label='Configuration vente libre service',
+    # OperatorSale Module
+    if shop.modules_operatorsalemodule_shop.first() is not None:
+        if shop.modules_operatorsalemodule_shop.first().state is True:
+            if user.has_perm('modules.use_operatorsalemodule'):
+                nav_tree.append(simple_lateral_link(
+                    label='Module vente',
                     fa_icon='shopping-basket',
-                    id_link='lm_selfsale_module',
-                    url=reverse('url_shop_module_config',
-                                kwargs={'shop_pk': shop.pk, 'module_class': 'self_sales'}
-                                )
-                ))
-
-        if user.has_perm('modules.view_config_operatorsalemodule'):
-            nav_tree.append(
-                simple_lateral_link(
-                    label='Configuration vente par opérateur',
-                    fa_icon='coffee',
-                    id_link='lm_operatorsale_module',
-                    url=reverse('url_shop_module_config',
-                                kwargs={'shop_pk': shop.pk, 'module_class': 'operator_sales'}
-                                )
-                ))
-
-        # Groups management
-        nav_management_groups = {
-            'label': 'Gestion groupes magasin',
-            'icon': 'users',
-            'id': 'lm_group_management',
-            'subs': []
-        }
-        groups = [Group.objects.get(name='chiefs-'+shop.name), Group.objects.get(name='associates-'+shop.name)]
-        for group in groups:
-            if user.has_perm(get_permission_name_group_managing(group)):
-                nav_management_groups['subs'].append(
-                        simple_lateral_link(
-                        'Gestion ' + group_name_display(group),
-                        'users',
-                        'lm_group_manage_' + group.name,
-                        reverse('url_group_update', kwargs={
-                            'pk': group.pk})
+                    id_link='lm_operatorsale_interface_module',
+                    url=reverse(
+                        'url_shop_module_sale',
+                        kwargs={'shop_pk': shop.pk, 'module_class': 'operator_sales'})
                     ))
 
-        nav_tree.append(nav_management_groups)
+    # Sales
+    if user.has_perm('finances.view_sale'):
+        nav_tree.append(
+            simple_lateral_link(
+                'Ventes',
+                'shopping-cart',
+                'lm_sale_list',
+                reverse(
+                    'url_sale_list',
+                    kwargs={'shop_pk': shop.pk})
+            )
+        )
 
-        return nav_tree
+    # Products
+    if user.has_perm('shops.view_product'):
+        nav_tree.append(
+            simple_lateral_link(
+                label='Produits',
+                fa_icon='cube',
+                id_link='lm_product_list',
+                url=reverse(
+                    'url_product_list',
+                    kwargs={'shop_pk': shop.pk})
+            )
+        )
+
+    # StockEntries
+    if user.has_perm('stocks.view_stockentry'):
+        nav_tree.append(
+            simple_lateral_link(
+                'Entrées de stock',
+                'list',
+                'lm_stockentry_list',
+                reverse(
+                    'url_stockentry_list',
+                    kwargs={'shop_pk': shop.pk})
+            )
+        )
+
+    # Inventories
+    if user.has_perm('stocks.view_inventory'):
+        nav_tree.append(
+            simple_lateral_link(
+                'Inventaires',
+                'list',
+                'lm_inventory_list',
+                reverse(
+                    'url_inventory_list',
+                    kwargs={'shop_pk': shop.pk})
+            )
+        )
+
+    if user.has_perm('modules.view_config_selfsalemodule'):
+        nav_tree.append(
+            simple_lateral_link(
+                label='Configuration vente libre service',
+                fa_icon='shopping-basket',
+                id_link='lm_selfsale_module',
+                url=reverse('url_shop_module_config',
+                            kwargs={'shop_pk': shop.pk, 'module_class': 'self_sales'}
+                            )
+            ))
+
+    if user.has_perm('modules.view_config_operatorsalemodule'):
+        nav_tree.append(
+            simple_lateral_link(
+                label='Configuration vente par opérateur',
+                fa_icon='coffee',
+                id_link='lm_operatorsale_module',
+                url=reverse('url_shop_module_config',
+                            kwargs={'shop_pk': shop.pk, 'module_class': 'operator_sales'}
+                            )
+            ))
+
+    # Groups management
+    nav_management_groups = {
+        'label': 'Gestion groupes magasin',
+        'icon': 'users',
+        'id': 'lm_group_management',
+        'subs': []
+    }
+    groups = [Group.objects.get(name='chiefs-'+shop.name), Group.objects.get(name='associates-'+shop.name)]
+    for group in groups:
+        if user.has_perm(get_permission_name_group_managing(group)):
+            nav_management_groups['subs'].append(
+                simple_lateral_link(
+                    'Gestion ' + group_name_display(group),
+                    'users',
+                    'lm_group_manage_' + group.name,
+                    reverse('url_group_update', kwargs={
+                        'pk': group.pk})
+                ))
+
+    nav_tree.append(nav_management_groups)
+
+    return nav_tree

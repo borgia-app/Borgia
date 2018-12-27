@@ -104,8 +104,8 @@ class Sale(models.Model):
 
     def amount(self):
         amount = 0
-        for sp in self.saleproduct_set.all():
-            amount += sp.price
+        for sale_product in self.saleproduct_set.all():
+            amount += sale_product.price
         return amount
 
 
@@ -299,7 +299,8 @@ class Recharging(models.Model):
                                on_delete=models.CASCADE)
     operator = models.ForeignKey(User, related_name='operator_recharging',
                                  on_delete=models.CASCADE)
-    payment_solution = models.ForeignKey(PaymentSolution, on_delete=models.CASCADE)
+    payment_solution = models.ForeignKey(
+        PaymentSolution, on_delete=models.CASCADE)
 
     class Meta:
         """

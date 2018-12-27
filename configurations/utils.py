@@ -1,13 +1,11 @@
+"""
+Define Configurations utils.
+Including the default configurations, with the syntax:
+name: (String name, String description, String value_type, String value)
+"""
+
 from configurations.models import Configuration
 
-"""
-name: (String name, String description, String value_type, String value)
-CENTER_NAME,
-MARGIN_PROFIT,
-LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, LYDIA_API_TOKEN, LYDIA_VENDOR_TOKEN,
-BALANCE_THRESHOLD_MAIL_ALERT, BALANCE_FREQUENCY_MAIL_ALERT,
-BALANCE_THRESHOLD_PURCHASE
-"""
 CONFIGURATIONS_DEFAULT = {
     "CENTER_NAME": ("CENTER_NAME", "Nom du centre Borgia",
                     "s", "Center Name"),

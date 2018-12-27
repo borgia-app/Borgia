@@ -22,22 +22,21 @@ class ShopModuleSaleForm(forms.Form):
         for category in self.module.categories.all():
             for category_product in category.categoryproduct_set.all():
                 if (category_product.get_price() > 0 and
-                    not category_product.product.is_removed and
+                        not category_product.product.is_removed and
                         category_product.product.is_active):
                     self.fields[str(category_product.pk)
                                 + '-' + str(category.pk)
                                 ] = forms.IntegerField(
-                        label=category_product.__str__(),
-                        widget=forms.NumberInput(
-                            attrs={'data_category_pk': category.pk,
-                                   'data_price': category_product.get_price(),
-                                   'class': 'form-control buyable_product',
-                                   'min': 0}),
-                        initial=0,
-                        required=False,
-                        validators=[MinValueValidator(0, """La commande doit être
-                                                      positive ou nulle""")]
-                    )
+                                    label=category_product.__str__(),
+                                    widget=forms.NumberInput(
+                                        attrs={'data_category_pk': category.pk,
+                                               'data_price': category_product.get_price(),
+                                               'class': 'form-control buyable_product',
+                                               'min': 0}),
+                                    initial=0,
+                                    required=False,
+                                    validators=[MinValueValidator(0, """La commande doit être
+                                                                positive ou nulle""")])
 
     def clean(self):
         super().clean()
@@ -113,9 +112,7 @@ class ModuleCategoryCreateForm(forms.Form):
         )
     )
 
-    def clean(self):
-        cleaned_data = super(ModuleCategoryCreateForm, self).clean()
-        # Validation direct in html
+    # TODO : Validation
 
 
 class ModuleCategoryCreateNameForm(forms.Form):

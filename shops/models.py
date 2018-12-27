@@ -111,7 +111,7 @@ class Product(models.Model):
         permissions = (
             ('change_price_product', 'Can change price of a product'),
         )
-        
+
     def __str__(self):
         return self.name
 

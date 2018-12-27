@@ -6,7 +6,6 @@ import operator
 from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.mixins import PermissionRequiredMixin
-from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
@@ -16,7 +15,6 @@ from django.urls import reverse
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 
-from borgia.mixins import LateralMenuMixin
 from borgia.views import BorgiaFormView, BorgiaView
 from configurations.models import Configuration
 from configurations.utils import configurations_safe_get
@@ -185,8 +183,8 @@ class RechargingList(PermissionRequiredMixin, BorgiaFormView):
         context['info'] = self.info(context['recharging_list'])
         return context
 
-    def get_initial(self, **kwargs):
-        initial = super().get_initial(**kwargs)
+    def get_initial(self):
+        initial = super().get_initial()
         initial['date_begin'] = self.date_begin
         initial['date_end'] = self.date_end
         return initial
@@ -281,7 +279,6 @@ class RechargingList(PermissionRequiredMixin, BorgiaFormView):
         if form.cleaned_data['operators']:
             self.operators = form.cleaned_data['operators']
 
-        context = self.get_context_data()
         return self.get(self.request, self.args, self.kwargs)
 
 
@@ -383,7 +380,6 @@ class TransfertList(PermissionRequiredMixin, BorgiaFormView):
         if form.cleaned_data['date_end'] != '':
             self.date_end = form.cleaned_data['date_end']
 
-        context = self.get_context_data()
         return self.get(self.request, self.args, self.kwargs)
 
 
@@ -435,8 +431,8 @@ class SelfTransfertCreate(PermissionRequiredMixin, BorgiaFormView):
     form_class = SelfTransfertCreateForm
     lm_active = 'lm_self_transfert_create'
 
-    def get_form_kwargs(self, **kwargs):
-        kwargs = super().get_form_kwargs(**kwargs)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
         kwargs['sender'] = self.request.user
         return kwargs
 
@@ -522,7 +518,6 @@ class ExceptionnalMovementList(PermissionRequiredMixin, BorgiaFormView):
         if form.cleaned_data['date_end'] != '':
             self.date_end = form.cleaned_data['date_end']
 
-        context = self.get_context_data()
         return self.get(self.request, self.args, self.kwargs)
 
 
@@ -601,7 +596,6 @@ class SelfTransactionList(BorgiaFormView):
                 self.query_shop = form.cleaned_data['shop']
         except KeyError:
             pass
-        context = self.get_context_data()
         return self.get(self.request, self.args, self.kwargs)
 
 
@@ -661,8 +655,8 @@ class RechargingCreate(UserMixin, BorgiaFormView):
     form_class = RechargingCreateForm
     lm_active = None
 
-    def get_form_kwargs(self, **kwargs):
-        kwargs = super().get_form_kwargs(**kwargs)
+    def get_form_kwargs(self):
+        kwargs = super().get_form_kwargs()
         kwargs['user'] = self.user
         return kwargs
 
@@ -871,7 +865,8 @@ def self_lydia_callback(request):
         "vendor_token": request.POST.get("vendor_token"),
         "sig": request.POST.get("sig")
     }
-    if verify_token_algo_lydia(params_dict, configurations_safe_get("LYDIA_API_TOKEN").get_value()) is True:
+    lydia_token = configurations_safe_get("LYDIA_API_TOKEN").get_value()
+    if verify_token_algo_lydia(params_dict, lydia_token) is True:
         try:
             lydia = LydiaOnline.objects.create(
                 sender=User.objects.get(pk=request.GET.get('user_pk')),
@@ -917,8 +912,8 @@ def verify_token_algo_lydia(params, token):
         del params['sig']
         h_sig_table = []
         sorted_params = sorted(params.items(), key=operator.itemgetter(0))
-        for p in sorted_params:
-            h_sig_table.append(p[0] + '=' + p[1])
+        for param in sorted_params:
+            h_sig_table.append(param[0] + '=' + param[1])
         h_sig = '&'.join(h_sig_table)
         h_sig += '&' + token
         h_sig_hash = hashlib.md5(h_sig.encode())

@@ -1,5 +1,4 @@
 from django import template
-from django.contrib.auth.models import Group
 from django.template.defaultfilters import stringfilter
 from django.conf import settings
 
@@ -51,20 +50,20 @@ def get_center_name():
     return configurations_safe_get("CENTER_NAME").get_value()
 
 @register.simple_tag
-def set_template(template):
+def set_template(template_name):
     default_template = getattr(settings, "DEFAULT_TEMPLATE", None)
-    if template:
-        return 'less/_bootstrap-' + template + '.less'
+    if template_name:
+        return 'less/_bootstrap-' + template_name + '.less'
     elif default_template:
         return 'less/_bootstrap-' + default_template + '.less'
     else:
         return 'less/_bootstrap-light.less'
 
 @register.simple_tag
-def set_brand(template):
+def set_brand(template_name):
     default_template = getattr(settings, "DEFAULT_TEMPLATE", None)
-    if template:
-        return 'img/borgia-logo-' + template + '.png'
+    if template_name:
+        return 'img/borgia-logo-' + template_name + '.png'
     elif default_template:
         return 'img/borgia-logo-' + default_template + '.png'
     else:
@@ -72,4 +71,4 @@ def set_brand(template):
 
 @register.filter
 def group_name(group):
-  return group_name_display(group)
+    return group_name_display(group)

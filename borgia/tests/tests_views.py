@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user
 from django.contrib.auth.models import Group, Permission
-from django.core import mail
 from django.test import Client, TestCase
 from django.urls import NoReverseMatch, reverse
 
@@ -59,7 +58,7 @@ class AuthViewNamedURLTests(TestCase):
 
 class BaseAuthViewsTestCase(TestCase):
     url_view = None
-    
+
     def setUp(self):
         self.user = User.objects.create(username='user')
         self.user.set_password('yaquela215quipine')
@@ -86,26 +85,25 @@ class LoginViewTests(BaseAuthViewsTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
 
-    def test_login(self): 
-        self.client = Client()
-        response = self.client.post(
-            reverse(self.url_view), 
-                    {'username': 'user', 'password': 'yaquela215quipine'})
+    def test_login(self):
+        client = Client()
+        response = client.post(
+            reverse(self.url_view),
+            {'username': 'user', 'password': 'yaquela215quipine'})
 
-        user_logged = get_user(self.client)
+        user_logged = get_user(client)
         self.assertTrue(user_logged.is_authenticated)
 
         self.assertEqual(response.status_code, 302)
-        # TODO : See if it works without fetch_redirect_response=False
         self.assertRedirects(response, '/members/', fetch_redirect_response=False)
 
-    def test_wrong_credentials(self): 
-        self.client = Client()
-        response = self.client.post(
-            reverse(self.url_view), 
-                    {'username': 'user', 'password': 'wrongpassword'})
+    def test_wrong_credentials(self):
+        client = Client()
+        response = client.post(
+            reverse(self.url_view),
+            {'username': 'user', 'password': 'wrongpassword'})
 
-        user_logged = get_user(self.client)
+        user_logged = get_user(client)
         self.assertFalse(user_logged.is_authenticated)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
@@ -127,6 +125,7 @@ class LogoutViewTests(BaseAuthViewsTestCase):
 
         user = get_user(self.client)
         self.assertFalse(user.is_authenticated)
+        self.assertEqual(response.status_code, 302)
 
     def test_redirection(self):
         response = Client().get(reverse(self.url_view))
@@ -150,12 +149,12 @@ class PasswordChangeViewTests(BaseAuthViewsTestCase):
 
     def test_post(self):
         response = self.client.post(
-            reverse(self.url_view), 
-                    {'username': 'user',
-                     'old_password': 'yaquela215quipine',
-                     'new_password1': 'new_password',
-                     'new_password2': 'new_password'
-                     })
+            reverse(self.url_view),
+            {'username': 'user',
+             'old_password': 'yaquela215quipine',
+             'new_password1': 'new_password',
+             'new_password2': 'new_password'})
+
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('password_change_done'))
 
@@ -194,9 +193,6 @@ class PasswordResetViewTests(TestCase):
     url_view = 'password_reset'
     template_name = 'registration/password_reset_form.html'
 
-    def setUp(self):
-        super().setUp()
-
     def test_get(self):
         response = Client().get(reverse(self.url_view))
         self.assertEqual(response.status_code, 200)
@@ -226,7 +222,7 @@ class BaseWorkboardsTestCase(BaseBorgiaViewsTestCase):
     Base for workboards test cases
     """
     url_view = None
-    
+
     def as_president_get(self):
         response_client1 = self.client1.get(
             reverse(self.url_view))
