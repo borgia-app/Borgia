@@ -42,9 +42,9 @@ INSTALLED_APPS = [
     'users',
     'shops',
     'finances',
-    'sales',
     'events',
     'modules',
+    'sales',
     'stocks'
 ]
 
