@@ -14,8 +14,18 @@ class BaseShopsViewsTest(BaseBorgiaViewsTestCase):
 
         # SHOP CREATION
         self.shop1 = Shop.objects.create(
-            name="shop1", description="The first shop ever", color="#F4FA58")
-        chiefs = Group.objects.create(name='chiefs-' + self.shop1.name)
+            name="shop1",
+            description="The first shop ever.",
+            color="#F4FA58")
+        self.shop2 = Shop.objects.create(
+            name="shop2",
+            description="The second shop. Maybe the best after the first one.",
+            color="#F4FA58"
+        )
+        chiefs1 = Group.objects.create(name='chiefs-' + self.shop1.name)
+        Group.objects.create(name='associates-' + self.shop1.name)
+        chiefs2 = Group.objects.create(name='chiefs-' + self.shop2.name)
+        Group.objects.create(name='associates-' + self.shop2.name)
 
         content_type = ContentType.objects.get(app_label='users', model='user')
         Permission.objects.create(
@@ -32,12 +42,14 @@ class BaseShopsViewsTest(BaseBorgiaViewsTestCase):
         # Add chiefs default permissions
         for codename in DEFAULT_PERMISSIONS_CHIEFS:
             perm = Permission.objects.get(codename=codename)
-            chiefs.permissions.add(perm)
+            chiefs1.permissions.add(perm)
 
-        chiefs.permissions.add(manage_associate_perm)
-        chiefs.save()
+        chiefs1.permissions.add(manage_associate_perm)
+        chiefs1.save()
 
-        self.user3.groups.add(chiefs)
+        self.user3.groups.add(chiefs1)
+        self.user3.groups.add(chiefs2)
+        self.user3.save()
 
         self.product1 = Product.objects.create(
             name="skoll", shop=self.shop1)
@@ -50,29 +62,19 @@ class BaseShopsViewsTest(BaseBorgiaViewsTestCase):
 class BaseGeneralShopViewsTest(BaseShopsViewsTest):
     url_view = None
 
-    def allowed_user_get(self):
-        response_client1 = self.client1.get(
-            reverse(self.url_view, kwargs={'group_name': 'presidents'}))
+    def get_url(self):
+        return reverse(self.url_view)
+
+    def as_president_get(self):
+        response_client1 = self.client1.get(self.get_url())
         self.assertEqual(response_client1.status_code, 200)
 
-    def not_existing_group_get(self):
-        response_client1 = self.client1.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'group_that_does_not_exist'}))
-        self.assertEqual(response_client1.status_code, 404)
-
-    def not_in_group_user_get(self):
-        response_client2 = self.client2.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'presidents'}))
-        self.assertEqual(response_client2.status_code, 403)
-
-    def not_allowed_group_get(self):
-        response_client2 = self.client2.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'specials'}))
+    def not_allowed_user_get(self):
+        response_client2 = self.client2.get(self.get_url())
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):
-        response_offline_user = Client().get(
-            reverse(self.url_view, kwargs={'group_name': 'presidents'}))
+        response_offline_user = Client().get(self.get_url())
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -80,17 +82,15 @@ class BaseGeneralShopViewsTest(BaseShopsViewsTest):
 class ShopListViewTest(BaseGeneralShopViewsTest):
     url_view = 'url_shop_list'
 
-    def test_allowed_user_get(self):
-        super().allowed_user_get()
+    def test_as_president_get(self):
+        super().as_president_get()
 
-    def test_not_existing_group_get(self):
-        super().not_existing_group_get()
+    def test_as_chief_get(self):
+        response_client3 = self.client3.get(self.get_url())
+        self.assertEqual(response_client3.status_code, 200)
 
-    def test_not_in_group_user_get(self):
-        super().not_in_group_user_get()
-
-    def test_not_allowed_group_get(self):
-        super().not_allowed_group_get()
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -99,17 +99,15 @@ class ShopListViewTest(BaseGeneralShopViewsTest):
 class ShopCreateViewTest(BaseGeneralShopViewsTest):
     url_view = 'url_shop_create'
 
-    def test_allowed_user_get(self):
-        super().allowed_user_get()
+    def test_as_president_get(self):
+        super().as_president_get()
 
-    def test_not_existing_group_get(self):
-        super().not_existing_group_get()
+    def test_as_chief_get(self):
+        response_client3 = self.client3.get(self.get_url())
+        self.assertEqual(response_client3.status_code, 403)
 
-    def test_not_in_group_user_get(self):
-        super().not_in_group_user_get()
-
-    def test_not_allowed_group_get(self):
-        super().not_allowed_group_get()
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -121,39 +119,27 @@ class BaseFocusShopViewsTest(BaseShopsViewsTest):
     """
     url_view = None
 
+    def get_url(self, shop_pk):
+        return reverse(self.url_view, kwargs={'shop_pk': shop_pk})
+
     def as_president_get(self):
-        response_client1 = self.client1.get(
-            reverse(self.url_view, kwargs={'group_name': 'presidents', 'pk': str(self.shop1.pk)}))
+        response_client1 = self.client1.get(self.get_url(self.shop1.pk))
         self.assertEqual(response_client1.status_code, 200)
 
     def as_chief_get(self):
-        response_client3 = self.client3.get(
-            reverse(self.url_view, kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.shop1.pk)}))
+        response_client3 = self.client3.get(self.get_url(self.shop1.pk))
         self.assertEqual(response_client3.status_code, 200)
 
     def not_existing_shop_get(self):
-        response_client1 = self.client1.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'presidents', 'pk': '5353'}))
+        response_client1 = self.client1.get(self.get_url('5353'))
         self.assertEqual(response_client1.status_code, 404)
 
-    def not_existing_group_get(self):
-        response_client1 = self.client1.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'group_that_does_not_exist', 'pk': str(self.shop1.pk)}))
-        self.assertEqual(response_client1.status_code, 404)
-
-    def not_in_group_user_get(self):
-        response_client2 = self.client2.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.shop1.pk)}))
-        self.assertEqual(response_client2.status_code, 403)
-
-    def not_allowed_group_get(self):
-        response_client2 = self.client2.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'specials', 'pk': str(self.shop1.pk)}))
+    def not_allowed_user_get(self):
+        response_client2 = self.client2.get(self.get_url(self.shop1.pk))
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):
-        response_offline_user = Client().get(reverse(self.url_view, kwargs={
-            'group_name': 'presidents', 'pk': str(self.shop1.pk)}))
+        response_offline_user = Client().get(self.get_url(self.shop1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -166,18 +152,12 @@ class ShopUpdateViewTest(BaseFocusShopViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
 
-    def test_not_existing_group_get(self):
-        super().not_existing_group_get()
-
-    def test_not_in_group_user_get(self):
-        super().not_in_group_user_get()
-
-    def test_not_allowed_group_get(self):
-        super().not_allowed_group_get()
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -191,18 +171,12 @@ class ShopCheckupViewTest(BaseFocusShopViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_shop_get(self):
         super().not_existing_shop_get()
 
-    def test_not_existing_group_get(self):
-        super().not_existing_group_get()
-
-    def test_not_in_group_user_get(self):
-        super().not_in_group_user_get()
-
-    def test_not_allowed_group_get(self):
-        super().not_allowed_group_get()
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -211,34 +185,23 @@ class ShopCheckupViewTest(BaseFocusShopViewsTest):
 class BaseGeneralProductViewsTest(BaseShopsViewsTest):
     url_view = None
 
+    def get_url(self, shop_pk):
+        return reverse(self.url_view, kwargs={'shop_pk': shop_pk})
+
     def president_get(self):
-        response_client1 = self.client1.get(
-            reverse(self.url_view, kwargs={'group_name': 'presidents'}))
+        response_client1 = self.client1.get(self.get_url(self.shop1.pk))
         self.assertEqual(response_client1.status_code, 200)
 
     def chief_get(self):
-        response_client3 = self.client3.get(
-            reverse(self.url_view, kwargs={'group_name': 'chiefs-shop1'}))
+        response_client3 = self.client3.get(self.get_url(self.shop1.pk))
         self.assertEqual(response_client3.status_code, 200)
 
-    def not_existing_group_get(self):
-        response_client1 = self.client1.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'group_that_does_not_exist'}))
-        self.assertEqual(response_client1.status_code, 404)
-
-    def not_in_group_user_get(self):
-        response_client2 = self.client2.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'presidents'}))
-        self.assertEqual(response_client2.status_code, 403)
-
-    def not_allowed_group_get(self):
-        response_client2 = self.client2.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'specials'}))
+    def not_allowed_user_get(self):
+        response_client2 = self.client2.get(self.get_url(self.shop1.pk))
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):
-        response_offline_user = Client().get(
-            reverse(self.url_view, kwargs={'group_name': 'presidents'}))
+        response_offline_user = Client().get(self.get_url(self.shop1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -252,14 +215,8 @@ class ProductListViewTest(BaseGeneralProductViewsTest):
     def test_chief_get(self):
         super().chief_get()
 
-    def test_not_existing_group_get(self):
-        super().not_existing_group_get()
-
-    def test_not_in_group_user_get(self):
-        super().not_in_group_user_get()
-
-    def test_not_allowed_group_get(self):
-        super().not_allowed_group_get()
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -274,14 +231,8 @@ class ProductCreateViewTest(BaseGeneralProductViewsTest):
     def test_chief_get(self):
         super().chief_get()
 
-    def test_not_existing_group_get(self):
-        super().not_existing_group_get()
-
-    def test_not_in_group_user_get(self):
-        super().not_in_group_user_get()
-
-    def test_not_allowed_group_get(self):
-        super().not_allowed_group_get()
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -293,51 +244,39 @@ class BaseFocusProductViewsTest(BaseShopsViewsTest):
     """
     url_view = None
 
+    def get_url(self, shop_pk, product_pk):
+        return reverse(self.url_view, kwargs={'shop_pk': shop_pk, 'product_pk': product_pk})
+
     def as_president_get(self):
-        response1_client1 = self.client1.get(
-            reverse(self.url_view, kwargs={'group_name': 'presidents', 'pk': str(self.product1.pk)}))
-        response2_client1 = self.client1.get(
-            reverse(self.url_view, kwargs={'group_name': 'presidents', 'pk': str(self.product2.pk)}))
-        response3_client1 = self.client1.get(
-            reverse(self.url_view, kwargs={'group_name': 'presidents', 'pk': str(self.product3.pk)}))
+        response1_client1 = self.client1.get(self.get_url(self.product1.shop.pk, self.product1.pk))
+        response2_client1 = self.client1.get(self.get_url(self.product2.shop.pk, self.product2.pk))
+        response3_client1 = self.client1.get(self.get_url(self.product3.shop.pk, self.product3.pk))
         self.assertEqual(response1_client1.status_code, 200)
         self.assertEqual(response2_client1.status_code, 200)
         self.assertEqual(response3_client1.status_code, 200)
 
     def as_chief_get(self):
-        response1_client3 = self.client3.get(
-            reverse(self.url_view, kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product1.pk)}))
-        response2_client3 = self.client3.get(
-            reverse(self.url_view, kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product2.pk)}))
-        response3_client3 = self.client3.get(
-            reverse(self.url_view, kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product3.pk)}))
+        response1_client3 = self.client3.get(self.get_url(self.product1.shop.pk, self.product1.pk))
+        response2_client3 = self.client3.get(self.get_url(self.product2.shop.pk, self.product2.pk))
+        response3_client3 = self.client3.get(self.get_url(self.product3.shop.pk, self.product3.pk))
         self.assertEqual(response1_client3.status_code, 200)
         self.assertEqual(response2_client3.status_code, 200)
         self.assertEqual(response3_client3.status_code, 200)
 
     def not_existing_product_get(self):
-        response_client1 = self.client1.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'presidents', 'pk': '5353'}))
+        response_client1 = self.client1.get(self.get_url(self.shop1.pk, '5353'))
         self.assertEqual(response_client1.status_code, 404)
 
-    def not_existing_group_get(self):
-        response_client1 = self.client1.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'group_that_does_not_exist', 'pk': str(self.product1.pk)}))
+    def not_existing_shop_get(self):
+        response_client1 = self.client1.get(self.get_url('5353', self.product1.pk))
         self.assertEqual(response_client1.status_code, 404)
 
-    def not_in_group_user_get(self):
-        response_client2 = self.client2.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.product1.pk)}))
-        self.assertEqual(response_client2.status_code, 403)
-
-    def not_allowed_group_get(self):
-        response_client2 = self.client2.get(reverse(self.url_view,
-                                                    kwargs={'group_name': 'specials', 'pk': str(self.product1.pk)}))
+    def not_allowed_user_get(self):
+        response_client2 = self.client2.get(self.get_url(self.product1.shop.pk, self.product1.pk))
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):
-        response_offline_user = Client().get(reverse(self.url_view, kwargs={
-            'group_name': 'presidents', 'pk': str(self.product1.pk)}))
+        response_offline_user = Client().get(self.get_url(self.product1.shop.pk, self.product1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
@@ -350,18 +289,15 @@ class ProductRetrieveViewTest(BaseFocusProductViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_product_get(self):
         super().not_existing_product_get()
 
-    def test_not_existing_group_get(self):
-        super().not_existing_group_get()
+    def test_not_existing_shop_get(self):
+        super().not_existing_shop_get()
 
-    def test_not_in_group_user_get(self):
-        super().not_in_group_user_get()
-
-    def test_not_allowed_group_get(self):
-        super().not_allowed_group_get()
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -375,18 +311,15 @@ class ProductUpdateViewTest(BaseFocusProductViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_product_get(self):
         super().not_existing_product_get()
 
-    def test_not_existing_group_get(self):
-        super().not_existing_group_get()
+    def test_not_existing_shop_get(self):
+        super().not_existing_shop_get()
 
-    def test_not_in_group_user_get(self):
-        super().not_in_group_user_get()
-
-    def test_not_allowed_group_get(self):
-        super().not_allowed_group_get()
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -400,18 +333,15 @@ class ProductUpdatePriceViewTest(BaseFocusProductViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_product_get(self):
         super().not_existing_product_get()
 
-    def test_not_existing_group_get(self):
-        super().not_existing_group_get()
+    def test_not_existing_shop_get(self):
+        super().not_existing_shop_get()
 
-    def test_not_in_group_user_get(self):
-        super().not_in_group_user_get()
-
-    def test_not_allowed_group_get(self):
-        super().not_allowed_group_get()
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -425,18 +355,15 @@ class ProductDeactivateViewTest(BaseFocusProductViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_product_get(self):
         super().not_existing_product_get()
 
-    def test_not_existing_group_get(self):
-        super().not_existing_group_get()
+    def test_not_existing_shop_get(self):
+        super().not_existing_shop_get()
 
-    def test_not_in_group_user_get(self):
-        super().not_in_group_user_get()
-
-    def test_not_allowed_group_get(self):
-        super().not_allowed_group_get()
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
@@ -450,18 +377,15 @@ class ProductRemoveViewTest(BaseFocusProductViewsTest):
 
     def test_as_chief_get(self):
         super().as_chief_get()
-        
+
     def test_not_existing_product_get(self):
         super().not_existing_product_get()
 
-    def test_not_existing_group_get(self):
-        super().not_existing_group_get()
+    def test_not_existing_shop_get(self):
+        super().not_existing_shop_get()
 
-    def test_not_in_group_user_get(self):
-        super().not_in_group_user_get()
-
-    def test_not_allowed_group_get(self):
-        super().not_allowed_group_get()
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()

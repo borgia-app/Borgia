@@ -6,38 +6,35 @@ import string
 
 import openpyxl
 from django.contrib import messages
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.contrib.auth.models import Group, Permission
-from django.contrib.messages.views import SuccessMessageMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models import Q
 from django.http import Http404, HttpResponseBadRequest
 from django.shortcuts import HttpResponse, redirect, render
 from django.urls import reverse
 from django.utils.encoding import force_text
-from django.views.generic.base import View
-from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
-                          GroupPermissionMixin, group_name_display,
-                          human_unused_permissions, permission_to_manage_group)
-from finances.models import SharedEvent
-from settings_data.utils import settings_safe_get
-from users.forms import (ManageGroupForm, SelfUserUpdateForm,
-                         UserCreationCustomForm, UserSearchForm,
-                         UserUpdateForm, UserUploadXlsxForm, UserDownloadXlsxForm)
+from borgia.utils import (get_members_group, human_unused_permissions,
+                          permission_to_manage_group)
+from borgia.views import BorgiaFormView, BorgiaView
+from configurations.utils import configurations_safe_get
+from users.forms import (GroupUpdateForm, SelfUserUpdateForm,
+                         UserCreationCustomForm, UserDownloadXlsxForm,
+                         UserSearchForm, UserUpdateForm, UserUploadXlsxForm)
+from users.mixins import UserMixin
 from users.models import User
 
 
-class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
+class UserListView(PermissionRequiredMixin, BorgiaFormView):
     """
     List User instances.
 
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
     """
-    perm_codename = 'view_user'
-    template_name = 'users/user_list.html'
+    permission_required = 'users.view_user'
+    menu_type = 'managers'
     lm_active = 'lm_user_list'
+    template_name = 'users/user_list.html'
     form_class = UserSearchForm
 
     search = None
@@ -53,7 +50,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
     sort = None
 
     def get_context_data(self, **kwargs):
-        context = super(UserListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         # Header List
         context['list_header'] = [["username", "Username"], ["last_name", "Nom Prénom"], ["surname", "Bucque"], [
@@ -64,7 +61,6 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         except KeyError:
             pass
 
-        context['group'] = self.group
         if self.sort is not None:
             context['sort'] = self.sort
             if self.headers[self.sort] == "des":
@@ -79,10 +75,6 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         else:
             context['user_list'] = self.form_query(
                 User.objects.all().exclude(groups=1))
-
-        # Permission Retrieveuser
-        if Permission.objects.get(codename='view_user') in self.group.permissions.all():
-            context['has_perm_view_user'] = True
 
         return context
 
@@ -103,7 +95,7 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
             if self.state == 'negative_balance':
                 query = query.filter(balance__lt=0.0, is_active=True)
             elif self.state == 'threshold':
-                threshold = settings_safe_get(
+                threshold = configurations_safe_get(
                     'BALANCE_THRESHOLD_PURCHASE').get_value()
                 query = query.filter(balance__lt=threshold, is_active=True)
             elif self.state == 'unactive':
@@ -126,23 +118,24 @@ class UserListView(GroupPermissionMixin, FormView, GroupLateralMenuFormMixin):
         return self.get(self.request, self.args, self.kwargs)
 
     def get_initial(self):
-        initial = super(UserListView, self).get_initial()
+        initial = super().get_initial()
         initial['search'] = self.search
         return initial
 
 
-class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
+class UserCreateView(PermissionRequiredMixin, BorgiaFormView):
     """
     Create a new user and redirect to the workboard of the group.
 
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
     """
-    form_class = UserCreationCustomForm
-    template_name = 'users/create.html'
-    success_url = None
-    perm_codename = 'add_user'
+    permission_required = 'users.add_user'
+    menu_type = 'managers'
     lm_active = 'lm_user_create'
+    template_name = 'users/user_create.html'
+    form_class = UserCreationCustomForm
+
+    def __init__(self):
+        self.object = None
 
     def form_valid(self, form):
         user = User.objects.create(username=form.cleaned_data['username'],
@@ -156,19 +149,18 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
         user.set_password(form.cleaned_data['password'])
         user.save()
 
-        if form.cleaned_data['honnor_member'] is True:
-            user.groups.add(Group.objects.get(pk=6))
-        else:
-            user.groups.add(Group.objects.get(pk=5))
+        is_external_member = form.cleaned_data['is_external_member']
+        user.groups.add(get_members_group(is_external_member))
+
         user.save()
 
         # User object is assigned to self.object (so we can access to it in get_success_url)
         self.object = user
 
-        return super(UserCreateView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_initial(self):
-        initial = super(UserCreateView, self).get_initial()
+        initial = super().get_initial()
         initial['campus'] = 'Me'
         initial['year'] = datetime.datetime.now().year - 1
         return initial
@@ -179,210 +171,139 @@ class UserCreateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupL
     def get_success_url(self):
         """
         If can retrieve user: go to the user.
-        If not, if can list user: go to the list of users.
         If not, go to the workboard of the group.
         """
-        try:
-            if Permission.objects.get(codename='view_user') in self.group.permissions.all():
-                return reverse('url_user_retrieve',
-                               kwargs={'group_name': self.group.name,
-                                       'pk': self.object.pk})
-            else:
-                if Permission.objects.get(codename='view_user') in self.group.permissions.all():
-                    return reverse('url_user_list',
-                                   kwargs={'group_name': self.group.name})
-                else:
-                    return reverse('url_group_workboard',
-                                   kwargs={'group_name': self.group.name})
-        except ObjectDoesNotExist:
-            return reverse('url_workboard',
-                           kwargs={'group_name': self.group.name})
+        if self.request.user.has_perm('users.view_user'):
+            return reverse('url_user_retrieve', kwargs={'user_pk': self.object.pk})
+        else:
+            return reverse('url_managers_workboard')
 
 
-class UserRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class UserRetrieveView(UserMixin, BorgiaView):
     """
     Retrieve a User instance.
 
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
     """
-    template_name = 'users/retrieve.html'
-    perm_codename = 'view_user'
+    permission_required = 'users.view_user'
+    menu_type = "managers"
+    template_name = 'users/user_retrieve.html'
 
     def get(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=self.kwargs['pk'])
-            user.forecast_balance()
-        except ObjectDoesNotExist:
-            raise Http404
-
         context = self.get_context_data(**kwargs)
-        context['user'] = user
         return render(request, self.template_name, context=context)
 
 
-class UserUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView, GroupLateralMenuFormMixin):
+class UserUpdateView(UserMixin, BorgiaFormView):
     """
     Update an user and redirect to the workboard of the group.
 
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
     """
-    model = User
+    permission_required = 'users.change_user'
+    menu_type = 'managers'
+    template_name = 'users/user_update.html'
     form_class = UserUpdateForm
-    template_name = 'users/update_admin.html'
-    perm_codename = 'change_user'
+    model = User
     modified = False
 
     def get_form_kwargs(self):
-        kwargs = super(UserUpdateView, self).get_form_kwargs()
-        kwargs['user_modified'] = User.objects.get(pk=self.kwargs['pk'])
+        kwargs = super().get_form_kwargs()
+        kwargs['user'] = self.user
         return kwargs
 
-    def get_context_data(self, **kwargs):
-        context = super(UserUpdateView, self).get_context_data(**kwargs)
-        context['user_modified'] = User.objects.get(pk=self.kwargs['pk'])
-        return context
-
     def get_initial(self):
-        initial = super(UserUpdateView, self).get_initial()
-        try:
-            user_modified = User.objects.get(pk=self.kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        for k in UserUpdateForm(user_modified=user_modified).fields.keys():
-            initial[k] = getattr(user_modified, k)
+        initial = super().get_initial()
+        user = self.user
+        for k in UserUpdateForm(user=user).fields.keys():
+            initial[k] = getattr(user, k)
         return initial
 
     def form_valid(self, form):
-        user_modified = User.objects.get(pk=self.kwargs['pk'])
+        user = self.user
         for k in form.fields.keys():
-            if form.cleaned_data[k] != getattr(user_modified, k):
+            if form.cleaned_data[k] != getattr(user, k):
                 self.modified = True
-                setattr(user_modified, k, form.cleaned_data[k])
-        user_modified.save()
+                setattr(user, k, form.cleaned_data[k])
+        user.save()
 
-        return super(UserUpdateView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_message(self, cleaned_data):
         return "Les informations ont bien été mises à jour"
 
     def get_success_url(self):
         return reverse('url_user_retrieve',
-                       kwargs={'group_name': self.group.name,
-                               'pk': self.kwargs['pk']})
+                       kwargs={'user_pk': self.user.pk})
 
 
-class UserDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class UserDeactivateView(UserMixin, BorgiaView):
     """
     Deactivate a user and redirect to the workboard of the group.
 
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
     """
-    template_name = 'users/deactivate.html'
-    perm_codename = 'delete_user'
+    permission_required = 'users.delete_user'
+    menu_type = 'managers'
+    template_name = 'users/user_deactivate.html'
     success_message = "Le compte de %(user)s a bien été "
+    error_event_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
+
+    def has_permission(self):
+        has_perm = super().has_permission()
+        if has_perm:
+            return True
+        else:
+            return self.user == self.request.user
 
     def get(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
         context = self.get_context_data(**kwargs)
-        context['user'] = user
-        return render(request, 'users/deactivate.html', context=context)
+        return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        if user.is_active is True:
-            user.is_active = False
-            # si c'est un gadz. Special members can't be added to other groups
-            if Group.objects.get(pk=5) in user.groups.all():
-                user.groups.clear()
-                user.groups.add(Group.objects.get(pk=5))
+        deactivated = False
+        if self.user.is_active is True:
+            events = self.user.manager.filter(done=False)
+            if events.count() > 0:
+                for event in events:
+                    self.error_event_message += "\n - " + event.description
+                messages.warning(request, self.error_event_message)
+            else:
+                deactivated = True
+                self.user.is_active = False
+                # si c'est un gadz. Special members can't be added to other groups
+                if Group.objects.get(pk=5) in self.user.groups.all():
+                    self.user.groups.clear()
+                    self.user.groups.add(Group.objects.get(pk=5))
+                self.user.save()
         else:
-            user.is_active = True
-        user.save()
+            self.user.is_active = True
+        self.user.save()
 
-        if user.is_active:
+        if self.user.is_active:
             self.success_message += 'activé'
         else:
             self.success_message += 'désactivé'
 
         messages.success(request, self.success_message % dict(
-            user=user,
+            user=self.user,
         ))
 
-        self.success_url = reverse(
-            'url_user_retrieve',
-            kwargs={'group_name': self.group.name,
-                    'pk': self.kwargs['pk']})
-
-        return redirect(force_text(self.success_url))
-
-
-class UserSelfDeactivateView(GroupPermissionMixin, View, GroupLateralMenuMixin):
-    """
-    Deactivate own account and disconnect.
-
-    :param kwargs['group_name']: name of the group used.
-    :param self.perm_codename: codename of the permission checked.
-    """
-    template_name = 'users/deactivate.html'
-    perm_codename = None
-    error_sharedevent_message = "Veuillez attribuer la gestion des évènements suivants à un autre utilisateur avant de désactiver le compte:"
-
-    def get(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        context = self.get_context_data(**kwargs)
-        context['user'] = user
-        return render(request, 'users/deactivate.html', context=context)
-
-    def post(self, request, *args, **kwargs):
-        try:
-            user = User.objects.get(pk=kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        sharedevents = SharedEvent.objects.filter(manager=user, done=False)
-        if user.is_active is True:
-            if sharedevents.count() > 0:
-                for sharedevent in sharedevents:
-                    self.error_sharedevent_message += "\n - " + sharedevent.description
-                messages.warning(request, self.error_sharedevent_message)
-            else:
-                user.is_active = False
-                # si c'est un gadz. Special members can't be added to other groups
-                if Group.objects.get(pk=5) in user.groups.all():
-                    user.groups.clear()
-                    user.groups.add(Group.objects.get(pk=5))
-
-                user.save()
-        if sharedevents.count() > 0:
-            self.success_url = reverse(
-                'url_sharedevent_list',
-                kwargs={'group_name': self.group.name})
-        else:
-            self.success_url = reverse(
+        if request.user == self.user and deactivated:
+            success_url = reverse(
                 'url_logout')
+        else:
+            success_url = reverse(
+                'url_user_retrieve',
+                kwargs={'user_pk': self.user.pk})
 
-        return redirect(force_text(self.success_url))
+        return redirect(force_text(success_url))
 
 
-class UserSelfUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView,
-                         GroupLateralMenuFormMixin):
-    template_name = 'users/self_user_update.html'
+class UserSelfUpdateView(BorgiaFormView):
+    menu_type = 'members'
+    template_name = 'users/user_self_update.html'
     form_class = SelfUserUpdateForm
-    perm_codename = None
 
     def get_initial(self):
-        initial = super(UserSelfUpdateView, self).get_initial()
+        initial = super().get_initial()
         initial['email'] = self.request.user.email
         initial['phone'] = self.request.user.phone
         initial['avatar'] = self.request.user.avatar
@@ -390,7 +311,7 @@ class UserSelfUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView,
         return initial
 
     def get_form_kwargs(self):
-        kwargs = super(UserSelfUpdateView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
         return kwargs
 
@@ -404,68 +325,54 @@ class UserSelfUpdateView(GroupPermissionMixin, SuccessMessageMixin, FormView,
             if self.request.user.avatar:
                 self.request.user.avatar.delete(True)
         self.request.user.save()
-        return super(UserSelfUpdateView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_message(self, cleaned_data):
         return "Vos infos ont bien été mises à jour"
 
 
-class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
-                      GroupLateralMenuFormMixin):
-    template_name = 'users/group_manage.html'
-    success_url = None
-    form_class = ManageGroupForm
-    perm_codename = None
+class GroupUpdateView(BorgiaFormView):
+    menu_type = 'managers'
+    template_name = 'users/group_update.html'
+    form_class = GroupUpdateForm
     group_updated = None
-    lm_active = None
 
-    def dispatch(self, request, *args, **kwargs):
+    def __init__(self):
+        self.group = None
+
+    def get_permission_required(self):
         """
-        Check permission.
-
-        This function is at some parts redundant with the mixin GroupPermission
-        however you cannot set a perm_codename directly, because it depends
-        on the group_name directly.
-
-        :raises: Http404 if the group doesn't exist
-        :raises: Http404 if the group updated doesn't exist
-        :raises: PermissionDenied if the group doesn't have perm
-
-        Save the group_updated in self.
+        Override the permission_required attribute.
+        Must return an iterable.
         """
         try:
-            self.group = Group.objects.get(name=kwargs['group_name'])
-            self.group_updated = Group.objects.get(pk=kwargs['pk'])
-            self.lm_active = 'lm_group_manage_' + self.group_updated.name
+            self.group = Group.objects.get(pk=self.kwargs['pk'])
         except ObjectDoesNotExist:
             raise Http404
-
-        if (permission_to_manage_group(self.group_updated)[0]
-            not in self.group.permissions.all()):
-            raise PermissionDenied
-
-        return super(ManageGroupView, self).dispatch(request, *args, **kwargs)
+        perms = (permission_to_manage_group(self.group_updated)[1],)
+        self.lm_active = 'lm_group_manage_' + self.group.name
+        return perms
 
     def get_form_kwargs(self):
         """
         Add possible members and permissions to kwargs of the form.
 
-        Possible members are all members, except specials members and unactive users.
+        Possible members are all members, except externals members and unactive users.
         Possible permissions are all permissions.
         :note:: For the special case of a shop management, two groups exist:
         group of chiefs and group of associates. If the group of associates is
         managed, possible permissions are only permissions of the chiefs group.
         """
-        kwargs = super(ManageGroupView, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
 
-        if self.group_updated.name.startswith('associates-') is True:
-            chiefs_group_name = self.group_updated.name.replace(
+        if self.group.name.startswith('associates-') is True:
+            chiefs_group_name = self.group.name.replace(
                 'associates', 'chiefs')
             kwargs['possible_permissions'] = Permission.objects.filter(
                 pk__in=[p.pk for p in Group.objects.get(
                     name=chiefs_group_name).permissions.all().exclude(
-                    pk=permission_to_manage_group(self.group_updated)[0].pk).exclude(
-                    pk__in=human_unused_permissions())]
+                        pk=permission_to_manage_group(self.group)[0].pk).exclude(
+                        pk__in=human_unused_permissions())]
             )
 
         else:
@@ -474,77 +381,77 @@ class ManageGroupView(GroupPermissionMixin, SuccessMessageMixin, FormView,
             )
 
         kwargs['possible_members'] = User.objects.filter(is_active=True).exclude(
-            groups=Group.objects.get(name='specials'))
+            groups=Group.objects.get(name='externals'))
         return kwargs
 
     def get_initial(self):
-        initial = super(ManageGroupView, self).get_initial()
-        initial['members'] = User.objects.filter(groups=self.group_updated)
-        initial['permissions'] = [
-            Permission.objects.get(pk=p.pk) for p in self.group_updated.permissions.all()
-        ]
+        initial = super().get_initial()
+        initial['members'] = self.group.user_set.all()
+        initial['permissions'] = self.group.permissions.all()
         return initial
 
     def get_context_data(self, **kwargs):
-        context = super(ManageGroupView, self).get_context_data(**kwargs)
-        context['group_updated_name_display'] = group_name_display(
-            self.group_updated)
+        context = super().get_context_data(**kwargs)
+        context['group'] = self.group
         return context
 
     def form_valid(self, form):
         """
         Update permissions and members of the group updated.
         """
-        old_members = User.objects.filter(groups=self.group_updated)
+        old_members = User.objects.filter(groups=self.group)
         new_members = form.cleaned_data['members']
-        old_permissions = self.group_updated.permissions.all()
+        old_permissions = self.group.permissions.all()
         new_permissions = form.cleaned_data['permissions']
 
         # Modification des membres
         for m in old_members:
             if m not in new_members:
-                m.groups.remove(self.group_updated)
+                m.groups.remove(self.group)
                 m.save()
         for m in new_members:
             if m not in old_members:
-                m.groups.add(self.group_updated)
+                m.groups.add(self.group)
                 m.save()
 
         # Modification des permissions
         for p in old_permissions:
             if p not in new_permissions:
-                self.group_updated.permissions.remove(p)
+                self.group.permissions.remove(p)
         for p in new_permissions:
             if p not in old_permissions:
-                self.group_updated.permissions.add(p)
-        self.group_updated.save()
+                self.group.permissions.add(p)
+        self.group.save()
 
-        return super(ManageGroupView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_message(self, cleaned_data):
         return "Le groupe a bien été mis à jour"
 
+    def get_success_url(self):
+        return reverse('url_managers_workboard')
 
-class UserUploadXlsxView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
+
+class UserUploadXlsxView(PermissionRequiredMixin, BorgiaFormView):
     """
     Download/Upload Excel for adding users.
     """
+    permission_required = 'users.add_user'
+    menu_type = 'managers'
     template_name = 'users/bulk_edit.html'
     form_class = UserUploadXlsxForm
     second_form_class = UserDownloadXlsxForm
-    perm_codename = 'add_user'
     lm_active = 'lm_user_create'
 
     def get_context_data(self, **kwargs):
-        context = super(UserUploadXlsxView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         if 'upload_form' not in context:
             context['upload_form'] = self.form_class()
         if 'download_form' not in context:
             context['download_form'] = self.second_form_class()
         return context
 
-    def form_valid(self, form, *args, **kwargs):
-
+    def form_valid(self, form):
         try:
             wb = openpyxl.load_workbook(self.request.FILES['list_user'], read_only=True)
             sheet = wb.active
@@ -578,8 +485,6 @@ class UserUploadXlsxView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
                 col_campus = col - min_row
             elif sheet.cell(None, sheet.min_row, col).value == 'year':
                 col_year = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'balance':
-                col_balance = col - min_row
 
         for _ in range(min_row):
             next(rows)
@@ -651,13 +556,6 @@ class UserUploadXlsxView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
                     except:
                         errors_on_required_columns.append('year')
 
-                if 'balance' in columns:
-                    try:
-                        if row[col_balance].value:
-                            user_dict['balance'] = str(row[col_balance].value).strip()
-                    except:
-                        errors_on_required_columns.append('balance')
-
                 if not skipped_row:
                     username = user_dict['username']
                     if User.objects.filter(username=username).count() > 0:
@@ -676,7 +574,7 @@ class UserUploadXlsxView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
                 if str(i) in skipped_rows:
                     errors.append("La ligne n*" + str(i) +
                                   "n'a pas été traitée car le username est manquant")  # TODO: Make this error appear
-                elif len(errors_on_required_columns) > 0:
+                elif errors_on_required_columns:
                     errors.append("Les colonnes " + ", ".join(errors_on_required_columns) +
                                   " sont requis et comportent des erreurs (ligne n*" + str(i) + ")")
                 else:
@@ -688,34 +586,26 @@ class UserUploadXlsxView(GroupPermissionMixin, FormView, GroupLateralMenuMixin):
                          " utilisateurs ont été crées/mis à jour")
         messages.warning(self.request, error_message)
 
-        return super(UserUploadXlsxView, self).form_valid(form)
+        return super().form_valid(form)
 
     def get_success_url(self):
-        try:
-            if Permission.objects.get(codename='list_user') in self.group.permissions.all():
-                return reverse('url_user_list',
-                               kwargs={'group_name': self.group.name})
-            else:
-                return reverse('url_group_workboard',
-                               kwargs={'group_name': self.group.name})
-        except ObjectDoesNotExist:
-            return reverse('url_workboard',
-                           kwargs={'group_name': self.group.name})
+        return reverse('url_user_list')
 
 
-class UserAddByListXlsxDownload(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class UserAddByListXlsxDownload(PermissionRequiredMixin, BorgiaView):
     """
     Download Excel for adding users.
     """
-    perm_codename = 'add_user'
+    permission_required = 'users.add_user'
+    menu_type = 'managers'
     lm_active = 'lm_user_create'
 
     def get(self, request, *args, **kwargs):
         columns = request.GET.getlist('xlsx_columns')
 
-        if len(columns) == 0 or columns is None:
+        if columns:
             columns = ['first_name', 'last_name', 'email', 'surname',
-                       'family', 'campus', 'year', 'balance']
+                       'family', 'campus', 'year']
 
         columns.insert(0, 'username')
 
@@ -735,23 +625,19 @@ class UserAddByListXlsxDownload(GroupPermissionMixin, View, GroupLateralMenuMixi
             ws.append(user)
 
         wb.save(response)
-
         return response
 
 
 def username_from_username_part(request):
     data = []
-
     try:
         key = request.GET.get('keywords')
-
         regex = r"^" + re.escape(key) + r"(\W|$)"
 
         # Fam'ss en entier
         # where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
         where_search = User.objects.exclude(groups=1).filter(
             family__regex=regex, is_active=True).order_by('-year')
-
         if len(key) > 2:
             if key.isalpha():
                 # Nom de famille, début ou entier à partir de 3 caractères
@@ -769,7 +655,6 @@ def username_from_username_part(request):
 
         for e in where_search:
             data.append(e.username)
-
     except KeyError:
         pass
 
@@ -777,23 +662,7 @@ def username_from_username_part(request):
 
 
 def balance_from_username(request):
-    # Check permissions
-
-    # User is authentified, if not the he can't access the view
     operator = request.user
-
-    # try:
-    #     shop_name = request.GET.get('shop_name')
-    #     shop = Shop.objects.get(name = shop_name)
-    #     module = OperatorSaleModule.objects.get(shop = shop)
-    # except KeyError:
-    #         raise Http404
-    # except ObjectDoesNotExist:
-    #     raise Http404
-
-    # If deactivate
-    # if module.state is False:
-    #     raise Http404
 
     if operator.has_perm('modules.use_operatorsalemodule'):
         try:
@@ -804,7 +673,5 @@ def balance_from_username(request):
             return HttpResponseBadRequest()
         except ObjectDoesNotExist:
             return HttpResponseBadRequest()
-
-    # If user don't have the permission
     else:
         raise PermissionDenied

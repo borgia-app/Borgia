@@ -13,7 +13,7 @@
             </div>
             <div class="panel-body">
                 <form enctype="multipart/form-data"
-                      action="{% url 'url_add_by_list_xlsx' group_name=group.name %}"
+                      action="{% url 'url_add_by_list_xlsx' %}"
                       method='post'
                       class="form-horizontal">
                     {% csrf_token %} {{ upload_form|bootstrap_horizontal }}
@@ -34,7 +34,7 @@
                 Téléchargement de fichiers Excels
             </div>
             <div class="panel-body">
-                <form action="{% url 'url_add_by_list_xlsx_download' group_name=group.name %}"
+                <form action="{% url 'url_add_by_list_xlsx_download' %}"
                       method="get"
                       class="form-horizontal">
                     {{ download_form|bootstrap_horizontal }}

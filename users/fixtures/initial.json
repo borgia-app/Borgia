@@ -3,7 +3,7 @@
     "model": "auth.group",
     "pk": 1,
     "fields": {
-      "name": "specials",
+      "name": "externals",
       "permissions": []
     }
   },
@@ -13,7 +13,6 @@
     "fields": {
       "name": "presidents",
       "permissions": [
-        ["manage_honnored_group", "users", "user"],
         ["manage_members_group", "users", "user"],
         ["manage_treasurers_group", "users", "user"],
         ["manage_vice_presidents_group", "users", "user"],
@@ -36,8 +35,8 @@
         ["change_price_product", "shops", "product"],
         ["view_stockentry", "stocks", "stockentry"],
 
-        ["change_setting", "settings_data", "setting"],
-        ["view_setting", "settings_data", "setting"],
+        ["change_configuration", "configurations", "configuration"],
+        ["view_configuration", "configurations", "configuration"],
 
         ["add_sale", "finances", "sale"],
         ["view_sale", "finances", "sale"],
@@ -48,12 +47,10 @@
         ["add_transfert", "finances", "transfert"],
         ["view_transfert", "finances", "transfert"],
 
-        ["add_sharedevent", "finances", "sharedevent"],
-        ["view_sharedevent", "finances", "sharedevent"],
-        ["change_sharedevent", "finances", "sharedevent"],
-        ["proceed_payment_sharedevent", "finances", "sharedevent"],
-
-        ["list_notification", "notifications", "notification"]
+        ["add_event", "events", "event"],
+        ["view_event", "events", "event"],
+        ["change_event", "events", "event"],
+        ["proceed_payment_event", "events", "event"]
       ]
     }
   },
@@ -61,7 +58,7 @@
     "model": "auth.group",
     "pk": 3,
     "fields": {
-      "name": "vice-presidents-internal",
+      "name": "vice_presidents",
       "permissions": [
         ["add_user", "users", "user"],
         ["change_user", "users", "user"],
@@ -80,8 +77,8 @@
         ["change_price_product", "shops", "product"],
         ["view_stockentry", "stocks", "stockentry"],
 
-        ["change_setting", "settings_data", "setting"],
-        ["view_setting", "settings_data", "setting"],
+        ["change_configuration", "configurations", "configuration"],
+        ["view_configuration", "configurations", "configuration"],
 
         ["add_sale", "finances", "sale"],
         ["view_sale", "finances", "sale"],
@@ -92,12 +89,10 @@
         ["add_transfert", "finances", "transfert"],
         ["view_transfert", "finances", "transfert"],
 
-        ["add_sharedevent", "finances", "sharedevent"],
-        ["view_sharedevent", "finances", "sharedevent"],
-        ["change_sharedevent", "finances", "sharedevent"],
-        ["proceed_payment_sharedevent", "finances", "sharedevent"],
-
-        ["list_notification", "notifications", "notification"]
+        ["add_event", "events", "event"],
+        ["view_event", "events", "event"],
+        ["change_event", "events", "event"],
+        ["proceed_payment_event", "events", "event"]
       ]
     }
   },
@@ -124,8 +119,8 @@
         ["change_price_product", "shops", "product"],
         ["view_stockentry", "stocks", "stockentry"],
 
-        ["change_setting", "settings_data", "setting"],
-        ["view_setting", "settings_data", "setting"],
+        ["change_configuration", "configurations", "configuration"],
+        ["view_configuration", "configurations", "configuration"],
 
         ["add_sale", "finances", "sale"],
         ["view_sale", "finances", "sale"],
@@ -135,12 +130,10 @@
         ["view_exceptionnalmovement", "finances", "exceptionnalmovement"],
         ["add_transfert", "finances", "transfert"],
 
-        ["add_sharedevent", "finances", "sharedevent"],
-        ["view_sharedevent", "finances", "sharedevent"],
-        ["change_sharedevent", "finances", "sharedevent"],
-        ["proceed_payment_sharedevent", "finances", "sharedevent"],
-
-        ["list_notification", "notifications", "notification"]
+        ["add_event", "events", "event"],
+        ["view_event", "events", "event"],
+        ["change_event", "events", "event"],
+        ["proceed_payment_event", "events", "event"]
       ]
     }
   },
@@ -148,29 +141,14 @@
     "model": "auth.group",
     "pk": 5,
     "fields": {
-      "name": "gadzarts",
+      "name": "members",
       "permissions": [
         ["use_selfsalemodule", "modules", "selfsalemodule"],
         ["add_transfert", "finances", "transfert"],
 
-        ["view_sharedevent", "finances", "sharedevent"],
-        ["add_sharedevent", "finances", "sharedevent"],
-        ["view_user", "users", "user"],
-
-        ["list_notification", "notifications", "notification"]
-      ]
-    }
-  },
-  {
-    "model": "auth.group",
-    "pk": 6,
-    "fields": {
-      "name": "honnored",
-      "permissions": [
-        ["use_selfsalemodule", "modules", "selfsalemodule"],
-        ["add_transfert", "finances", "transfert"],
-
-        ["list_notification", "notifications", "notification"]
+        ["add_event", "events", "event"],
+        ["view_event", "events", "event"],
+        ["view_user", "users", "user"]
       ]
     }
   },
@@ -203,72 +181,6 @@
     "fields": {
       "name": "association",
       "description": "generic association"
-    }
-  },
-  {
-    "model": "notifications.notificationclass",
-    "pk": 1,
-    "fields": {
-      "name": "transfer_creation",
-      "verbose_name": null,
-      "description": "",
-      "creation_datetime": "2017-05-07T09:31:43.907Z",
-      "last_call_datetime": "2017-05-07T09:31:43.905Z"
-    }
-  },
-  {
-    "model": "notifications.notificationclass",
-    "pk": 2,
-    "fields": {
-      "name": "notification_template_creation",
-      "verbose_name": null,
-      "description": "",
-      "creation_datetime": "2017-05-07T09:35:20.860Z",
-      "last_call_datetime": "2017-05-07T09:35:20.859Z"
-    }
-  },
-  {
-    "model": "notifications.notificationclass",
-    "pk": 3,
-    "fields": {
-      "name": "notification_template_update",
-      "verbose_name": null,
-      "description": "",
-      "creation_datetime": "2017-05-07T09:36:59.801Z",
-      "last_call_datetime": "2017-05-07T09:36:59.799Z"
-    }
-  },
-  {
-    "model": "notifications.notificationclass",
-    "pk": 4,
-    "fields": {
-      "name": "negative_balance",
-      "verbose_name": null,
-      "description": "",
-      "creation_datetime": "2017-05-07T13:20:04.642Z",
-      "last_call_datetime": "2017-05-07T13:20:04.642Z"
-    }
-  },
-  {
-    "model": "notifications.notificationclass",
-    "pk": 5,
-    "fields": {
-      "name": "recharging_creation",
-      "verbose_name": null,
-      "description": "",
-      "creation_datetime": "2017-05-07T13:22:40.728Z",
-      "last_call_datetime": "2017-05-07T13:22:40.728Z"
-    }
-  },
-  {
-    "model": "notifications.notificationclass",
-    "pk": 8,
-    "fields": {
-      "name": "notification_template_deactivation",
-      "verbose_name": null,
-      "description": "",
-      "creation_datetime": "2017-05-07T18:08:08.413Z",
-      "last_call_datetime": "2017-05-07T18:08:08.412Z"
     }
   }
 ]

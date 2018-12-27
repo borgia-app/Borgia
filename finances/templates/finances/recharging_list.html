@@ -109,7 +109,7 @@
                 <td>{{ recharging.payment_solution.amount }}€</td>
                 <td>{{ recharging.payment_solution.get_display_type|title }}</td>
                 <td>
-                  <a href="{% url 'url_recharging_retrieve' group_name=group.name pk=recharging.pk %}">Détail</a>
+                  <a href="{% url 'url_recharging_retrieve' recharging_pk=recharging.pk %}">Détail</a>
                 </td>
             </tr>
             {% endfor %}

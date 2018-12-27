@@ -1,9 +1,11 @@
 import decimal
 
+from django.contrib.auth.models import Group
+from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 
-from settings_data.utils import settings_safe_get
+from configurations.utils import configurations_safe_get
 
 
 class Shop(models.Model):
@@ -44,6 +46,19 @@ class Shop(models.Model):
         """
         return self.name.capitalize()
 
+    def get_managers(self):
+        try:
+            chiefs_group = Group.objects.get(name='chiefs-' + self.name)
+            associates_group = Group.objects.get(name='associates-' + self.name)
+        except ObjectDoesNotExist:
+            raise ImproperlyConfigured(
+                '{0} is missing the related managers groups. You should verify the name of '
+                '{0} and/or the managers groups related'.format(self.__class__.__name__)
+            )
+
+        managers = chiefs_group.user_set.union(associates_group.user_set.all())
+        return managers
+
 
 class Product(models.Model):
     """
@@ -72,7 +87,7 @@ class Product(models.Model):
     unit = models.CharField('Unité', max_length=255,
                             choices=UNIT_CHOICES, blank=True, null=True)
     shop = models.ForeignKey(
-        'Shop',
+        Shop,
         related_name='%(app_label)s_%(class)s_shop',
         on_delete=models.CASCADE)
     is_manual = models.BooleanField('Gestion manuelle du prix', default=False)
@@ -96,7 +111,7 @@ class Product(models.Model):
         permissions = (
             ('change_price_product', 'Can change price of a product'),
         )
-        
+
     def __str__(self):
         return self.name
 
@@ -138,7 +153,7 @@ class Product(models.Model):
         If there is no stock entry realisated, return 0.
         """
         try:
-            margin_profit = settings_safe_get('MARGIN_PROFIT').get_value()
+            margin_profit = configurations_safe_get('MARGIN_PROFIT').get_value()
 
             last_stockentry = self.stockentryproduct_set.order_by('-stockentry__datetime').first()
             if last_stockentry is not None:

@@ -3,10 +3,11 @@ import decimal
 from django.contrib.contenttypes.fields import (GenericForeignKey,
                                                 GenericRelation)
 from django.contrib.contenttypes.models import ContentType
+from django.core.exceptions import ImproperlyConfigured
 from django.core.validators import MinValueValidator
 from django.db import models
 
-from shops.models import Shop, Product
+from shops.models import Product, Shop
 
 
 class Category(models.Model):
@@ -67,10 +68,10 @@ class CategoryProduct(models.Model):
 
 
 class Module(models.Model):
+    state = models.BooleanField('Activé', default=False)
+
     class Meta:
         abstract = True
-
-    state = models.BooleanField('Activé', default=False)
 
 
 class ShopModule(Module):
@@ -86,9 +87,6 @@ class ShopModule(Module):
     :type limit_purchase: Float (Decimal).
     :type logout_post_purchase: Boolean.
     """
-    class Meta:
-        abstract = True
-
     shop = models.ForeignKey(
         Shop,
         related_name='%(app_label)s_%(class)s_shop',
@@ -109,6 +107,18 @@ class ShopModule(Module):
     logout_post_purchase = models.BooleanField('Deconnexion après une vente',
                                                default=False)
 
+    class Meta:
+        abstract = True
+
+    def get_module_class(self):
+        """
+        Return the module type.
+        Must be overridden.
+        """
+        raise ImproperlyConfigured(
+            '{0} is using get_module_class() of ShopModule model.'
+            'You must override {0}.get_module_class().'.format(self.__class__.__name__)
+        )
 
 class SelfSaleModule(ShopModule):
     """
@@ -118,10 +128,15 @@ class SelfSaleModule(ShopModule):
         default_permissions = ()
         permissions = (
             ('use_selfsalemodule', 'Can use the self sale module'),
+            ('change_config_selfsalemodule', 'Can change the config for self sale module'),
+            ('view_config_selfsalemodule', 'Can view the config for self sale module')
         )
 
     def __str__(self):
-        return 'module de vente en libre service du magasin ' + self.shop.__str__()
+        return 'Module de vente en libre service du magasin ' + self.shop.__str__()
+
+    def get_module_class(self):
+        return 'self_sales'
 
 
 class OperatorSaleModule(ShopModule):
@@ -132,7 +147,12 @@ class OperatorSaleModule(ShopModule):
         default_permissions = ()
         permissions = (
             ('use_operatorsalemodule', 'Can use the operator sale module'),
+            ('change_config_operatorsalemodule', 'Can change the config for operator sale module'),
+            ('view_config_operatorsalemodule', 'Can view the config for operator sale module')
         )
 
     def __str__(self):
-        return 'module de vente par opérateur du magasin ' + self.shop.__str__()
+        return 'Module de vente par opérateur du magasin ' + self.shop.__str__()
+
+    def get_module_class(self):
+        return 'operator_sales'

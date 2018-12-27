@@ -2,10 +2,9 @@ import datetime
 import decimal
 import itertools
 
-from django.contrib.auth.models import AbstractUser, Permission
+from django.contrib.auth.models import AbstractUser
 from django.core.validators import RegexValidator
 from django.db import models
-from django.db.models import Q
 from django.utils import timezone
 
 
@@ -106,8 +105,7 @@ class User(AbstractUser):
             ('manage_vice_presidents_group', 'Can manage vice presidents group'),
             ('manage_treasurers_group', 'Can manage treasurers group'),
             ('manage_members_group', 'Can manage members group'),
-            ('manage_honnored_group', 'Can manage honnored group'),
-            ('manage_external_group', 'Can manage external group'),
+            ('manage_externals_group', 'Can manage externals group'),
 
             # User management
             # add_user
@@ -170,12 +168,11 @@ class User(AbstractUser):
         """
         Get all undone shared events where user is involved as participant
 
-        TODO : Strongly dependent of Sharedevents, should be moved there.
-        TODO : notify if forecast balance is negative
+        TODO : Strongly dependent of events, should be moved there.
         """
-        shared_events = self.sharedevent_set.filter(done = False)
+        events = self.event_set.filter(done=False)
         solde_prev = 0
-        for se in shared_events:
+        for se in events:
             solde_prev += se.get_price_of_user(self)
         self.virtual_balance = self.balance - solde_prev
         self.save()
@@ -203,7 +200,7 @@ class User(AbstractUser):
 
     def debit(self, amount):
         """
-        Debit the user of a certain amount of money. If the balance is negative, a notification is created.
+        Debit the user of a certain amount of money.
 
         note:: In both credit and debit cases, the amount must be positive.
         There is no function allowed to credit or debit a negative amount.
@@ -233,19 +230,19 @@ class User(AbstractUser):
         transferts = self.recipient_transfert.union(self.sender_transfert.all())
         rechargings = self.sender_recharging.all()
         exceptionnal_movements = self.recipient_exceptionnal_movement.all()
-        shared_events = self.sharedevent_set.filter(done=True)
-        for event in shared_events:
+        events = self.event_set.filter(done=True)
+        for event in events:
             event.amount = event.get_price_of_user(self)
 
         list_transaction = sorted(
             list(itertools.chain(sales, transferts, rechargings,
-                                 exceptionnal_movements, shared_events)),
+                                 exceptionnal_movements, events)),
             key=lambda instance: instance.datetime, reverse=True
         )
 
         return list_transaction
 
-def list_year():
+def get_list_year():
     """
     Return the list of current used years in all the users.
 
@@ -253,8 +250,8 @@ def list_year():
     """
     list_year = []
     # Parmis tout les users moins les gadz d'honn'ss et l'admin
-    for u in User.objects.filter(is_active=True).exclude(groups=6).exclude(pk=1):
-        if u.year not in list_year:
-            if u.year is not None:  # year is not mandatory
-                list_year.append(u.year)
+    for user in User.objects.filter(is_active=True).exclude(groups=6).exclude(pk=1):
+        if user.year not in list_year:
+            if user.year is not None:  # year is not mandatory
+                list_year.append(user.year)
     return sorted(list_year, reverse=True)

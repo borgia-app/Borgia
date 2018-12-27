@@ -1,6 +1,5 @@
 {% load compile_static %}
 {% load static %}
-{% load notifications_extra %}
 {% load users_extra %}
 {% load bootstrap %}
 {% load l10n %}
@@ -28,7 +27,7 @@
   <nav class="navbar navbar-default">
     <div class="container-fluid">
       <div class="navbar-header">
-        <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_group_workboard' group_name='gadzarts' %}{% endif %}">
+        <a class="navbar-brand" href="{% if user.is_authenticated %}{% url 'url_members_workboard' %}{% endif %}">
         </a>
         <p class="navbar-text navbar-text-center">{% get_center_name %}</p>
       </div>

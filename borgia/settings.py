@@ -37,14 +37,14 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrapform',
+    'static_precompiler',
+    'configurations',
     'users',
     'shops',
-    'notifications',
     'finances',
-    'settings_data',
+    'events',
     'modules',
-    'stocks',
-    'static_precompiler'
+    'stocks'
 ]
 
 MIDDLEWARE = [
@@ -71,8 +71,7 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
-                'notifications.context_processors.notifications'
+                'django.contrib.messages.context_processors.messages'
             ],
             # Permet de rajouter extra à la
             'builtins': ['users.templatetags.users_extra']
@@ -133,7 +132,7 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en²/1.9/howto/static-files/
 AUTH_USER_MODEL = 'users.User'
-LOGIN_REDIRECT_URL = '/gadzarts/'
+LOGIN_REDIRECT_URL = '/members/'
 LOGIN_URL = '/auth/login/'
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
@@ -152,7 +151,7 @@ LOGIN_EXEMPT_URLS = [
 ]
 
 LOGIN_EXEMPT_URL_PATTERNS = [
-    re.compile('%s[\w-]+%s' % ('/auth/gadzarts/', '/')),
+    re.compile('%s[\w-]+%s' % ('/auth/members/', '/')),
     re.compile('%s[\w-]+%s' % ('/auth/', '/')),
     re.compile('^%s$' % ('/graphql')),
     re.compile('^%s.+%s[\d]+%s$' % ('/jwt/token/', '/', '.json')),
@@ -180,7 +179,7 @@ MEDIA_URL = '/media/'
 # Lydia
 # https ou non selon le dns
 LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/self/lydias/callback/'
-LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/gadzarts/self/lydias/confirm/'
+LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/members/self/lydias/confirm/'
 
 # Penser à activer 'autoriser l'acces par les applications moins sécurisées' dans Gmail
 EMAIL_USE_TLS = True
@@ -204,33 +203,3 @@ PASSWORD_RESET_TIMEOUT_DAYS = 1  # en jours
 SESSION_COOKIE_AGE = 7200
 
 DEFAULT_TEMPLATE = "light"  # Default template, en minuscule
-
-# Application settings default
-# name: (String name, String description, String value_type, String value)
-"""
-CENTER_NAME,
-MARGIN_PROFIT,
-LYDIA_MIN_PRICE, LYDIA_MAX_PRICE, LYDIA_API_TOKEN, LYDIA_VENDOR_TOKEN,
-BALANCE_THRESHOLD_MAIL_ALERT, BALANCE_FREQUENCY_MAIL_ALERT,
-BALANCE_THRESHOLD_PURCHASE
-"""
-SETTINGS_DEFAULT = {
-    "CENTER_NAME": ("CENTER_NAME", "Nom du centre Borgia",
-                    "s", "Center Name"),
-    "MARGIN_PROFIT": ("MARGIN_PROFIT", "Marge (%) à appliquer sur le prix des produits calculés automatiquement",
-                      "f", "5"),
-    "LYDIA_MIN_PRICE": ("LYDIA_MIN_PRICE", "Valeur minimale (€) de rechargement en automatique par Lydia",
-                        "f", "5"),
-    "LYDIA_MAX_PRICE": ("LYDIA_MAX_PRICE", "Valeur maximale (€) de rechargement en automatique par Lydia",
-                        "f", "500"),
-    "LYDIA_API_TOKEN": ("LYDIA_API_TOKEN", "Clé API (privée)",
-                        "s", "non définie"),
-    "LYDIA_VENDOR_TOKEN": ("LYDIA_VENDOR_TOKEN", "Clé vendeur (publique)",
-                           "s", "non définie"),
-    "BALANCE_THRESHOLD_MAIL_ALERT": ("BALANCE_THRESHOLD_MAIL_ALERT", "Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée",
-                                     "f", "-10"),
-    "BALANCE_FREQUENCY_MAIL_ALERT": ("BALANCE_FREQUENCY_MAIL_ALERT", "Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",
-                                     "i", "7"),
-    "BALANCE_THRESHOLD_PURCHASE": ("BALANCE_THRESHOLD_PURCHASE", "Valeur seuil (€) en dessous de laquelle (strictement) la commande est impossible",
-                                   "f", "0")
-}

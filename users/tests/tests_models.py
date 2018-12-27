@@ -1,6 +1,6 @@
 from django.test import TestCase
 
-from users.models import User, list_year
+from users.models import User, get_list_year
 
 
 class UserTest(TestCase):
@@ -93,16 +93,16 @@ class UserTest(TestCase):
     #         sender=self.userAllUsedFields, recipient=user1, operator=user2)
     #     s6 = Sale.objects.create(
     #         sender=self.userAllUsedFields, recipient=user1, operator=user2)
-    #     se1 = SharedEvent.objects.create(
+    #     se1 = Event.objects.create(
     #         description='only participant',
     #         manager=user1,
     #         sale=s4)
     #     se1.participants.add(self.userAllUsedFields)
-    #     se2 = SharedEvent.objects.create(
+    #     se2 = Event.objects.create(
     #         description='only manager',
     #         manager=self.userAllUsedFields,
     #         sale=s5)
-    #     se3 = SharedEvent.objects.create(
+    #     se3 = Event.objects.create(
     #         description='manager & participant',
     #         manager=self.userAllUsedFields,
     #         sale=s6)
@@ -123,4 +123,4 @@ class ListYearTest(TestCase):
         self.user4 = User.objects.create(username='user4', year=1901)
 
     def test_list_year(self):
-        self.assertListEqual(list_year(), [2016, 2011, 1901])
+        self.assertListEqual(get_list_year(), [2016, 2011, 1901])

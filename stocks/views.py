@@ -1,17 +1,13 @@
 import decimal
 
-from django.contrib.auth.models import Group
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.formsets import formset_factory
 from django.http import Http404
 from django.shortcuts import redirect, render
 from django.urls import reverse
-from django.views.generic.base import View
-from django.views.generic.edit import FormView
 
-from borgia.utils import (GroupLateralMenuFormMixin, GroupLateralMenuMixin,
-                          GroupPermissionMixin, ShopFromGroupMixin,
-                          shop_from_group)
+from borgia.views import BorgiaFormView, BorgiaView
+from shops.mixins import ShopMixin
 from shops.models import Product
 from stocks.forms import (AdditionnalDataInventoryForm,
                           AdditionnalDataStockEntryForm,
@@ -22,40 +18,32 @@ from stocks.models import (Inventory, InventoryProduct, StockEntry,
                            StockEntryProduct)
 
 
-class StockEntryListView(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                     GroupLateralMenuFormMixin):
+class StockEntryListView(ShopMixin, BorgiaFormView):
+    permission_required = 'stocks.view_stockentry'
+    menu_type = 'shops'
     template_name = 'stocks/stockentry_list.html'
-    perm_codename = 'view_stockentry'
-    lm_active = 'lm_stockentry_list'
     form_class = StockEntryListDateForm
+    lm_active = 'lm_stockentry_list'
 
-    shop_query = None
     date_begin = None
     date_end = None
 
     def get_context_data(self, **kwargs):
-        context = super(StockEntryListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['stockentry_list'] = self.form_query(
-            StockEntry.objects.all().order_by('-datetime'))
+            self.shop.stockentry_set.all())
         return context
 
     def get_form_kwargs(self):
-        kwargs_form = super(StockEntryListView, self).get_form_kwargs()
+        kwargs_form = super().get_form_kwargs()
         kwargs_form['shop'] = self.shop
         return kwargs_form
 
     def form_valid(self, form):
         if form.cleaned_data['date_begin']:
             self.date_begin = form.cleaned_data['date_begin']
-
         if form.cleaned_data['date_end']:
             self.date_end = form.cleaned_data['date_end']
-
-        try:
-            if form.cleaned_data['shop']:
-                self.shop_query = form.cleaned_data['shop']
-        except KeyError:
-            pass
 
         return self.get(self.request, self.args, self.kwargs)
 
@@ -67,43 +55,22 @@ class StockEntryListView(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         if self.date_end:
             query = query.filter(
                 datetime__lte=self.date_end)
-
-        if self.shop:
-            query = query.filter(shop=self.shop)
-        else:
-            if self.shop_query:
-                query = query.filter(shop=self.shop_query)
-
         return query
 
 
-class StockEntryCreateView(GroupPermissionMixin, ShopFromGroupMixin,
-                           View, GroupLateralMenuMixin):
+class StockEntryCreateView(ShopMixin, BorgiaView):
     """
     """
-    template_name = 'stocks/stock_entry_create.html'
-    form_class = None
-    perm_codename = 'add_stockentry'
+    permission_required = 'stocks.add_stockentry'
+    menu_type = 'shops'
+    template_name = 'stocks/stockentry_create.html'
     lm_active = 'lm_stockentry_create'
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.group = Group.objects.get(name=kwargs['group_name'])
-            self.shop = shop_from_group(self.group)
-            if self.shop is None:
-                raise Http404
-        except ObjectDoesNotExist:
-            raise Http404
-        except ValueError:
-            raise Http404
-
-        self.stock_entry_product_form = formset_factory(StockEntryProductForm,
-                                                        extra=1)
-        return super(StockEntryCreateView, self).dispatch(request, *args, **kwargs)
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['stockentry_form'] = self.stock_entry_product_form(
+        stockentry_product_form = formset_factory(StockEntryProductForm,
+                                                  extra=1)
+        context['stockentry_form'] = stockentry_product_form(
             form_kwargs={'shop': self.shop})
         context['add_inventory_form'] = AdditionnalDataStockEntryForm()
         return render(request, self.template_name, context=context)
@@ -112,7 +79,9 @@ class StockEntryCreateView(GroupPermissionMixin, ShopFromGroupMixin,
         stockentry = StockEntry.objects.create(
             operator=request.user, shop=self.shop)
 
-        stockentry_form = self.stock_entry_product_form(
+        stockentry_product_form = formset_factory(StockEntryProductForm,
+                                                  extra=1)
+        stockentry_form = stockentry_product_form(
             request.POST, form_kwargs={'shop': self.shop})
         add_inventory_form = AdditionnalDataStockEntryForm(request.POST)
 
@@ -156,65 +125,72 @@ class StockEntryCreateView(GroupPermissionMixin, ShopFromGroupMixin,
                     pass
 
         return redirect(
-            reverse('url_stock_entry_list',
-                    kwargs={'group_name': self.group.name})
+            reverse('url_stockentry_list',
+                    kwargs={'shop_pk': self.shop.pk})
         )
 
 
-class StockEntryRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class StockEntryRetrieveView(ShopMixin, BorgiaView):
+    permission_required = 'stocks.view_stockentry'
+    menu_type = 'shops'
     template_name = 'stocks/stockentry_retrieve.html'
-    perm_codename = 'view_stockentry'
     lm_active = 'lm_stockentry_list'
 
-    def dispatch(self, request, *args, **kwargs):
+    def __init__(self):
+        super().__init__()
+        self.stockentry = None
+
+    def add_stockentry_object(self):
+        """
+        Define stockentry object.
+        Raise Http404 is stockentry doesn't exist.
+        """
         try:
-            self.object = StockEntry.objects.get(pk=kwargs['pk'])
+            self.stockentry = StockEntry.objects.get(pk=self.kwargs['stockentry_pk'])
         except ObjectDoesNotExist:
             raise Http404
+        if self.stockentry.shop.pk != self.shop.pk:
+            raise Http404
 
-        return super(StockEntryRetrieveView, self).dispatch(request, *args,
-                                                        **kwargs)
+    def add_context_objects(self):
+        """
+        Override to add more context objects for the view.
+        """
+        super().add_context_objects()
+        self.add_stockentry_object()
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['stockentry'] = self.object
+        context['stockentry'] = self.stockentry
         return render(request, self.template_name, context=context)
 
 
-class InventoryListView(GroupPermissionMixin, ShopFromGroupMixin, FormView,
-                    GroupLateralMenuFormMixin):
+class InventoryListView(ShopMixin, BorgiaFormView):
+    permission_required = 'stocks.view_inventory'
+    menu_type = 'shops'
     template_name = 'stocks/inventory_list.html'
-    perm_codename = 'view_inventory'
-    lm_active = 'lm_inventory_list'
     form_class = InventoryListDateForm
+    lm_active = 'lm_inventory_list'
 
-    shop_query = None
     date_begin = None
     date_end = None
 
     def get_context_data(self, **kwargs):
-        context = super(InventoryListView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         context['inventory_list'] = self.form_query(
-            Inventory.objects.all().order_by('-datetime'))
+            self.shop.inventory_set.all())
         return context
 
     def get_form_kwargs(self):
-        kwargs_form = super(InventoryListView, self).get_form_kwargs()
+        kwargs_form = super().get_form_kwargs()
         kwargs_form['shop'] = self.shop
         return kwargs_form
 
     def form_valid(self, form):
         if form.cleaned_data['date_begin']:
             self.date_begin = form.cleaned_data['date_begin']
-
         if form.cleaned_data['date_end']:
             self.date_end = form.cleaned_data['date_end']
-
-        try:
-            if form.cleaned_data['shop']:
-                self.shop_query = form.cleaned_data['shop']
-        except KeyError:
-            pass
 
         return self.get(self.request, self.args, self.kwargs)
 
@@ -222,53 +198,29 @@ class InventoryListView(GroupPermissionMixin, ShopFromGroupMixin, FormView,
         if self.date_begin:
             query = query.filter(
                 datetime__gte=self.date_begin)
-
         if self.date_end:
             query = query.filter(
                 datetime__lte=self.date_end)
 
-        if self.shop:
-            query = query.filter(shop=self.shop)
-        else:
-            if self.shop_query:
-                query = query.filter(shop=self.shop_query)
-
         return query
 
 
-class InventoryCreateView(GroupPermissionMixin, ShopFromGroupMixin,
-                          View, GroupLateralMenuMixin):
+class InventoryCreateView(ShopMixin, BorgiaView):
     """
     """
+    permission_required = 'stocks.add_inventory'
+    menu_type = 'shops'
     template_name = 'stocks/inventory_create.html'
-    form_class = None
-    perm_codename = 'add_inventory'
     lm_active = 'lm_inventory_create'
 
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.group = Group.objects.get(name=kwargs['group_name'])
-            self.shop = shop_from_group(self.group)
-            if self.shop is None:
-                raise Http404
-        except ObjectDoesNotExist:
-            raise Http404
-        except ValueError:
-            raise Http404
-
-        self.inventory_product_formset = formset_factory(InventoryProductForm,
-                                                         formset=BaseInventoryProductFormSet,
-                                                         extra=1)
-
-        self.additionnal_data_inventory_form = AdditionnalDataInventoryForm()
-
-        return super(InventoryCreateView, self).dispatch(request, *args, **kwargs)
-
     def get(self, request, *args, **kwargs):
+        inventory_product_formset = formset_factory(InventoryProductForm,
+                                                    formset=BaseInventoryProductFormSet,
+                                                    extra=1)
         context = self.get_context_data(**kwargs)
-        context['inventory_formset'] = self.inventory_product_formset(
+        context['inventory_formset'] = inventory_product_formset(
             form_kwargs={'shop': self.shop})
-        context['additionnal_data_form'] = self.additionnal_data_inventory_form
+        context['additionnal_data_form'] = AdditionnalDataInventoryForm()
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
@@ -276,12 +228,14 @@ class InventoryCreateView(GroupPermissionMixin, ShopFromGroupMixin,
         Products in the shop (and active) but not listed in the form are
         included in the inventory with a quantity 0.
         """
-        inventory_formset = self.inventory_product_formset(
+        inventory_product_formset = formset_factory(InventoryProductForm,
+                                                    formset=BaseInventoryProductFormSet,
+                                                    extra=1)
+        inventory_formset = inventory_product_formset(
             request.POST, form_kwargs={'shop': self.shop})
         additionnal_data_form = AdditionnalDataInventoryForm(request.POST)
 
         if inventory_formset.is_valid() and additionnal_data_form.is_valid():
-
             inventory = Inventory.objects.create(
                 operator=request.user, shop=self.shop)
 
@@ -324,29 +278,44 @@ class InventoryCreateView(GroupPermissionMixin, ShopFromGroupMixin,
 
             return redirect(
                 reverse('url_inventory_list',
-                        kwargs={'group_name': self.group.name})
+                        kwargs={'shop_pk': self.shop.pk})
             )
         else:
             return self.get(request)
 
 
-class InventoryRetrieveView(GroupPermissionMixin, View, GroupLateralMenuMixin):
+class InventoryRetrieveView(ShopMixin, BorgiaView):
+    permission_required = 'stocks.view_inventory'
+    menu_type = 'shops'
     template_name = 'stocks/inventory_retrieve.html'
-    perm_codename = 'view_inventory'
     lm_active = 'lm_inventory_list'
 
-    def dispatch(self, request, *args, **kwargs):
+    def __init__(self):
+        super().__init__()
+        self.inventory = None
+
+    def add_inventory_object(self):
+        """
+        Define inventory object.
+        Raise Http404 is inventory doesn't exist.
+        """
         try:
-            self.object = Inventory.objects.get(pk=kwargs['pk'])
+            self.inventory = Inventory.objects.get(pk=self.kwargs['inventory_pk'])
         except ObjectDoesNotExist:
             raise Http404
+        if self.inventory.shop.pk != self.shop.pk:
+            raise Http404
 
-        return super(InventoryRetrieveView, self).dispatch(request, *args,
-                                                       **kwargs)
+    def add_context_objects(self):
+        """
+        Override to add more context objects for the view.
+        """
+        super().add_context_objects()
+        self.add_inventory_object()
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['inventory'] = self.object
+        context['inventory'] = self.inventory
         return render(request, self.template_name, context=context)
 
 

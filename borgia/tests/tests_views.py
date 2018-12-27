@@ -1,6 +1,5 @@
 from django.contrib.auth import get_user
 from django.contrib.auth.models import Group, Permission
-from django.core import mail
 from django.test import Client, TestCase
 from django.urls import NoReverseMatch, reverse
 
@@ -9,19 +8,19 @@ from users.models import User
 
 class BaseBorgiaViewsTestCase(TestCase):
     def setUp(self):
-        members_group = Group.objects.create(name='gadzarts')
+        members_group = Group.objects.create(name='members')
         presidents_group = Group.objects.create(name='presidents')
         presidents_group.permissions.set(Permission.objects.all())
-        # Group specials NEED to be created (else raises errors) :
-        specials_group = Group.objects.create(name='specials')
-        specials_group.permissions.set([])
-        specials_group.save()
-        
+        # Group externals NEED to be created (else raises errors) :
+        externals_group = Group.objects.create(name='externals')
+
         self.user1 = User.objects.create(username='user1', balance=53)
         self.user1.groups.add(members_group)
         self.user1.groups.add(presidents_group)
+        self.user1.save()
         self.user2 = User.objects.create(username='user2', balance=144)
-        self.user2.groups.add(specials_group)
+        self.user2.groups.add(externals_group)
+        self.user2.save()
         self.user3 = User.objects.create(username='user3')
         self.client1 = Client()
         self.client1.force_login(self.user1)
@@ -29,6 +28,7 @@ class BaseBorgiaViewsTestCase(TestCase):
         self.client2.force_login(self.user2)
         self.client3 = Client()
         self.client3.force_login(self.user3)
+        self.assertEqual(User.objects.count(), 3)
 
 
 class AuthViewNamedURLTests(TestCase):
@@ -58,7 +58,7 @@ class AuthViewNamedURLTests(TestCase):
 
 class BaseAuthViewsTestCase(TestCase):
     url_view = None
-    
+
     def setUp(self):
         self.user = User.objects.create(username='user')
         self.user.set_password('yaquela215quipine')
@@ -71,7 +71,7 @@ class BaseAuthViewsTestCase(TestCase):
         self.assertRedirects(response_offline_user, '/auth/login/?next=' + reverse(self.url_view))
 
 
-class LoginViewTestCase(BaseAuthViewsTestCase):
+class LoginViewTests(BaseAuthViewsTestCase):
     url_view = 'url_login'
     template_name = 'registration/login.html'
 
@@ -85,32 +85,31 @@ class LoginViewTestCase(BaseAuthViewsTestCase):
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
 
-    def test_login(self): 
-        self.client = Client()
-        response = self.client.post(
-            reverse(self.url_view), 
-                    {'username': 'user', 'password': 'yaquela215quipine'})
+    def test_login(self):
+        client = Client()
+        response = client.post(
+            reverse(self.url_view),
+            {'username': 'user', 'password': 'yaquela215quipine'})
 
-        user_logged = get_user(self.client)
+        user_logged = get_user(client)
         self.assertTrue(user_logged.is_authenticated)
 
         self.assertEqual(response.status_code, 302)
-        # TODO : See if it works without fetch_redirect_response=False
-        self.assertRedirects(response, '/gadzarts/', fetch_redirect_response=False)
+        self.assertRedirects(response, '/members/', fetch_redirect_response=False)
 
-    def test_wrong_credentials(self): 
-        self.client = Client()
-        response = self.client.post(
-            reverse(self.url_view), 
-                    {'username': 'user', 'password': 'wrongpassword'})
+    def test_wrong_credentials(self):
+        client = Client()
+        response = client.post(
+            reverse(self.url_view),
+            {'username': 'user', 'password': 'wrongpassword'})
 
-        user_logged = get_user(self.client)
+        user_logged = get_user(client)
         self.assertFalse(user_logged.is_authenticated)
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
 
 
-class LogoutViewTestCase(BaseAuthViewsTestCase):
+class LogoutViewTests(BaseAuthViewsTestCase):
     url_view = 'url_logout'
 
     def setUp(self):
@@ -126,6 +125,7 @@ class LogoutViewTestCase(BaseAuthViewsTestCase):
 
         user = get_user(self.client)
         self.assertFalse(user.is_authenticated)
+        self.assertEqual(response.status_code, 302)
 
     def test_redirection(self):
         response = Client().get(reverse(self.url_view))
@@ -133,7 +133,7 @@ class LogoutViewTestCase(BaseAuthViewsTestCase):
         self.assertRedirects(response, '/auth/login/')
 
 
-class PasswordChangeViewTestCase(BaseAuthViewsTestCase):
+class PasswordChangeViewTests(BaseAuthViewsTestCase):
     url_view = 'password_change'
     template_name = 'registration/password_change_form.html'
 
@@ -149,12 +149,12 @@ class PasswordChangeViewTestCase(BaseAuthViewsTestCase):
 
     def test_post(self):
         response = self.client.post(
-            reverse(self.url_view), 
-                    {'username': 'user',
-                     'old_password': 'yaquela215quipine',
-                     'new_password1': 'new_password',
-                     'new_password2': 'new_password'
-                     })
+            reverse(self.url_view),
+            {'username': 'user',
+             'old_password': 'yaquela215quipine',
+             'new_password1': 'new_password',
+             'new_password2': 'new_password'})
+
         self.assertEqual(response.status_code, 302)
         self.assertRedirects(response, reverse('password_change_done'))
 
@@ -171,7 +171,7 @@ class PasswordChangeViewTestCase(BaseAuthViewsTestCase):
         super().offline_user_redirection()
 
 
-class PasswordChangeDoneViewTestCase(BaseAuthViewsTestCase):
+class PasswordChangeDoneViewTests(BaseAuthViewsTestCase):
     url_view = 'password_change_done'
     template_name = 'registration/password_change_done.html'
 
@@ -189,12 +189,9 @@ class PasswordChangeDoneViewTestCase(BaseAuthViewsTestCase):
         super().offline_user_redirection()
 
 
-class PasswordResetViewTestCase(TestCase):
+class PasswordResetViewTests(TestCase):
     url_view = 'password_reset'
     template_name = 'registration/password_reset_form.html'
-
-    def setUp(self):
-        super().setUp()
 
     def test_get(self):
         response = Client().get(reverse(self.url_view))
@@ -210,7 +207,7 @@ class PasswordResetViewTestCase(TestCase):
         self.assertRedirects(response, reverse('password_reset_done'))
 
 
-class PasswordResetDoneViewTestCase(TestCase):
+class PasswordResetDoneViewTests(TestCase):
     url_view = 'password_reset_done'
     template_name = 'registration/password_reset_done.html'
 
@@ -218,3 +215,36 @@ class PasswordResetDoneViewTestCase(TestCase):
         response = Client().get(reverse(self.url_view))
         self.assertEqual(response.status_code, 200)
         self.assertTemplateUsed(response, self.template_name)
+
+
+class BaseWorkboardsTestCase(BaseBorgiaViewsTestCase):
+    """
+    Base for workboards test cases
+    """
+    url_view = None
+
+    def as_president_get(self):
+        response_client1 = self.client1.get(
+            reverse(self.url_view))
+        self.assertEqual(response_client1.status_code, 200)
+
+    def offline_user_redirection(self):
+        response_offline_user = Client().get(
+            reverse(self.url_view))
+        self.assertEqual(response_offline_user.status_code, 302)
+        self.assertRedirects(response_offline_user, '/auth/login/')
+
+
+class ManagersWorkboardTests(BaseWorkboardsTestCase):
+    url_view = 'url_managers_workboard'
+
+    def test_as_president_get(self):
+        super().as_president_get()
+
+    def test_as_members_get(self):
+        response_client2 = self.client2.get(
+            reverse(self.url_view))
+        self.assertEqual(response_client2.status_code, 403)
+
+    def test_offline_user_redirection(self):
+        super().offline_user_redirection()

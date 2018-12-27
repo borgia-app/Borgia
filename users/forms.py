@@ -1,8 +1,8 @@
 from django import forms
-from django.core.exceptions import ObjectDoesNotExist, ValidationError
+from django.core.exceptions import ValidationError
 from django.forms.widgets import PasswordInput
 
-from users.models import User, list_year
+from users.models import User, get_list_year
 
 
 class UserCreationCustomForm(forms.Form):
@@ -14,25 +14,11 @@ class UserCreationCustomForm(forms.Form):
     campus = forms.ChoiceField(
         label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
     year = forms.ChoiceField(
-        label='Prom\'ss', choices=User.YEAR_CHOICES[::-1], required=False)
+        label='Prom\'ss', choices=User.YEAR_CHOICES[::-1], required=True)
     username = forms.CharField(label='Username', max_length=255)
-    honnor_member = forms.BooleanField(
-        label='Membre d\'honneur', required=False)
+    is_external_member = forms.BooleanField(
+        label='Externe à l\'association', required=False)
     password = forms.CharField(label='Mot de passe', widget=PasswordInput)
-    password_bis = forms.CharField(
-        label='Mot de passe (confirmation)', widget=PasswordInput)
-
-    def clean(self):
-        cleaned_data = super(UserCreationCustomForm, self).clean()
-        try:
-
-            if cleaned_data['password'] != cleaned_data['password_bis']:
-                raise forms.ValidationError(
-                    'Les deux mots de passe ne correspondent pas')
-
-        except KeyError:
-            pass
-        return super(UserCreationCustomForm, self).clean()
 
     def clean_username(self):
         data = self.cleaned_data['username']
@@ -54,7 +40,7 @@ class SelfUserUpdateForm(forms.ModelForm):
 
     def __init__(self, **kwargs):
         self.user = kwargs.pop('user')
-        super(SelfUserUpdateForm, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     def clean_email(self):
         data = self.cleaned_data['email']
@@ -77,8 +63,8 @@ class UserUpdateForm(forms.Form):
         label='Prom\'ss', choices=User.YEAR_CHOICES, required=False)
 
     def __init__(self, **kwargs):
-        self.user_modified = kwargs.pop('user_modified')
-        super(UserUpdateForm, self).__init__(**kwargs)
+        self.user = kwargs.pop('user')
+        super().__init__(**kwargs)
 
     def clean_first_name(self):
         data = self.cleaned_data['first_name']
@@ -96,16 +82,16 @@ class UserUpdateForm(forms.Form):
         data = self.cleaned_data['email']
         if data == '':
             raise ValidationError('Ce champ ne peut pas être vide')
-        if User.objects.filter(email=data).exclude(pk=self.user_modified.pk).exists():
+        if User.objects.filter(email=data).exclude(pk=self.user.pk).exists():
             raise ValidationError('Un autre utilisateur existe avec cet email')
         return data
 
 
-class ManageGroupForm(forms.Form):
+class GroupUpdateForm(forms.Form):
     def __init__(self, *args, **kwargs):
         possible_members = kwargs.pop('possible_members')
         possible_permissions = kwargs.pop('possible_permissions')
-        super(ManageGroupForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['members'] = forms.ModelMultipleChoiceField(
             queryset=possible_members,
             widget=forms.SelectMultiple(
@@ -136,10 +122,10 @@ class UserSearchForm(forms.Form):
                               required=False)
 
     def __init__(self, **kwargs):
-        super(UserSearchForm, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
         YEAR_CHOICES = [('all', 'Toutes')]
-        for year in list_year():
+        for year in get_list_year():
             YEAR_CHOICES.append(
                 (year, year)
             )

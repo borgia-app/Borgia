@@ -5,8 +5,8 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
             Produits
-            {% if group|has_group_perm:"add_product" %}
-                <a class="btn btn-xs btn-success pull-right" href="{% url 'url_product_create' group_name=group.name %}">Nouveau</a>
+            {% if request.user|has_perm:"shops.add_product" %}
+                <a class="btn btn-xs btn-success pull-right" href="{% url 'url_product_create' shop_pk=shop.pk %}">Nouveau</a>
             {% endif %}
         </div>
         <div class="panel-body">
@@ -34,8 +34,8 @@
               <th>Facteur de correction</th>
               <th>Prix de vente</th>
               <th>Etat</th>
-              {% if group|has_group_perm:"view_product" %}<th>Détail</th>{% endif %}
-              {% if group|has_group_perm:"change_price_product" %}<th>Gestion du prix</th>{% endif %}
+              {% if request.user|has_perm:"shops.view_product" %}<th>Détail</th>{% endif %}
+              {% if request.user|has_perm:"shops.change_price_product" %}<th>Gestion du prix</th>{% endif %}
           </tr>
           {% for product in product_list %}
           <tr>
@@ -45,11 +45,11 @@
               <td>{{ product.correcting_factor }}</td>
               <td>{{ product.get_price }} € / {{ product.get_upper_unit_display }} ({{ product.get_strategy_display }})</td>
               <td>{% if product.is_active %}Activé{% else %}Désactivé{% endif %}</td>
-              {% if group|has_group_perm:"view_product" %}<td>
-                <a href="{% url 'url_product_retrieve' group_name=group.name pk=product.pk %}">Détail</a>
+              {% if request.user|has_perm:"shops.view_product" %}<td>
+                <a href="{% url 'url_product_retrieve' shop_pk=shop.pk product_pk=product.pk %}">Détail</a>
               </td>{% endif %}
-              {% if group|has_group_perm:"change_price_product" %}<td>
-                {% if product.is_manual %}Manuelle, {% else %}Automatique, {% endif %}<a href="{% url 'url_product_update_price' group_name=group.name pk=product.pk %}">Gestion</a>
+              {% if request.user|has_perm:"shops.change_price_product" %}<td>
+                {% if product.is_manual %}Manuelle, {% else %}Automatique, {% endif %}<a href="{% url 'url_product_update_price' shop_pk=shop.pk product_pk=product.pk %}">Gestion</a>
               </td>{% endif %}
           </tr>
           {% endfor %}

@@ -13,7 +13,7 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         Transactions
-        <a class="btn btn-info btn-xs" href="{% url 'url_sale_list' group_name=group.name %}">Liste complète des ventes</a>
+        <a class="btn btn-info btn-xs" href="{% url 'url_sale_list' shop_pk=shop.pk %}">Liste complète des ventes</a>
       </div>
       <div class="panel-body">
         <ul>
@@ -28,8 +28,8 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         Stocks
-        <a class="btn btn-info btn-xs" href="{% url 'url_product_list' group_name=group.name %}">Liste complète des produits</a>
-        <a class="btn btn-info btn-xs" href="{% url 'url_stock_entry_list' group_name=group.name %}">Liste complète des entrées de stock</a>
+        <a class="btn btn-info btn-xs" href="{% url 'url_product_list' shop_pk=shop.pk %}">Liste complète des produits</a>
+        <a class="btn btn-info btn-xs" href="{% url 'url_stockentry_list' shop_pk=shop.pk %}">Liste complète des entrées de stock</a>
       </div>
       <div class="panel-body">
         <ul>
@@ -47,7 +47,7 @@
         Paramètres de synthèse
       </div>
       <div class="panel-body">
-        <h2>{{ shop_mod }}</h2>
+        <h2>{{ shop }}</h2>
         <form action= "" method="post">
             {% csrf_token %}
             {{ form|bootstrap }}

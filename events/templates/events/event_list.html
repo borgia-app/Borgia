@@ -1,0 +1,71 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+{% load finances_extra %}
+
+{% block content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+          Evènements
+          {% if request.user|has_perm:"events.add_event" %}
+            <a class="btn btn-xs btn-success pull-right" href="{% url 'url_event_create' %}">Nouveau</a>
+          {% endif %}
+        </div>
+        <div class="panel-body">
+          <form action="" method="post" class="form-horizontal">
+            {% csrf_token %}
+            {{ form|bootstrap_horizontal }}
+            <div class="form-group">
+              <div class="col-sm-10 col-sm-offset-2">
+                <button type="submit" class="btn btn-primary">Recherche</button>
+                <a class="btn btn-warning" href="">Remise à zéro</a>
+              </div>
+            </div>
+          </form>
+        </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Résultats
+      </div>
+      <table class="table table-hover table-striped">
+        <tr>
+          <th>Date</th>
+          <th>Description</th>
+          <th>Gestionnaire</th>
+          <th>Préinscrits / Parts</th>
+          <th>Participants / Parts</th>
+          <th>Statut</th>
+          <th>Remarque</th>
+          <th>Gestion</th>
+        </tr>
+        {% for event in events %}
+        <tr>
+          <td>{{ event.date|date:"d/m/Y" }}</td>
+          <td>{{ event.description }}</td>
+          <td>{{ event.manager }}</td>
+          <td>{{ event.number_registrants }}/{{ event.total_weights_registrants }}</td>
+          <td>{{ event.number_participants}}/{{ event.total_weights_participants }}</td>
+          {% if event.done %}
+            <td>Terminé</td>
+            <td>Participation : {{ event.weight_of_user }}</td>
+          {% else %}
+            <td>En attente</td>
+            <td>Préinscrit : {{ event.weight_of_user }}
+              {% if has_perm_self_register_event and event.allow_self_registeration and not done  %},
+                <a href="{% url 'url_event_self_registration' pk=event.pk %}"
+                  class="btn btn-xs">
+                  Se préinscrire
+                </a>
+              {% endif %}
+            </td>
+          {% endif %}
+          <td>
+              {% if event.has_perm_manage %}
+                  <a href="{% url 'url_event_update' pk=event.pk %}">Gérer</a>
+              {% endif %}
+          </td>
+        </tr>
+        {% endfor %}
+      </table>
+    </div>
+{% endblock %}

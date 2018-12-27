@@ -37,7 +37,7 @@
             <td>{{ inventory.datetime|time:"H:i" }}</td>
             <td>{{ inventory.operator }}</td>
             <td>{{ inventory.shop }}</td>
-            <td><a href="{% url 'url_inventory_retrieve' group_name=group.name pk=inventory.pk %}">Détail</a></td>
+            <td><a href="{% url 'url_inventory_retrieve' shop_pk=shop.pk inventory_pk=inventory.pk %}">Détail</a></td>
           </tr>
           {% endfor %}
         </table>

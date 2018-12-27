@@ -32,209 +32,159 @@ class BaseStocksViewsTest(BaseShopsViewsTest):
             inventory=self.inventory1, product=self.product3, quantity=1)
 
 
-class StockEntryListViewTest(BaseStocksViewsTest):
-    def test_get_president(self):
-        response_client1 = self.client1.get(
-            reverse('url_stock_entry_list', kwargs={'group_name': 'presidents'}))
+class BaseGeneralStocksViewsTest(BaseStocksViewsTest):
+    url_view = None
+
+    def get_url(self, shop_pk):
+        return reverse(self.url_view, kwargs={'shop_pk': shop_pk})
+
+    def president_get(self):
+        response_client1 = self.client1.get(self.get_url(self.shop1.pk))
         self.assertEqual(response_client1.status_code, 200)
 
-    def test_get_chief(self):
-        response_client3 = self.client3.get(
-            reverse('url_stock_entry_list', kwargs={'group_name': 'chiefs-shop1'}))
+    def chief_get(self):
+        response_client3 = self.client3.get(self.get_url(self.shop1.pk))
         self.assertEqual(response_client3.status_code, 200)
 
-    def test_get_not_existing_group(self):
-        response_client1 = self.client1.get(reverse('url_stock_entry_list',
-                                                    kwargs={'group_name': 'group_that_does_not_exist'}))
-        self.assertEqual(response_client1.status_code, 404)
-
-    def test_get_not_in_group_user(self):
-        response_client2 = self.client2.get(reverse('url_stock_entry_list',
-                                                    kwargs={'group_name': 'chiefs-shop1'}))
+    def not_allowed_user_get(self):
+        response_client2 = self.client2.get(self.get_url(self.shop1.pk))
         self.assertEqual(response_client2.status_code, 403)
 
-    def test_get_not_allowed_group(self):
-        response_client2 = self.client2.get(reverse('url_stock_entry_list',
-                                                    kwargs={'group_name': 'specials'}))
-        self.assertEqual(response_client2.status_code, 403)
-
-    def test_offline_user_redirection(self):
-        response_offline_user = Client().get(
-            reverse('url_stock_entry_list', kwargs={'group_name': 'chiefs-shop1'}))
+    def offline_user_redirection(self):
+        response_offline_user = Client().get(self.get_url(self.shop1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
-class StockEntryCreateViewTest(BaseStocksViewsTest):
-    def test_get_president(self):
-        response_client1 = self.client1.get(
-            reverse('url_stock_entry_create', kwargs={'group_name': 'presidents'}))
-        self.assertEqual(response_client1.status_code, 404)
+class StockEntryListViewTest(BaseGeneralStocksViewsTest):
+    url_view = 'url_stockentry_list'
 
-    def test_get_chief(self):
-        response_client3 = self.client3.get(
-            reverse('url_stock_entry_create', kwargs={'group_name': 'chiefs-shop1'}))
-        self.assertEqual(response_client3.status_code, 200)
+    def test_president_get(self):
+        super().president_get()
 
-    def test_get_not_existing_group(self):
-        response_client1 = self.client1.get(reverse('url_stock_entry_create',
-                                                    kwargs={'group_name': 'group_that_does_not_exist'}))
-        self.assertEqual(response_client1.status_code, 404)
+    def test_chief_get(self):
+        super().chief_get()
 
-    def test_get_not_in_group_user(self):
-        response_client2 = self.client2.get(reverse('url_stock_entry_create',
-                                                    kwargs={'group_name': 'chiefs-shop1'}))
-        self.assertEqual(response_client2.status_code, 403)
-
-    def test_get_not_allowed_group(self):
-        response_client2 = self.client2.get(reverse('url_stock_entry_create',
-                                                    kwargs={'group_name': 'specials'}))
-        self.assertEqual(response_client2.status_code, 403)
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
-        response_offline_user = Client().get(
-            reverse('url_stock_entry_create', kwargs={'group_name': 'chiefs-shop1'}))
-        self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        super().offline_user_redirection()
+
+
+class StockEntryCreateViewTest(BaseGeneralStocksViewsTest):
+    url_view = 'url_stockentry_create'
+
+    def test_president_get(self):
+        super().president_get()
+
+    def test_chief_get(self):
+        super().chief_get()
+
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
+
+    def test_offline_user_redirection(self):
+        super().offline_user_redirection()
 
 
 class StockEntryRetrieveViewTest(BaseStocksViewsTest):
-    def test_get_president(self):
-        response_client1 = self.client1.get(reverse('url_stock_entry_retrieve',
-                                                    kwargs={'group_name': 'presidents', 'pk': str(self.stockentry1.pk)}))
-        self.assertEqual(response_client1.status_code, 200)
+    """
+    Implement tests for views when focusing on a stockentry.
+    """
+    url_view = 'url_stockentry_retrieve'
 
-    def test_get_chief(self):
-        response_client3 = self.client3.get(
-            reverse('url_stock_entry_retrieve', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.stockentry1.pk)}))
-        self.assertEqual(response_client3.status_code, 200)
+    def get_url(self, shop_pk, stockentry_pk):
+        return reverse(self.url_view, kwargs={'shop_pk': shop_pk, 'stockentry_pk': stockentry_pk})
 
-    def test_get_not_existing_inventory(self):
-        response_client3 = self.client3.get(reverse('url_stock_entry_retrieve',
-                                                    kwargs={'group_name': 'chiefs-shop1', 'pk': '535353'}))
-        self.assertEqual(response_client3.status_code, 404)
+    def as_president_get(self):
+        response1_client1 = self.client1.get(self.get_url(self.shop1.pk, self.stockentry1.pk))
+        self.assertEqual(response1_client1.status_code, 200)
 
-    def test_get_not_existing_group(self):
-        response_client1 = self.client1.get(reverse('url_stock_entry_retrieve',
-                                                    kwargs={'group_name': 'group_that_does_not_exist', 'pk': str(self.stockentry1.pk)}))
+    def as_chief_get(self):
+        response1_client3 = self.client3.get(self.get_url(self.shop1.pk, self.stockentry1.pk))
+        self.assertEqual(response1_client3.status_code, 200)
+
+    def not_existing_stockentry_get(self):
+        response_client1 = self.client1.get(self.get_url(self.shop1.pk, '5353'))
         self.assertEqual(response_client1.status_code, 404)
 
-    def test_get_not_in_group_user(self):
-        response_client2 = self.client2.get(reverse('url_stock_entry_retrieve',
-                                                    kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.stockentry1.pk)}))
+    def not_existing_shop_get(self):
+        response_client1 = self.client1.get(self.get_url('5353', self.stockentry1.pk))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def not_allowed_user_get(self):
+        response_client2 = self.client2.get(self.get_url(self.shop1.pk, self.stockentry1.pk))
         self.assertEqual(response_client2.status_code, 403)
 
-    def test_get_not_allowed_group(self):
-        response_client2 = self.client2.get(reverse('url_stock_entry_retrieve',
-                                                    kwargs={'group_name': 'specials', 'pk': str(self.stockentry1.pk)}))
-        self.assertEqual(response_client2.status_code, 403)
-
-    def test_offline_user_redirection(self):
-        response_offline_user = Client().get(
-            reverse('url_stock_entry_retrieve', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.stockentry1.pk)}))
+    def offline_user_redirection(self):
+        response_offline_user = Client().get(self.get_url(self.shop1.pk, self.stockentry1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
-class InventoryListViewTest(BaseStocksViewsTest):
-    def test_get_president(self):
-        response_client1 = self.client1.get(
-            reverse('url_inventory_list', kwargs={'group_name': 'presidents'}))
-        self.assertEqual(response_client1.status_code, 200)
+class InventoryListViewTest(BaseGeneralStocksViewsTest):
+    url_view = 'url_inventory_list'
 
-    def test_get_chief(self):
-        response_client3 = self.client3.get(
-            reverse('url_inventory_list', kwargs={'group_name': 'chiefs-shop1'}))
-        self.assertEqual(response_client3.status_code, 200)
+    def test_president_get(self):
+        super().president_get()
 
-    def test_get_not_existing_group(self):
-        response_client1 = self.client1.get(reverse('url_inventory_list',
-                                                    kwargs={'group_name': 'group_that_does_not_exist'}))
-        self.assertEqual(response_client1.status_code, 404)
+    def test_chief_get(self):
+        super().chief_get()
 
-    def test_get_not_in_group_user(self):
-        response_client2 = self.client2.get(reverse('url_inventory_list',
-                                                    kwargs={'group_name': 'chiefs-shop1'}))
-        self.assertEqual(response_client2.status_code, 403)
-
-    def test_get_not_allowed_group(self):
-        response_client2 = self.client2.get(reverse('url_inventory_list',
-                                                    kwargs={'group_name': 'specials'}))
-        self.assertEqual(response_client2.status_code, 403)
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
-        response_offline_user = Client().get(
-            reverse('url_inventory_list', kwargs={'group_name': 'chiefs-shop1'}))
-        self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        super().offline_user_redirection()
 
 
-class InventoryCreateViewTest(BaseStocksViewsTest):
-    def test_get_president(self):
-        response_client1 = self.client1.get(
-            reverse('url_inventory_create', kwargs={'group_name': 'presidents'}))
-        self.assertEqual(response_client1.status_code, 404)
+class InventoryCreateViewTest(BaseGeneralStocksViewsTest):
+    url_view = 'url_inventory_create'
 
-    def test_get_chief(self):
-        response_client3 = self.client3.get(
-            reverse('url_inventory_create', kwargs={'group_name': 'chiefs-shop1'}))
-        self.assertEqual(response_client3.status_code, 200)
+    def test_president_get(self):
+        super().president_get()
 
-    def test_get_not_existing_group(self):
-        response_client1 = self.client1.get(reverse('url_inventory_create',
-                                                    kwargs={'group_name': 'group_that_does_not_exist'}))
-        self.assertEqual(response_client1.status_code, 404)
+    def test_chief_get(self):
+        super().chief_get()
 
-    def test_get_not_in_group_user(self):
-        response_client2 = self.client2.get(reverse('url_inventory_create',
-                                                    kwargs={'group_name': 'chiefs-shop1'}))
-        self.assertEqual(response_client2.status_code, 403)
-
-    def test_get_not_allowed_group(self):
-        response_client2 = self.client2.get(reverse('url_inventory_create',
-                                                    kwargs={'group_name': 'specials'}))
-        self.assertEqual(response_client2.status_code, 403)
+    def test_not_allowed_user_get(self):
+        super().not_allowed_user_get()
 
     def test_offline_user_redirection(self):
-        response_offline_user = Client().get(
-            reverse('url_inventory_create', kwargs={'group_name': 'chiefs-shop1'}))
-        self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        super().offline_user_redirection()
 
 
 class InventoryRetrieveViewTest(BaseStocksViewsTest):
-    def test_get_president(self):
-        response_client1 = self.client1.get(reverse('url_inventory_retrieve', kwargs={
-            'group_name': 'presidents', 'pk': str(self.inventory1.pk)}))
-        self.assertEqual(response_client1.status_code, 200)
+    """
+    Implement tests for views when focusing on an inventory.
+    """
+    url_view = 'url_inventory_retrieve'
 
-    def test_get_chief(self):
-        response_client3 = self.client3.get(
-            reverse('url_inventory_retrieve', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.inventory1.pk)}))
-        self.assertEqual(response_client3.status_code, 200)
+    def get_url(self, shop_pk, inventory_pk):
+        return reverse(self.url_view, kwargs={'shop_pk': shop_pk, 'inventory_pk': inventory_pk})
 
-    def test_get_not_existing_inventory(self):
-        response_client3 = self.client3.get(reverse('url_inventory_retrieve',
-                                                    kwargs={'group_name': 'chiefs-shop1', 'pk': '535353'}))
-        self.assertEqual(response_client3.status_code, 404)
+    def as_president_get(self):
+        response1_client1 = self.client1.get(self.get_url(self.shop1.pk, self.inventory1.pk))
+        self.assertEqual(response1_client1.status_code, 200)
 
-    def test_get_not_existing_group(self):
-        response_client1 = self.client1.get(reverse('url_inventory_retrieve',
-                                                    kwargs={'group_name': 'group_that_does_not_exist', 'pk': str(self.inventory1.pk)}))
+    def as_chief_get(self):
+        response1_client3 = self.client3.get(self.get_url(self.shop1.pk, self.inventory1.pk))
+        self.assertEqual(response1_client3.status_code, 200)
+
+    def not_existing_stockentry_get(self):
+        response_client1 = self.client1.get(self.get_url(self.shop1.pk, '5353'))
         self.assertEqual(response_client1.status_code, 404)
 
-    def test_get_not_in_group_user(self):
-        response_client2 = self.client2.get(reverse('url_inventory_retrieve',
-                                                    kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.inventory1.pk)}))
+    def not_existing_shop_get(self):
+        response_client1 = self.client1.get(self.get_url('5353', self.inventory1.pk))
+        self.assertEqual(response_client1.status_code, 404)
+
+    def not_allowed_user_get(self):
+        response_client2 = self.client2.get(self.get_url(self.shop1.pk, self.inventory1.pk))
         self.assertEqual(response_client2.status_code, 403)
 
-    def test_get_not_allowed_group(self):
-        response_client2 = self.client2.get(reverse('url_inventory_retrieve',
-                                                    kwargs={'group_name': 'specials', 'pk': str(self.inventory1.pk)}))
-        self.assertEqual(response_client2.status_code, 403)
-
-    def test_offline_user_redirection(self):
-        response_offline_user = Client().get(
-            reverse('url_inventory_retrieve', kwargs={'group_name': 'chiefs-shop1', 'pk': str(self.inventory1.pk)}))
+    def offline_user_redirection(self):
+        response_offline_user = Client().get(self.get_url(self.shop1.pk, self.inventory1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')

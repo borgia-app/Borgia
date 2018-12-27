@@ -8,15 +8,12 @@ from django.contrib.auth.views import (LogoutView, PasswordChangeDoneView,
                                        PasswordResetView)
 from django.urls import include, path
 
-from borgia.views import (GadzartsGroupWorkboard, ModulesLoginView,
-                          PresidentsGroupWorkboard, ShopGroupWorkboard,
-                          TreasurersGroupWorkboard,
-                          VicePresidentsInternalGroupWorkboard, handler403,
-                          handler404, handler500)
+from borgia.views import (ManagersWorkboard, MembersWorkboard,
+                          ModulesLoginView, handler403, handler404, handler500)
+from configurations.urls import configurations_patterns
+from events.urls import events_patterns
 from finances.urls import finances_patterns
 from modules.urls import modules_patterns
-from notifications.urls import notifications_patterns
-from settings_data.urls import settings_patterns
 from shops.urls import shops_patterns
 from stocks.urls import stocks_patterns
 from users.urls import users_patterns
@@ -48,21 +45,14 @@ urlpatterns = [
              name='password_reset_complete'),
     ])),
     # WORKBOARDS
-    path('presidents/', PresidentsGroupWorkboard.as_view(),
-         {'group_name': 'presidents'}, name='url_group_workboard'),
-    path('vice-presidents-internal/', VicePresidentsInternalGroupWorkboard.as_view(),
-         {'group_name': 'vice-presidents-internal'}, name='url_group_workboard'),
-    path('treasurers/', TreasurersGroupWorkboard.as_view(),
-         {'group_name': 'treasurers'}, name='url_group_workboard'),
-    path('gadzarts/', GadzartsGroupWorkboard.as_view(),
-         {'group_name': 'gadzarts'}, name='url_group_workboard'),
-    path('<str:group_name>/', ShopGroupWorkboard.as_view(),
-         name='url_group_workboard'),
+    path('members/', MembersWorkboard.as_view(), name='url_members_workboard'),
+    path('managers/', ManagersWorkboard.as_view(), name='url_managers_workboard'),
+
     ### APPS ###
+    path('', include(configurations_patterns)),
+    path('', include(events_patterns)),
     path('', include(finances_patterns)),
     path('', include(modules_patterns)),
-    path('', include(notifications_patterns)),
-    path('', include(settings_patterns)),
     path('', include(shops_patterns)),
     path('', include(stocks_patterns)),
     path('', include(users_patterns))

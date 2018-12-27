@@ -7,41 +7,39 @@ from shops.models import Product
 from users.models import User
 
 
-class SelfSaleShopModule(forms.Form):
+class ShopModuleSaleForm(forms.Form):
     def __init__(self, *args, **kwargs):
+        self.module_class = kwargs.pop('module_class')
         self.module = kwargs.pop('module')
         self.client = kwargs.pop('client')
         self.balance_threshold_purchase = kwargs.pop(
             'balance_threshold_purchase')
-        super(SelfSaleShopModule, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
 
-        try:
+        if self.module_class == 'operator_sales':
             self.fields['client'] = self.get_client_field()
-        except AttributeError:
-            pass
 
         for category in self.module.categories.all():
             for category_product in category.categoryproduct_set.all():
                 if (category_product.get_price() > 0 and
-                    not category_product.product.is_removed and
+                        not category_product.product.is_removed and
                         category_product.product.is_active):
                     self.fields[str(category_product.pk)
                                 + '-' + str(category.pk)
                                 ] = forms.IntegerField(
-                        label=category_product.__str__(),
-                        widget=forms.NumberInput(
-                            attrs={'data_category_pk': category.pk,
-                                   'data_price': category_product.get_price(),
-                                   'class': 'form-control buyable_product',
-                                   'min': 0}),
-                        initial=0,
-                        required=False,
-                        validators=[MinValueValidator(0, """La commande doit être
-                                                      positive ou nulle""")]
-                    )
+                                    label=category_product.__str__(),
+                                    widget=forms.NumberInput(
+                                        attrs={'data_category_pk': category.pk,
+                                               'data_price': category_product.get_price(),
+                                               'class': 'form-control buyable_product',
+                                               'min': 0}),
+                                    initial=0,
+                                    required=False,
+                                    validators=[MinValueValidator(0, """La commande doit être
+                                                                positive ou nulle""")])
 
     def clean(self):
-        super(SelfSaleShopModule, self).clean()
+        super().clean()
         if self.client is None:
             try:
                 self.client = User.objects.get(
@@ -75,8 +73,6 @@ class SelfSaleShopModule(forms.Form):
         self.cleaned_data['client'] = self.client
         return self.cleaned_data
 
-
-class OperatorSaleShopModule(SelfSaleShopModule):
     def get_client_field(self):
         return forms.CharField(
             label="Client",
@@ -87,11 +83,10 @@ class OperatorSaleShopModule(SelfSaleShopModule):
                                           'autofocus': 'true',
                                           'placeholder': "Nom d'utilisateur"}))
 
-
 class ModuleCategoryCreateForm(forms.Form):
     def __init__(self, *args, **kwargs):
         shop = kwargs.pop('shop')
-        super(ModuleCategoryCreateForm, self).__init__(*args, **kwargs)
+        super().__init__(*args, **kwargs)
         self.fields['product'] = forms.ChoiceField(
             label='Produit',
             choices=([(None, 'Sélectionner un produit')] + [
@@ -117,9 +112,7 @@ class ModuleCategoryCreateForm(forms.Form):
         )
     )
 
-    def clean(self):
-        cleaned_data = super(ModuleCategoryCreateForm, self).clean()
-        # Validation direct in html
+    # TODO : Validation
 
 
 class ModuleCategoryCreateNameForm(forms.Form):

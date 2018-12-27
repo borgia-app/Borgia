@@ -33,16 +33,16 @@
                 <th>Type</th>
                 <th>Détail</th>
             </tr>
-            {% for exceptionnal_movement in exceptionnalmovement_list %}
-            <tr class="{% if exceptionnal_movement.is_credit %}success{% else %}danger{% endif %}">
-                <td>{{ exceptionnal_movement.operator }}</td>
-                <td>{{ exceptionnal_movement.recipient }}</td>
-                <td>{{ exceptionnal_movement.datetime|date:"SHORT_DATE_FORMAT" }}</td>
-                <td>{{ exceptionnal_movement.datetime|time:"H:i" }}</td>
-                <td>{{ exceptionnal_movement.amount }}€</td>
-                <td>{% if exceptionnal_movement.is_credit %}Crédit{% else %}Débit{% endif %}</td>
+            {% for exceptionnalmovement in exceptionnalmovement_list %}
+            <tr class="{% if exceptionnalmovement.is_credit %}success{% else %}danger{% endif %}">
+                <td>{{ exceptionnalmovement.operator }}</td>
+                <td>{{ exceptionnalmovement.recipient }}</td>
+                <td>{{ exceptionnalmovement.datetime|date:"SHORT_DATE_FORMAT" }}</td>
+                <td>{{ exceptionnalmovement.datetime|time:"H:i" }}</td>
+                <td>{{ exceptionnalmovement.amount }}€</td>
+                <td>{% if exceptionnalmovement.is_credit %}Crédit{% else %}Débit{% endif %}</td>
                 <td>
-                  <a href="{% url 'url_exceptionnalmovement_retrieve' group_name=group.name pk=exceptionnal_movement.pk %}">Détail</a>
+                  <a href="{% url 'url_exceptionnalmovement_retrieve' exceptionnalmovement_pk=exceptionnalmovement.pk %}">Détail</a>
                 </td>
             </tr>
             {% endfor %}

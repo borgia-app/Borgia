@@ -57,7 +57,7 @@ $("li[role='presentation']").first().attr('class', 'active')
 
 // Reload everything if the page is reloaded due to form validation errors
 $(document).ready(function() {
-  {% if type == "operator_sale" %}
+  {% if module_class == "operator_sales" %}
   // Get user and update initial
   update_initial($("#id_client").val());
   {% endif %}
@@ -69,7 +69,7 @@ $(document).ready(function() {
 });
 
 
-{% if type == "operator_sale" %}
+{% if module_class == "operator_sales" %}
 
    // Function to update the balance of the user.
    // Then calculate the futur balance of the user

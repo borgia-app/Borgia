@@ -1,32 +1,60 @@
 from django import forms
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 
 from shops.models import Product, Shop
 
 
-class ProductCreateForm(forms.Form):
-    def __init__(self, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ProductCreateForm, self).__init__(**kwargs)
-        if shop is None:
-            self.fields['shop'] = forms.ModelChoiceField(
-                label='Magasin',
-                queryset=Shop.objects.all().exclude(pk=1)
-            )
-        self.fields['name'] = forms.CharField(
-            label='Nom',
-            max_length=254
-        )
-        self.fields['on_quantity'] = forms.BooleanField(
-            label='Produit vendu à la quantité',
-            required=False)
-        self.fields['unit'] = forms.ChoiceField(
-            label='Unité de vente',
-            choices=(('CL', 'cl'), ('G', 'g')),
-            required=False)
+class ShopCreateForm(forms.ModelForm):
+    class Meta:
+        model = Shop
+        fields = ['name', 'description', 'color']
 
     def clean(self):
-        cleaned_data = super(ProductCreateForm, self).clean()
+        cleaned_data = super().clean()
+        count = Shop.objects.filter(name=cleaned_data.get('name')).count()
+        if count != 0:
+            raise forms.ValidationError('Le code de magasin est déjà utilisé')
+
+
+class ShopUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Shop
+        fields = ['description', 'color']
+
+
+class ShopCheckupSearchForm(forms.Form):
+    date_begin = forms.DateField(
+        label='Date de début',
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+        required=False)
+    date_end = forms.DateField(
+        label='Date de fin',
+        input_formats=['%d/%m/%Y'],
+        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+        required=False)
+
+    def __init__(self, **kwargs):
+        shop = kwargs.pop('shop')
+        super().__init__(**kwargs)
+        self.fields['products'] = forms.ModelMultipleChoiceField(
+            label='Produits',
+            queryset=Product.objects.filter(shop=shop, is_removed=False),
+            widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
+                                               'data-live-search': 'True'}),
+            required=False)
+
+
+class ProductCreateForm(forms.ModelForm):
+    on_quantity = forms.BooleanField(
+        label='Produit vendu à la quantité',
+        required=False)
+
+    class Meta:
+        model = Product
+        fields = ['name', 'unit']
+
+    def clean(self):
+        cleaned_data = super().clean()
         on_quantity = cleaned_data.get('on_quantity')
         unit = cleaned_data.get('unit')
         if on_quantity:
@@ -52,61 +80,7 @@ class ProductUpdatePriceForm(forms.Form):
 
 
 class ProductListForm(forms.Form):
-    def __init__(self, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ProductListForm, self).__init__(**kwargs)
-        if shop is None:
-            self.fields['shop'] = forms.ModelChoiceField(
-                label='Magasin',
-                queryset=Shop.objects.all().exclude(pk=1),
-                required=False
-            )
-        self.fields['search'] = forms.CharField(
-            label='Recherche',
-            max_length=255,
-            required=False)
-
-
-class ShopCreateForm(forms.ModelForm):
-    class Meta:
-        model = Shop
-        fields = ['name', 'description', 'color']
-
-    def clean(self):
-        cleaned_data = super(ShopCreateForm, self).clean()
-        try:
-            Shop.objects.get(name=cleaned_data['name'])
-            raise forms.ValidationError('Le code de magasin est déjà utilisé')
-        except MultipleObjectsReturned:
-            raise forms.ValidationError('Le code de magasin est déjà utilisé')
-        except ObjectDoesNotExist:
-            pass
-
-
-class ShopUpdateForm(forms.ModelForm):
-    class Meta:
-        model = Shop
-        fields = ['description', 'color']
-
-
-class ShopCheckupSearchForm(forms.Form):
-    date_begin = forms.DateField(
-        label='Date de début',
-        input_formats=['%d/%m/%Y'],
-        widget=forms.DateInput(attrs={'class': 'datepicker'}),
+    search = forms.CharField(
+        label='Recherche',
+        max_length=255,
         required=False)
-    date_end = forms.DateField(
-        label='Date de fin',
-        input_formats=['%d/%m/%Y'],
-        widget=forms.DateInput(attrs={'class': 'datepicker'}),
-        required=False)
-
-    def __init__(self, **kwargs):
-        shop = kwargs.pop('shop')
-        super(ShopCheckupSearchForm, self).__init__(**kwargs)
-        self.fields['products'] = forms.ModelMultipleChoiceField(
-            label='Produits',
-            queryset=Product.objects.filter(shop=shop, is_removed=False),
-            widget=forms.SelectMultiple(attrs={'class': 'selectpicker',
-                                               'data-live-search': 'True'}),
-            required=False)
