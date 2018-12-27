@@ -9,7 +9,7 @@ class SalesNamedURLTests(TestCase):
         "Named sales URLs should be reversible"
         expected_named_urls = [
             ('url_sale_list', [], {'shop_pk': 53}),
-            ('url_sale_retrieve', [], {'shop_pk': 53, 'pk': 53})
+            ('url_sale_retrieve', [], {'shop_pk': 53, 'sale_pk': 53})
         ]
         for name, args, kwargs in expected_named_urls:
             with self.subTest(name=name):
