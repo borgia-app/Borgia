@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.views import (LogoutView, PasswordChangeDoneView,
@@ -14,6 +15,7 @@ from configurations.urls import configurations_patterns
 from events.urls import events_patterns
 from finances.urls import finances_patterns
 from modules.urls import modules_patterns
+from sales.urls import sales_patterns
 from shops.urls import shops_patterns
 from stocks.urls import stocks_patterns
 from users.urls import users_patterns
@@ -53,6 +55,7 @@ urlpatterns = [
     path('', include(events_patterns)),
     path('', include(finances_patterns)),
     path('', include(modules_patterns)),
+    path('', include(sales_patterns)),
     path('', include(shops_patterns)),
     path('', include(stocks_patterns)),
     path('', include(users_patterns))

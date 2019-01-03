@@ -52,9 +52,6 @@ class EventModelTestCase(TestCase):
             balance=0
         )
 
-    def test_wording(self):
-        self.assertEqual(self.event1.wording(), "Événement : Test53, le 01/01")
-
     def test_add_and_remove_user(self):
         # INIT
         self.event1.change_weight(self.user1, 100, is_participant=True)

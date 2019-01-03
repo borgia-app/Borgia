@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     'finances',
     'events',
     'modules',
+    'sales',
     'stocks'
 ]
 

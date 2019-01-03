@@ -1,3 +1,4 @@
+#-*- coding: utf-8 -*-
 import datetime
 import decimal
 import hashlib
@@ -7,7 +8,6 @@ from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
 from django.http import Http404
 from django.shortcuts import HttpResponse, render
@@ -21,136 +21,12 @@ from configurations.utils import configurations_safe_get
 from finances.forms import (ExceptionnalMovementForm,
                             GenericListSearchDateForm, RechargingCreateForm,
                             RechargingListForm, SelfLydiaCreateForm,
-                            SelfTransfertCreateForm)
-from finances.mixins import SaleMixin
+                            TransfertCreateForm)
 from finances.models import (Cash, Cheque, ExceptionnalMovement,
-                             LydiaFaceToFace, LydiaOnline, Recharging, Sale,
+                             Lydia, Recharging,
                              Transfert)
-from shops.mixins import ShopMixin
 from users.mixins import UserMixin
 from users.models import User
-
-
-class SaleList(ShopMixin, BorgiaFormView):
-    """
-    View to list sales.
-
-    The sale are displayed for a shop. A manager of a shop can only see sales
-    relatives to his own shop. Association managers can switch to see other shops.
-
-    :note:: only sales are listed here. Sales come from a shop, for other
-    types of transactions, please refer to other classes (RechargingList,
-    TransfertList and ExceptionnalMovementList).
-    """
-    permission_required = 'finances.view_sale'
-    menu_type = 'shops'
-    template_name = 'finances/sale_shop_list.html'
-    form_class = GenericListSearchDateForm
-    lm_active = 'lm_sale_list'
-
-    query_shop = None
-    search = None
-    date_begin = None
-    date_end = None
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        sales_tab_header = []
-        seen = set(sales_tab_header)
-        page = self.request.POST.get('page', 1)
-
-        try:
-            context['sale_list'] = Sale.objects.filter(
-                shop=self.shop).order_by('-datetime')
-        except AttributeError:
-            context['sale_list'] = Sale.objects.all().order_by('-datetime')
-
-        # The sale_list is paginated by passing the filtered QuerySet to Paginator
-        paginator = Paginator(self.form_query(context['sale_list']), 50)
-        try:
-            # The requested page is grabbed
-            sales = paginator.page(page)
-        except PageNotAnInteger:
-            # If the requested page is not an integer
-            sales = paginator.page(1)
-        except EmptyPage:
-            # If the requested page is out of range, the last page is grabbed
-            sales = paginator.page(paginator.num_pages)
-
-        context['sale_list'] = sales
-
-        for sale in context['sale_list']:
-            if sale.from_shop() not in seen:
-                seen.add(sale.from_shop())
-                sales_tab_header.append(sale.from_shop())
-
-        context['sales_tab_header'] = sales_tab_header
-
-        return context
-
-    def form_query(self, query):
-        if self.search:
-            query = query.filter(
-                Q(operator__last_name__icontains=self.search)
-                | Q(operator__first_name__icontains=self.search)
-                | Q(operator__surname__icontains=self.search)
-                | Q(operator__username__icontains=self.search)
-                | Q(recipient__last_name__icontains=self.search)
-                | Q(recipient__first_name__icontains=self.search)
-                | Q(recipient__surname__icontains=self.search)
-                | Q(recipient__username__icontains=self.search)
-                | Q(sender__last_name__icontains=self.search)
-                | Q(sender__first_name__icontains=self.search)
-                | Q(sender__surname__icontains=self.search)
-                | Q(sender__username__icontains=self.search)
-            )
-
-        if self.date_begin:
-            query = query.filter(
-                datetime__gte=self.date_begin)
-
-        if self.date_end:
-            query = query.filter(
-                datetime__lte=self.date_end)
-
-        if self.query_shop:
-            query = query.filter(shop=self.query_shop)
-
-        return query
-
-    def form_valid(self, form):
-        if form.cleaned_data['search']:
-            self.search = form.cleaned_data['search']
-
-        if form.cleaned_data['date_begin']:
-            self.date_begin = form.cleaned_data['date_begin']
-
-        if form.cleaned_data['date_end']:
-            self.date_end = form.cleaned_data['date_end']
-        try:
-            if form.cleaned_data['shop']:
-                self.query_shop = form.cleaned_data['shop']
-        except KeyError:
-            pass
-
-        return self.get(self.request, self.args, self.kwargs)
-
-
-class SaleRetrieve(SaleMixin, BorgiaView):
-    """
-    Retrieve a sale.
-
-    A sale comes from a shop, for other type of transaction, please refer to
-    other classes (RechargingRetrieve, TransfertRetrieve,
-    ExceptionnalMovementRetrieve).
-    """
-    permission_required = 'finances.view_sale'
-    menu_type = 'shops'
-    template_name = 'finances/sale_retrieve.html'
-
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        return render(request, self.template_name, context=context)
 
 
 class RechargingList(PermissionRequiredMixin, BorgiaFormView):
@@ -194,22 +70,22 @@ class RechargingList(PermissionRequiredMixin, BorgiaFormView):
             'cash': {
                 'total': 0,
                 'nb': 0,
-                'ids': Cash.objects.none()
+                'ids': []
             },
             'cheque': {
                 'total': 0,
                 'nb': 0,
-                'ids': Cheque.objects.none()
+                'ids': []
             },
             'lydia_face2face': {
                 'total': 0,
                 'nb': 0,
-                'ids': LydiaFaceToFace.objects.none()
+                'ids': []
             },
             'lydia_online': {
                 'total': 0,
                 'nb': 0,
-                'ids': LydiaOnline.objects.none()
+                'ids': []
             },
             'total': {
                 'total': 0,
@@ -217,28 +93,25 @@ class RechargingList(PermissionRequiredMixin, BorgiaFormView):
             }
         }
 
-        for r in query:
-            if r.payment_solution.get_type() == 'cash':
-                info['cash']['total'] += r.payment_solution.amount
+        for recharging in query:
+            if recharging.content_solution.__class__.__name__ == 'Cash':
+                info['cash']['total'] += recharging.content_solution.amount
                 info['cash']['nb'] += 1
-                info['cash']['ids'] |= Cash.objects.filter(
-                    pk=r.payment_solution.cash.pk)
-            if r.payment_solution.get_type() == 'cheque':
-                info['cheque']['total'] += r.payment_solution.amount
+                info['cash']['ids'].append(recharging.content_solution)
+            elif recharging.content_solution.__class__.__name__ == 'Cheque':
+                info['cheque']['total'] += recharging.content_solution.amount
                 info['cheque']['nb'] += 1
-                info['cheque']['ids'] |= Cheque.objects.filter(
-                    pk=r.payment_solution.cheque.pk)
-            if r.payment_solution.get_type() == 'lydiafacetoface':
-                info['lydia_face2face']['total'] += r.payment_solution.amount
-                info['lydia_face2face']['nb'] += 1
-                info['lydia_face2face']['ids'] |= LydiaFaceToFace.objects.filter(
-                    pk=r.payment_solution.lydiafacetoface.pk)
-            if r.payment_solution.get_type() == 'lydiaonline':
-                info['lydia_online']['total'] += r.payment_solution.amount
-                info['lydia_online']['nb'] += 1
-                info['lydia_online']['ids'] |= LydiaOnline.objects.filter(
-                    pk=r.payment_solution.lydiaonline.pk)
-            info['total']['total'] += r.payment_solution.amount
+                info['cheque']['ids'].append(recharging.content_solution)
+            elif recharging.content_solution.__class__.__name__ == 'Lydia':
+                if recharging.content_solution.is_online is False:
+                    info['lydia_face2face']['total'] += recharging.content_solution.amount
+                    info['lydia_face2face']['nb'] += 1
+                    info['lydia_face2face']['ids'].append(recharging.content_solution)
+                else:
+                    info['lydia_online']['total'] += recharging.content_solution.amount
+                    info['lydia_online']['nb'] += 1
+                    info['lydia_online']['ids'].append(recharging.content_solution)
+            info['total']['total'] += recharging.content_solution.amount
             info['total']['nb'] += 1
         return info
 
@@ -423,13 +296,13 @@ class TransfertRetrieve(PermissionRequiredMixin, BorgiaView):
         return render(request, self.template_name, context=context)
 
 
-class SelfTransfertCreate(PermissionRequiredMixin, BorgiaFormView):
+class TransfertCreate(PermissionRequiredMixin, BorgiaFormView):
     permission_required = 'finances.add_transfert'
     menu_type = 'members'
     success_message = "Le montant de %(amount)s€ a bien été transféré à %(recipient)s."
-    template_name = 'finances/self_transfert_create.html'
-    form_class = SelfTransfertCreateForm
-    lm_active = 'lm_self_transfert_create'
+    template_name = 'finances/transfert_create.html'
+    form_class = TransfertCreateForm
+    lm_active = 'lm_transfert_create'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -447,7 +320,7 @@ class SelfTransfertCreate(PermissionRequiredMixin, BorgiaFormView):
             justification=form.cleaned_data['justification']
         )
         transfert.pay()
-        return super(SelfTransfertCreate, self).form_valid(form)
+        return super(TransfertCreate, self).form_valid(form)
 
     def get_success_message(self, cleaned_data):
         return self.success_message % dict(
@@ -669,36 +542,31 @@ class RechargingCreate(UserMixin, BorgiaFormView):
             username=form.cleaned_data['operator_username'],
             password=form.cleaned_data['operator_password'])
         sender = self.user
-        payment = []
+
         if form.cleaned_data['type'] == 'cheque':
-            cheque = Cheque.objects.create(
+            recharging_solution = Cheque.objects.create(
                 amount=form.cleaned_data['amount'],
                 signature_date=form.cleaned_data['signature_date'],
                 cheque_number=form.cleaned_data['unique_number'],
-                sender=sender,
-                recipient=User.objects.get(username='AE_ENSAM'))
-            payment = cheque
+                sender=sender)
 
         elif form.cleaned_data['type'] == 'cash':
-            cash = Cash.objects.create(
+            recharging_solution = Cash.objects.create(
                 sender=sender,
-                recipient=User.objects.get(username='AE_ENSAM'),
                 amount=form.cleaned_data['amount'])
-            payment = cash
 
         elif form.cleaned_data['type'] == 'lydia':
-            lydia = LydiaFaceToFace.objects.create(
+            recharging_solution = Lydia.objects.create(
+                sender=sender,
+                amount=form.cleaned_data['amount'],
                 date_operation=form.cleaned_data['signature_date'],
                 id_from_lydia=form.cleaned_data['unique_number'],
-                sender=sender,
-                recipient=User.objects.get(username='AE_ENSAM'),
-                amount=form.cleaned_data['amount'])
-            payment = lydia
+                is_online=False)
 
         recharging = Recharging.objects.create(
             sender=sender,
             operator=operator,
-            payment_solution=payment
+            content_solution=recharging_solution
         )
         recharging.pay()
 
@@ -868,16 +736,16 @@ def self_lydia_callback(request):
     lydia_token = configurations_safe_get("LYDIA_API_TOKEN").get_value()
     if verify_token_algo_lydia(params_dict, lydia_token) is True:
         try:
-            lydia = LydiaOnline.objects.create(
-                sender=User.objects.get(pk=request.GET.get('user_pk')),
-                recipient=User.objects.get(username='AE_ENSAM'),
+            user = User.objects.get(pk=request.GET.get('user_pk'))
+            lydia = Lydia.objects.create(
+                sender=user,
                 amount=decimal.Decimal(params_dict['amount']),
                 id_from_lydia=params_dict['transaction_identifier']
             )
             recharging = Recharging.objects.create(
-                sender=User.objects.get(pk=request.GET.get('user_pk')),
-                operator=User.objects.get(pk=request.GET.get('user_pk')),
-                payment_solution=lydia.paymentsolution_ptr
+                sender=user,
+                operator=user,
+                content_solution=lydia
             )
             recharging.pay()
         except KeyError:

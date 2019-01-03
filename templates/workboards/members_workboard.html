@@ -78,7 +78,7 @@
                     {% for transaction in transaction_list.all %}
                     <tr>
                       <td>{{ transaction.datetime|date:"d/m/Y H:i:s" }}</td>
-                      <td>{{ transaction.wording }}</td>
+                      <td>{{ transaction }}</td>
                       <td>
                         {% if transaction|get_transaction_model == 'Sale' %}
                           -{{ transaction.amount }}€
@@ -168,7 +168,7 @@
                     {% for recharging in transaction_list.rechargings.recharging_list_short %}
                     <tr>
                       <td>{{ recharging.datetime|date:"d/m/Y H:i:s" }}</td>
-                      <td>{{ recharging.wording }}</td>
+                      <td>{{ recharging }}</td>
                       <td>{{ recharging.amount }}€</td>
                     </tr>
                     {% endfor %}
@@ -215,7 +215,7 @@
                     {% for sale in transaction_list.events.event_list_short %}
                     <tr>
                       <td>{{ sale.datetime|date:"d/m/Y H:i:s" }}</td>
-                      <td>{{ sale.wording }}</td>
+                      <td>{{ sale }}</td>
                       <td>-{{ sale.amount }}€</td>
                     </tr>
                     {% endfor %}

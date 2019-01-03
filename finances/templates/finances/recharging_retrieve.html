@@ -11,15 +11,8 @@
       <li>Opérateur : {{ recharging.operator }}</li>
       <li>Acheteur : {{ recharging.sender }}</li>
       <li>Date & heure : {{ recharging.datetime }}</li>
-      <li>Montant : {{ recharging.payment_solution.amount }}€</li>
-      <li>Type : {{ recharging.payment_solution.get_display_type|title }}
-      {% if recharging.payment_solution.get_type == "cheque" %}
-        ({{ recharging.payment_solution.cheque }})
-      {% elif recharging.payment_solution.get_type == "lydiaonline"  %}
-        ({{ recharging.payment_solution.lydiaonline }})
-      {% elif recharging.payment_solution.get_type == "lydiafacetoface"  %}
-        ({{ recharging.payment_solution.lydiafacetoface }})
-      {% endif %}
+      <li>Montant : {{ recharging.content_solution.amount }}€</li>
+      <li>Type : {{ recharging.content_solution }}
     </ul>
   </div>
 </div>

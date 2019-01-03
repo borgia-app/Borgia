@@ -106,8 +106,8 @@
                 <td>{{ recharging.sender }}</td>
                 <td>{{ recharging.datetime|date:"SHORT_DATE_FORMAT" }}</td>
                 <td>{{ recharging.datetime|time:"H:i" }}</td>
-                <td>{{ recharging.payment_solution.amount }}€</td>
-                <td>{{ recharging.payment_solution.get_display_type|title }}</td>
+                <td>{{ recharging.content_solution.amount }}€</td>
+                <td>{{ recharging.content_solution }}</td>
                 <td>
                   <a href="{% url 'url_recharging_retrieve' recharging_pk=recharging.pk %}">Détail</a>
                 </td>

@@ -61,7 +61,7 @@
               <td>{{ transaction.datetime|date:"SHORT_DATE_FORMAT" }}</td>
               <td>{{ transaction.datetime|time:"H:i" }}</td>
               <td>
-                {{ transaction.wording }}
+                {{ transaction }}
               </td>
               <td>
                 {% if transaction|get_transaction_model == 'Sale' %}

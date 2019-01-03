@@ -11,8 +11,8 @@ from django.urls import reverse
 
 from borgia.views import BorgiaFormView, BorgiaView
 from configurations.utils import configurations_safe_get
-from finances.models import Sale
 from modules.models import CategoryProduct
+from sales.models import Sale
 from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
                          ProductUpdatePriceForm, ShopCheckupSearchForm,
                          ShopCreateForm, ShopUpdateForm)
