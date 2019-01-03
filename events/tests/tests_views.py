@@ -5,6 +5,7 @@ from django.test import Client
 from django.urls import reverse
 
 from borgia.tests.tests_views import BaseBorgiaViewsTestCase
+from borgia.tests.utils import get_login_url_redirected
 from events.models import Event
 
 
@@ -30,7 +31,7 @@ class BaseEventsViewsTestCase(BaseBorgiaViewsTestCase):
             date=datetime.date(2053, 1, 1),
             manager=self.user3,
             price=decimal.Decimal(1000.00),
-            done = True
+            done=True
         )
 
 
@@ -53,7 +54,7 @@ class BaseGeneralEventViewsTestCase(BaseEventsViewsTestCase):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url())
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
 
 
 class EventListViewTests(BaseGeneralEventViewsTestCase):
@@ -110,7 +111,7 @@ class BaseFocusEventViewsTestCase(BaseEventsViewsTestCase):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.event1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.event1.pk)))
 
 
 class EventUpdateViewTests(BaseFocusEventViewsTestCase):

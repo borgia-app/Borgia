@@ -3,6 +3,8 @@ from django.contrib.auth.models import Group, Permission
 from django.test import Client, TestCase
 from django.urls import NoReverseMatch, reverse
 
+from borgia.settings import LOGIN_URL, LOGIN_REDIRECT_URL
+from borgia.tests.utils import get_login_url_redirected
 from users.models import User
 
 
@@ -68,7 +70,10 @@ class BaseAuthViewsTestCase(TestCase):
         response_offline_user = Client().get(
             reverse(self.url_view))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/?next=' + reverse(self.url_view))
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
+
+    def get_url(self):
+        return reverse(self.url_view)
 
 
 class LoginViewTests(BaseAuthViewsTestCase):
@@ -95,7 +100,7 @@ class LoginViewTests(BaseAuthViewsTestCase):
         self.assertTrue(user_logged.is_authenticated)
 
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/members/', fetch_redirect_response=False)
+        self.assertRedirects(response, LOGIN_REDIRECT_URL, fetch_redirect_response=False)
 
     def test_wrong_credentials(self):
         client = Client()
@@ -130,7 +135,10 @@ class LogoutViewTests(BaseAuthViewsTestCase):
     def test_redirection(self):
         response = Client().get(reverse(self.url_view))
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, '/auth/login/')
+        self.assertRedirects(response, LOGIN_URL)
+
+    def get_url(self):
+        return reverse(self.url_view)
 
 
 class PasswordChangeViewTests(BaseAuthViewsTestCase):
@@ -232,7 +240,10 @@ class BaseWorkboardsTestCase(BaseBorgiaViewsTestCase):
         response_offline_user = Client().get(
             reverse(self.url_view))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
+   
+    def get_url(self):
+        return reverse(self.url_view)
 
 
 class ManagersWorkboardTests(BaseWorkboardsTestCase):

@@ -4,8 +4,9 @@ import decimal
 from django.test import Client
 from django.urls import reverse
 
-from sales.models import Sale, SaleProduct
+from borgia.tests.utils import get_login_url_redirected
 from modules.tests.tests_views import BaseShopModuleViewsTest
+from sales.models import Sale, SaleProduct
 
 
 class BaseSalesViewsTest(BaseShopModuleViewsTest):
@@ -60,7 +61,7 @@ class SaleListViewTests(BaseSalesViewsTest):
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.shop1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.shop1.pk)))
 
 
 class SaleRetrieveViewTests(BaseSalesViewsTest):
@@ -92,4 +93,4 @@ class SaleRetrieveViewTests(BaseSalesViewsTest):
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.shop1.pk, self.sale1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.shop1.pk, self.sale1.pk)))

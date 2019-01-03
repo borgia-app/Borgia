@@ -1,6 +1,7 @@
 from django.test import Client
 from django.urls import reverse
 
+from borgia.tests.utils import get_login_url_redirected
 from shops.tests.tests_views import BaseShopsViewsTest
 from stocks.models import (Inventory, InventoryProduct, StockEntry,
                            StockEntryProduct)
@@ -53,7 +54,7 @@ class BaseGeneralStocksViewsTest(BaseStocksViewsTest):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.shop1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.shop1.pk)))
 
 
 class StockEntryListViewTest(BaseGeneralStocksViewsTest):
@@ -120,7 +121,7 @@ class StockEntryRetrieveViewTest(BaseStocksViewsTest):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.shop1.pk, self.stockentry1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.shop1.pk, self.stockentry1.pk)))
 
 
 class InventoryListViewTest(BaseGeneralStocksViewsTest):
@@ -187,4 +188,4 @@ class InventoryRetrieveViewTest(BaseStocksViewsTest):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.shop1.pk, self.inventory1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.shop1.pk, self.inventory1.pk)))
