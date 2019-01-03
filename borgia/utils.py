@@ -69,8 +69,8 @@ def members_lateral_menu(nav_tree, user):
             simple_lateral_link(
                 'Transfert',
                 'exchange',
-                'lm_self_transfert_create',
-                reverse('url_self_transfert_create')))
+                'lm_transfert_create',
+                reverse('url_transfert_create')))
 
     nav_tree.append(
         simple_lateral_link(

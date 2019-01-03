@@ -21,7 +21,7 @@ from configurations.utils import configurations_safe_get
 from finances.forms import (ExceptionnalMovementForm,
                             GenericListSearchDateForm, RechargingCreateForm,
                             RechargingListForm, SelfLydiaCreateForm,
-                            SelfTransfertCreateForm)
+                            TransfertCreateForm)
 from finances.models import (Cash, Cheque, ExceptionnalMovement,
                              Lydia, Recharging,
                              Transfert)
@@ -296,13 +296,13 @@ class TransfertRetrieve(PermissionRequiredMixin, BorgiaView):
         return render(request, self.template_name, context=context)
 
 
-class SelfTransfertCreate(PermissionRequiredMixin, BorgiaFormView):
+class TransfertCreate(PermissionRequiredMixin, BorgiaFormView):
     permission_required = 'finances.add_transfert'
     menu_type = 'members'
     success_message = "Le montant de %(amount)s€ a bien été transféré à %(recipient)s."
-    template_name = 'finances/self_transfert_create.html'
-    form_class = SelfTransfertCreateForm
-    lm_active = 'lm_self_transfert_create'
+    template_name = 'finances/transfert_create.html'
+    form_class = TransfertCreateForm
+    lm_active = 'lm_transfert_create'
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
@@ -320,7 +320,7 @@ class SelfTransfertCreate(PermissionRequiredMixin, BorgiaFormView):
             justification=form.cleaned_data['justification']
         )
         transfert.pay()
-        return super(SelfTransfertCreate, self).form_valid(form)
+        return super(TransfertCreate, self).form_valid(form)
 
     def get_success_message(self, cleaned_data):
         return self.success_message % dict(

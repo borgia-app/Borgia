@@ -5,7 +5,7 @@ from finances.views import (ExceptionnalMovementList,
                             ExceptionnalMovementRetrieve, RechargingCreate,
                             RechargingList, RechargingRetrieve,
                             SelfLydiaConfirm, SelfLydiaCreate,
-                            SelfTransactionList, SelfTransfertCreate,
+                            SelfTransactionList, TransfertCreate,
                             TransfertList, TransfertRetrieve,
                             UserExceptionnalMovementCreate,
                             self_lydia_callback)
@@ -25,6 +25,7 @@ finances_patterns = [
         # TRANSFERTS
         path('transferts/', include([
             path('', TransfertList.as_view(), name='url_transfert_list'),
+            path('create/', TransfertCreate.as_view(), name='url_transfert_create'),
             path('<int:transfert_pk>/', TransfertRetrieve.as_view(), name='url_transfert_retrieve')
         ])),
         # EXCEPTIONNAL MOVEMENTS
@@ -34,7 +35,6 @@ finances_patterns = [
         ])),
         # SELF OPERATIONS
         path('self/', include([
-            path('transferts/create/', SelfTransfertCreate.as_view(), name='url_self_transfert_create'),
             path('transaction/', SelfTransactionList.as_view(), name='url_self_transaction_list'),
             path('lydias/create/', SelfLydiaCreate.as_view(), name='url_self_lydia_create'),
             path('lydias/confirm/', SelfLydiaConfirm.as_view(), name='url_self_lydia_confirm')

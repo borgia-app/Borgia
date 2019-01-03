@@ -12,7 +12,7 @@ from borgia.validators import autocomplete_username_validator
 from users.models import User
 
 
-class SelfTransfertCreateForm(forms.Form):
+class TransfertCreateForm(forms.Form):
     def __init__(self, **kwargs):
         self.sender = kwargs.pop('sender')
         super().__init__(**kwargs)

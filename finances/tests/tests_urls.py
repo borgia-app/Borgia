@@ -16,7 +16,7 @@ class FinancesNamedURLTests(TestCase):
             ('url_transfert_retrieve', [], {'transfert_pk': 53}),
             ('url_exceptionnalmovement_list', [], {}),
             ('url_exceptionnalmovement_retrieve', [], {'exceptionnalmovement_pk': 53}),
-            ('url_self_transfert_create', [], {}),
+            ('url_transfert_create', [], {}),
             ('url_self_transaction_list', [], {}),
             ('url_self_lydia_create', [], {}),
             ('url_self_lydia_confirm', [], {}),
