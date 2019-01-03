@@ -1,4 +1,5 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.views.generic.base import ContextMixin
@@ -6,7 +7,7 @@ from django.views.generic.base import ContextMixin
 from events.models import Event
 
 
-class EventMixin(PermissionRequiredMixin, ContextMixin):
+class EventMixin(LoginRequiredMixin, PermissionRequiredMixin, ContextMixin):
     """
     Mixin for Event views.
     For Permission :

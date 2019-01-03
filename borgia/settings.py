@@ -10,7 +10,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 # -*- coding: utf-8 -*-
 
 import os
-import re
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -55,9 +54,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'contrib.models.LoginRequiredMiddleware',
-    'contrib.models.SaveLoginUrlMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware'
 ]
 
 ROOT_URLCONF = 'borgia.urls'
@@ -130,43 +127,15 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
-# https://docs.djangoproject.com/en²/1.9/howto/static-files/
 AUTH_USER_MODEL = 'users.User'
-LOGIN_REDIRECT_URL = '/members/'
 LOGIN_URL = '/auth/login/'
 LOGOUT_REDIRECT_URL = LOGIN_URL
 
-LOGIN_EXEMPT_URLS = [
-    '/',
-    '/auth/login/',
-    '/auth/password_reset/',
-    '/auth/password_reset/done/',
-    '/auth/done/',
-    '/ajax/username_from_username_part/',
-    '/self/lydias/callback/',
-    '/arduino/connect/',
-    '/arduino/checkuser/',
-    '/arduino/checkvolumeavailable/',
-    '/arduino/purchase/',
-]
 
-LOGIN_EXEMPT_URL_PATTERNS = [
-    re.compile('%s[\w-]+%s' % ('/auth/members/', '/')),
-    re.compile('%s[\w-]+%s' % ('/auth/', '/')),
-    re.compile('^%s$' % ('/graphql')),
-    re.compile('^%s.+%s[\d]+%s$' % ('/jwt/token/', '/', '.json')),
-    re.compile('^%s.+%s[\d]+%s$' % ('/jwt/invalidate/', '/', '.json')),
-    re.compile('^%s$' % ('/jwt/new.json')),
-    re.compile('^%s.+$' % ('/media/img/avatars/')),
-    re.compile('^%s.+$' % ('/static/media/img/'))
-]
-
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-# STATIC_ROOT = 'static/static_root/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static', 'static_root')
 STATICFILES_DIRS = (
-    # 'static/static_dirs/',
     os.path.join(BASE_DIR, 'static', 'static_dirs'),
 )
 

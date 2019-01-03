@@ -1,5 +1,6 @@
 from functools import partial, wraps
 
+from django.contrib.auth.decorators import login_required
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.formsets import formset_factory
 from django.http import Http404
@@ -119,6 +120,7 @@ class ShopModuleSaleView(ShopModuleMixin, BorgiaFormView):
         )
 
 
+@login_required
 def sale_shop_module_resume(request, sale, shop, module, success_url):
     template_name = 'modules/shop_module_sale_resume.html'
 

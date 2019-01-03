@@ -1,4 +1,4 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.views.generic.base import ContextMixin
@@ -8,7 +8,7 @@ from shops.models import Product, Shop
 from shops.utils import is_shop_manager
 
 
-class ShopMixin(PermissionRequiredMixin, ContextMixin):
+class ShopMixin(LoginRequiredMixin, PermissionRequiredMixin, ContextMixin):
     """
     Mixin for Shop and Product views.
     For Permission :

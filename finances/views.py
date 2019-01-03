@@ -6,7 +6,9 @@ import operator
 
 from django.conf import settings
 from django.contrib.auth import authenticate
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models import Q
 from django.http import Http404
@@ -22,14 +24,13 @@ from finances.forms import (ExceptionnalMovementForm,
                             GenericListSearchDateForm, RechargingCreateForm,
                             RechargingListForm, SelfLydiaCreateForm,
                             TransfertCreateForm)
-from finances.models import (Cash, Cheque, ExceptionnalMovement,
-                             Lydia, Recharging,
-                             Transfert)
+from finances.models import (Cash, Cheque, ExceptionnalMovement, Lydia,
+                             Recharging, Transfert)
 from users.mixins import UserMixin
 from users.models import User
 
 
-class RechargingList(PermissionRequiredMixin, BorgiaFormView):
+class RechargingList(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     """
     View to list recharging sales.
 
@@ -155,7 +156,7 @@ class RechargingList(PermissionRequiredMixin, BorgiaFormView):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class RechargingRetrieve(PermissionRequiredMixin, BorgiaView):
+class RechargingRetrieve(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView):
     """
     Retrieve a recharging sale.
 
@@ -194,7 +195,7 @@ class RechargingRetrieve(PermissionRequiredMixin, BorgiaView):
         return render(request, self.template_name, context=context)
 
 
-class TransfertList(PermissionRequiredMixin, BorgiaFormView):
+class TransfertList(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     """
     View to list transfert sales.
 
@@ -256,7 +257,7 @@ class TransfertList(PermissionRequiredMixin, BorgiaFormView):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class TransfertRetrieve(PermissionRequiredMixin, BorgiaView):
+class TransfertRetrieve(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView):
     """
     Retrieve a transfert sale.
 
@@ -296,7 +297,7 @@ class TransfertRetrieve(PermissionRequiredMixin, BorgiaView):
         return render(request, self.template_name, context=context)
 
 
-class TransfertCreate(PermissionRequiredMixin, BorgiaFormView):
+class TransfertCreate(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     permission_required = 'finances.add_transfert'
     menu_type = 'members'
     success_message = "Le montant de %(amount)s€ a bien été transféré à %(recipient)s."
@@ -332,7 +333,7 @@ class TransfertCreate(PermissionRequiredMixin, BorgiaFormView):
         return reverse('url_members_workboard')
 
 
-class ExceptionnalMovementList(PermissionRequiredMixin, BorgiaFormView):
+class ExceptionnalMovementList(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     """
     View to list exceptionnal movement sales.
 
@@ -394,7 +395,7 @@ class ExceptionnalMovementList(PermissionRequiredMixin, BorgiaFormView):
         return self.get(self.request, self.args, self.kwargs)
 
 
-class ExceptionnalMovementRetrieve(PermissionRequiredMixin, BorgiaView):
+class ExceptionnalMovementRetrieve(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView):
     """
     Retrieve an exceptionnal movement sale.
 
@@ -433,7 +434,7 @@ class ExceptionnalMovementRetrieve(PermissionRequiredMixin, BorgiaView):
         return render(request, self.template_name, context=context)
 
 
-class SelfTransactionList(BorgiaFormView):
+class SelfTransactionList(LoginRequiredMixin, BorgiaFormView):
     """
     View to list transactions of the logged user.
     """
@@ -586,7 +587,7 @@ class RechargingCreate(UserMixin, BorgiaFormView):
         return reverse('url_user_retrieve', kwargs={'user_pk': self.user.pk})
 
 
-class SelfLydiaCreate(BorgiaFormView):
+class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
     """
     View to supply himself by Lydia.
     """
@@ -665,7 +666,7 @@ class SelfLydiaCreate(BorgiaFormView):
         return context
 
 
-class SelfLydiaConfirm(BorgiaView):
+class SelfLydiaConfirm(LoginRequiredMixin, BorgiaView):
     """
     View to confirm supply by Lydia.
 
@@ -688,6 +689,7 @@ class SelfLydiaConfirm(BorgiaView):
 
 
 @csrf_exempt
+@login_required
 def self_lydia_callback(request):
     """
     Function to catch the callback from Lydia after a payment.

@@ -6,7 +6,8 @@ import string
 
 import openpyxl
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models import Q
@@ -26,7 +27,7 @@ from users.mixins import UserMixin
 from users.models import User
 
 
-class UserListView(PermissionRequiredMixin, BorgiaFormView):
+class UserListView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     """
     List User instances.
 
@@ -123,7 +124,7 @@ class UserListView(PermissionRequiredMixin, BorgiaFormView):
         return initial
 
 
-class UserCreateView(PermissionRequiredMixin, BorgiaFormView):
+class UserCreateView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     """
     Create a new user and redirect to the workboard of the group.
 
@@ -297,7 +298,7 @@ class UserDeactivateView(UserMixin, BorgiaView):
         return redirect(force_text(success_url))
 
 
-class UserSelfUpdateView(BorgiaFormView):
+class UserSelfUpdateView(LoginRequiredMixin, BorgiaFormView):
     menu_type = 'members'
     template_name = 'users/user_self_update.html'
     form_class = SelfUserUpdateForm
@@ -331,7 +332,7 @@ class UserSelfUpdateView(BorgiaFormView):
         return "Vos infos ont bien été mises à jour"
 
 
-class GroupUpdateView(BorgiaFormView):
+class GroupUpdateView(LoginRequiredMixin, BorgiaFormView):
     menu_type = 'managers'
     template_name = 'users/group_update.html'
     form_class = GroupUpdateForm
@@ -432,7 +433,7 @@ class GroupUpdateView(BorgiaFormView):
         return reverse('url_managers_workboard')
 
 
-class UserUploadXlsxView(PermissionRequiredMixin, BorgiaFormView):
+class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     """
     Download/Upload Excel for adding users.
     """
@@ -592,7 +593,7 @@ class UserUploadXlsxView(PermissionRequiredMixin, BorgiaFormView):
         return reverse('url_user_list')
 
 
-class UserAddByListXlsxDownload(PermissionRequiredMixin, BorgiaView):
+class UserAddByListXlsxDownload(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView):
     """
     Download Excel for adding users.
     """
@@ -661,6 +662,7 @@ def username_from_username_part(request):
     return HttpResponse(json.dumps(data))
 
 
+@login_required
 def balance_from_username(request):
     operator = request.user
 
