@@ -1,6 +1,8 @@
 #-*- coding: utf-8 -*-
 import decimal
 
+from django.contrib.contenttypes.fields import GenericForeignKey
+from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import ObjectDoesNotExist
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
@@ -11,177 +13,20 @@ from users.models import User
 # TODO: harmonization of methods name of Cash, Lydia, Cheque.
 # TODO: harmonization of attributes singular/plurial (especially in Payment).
 # TODO: event line in tables users, products/payments and function.
-# TODO (by eyap) : make the class PaymentSolution overridable (See Abstract) and implement type in children
-
-
-class PaymentSolution(models.Model):
-    sender = models.ForeignKey(User, related_name='payment_sender',
-                               on_delete=models.CASCADE)
-    recipient = models.ForeignKey(User,
-                                  related_name='payment_recipient',
-                                  on_delete=models.CASCADE)
-    amount = models.DecimalField('Montant', default=0, decimal_places=2,
-                                 max_digits=9,
-                                 validators=[MinValueValidator(decimal.Decimal(0))])
-
-    class Meta:
-        """
-        Remove default permissions for PaymentSolution
-        """
-        default_permissions = ()
-
-    def get_type(self):
-        try:
-            self.cash
-            return 'cash'
-        except ObjectDoesNotExist:
-            try:
-                self.cheque
-                return 'cheque'
-            except ObjectDoesNotExist:
-                try:
-                    self.lydiafacetoface
-                    return 'lydiafacetoface'
-                except ObjectDoesNotExist:
-                    try:
-                        self.lydiaonline
-                        return 'lydiaonline'
-                    except ObjectDoesNotExist:
-                        return None
-
-    def get_display_type(self):
-        payment_type = self.get_type()
-        if payment_type == 'cash':
-            return 'espèces'
-        if payment_type == 'cheque':
-            return 'chèque'
-        if payment_type == 'lydiafacetoface':
-            return 'lydia face à face'
-        if payment_type == 'lydiaonline':
-            return 'lydia en ligne'
-        return None
-
-
-class Cheque(PaymentSolution):
-    """
-    Define a type of payment made by a bank cheque.
-
-    :note:: Related to a unique User.
-
-    :param is_cashed: true if the cheque is cashed by treasurers, mandatory.
-    :param signature_date: signature date of the cheque (written on the paper),
-    mandatory.
-    :param cheque_number: number of the cheque (written on the paper),
-    mandatory.
-    :type is_cashed: boolean, default False
-    :type signature_date: date string, default now
-    :type cheque_number: string, must match ^[0-9]{7}$
-    """
-    is_cashed = models.BooleanField('Est encaissé', default=False)
-    signature_date = models.DateField('Date de signature', default=now)
-    cheque_number = models.CharField('Numéro de chèque', max_length=7,
-                                     validators=[
-                                         RegexValidator('^[0-9]{7}$',
-                                                        '''Numéro de chèque
-                                                        invalide''')])
-
-    class Meta:
-        """
-        Remove default permissions for Cheque
-        """
-        default_permissions = ()
-
-    def __str__(self):
-        return 'Cheque n°' + self.cheque_number
-
-
-class Cash(PaymentSolution):
-    """
-    Define a type of payment made by a phycial money (cash).
-
-    :note:: Related to a unique User.
-    """
-
-    class Meta:
-        """
-        Remove default permissions for Cash
-        """
-        default_permissions = ()
-
-
-class LydiaFaceToFace(PaymentSolution):
-    """
-    Define a transaction by the provider Lydia.
-
-    :note:: Related to an unique User.
-
-    :param date_operation: date of transaction, mandatory.
-    :param id_from_lydia: unique number given by the provider for each
-    transaction, mandatory. Must be unique.
-    :param banked: true if the money was banked by treasurer, mandatory.
-    :param date_banked: only if banked is true.
-    :type date_operation: date string, default now
-    :type id_from_lydia: string
-    :type banked: boolean, default False
-    :type date_banked: fate string
-    """
-    date_operation = models.DateField('Date', default=now)
-    id_from_lydia = models.CharField('Numéro unique', max_length=255)
-    banked = models.BooleanField('Est encaissé', default=False)
-    date_banked = models.DateField('Date encaissement', blank=True, null=True)
-
-    class Meta:
-        """
-        Remove default permissions for LydiaFaceToFace
-        """
-        default_permissions = ()
-
-    def __str__(self):
-        return 'Payement Lydia n°' + self.id_from_lydia
-
-
-class LydiaOnline(PaymentSolution):
-    """
-    Define a transaction by the provider Lydia, online.
-
-    :note:: Related to an unique User.
-
-    :param date_operation: date of transaction, mandatory.
-    :param id_from_lydia: unique number given by the provider for each
-    transaction, mandatory. Must be unique.
-    :param banked: true if the money was banked by treasurer, mandatory.
-    :param date_banked: only if banked is true.
-    :type date_operation: date string, default now
-    :type id_from_lydia: string
-    :type banked: boolean, default False
-    :type date_banked: fate string
-    """
-    date_operation = models.DateField('Date', default=now)
-    id_from_lydia = models.CharField('Numéro unique', max_length=255)
-    banked = models.BooleanField('Est encaissé', default=False)
-    date_banked = models.DateField('Date encaissement', blank=True, null=True)
-
-    class Meta:
-        """
-        Remove default permissions for LydiaOnline
-        """
-        default_permissions = ()
-
-    def __str__(self):
-        return 'Payement Lydia n°' + self.id_from_lydia
 
 
 class Recharging(models.Model):
     """
-    Allow a operator to recharge (supply money) the balance of a sender
+    Allow an operator to recharge (supply money) the balance of a sender
     """
     datetime = models.DateTimeField('Date', default=now)
     sender = models.ForeignKey(User, related_name='sender_recharging',
                                on_delete=models.CASCADE)
     operator = models.ForeignKey(User, related_name='operator_recharging',
                                  on_delete=models.CASCADE)
-    payment_solution = models.ForeignKey(
-        PaymentSolution, on_delete=models.CASCADE)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    solution_id = models.PositiveIntegerField()
+    content_solution = GenericForeignKey('content_type', 'solution_id')
 
     class Meta:
         """
@@ -191,21 +36,14 @@ class Recharging(models.Model):
         """
         default_permissions = ('add', 'view',)
 
-    def wording(self):
-        if self.payment_solution.get_type() == 'cash':
-            return 'Rechargement par espèces'
-        if self.payment_solution.get_type() == 'cheque':
-            return 'Rechargement par chèque'
-        if self.payment_solution.get_type() == 'lydiafacetoface':
-            return 'Rechargement par Lydia en face à face'
-        if self.payment_solution.get_type() == 'lydiaonline':
-            return 'Rechargement par Lydia en ligne'
+    def __str__(self):
+        return 'Rechargement de ' + str(self.amount()) + '€.'
 
     def amount(self):
-        return self.payment_solution.amount
+        return self.content_solution.amount
 
     def pay(self):
-        self.sender.credit(self.payment_solution.amount)
+        self.sender.credit(self.amount())
 
 
 class Transfert(models.Model):
@@ -227,7 +65,7 @@ class Transfert(models.Model):
         """
         default_permissions = ('add', 'view',)
 
-    def wording(self):
+    def __str__(self):
         return 'Transfert de ' + self.sender.__str__() + ', ' + self.justification
 
     def pay(self):
@@ -256,11 +94,93 @@ class ExceptionnalMovement(models.Model):
         """
         default_permissions = ('add', 'view',)
 
-    def wording(self):
-        return 'Mouvement exceptionnel, ' + self.justification
+    def __str__(self):
+        return 'Mouvement exceptionnel de ' + str(self.amount) + '€, ' + self.justification
 
     def pay(self):
+        '''
+        Add/Remove money from recipient
+        '''
         if self.is_credit:
             self.recipient.credit(self.amount)
         else:
             self.recipient.debit(self.amount)
+
+
+class BaseRechargingSolution(models.Model):
+    """
+    Base model for recharging solutions.
+    """
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    amount = models.DecimalField('Montant', default=0, decimal_places=2,
+                                 max_digits=9,
+                                 validators=[MinValueValidator(decimal.Decimal(0))])
+
+    class Meta:
+        """
+        Remove default permissions for base and children.
+        """
+        abstract = True
+        default_permissions = ()
+
+
+class Cheque(BaseRechargingSolution):
+    """
+    Define a type of recharging made by a bank cheque.
+
+    :note:: Related to a unique User.
+
+    :param is_cashed: true if the cheque is cashed by treasurers, mandatory.
+    :param signature_date: signature date of the cheque (written on the paper),
+    mandatory.
+    :param cheque_number: number of the cheque (written on the paper),
+    mandatory.
+    :type is_cashed: boolean, default False
+    :type signature_date: date string, default now
+    :type cheque_number: string, must match ^[0-9]{7}$
+    """
+    is_cashed = models.BooleanField('Est encaissé', default=False)
+    signature_date = models.DateField('Date de signature', default=now)
+    cheque_number = models.CharField('Numéro de chèque', max_length=7,
+                                     validators=[
+                                         RegexValidator('^[0-9]{7}$',
+                                                        '''Numéro de chèque
+                                                        invalide''')])
+
+    def __str__(self):
+        return 'Cheque de ' + str(self.amount) + '€, n°' + self.cheque_number
+
+
+class Cash(BaseRechargingSolution):
+    """
+    Define a type of payment made by a phycial money (cash).
+
+    :note:: Related to a unique User.
+    """
+
+    def __str__(self):
+        return 'Cash de ' + str(self.amount) + '€'
+
+
+class Lydia(BaseRechargingSolution):
+    """
+    Define a transaction by the provider Lydia.
+
+    :note:: Related to an unique User.
+
+    :param date_operation: date of transaction, mandatory.
+    :param id_from_lydia: unique number given by the provider for each
+    transaction, mandatory. Must be unique.
+    :param banked: true if the money was banked by treasurer, mandatory.
+    :param date_banked: only if banked is true.
+    :type date_operation: date string, default now
+    :type id_from_lydia: string
+    :type banked: boolean, default False
+    :type date_banked: fate string
+    """
+    date_operation = models.DateField('Date', default=now)
+    id_from_lydia = models.CharField('Numéro unique', max_length=255)
+    is_online = models.BooleanField('Paiement en ligne', default=True)
+
+    def __str__(self):
+        return 'Lydia de ' + str(self.amount) + '€, n°' + self.id_from_lydia

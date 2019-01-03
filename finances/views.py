@@ -23,7 +23,7 @@ from finances.forms import (ExceptionnalMovementForm,
                             RechargingListForm, SelfLydiaCreateForm,
                             SelfTransfertCreateForm)
 from finances.models import (Cash, Cheque, ExceptionnalMovement,
-                             LydiaFaceToFace, LydiaOnline, Recharging,
+                             Lydia, Recharging,
                              Transfert)
 from users.mixins import UserMixin
 from users.models import User
@@ -70,22 +70,22 @@ class RechargingList(PermissionRequiredMixin, BorgiaFormView):
             'cash': {
                 'total': 0,
                 'nb': 0,
-                'ids': Cash.objects.none()
+                'ids': []
             },
             'cheque': {
                 'total': 0,
                 'nb': 0,
-                'ids': Cheque.objects.none()
+                'ids': []
             },
             'lydia_face2face': {
                 'total': 0,
                 'nb': 0,
-                'ids': LydiaFaceToFace.objects.none()
+                'ids': []
             },
             'lydia_online': {
                 'total': 0,
                 'nb': 0,
-                'ids': LydiaOnline.objects.none()
+                'ids': []
             },
             'total': {
                 'total': 0,
@@ -93,28 +93,25 @@ class RechargingList(PermissionRequiredMixin, BorgiaFormView):
             }
         }
 
-        for r in query:
-            if r.payment_solution.get_type() == 'cash':
-                info['cash']['total'] += r.payment_solution.amount
+        for recharging in query:
+            if recharging.content_solution.__class__.__name__ == 'Cash':
+                info['cash']['total'] += recharging.content_solution.amount
                 info['cash']['nb'] += 1
-                info['cash']['ids'] |= Cash.objects.filter(
-                    pk=r.payment_solution.cash.pk)
-            if r.payment_solution.get_type() == 'cheque':
-                info['cheque']['total'] += r.payment_solution.amount
+                info['cash']['ids'].append(recharging.content_solution)
+            elif recharging.content_solution.__class__.__name__ == 'Cheque':
+                info['cheque']['total'] += recharging.content_solution.amount
                 info['cheque']['nb'] += 1
-                info['cheque']['ids'] |= Cheque.objects.filter(
-                    pk=r.payment_solution.cheque.pk)
-            if r.payment_solution.get_type() == 'lydiafacetoface':
-                info['lydia_face2face']['total'] += r.payment_solution.amount
-                info['lydia_face2face']['nb'] += 1
-                info['lydia_face2face']['ids'] |= LydiaFaceToFace.objects.filter(
-                    pk=r.payment_solution.lydiafacetoface.pk)
-            if r.payment_solution.get_type() == 'lydiaonline':
-                info['lydia_online']['total'] += r.payment_solution.amount
-                info['lydia_online']['nb'] += 1
-                info['lydia_online']['ids'] |= LydiaOnline.objects.filter(
-                    pk=r.payment_solution.lydiaonline.pk)
-            info['total']['total'] += r.payment_solution.amount
+                info['cheque']['ids'].append(recharging.content_solution)
+            elif recharging.content_solution.__class__.__name__ == 'Lydia':
+                if recharging.content_solution.is_online is False:
+                    info['lydia_face2face']['total'] += recharging.content_solution.amount
+                    info['lydia_face2face']['nb'] += 1
+                    info['lydia_face2face']['ids'].append(recharging.content_solution)
+                else:
+                    info['lydia_online']['total'] += recharging.content_solution.amount
+                    info['lydia_online']['nb'] += 1
+                    info['lydia_online']['ids'].append(recharging.content_solution)
+            info['total']['total'] += recharging.content_solution.amount
             info['total']['nb'] += 1
         return info
 
@@ -545,36 +542,31 @@ class RechargingCreate(UserMixin, BorgiaFormView):
             username=form.cleaned_data['operator_username'],
             password=form.cleaned_data['operator_password'])
         sender = self.user
-        payment = []
+
         if form.cleaned_data['type'] == 'cheque':
-            cheque = Cheque.objects.create(
+            recharging_solution = Cheque.objects.create(
                 amount=form.cleaned_data['amount'],
                 signature_date=form.cleaned_data['signature_date'],
                 cheque_number=form.cleaned_data['unique_number'],
-                sender=sender,
-                recipient=User.objects.get(username='AE_ENSAM'))
-            payment = cheque
+                sender=sender)
 
         elif form.cleaned_data['type'] == 'cash':
-            cash = Cash.objects.create(
+            recharging_solution = Cash.objects.create(
                 sender=sender,
-                recipient=User.objects.get(username='AE_ENSAM'),
                 amount=form.cleaned_data['amount'])
-            payment = cash
 
         elif form.cleaned_data['type'] == 'lydia':
-            lydia = LydiaFaceToFace.objects.create(
+            recharging_solution = Lydia.objects.create(
+                sender=sender,
+                amount=form.cleaned_data['amount'],
                 date_operation=form.cleaned_data['signature_date'],
                 id_from_lydia=form.cleaned_data['unique_number'],
-                sender=sender,
-                recipient=User.objects.get(username='AE_ENSAM'),
-                amount=form.cleaned_data['amount'])
-            payment = lydia
+                is_online=False)
 
         recharging = Recharging.objects.create(
             sender=sender,
             operator=operator,
-            payment_solution=payment
+            content_solution=recharging_solution
         )
         recharging.pay()
 
@@ -744,16 +736,16 @@ def self_lydia_callback(request):
     lydia_token = configurations_safe_get("LYDIA_API_TOKEN").get_value()
     if verify_token_algo_lydia(params_dict, lydia_token) is True:
         try:
-            lydia = LydiaOnline.objects.create(
-                sender=User.objects.get(pk=request.GET.get('user_pk')),
-                recipient=User.objects.get(username='AE_ENSAM'),
+            user = User.objects.get(pk=request.GET.get('user_pk'))
+            lydia = Lydia.objects.create(
+                sender=user,
                 amount=decimal.Decimal(params_dict['amount']),
                 id_from_lydia=params_dict['transaction_identifier']
             )
             recharging = Recharging.objects.create(
-                sender=User.objects.get(pk=request.GET.get('user_pk')),
-                operator=User.objects.get(pk=request.GET.get('user_pk')),
-                payment_solution=lydia.paymentsolution_ptr
+                sender=user,
+                operator=user,
+                content_solution=lydia
             )
             recharging.pay()
         except KeyError:
