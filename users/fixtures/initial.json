@@ -38,8 +38,8 @@
         ["change_configuration", "configurations", "configuration"],
         ["view_configuration", "configurations", "configuration"],
 
-        ["add_sale", "finances", "sale"],
-        ["view_sale", "finances", "sale"],
+        ["add_sale", "sales", "sale"],
+        ["view_sale", "sales", "sale"],
         ["add_recharging", "finances", "recharging"],
         ["view_recharging", "finances", "recharging"],
         ["add_exceptionnalmovement", "finances", "exceptionnalmovement"],
@@ -80,8 +80,8 @@
         ["change_configuration", "configurations", "configuration"],
         ["view_configuration", "configurations", "configuration"],
 
-        ["add_sale", "finances", "sale"],
-        ["view_sale", "finances", "sale"],
+        ["add_sale", "sales", "sale"],
+        ["view_sale", "sales", "sale"],
         ["add_recharging", "finances", "recharging"],
         ["view_recharging", "finances", "recharging"],
         ["add_exceptionnalmovement", "finances", "exceptionnalmovement"],
@@ -122,8 +122,8 @@
         ["change_configuration", "configurations", "configuration"],
         ["view_configuration", "configurations", "configuration"],
 
-        ["add_sale", "finances", "sale"],
-        ["view_sale", "finances", "sale"],
+        ["add_sale", "sales", "sale"],
+        ["view_sale", "sales", "sale"],
         ["add_recharging", "finances", "recharging"],
         ["view_recharging", "finances", "recharging"],
         ["add_exceptionnalmovement", "finances", "exceptionnalmovement"],
