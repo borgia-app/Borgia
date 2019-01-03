@@ -1,6 +1,7 @@
 from django.test import Client
 from django.urls import reverse
 
+from borgia.tests.utils import get_login_url_redirected
 from borgia.tests.tests_views import BaseBorgiaViewsTestCase
 from borgia.utils import get_members_group
 from users.models import User
@@ -9,21 +10,24 @@ from users.models import User
 class BaseGeneralUserViewsTestCase(BaseBorgiaViewsTestCase):
     url_view = None
 
+    def get_url(self):
+        return reverse(self.url_view)
+
     def allowed_user_get(self):
         response_client1 = self.client1.get(
-            reverse(self.url_view))
+            self.get_url())
         self.assertEqual(response_client1.status_code, 200)
 
     def not_allowed_user_get(self):
         response_client2 = self.client2.get(
-            reverse(self.url_view))
+            self.get_url())
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):
         response_offline_user = Client().get(
             reverse(self.url_view))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
 
 
 class UserListViewTestCase(BaseGeneralUserViewsTestCase):
@@ -108,7 +112,7 @@ class BaseFocusUserViewsTestCase(BaseBorgiaViewsTestCase):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(2))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(2)))
 
 class UserRetrieveViewTestCase(BaseFocusUserViewsTestCase):
     url_view = 'url_user_retrieve'
@@ -165,44 +169,49 @@ class UserDeactivateViewTestCase(BaseFocusUserViewsTestCase):
 class UserSelfUpdateViewTestCase(BaseBorgiaViewsTestCase):
     url_view = 'url_user_self_update'
 
+    def get_url(self):
+        return reverse(self.url_view)
 
     def test_allowed_user_get(self):
         response_client1 = self.client1.get(
-            reverse(self.url_view))
+            self.get_url())
         self.assertEqual(response_client1.status_code, 200)
 
     def test_other_allowed_user_get(self):
         response_client2 = self.client2.get(
-            reverse(self.url_view))
+            self.get_url())
         self.assertEqual(response_client2.status_code, 200)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(
-            reverse(self.url_view))
+            self.get_url())
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
 
 
 class ManageGroupViewTestCase(BaseBorgiaViewsTestCase):
     url_view = 'url_user_deactivate'
 
+    def get_url(self, pk):
+        return reverse(self.url_view, kwargs={'pk': pk})
+
     def allowed_user_get(self):
         response_client1 = self.client1.get(
-            reverse(self.url_view, kwargs={'pk': '1'}))
+            self.get_url(1))
         self.assertEqual(response_client1.status_code, 200)
 
     def not_existing_focus_get(self):
         response_client1 = self.client1.get(
-            reverse(self.url_view, kwargs={'pk': '535353'}))
+            self.get_url(5353))
         self.assertEqual(response_client1.status_code, 404)
 
     def not_allowed_user_get(self):
         response_client2 = self.client2.get(
-            reverse(self.url_view, kwargs={'pk': '1'}))
+            self.get_url(1))
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):
         response_offline_user = Client().get(
-            reverse(self.url_view, kwargs={'pk': '1'}))
+            self.get_url(1))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(1)))

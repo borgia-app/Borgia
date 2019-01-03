@@ -5,7 +5,8 @@ from urllib.parse import urlparse, urlunparse
 
 from django.conf import settings
 from django.contrib.auth import REDIRECT_FIELD_NAME
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.contrib.auth.models import Group
 from django.contrib.auth.views import LoginView
 from django.contrib.messages.views import SuccessMessageMixin
@@ -35,10 +36,12 @@ class BorgiaView(LateralMenuMixin, View):
     Add Lateral menu mixin to View.
     """
 
+
 class BorgiaFormView(LateralMenuMixin, SuccessMessageMixin, FormView):
     """
     Add Lateral menu and success message mixins to FormView.
     """
+
 
 class ModulesLoginView(LoginView):
     """ Override of auth login view, to include direct login to sales modules """
@@ -80,7 +83,7 @@ class ModulesLoginView(LoginView):
         return context
 
 
-class MembersWorkboard(BorgiaView):
+class MembersWorkboard(LoginRequiredMixin, BorgiaView):
     menu_type = 'members'
     template_name = 'workboards/members_workboard.html'
     lm_active = 'lm_workboard'
@@ -167,7 +170,7 @@ class MembersWorkboard(BorgiaView):
         return mlist
 
 
-class ManagersWorkboard(PermissionRequiredMixin, BorgiaView):
+class ManagersWorkboard(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView):
     menu_type = 'managers'
     template_name = 'workboards/managers_workboard.html'
     lm_active = 'lm_workboard'

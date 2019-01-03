@@ -1,7 +1,8 @@
 import datetime
 import decimal
 
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
@@ -22,7 +23,7 @@ from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
                          DEFAULT_PERMISSIONS_CHIEFS)
 
 
-class ShopCreate(PermissionRequiredMixin, BorgiaFormView):
+class ShopCreate(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     permission_required = 'shops.add_shop'
     menu_type = 'managers'
     template_name = 'shops/shop_create.html'
@@ -97,7 +98,7 @@ class ShopCreate(PermissionRequiredMixin, BorgiaFormView):
         return reverse('url_shop_checkup', kwargs={'shop_pk': self.shop.pk})
 
 
-class ShopList(PermissionRequiredMixin, BorgiaView):
+class ShopList(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView):
     """
     View that list the shops.
     """

@@ -1,4 +1,5 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 from django.views.generic.base import ContextMixin
@@ -6,7 +7,7 @@ from django.views.generic.base import ContextMixin
 from users.models import User
 
 
-class UserMixin(PermissionRequiredMixin, ContextMixin):
+class UserMixin(LoginRequiredMixin, PermissionRequiredMixin, ContextMixin):
     """
     Permission and context mixin for user model.
     """

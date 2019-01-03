@@ -3,9 +3,10 @@ from django.contrib.contenttypes.models import ContentType
 from django.test import Client
 from django.urls import reverse
 
+from borgia.tests.tests_views import BaseBorgiaViewsTestCase
+from borgia.tests.utils import get_login_url_redirected
 from shops.models import Product, Shop
 from shops.utils import DEFAULT_PERMISSIONS_CHIEFS
-from borgia.tests.tests_views import BaseBorgiaViewsTestCase
 
 
 class BaseShopsViewsTest(BaseBorgiaViewsTestCase):
@@ -76,7 +77,7 @@ class BaseGeneralShopViewsTest(BaseShopsViewsTest):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url())
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
 
 
 class ShopListViewTest(BaseGeneralShopViewsTest):
@@ -141,7 +142,7 @@ class BaseFocusShopViewsTest(BaseShopsViewsTest):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.shop1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.shop1.pk)))
 
 
 class ShopUpdateViewTest(BaseFocusShopViewsTest):
@@ -203,7 +204,7 @@ class BaseGeneralProductViewsTest(BaseShopsViewsTest):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.shop1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.shop1.pk)))
 
 
 class ProductListViewTest(BaseGeneralProductViewsTest):
@@ -278,7 +279,7 @@ class BaseFocusProductViewsTest(BaseShopsViewsTest):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.product1.shop.pk, self.product1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.product1.shop.pk, self.product1.pk)))
 
 
 class ProductRetrieveViewTest(BaseFocusProductViewsTest):

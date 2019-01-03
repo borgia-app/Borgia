@@ -2,7 +2,8 @@ import datetime
 import decimal
 
 from django.contrib import messages
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.http import Http404
@@ -22,7 +23,7 @@ from events.models import Event
 from users.models import User
 
 
-class EventList(PermissionRequiredMixin, BorgiaFormView):
+class EventList(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     permission_required = 'events.view_event'
     menu_type = 'members'
     template_name = 'events/event_list.html'
@@ -97,7 +98,7 @@ class EventList(PermissionRequiredMixin, BorgiaFormView):
         return self.render_to_response(context)
 
 
-class EventCreate(PermissionRequiredMixin, BorgiaFormView):
+class EventCreate(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     permission_required = 'events.add_event'
     menu_type = 'members'
     success_message = "'%(description)s' a bien été créé."

@@ -1,7 +1,8 @@
 from django.test import Client
 from django.urls import reverse
 
-from modules.models import Category, SelfSaleModule, OperatorSaleModule
+from borgia.tests.utils import get_login_url_redirected
+from modules.models import Category, OperatorSaleModule, SelfSaleModule
 from shops.tests.tests_views import BaseShopsViewsTest
 
 
@@ -52,10 +53,10 @@ class BaseGeneralShopModuleViewsTest(BaseShopModuleViewsTest):
         response_offline_user_operatorsales = Client().get(
             self.get_url(self.shop1.pk, 'operator_sales'))
         self.assertEqual(response_offline_user_selfsales.status_code, 302)
-        self.assertRedirects(response_offline_user_selfsales, '/auth/login/')
+        self.assertRedirects(response_offline_user_selfsales, get_login_url_redirected(self.get_url(self.shop1.pk, 'self_sales')))
         self.assertEqual(response_offline_user_operatorsales.status_code, 302)
         self.assertRedirects(
-            response_offline_user_operatorsales, '/auth/login/')
+            response_offline_user_operatorsales, get_login_url_redirected(self.get_url(self.shop1.pk, 'operator_sales')))
 
 
 class ShopModuleSaleViewTests(BaseGeneralShopModuleViewsTest):
@@ -195,10 +196,10 @@ class BaseFocusShopModuleCategoryViewsTest(BaseShopModuleCategoryViewsTest):
         response_offline_user_operatorsales = Client().get(
             self.get_url(self.shop1.pk, 'operator_sales', self.category2.pk))
         self.assertEqual(response_offline_user_selfsales.status_code, 302)
-        self.assertRedirects(response_offline_user_selfsales, '/auth/login/')
+        self.assertRedirects(response_offline_user_selfsales, get_login_url_redirected(self.get_url(self.shop1.pk, 'self_sales', self.category1.pk)))
         self.assertEqual(response_offline_user_operatorsales.status_code, 302)
         self.assertRedirects(
-            response_offline_user_operatorsales, '/auth/login/')
+            response_offline_user_operatorsales, get_login_url_redirected(self.get_url(self.shop1.pk, 'operator_sales', self.category2.pk)))
 
 
 class ShopModuleCategoryUpdateViewTests(BaseFocusShopModuleCategoryViewsTest):

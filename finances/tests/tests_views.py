@@ -3,6 +3,7 @@ from django.test import Client
 from django.urls import reverse
 
 from borgia.tests.tests_views import BaseBorgiaViewsTestCase
+from borgia.tests.utils import get_login_url_redirected
 from finances.models import Cash, ExceptionnalMovement, Recharging, Transfert
 from users.tests.tests_views import BaseFocusUserViewsTestCase
 
@@ -31,7 +32,7 @@ class GeneralFinancesViewsTests(BaseFinancesViewsTestCase):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url())
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
 
 
 class UserExceptionnalMovementCreateTests(BaseFocusUserViewsTestCase):
@@ -105,7 +106,7 @@ class RechargingRetrieveTests(BaseFinancesViewsTestCase):
     def test_get_offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(1))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(1)))
 
 
 class TransfertListTests(GeneralFinancesViewsTests):
@@ -151,7 +152,7 @@ class TransfertRetrieveTests(BaseFinancesViewsTestCase):
     def test_get_offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(1))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(1)))
 
 
 class ExceptionnalMovementListTests(GeneralFinancesViewsTests):
@@ -197,4 +198,4 @@ class ExceptionnalMovementRetrieveTests(BaseFinancesViewsTestCase):
     def test_offline_user_redirection_get(self):
         response_offline_user = Client().get(self.get_url(1))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, '/auth/login/')
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(1)))

@@ -1,4 +1,5 @@
-from django.contrib.auth.mixins import PermissionRequiredMixin
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.urls import reverse
 from django.views.generic.base import TemplateView
 
@@ -11,7 +12,7 @@ from configurations.forms import (ConfigurationBalanceForm,
 from configurations.utils import configurations_safe_get
 
 
-class ConfigurationIndexView(PermissionRequiredMixin, LateralMenuMixin, TemplateView):
+class ConfigurationIndexView(LoginRequiredMixin, PermissionRequiredMixin, LateralMenuMixin, TemplateView):
     """
     View to manage config of the application.
 
@@ -40,7 +41,7 @@ class ConfigurationIndexView(PermissionRequiredMixin, LateralMenuMixin, Template
         return context
 
 
-class ConfigurationChangeBaseView(PermissionRequiredMixin, BorgiaFormView):
+class ConfigurationChangeBaseView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     """
     Override this base view for configuration changes.
     """
