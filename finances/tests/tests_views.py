@@ -3,10 +3,18 @@ from django.test import Client
 from django.urls import reverse
 
 from borgia.tests.tests_views import BaseBorgiaViewsTestCase
-from finances.models import Cash, Recharging, Transfert, ExceptionnalMovement
+from finances.models import Cash, ExceptionnalMovement, Recharging, Transfert
 from users.tests.tests_views import BaseFocusUserViewsTestCase
 
+
 class BaseFinancesViewsTestCase(BaseBorgiaViewsTestCase):
+    def setUp(self):
+        super().setUp()
+        cash = Cash.objects.create(sender=self.user2, amount=20)
+        self.recharging1 = Recharging.objects.create(sender=self.user2, operator=self.user1, content_solution=cash)
+
+
+class GeneralFinancesViewsTests(BaseFinancesViewsTestCase):
     url_view = None
 
     def get_url(self):
@@ -58,7 +66,7 @@ class RechargingCreateTests(BaseFocusUserViewsTestCase):
         super().offline_user_redirection()
 
 
-class RechargingListTests(BaseFinancesViewsTestCase):
+class RechargingListTests(GeneralFinancesViewsTests):
     url_view = 'url_recharging_list'
 
     def test_allowed_user_get(self):
@@ -71,7 +79,7 @@ class RechargingListTests(BaseFinancesViewsTestCase):
         super().offline_user_redirection()
 
 
-class RechargingRetrieveTests(BaseBorgiaViewsTestCase):
+class RechargingRetrieveTests(BaseFinancesViewsTestCase):
     url_view = 'url_recharging_retrieve'
 
     def get_url(self, recharging_pk):
@@ -79,8 +87,8 @@ class RechargingRetrieveTests(BaseBorgiaViewsTestCase):
 
     def setUp(self):
         super().setUp()
-        cash = Cash.objects.create(sender=self.user2, recipient=self.user1, amount=20)
-        Recharging.objects.create(sender=self.user2, operator=self.user1, payment_solution=cash)
+        cash = Cash.objects.create(sender=self.user2, amount=20)
+        Recharging.objects.create(sender=self.user2, operator=self.user1, content_solution=cash)
 
     def test_get_allowed_user(self):
         response_client1 = self.client1.get(self.get_url(1))
@@ -100,7 +108,7 @@ class RechargingRetrieveTests(BaseBorgiaViewsTestCase):
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
-class TransfertListTests(BaseFinancesViewsTestCase):
+class TransfertListTests(GeneralFinancesViewsTests):
     url_view = 'url_transfert_list'
 
     def test_allowed_user_get(self):
@@ -113,7 +121,7 @@ class TransfertListTests(BaseFinancesViewsTestCase):
         super().offline_user_redirection()
 
 
-class TransfertRetrieveTests(BaseBorgiaViewsTestCase):
+class TransfertRetrieveTests(BaseFinancesViewsTestCase):
     url_view = 'url_transfert_retrieve'
 
     def get_url(self, transfert_pk):
@@ -122,10 +130,15 @@ class TransfertRetrieveTests(BaseBorgiaViewsTestCase):
     def setUp(self):
         super().setUp()
         Transfert.objects.create(sender=self.user1, recipient=self.user2, amount=10)
+        Transfert.objects.create(sender=self.user1, recipient=self.user2, amount=4)
+        Transfert.objects.create(sender=self.user1, recipient=self.user2, amount=53)
+        Transfert.objects.create(sender=self.user2, recipient=self.user1, amount=8)
 
-    def test_get_allowed_user(self):
-        response_client1 = self.client1.get(self.get_url(1))
-        self.assertEqual(response_client1.status_code, 200)
+    def test_allowed_user_get(self):
+        response1_client1 = self.client1.get(self.get_url(1))
+        response2_client1 = self.client1.get(self.get_url(4))
+        self.assertEqual(response1_client1.status_code, 200)
+        self.assertEqual(response2_client1.status_code, 200)
 
     def test_get_not_existing_recharching(self):
         response_client1 = self.client1.get(self.get_url(5353))
@@ -141,7 +154,7 @@ class TransfertRetrieveTests(BaseBorgiaViewsTestCase):
         self.assertRedirects(response_offline_user, '/auth/login/')
 
 
-class ExceptionnalMovementListTests(BaseFinancesViewsTestCase):
+class ExceptionnalMovementListTests(GeneralFinancesViewsTests):
     url_view = 'url_exceptionnalmovement_list'
 
     def test_allowed_user_get(self):
@@ -154,7 +167,7 @@ class ExceptionnalMovementListTests(BaseFinancesViewsTestCase):
         super().offline_user_redirection()
 
 
-class ExceptionnalMovementRetrieveTests(BaseBorgiaViewsTestCase):
+class ExceptionnalMovementRetrieveTests(BaseFinancesViewsTestCase):
     url_view = 'url_exceptionnalmovement_retrieve'
 
     def get_url(self, exceptionnalmovement_pk):
@@ -163,20 +176,25 @@ class ExceptionnalMovementRetrieveTests(BaseBorgiaViewsTestCase):
     def setUp(self):
         super().setUp()
         ExceptionnalMovement.objects.create(operator=self.user1, recipient=self.user2, amount=10)
+        ExceptionnalMovement.objects.create(operator=self.user1, recipient=self.user2, amount=12)
+        ExceptionnalMovement.objects.create(operator=self.user1, recipient=self.user2, amount=14)
+        ExceptionnalMovement.objects.create(operator=self.user2, recipient=self.user1, amount=9)
 
-    def test_get_allowed_user(self):
-        response_client1 = self.client1.get(self.get_url(1))
-        self.assertEqual(response_client1.status_code, 200)
+    def test_allowed_user_get(self):
+        response1_client1 = self.client1.get(self.get_url(1))
+        response2_client1 = self.client1.get(self.get_url(4))
+        self.assertEqual(response1_client1.status_code, 200)
+        self.assertEqual(response2_client1.status_code, 200)
 
-    def test_get_not_existing_recharching(self):
+    def test_not_existing_recharching_get(self):
         response_client1 = self.client1.get(self.get_url(5353))
         self.assertEqual(response_client1.status_code, 404)
 
-    def test_get_not_allowed_user(self):
+    def test_not_allowed_user_get(self):
         response_client2 = self.client2.get(self.get_url(1))
         self.assertEqual(response_client2.status_code, 403)
 
-    def test_get_offline_user_redirection(self):
+    def test_offline_user_redirection_get(self):
         response_offline_user = Client().get(self.get_url(1))
         self.assertEqual(response_offline_user.status_code, 302)
         self.assertRedirects(response_offline_user, '/auth/login/')
