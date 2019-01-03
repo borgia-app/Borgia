@@ -279,9 +279,6 @@ class Event(models.Model):
         self.remark = 'Pas de paiement : ' + remark
         self.save()
 
-    def wording(self):
-        return 'Événement : ' + self.description + ', le ' + self.date.strftime('%d/%m')
-
     def get_total_weights_registrants(self):
         total = 0
         for e in self.weightsuser_set.all():

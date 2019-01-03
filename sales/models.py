@@ -67,13 +67,10 @@ class Sale(models.Model):
         :returns: pk of sale
         :rtype: string
         """
-        return 'Achat n°' + str(self.pk)
+        return 'Achat ' + self.shop.__str__() + ', ' + self.string_products()
 
     def pay(self):
         self.sender.debit(self.amount())
-
-    def wording(self):
-        return 'Achat ' + self.shop.__str__() + ', ' + self.string_products()
 
     def string_products(self):
         """
