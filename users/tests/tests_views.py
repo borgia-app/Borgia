@@ -190,27 +190,28 @@ class UserSelfUpdateViewTestCase(BaseBorgiaViewsTestCase):
 
 
 class ManageGroupViewTestCase(BaseBorgiaViewsTestCase):
-    url_view = 'url_user_deactivate'
+    url_view = 'url_group_update'
 
-    def get_url(self, pk):
-        return reverse(self.url_view, kwargs={'pk': pk})
+    def get_url(self, group_pk):
+        return reverse(self.url_view, kwargs={'group_pk': group_pk})
 
-    def allowed_user_get(self):
-        response_client1 = self.client1.get(
-            self.get_url(1))
-        self.assertEqual(response_client1.status_code, 200)
+    def test_allowed_user_get(self):
+        for group_pk in range(1, 4):
+            response_client1 = self.client1.get(
+                self.get_url(group_pk))
+            self.assertEqual(response_client1.status_code, 200)
 
-    def not_existing_focus_get(self):
+    def test_not_existing_focus_get(self):
         response_client1 = self.client1.get(
             self.get_url(5353))
         self.assertEqual(response_client1.status_code, 404)
 
-    def not_allowed_user_get(self):
+    def test_not_allowed_user_get(self):
         response_client2 = self.client2.get(
             self.get_url(1))
         self.assertEqual(response_client2.status_code, 403)
 
-    def offline_user_redirection(self):
+    def test_offline_user_redirection(self):
         response_offline_user = Client().get(
             self.get_url(1))
         self.assertEqual(response_offline_user.status_code, 302)
