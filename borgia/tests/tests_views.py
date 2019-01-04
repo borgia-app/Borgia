@@ -10,10 +10,12 @@ from users.models import User
 
 
 class BaseBorgiaViewsTestCase(TestCase):
+    fixtures = ['initial']
+
     def setUp(self):
-        members_group = Group.objects.create(name=INTERNALS_GROUP_NAME)
-        externals_group = Group.objects.create(name=EXTERNALS_GROUP_NAME)
-        presidents_group = Group.objects.create(name='presidents')
+        members_group = Group.objects.get(name=INTERNALS_GROUP_NAME)
+        externals_group = Group.objects.get(name=EXTERNALS_GROUP_NAME)
+        presidents_group = Group.objects.get(name='presidents')
         presidents_group.permissions.set(Permission.objects.all())
         # Group externals NEED to be created (else raises errors) :
 
@@ -31,7 +33,7 @@ class BaseBorgiaViewsTestCase(TestCase):
         self.client2.force_login(self.user2)
         self.client3 = Client()
         self.client3.force_login(self.user3)
-        self.assertEqual(User.objects.count(), 3)
+        self.assertEqual(User.objects.count(), 4)
 
 
 class AuthViewNamedURLTests(TestCase):
@@ -60,6 +62,7 @@ class AuthViewNamedURLTests(TestCase):
 
 
 class BaseAuthViewsTestCase(TestCase):
+    fixtures = ['initial']
     url_view = None
 
     def setUp(self):
@@ -198,7 +201,7 @@ class PasswordChangeDoneViewTests(BaseAuthViewsTestCase):
         super().offline_user_redirection()
 
 
-class PasswordResetViewTests(TestCase):
+class PasswordResetViewTests(BaseBorgiaViewsTestCase):
     url_view = 'password_reset'
     template_name = 'registration/password_reset_form.html'
 
@@ -216,7 +219,7 @@ class PasswordResetViewTests(TestCase):
         self.assertRedirects(response, reverse('password_reset_done'))
 
 
-class PasswordResetDoneViewTests(TestCase):
+class PasswordResetDoneViewTests(BaseBorgiaViewsTestCase):
     url_view = 'password_reset_done'
     template_name = 'registration/password_reset_done.html'
 

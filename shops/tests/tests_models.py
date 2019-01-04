@@ -1,9 +1,8 @@
-from django.test import TestCase
+from borgia.tests.tests_views import BaseBorgiaViewsTestCase
+from shops.models import Product, Shop
 
-from shops.models import Shop, Product
 
-
-class BaseShopTestCase(TestCase):
+class BaseShopTestCase(BaseBorgiaViewsTestCase):
     def setUp(self):
         self.shop1 = Shop.objects.create(
             name='Shop1 name',

@@ -98,7 +98,7 @@ class BaseFocusUserViewsTestCase(BaseBorgiaViewsTestCase):
         return reverse(self.url_view, kwargs={'user_pk': user_pk})
 
     def allowed_user_get(self):
-        response_client1 = self.client1.get(self.get_url(2))
+        response_client1 = self.client1.get(self.get_url(self.user2.pk))
         self.assertEqual(response_client1.status_code, 200)
 
     def not_existing_user_get(self):
@@ -106,13 +106,13 @@ class BaseFocusUserViewsTestCase(BaseBorgiaViewsTestCase):
         self.assertEqual(response_client1.status_code, 404)
 
     def not_allowed_user_get(self):
-        response_client2 = self.client2.get(self.get_url(3))
+        response_client2 = self.client2.get(self.get_url(self.user1.pk))
         self.assertEqual(response_client2.status_code, 403)
 
     def offline_user_redirection(self):
-        response_offline_user = Client().get(self.get_url(2))
+        response_offline_user = Client().get(self.get_url(self.user2.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(2)))
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.user2.pk)))
 
 class UserRetrieveViewTestCase(BaseFocusUserViewsTestCase):
     url_view = 'url_user_retrieve'
