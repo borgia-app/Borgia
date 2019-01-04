@@ -19,7 +19,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from borgia.views import BorgiaFormView, BorgiaView
 from configurations.models import Configuration
-from configurations.utils import configurations_safe_get
+from configurations.utils import configurations_get
 from finances.forms import (ExceptionnalMovementForm,
                             GenericListSearchDateForm, RechargingCreateForm,
                             RechargingListForm, SelfLydiaCreateForm,
@@ -636,7 +636,7 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
             user.save()
 
         context = super().get_context_data()
-        context['vendor_token'] = configurations_safe_get(
+        context['vendor_token'] = configurations_get(
             "LYDIA_VENDOR_TOKEN").get_value()
         context['confirm_url'] = settings.LYDIA_CONFIRM_URL
         context['callback_url'] = settings.LYDIA_CALLBACK_URL
@@ -657,7 +657,7 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         try:
-            if configurations_safe_get("LYDIA_API_TOKEN").get_value() in ['', 'non définie']:
+            if configurations_get("LYDIA_API_TOKEN").get_value() in ['', 'non définie']:
                 context['no_module'] = True
             else:
                 context['no_module'] = False
@@ -735,7 +735,7 @@ def self_lydia_callback(request):
         "vendor_token": request.POST.get("vendor_token"),
         "sig": request.POST.get("sig")
     }
-    lydia_token = configurations_safe_get("LYDIA_API_TOKEN").get_value()
+    lydia_token = configurations_get("LYDIA_API_TOKEN").get_value()
     if verify_token_algo_lydia(params_dict, lydia_token) is True:
         try:
             user = User.objects.get(pk=request.GET.get('user_pk'))

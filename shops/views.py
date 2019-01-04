@@ -11,7 +11,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from borgia.views import BorgiaFormView, BorgiaView
-from configurations.utils import configurations_safe_get
+from configurations.utils import configurations_get
 from modules.models import CategoryProduct
 from sales.models import Sale
 from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
@@ -456,7 +456,7 @@ class ProductUpdatePrice(ProductMixin, BorgiaFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['margin_profit'] = configurations_safe_get(
+        context['margin_profit'] = configurations_get(
             'MARGIN_PROFIT').get_value()
         return context
 
