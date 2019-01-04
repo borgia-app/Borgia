@@ -5,7 +5,7 @@ from borgia.utils import (get_permission_name_group_managing,
                           group_name_display, simple_lateral_link)
 from shops.models import Shop
 
-DEFAULT_PERMISSIONS_CHIEFS = ['add_user', 'view_user', 'add_recharging',
+DEFAULT_PERMISSIONS_CHIEFS = ['add_user', 'view_user',
                               'change_shop', 'view_shop',
                               'add_product', 'change_product', 'delete_product', 'view_product',
                               'change_price_product',
