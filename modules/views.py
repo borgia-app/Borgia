@@ -192,7 +192,6 @@ class ShopModuleConfigView(ShopModuleMixin, BorgiaView):
     permission_required_operator = 'modules.view_config_operatorsalemodule'
     menu_type = 'shops'
     template_name = 'modules/shop_module_config.html'
-    lm_active = 'lm_selfsale_module'
 
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
