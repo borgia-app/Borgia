@@ -3,18 +3,19 @@ from django.contrib.auth.models import Group, Permission
 from django.test import Client, TestCase
 from django.urls import NoReverseMatch, reverse
 
-from borgia.settings import LOGIN_URL, LOGIN_REDIRECT_URL
+from borgia.settings import LOGIN_REDIRECT_URL, LOGIN_URL
 from borgia.tests.utils import get_login_url_redirected
+from borgia.utils import EXTERNALS_GROUP_NAME, INTERNALS_GROUP_NAME
 from users.models import User
 
 
 class BaseBorgiaViewsTestCase(TestCase):
     def setUp(self):
-        members_group = Group.objects.create(name='members')
+        members_group = Group.objects.create(name=INTERNALS_GROUP_NAME)
+        externals_group = Group.objects.create(name=EXTERNALS_GROUP_NAME)
         presidents_group = Group.objects.create(name='presidents')
         presidents_group.permissions.set(Permission.objects.all())
         # Group externals NEED to be created (else raises errors) :
-        externals_group = Group.objects.create(name='externals')
 
         self.user1 = User.objects.create(username='user1', balance=53)
         self.user1.groups.add(members_group)

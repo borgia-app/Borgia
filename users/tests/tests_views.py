@@ -88,7 +88,7 @@ class UserCreateViewTestCase(BaseGeneralUserViewsTestCase):
         self.assertTrue(Client().login(username='External', password='password'))
         user = User.objects.get(username='External')
         self.assertEqual(user.groups.count(), 1)
-        self.assertEqual(user.groups.first(), get_members_group(externals=True))
+        self.assertEqual(user.groups.first(), get_members_group(is_externals=True))
 
 
 class BaseFocusUserViewsTestCase(BaseBorgiaViewsTestCase):

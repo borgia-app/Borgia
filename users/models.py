@@ -249,8 +249,8 @@ def get_list_year():
     :returns: list of integer years used by users, by decreasing dates.
     """
     list_year = []
-    # Parmis tout les users moins les gadz d'honn'ss et l'admin
-    for user in User.objects.filter(is_active=True).exclude(groups=6).exclude(pk=1):
+    # For each user except admin
+    for user in User.objects.filter(is_active=True).exclude(pk=1):
         if user.year not in list_year:
             if user.year is not None:  # year is not mandatory
                 list_year.append(user.year)

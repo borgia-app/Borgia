@@ -6,8 +6,9 @@ import string
 
 import openpyxl
 from django.contrib import messages
-from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import (LoginRequiredMixin,
+                                        PermissionRequiredMixin)
 from django.contrib.auth.models import Group, Permission
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models import Q
@@ -64,18 +65,19 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
 
         if self.sort is not None:
             context['sort'] = self.sort
+            query = User.objects.all().exclude(groups=get_members_group(is_externals=True))
             if self.headers[self.sort] == "des":
                 context['reverse'] = True
                 context['user_list'] = self.form_query(
-                    User.objects.all().exclude(groups=1).order_by(self.sort).reverse())
+                    query.order_by(self.sort).reverse())
                 self.headers[self.sort] = "asc"
             else:
                 context['user_list'] = self.form_query(
-                    User.objects.all().exclude(groups=1).order_by(self.sort))
+                    query.order_by(self.sort))
                 self.headers[self.sort] = "des"
         else:
             context['user_list'] = self.form_query(
-                User.objects.all().exclude(groups=1))
+                query)
 
         return context
 
@@ -270,9 +272,8 @@ class UserDeactivateView(UserMixin, BorgiaView):
                 deactivated = True
                 self.user.is_active = False
                 # si c'est un gadz. Special members can't be added to other groups
-                if Group.objects.get(pk=5) in self.user.groups.all():
-                    self.user.groups.clear()
-                    self.user.groups.add(Group.objects.get(pk=5))
+                if get_members_group() in self.user.groups.all():
+                    self.user.groups.set([get_members_group(),])
                 self.user.save()
         else:
             self.user.is_active = True
@@ -382,7 +383,7 @@ class GroupUpdateView(LoginRequiredMixin, BorgiaFormView):
             )
 
         kwargs['possible_members'] = User.objects.filter(is_active=True).exclude(
-            groups=Group.objects.get(name='externals'))
+            groups=get_members_group(is_externals=True))
         return kwargs
 
     def get_initial(self):
@@ -568,7 +569,7 @@ class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaForm
                     user = User.objects.get(username=username)
                     user.save()
 
-                    user.groups.add(Group.objects.get(pk=5))
+                    user.groups.add(get_members_group())
                 else:
                     skipped_rows.append(str(i))
             except:
@@ -635,9 +636,7 @@ def username_from_username_part(request):
         key = request.GET.get('keywords')
         regex = r"^" + re.escape(key) + r"(\W|$)"
 
-        # Fam'ss en entier
-        # where_search = User.objects.filter(family=key).exclude(groups=1).order_by('-year')
-        where_search = User.objects.exclude(groups=1).filter(
+        where_search = User.objects.filter(
             family__regex=regex, is_active=True).order_by('-year')
         if len(key) > 2:
             if key.isalpha():

@@ -83,10 +83,10 @@ class ShopCreate(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
                 pass
         associates.save()
 
-        presidents = Group.objects.get(pk=2)
+        presidents = Group.objects.get(name='presidents')
         presidents.permissions.add(manage_chiefs)
         presidents.save()
-        vice_presidents = Group.objects.get(pk=3)
+        vice_presidents = Group.objects.get(name='vice_presidents')
         vice_presidents.permissions.add(manage_chiefs)
         vice_presidents.save()
 
