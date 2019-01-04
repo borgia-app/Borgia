@@ -181,7 +181,7 @@ def managers_lateral_menu(nav_tree, user):
                     'users',
                     'lm_group_manage_' + group.name,
                     reverse('url_group_update', kwargs={
-                        'pk': group.pk})
+                        'group_pk': group.pk})
                 ))
     if len(nav_management_groups['subs']) > 1:
         nav_tree.append(nav_management_groups)
@@ -335,9 +335,9 @@ def human_unused_permissions():
         except ObjectDoesNotExist:
             pass
         if contenttype is not None:
-            perms_model = Permission.objects.filter(
+            perm_query = Permission.objects.filter(
                 content_type=contenttype.pk)
-            for perm in perms_model:
+            for perm in perm_query:
                 perms.append(perm.pk)
 
     return perms

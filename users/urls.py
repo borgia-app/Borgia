@@ -21,7 +21,7 @@ users_patterns = [
         path('add_by_list/xlsx/', UserUploadXlsxView.as_view(), name='url_add_by_list_xlsx'),
         path('add_by_list/xlsx/download/', UserAddByListXlsxDownload.as_view(), name='url_add_by_list_xlsx_download')
     ])),
-    path('groups/<int:pk>/update/', GroupUpdateView.as_view(), name='url_group_update'),
+    path('groups/<int:group_pk>/update/', GroupUpdateView.as_view(), name='url_group_update'),
     path('ajax/username_from_username_part/', username_from_username_part, name='url_ajax_username_from_username_part'),
     path('ajax/balance_from_username/', balance_from_username, name='url_balance_from_username')
 ]

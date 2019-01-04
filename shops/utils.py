@@ -199,7 +199,7 @@ def shops_lateral_menu(nav_tree, user, shop):
                     'users',
                     'lm_group_manage_' + group.name,
                     reverse('url_group_update', kwargs={
-                        'pk': group.pk})
+                        'group_pk': group.pk})
                 ))
 
     nav_tree.append(nav_management_groups)

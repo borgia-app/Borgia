@@ -24,7 +24,7 @@ from configurations.utils import configurations_safe_get
 from users.forms import (GroupUpdateForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserDownloadXlsxForm,
                          UserSearchForm, UserUpdateForm, UserUploadXlsxForm)
-from users.mixins import UserMixin
+from users.mixins import GroupMixin, UserMixin
 from users.models import User
 
 
@@ -63,9 +63,9 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
         except KeyError:
             pass
 
+        query = User.objects.all().exclude(groups=get_members_group(is_externals=True))
         if self.sort is not None:
             context['sort'] = self.sort
-            query = User.objects.all().exclude(groups=get_members_group(is_externals=True))
             if self.headers[self.sort] == "des":
                 context['reverse'] = True
                 context['user_list'] = self.form_query(
@@ -273,7 +273,7 @@ class UserDeactivateView(UserMixin, BorgiaView):
                 self.user.is_active = False
                 # si c'est un gadz. Special members can't be added to other groups
                 if get_members_group() in self.user.groups.all():
-                    self.user.groups.set([get_members_group(),])
+                    self.user.groups.set([get_members_group(), ])
                 self.user.save()
         else:
             self.user.is_active = True
@@ -333,27 +333,23 @@ class UserSelfUpdateView(LoginRequiredMixin, BorgiaFormView):
         return "Vos infos ont bien été mises à jour"
 
 
-class GroupUpdateView(LoginRequiredMixin, BorgiaFormView):
+class GroupUpdateView(GroupMixin, BorgiaFormView):
     menu_type = 'managers'
     template_name = 'users/group_update.html'
     form_class = GroupUpdateForm
-    group_updated = None
 
     def __init__(self):
-        self.group = None
+        super().__init__()
+        self.perm_manage_group = None
 
     def get_permission_required(self):
         """
         Override the permission_required attribute.
         Must return an iterable.
         """
-        try:
-            self.group = Group.objects.get(pk=self.kwargs['pk'])
-        except ObjectDoesNotExist:
-            raise Http404
-        perms = (permission_to_manage_group(self.group_updated)[1],)
+        self.perm_manage_group = (permission_to_manage_group(self.group)[1],)
         self.lm_active = 'lm_group_manage_' + self.group.name
-        return perms
+        return self.perm_manage_group
 
     def get_form_kwargs(self):
         """
@@ -370,18 +366,13 @@ class GroupUpdateView(LoginRequiredMixin, BorgiaFormView):
         if self.group.name.startswith('associates-') is True:
             chiefs_group_name = self.group.name.replace(
                 'associates', 'chiefs')
-            kwargs['possible_permissions'] = Permission.objects.filter(
-                pk__in=[p.pk for p in Group.objects.get(
-                    name=chiefs_group_name).permissions.all().exclude(
-                        pk=permission_to_manage_group(self.group)[0].pk).exclude(
-                        pk__in=human_unused_permissions())]
-            )
+            query = Group.objects.get(name=chiefs_group_name).exclude(
+                self.perm_manage_group)
 
         else:
-            kwargs['possible_permissions'] = Permission.objects.all().exclude(
-                pk__in=human_unused_permissions()
-            )
+            query = Permission.objects.all()
 
+        kwargs['possible_permissions'] = query.exclude(pk__in=human_unused_permissions())
         kwargs['possible_members'] = User.objects.filter(is_active=True).exclude(
             groups=get_members_group(is_externals=True))
         return kwargs
@@ -392,43 +383,38 @@ class GroupUpdateView(LoginRequiredMixin, BorgiaFormView):
         initial['permissions'] = self.group.permissions.all()
         return initial
 
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['group'] = self.group
-        return context
-
     def form_valid(self, form):
         """
         Update permissions and members of the group updated.
         """
-        old_members = User.objects.filter(groups=self.group)
+        old_members = self.group.user_set.all()
         new_members = form.cleaned_data['members']
         old_permissions = self.group.permissions.all()
         new_permissions = form.cleaned_data['permissions']
 
         # Modification des membres
-        for m in old_members:
-            if m not in new_members:
-                m.groups.remove(self.group)
-                m.save()
-        for m in new_members:
-            if m not in old_members:
-                m.groups.add(self.group)
-                m.save()
+        for member in old_members:
+            if member not in new_members:
+                member.groups.remove(self.group)
+                member.save()
+        for member in new_members:
+            if member not in old_members:
+                member.groups.add(self.group)
+                member.save()
 
         # Modification des permissions
-        for p in old_permissions:
-            if p not in new_permissions:
-                self.group.permissions.remove(p)
-        for p in new_permissions:
-            if p not in old_permissions:
-                self.group.permissions.add(p)
+        for perm in old_permissions:
+            if perm not in new_permissions:
+                self.group.permissions.remove(perm)
+        for perm in new_permissions:
+            if perm not in old_permissions:
+                self.group.permissions.add(perm)
         self.group.save()
 
         return super().form_valid(form)
 
     def get_success_message(self, cleaned_data):
-        return "Le groupe a bien été mis à jour"
+        return 'Le groupe ' + self.group.name + ' a bien été mis à jour'
 
     def get_success_url(self):
         return reverse('url_managers_workboard')
@@ -455,7 +441,8 @@ class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaForm
 
     def form_valid(self, form):
         try:
-            wb = openpyxl.load_workbook(self.request.FILES['list_user'], read_only=True)
+            wb = openpyxl.load_workbook(
+                self.request.FILES['list_user'], read_only=True)
             sheet = wb.active
             rows = sheet.rows
         except:
@@ -540,7 +527,8 @@ class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaForm
                 if 'family' in columns:
                     try:
                         if row[col_family].value:
-                            user_dict['family'] = str(row[col_family].value).strip()
+                            user_dict['family'] = str(
+                                row[col_family].value).strip()
                     except:
                         errors_on_required_columns.append('family')
 
@@ -561,7 +549,8 @@ class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaForm
                 if not skipped_row:
                     username = user_dict['username']
                     if User.objects.filter(username=username).count() > 0:
-                        User.objects.filter(username=username).update(**user_dict)
+                        User.objects.filter(
+                            username=username).update(**user_dict)
                     else:
                         user = User.objects.create(**user_dict)
                         user.set_password(''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits)
@@ -580,7 +569,8 @@ class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaForm
                     errors.append("Les colonnes " + ", ".join(errors_on_required_columns) +
                                   " sont requis et comportent des erreurs (ligne n*" + str(i) + ")")
                 else:
-                    errors.append("Une erreur empêche le traitement du fichier Excel (ligne n*" + str(i) + ")")
+                    errors.append(
+                        "Une erreur empêche le traitement du fichier Excel (ligne n*" + str(i) + ")")
 
         error_message = ""
         error_message += "\n - ".join(errors)
