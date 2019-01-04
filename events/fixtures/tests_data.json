@@ -1,0 +1,142 @@
+[
+    {
+        "model": "events.event",
+        "pk": 1,
+        "fields": {
+            "description": "Event1 in the past",
+            "date": "2019-01-01",
+            "price": null,
+            "bills": null,
+            "done": false,
+            "payment_by_ponderation": false,
+            "remark": null,
+            "manager": 2,
+            "allow_self_registeration": false,
+            "date_end_registration": null
+        }
+    },
+    {
+        "model": "events.event",
+        "pk": 2,
+        "fields": {
+            "description": "Event2 unlimited registration",
+            "date": "2053-01-01",
+            "price": "530.00",
+            "bills": null,
+            "done": false,
+            "payment_by_ponderation": false,
+            "remark": null,
+            "manager": 2,
+            "allow_self_registeration": true,
+            "date_end_registration": null
+        }
+    },
+    {
+        "model": "events.event",
+        "pk": 3,
+        "fields": {
+            "description": "Event3 with limited registration",
+            "date": "2053-01-01",
+            "price": null,
+            "bills": null,
+            "done": false,
+            "payment_by_ponderation": false,
+            "remark": null,
+            "manager": 2,
+            "allow_self_registeration": true,
+            "date_end_registration": "2030-01-01"
+        }
+    },
+    {
+        "model": "events.event",
+        "pk": 4,
+        "fields": {
+            "description": "Event4 with users",
+            "date": "2055-01-01",
+            "price": null,
+            "bills": null,
+            "done": false,
+            "payment_by_ponderation": false,
+            "remark": null,
+            "manager": 2,
+            "allow_self_registeration": false,
+            "date_end_registration": null
+        }
+    },
+    {
+        "model": "events.event",
+        "pk": 5,
+        "fields": {
+            "description": "Event5 Done total",
+            "date": "2016-01-01",
+            "price": "10.00",
+            "bills": null,
+            "done": true,
+            "payment_by_ponderation": false,
+            "remark": "Paiement par Borgia (Prix total : 10.00)",
+            "manager": 2,
+            "allow_self_registeration": false,
+            "date_end_registration": null
+        }
+    },
+    {
+        "model": "events.weightsuser",
+        "pk": 1,
+        "fields": {
+            "user": 2,
+            "event": 4,
+            "weights_registeration": 1,
+            "weights_participation": 1
+        }
+    },
+    {
+        "model": "events.weightsuser",
+        "pk": 2,
+        "fields": {
+            "user": 3,
+            "event": 4,
+            "weights_registeration": 0,
+            "weights_participation": 2
+        }
+    },
+    {
+        "model": "events.weightsuser",
+        "pk": 3,
+        "fields": {
+            "user": 4,
+            "event": 4,
+            "weights_registeration": 3,
+            "weights_participation": 0
+        }
+    },
+    {
+        "model": "events.weightsuser",
+        "pk": 4,
+        "fields": {
+            "user": 5,
+            "event": 4,
+            "weights_registeration": 0,
+            "weights_participation": 4
+        }
+    },
+    {
+        "model": "events.weightsuser",
+        "pk": 5,
+        "fields": {
+            "user": 3,
+            "event": 3,
+            "weights_registeration": 1,
+            "weights_participation": 0
+        }
+    },
+    {
+        "model": "events.weightsuser",
+        "pk": 6,
+        "fields": {
+            "user": 3,
+            "event": 5,
+            "weights_registeration": 0,
+            "weights_participation": 1
+        }
+    }
+]

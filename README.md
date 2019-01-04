@@ -27,15 +27,17 @@ Load initial data
   + `python manage.py makemigrations configurations users shops finances events modules sales stocks`,
   + `python manage.py migrate`,
   + `python manage.py loaddata initial`.
-* Change admin password
-  + `python manage.py loaddata first_member`,
+* In development, you can pre-populate the db with some pre-made objects :
+  + `python manage.py loaddata tests_data`,
+* Don't forget to change the passwords of users if you want to access them :
   + `python manage.py shell`,
   + `from users.models import User`,
   + `u = User.objects.get(pk=2)`,
-  + `u.set_password('admin')`.
+  + `u.set_password('a_password')`.
   + `u.save()`
-* Then, you can create shops. Be careful, you also need to add the managers
-in the appropriate groups.
+  + `exit()`
+
+That's it !
 
 Test
 ----

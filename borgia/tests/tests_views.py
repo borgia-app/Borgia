@@ -10,7 +10,7 @@ from users.models import User
 
 
 class BaseBorgiaViewsTestCase(TestCase):
-    fixtures = ['initial']
+    fixtures = ['initial', 'tests_data']
 
     def setUp(self):
         members_group = Group.objects.get(name=INTERNALS_GROUP_NAME)
@@ -33,7 +33,6 @@ class BaseBorgiaViewsTestCase(TestCase):
         self.client2.force_login(self.user2)
         self.client3 = Client()
         self.client3.force_login(self.user3)
-        self.assertEqual(User.objects.count(), 4)
 
 
 class AuthViewNamedURLTests(TestCase):
@@ -62,7 +61,7 @@ class AuthViewNamedURLTests(TestCase):
 
 
 class BaseAuthViewsTestCase(TestCase):
-    fixtures = ['initial']
+    fixtures = ['initial', 'tests_data']
     url_view = None
 
     def setUp(self):
