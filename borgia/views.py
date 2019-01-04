@@ -66,7 +66,7 @@ class ModulesLoginView(LoginView):
         context['default_theme'] = settings.DEFAULT_TEMPLATE
 
         context['shop_list'] = []
-        for shop in Shop.objects.all().exclude(pk=1):
+        for shop in Shop.objects.all():
             operator_module = shop.modules_operatorsalemodule_shop.first()
             operator_module_link = self.add_next_to_login(
                 reverse('url_shop_module_sale', kwargs={'shop_pk': shop.pk, 'module_class': 'operator_sales'}))
@@ -102,7 +102,7 @@ class MembersWorkboard(LoginRequiredMixin, BorgiaView):
         sale_list = Sale.objects.filter(
             sender=self.request.user).order_by('-datetime')
         transactions['shops'] = []
-        for shop in Shop.objects.all().exclude(pk=1):
+        for shop in Shop.objects.all():
             list_filtered = sale_list.filter(shop=shop)
             total = 0
             for sale in list_filtered:
@@ -214,7 +214,7 @@ def handler403(request, *args, **kwargs):
             context['first_job'] = request.user.groups.all().exclude(
                 pk__in=[1, 5, 6])[0]
         context['list_selfsalemodule'] = []
-        for shop in Shop.objects.all().exclude(pk=1):
+        for shop in Shop.objects.all():
             try:
                 module_sale = SelfSaleModule.objects.get(shop=shop)
                 if module_sale.state is True:
@@ -245,7 +245,7 @@ def handler404(request, *args, **kwargs):
             context['first_job'] = request.user.groups.all().exclude(
                 pk__in=[1, 5, 6])[0]
         context['list_selfsalemodule'] = []
-        for shop in Shop.objects.all().exclude(pk=1):
+        for shop in Shop.objects.all():
             try:
                 module_sale = SelfSaleModule.objects.get(shop=shop)
                 if module_sale.state is True:

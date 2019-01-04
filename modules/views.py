@@ -139,7 +139,7 @@ def sale_shop_module_resume(request, sale, shop, module, success_url):
         context['first_job'] = request.user.groups.all().exclude(
             pk__in=[1, 5, 6])[0]
     context['list_selfsalemodule'] = []
-    for shop in Shop.objects.all().exclude(pk=1):
+    for shop in Shop.objects.all():
         try:
             module = SelfSaleModule.objects.get(shop=shop)
             if module.state is True:

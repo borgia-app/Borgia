@@ -174,13 +174,5 @@
       "groups": [1],
       "user_permissions": []
     }
-  },
-  {
-    "model": "shops.shop",
-    "pk": 1,
-    "fields": {
-      "name": "association",
-      "description": "generic association"
-    }
   }
 ]

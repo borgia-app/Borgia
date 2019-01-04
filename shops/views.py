@@ -109,7 +109,7 @@ class ShopList(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView):
 
     def get(self, request, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['shop_list'] = Shop.objects.all().exclude(pk=1).order_by(
+        context['shop_list'] = Shop.objects.all().order_by(
             'name')
         return render(request, self.template_name, context=context)
 
