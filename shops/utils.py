@@ -184,16 +184,11 @@ def shops_lateral_menu(nav_tree, user, shop):
             ))
 
     # Groups management
-    nav_management_groups = {
-        'label': 'Gestion groupes magasin',
-        'icon': 'users',
-        'id': 'lm_group_management',
-        'subs': []
-    }
+    subs = []
     groups = [Group.objects.get(name='chiefs-'+shop.name), Group.objects.get(name='associates-'+shop.name)]
     for group in groups:
         if user.has_perm(get_permission_name_group_managing(group)):
-            nav_management_groups['subs'].append(
+            subs.append(
                 simple_lateral_link(
                     'Gestion ' + group_name_display(group),
                     'users',
@@ -201,7 +196,14 @@ def shops_lateral_menu(nav_tree, user, shop):
                     reverse('url_group_update', kwargs={
                         'group_pk': group.pk})
                 ))
-
-    nav_tree.append(nav_management_groups)
+    if len(subs) > 1:
+        nav_tree.append({
+            'label': 'Gestion groupes magasin',
+            'icon': 'users',
+            'id': 'lm_group_management',
+            'subs': subs
+        })
+    elif len(subs) == 1:
+        nav_tree.append(subs[0])
 
     return nav_tree
