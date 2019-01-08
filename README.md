@@ -15,7 +15,7 @@ It will be your best ally to develop your possibilities for your student associa
 To start
 --------
 
-* Install borgia dependencies : `pip install -r requirements.txt`.
+* Install borgia dependencies : `pip install -r requirements/dev.txt` for development. Use prod.txt for production.
 * Install LESS : `yarn global add less`.
 * Update settings : `borgia/settings.py` need to be customized, depending on
 your domains, Lydia account et mails.
@@ -50,6 +50,16 @@ Documentation
 
 Documentation are currently in writing-phase. Some ressources are available
 [here](https://github.com/borgia-app/Borgia-docs).
+
+Dependency
+----------
+Borgia base dependency :
+
+* Django : Borgia run with the django framework
+* django-bootstrap-form : To use bootstrap with django
+* django-static-precompiler : For static files
+* openpyxl : For excel manipulation
+* Pillow : For users images
 
 Developing and Contributing
 ---------------------------
