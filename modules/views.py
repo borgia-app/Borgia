@@ -109,8 +109,20 @@ class ShopModuleSaleView(ShopModuleMixin, BorgiaFormView):
                             price=category_product.get_price() * invoice
                         )
         sale.pay()
+
+
+        context = self.get_context_data()
+        
+        if self.module.logout_post_purchase:
+            success_url = reverse('url_logout') + '?next=' + self.get_success_url()
+        else:
+            success_url = self.get_success_url()
+        context['sale'] = sale
+        context['delay'] = self.module.delay_post_purchase
+        context['success_url'] = success_url
+
         return sale_shop_module_resume(
-            self.request, sale, self.shop, self.module, self.success_url
+            self.request, context
         )
 
     def get_success_url(self):
@@ -120,68 +132,12 @@ class ShopModuleSaleView(ShopModuleMixin, BorgiaFormView):
         )
 
 
-@login_required
-def sale_shop_module_resume(request, sale, shop, module, success_url):
+def sale_shop_module_resume(request, context):
+    """
+    Display shop module resume after a sale
+    """
     template_name = 'modules/shop_module_sale_resume.html'
-
-    context = {
-        'shop': shop,
-        'module': module,
-        'sale': sale,
-        'delay': module.delay_post_purchase,
-        'success_url': success_url
-    }
-    context['nav_tree'] = (
-        request.user,
-        None)
-    if (request.user.groups.all().exclude(
-            pk__in=[1, 5, 6]).count() > 0):
-        context['first_job'] = request.user.groups.all().exclude(
-            pk__in=[1, 5, 6])[0]
-    context['list_selfsalemodule'] = []
-    for shop in Shop.objects.all():
-        try:
-            module = SelfSaleModule.objects.get(shop=shop)
-            if module.state is True:
-                context['list_selfsalemodule'].append(shop)
-        except ObjectDoesNotExist:
-            pass
-
-    # Check if you should logout after sale
-    if module.logout_post_purchase:
-        context['success_url'] = reverse('url_logout')
-
     return render(request, template_name, context=context)
-
-
-class SaleShopModuleResume(ShopModuleMixin, BorgiaView):
-    sale = None
-    delay = None
-    success_url = None
-    context = None
-    template_name = 'modules/shop_module_sale_resume.html'
-
-    def dispatch(self, request, *args, **kwargs):
-        try:
-            self.sale = kwargs['sale_pk']
-        except KeyError:
-            raise Http404
-        try:
-            self.delay = kwargs['delay']
-        except KeyError:
-            pass
-        try:
-            self.success_url = kwargs['success_url']
-        except KeyError:
-            pass
-        return super().dispatch(request, *args, **kwargs)
-
-    def get(self, request, *args, **kwargs):
-        context = self.get_context_data(**kwargs)
-        context['sale'] = self.sale
-        context['delay'] = self.delay
-        context['success_url'] = self.success_url
-        return render(request, self.template_name, context=context)
 
 
 class ShopModuleConfigView(ShopModuleMixin, BorgiaView):

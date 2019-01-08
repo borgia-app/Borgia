@@ -14,27 +14,12 @@
       <li>Achats : {{ sale.string_products }}</li>
     </ul>
     <a id="success_url" href="{{ success_url }}" class="btn btn-primary">
-      {% if delay %}Continuer ({{ delay }} secondes){% else %}Continuer{% endif %}
+      Continuer {% if delay %}({{ delay }} secondes){% endif %}
     </a>
   </div>
 </div>
 
 {% if delay %}
-  <script>
-    var time = {{ delay }}
-    function decreaseTime(){
-      time = time - 1
-      if (time <= 1) {
-        $("#success_url").text("Continuer (" + String(time) + " seconde)")
-      } else {
-        $("#success_url").text("Continuer (" + String(time) + " secondes)")
-      }
-      if (time == 0) {
-        clearInterval(refreshIntervalId)
-        $("#success_url")[0].click()
-      }
-    }
-    var refreshIntervalId = setInterval(decreaseTime, 1000);
-  </script>
+    {% include 'modules/js/timing_delay.html' with delay=delay %}
 {% endif %}
 {% endblock %}
