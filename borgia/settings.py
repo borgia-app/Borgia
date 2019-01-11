@@ -15,9 +15,6 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/1.9/howto/deployment/checklist/
-
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'need to be changed'
 
@@ -147,8 +144,8 @@ MEDIA_URL = '/media/'
 
 # Lydia
 # https ou non selon le dns
-LYDIA_CALLBACK_URL = 'https://borgia.iresam.org/self/lydias/callback/'
-LYDIA_CONFIRM_URL = 'http://borgia.iresam.org/members/self/lydias/confirm/'
+LYDIA_CALLBACK_URL = ''
+LYDIA_CONFIRM_URL = ''
 
 # Penser à activer 'autoriser l'acces par les applications moins sécurisées' dans Gmail
 EMAIL_USE_TLS = True
@@ -159,9 +156,6 @@ EMAIL_PORT = 587
 EMAIL_HOST_USER = 'ae.ensam.assoc@gmail.com'
 EMAIL_HOST_PASSWORD = 'Alexandre57'
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-
-# Electrovanne
-ARDUINO_PRIVATE = 'need to be changed'
 
 ADMINS = []
 

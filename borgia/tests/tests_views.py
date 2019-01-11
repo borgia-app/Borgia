@@ -3,18 +3,21 @@ from django.contrib.auth.models import Group, Permission
 from django.test import Client, TestCase
 from django.urls import NoReverseMatch, reverse
 
-from borgia.settings import LOGIN_URL, LOGIN_REDIRECT_URL
+from borgia.settings import LOGIN_REDIRECT_URL, LOGIN_URL
 from borgia.tests.utils import get_login_url_redirected
+from borgia.utils import EXTERNALS_GROUP_NAME, INTERNALS_GROUP_NAME
 from users.models import User
 
 
 class BaseBorgiaViewsTestCase(TestCase):
+    fixtures = ['initial', 'tests_data']
+
     def setUp(self):
-        members_group = Group.objects.create(name='members')
-        presidents_group = Group.objects.create(name='presidents')
+        members_group = Group.objects.get(name=INTERNALS_GROUP_NAME)
+        externals_group = Group.objects.get(name=EXTERNALS_GROUP_NAME)
+        presidents_group = Group.objects.get(name='presidents')
         presidents_group.permissions.set(Permission.objects.all())
         # Group externals NEED to be created (else raises errors) :
-        externals_group = Group.objects.create(name='externals')
 
         self.user1 = User.objects.create(username='user1', balance=53)
         self.user1.groups.add(members_group)
@@ -30,7 +33,6 @@ class BaseBorgiaViewsTestCase(TestCase):
         self.client2.force_login(self.user2)
         self.client3 = Client()
         self.client3.force_login(self.user3)
-        self.assertEqual(User.objects.count(), 3)
 
 
 class AuthViewNamedURLTests(TestCase):
@@ -59,6 +61,7 @@ class AuthViewNamedURLTests(TestCase):
 
 
 class BaseAuthViewsTestCase(TestCase):
+    fixtures = ['initial', 'tests_data']
     url_view = None
 
     def setUp(self):
@@ -197,7 +200,7 @@ class PasswordChangeDoneViewTests(BaseAuthViewsTestCase):
         super().offline_user_redirection()
 
 
-class PasswordResetViewTests(TestCase):
+class PasswordResetViewTests(BaseBorgiaViewsTestCase):
     url_view = 'password_reset'
     template_name = 'registration/password_reset_form.html'
 
@@ -215,7 +218,7 @@ class PasswordResetViewTests(TestCase):
         self.assertRedirects(response, reverse('password_reset_done'))
 
 
-class PasswordResetDoneViewTests(TestCase):
+class PasswordResetDoneViewTests(BaseBorgiaViewsTestCase):
     url_view = 'password_reset_done'
     template_name = 'registration/password_reset_done.html'
 

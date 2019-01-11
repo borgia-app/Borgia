@@ -102,7 +102,7 @@ class StockEntryListDateForm(forms.Form):
         if shop is None:
             self.fields['shop'] = forms.ModelChoiceField(
                 label='Magasin',
-                queryset=Shop.objects.all().exclude(pk=1),
+                queryset=Shop.objects.all(),
                 empty_label='Tous',
                 required=False
             )
@@ -166,7 +166,7 @@ class InventoryListDateForm(forms.Form):
         if shop is None:
             self.fields['shop'] = forms.ModelChoiceField(
                 label='Magasin',
-                queryset=Shop.objects.all().exclude(pk=1),
+                queryset=Shop.objects.all(),
                 empty_label='Tous',
                 required=False
             )

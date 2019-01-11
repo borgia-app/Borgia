@@ -11,7 +11,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from borgia.views import BorgiaFormView, BorgiaView
-from configurations.utils import configurations_safe_get
+from configurations.utils import configurations_get
 from modules.models import CategoryProduct
 from sales.models import Sale
 from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
@@ -83,10 +83,10 @@ class ShopCreate(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
                 pass
         associates.save()
 
-        presidents = Group.objects.get(pk=2)
+        presidents = Group.objects.get(name='presidents')
         presidents.permissions.add(manage_chiefs)
         presidents.save()
-        vice_presidents = Group.objects.get(pk=3)
+        vice_presidents = Group.objects.get(name='vice_presidents')
         vice_presidents.permissions.add(manage_chiefs)
         vice_presidents.save()
 
@@ -109,7 +109,7 @@ class ShopList(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView):
 
     def get(self, request, *args, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['shop_list'] = Shop.objects.all().exclude(pk=1).order_by(
+        context['shop_list'] = Shop.objects.all().order_by(
             'name')
         return render(request, self.template_name, context=context)
 
@@ -456,7 +456,7 @@ class ProductUpdatePrice(ProductMixin, BorgiaFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['margin_profit'] = configurations_safe_get(
+        context['margin_profit'] = configurations_get(
             'MARGIN_PROFIT').get_value()
         return context
 

@@ -9,8 +9,7 @@ from django.contrib.auth.views import (LogoutView, PasswordChangeDoneView,
                                        PasswordResetView)
 from django.urls import include, path
 
-from borgia.views import (ManagersWorkboard, MembersWorkboard,
-                          ModulesLoginView, handler403, handler404, handler500)
+from borgia.views import ManagersWorkboard, MembersWorkboard, ModulesLoginView
 from configurations.urls import configurations_patterns
 from events.urls import events_patterns
 from finances.urls import finances_patterns
@@ -19,10 +18,6 @@ from sales.urls import sales_patterns
 from shops.urls import shops_patterns
 from stocks.urls import stocks_patterns
 from users.urls import users_patterns
-
-handler403 = handler403
-handler404 = handler404
-handler500 = handler500
 
 
 urlpatterns = [

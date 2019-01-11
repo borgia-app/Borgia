@@ -47,6 +47,7 @@ class Configuration(models.Model):
     """
     TYPE_CHOICES = (
         ('s', 'string'), ('i', 'integer'), ('f', 'float'), ('b', 'boolean'))
+
     name = models.CharField('Nom', max_length=100, unique=True)
     description = models.TextField('Description')
     value = models.CharField('Valeur', max_length=500)

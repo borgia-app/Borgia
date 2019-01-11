@@ -86,13 +86,8 @@ class RechargingRetrieveTests(BaseFinancesViewsTestCase):
     def get_url(self, recharging_pk):
         return reverse(self.url_view, kwargs={'recharging_pk': recharging_pk})
 
-    def setUp(self):
-        super().setUp()
-        cash = Cash.objects.create(sender=self.user2, amount=20)
-        Recharging.objects.create(sender=self.user2, operator=self.user1, content_solution=cash)
-
     def test_get_allowed_user(self):
-        response_client1 = self.client1.get(self.get_url(1))
+        response_client1 = self.client1.get(self.get_url(self.recharging1.pk))
         self.assertEqual(response_client1.status_code, 200)
 
     def test_get_not_existing_recharching(self):
@@ -100,13 +95,13 @@ class RechargingRetrieveTests(BaseFinancesViewsTestCase):
         self.assertEqual(response_client1.status_code, 404)
 
     def test_get_not_allowed_user(self):
-        response_client2 = self.client2.get(self.get_url(1))
+        response_client2 = self.client2.get(self.get_url(self.recharging1.pk))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_get_offline_user_redirection(self):
-        response_offline_user = Client().get(self.get_url(1))
+        response_offline_user = Client().get(self.get_url(self.recharging1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(1)))
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.recharging1.pk)))
 
 
 class TransfertListTests(GeneralFinancesViewsTests):
@@ -130,14 +125,14 @@ class TransfertRetrieveTests(BaseFinancesViewsTestCase):
 
     def setUp(self):
         super().setUp()
-        Transfert.objects.create(sender=self.user1, recipient=self.user2, amount=10)
+        self.transfert1 = Transfert.objects.create(sender=self.user1, recipient=self.user2, amount=10)
         Transfert.objects.create(sender=self.user1, recipient=self.user2, amount=4)
         Transfert.objects.create(sender=self.user1, recipient=self.user2, amount=53)
-        Transfert.objects.create(sender=self.user2, recipient=self.user1, amount=8)
+        self.transfert4 = Transfert.objects.create(sender=self.user2, recipient=self.user1, amount=8)
 
     def test_allowed_user_get(self):
-        response1_client1 = self.client1.get(self.get_url(1))
-        response2_client1 = self.client1.get(self.get_url(4))
+        response1_client1 = self.client1.get(self.get_url(self.transfert1.pk))
+        response2_client1 = self.client1.get(self.get_url(self.transfert4.pk))
         self.assertEqual(response1_client1.status_code, 200)
         self.assertEqual(response2_client1.status_code, 200)
 
@@ -146,13 +141,13 @@ class TransfertRetrieveTests(BaseFinancesViewsTestCase):
         self.assertEqual(response_client1.status_code, 404)
 
     def test_get_not_allowed_user(self):
-        response_client2 = self.client2.get(self.get_url(1))
+        response_client2 = self.client2.get(self.get_url(self.transfert1.pk))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_get_offline_user_redirection(self):
-        response_offline_user = Client().get(self.get_url(1))
+        response_offline_user = Client().get(self.get_url(self.transfert1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(1)))
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.transfert1.pk)))
 
 
 class ExceptionnalMovementListTests(GeneralFinancesViewsTests):
@@ -176,14 +171,14 @@ class ExceptionnalMovementRetrieveTests(BaseFinancesViewsTestCase):
 
     def setUp(self):
         super().setUp()
-        ExceptionnalMovement.objects.create(operator=self.user1, recipient=self.user2, amount=10)
+        self.movement1 = ExceptionnalMovement.objects.create(operator=self.user1, recipient=self.user2, amount=10)
         ExceptionnalMovement.objects.create(operator=self.user1, recipient=self.user2, amount=12)
         ExceptionnalMovement.objects.create(operator=self.user1, recipient=self.user2, amount=14)
-        ExceptionnalMovement.objects.create(operator=self.user2, recipient=self.user1, amount=9)
+        self.movement4 = ExceptionnalMovement.objects.create(operator=self.user2, recipient=self.user1, amount=9)
 
     def test_allowed_user_get(self):
-        response1_client1 = self.client1.get(self.get_url(1))
-        response2_client1 = self.client1.get(self.get_url(4))
+        response1_client1 = self.client1.get(self.get_url(self.movement1.pk))
+        response2_client1 = self.client1.get(self.get_url(self.movement4.pk))
         self.assertEqual(response1_client1.status_code, 200)
         self.assertEqual(response2_client1.status_code, 200)
 
@@ -192,10 +187,10 @@ class ExceptionnalMovementRetrieveTests(BaseFinancesViewsTestCase):
         self.assertEqual(response_client1.status_code, 404)
 
     def test_not_allowed_user_get(self):
-        response_client2 = self.client2.get(self.get_url(1))
+        response_client2 = self.client2.get(self.get_url(self.movement1.pk))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection_get(self):
-        response_offline_user = Client().get(self.get_url(1))
+        response_offline_user = Client().get(self.get_url(self.movement1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(1)))
+        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.movement1.pk)))

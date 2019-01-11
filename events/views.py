@@ -12,6 +12,7 @@ from django.urls import reverse
 from openpyxl import Workbook, load_workbook
 from openpyxl.writer.excel import save_virtual_workbook
 
+from borgia.utils import get_members_group
 from borgia.views import BorgiaFormView, BorgiaView
 from events.forms import (EventAddWeightForm, EventCreateForm, EventDeleteForm,
                           EventDownloadXlsxForm, EventFinishForm,
@@ -584,7 +585,7 @@ class EventDownloadXlsx(EventMixin, BorgiaFormView):
                 list_year_result = form.cleaned_data['years']
 
                 users = User.objects.filter(year__in=list_year_result, is_active=True).exclude(
-                    groups=Group.objects.get(pk=1)).order_by('username')
+                    groups=get_members_group(is_externals=True)).order_by('username')
                 for u in users:
                     ws.append([u.username, '', '', u.last_name +
                                ' ' + u.first_name, u.surname])

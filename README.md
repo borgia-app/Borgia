@@ -15,7 +15,7 @@ It will be your best ally to develop your possibilities for your student associa
 To start
 --------
 
-* Install borgia dependencies : `pip install -r requirements.txt`.
+* Install borgia dependencies : `pip install -r requirements/dev.txt` for development. Use prod.txt for production.
 * Install LESS : `yarn global add less`.
 * Update settings : `borgia/settings.py` need to be customized, depending on
 your domains, Lydia account et mails.
@@ -27,15 +27,17 @@ Load initial data
   + `python manage.py makemigrations configurations users shops finances events modules sales stocks`,
   + `python manage.py migrate`,
   + `python manage.py loaddata initial`.
-* Change admin password
-  + `python manage.py loaddata first_member`,
+* In development, you can pre-populate the db with some pre-made objects :
+  + `python manage.py loaddata tests_data`,
+* Don't forget to change the passwords of users if you want to access them :
   + `python manage.py shell`,
   + `from users.models import User`,
   + `u = User.objects.get(pk=2)`,
-  + `u.set_password('admin')`.
+  + `u.set_password('a_password')`.
   + `u.save()`
-* Then, you can create shops. Be careful, you also need to add the managers
-in the appropriate groups.
+  + `exit()`
+
+That's it !
 
 Test
 ----
@@ -48,6 +50,16 @@ Documentation
 
 Documentation are currently in writing-phase. Some ressources are available
 [here](https://github.com/borgia-app/Borgia-docs).
+
+Dependency
+----------
+Borgia base dependency :
+
+* Django : Borgia run with the django framework
+* django-bootstrap-form : To use bootstrap with django
+* django-static-precompiler : For static files
+* openpyxl : For excel manipulation
+* Pillow : For users images
 
 Developing and Contributing
 ---------------------------

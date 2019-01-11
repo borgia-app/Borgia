@@ -5,7 +5,7 @@ from borgia.utils import (get_permission_name_group_managing,
                           group_name_display, simple_lateral_link)
 from shops.models import Shop
 
-DEFAULT_PERMISSIONS_CHIEFS = ['add_user', 'view_user', 'add_recharging',
+DEFAULT_PERMISSIONS_CHIEFS = ['add_user', 'view_user',
                               'change_shop', 'view_shop',
                               'add_product', 'change_product', 'delete_product', 'view_product',
                               'change_price_product',
@@ -42,7 +42,7 @@ def get_shops_managed(user):
 def get_shops_tree(user, is_association_manager):
     shop_tree = []
     if is_association_manager:
-        shop_managed = Shop.objects.all().exclude(pk=1)
+        shop_managed = Shop.objects.all()
     else:
         shop_managed = get_shops_managed(user)
         if shop_managed:
@@ -184,24 +184,26 @@ def shops_lateral_menu(nav_tree, user, shop):
             ))
 
     # Groups management
-    nav_management_groups = {
-        'label': 'Gestion groupes magasin',
-        'icon': 'users',
-        'id': 'lm_group_management',
-        'subs': []
-    }
+    subs = []
     groups = [Group.objects.get(name='chiefs-'+shop.name), Group.objects.get(name='associates-'+shop.name)]
     for group in groups:
         if user.has_perm(get_permission_name_group_managing(group)):
-            nav_management_groups['subs'].append(
+            subs.append(
                 simple_lateral_link(
                     'Gestion ' + group_name_display(group),
                     'users',
                     'lm_group_manage_' + group.name,
                     reverse('url_group_update', kwargs={
-                        'pk': group.pk})
+                        'group_pk': group.pk})
                 ))
-
-    nav_tree.append(nav_management_groups)
+    if len(subs) > 1:
+        nav_tree.append({
+            'label': 'Gestion groupes magasin',
+            'icon': 'users',
+            'id': 'lm_group_management',
+            'subs': subs
+        })
+    elif len(subs) == 1:
+        nav_tree.append(subs[0])
 
     return nav_tree

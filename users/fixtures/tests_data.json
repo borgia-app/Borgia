@@ -1,0 +1,118 @@
+[
+    {
+        "model": "users.user",
+        "pk": 2,
+        "fields": {
+            "is_superuser": false,
+            "username": "1Me215",
+            "first_name": "first_name1",
+            "last_name": "last_name1",
+            "email": "FakeEmail1@borgia.borgia",
+            "is_staff": false,
+            "is_active": true,
+            "surname": "surname1",
+            "family": "1",
+            "balance": 100.0,
+            "year": 2015,
+            "campus": "ME",
+            "phone": null,
+            "groups": [
+                1,
+                3
+            ],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 3,
+        "fields": {
+            "is_superuser": false,
+            "username": "2Me215",
+            "first_name": "first_name2",
+            "last_name": "last_name2",
+            "email": "FakeEmail2@borgia.borgia",
+            "is_staff": false,
+            "is_active": true,
+            "surname": "surname2",
+            "family": "2",
+            "balance": 20.0,
+            "year": 2015,
+            "campus": "ME",
+            "phone": null,
+            "groups": [
+                1
+            ],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 4,
+        "fields": {
+            "is_superuser": false,
+            "username": "3Me215",
+            "first_name": "first_name3",
+            "last_name": "last_name3",
+            "email": "FakeEmail1@borgia.borgia",
+            "is_staff": false,
+            "is_active": true,
+            "surname": "surname3",
+            "family": "3",
+            "balance": 30.0,
+            "year": 2015,
+            "campus": "ME",
+            "phone": null,
+            "groups": [
+                2
+            ],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 5,
+        "fields": {
+            "is_superuser": false,
+            "username": "4Me215",
+            "first_name": "first_name4",
+            "last_name": "last_name4",
+            "email": "FakeEmail1@borgia.borgia",
+            "is_staff": false,
+            "is_active": true,
+            "surname": "surname4",
+            "family": "4",
+            "balance": 40.0,
+            "year": 2015,
+            "campus": "ME",
+            "phone": null,
+            "groups": [
+                1, 5
+            ],
+            "user_permissions": []
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 6,
+        "fields": {
+            "is_superuser": false,
+            "username": "5Me215",
+            "first_name": "first_name5",
+            "last_name": "last_name5",
+            "email": "FakeEmail1@borgia.borgia",
+            "is_staff": false,
+            "is_active": false,
+            "surname": "surname5",
+            "family": "5",
+            "balance": 5.0,
+            "year": 2015,
+            "campus": "ME",
+            "phone": null,
+            "groups": [
+                1
+            ],
+            "user_permissions": []
+        }
+    }
+]

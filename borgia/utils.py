@@ -181,7 +181,7 @@ def managers_lateral_menu(nav_tree, user):
                     'users',
                     'lm_group_manage_' + group.name,
                     reverse('url_group_update', kwargs={
-                        'pk': group.pk})
+                        'group_pk': group.pk})
                 ))
     if len(nav_management_groups['subs']) > 1:
         nav_tree.append(nav_management_groups)
@@ -245,7 +245,7 @@ def group_name_display(group):
         return 'Chefs ' + group.name.split('-')[1]
     elif 'associates-' in group.name:
         return 'Associés ' + group.name.split('-')[1]
-    elif group.name == 'externals':
+    elif group.name == EXTERNALS_GROUP_NAME:
         return 'Externes'
     elif group.name == INTERNALS_GROUP_NAME:
         return 'Gadz\'Arts'
@@ -304,7 +304,7 @@ def human_permission_name(name):
         ('presidents', 'présidents'),
         ('chiefs-', 'chefs '),
         ('associates-', 'associés '),
-        ('externals', 'externes'),
+        (EXTERNALS_GROUP_NAME, 'externes'),
         (INTERNALS_GROUP_NAME, 'Gadz\'Arts'),
 
         ('Supply money', 'Ajouter de l\'argent'),
@@ -335,9 +335,9 @@ def human_unused_permissions():
         except ObjectDoesNotExist:
             pass
         if contenttype is not None:
-            perms_model = Permission.objects.filter(
+            perm_query = Permission.objects.filter(
                 content_type=contenttype.pk)
-            for perm in perms_model:
+            for perm in perm_query:
                 perms.append(perm.pk)
 
     return perms
@@ -361,13 +361,13 @@ def module_url_name_from_model(model):
 #####################
 
 
-def get_members_group(externals=False):
+def get_members_group(is_externals=False):
     """
     Get group for members, beeing internals or externals
 
-    Return internal members by default.
+    Return internal members group by default.
     """
-    if externals:
+    if is_externals:
         group_name = EXTERNALS_GROUP_NAME
     else:
         group_name = INTERNALS_GROUP_NAME

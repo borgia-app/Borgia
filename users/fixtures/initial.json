@@ -3,13 +3,28 @@
     "model": "auth.group",
     "pk": 1,
     "fields": {
+      "name": "members",
+      "permissions": [
+        ["use_selfsalemodule", "modules", "selfsalemodule"],
+        ["add_transfert", "finances", "transfert"],
+
+        ["add_event", "events", "event"],
+        ["view_event", "events", "event"],
+        ["view_user", "users", "user"]
+      ]
+    }
+  },
+  {
+    "model": "auth.group",
+    "pk": 2,
+    "fields": {
       "name": "externals",
       "permissions": []
     }
   },
   {
     "model": "auth.group",
-    "pk": 2,
+    "pk": 3,
     "fields": {
       "name": "presidents",
       "permissions": [
@@ -56,7 +71,7 @@
   },
   {
     "model": "auth.group",
-    "pk": 3,
+    "pk": 4,
     "fields": {
       "name": "vice_presidents",
       "permissions": [
@@ -98,7 +113,7 @@
   },
   {
     "model": "auth.group",
-    "pk": 4,
+    "pk": 5,
     "fields": {
       "name": "treasurers",
       "permissions": [
@@ -138,21 +153,6 @@
     }
   },
   {
-    "model": "auth.group",
-    "pk": 5,
-    "fields": {
-      "name": "members",
-      "permissions": [
-        ["use_selfsalemodule", "modules", "selfsalemodule"],
-        ["add_transfert", "finances", "transfert"],
-
-        ["add_event", "events", "event"],
-        ["view_event", "events", "event"],
-        ["view_user", "users", "user"]
-      ]
-    }
-  },
-  {
     "model": "users.user",
     "pk": 1,
     "fields": {
@@ -173,14 +173,6 @@
       "jwt_iat": "2016-02-15T13:32:56.781Z",
       "groups": [1],
       "user_permissions": []
-    }
-  },
-  {
-    "model": "shops.shop",
-    "pk": 1,
-    "fields": {
-      "name": "association",
-      "description": "generic association"
     }
   }
 ]
