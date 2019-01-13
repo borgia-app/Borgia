@@ -1,3 +1,5 @@
+#-*- coding: utf-8 -*-
+
 from django.contrib.auth.models import Group
 from django.urls import reverse
 
@@ -24,6 +26,9 @@ DEFAULT_PERMISSIONS_ASSOCIATES = ['add_user', 'view_user',
 
 
 def is_shop_manager(shop, user):
+    """
+    Return True if the user is a chief or associate.
+    """
     if user in shop.get_managers():
         return True
     else:
@@ -31,6 +36,9 @@ def is_shop_manager(shop, user):
 
 
 def get_shops_managed(user):
+    """
+    Return the list of shop managed by the user.
+    """
     shop_list = []
     for shop in Shop.objects.all():
         if is_shop_manager(shop, user):

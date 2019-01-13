@@ -135,7 +135,7 @@ STATICFILES_DIRS = (
     os.path.join(BASE_DIR, 'static', 'static_dirs'),
 )
 
-if (DEBUG == True):
+if DEBUG:
     STATIC_PRECOMPILER_ROOT = os.path.join(BASE_DIR, 'static', 'static_dirs')
 
 

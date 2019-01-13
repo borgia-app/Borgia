@@ -1,3 +1,5 @@
+#-*- coding: utf-8 -*-
+
 from django.contrib.auth.models import Group, Permission
 from django.contrib.contenttypes.models import ContentType
 from django.test import Client
@@ -23,31 +25,10 @@ class BaseShopsViewsTest(BaseBorgiaViewsTestCase):
             description="The second shop. Maybe the best after the first one.",
             color="#F4FA58"
         )
-        chiefs1 = Group.objects.create(name='chiefs-' + self.shop1.name)
-        Group.objects.create(name='associates-' + self.shop1.name)
-        chiefs2 = Group.objects.create(name='chiefs-' + self.shop2.name)
-        Group.objects.create(name='associates-' + self.shop2.name)
 
-        content_type = ContentType.objects.get(app_label='users', model='user')
-        Permission.objects.create(
-            name='Gérer le groupe des chiefs du magasin ' + self.shop1.name,
-            codename='manage_chiefs-' + self.shop1.name + '_group',
-            content_type=content_type
-        )
-        manage_associate_perm = Permission.objects.create(
-            name='Gérer le groupe des associés du magasin ' + self.shop1.name,
-            codename='manage_associates-' + self.shop1.name + '_group',
-            content_type=content_type
-        )
-
-        # Add chiefs default permissions
-        for codename in DEFAULT_PERMISSIONS_CHIEFS:
-            perm = Permission.objects.get(codename=codename)
-            chiefs1.permissions.add(perm)
-
-        chiefs1.permissions.add(manage_associate_perm)
-        chiefs1.save()
-
+        chiefs1 = Group.objects.get(name='chiefs-' + self.shop1.name)
+        chiefs2 = Group.objects.get(name='chiefs-' + self.shop2.name)
+        
         self.user3.groups.add(chiefs1)
         self.user3.groups.add(chiefs2)
         self.user3.save()
