@@ -1,3 +1,5 @@
+#-*- coding: utf-8 -*-
+
 from borgia.tests.tests_views import BaseBorgiaViewsTestCase
 from shops.models import Product, Shop
 

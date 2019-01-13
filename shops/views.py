@@ -1,11 +1,10 @@
+#-*- coding: utf-8 -*-
+
 import datetime
 import decimal
 
 from django.contrib.auth.mixins import (LoginRequiredMixin,
                                         PermissionRequiredMixin)
-from django.contrib.auth.models import Group, Permission
-from django.contrib.contenttypes.models import ContentType
-from django.core.exceptions import MultipleObjectsReturned, ObjectDoesNotExist
 from django.db.models import Q
 from django.shortcuts import redirect, render
 from django.urls import reverse
@@ -19,8 +18,7 @@ from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
                          ShopCreateForm, ShopUpdateForm)
 from shops.mixins import ProductMixin, ShopMixin
 from shops.models import Product, Shop
-from shops.utils import (DEFAULT_PERMISSIONS_ASSOCIATES,
-                         DEFAULT_PERMISSIONS_CHIEFS)
+
 
 
 class ShopCreate(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
@@ -41,54 +39,6 @@ class ShopCreate(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
             name=form.cleaned_data['name'],
             description=form.cleaned_data['description'],
             color=form.cleaned_data['color'])
-
-        content_type = ContentType.objects.get(app_label='users', model='user')
-        manage_chiefs = Permission.objects.create(
-            name='Can manage chiefs of ' + shop.name + ' shop',
-            codename='manage_chiefs-' + shop.name + '_group',
-            content_type=content_type
-        )
-        manage_associates = Permission.objects.create(
-            name='Can manage associates of ' + shop.name + ' shop',
-            codename='manage_associates-' + shop.name + '_group',
-            content_type=content_type
-        )
-
-        chiefs = Group.objects.create(
-            name='chiefs-' + shop.name
-        )
-        associates = Group.objects.create(
-            name='associates-' + shop.name
-        )
-
-        for codename in DEFAULT_PERMISSIONS_CHIEFS:
-            try:
-                chiefs.permissions.add(
-                    Permission.objects.get(codename=codename)
-                )
-            except ObjectDoesNotExist:
-                pass
-            except MultipleObjectsReturned:
-                pass
-        chiefs.permissions.add(manage_associates)
-        chiefs.save()
-        for codename in DEFAULT_PERMISSIONS_ASSOCIATES:
-            try:
-                associates.permissions.add(
-                    Permission.objects.get(codename=codename)
-                )
-            except ObjectDoesNotExist:
-                pass
-            except MultipleObjectsReturned:
-                pass
-        associates.save()
-
-        presidents = Group.objects.get(name='presidents')
-        presidents.permissions.add(manage_chiefs)
-        presidents.save()
-        vice_presidents = Group.objects.get(name='vice_presidents')
-        vice_presidents.permissions.add(manage_chiefs)
-        vice_presidents.save()
 
         self.shop = shop
         return super().form_valid(form)
