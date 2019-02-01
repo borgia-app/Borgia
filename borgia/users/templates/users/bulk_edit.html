@@ -1,0 +1,83 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/i18n/defaults-fr_FR.min.js"></script>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Upload d'utilisateurs via un fichier Excel
+            </div>
+            <div class="panel-body">
+                <form enctype="multipart/form-data"
+                      action="{% url 'url_add_by_list_xlsx' %}"
+                      method='post'
+                      class="form-horizontal">
+                    {% csrf_token %} {{ upload_form|bootstrap_horizontal }}
+                    <div class="form-group">
+                        <div class="col-sm-10 col-sm-offset-2">
+                            <button type="submit"
+                                    class="btn btn-success">Upload</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Téléchargement de fichiers Excels
+            </div>
+            <div class="panel-body">
+                <form action="{% url 'url_add_by_list_xlsx_download' %}"
+                      method="get"
+                      class="form-horizontal">
+                    {{ download_form|bootstrap_horizontal }}
+                    <div class="form-group">
+                        <div class="col-sm-10 col-sm-offset-2">
+                            <button type="submit"
+                                    class="btn btn-primary">Télécharger l'Excel</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="panel panel-info">
+    <div class="panel-heading">
+        <i class="fa fa-info-circle"
+           aria-hidden="true"></i> Informations
+    </div>
+    <div class="panel-body">
+        <p>Cette page permet d'ajouter ou de mettre à jour les données des utilisateurs depuis un fichier Excel.</p>
+        <p><strong>Merci de bien vérifier l'email</strong> ! En effet, le mot de passe est généré aléatoirement, et chaque utilisateur devra faire une demande de réinitialisation par email. Autrement dit, s'il est faux, le compte ne sera pas accessible
+            de leur part.
+        </p>
+        <br />
+        <p>Le fichier Excel doit contenir les colonnes ci-dessous, seul le username est requis. L'ordre des colonnes n'est pas important.</p>
+
+        <table class="table">
+            <thead>
+                <tr>
+                   <th>username</th>
+                   <th>first_name</th>
+                   <th>last_name</th>
+                   <th>campus</th>
+                   <th>year</th>
+                   <th>surname</th>
+                   <th>family</th>
+                   <th>phone</th>
+                   <th>email</th>				   
+                </tr>
+            </thead>
+        </table>		
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,55 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+{% load static %}
+
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Régularisation du stock du produit {{ object }}
+    <a style="margin-left: 10px" class="btn btn-default btn-xs" href="{% url 'url_product_retrieve' shop_pk=shop.pk product_pk=product.pk %}">Produit</a>
+    <a class="btn btn-default btn-xs" href="{% url 'url_product_list' shop_pk=shop.pk %}">Liste</a>
+  </div>
+  <div class="panel panel-body">
+    <p>Attention, cette fonction est encore en expérimentation. Des erreurs peuvent apparaîtrent et si c'est le cas merci d'en informer les personnes compétentes.</p>
+    <form action= "" method="post">
+        {% csrf_token %}
+        {{ form|bootstrap }}
+        <button type="submit" class="btn btn-success">Valider</button>
+    </form>
+  </div>
+</div>
+<script>
+  $("#id_type").change(function() {
+    if ($(this).val() == 'in') {
+      $("#id_occasion").hide()
+      $("label[for='id_occasion']").hide()
+      $("#id_sell_price").hide()
+      $("label[for='id_sell_price']").hide()
+      $("#id_justification").hide()
+      $("label[for='id_justification']").hide()
+    } else {
+      $("#id_occasion").show()
+      $("label[for='id_occasion']").show()
+      $("#id_sell_price").show()
+      $("label[for='id_sell_price']").show()
+      $("#id_justification").show()
+      $("label[for='id_justification']").show()
+    }
+  })
+  $("#id_occasion").change(function() {
+    if ($(this).val() == 'sell') {
+      $("#id_sell_price").show()
+      $("label[for='id_sell_price']").show()
+      $("#id_justification").show()
+      $("label[for='id_justification']").show()
+    } else {
+      $("#id_sell_price").hide()
+      $("label[for='id_sell_price']").hide()
+      $("#id_justification").hide()
+      $("label[for='id_justification']").hide()
+    }
+  })
+  $("#id_occasion").trigger("change")
+  $("#id_type").trigger("change")
+</script>
+{% endblock %}

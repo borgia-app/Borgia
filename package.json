@@ -1,1 +1,1 @@
-{"name": "Borgia", "version": "4.7.0", "author": "Borgia-app", "url": "https://github.com/borgia-app/Borgia", "license": "GPL-3.0", "dependencies": {"less": "^2.7.2"}}
+{"name": "Borgia", "version": "2019.1.0", "dependencies": {"less": "^2.7.3"}}

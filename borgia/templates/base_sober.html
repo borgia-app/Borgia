@@ -1,0 +1,139 @@
+{% load compile_static %}
+{% load static %}
+{% load users_extra %}
+{% load bootstrap %}
+{% load l10n %}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, user-scalable=no">
+    <title>
+      Borgia - {% get_center_name %}
+    </title>
+    <link href="https://fonts.googleapis.com/css?family=Lato|Roboto" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
+
+    {% set_template request.user.theme as template %}
+    <link rel="stylesheet" href="{% static template|compile %}" />
+
+	{% include "partials/favicon_metadata.html" %}
+
+    {% include "partials/ext_dependencies_metadata.html" %}
+
+    <script src="{% static 'js/widgets.js' %}"></script>
+    <script src="{% static 'js/local.js' %}"></script>
+	<script src="{% static 'js/classie.js' %}"></script>
+	<script src="{% static 'js/mlpushmenu.js' %}"></script>
+	<script src="{% static 'js/modernizr.custom.js' %}"></script>
+</head>
+<body>
+
+    <div class="wrapper" id="wrapper">
+		{% if nav_tree %}
+			{% include "partials/lateral_menu.html" %}
+		{% endif %}
+		<div class="content">
+			<nav class="navbar navbar-default">
+				<div class="container-fluid">
+					<div class="navbar-header">
+						<button type="button" id="sidebarTrigger" class="navbar-btn pull-left active">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+						</button>
+						<a class="navbar-brand visible-xs visible-sm" href="{% if user.is_authenticated %}{% url 'url_members_workboard' %}{% endif %}">
+							{% set_brand request.user.theme as brand %}
+							<span style="background: url('{% static brand %}') no-repeat; background-size: cover" class="logo"/> </span>
+						</a>
+						<p class="navbar-text navbar-text-center">{% get_center_name %}</p>
+					</div>
+					<div id="navbar" class="hidden-xs hidden-sm" aria-expanded="false">
+						<div class="navbar-right">
+							<ul class="nav navbar-nav" style="text-align: center">
+								<li class="user-profile-link"><a href="{% url 'url_user_retrieve' user_pk=request.user.pk %}" style="padding:0;">
+									{% if request.user.avatar %}
+										<span class="navbar-text-avatar"><img src="{{ request.user.avatar.url }}" class="user-avatar"/></span>
+									{% endif %}
+								<p class="navbar-text">{{ request.user.get_full_name }}</p></a></li>
+								<li><p class="navbar-text">
+								<span
+									style="font-weight: bold"
+									class="{% if request.user.balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ request.user.balance }} €</span>
+								</p></li>
+								<li role="separator" class="divider"></li>
+
+								<li class="dropdown">
+									<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
+										<i class="fa fa-cog" aria-hidden="true"></i> <span class="caret"></span>
+									</a>
+									<ul class="dropdown-menu">
+										<li><a href="{% url 'url_user_self_update' %}">
+											<i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>Modifier mes informations
+										</a></li>
+										<li role="separator" class="divider"></li>
+										<li><a href="{% url 'url_self_lydia_create' }">
+											<i class="fa fa-credit-card" aria-hidden="true" style="margin-right: 5px;"></i>Recharger mon compte
+										</a></li>
+										<li role="separator" class="divider"></li>
+										<li><a href="{% url 'url_logout' %}">
+											<i class="fa fa-sign-out" aria-hidden="true" style="margin-right: 5px;"></i>Se déconnecter
+										</a></li>
+									</ul>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</nav>
+
+			<div class="container-fluid">
+				<div class="col-md-12">
+                    {% if messages %}
+                        <div class="messages">
+                            {% for message in messages %}
+                              <div {% if message.tags %}class="message alert {% if message.tags != 'error' %}alert-{{ message.tags }} {% else %} alert-danger {% endif %}" role="alert"{% endif %}>
+							    <div class="alert-icon">
+							      <i class="fa 
+                                    {% if message.tags == 'success' %}fa-check{% endif %}
+                                    {% if message.tags == 'info' %}fa-info-circle{% endif %}
+                                    {% if message.tags == 'warning' %}fa-exclamation-triangle{% endif %}
+                                    {% if message.tags == 'error' %}fa-exclamation-circle{% endif %}
+							      ">
+								  </i>
+								</div>
+								<div>
+                                   {{ message |linebreaks }}
+				                </div>
+		                        <div>
+									<button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+								</div>
+                              </div>
+                            {% endfor %}
+						</div>
+                    {% endif %}
+			   </div>
+			   {%  block content %}
+			   {%  endblock %}
+		    </div>
+		</div>
+	</div>
+
+	{% include "partials/footer.html" %}
+
+<script>
+	new mlPushMenu( document.getElementById( 'sidebar' ), document.getElementById( 'sidebarTrigger' ), {
+		type : 'cover'
+	});
+</script>
+
+{% if messages %}
+  {% include 'js/timer_flash_message.html' with messages=messages %}
+{% endif %}
+
+
+</body>
+</html>

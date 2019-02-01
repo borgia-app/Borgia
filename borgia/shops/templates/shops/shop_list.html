@@ -1,0 +1,30 @@
+{% extends 'base_sober.html' %}
+
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Magasins
+    {% if request.user|has_perm:"shops.add_shop" %}
+        <a class="btn btn-xs btn-success pull-right" href="{% url 'url_shop_create' %}">Nouveau</a>
+    {% endif %}
+  </div>
+    <table class="table table-hover table-striped">
+      <tr>
+          <th>Code</th>
+          <th>Description</th>
+          <th>Couleur</th>
+          <th>Modifier</th>
+          <th>Bilan</th>
+      </tr>
+      {% for shop in shop_list %}
+      <tr>
+          <td>{{ shop.name }}</td>
+          <td>{{ shop.description }}</td>
+          <td style="background-color: {{ shop.color }}">{{ shop.color }}</td>
+          <td><a href="{% url 'url_shop_update' shop_pk=shop.pk %}">Modifier</a></td>
+          <td><a href="{% url 'url_shop_checkup' shop_pk=shop.pk %}">Bilan</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+{% endblock %}

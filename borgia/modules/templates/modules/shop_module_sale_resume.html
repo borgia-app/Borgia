@@ -1,0 +1,25 @@
+{% extends 'base_sober.html'%}
+
+{% block content %}
+<div class="panel panel-primary">
+  <div class="panel-heading">
+    Résumé d'une vente depuis le {{ module }}
+  </div>
+  <div class="panel-body">
+    <ul>
+      <li>Opérateur : {{ sale.operator }}</li>
+      <li>Acheteur : {{ sale.sender }}</li>
+      <li>Date : {{ sale.datetime }}</li>
+      <li>Montant : {{ sale.amount }}€</li>
+      <li>Achats : {{ sale.string_products }}</li>
+    </ul>
+    <a id="success_url" href="{{ success_url }}" class="btn btn-primary">
+      Continuer {% if delay %}({{ delay }} secondes){% endif %}
+    </a>
+  </div>
+</div>
+
+{% if delay %}
+    {% include 'modules/js/timing_delay.html' with delay=delay %}
+{% endif %}
+{% endblock %}

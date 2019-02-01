@@ -1,0 +1,125 @@
+{% extends 'base_sober.html' %}
+{% load l10n %}
+{% load bootstrap %}
+{% load modules_extra %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/i18n/defaults-fr_FR.min.js"></script>
+
+<form method="post" id="sale_form" autocomplete="off" role="sale">
+  {% csrf_token %}
+  <div class="row">
+    <div class="col-md-6">
+      <div class="panel panel-primary">
+        <div class="panel-heading">
+          Client
+        </div>
+        <div class="panel-body">
+          {% if form.non_field_errors %}
+          <div class="row">
+            <div class="col-md-12">
+              <div class="alert alert-danger">
+                <a class="close" data-dismiss="alert">×</a>
+                {{ form.non_field_errors }}
+              </div>
+            </div>
+          </div>
+          {% endif %}
+          <div class="row">
+            {% if module_class == "operator_sales" %}
+            <div class="form-group col-md-12">
+              {{ form.client }}
+              <span class="glyphicon glyphicon-user"></span>
+            </div>
+            {% else %}
+            <div class="col-md-12" id="username_client">
+              {{ user }}
+            </div>
+            {% endif %}
+          </div>
+          <div class="row" id="figures">
+            <div class="col-md-2"><span id="initial">{% if module_class == "self_sales" %}{{ user.balance|unlocalize }}{% else %}0.00{% endif %}</span>€</div>
+            <div class="col-md-2">-</div>
+            <div class="col-md-2"><span id="total">0.00</span>€</div>
+            <div class="col-md-2">=</div>
+            <div class="col-md-4" id="result_line"><span id="result">{% if module_class == "self_sales" %}{{ user.balance|unlocalize }}{% else %}0.00{% endif %}</span>€</div>
+          </div>
+          <div class="row">
+            <div class="col-md-12">
+              <button class="btn btn-block btn-success" type="submit">Valider</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="panel panel-success">
+        <div class="panel-heading">
+          Récapitulatif
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <ul id="invoice">
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-md-12">
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Vente  {{ shop.name|capfirst }}
+        </div>
+        <div class="panel-body">
+          <ul class="nav nav-tabs" role="tablist" id="tablist">
+            {% for category in categories %}
+            <li role="presentation">
+              <a href="#{{ category.pk }}" aria-controls="home" role="tab" data-toggle="tab">
+                {{ category.name }}
+              </a>
+            </li>
+            {% endfor %}
+          </ul>
+          <div class="tab-content" id="tab-content">
+            {% for category in categories %}
+            <div role="tabpanel" class="tab-pane" id="{{ category.pk }}">
+              <table class="table table-default table-striped table-hover">
+                <thead>
+                  <th></th>
+                  <th>Produit</th>
+                  <th>Commande</th>
+                  <th>Prix unitaire</th>
+                  <th>Sous total</th>
+                </thead>
+                <tbody>
+                  {% for field in form %}
+                    {% if field.field.widget.attrs.data_category_pk == category.pk %}
+                    <tr>
+                      <td class="F"></td>
+                      <td>{{ field.errors }}{{ field.label_tag }}</td>
+                      <td>{{ field }}</td>
+                      <td>{{ field.field.widget.attrs.data_price|unlocalize }}€</td>
+                      <td><span id="total_{{ field.html_name }}">0.00</span>€</td>
+                    </tr>
+                    {% endif %}
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</form>
+
+
+{% include 'modules/js/update_total_sales.html' with module_class=module_class %}
+{% include 'modules/js/navigation_sales.html' with module_class=module_class categories=categories%}
+
+{% endblock %}

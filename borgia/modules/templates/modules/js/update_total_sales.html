@@ -1,0 +1,120 @@
+{% block content %}
+
+<script>
+
+// In case a user select a product
+$(".buyable_product").change(function() {
+  var name = $(this).attr('name');
+  var usual_price = $(this).attr('data_price');
+  $('#total_' + name).text((Number(usual_price) * Number($(this).val())).toFixed(2));
+  total();
+})
+
+// Calculate the futur balance of the user
+function total() {
+  var total = 0
+  $('#invoice').empty();
+
+  // For each product of the shop
+  $(".buyable_product").each(function() {
+    // Get the name of the product
+    var name = $(this).attr('name');
+    var product = $("label[for=id_" + name + "]")
+      .text()
+      .slice(0, -1);
+
+    // Get the value
+    value = Number($(this).val());
+
+    // Add to total price
+    total += $(this).attr('data_price') * value;
+
+    // Add in the list of selected products
+    if ($(this).val() > 0) {
+      $('#invoice').append('<li>' + product + ' x' + value + '</li>');
+    }
+  });
+
+  // Update results
+  total = total.toFixed(2);
+  $('#total').text(total);
+  result = (Number($('#initial').text()) - total).toFixed(2);
+  $('#result').text(result);
+
+  // Change result coloration
+  if (result < 0) {
+    $('#result_line').attr('class', 'col-md-4 bg-danger');
+  } else if (result > 0) {
+    $('#result_line').attr('class', 'col-md-4 bg-success');
+  } else {
+    $('#result_line').attr('class', 'col-md-4');
+  }
+};
+
+// Initializing first item
+$("div[role='tabpanel']").first().attr('class', 'tab-pane active')
+$("li[role='presentation']").first().attr('class', 'active')
+
+// Reload everything if the page is reloaded due to form validation errors
+$(document).ready(function() {
+  {% if module_class == "operator_sales" %}
+  // Get user and update initial
+  update_initial($("#id_client").val());
+  {% endif %}
+  // Update product inputs
+  // Type number for products only (id_client: type text)
+  $(".buyable_product").each(function() {
+    $(this).trigger('change');
+  });
+});
+
+
+{% if module_class == "operator_sales" %}
+
+   // Function to update the balance of the user.
+   // Then calculate the futur balance of the user
+   function update_initial(client_id) {
+     if (client_id == '') {
+       // No client ID, set default
+       // Don't need to call ajax
+       $("#initial").text(Number(0).toFixed(2))
+     } else {
+       // Get balance for the client
+       $.ajax({
+           url: "{% url 'url_balance_from_username' %}",
+           dataType: "json",
+           data: {
+               username: client_id
+           },
+           success: function( data ) {
+               $('#initial').text(data);
+               total();
+           },
+           error: function(jqXHR, textStatus, errorThrown) {
+                // On error, set everything to default
+               $('#id_client').val('');
+               $('#initial').text(Number(0).toFixed(2));
+               total();
+           }
+       })
+     }
+   }
+
+     // On blur, must recheck ...
+     // Because an autocomplete is not a select, one can send anything !
+    $("#id_client").blur(function() {
+      update_initial($(this).val());
+    });
+
+   // On select autocomplete option (works for enter too)
+   // Wrapped into $(function() { ... }) to force execution when page is fully loaded.
+   // Else, autocomplete (defined by class and js import) is executed after that.
+   $(function() {
+     $("#id_client").autocomplete('option', 'select', function(e, ui) {
+       update_initial(ui.item.value);
+     });
+   });
+{% endif %}
+
+</script>
+{% endblock %}

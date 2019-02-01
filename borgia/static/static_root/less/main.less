@@ -1,0 +1,627 @@
+html {
+  height: 100%;
+  box-sizing: border-box;
+
+  @media screen and (max-height: 480px) {
+    height: auto;
+    min-height: 100%;
+  }
+}
+
+body {
+  font-family: 'Roboto', sans-serif;
+  overflow-y: scroll;
+  line-height: 1.5;
+  position: relative;
+  min-height: 100vh;
+}
+
+.body-clean {
+  background-image: url("../img/pexels-photo-27892.jpg");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-origin: content-box;
+}
+
+
+.wrapper {
+  @media screen and (min-width : 768px) {
+    display: flex;
+    flex-direction: row;
+	align-items: flex-start;
+  }
+}
+
+.content {
+    @media screen and (min-width : 768px) {
+      width: 100%;
+    }
+}
+
+.navbar {
+  border-left: 0;
+  border-bottom-left-radius: 0;
+  border-top-left-radius: 0;
+}
+
+@logo-width-full: 166px;
+@logo-width-mobile: 37px;
+
+.navbar-brand {
+  padding-top: 2.5px;
+  padding-bottom: 2.5px;
+
+  & > .logo {
+    height: 45px;
+    width: @logo-width-full;
+    float: left;
+    -webkit-transition: width 1s; /* Safari */
+    transition: width 1s;
+
+    @media screen and (max-width : 767px) {
+      width: @logo-width-mobile;
+    }
+  }
+}
+
+canvas {
+  -webkit-touch-callout: none; /* iOS Safari */
+  -webkit-user-select: none; /* Safari */
+  -khtml-user-select: none; /* Konqueror HTML */
+  -moz-user-select: none; /* Firefox */
+  -ms-user-select: none; /* Internet Explorer/Edge */
+  user-select: none; /* Non-prefixed version, currently supported by Chrome and Opera */
+}
+
+.navbar-text-avatar {
+  margin-top: 2.5px;
+  margin-bottom: 2.5px;
+  float: left;
+
+  @media screen and ( max-width: 767px ) {
+    float: none;
+  }
+}
+
+.user-profile-link {
+  padding-left: 10px;
+  &:hover, &:focus {
+    background: #e7e7e7;
+  }
+}
+
+.user-avatar {
+  border-radius: 25px;
+  height: 45px;
+  width: 45px;
+}
+.user-avatar-big {
+  border-radius: 50%;
+  height: 90px;
+  width: 90px;
+}
+
+.navbar-text-center {
+  margin-top: 10px;
+  margin-bottom: auto;
+  font-size: 14pt;
+
+  @media screen and ( min-width : 768px) {
+    margin-left: 0;
+  }
+}
+
+.divider {
+  height: 1px;
+  margin: 9px 0;
+  overflow: hidden;
+  background-color: #e5e5e5;
+}
+
+// Footer
+.footer {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  transition: all 0.5s;
+
+  @media screen and (min-width : 768px) {
+    position: fixed;
+    margin-bottom: 0;
+    border-width: 1px 0 0;
+	z-index: 2;
+  }
+}
+
+.alert {
+    margin-bottom: 5px;
+}
+
+// Login Form
+.login-form {
+  position: relative;
+  font-size: 12pt;
+  text-align: center;
+  max-width: 460px;
+
+  img {
+    display: block;
+    margin: 0 auto;
+    margin-bottom: 55px;
+
+    @media screen and (max-height : 767px) {
+      margin-bottom: 10px;
+    }
+  }
+}
+.login-footer-text {
+  font-size: 10pt;
+}
+
+.login-form .glyphicon {
+    position: absolute;
+    left: 0;
+    padding: 11px 0 0 13px;
+    font-size: 15px;
+    color: #757575;
+}
+.glyphicon::after {
+		content: '';
+		position: absolute;
+		right: -11px;
+		top: 4px;
+		bottom: -10px;
+		width: 1px;
+		opacity: .5;
+		background-color: rgba(212,212,212,0);
+		background-image: -webkit-linear-gradient(bottom,rgba(212,212,212,0) 0,#d4d4d4 30%,#b4b4b4 70%,rgba(212,212,212,0) 100%);
+		background-image: linear-gradient(to top,rgba(212,212,212,0) 0,#d4d4d4 30%,#b4b4b4 70%,rgba(212,212,212,0) 100%);
+}
+
+form[role=login] > div {
+    margin: 30px 0;
+    position: relative;
+
+    @media screen and (max-width: 767px) {
+      margin: 0px 0 2px 0;
+    }
+}
+
+form[role=login] input {
+  padding: 12px 5px 12px 48px;
+	height: 40px;
+}
+
+form[role=login] .form-control:focus {
+	border-color: #880000;
+    outline: 0;
+	box-shadow: inset 0 1px 1px rgba(0,0,0,0.075), 0 0 8px rgba(101,19,25,0.6);
+}
+
+.password-reset-button {
+  margin-bottom: 35px;
+  margin-top: -20px;
+  @media screen and (max-width: 767px) {
+    margin-bottom: 20px;
+    margin-top: 0px;
+  }
+}
+
+form[role=sale] > div {
+    margin: 30px 0;
+    position: relative;
+}
+
+form[role=sale] input {
+  padding: 12px 5px 12px 48px;
+	height: 40px;
+}
+
+// SELL FORM
+form[role=sale] .glyphicon {
+    position: absolute;
+    left: 0;
+    padding: 11px 0 0 26px;
+    font-size: 15px;
+    color: #757575;
+}
+
+
+// USER SEARCH FORM
+form[role=search_user] input {
+  padding: 12px 5px 12px 45px;
+	height: 40px;
+}
+
+// SELL FORM
+form[role=search_user] .glyphicon {
+    position: absolute;
+    left: 0;
+    padding: 11px 0 0 27px;
+    font-size: 15px;
+    color: #757575;
+}
+
+// FOR THE MODULE SALES
+#figures div {
+  font-size: 30px;
+  text-align: center;
+}
+#figures {
+  margin-bottom: 10px;
+  padding-left: 15px;
+  padding-right: 15px;
+}
+#username_client {
+  font-size: 30px;
+  text-align: center;
+}
+
+// AUTOCOMPLETE LIST
+.ui-widget-content {
+  max-height: 350px;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+// Flash messages
+.messages {
+  position: absolute;
+  right: 0;
+  width: 50%;
+  z-index: 1000;
+
+  & > .alert {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+
+	& > .alert-icon {
+      order: 0;
+	  margin-right: 7px;
+    }
+  }
+
+  @media screen and ( max-width : 768px ) {
+    width: 100%;
+  }
+}
+
+// LATERAL MENU
+#sidebarTrigger {
+    margin-top: 0px;
+    margin-bottom: 0;
+	margin-left: -15px;
+    margin-right: 15px;
+    border: 0;
+    border-right: 1px solid #e2e2e2;
+    width: 45px;
+    height: 51px;
+    background: @brand-primary;
+    position: relative;
+
+	&:hover {
+	  background: lighten(@brand-primary, 5%);
+	}
+	@media screen and ( max-width : 768px ) {
+	  margin-left: 0;
+	}
+
+	@media screen and ( min-width : 768px ) {
+	  display: none;
+	}
+}
+
+#sidebarTrigger span {
+    width: 80%;
+    height: 2px;
+    margin: 0 auto;
+    display: block;
+    background: #ffffff;
+    transition: all 0.8s cubic-bezier(0.810, -0.330, 0.345, 1.375);
+    transition-delay: 0.2s;
+}
+
+#sidebarTrigger span:first-of-type {
+    transform: rotate(45deg) translate(2px, 2px);
+}
+#sidebarTrigger span:nth-of-type(2) {
+    opacity: 0;
+}
+#sidebarTrigger span:last-of-type {
+    transform: rotate(-45deg) translate(1px, -1px);
+}
+
+#sidebarTrigger.active span {
+    transform: none;
+    opacity: 1;
+    margin: 5px auto;
+}
+
+@sidebar-width: 240px;
+#sidebar {
+    min-width: @sidebar-width;
+    max-width: @sidebar-width;
+    overflow-y: auto;
+	transition: all 0.3s;
+
+	@media screen and (min-width : 768px) {
+	  overflow-y: inherit;
+	}
+}
+
+#sidebar.active {
+    -webkit-transform: translateX(0);
+	-moz-transform: translateX(0);
+	transform: translateX(0);
+}
+
+.mp-menu {
+	position: fixed;
+	top: 0;
+	left: 0;
+	z-index: 1;
+	height: 100vh;
+	border-right: 1px solid @navbar-default-bg;
+	-webkit-transform: translate3d(-100%, 0, 0);
+	-moz-transform: translate3d(-100%, 0, 0);
+	transform: translate3d(-100%, 0, 0);
+
+	@media screen and (min-width : 768px) {
+	  position: relative;
+	  left: @sidebar-width;
+	}
+}
+
+.mp-level {
+	position: absolute;
+	top: 0;
+	left: 0;
+	width: 100%;
+	height: 100%;
+	background: @panel-bg;
+	-webkit-transform: translate3d(-100%, 0, 0);
+	-moz-transform: translate3d(-100%, 0, 0);
+	transform: translate3d(-100%, 0, 0);
+}
+
+/* overlays for pusher and for level that gets covered */
+.mp-level::after,
+.mp-level::before {
+	position: absolute;
+	top: 0;
+	right: 0;
+	width: 0;
+	height: 0;
+	content: '';
+	opacity: 0;
+}
+
+.wrapper::after,
+.mp-level::after {
+	background: rgba(0,0,0,0.3);
+	-webkit-transition: opacity 0.3s, width 0.1s 0.3s, height 0.1s 0.3s;
+	-moz-transition: opacity 0.3s, width 0.1s 0.3s, height 0.1s 0.3s;
+	transition: opacity 0.3s, width 0.1s 0.3s, height 0.1s 0.3s;
+}
+
+.mp-level::after {
+	z-index: -1;
+}
+
+.wrapper.mp-pushed::after,
+.mp-level.mp-level-overlay::after {
+	width: 100%;
+	height: 100%;
+	opacity: 1;
+	-webkit-transition: opacity 0.3s;
+	-moz-transition: opacity 0.3s;
+	transition: opacity 0.3s;
+}
+
+.mp-level.mp-level-overlay {
+	cursor: pointer;
+}
+
+.mp-level.mp-level-overlay.mp-level::before {
+	width: 100%;
+	height: 100%;
+	background: transparent;
+	opacity: 1;
+}
+
+.wrapper,
+.mp-level {
+	-webkit-transition: all 0.5s;
+	-moz-transition: all 0.5s;
+	transition: all 0.5s;
+}
+
+/* overlap */
+.mp-overlap .mp-level.mp-level-open {
+	box-shadow: 1px 0 2px rgba(0,0,0,0.2);
+	-webkit-transform: translate3d(-40px, 0, 0);
+	-moz-transform: translate3d(-40px, 0, 0);
+	transform: translate3d(-40px, 0, 0);
+}
+
+/* First level */
+.mp-menu > .mp-level,
+.mp-menu > .mp-level.mp-level-open,
+.mp-menu.mp-overlap > .mp-level,
+.mp-menu.mp-overlap > .mp-level.mp-level-open {
+	box-shadow: none;
+	-webkit-transform: translate3d(0, 0, 0);
+	-moz-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+}
+
+/* cover */
+.mp-cover .mp-level.mp-level-open {
+	-webkit-transform: translate3d(0, 0, 0);
+	-moz-transform: translate3d(0, 0, 0);
+	transform: translate3d(0, 0, 0);
+}
+
+.mp-cover .mp-level.mp-level-open > ul > li > .mp-level:not(.mp-level-open) {
+	-webkit-transform: translate3d(-100%, 0, 0);
+	-moz-transform: translate3d(-100%, 0, 0);
+	transform: translate3d(-100%, 0, 0);
+}
+
+/* content style */
+.mp-menu ul {
+	margin: 0;
+	padding: 0;
+	list-style: none;
+}
+
+.mp-menu h2 {
+	margin: 0;
+	padding: 1em;
+	text-shadow: 0 0 1px rgba(0,0,0,0.1);
+	color: @navbar-default-link-color;
+	text-transform: uppercase;
+	font-weight: 700;
+	letter-spacing: 1px;
+	overflow: hidden;
+	font-size: 1em;
+}
+
+.mp-menu.mp-overlap h2::before {
+	position: absolute;
+	top: 0;
+	right: 0;
+	margin-right: 8px;
+	font-size: 75%;
+	line-height: 1.8;
+	opacity: 0;
+	-webkit-transition: opacity 0.3s, -webkit-transform 0.1s 0.3s;
+	-moz-transition: opacity 0.3s, -moz-transform 0.1s 0.3s;
+	transition: opacity 0.3s, transform 0.1s 0.3s;
+	-webkit-transform: translateX(-100%);
+	-moz-transform: translateX(-100%);
+	transform: translateX(-100%);
+}
+
+.mp-overlap .mp-level.mp-level-overlay > h2::before {
+	opacity: 1;
+	-webkit-transition: -webkit-transform 0.3s, opacity 0.3s;
+	-moz-transition: -moz-transform 0.3s, opacity 0.3s;
+	transition: transform 0.3s, opacity 0.3s;
+	-webkit-transform: translateX(0);
+	-moz-transform: translateX(0);
+	transform: translateX(0);
+}
+
+.mp-menu ul li > a {
+	display: block;
+	padding: 0.5em;
+	outline: none;
+	text-decoration: none;
+	box-shadow: inset 0 -1px rgba(0,0,0,0.2);
+	text-shadow: 0 0 1px rgba(255,255,255,0.1);
+	font-size: 1.2em;
+	-webkit-transition: background 0.3s, box-shadow 0.3s;
+	-moz-transition: background 0.3s, box-shadow 0.3s;
+	transition: background 0.3s, box-shadow 0.3s;
+}
+
+.mp-menu ul li::before {
+	position: absolute;
+	left: 10px;
+	z-index: -1;
+	color: rgba(0,0,0,0.2);
+	line-height: 3.5;
+}
+
+.mp-level > ul > li:first-child > a {
+	box-shadow: inset 0 -1px rgba(0,0,0,0.2), inset 0 1px rgba(0,0,0,0.2);
+}
+
+.mp-menu ul li a:hover,
+.mp-level > ul > li:first-child > a:hover {
+	background: rgba(0,0,0,0.2);
+	box-shadow: inset 0 -1px rgba(0,0,0,0);
+}
+
+.mp-menu .mp-level.mp-level-overlay > ul > li > a,
+.mp-level.mp-level-overlay > ul > li:first-child > a {
+	box-shadow: inset 0 -1px rgba(0,0,0,0);
+}
+
+.mp-level > ul > li:first-child > a:hover,
+.mp-level.mp-level-overlay > ul > li:first-child > a {
+	box-shadow: inset 0 -1px rgba(0,0,0,0), inset 0 1px rgba(0,0,0,0);
+} /* seems like Chrome 34.0.1847.131 needs the second shadow otherwise the transition breaks */
+
+.menu-item.active, .menu-item.active:hover, .menu-item.active:focus {
+    z-index: 2;
+    color: #fff;
+    background-color: @brand-primary;
+    border-color: @brand-primary;
+}
+
+.mp-back {
+	background: rgba(0,0,0,0.1);
+	outline: none;
+	text-transform: uppercase;
+	text-align: center;
+	letter-spacing: 1px;
+	font-weight: 700;
+	display: block;
+	font-size: 0.8em;
+	padding: 1em;
+	position: relative;
+	box-shadow: inset 0 1px rgba(0,0,0,0.1);
+	-webkit-transition: background 0.3s;
+	-moz-transition: background 0.3s;
+	transition: background 0.3s;
+}
+
+.mp-menu .mp-level.mp-level-overlay > .mp-back,
+.mp-menu .mp-level.mp-level-overlay > .mp-back::after {
+	background: transparent;
+	box-shadow: none;
+	color: transparent;
+}
+
+.mp-header {
+  background: @navbar-default-bg;
+  min-height: 52px;
+  border-bottom: 1px solid;
+  border-color: darken(@navbar-default-bg, 6.5%);
+
+  .mp-header-list-item {
+    overflow: hidden;
+	background: @navbar-default-bg;
+  }
+
+  .mp-header-settings {
+	padding: 0;
+	& > a {
+	  background: none !important;
+	  box-shadow: none !important;
+	  text-align: center;
+	}
+  }
+}
+
+
+/* Fallback example for browsers that don't support 3D transforms (and no JS fallback) */
+/* We'll show the first level only */
+.no-csstransforms3d .wrapper,
+.no-js .wrapper {
+	padding-left: @sidebar-width;
+}
+
+.no-csstransforms3d .mp-menu .mp-level,
+.no-js .mp-menu .mp-level {
+	display: none;
+}
+
+.no-csstransforms3d .mp-menu > .mp-level,
+.no-js .mp-menu > .mp-level {
+	display: block;
+}

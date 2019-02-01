@@ -1,0 +1,101 @@
+{% block content %}
+<script>
+
+// Ajout des informations de touches
+{% for category in categories %}
+$("#{{ category.pk }} :input").each(function(index) {
+  var td = $(this).closest('tr').find('.F')
+  if ((index + 1) <= 12) {
+    $(td).text("F" + (index + 1))
+  }
+})
+{% endfor %}
+
+$(document).keydown(function(e) {
+  // Right arrow
+  if (e.which == 39) {
+    moveTab('next')
+  }
+  // Left arrow
+  else if (e.which == 37) {
+    moveTab('previous')
+  }
+
+  // Il n'est pas possible de suivre de manière simple l'index des champs
+  // dans le formulaire, car la boucle est conditionnée par un if.
+  // On attribut donc le "Fx" par le javascript ici.
+  // F1
+  {% for i in "xxxxxxxxxxxx" %}
+  if (e.which == {{ forloop.counter0|add:112 }}) {
+    e.preventDefault()
+    addOne({{ forloop.counter0|add:1 }})
+  }
+  {% endfor %}
+})
+
+/* Operator sale only
+ * On enter when on the id_client field, don't submit
+ * But get the balance on enter and select autocomplete option
+ */
+
+{% if module_class == "operator_sales" %}
+
+  // No submit on enter
+  $("#id_client").keydown(function(e) {
+    if (e.which == 13) {
+      e.preventDefault()
+    }
+  })
+
+{% endif %}
+
+// Navigation script
+function moveTab(nextOrPrev) {
+  var currentTab = ""
+  var currentPane = ""
+  $('.nav-tabs li').each(function () {
+    if ($(this).hasClass('active')) {
+      currentTab = $(this)
+    }
+  })
+  $('.tab-content div').each(function () {
+    if ($(this).hasClass('active')) {
+      currentPane = $(this)
+    }
+  })
+
+  if (nextOrPrev == "next") {
+    if (currentTab.next().length)
+    {
+      currentTab.removeClass('active')
+      currentTab.next().addClass('active')
+      currentPane.removeClass('active')
+      currentPane.next().addClass('active')
+    }
+  } else {
+    if (currentTab.prev().length)
+    {
+      currentTab.removeClass('active')
+      currentTab.prev().addClass('active')
+      currentPane.removeClass('active')
+      currentPane.prev().addClass('active')
+    }
+  }
+}
+
+function addOne(index) {
+  var currentPane = ""
+  $('.tab-content div').each(function (i) {
+    if ($(this).hasClass('active')) {
+      currentPane = $(this)
+    }
+  })
+  var tr = $(currentPane).find('tr')[index]
+  if (tr) {
+    $(tr).find('input').val(Number($(tr).find('input').val()) + 1)
+    $(tr).find('input').trigger("change")
+  }
+}
+
+</script>
+{% endblock %}

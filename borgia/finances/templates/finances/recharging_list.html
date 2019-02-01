@@ -1,0 +1,231 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+
+{% block content %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/i18n/defaults-fr_FR.min.js"></script>
+
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+          Recherche de rechargements
+        </div>
+        <div class="panel-body">
+          <form action="" method="post" class="form-horizontal">
+            {% csrf_token %}
+            {{ form|bootstrap_horizontal }}
+            <div class="form-group">
+              <div class="col-sm-10 col-sm-offset-2">
+                <button type="submit" class="btn btn-primary">Recherche</button>
+                <a class="btn btn-warning" href="">Remise à zéro</a>
+                <span style="opacity: 0.54; margin-left: 5px;">Les 1000 premiers résultats sont affichés</span>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+          Synthèse
+        </div>
+        <div class="panel-body">
+          <div class="row">
+            <div class="col-md-4">
+              <h4>Total</h4>
+              <ul>
+                <li>Nombre : {{ info.total.nb }}</li>
+                <li>Total : {{ info.total.total }}€</li>
+              </ul>
+            </div>
+            <div class="col-md-2">
+              <h4>Espèces</h4>
+              <ul>
+                <li>Nombre : {{ info.cash.nb }}</li>
+                <li>Total : {{ info.cash.total }}€</li>
+              </ul>
+            </div>
+            <div class="col-md-2">
+              <h4>Chèques</h4>
+              <ul>
+                <li>Nombre : {{ info.cheque.nb }}
+                  {% if info.cheque.nb %}
+                  <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#list_cheque">
+                    Détails
+                  </button>
+                  {% endif %}
+                </li>
+                <li>Total : {{ info.cheque.total }}€</li>
+              </ul>
+            </div>
+            <div class="col-md-2">
+              <h4>Lydia face à face</h4>
+              <ul>
+                <li>Nombre : {{ info.lydia_face2face.nb }}
+                  {% if info.lydia_face2face.nb %}
+                  <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#list_lydia_face2face">
+                    Détails
+                  </button>
+                  {% endif %}
+                </li>
+                <li>Total : {{ info.lydia_face2face.total }}€</li>
+              </ul>
+            </div>
+            <div class="col-md-2">
+              <h4>Lydia automatique</h4>
+              <ul>
+                <li>Nombre : {{ info.lydia_online.nb }}
+                  {% if info.lydia_online.nb %}
+                  <button type="button" class="btn btn-info btn-xs" data-toggle="modal" data-target="#list_lydia_oneline">
+                    Détails
+                  </button>
+                  {% endif %}
+                </li>
+                <li>Total : {{ info.lydia_online.total }}€</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Résultats
+        </div>
+          <table class="table table-hover table-striped">
+            <tr>
+                <th>Opérateur</th>
+                <th>Utilisateur</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Montant</th>
+                <th>Type</th>
+                <th>Détail</th>
+            </tr>
+            {% for recharging in recharging_list %}
+            <tr>
+                <td>{{ recharging.operator }}</td>
+                <td>{{ recharging.sender }}</td>
+                <td>{{ recharging.datetime|date:"SHORT_DATE_FORMAT" }}</td>
+                <td>{{ recharging.datetime|time:"H:i" }}</td>
+                <td>{{ recharging.content_solution.amount }}€</td>
+                <td>{{ recharging.content_solution }}</td>
+                <td>
+                  <a href="{% url 'url_recharging_retrieve' recharging_pk=recharging.pk %}">Détail</a>
+                </td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+
+<!-- Modal -->
+<div class="modal fade" id="list_cheque" tabindex="-1" role="dialog" aria-labelledby="Liste chèques">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Liste des chèques</h4>
+      </div>
+      <div class="modal-body">
+        <table class="table table-default table-hover">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Montant</th>
+              <th>Signataire</th>
+              <th>Date de signature</th>
+              <th>Ordre</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for c in info.cheque.ids %}
+              <tr>
+                <td>{{ c.cheque_number }}</td>
+                <td>{{ c.amount }}€</td>
+                <td>{{ c.sender }}</td>
+                <td>{{ c.signature_date }}</td>
+                <td>{{ c.recipient }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="list_lydia_oneline" tabindex="-1" role="dialog" aria-labelledby="Liste Lydia en ligne">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Liste des Lydia en ligne</h4>
+      </div>
+      <div class="modal-body">
+        <table class="table table-default table-hover">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Montant</th>
+              <th>Payeur</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ly in info.lydia_online.ids %}
+              <tr>
+                <td>{{ ly.id_from_lydia }}</td>
+                <td>{{ ly.amount }}€</td>
+                <td>{{ ly.sender }}</td>
+                <td>{{ ly.date_operation }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="list_lydia_face2face" tabindex="-1" role="dialog" aria-labelledby="Liste des Lydia en face à face">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="myModalLabel">Liste des Lydia en face à face</h4>
+      </div>
+      <div class="modal-body">
+        <table class="table table-default table-hover">
+          <thead>
+            <tr>
+              <th>Numéro</th>
+              <th>Montant</th>
+              <th>Payeur</th>
+              <th>Date</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for ly in info.lydia_face2face.ids %}
+              <tr>
+                <td>{{ ly.id_from_lydia }}</td>
+                <td>{{ ly.amount }}€</td>
+                <td>{{ ly.sender }}</td>
+                <td>{{ ly.date_operation }}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Fermer</button>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

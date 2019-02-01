@@ -1,0 +1,33 @@
+<html>
+	<head>
+		<!-- IMPORT JQUERY (si pas déjà importé) -->
+		<script src="http://code.jquery.com/jquery-2.2.1.min.js"></script>
+		<!-- IMPORT SDK LYDIA -->
+		<script type="text/javascript" src="LYDIASDK.js"></script>
+	</head>
+	<body>
+		<!-- CONTAINER DU FORMULAIRE DE PAIEMENT LYDIA -->
+		<div id="paymentButton">Payment</div>
+
+		<!-- CREATION DU FORMULAIRE DE PAIMENT LYDIA -->
+		<script type="text/javascript">
+			$(document).ready(function() {
+
+				// Doit être la référence de la commande chez le marchand.
+				var orderRef = new Date();
+				$('#paymentButton').payWithLYDIA({
+					amount: 0.5,
+					vendor_token: '547ed8db34703018097269',
+					recipient: '0650939350',
+
+					message : "Facture 004",
+					orderRef: orderRef.toString(),
+					env: 'test',
+					render : '<pre>Hello World</pre>'
+				});
+
+			});
+		</script>
+
+	</body>
+</html>

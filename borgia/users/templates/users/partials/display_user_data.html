@@ -1,0 +1,65 @@
+<div class="col-md-3 col-lg-3 " align="center">
+  {% if user.avatar %}
+       <img src="{{ user.avatar.url }}" class="user-avatar-big"/>
+  {% endif %}
+</div>
+<div class=" col-md-9 col-lg-9 "> 
+   <table class="table table-user-information">
+     <tbody>
+       <tr>
+          <td>Username :</td>
+          <td>{{ user.username }}</td>
+       </tr>
+       <tr>
+          <td>Prénom :</td>
+          <td>{{ user.first_name }}</td>
+       </tr>
+       <tr>
+          <td>Nom :</td>
+          <td>{{ user.last_name }}</td>
+       </tr>
+       <tr>
+          <td>E-mail :</td>
+          <td>{{ user.email }}</td>
+       </tr>
+       <tr>
+          <td>Bucque :</td>
+          <td>{{ user.surname }}</td>
+       </tr>
+       <tr>
+          <td>Num'ss :</td> 
+          <td>{{ user.family }}</td>
+       </tr>
+       <tr>
+          <td>Prom'ss :</td> 
+          <td>{{ user.campus }}{% if user.year %}{{ user.year_pg }}{% endif %}</td>
+       </tr>
+       {% if user == request.user or request.user|has_perm:"users.advanced_view_user" %}
+       <tr>
+          <td>Solde :</td> 
+          <td style="font-weight: bold"
+              class="{% if user.balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ user.balance }} €</td>
+       </tr>
+	   <tr>
+          <td>Solde prévisionnel:</td> 
+          <td style="font-weight: bold"
+              class="{% if user.virtual_balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ user.virtual_balance }} €</td>
+       </tr>
+       <tr>
+          <td>Est actif :</td> 
+          <td>{{ user.is_active|yesno:'oui, non, non' }}</td>
+       </tr>
+       <tr>
+          <td>Groupes :</td>
+          <td>
+            <ul>
+                {% for g in user.groups.all %}
+                    <li>{{ g | group_name }}</li>
+                {% endfor %}
+            </ul>
+          </td>
+       </tr>
+       {% endif %}
+     </tbody>
+   </table>
+</div>

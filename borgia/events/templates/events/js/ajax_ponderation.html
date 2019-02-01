@@ -1,0 +1,32 @@
+{% block content %}
+<script type="text/javascript">
+    // Modification à la volée de la pondération
+    // Apres la modification (blur ou enter), requete ajax pour modifier la pondération
+    {% for u in list_weights %}
+        $('#weight_participant_{{ u.0.pk }}').change( function (){
+          send_data("{% url 'url_event_change_weight' pk=pk user_pk=u.0.pk %}", $(this).val(), true);
+        });
+
+        $('#weight_registered_{{ u.0.pk }}').change( function (){
+          send_data("{% url 'url_event_change_weight' pk=pk user_pk=u.0.pk %}", $(this).val(), false);
+        });
+    {% endfor %}
+
+    function send_data (unique_url, new_weight, is_participant) {
+          $.ajax({
+              method: "GET",
+              url: unique_url,
+              data: {
+                  pond: new_weight,
+                  is_participant: is_participant
+              },
+              success: function (response) {
+
+              },
+              error: function() {
+              }
+          });
+    };
+
+</script>
+{% endblock %}

@@ -1,0 +1,226 @@
+[
+    {
+        "model": "modules.category",
+        "pk": 1,
+        "fields": {
+            "name": "Shop1Category1",
+            "content_type": 21,
+            "module_id": 1
+        }
+    },
+    {
+        "model": "modules.category",
+        "pk": 2,
+        "fields": {
+            "name": "Shop1Category2",
+            "content_type": 21,
+            "module_id": 1
+        }
+    },
+    {
+        "model": "modules.category",
+        "pk": 3,
+        "fields": {
+            "name": "Shop1Category3",
+            "content_type": 21,
+            "module_id": 1
+        }
+    },
+    {
+        "model": "modules.category",
+        "pk": 4,
+        "fields": {
+            "name": "Shop1Category4",
+            "content_type": 20,
+            "module_id": 1
+        }
+    },
+    {
+        "model": "modules.category",
+        "pk": 5,
+        "fields": {
+            "name": "Shop1Category5",
+            "content_type": 20,
+            "module_id": 1
+        }
+    },
+    {
+        "model": "modules.category",
+        "pk": 6,
+        "fields": {
+            "name": "Shop1Category6",
+            "content_type": 20,
+            "module_id": 1
+        }
+    },
+    {
+        "model": "modules.category",
+        "pk": 7,
+        "fields": {
+            "name": "Shop2Category1",
+            "content_type": 20,
+            "module_id": 2
+        }
+    },
+    {
+        "model": "modules.category",
+        "pk": 8,
+        "fields": {
+            "name": "Shop2Deactivated",
+            "content_type": 21,
+            "module_id": 2
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 2,
+        "fields": {
+            "category": 2,
+            "product": 2,
+            "quantity": 1
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 3,
+        "fields": {
+            "category": 1,
+            "product": 1,
+            "quantity": 1
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 4,
+        "fields": {
+            "category": 3,
+            "product": 3,
+            "quantity": 1
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 5,
+        "fields": {
+            "category": 4,
+            "product": 1,
+            "quantity": 1
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 6,
+        "fields": {
+            "category": 5,
+            "product": 2,
+            "quantity": 10
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 7,
+        "fields": {
+            "category": 6,
+            "product": 3,
+            "quantity": 10
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 8,
+        "fields": {
+            "category": 7,
+            "product": 4,
+            "quantity": 1
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 9,
+        "fields": {
+            "category": 7,
+            "product": 5,
+            "quantity": 2
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 10,
+        "fields": {
+            "category": 7,
+            "product": 6,
+            "quantity": 3
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 11,
+        "fields": {
+            "category": 8,
+            "product": 4,
+            "quantity": 1
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 12,
+        "fields": {
+            "category": 8,
+            "product": 5,
+            "quantity": 2
+        }
+    },
+    {
+        "model": "modules.categoryproduct",
+        "pk": 13,
+        "fields": {
+            "category": 8,
+            "product": 6,
+            "quantity": 3
+        }
+    },
+    {
+        "model": "modules.selfsalemodule",
+        "pk": 1,
+        "fields": {
+            "state": true,
+            "shop": 1,
+            "delay_post_purchase": 10,
+            "limit_purchase": "100.00",
+            "logout_post_purchase": true
+        }
+    },
+    {
+        "model": "modules.selfsalemodule",
+        "pk": 2,
+        "fields": {
+            "state": false,
+            "shop": 2,
+            "delay_post_purchase": null,
+            "limit_purchase": null,
+            "logout_post_purchase": false
+        }
+    },
+    {
+        "model": "modules.operatorsalemodule",
+        "pk": 1,
+        "fields": {
+            "state": true,
+            "shop": 1,
+            "delay_post_purchase": null,
+            "limit_purchase": "1000.00",
+            "logout_post_purchase": false
+        }
+    },
+    {
+        "model": "modules.operatorsalemodule",
+        "pk": 2,
+        "fields": {
+            "state": true,
+            "shop": 2,
+            "delay_post_purchase": null,
+            "limit_purchase": null,
+            "logout_post_purchase": true
+        }
+    }
+]

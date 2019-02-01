@@ -1,0 +1,51 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+
+{% block content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+          Recherche de mouvements exceptionnels
+        </div>
+        <div class="panel-body">
+          <form action="" method="post" class="form-horizontal">
+            {% csrf_token %}
+            {{ form|bootstrap_horizontal }}
+            <div class="form-group">
+              <div class="col-sm-10 col-sm-offset-2">
+                <button type="submit" class="btn btn-primary">Recherche</button>
+                <a class="btn btn-warning" href="">Remise à zéro</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Résultats
+        </div>
+          <table class="table table-hover table-striped">
+            <tr>
+                <th>Opérateur</th>
+                <th>Utilisateur</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Montant</th>
+                <th>Type</th>
+                <th>Détail</th>
+            </tr>
+            {% for exceptionnalmovement in exceptionnalmovement_list %}
+            <tr class="{% if exceptionnalmovement.is_credit %}success{% else %}danger{% endif %}">
+                <td>{{ exceptionnalmovement.operator }}</td>
+                <td>{{ exceptionnalmovement.recipient }}</td>
+                <td>{{ exceptionnalmovement.datetime|date:"SHORT_DATE_FORMAT" }}</td>
+                <td>{{ exceptionnalmovement.datetime|time:"H:i" }}</td>
+                <td>{{ exceptionnalmovement.amount }}€</td>
+                <td>{% if exceptionnalmovement.is_credit %}Crédit{% else %}Débit{% endif %}</td>
+                <td>
+                  <a href="{% url 'url_exceptionnalmovement_retrieve' exceptionnalmovement_pk=exceptionnalmovement.pk %}">Détail</a>
+                </td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+{% endblock %}
