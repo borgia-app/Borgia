@@ -1,4 +1,4 @@
-![Borgia](./static/static_dirs/img/borgia-logo-light.png "Borgia")
+![Borgia](.borgia/static/static_dirs/img/borgia-logo-light.png "Borgia")
 ==================================================================
 
 Current Version : 4.7.0
@@ -9,7 +9,7 @@ Introduction
 ------------
 
 Borgia is a software to help you manage your student association. With it, you
-can sell products, organize events, keep track of your stocks, etc...  
+can sell products, organize events, keep track of your stocks, etc...
 It will be your best ally to develop your possibilities for your student association.
 
 To start
@@ -42,7 +42,7 @@ That's it !
 Test
 ----
 
-To run unit tests, run in a terminal : `python manage.py test`.  
+To run unit tests, run in a terminal : `python manage.py test`.
 To run the unit tests only for a specific module, run : `python manage.py test nom_du_module`.
 
 Documentation
@@ -65,7 +65,7 @@ Developing and Contributing
 ---------------------------
 
 We'd love to get contributions from you! For a quick guide to getting your
-system setup for developing, take a look at the section "To Start".  
+system setup for developing, take a look at the section "To Start".
 Once you are up and running, take a look at the
 [CONTRIBUTING.md](https://github.com/borgia-app/Borgia/CONTRIBUTING.md) to see
 how to get your changes merged in.
