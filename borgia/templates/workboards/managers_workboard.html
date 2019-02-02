@@ -39,9 +39,6 @@
     <div class="panel panel-default">
       <div class="panel-heading">
           Dernières ventes
-          <a class="btn btn-info btn-xs pull-right" href="{% url 'url_sale_list' shop_pk=0 %}">
-              Accéder à la liste des ventes
-          </a>
       </div>
       <table class="table table-hover table-striped">
         <tr>
@@ -58,7 +55,7 @@
             <td>{{ sale.amount }}€</td>
             <td>{{ sale.from_shop }}</td>
             <td>
-              <a href="{% url 'url_sale_retrieve' shop_pk=0 sale_pk=sale.pk %}">Détail</a>
+              <a href="{% url 'url_sale_retrieve' shop_pk=sale.shop.pk sale_pk=sale.pk %}">Détail</a>
             </td>
         </tr>
         {% endfor %}
