@@ -1,6 +1,10 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+## [2019.1.1] - 2019-02-02
+### Fix
+- Wrong link in managers workboard
+
 ## [2019.1.0] - 2019-01-18
 ### Added
 - This changelog file
