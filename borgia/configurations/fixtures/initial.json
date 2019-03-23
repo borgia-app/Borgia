@@ -1,92 +1,132 @@
 [
-  {
-    "model": "configurations.configuration",
-    "pk": 1,
-    "fields": {
-      "name": "CENTER_NAME",
-      "description": "Nom du centre Borgia",
-      "value": "Center Name",
-      "value_type": "s"
+    {
+        "model": "configurations.configuration",
+        "pk": 1,
+        "fields": {
+            "name": "CENTER_NAME",
+            "description": "Nom du centre Borgia",
+            "value": "Center Name",
+            "value_type": "s"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 2,
+        "fields": {
+            "name": "MARGIN_PROFIT",
+            "description": "Marge appliquée aux prix en mode automatique (%)",
+            "value": "5",
+            "value_type": "f"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 3,
+        "fields": {
+            "name": "ENABLE_SELF_LYDIA",
+            "description": "Activer le rechargement automatique",
+            "value": "True",
+            "value_type": "b"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 4,
+        "fields": {
+            "name": "MIN_PRICE_LYDIA",
+            "description": "Valeur minimale (€) de rechargement",
+            "value": "5",
+            "value_type": "f"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 5,
+        "fields": {
+            "name": "MAX_PRICE_LYDIA",
+            "description": "Valeur maximale (€) de rechargement",
+            "value": "500",
+            "value_type": "f"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 6,
+        "fields": {
+            "name": "ENABLE_FEE_LYDIA",
+            "description": "Prendre en compte la commision",
+            "value": "False",
+            "value_type": "b"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 7,
+        "fields": {
+            "name": "BASE_FEE_LYDIA",
+            "description": "Montant de la commissions : Base",
+            "value": "0",
+            "value_type": "f"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 8,
+        "fields": {
+            "name": "RATIO_FEE_LYDIA",
+            "description": "Montant de la commissions : Pourcentage",
+            "value": "0",
+            "value_type": "f"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 9,
+        "fields": {
+            "name": "API_TOKEN_LYDIA",
+            "description": "Clé API (privée)",
+            "value": "Undefined",
+            "value_type": "s"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 10,
+        "fields": {
+            "name": "VENDOR_TOKEN_LYDIA",
+            "description": "Clé vendeur (publique)",
+            "value": "Undefined",
+            "value_type": "s"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 11,
+        "fields": {
+            "name": "BALANCE_THRESHOLD_MAIL_ALERT",
+            "description": "Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée",
+            "value": "-10",
+            "value_type": "f"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 12,
+        "fields": {
+            "name": "BALANCE_FREQUENCY_MAIL_ALERT",
+            "description": "Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",
+            "value": "7",
+            "value_type": "i"
+        }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 13,
+        "fields": {
+            "name": "BALANCE_THRESHOLD_PURCHASE",
+            "description": "Valeur seuil pour pouvoir commander (€)",
+            "value": "0",
+            "value_type": "f"
+        }
     }
-  },
-  {
-    "model": "configurations.configuration",
-    "pk": 2,
-    "fields": {
-      "name": "MARGIN_PROFIT",
-      "description": "Marge (%) à appliquer sur le prix des produits calculés automatiquement",
-      "value": "5",
-      "value_type": "f"
-    }
-  },
-  {
-    "model": "configurations.configuration",
-    "pk": 3,
-    "fields": {
-      "name": "LYDIA_MIN_PRICE",
-      "description": "Valeur minimale (€) de rechargement en automatique par Lydia",
-      "value": "5",
-      "value_type": "f"
-    }
-  },
-  {
-    "model": "configurations.configuration",
-    "pk": 4,
-    "fields": {
-      "name": "LYDIA_MAX_PRICE",
-      "description": "Valeur maximale (€) de rechargement en automatique par Lydia",
-      "value": "500",
-      "value_type": "f"
-    }
-  },
-  {
-    "model": "configurations.configuration",
-    "pk": 5,
-    "fields": {
-      "name": "LYDIA_API_TOKEN",
-      "description": "Clé API (privée)",
-      "value": "Non définie",
-      "value_type": "s"
-    }
-  },
-  {
-    "model": "configurations.configuration",
-    "pk": 6,
-    "fields": {
-      "name": "LYDIA_VENDOR_TOKEN",
-      "description": "Clé vendeur (publique)",
-      "value": "Non définie",
-      "value_type": "s"
-    }
-  },
-  {
-    "model": "configurations.configuration",
-    "pk": 7,
-    "fields": {
-      "name": "BALANCE_THRESHOLD_MAIL_ALERT",
-      "description": "Valeur seuil (€) en dessous de laquelle (strictement) l'alerte par email est activée",
-      "value": "-10",
-      "value_type": "f"
-    }
-  },
-  {
-    "model": "configurations.configuration",
-    "pk": 8,
-    "fields": {
-      "name": "BALANCE_FREQUENCY_MAIL_ALERT",
-      "description": "Fréquence (jours) à laquelle l'alerte mail est envoyée si le solde est inférieur à la valeur seuil",
-      "value": "7",
-      "value_type": "i"
-    }
-  },
-  {
-    "model": "configurations.configuration",
-    "pk": 9,
-    "fields": {
-      "name": "BALANCE_THRESHOLD_PURCHASE",
-      "description": "Valeur seuil (€) en dessous de laquelle (strictement) la commande est impossible",
-      "value": "0",
-      "value_type": "f"
-    }
-  }
 ]

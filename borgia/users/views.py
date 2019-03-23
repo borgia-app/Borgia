@@ -20,7 +20,7 @@ from django.utils.encoding import force_text
 from borgia.utils import (get_members_group, human_unused_permissions,
                           permission_to_manage_group)
 from borgia.views import BorgiaFormView, BorgiaView
-from configurations.utils import configurations_get
+from configurations.utils import configuration_get
 from users.forms import (GroupUpdateForm, SelfUserUpdateForm,
                          UserCreationCustomForm, UserDownloadXlsxForm,
                          UserSearchForm, UserUpdateForm, UserUploadXlsxForm)
@@ -98,7 +98,7 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
             if self.state == 'negative_balance':
                 query = query.filter(balance__lt=0.0, is_active=True)
             elif self.state == 'threshold':
-                threshold = configurations_get(
+                threshold = configuration_get(
                     'BALANCE_THRESHOLD_PURCHASE').get_value()
                 query = query.filter(balance__lt=threshold, is_active=True)
             elif self.state == 'unactive':

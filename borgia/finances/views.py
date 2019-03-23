@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import datetime
 import decimal
 import hashlib
@@ -19,7 +19,7 @@ from django.views.decorators.csrf import csrf_exempt
 
 from borgia.views import BorgiaFormView, BorgiaView
 from configurations.models import Configuration
-from configurations.utils import configurations_get
+from configurations.utils import configuration_get
 from finances.forms import (ExceptionnalMovementForm,
                             GenericListSearchDateForm, RechargingCreateForm,
                             RechargingListForm, SelfLydiaCreateForm,
@@ -107,11 +107,13 @@ class RechargingList(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView
                 if recharging.content_solution.is_online is False:
                     info['lydia_face2face']['total'] += recharging.content_solution.amount
                     info['lydia_face2face']['nb'] += 1
-                    info['lydia_face2face']['ids'].append(recharging.content_solution)
+                    info['lydia_face2face']['ids'].append(
+                        recharging.content_solution)
                 else:
                     info['lydia_online']['total'] += recharging.content_solution.amount
                     info['lydia_online']['nb'] += 1
-                    info['lydia_online']['ids'].append(recharging.content_solution)
+                    info['lydia_online']['ids'].append(
+                        recharging.content_solution)
             info['total']['total'] += recharging.content_solution.amount
             info['total']['nb'] += 1
         return info
@@ -597,12 +599,11 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
     lm_active = 'lm_self_lydia_create'
 
     def get_form_kwargs(self):
-        kwargs = super(SelfLydiaCreate, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
 
         # Min value is always 0.01
         try:
-            min_value = Configuration.objects.get(
-                name='LYDIA_MIN_PRICE').get_value()
+            min_value = configuration_get(name='LYDIA_MIN_PRICE').get_value()
             if min_value is not None:
                 if min_value > 0:
                     kwargs['min_value'] = decimal.Decimal(min_value)
@@ -614,8 +615,7 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
             kwargs['min_value'] = decimal.Decimal("0.01")
 
         try:
-            max_value = Configuration.objects.get(
-                name='LYDIA_MAX_PRICE').get_value()
+            max_value = configuration_get(name='LYDIA_MAX_PRICE').get_value()
             if max_value is not None:
                 kwargs['max_value'] = decimal.Decimal(max_value)
             else:
@@ -636,7 +636,7 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
             user.save()
 
         context = super().get_context_data()
-        context['vendor_token'] = configurations_get(
+        context['vendor_token'] = configuration_get(
             "LYDIA_VENDOR_TOKEN").get_value()
         context['confirm_url'] = settings.LYDIA_CONFIRM_URL
         context['callback_url'] = settings.LYDIA_CALLBACK_URL
@@ -734,7 +734,7 @@ def self_lydia_callback(request):
         "vendor_token": request.POST.get("vendor_token"),
         "sig": request.POST.get("sig")
     }
-    lydia_token = configurations_get("LYDIA_API_TOKEN").get_value()
+    lydia_token = configuration_get("API_TOKEN_LYDIA").get_value()
     if verify_token_algo_lydia(params_dict, lydia_token) is True:
         try:
             user = User.objects.get(pk=request.GET.get('user_pk'))
