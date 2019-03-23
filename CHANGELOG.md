@@ -1,12 +1,19 @@
 # Changelog
 All notable changes to this project will be documented in this file.
 
+The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
+and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+
+# Unreleased
+### Added
+- Managers can now disable self recharging with Lydia without having to mess up their tokens.
+
 ## [5.0.2] - 2019-02-13
-### Fix
+### Security
 - Update to Django 2.1.7 for security reasons. See : [security announcement](https://www.djangoproject.com/weblog/2019/feb/11/security-releases/)
 
 ## [5.0.1] - 2019-02-02
-### Fix
+### Fixed
 - Wrong link in managers workboard
 
 ## [5.0.0] - 2019-01-18
@@ -21,7 +28,7 @@ All notable changes to this project will be documented in this file.
 - Renaming of "vice-presidents-internal" group to "vice-presidents"
 - Renaming of "gadzarts" group to "members"
 
-### Fix
+### Fixed
 - Accessing vulnerability when user was not in group
 
 ### Removed

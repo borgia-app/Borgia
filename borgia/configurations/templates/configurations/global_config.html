@@ -42,7 +42,20 @@
     </a>
   </div>
   <table class="table table-bordered">
-    <tr class={% if lydia_min_price.get_value %}
+    <tr class={% if min_price_lydia.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>{{ enable_self_lydia.description }}</td>
+      <td>
+        {% if enable_self_lydia.get_value %}
+          Activé
+        {% else %}
+          Desactivé
+        {% endif %}
+      </td>
+    </tr>
               "success"
             {% else %}
               "danger"

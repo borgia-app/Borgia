@@ -656,13 +656,12 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        try:
-            if configurations_get("LYDIA_API_TOKEN").get_value() in ['', 'non définie']:
-                context['no_module'] = True
-            else:
-                context['no_module'] = False
-        except:
-            context['no_module'] = True
+        if not configuration_get("ENABLE_SELF_LYDIA").get_value():
+            context['state'] = "disabled"
+        elif configuration_get("API_TOKEN_LYDIA").get_value() in ['', 'Undefined']:
+            context['state'] = "undefined"
+        else:
+            context['state'] = "enabled"
         return context
 
 

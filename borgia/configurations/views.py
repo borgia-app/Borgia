@@ -30,7 +30,7 @@ class ConfigurationIndexView(LoginRequiredMixin, PermissionRequiredMixin, Latera
         context = super().get_context_data(**kwargs)
         context['center_name'] = configurations_get('CENTER_NAME')
         context['margin_profit'] = configurations_get('MARGIN_PROFIT')
-        context['lydia_min_price'] = configurations_get('LYDIA_MIN_PRICE')
+        context['enable_self_lydia'] = configuration_get('ENABLE_SELF_LYDIA')
         context['lydia_max_price'] = configurations_get("LYDIA_MAX_PRICE")
         context['lydia_api_token'] = configurations_get("LYDIA_API_TOKEN")
         context['lydia_vendor_token'] = configurations_get("LYDIA_VENDOR_TOKEN")
@@ -114,8 +114,8 @@ class ConfigurationLydiaView(ConfigurationChangeBaseView):
 
     def get_initial(self):
         initial = super().get_initial()
-        initial['lydia_min_price'] = configurations_get(
-            'LYDIA_MIN_PRICE').get_value()
+        initial['enable_self_lydia'] = configuration_get(
+            'ENABLE_SELF_LYDIA').get_value()
         initial['lydia_max_price'] = configurations_get(
             'LYDIA_MAX_PRICE').get_value()
         initial['lydia_api_token'] = configurations_get(
@@ -125,6 +125,10 @@ class ConfigurationLydiaView(ConfigurationChangeBaseView):
         return initial
 
     def form_valid(self, form):
+        # Enable 
+        enable_self_lydia = configuration_get('ENABLE_SELF_LYDIA')
+        enable_self_lydia.value = form.cleaned_data['enable_self_lydia']
+        enable_self_lydia.save()
         # Lydia min price
         lydia_min_price = configurations_get('LYDIA_MIN_PRICE')
         if not form.cleaned_data['lydia_min_price']:
