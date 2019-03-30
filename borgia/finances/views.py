@@ -598,32 +598,64 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
     form_class = SelfLydiaCreateForm
     lm_active = 'lm_self_lydia_create'
 
+    def __init__(self):
+        super().__init__()
+        self.state = None
+        self.enable_fee_lydia = None
+        self.base_fee_lydia = None
+        self.ratio_fee_lydia = None
+
+    def add_lydia_context(self):
+        if not configuration_get("ENABLE_SELF_LYDIA").get_value():
+            self.state = "disabled"
+        elif configuration_get("API_TOKEN_LYDIA").get_value() in ['', 'Undefined']:
+            self.state = "undefined"
+        else:
+            self.state = "enabled"
+
+            self.enable_fee_lydia = configuration_get(
+                name='ENABLE_FEE_LYDIA').get_value()
+
+            if (self.enable_fee_lydia):
+                base_fee_lydia = configuration_get(
+                    name='BASE_FEE_LYDIA').get_value()
+                self.base_fee_lydia = decimal.Decimal(
+                    base_fee_lydia).quantize(decimal.Decimal('.01'))
+                ratio_fee_lydia = configuration_get(
+                    name='RATIO_FEE_LYDIA').get_value()
+                self.ratio_fee_lydia = decimal.Decimal(
+                    ratio_fee_lydia).quantize(decimal.Decimal('.01'))
+
+    def get_context_data(self, **kwargs):
+        print("start_get_context_data")
+        context = super().get_context_data(**kwargs)
+        self.add_lydia_context()
+        context['state'] = self.state
+        if self.state == 'enabled':
+            context['enable_fee_lydia'] = self.enable_fee_lydia
+            if (self.enable_fee_lydia):
+                context['base_fee_lydia'] = self.base_fee_lydia
+                context['ratio_fee_lydia'] = self.ratio_fee_lydia
+        return context
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
 
-        # Min value is always 0.01
-        try:
-            min_value = configuration_get(name='LYDIA_MIN_PRICE').get_value()
-            if min_value is not None:
-                if min_value > 0:
-                    kwargs['min_value'] = decimal.Decimal(min_value)
-                else:
-                    kwargs['min_value'] = decimal.Decimal("0.01")
-            else:
-                kwargs['min_value'] = decimal.Decimal("0.01")
-        except ObjectDoesNotExist:
-            kwargs['min_value'] = decimal.Decimal("0.01")
+        min_value = configuration_get(name='MIN_PRICE_LYDIA').get_value()
+        kwargs['min_value'] = decimal.Decimal(min_value)
 
-        try:
-            max_value = configuration_get(name='LYDIA_MAX_PRICE').get_value()
-            if max_value is not None:
-                kwargs['max_value'] = decimal.Decimal(max_value)
-            else:
-                kwargs['max_value'] = None
-        except ObjectDoesNotExist:
+        max_value = configuration_get(name='MAX_PRICE_LYDIA').get_value()
+        if max_value == 0:
             kwargs['max_value'] = None
+        else:
+            kwargs['max_value'] = decimal.Decimal(max_value)
 
         return kwargs
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['tel_number'] = self.request.user.phone
+        return initial
 
     def form_valid(self, form):
         """
@@ -635,12 +667,27 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
             user.phone = form.cleaned_data['tel_number']
             user.save()
 
-        context = super().get_context_data()
+        print("before_get_context_data")
+        context = self.get_context_data()
+        print("after_get_context_data")
+
         context['vendor_token'] = configuration_get(
-            "LYDIA_VENDOR_TOKEN").get_value()
+            "VENDOR_TOKEN_LYDIA").get_value()
         context['confirm_url'] = settings.LYDIA_CONFIRM_URL
         context['callback_url'] = settings.LYDIA_CALLBACK_URL
-        context['amount'] = form.cleaned_data['amount']
+        recharging_amount = form.cleaned_data['recharging_amount']
+        if self.enable_fee_lydia:
+            total_amount = decimal.Decimal(self.base_fee_lydia +
+                                           recharging_amount *
+                                           decimal.Decimal(
+                                               1 + self.ratio_fee_lydia / 100)
+                                           ).quantize(decimal.Decimal('.01'), decimal.ROUND_UP)
+
+        else:
+            total_amount = recharging_amount
+
+        context['recharging_amount'] = recharging_amount
+        context['total_amount'] = total_amount
         context['tel_number'] = form.cleaned_data['tel_number']
         context['message'] = (
             "Borgia - AE ENSAM - Crédit de "
@@ -648,21 +695,6 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
         return render(self.request,
                       'finances/self_lydia_button.html',
                       context=context)
-
-    def get_initial(self):
-        initial = super().get_initial()
-        initial['tel_number'] = self.request.user.phone
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        if not configuration_get("ENABLE_SELF_LYDIA").get_value():
-            context['state'] = "disabled"
-        elif configuration_get("API_TOKEN_LYDIA").get_value() in ['', 'Undefined']:
-            context['state'] = "undefined"
-        else:
-            context['state'] = "enabled"
-        return context
 
 
 class SelfLydiaConfirm(LoginRequiredMixin, BorgiaView):
