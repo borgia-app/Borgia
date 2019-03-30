@@ -673,8 +673,8 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
 
         context['vendor_token'] = configuration_get(
             "VENDOR_TOKEN_LYDIA").get_value()
-        context['confirm_url'] = settings.LYDIA_CONFIRM_URL
-        context['callback_url'] = settings.LYDIA_CALLBACK_URL
+        context['confirm_url'] = reverse('url_self_lydia_confirm')
+        context['callback_url'] = reverse('url_self_lydia_callback')
         recharging_amount = form.cleaned_data['recharging_amount']
         if self.enable_fee_lydia:
             total_amount = decimal.Decimal(self.base_fee_lydia +
@@ -770,10 +770,24 @@ def self_lydia_callback(request):
     if verify_token_algo_lydia(params_dict, lydia_token) is True:
         try:
             user = User.objects.get(pk=request.GET.get('user_pk'))
+            total_amount = decimal.Decimal(params_dict['amount'])
+            if not configuration_get('ENABLE_FEE_LYDIA').get_value():
+                recharging_amount = total_amount
+                fee = 0
+            else:
+                base_fee = decimal.Decimal(
+                    configuration_get('BASE_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
+                ratio_fee = decimal.Decimal(
+                    configuration_get('RATIO_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
+
+                fee = decimal.Decimal(base_fee + decimal.Decimal(ratio_fee / 100)
+                                      ).quantize(decimal.Decimal('.01'), decimal.ROUND_UP)
+
             lydia = Lydia.objects.create(
                 sender=user,
-                amount=decimal.Decimal(params_dict['amount']),
-                id_from_lydia=params_dict['transaction_identifier']
+                amount=total_amount - fee,
+                id_from_lydia=params_dict['transaction_identifier'],
+                fee=fee
             )
             recharging = Recharging.objects.create(
                 sender=user,

@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import decimal
 
 from django.contrib.contenttypes.fields import GenericForeignKey
@@ -181,6 +181,9 @@ class Lydia(BaseRechargingSolution):
     date_operation = models.DateField('Date', default=now)
     id_from_lydia = models.CharField('Numéro unique', max_length=255)
     is_online = models.BooleanField('Paiement en ligne', default=True)
+    fee = models.DecimalField('Frais lydia', default=0, decimal_places=2,
+                              max_digits=9,
+                              validators=[MinValueValidator(decimal.Decimal(0))])
 
     def __str__(self):
         return 'Lydia de ' + str(self.amount) + '€, n°' + self.id_from_lydia
