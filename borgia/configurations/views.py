@@ -128,11 +128,11 @@ class ConfigurationLydiaView(ConfigurationChangeBaseView):
             'API_TOKEN_LYDIA').get_value()
         initial['vendor_token_lydia'] = configuration_get(
             'VENDOR_TOKEN_LYDIA').get_value()
-        initial['lydia_enable_fee'] = configuration_get(
+        initial['enable_fee_lydia'] = configuration_get(
             'ENABLE_FEE_LYDIA').get_value()
-        initial['lydia_base_fee'] = configuration_get(
+        initial['base_fee_lydia'] = configuration_get(
             'BASE_FEE_LYDIA').get_value()
-        initial['lydia_ratio_fee'] = configuration_get(
+        initial['ratio_fee_lydia'] = configuration_get(
             'RATIO_FEE_LYDIA').get_value()
         return initial
 
