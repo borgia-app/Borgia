@@ -303,7 +303,7 @@ class TransfertCreate(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormVie
     permission_required = 'finances.add_transfert'
     menu_type = 'members'
     success_message = "Le montant de %(amount)s€ a bien été transféré à %(recipient)s."
-    template_name = 'finances/transfert_create.html'
+    template_name = 'finances/self_transfert_create.html'
     form_class = TransfertCreateForm
     lm_active = 'lm_transfert_create'
 
