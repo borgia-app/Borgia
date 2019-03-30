@@ -121,7 +121,7 @@ class ConfigurationLydiaView(ConfigurationChangeBaseView):
         initial['enable_self_lydia'] = configuration_get(
             'ENABLE_SELF_LYDIA').get_value()
         initial['min_price_lydia'] = configuration_get(
-            'MIN_PRICE_LYDIA').get_value()        
+            'MIN_PRICE_LYDIA').get_value()
         initial['max_price_lydia'] = configuration_get(
             'MAX_PRICE_LYDIA').get_value()
         initial['api_token_lydia'] = configuration_get(
@@ -137,16 +137,13 @@ class ConfigurationLydiaView(ConfigurationChangeBaseView):
         return initial
 
     def form_valid(self, form):
-        # Enable 
+        # Enable
         enable_self_lydia = configuration_get('ENABLE_SELF_LYDIA')
         enable_self_lydia.value = form.cleaned_data['enable_self_lydia']
         enable_self_lydia.save()
         # Lydia min price
         min_price_lydia = configuration_get('MIN_PRICE_LYDIA')
-        if not form.cleaned_data['min_price_lydia']:
-            min_price_lydia.value = 0
-        else:
-            min_price_lydia.value = form.cleaned_data['min_price_lydia']
+        min_price_lydia.value = form.cleaned_data['min_price_lydia']
         min_price_lydia.save()
         # Lydia max price
         max_price_lydia = configuration_get('MAX_PRICE_LYDIA')

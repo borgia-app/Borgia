@@ -20,12 +20,12 @@ class ConfigurationLydiaForm(forms.Form):
     min_price_lydia = forms.DecimalField(label='Montant minimal de rechargement (€)',
                                          decimal_places=2, max_digits=9,
                                          validators=[
-                                             MinValueValidator(0, 'Le montant doit être positif')],
-                                         required=False)
+                                             MinValueValidator(0.01, 'Le montant doit être strict. positif')]
+                                         )
     max_price_lydia = forms.DecimalField(label='Montant maximal de rechargement (€)',
                                          decimal_places=2, max_digits=9,
                                          validators=[
-                                             MinValueValidator(0, 'Le montant doit être positif')],
+                                             MinValueValidator(0.01, 'Le montant doit être strict. positif')],
                                          required=False)
     enable_fee_lydia = forms.BooleanField(
         label='Prendre en compte la commision Lydia',
@@ -49,9 +49,9 @@ class ConfigurationLydiaForm(forms.Form):
             max >= min
         """
         cleaned_data = super().clean()
-        lydia_min_price = cleaned_data.get("lydia_min_price", None)
+        lydia_min_price = cleaned_data.get("lydia_min_price")
         max_price_lydia = cleaned_data.get("max_price_lydia", None)
-        if lydia_min_price is not None and max_price_lydia is not None:
+        if max_price_lydia is not None:
             if max_price_lydia < lydia_min_price:
                 raise ValidationError(
                     "Le montant maximal doit être supérieur ou égal au montant minimal")
