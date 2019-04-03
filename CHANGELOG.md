@@ -7,6 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 # Unreleased
 ### Added
 - Managers can now disable self recharging with Lydia without having to mess up their tokens.
+- You can now add lydia fee when self recharging. You can set the base and ratio fee parts in the configuration module.
+
+### Fix
+- Error when accessing self transfert page.
 
 ## [5.0.2] - 2019-02-13
 ### Security
