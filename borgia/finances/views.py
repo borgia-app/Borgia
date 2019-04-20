@@ -1,10 +1,9 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import datetime
 import decimal
 import hashlib
 import operator
 
-from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import (LoginRequiredMixin,
@@ -18,8 +17,7 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 
 from borgia.views import BorgiaFormView, BorgiaView
-from configurations.models import Configuration
-from configurations.utils import configurations_get
+from configurations.utils import configuration_get
 from finances.forms import (ExceptionnalMovementForm,
                             GenericListSearchDateForm, RechargingCreateForm,
                             RechargingListForm, SelfLydiaCreateForm,
@@ -107,11 +105,13 @@ class RechargingList(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView
                 if recharging.content_solution.is_online is False:
                     info['lydia_face2face']['total'] += recharging.content_solution.amount
                     info['lydia_face2face']['nb'] += 1
-                    info['lydia_face2face']['ids'].append(recharging.content_solution)
+                    info['lydia_face2face']['ids'].append(
+                        recharging.content_solution)
                 else:
                     info['lydia_online']['total'] += recharging.content_solution.amount
                     info['lydia_online']['nb'] += 1
-                    info['lydia_online']['ids'].append(recharging.content_solution)
+                    info['lydia_online']['ids'].append(
+                        recharging.content_solution)
             info['total']['total'] += recharging.content_solution.amount
             info['total']['nb'] += 1
         return info
@@ -168,6 +168,7 @@ class RechargingRetrieve(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView
     template_name = 'finances/recharging_retrieve.html'
 
     def __init__(self):
+        super().__init__()
         self.recharging = None
 
     def add_recharging_object(self):
@@ -270,6 +271,7 @@ class TransfertRetrieve(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView)
     template_name = 'finances/transfert_retrieve.html'
 
     def __init__(self):
+        super().__init__()
         self.transfert = None
 
     def add_transfert_object(self):
@@ -301,7 +303,7 @@ class TransfertCreate(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormVie
     permission_required = 'finances.add_transfert'
     menu_type = 'members'
     success_message = "Le montant de %(amount)s€ a bien été transféré à %(recipient)s."
-    template_name = 'finances/transfert_create.html'
+    template_name = 'finances/self_transfert_create.html'
     form_class = TransfertCreateForm
     lm_active = 'lm_transfert_create'
 
@@ -407,6 +409,7 @@ class ExceptionnalMovementRetrieve(LoginRequiredMixin, PermissionRequiredMixin, 
     template_name = 'finances/exceptionnalmovement_retrieve.html'
 
     def __init__(self):
+        super().__init__()
         self.exceptionnalmovement = None
 
     def add_exceptionnalmovement_object(self):
@@ -446,6 +449,10 @@ class SelfTransactionList(LoginRequiredMixin, BorgiaFormView):
     search = None
     date_begin = None
     date_end = None
+
+    def __init__(self):
+        super().__init__()
+        self.query_shop = None
 
     def get_context_data(self, **kwargs):
         context = super(SelfTransactionList, self).get_context_data(**kwargs)
@@ -489,7 +496,7 @@ class UserExceptionnalMovementCreate(UserMixin, BorgiaFormView):
         :note:: The form is assumed clean, then the couple username/password
         for the operator is right.
         """
-        operator = authenticate(
+        operator_transaction = authenticate(
             username=form.cleaned_data['operator_username'],
             password=form.cleaned_data['operator_password'])
         amount = form.cleaned_data['amount']
@@ -500,7 +507,7 @@ class UserExceptionnalMovementCreate(UserMixin, BorgiaFormView):
 
         exceptionnal_movement = ExceptionnalMovement.objects.create(
             justification=form.cleaned_data['justification'],
-            operator=operator,
+            operator=operator_transaction,
             recipient=self.user,
             is_credit=is_credit,
             amount=amount
@@ -539,7 +546,7 @@ class RechargingCreate(UserMixin, BorgiaFormView):
         :note:: The form is assumed clean, then the couple username/password
         for the operator is right.
         """
-        operator = authenticate(
+        operator_transaction = authenticate(
             username=form.cleaned_data['operator_username'],
             password=form.cleaned_data['operator_password'])
         sender = self.user
@@ -566,7 +573,7 @@ class RechargingCreate(UserMixin, BorgiaFormView):
 
         recharging = Recharging.objects.create(
             sender=sender,
-            operator=operator,
+            operator=operator_transaction,
             content_solution=recharging_solution
         )
         recharging.pay()
@@ -596,34 +603,64 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
     form_class = SelfLydiaCreateForm
     lm_active = 'lm_self_lydia_create'
 
+    def __init__(self):
+        super().__init__()
+        self.state = None
+        self.enable_fee_lydia = None
+        self.base_fee_lydia = None
+        self.ratio_fee_lydia = None
+
+    def add_lydia_context(self):
+        if not configuration_get("ENABLE_SELF_LYDIA").get_value():
+            self.state = "disabled"
+        elif configuration_get("API_TOKEN_LYDIA").get_value() in ['', 'Undefined']:
+            self.state = "undefined"
+        else:
+            self.state = "enabled"
+
+            self.enable_fee_lydia = configuration_get(
+                name='ENABLE_FEE_LYDIA').get_value()
+
+            if (self.enable_fee_lydia):
+                base_fee_lydia = configuration_get(
+                    name='BASE_FEE_LYDIA').get_value()
+                self.base_fee_lydia = decimal.Decimal(
+                    base_fee_lydia).quantize(decimal.Decimal('.01'))
+                ratio_fee_lydia = configuration_get(
+                    name='RATIO_FEE_LYDIA').get_value()
+                self.ratio_fee_lydia = decimal.Decimal(
+                    ratio_fee_lydia).quantize(decimal.Decimal('.01'))
+
+    def get_context_data(self, **kwargs):
+        print("start_get_context_data")
+        context = super().get_context_data(**kwargs)
+        self.add_lydia_context()
+        context['state'] = self.state
+        if self.state == 'enabled':
+            context['enable_fee_lydia'] = self.enable_fee_lydia
+            if (self.enable_fee_lydia):
+                context['base_fee_lydia'] = self.base_fee_lydia
+                context['ratio_fee_lydia'] = self.ratio_fee_lydia
+        return context
+
     def get_form_kwargs(self):
-        kwargs = super(SelfLydiaCreate, self).get_form_kwargs()
+        kwargs = super().get_form_kwargs()
 
-        # Min value is always 0.01
-        try:
-            min_value = Configuration.objects.get(
-                name='LYDIA_MIN_PRICE').get_value()
-            if min_value is not None:
-                if min_value > 0:
-                    kwargs['min_value'] = decimal.Decimal(min_value)
-                else:
-                    kwargs['min_value'] = decimal.Decimal("0.01")
-            else:
-                kwargs['min_value'] = decimal.Decimal("0.01")
-        except ObjectDoesNotExist:
-            kwargs['min_value'] = decimal.Decimal("0.01")
+        min_value = configuration_get(name='MIN_PRICE_LYDIA').get_value()
+        kwargs['min_value'] = decimal.Decimal(min_value)
 
-        try:
-            max_value = Configuration.objects.get(
-                name='LYDIA_MAX_PRICE').get_value()
-            if max_value is not None:
-                kwargs['max_value'] = decimal.Decimal(max_value)
-            else:
-                kwargs['max_value'] = None
-        except ObjectDoesNotExist:
+        max_value = configuration_get(name='MAX_PRICE_LYDIA').get_value()
+        if max_value == 0:
             kwargs['max_value'] = None
+        else:
+            kwargs['max_value'] = decimal.Decimal(max_value)
 
         return kwargs
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['tel_number'] = self.request.user.phone
+        return initial
 
     def form_valid(self, form):
         """
@@ -635,12 +672,27 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
             user.phone = form.cleaned_data['tel_number']
             user.save()
 
-        context = super().get_context_data()
-        context['vendor_token'] = configurations_get(
-            "LYDIA_VENDOR_TOKEN").get_value()
-        context['confirm_url'] = settings.LYDIA_CONFIRM_URL
-        context['callback_url'] = settings.LYDIA_CALLBACK_URL
-        context['amount'] = form.cleaned_data['amount']
+        print("before_get_context_data")
+        context = self.get_context_data()
+        print("after_get_context_data")
+
+        context['vendor_token'] = configuration_get(
+            "VENDOR_TOKEN_LYDIA").get_value()
+        context['confirm_url'] = reverse('url_self_lydia_confirm')
+        context['callback_url'] = reverse('url_self_lydia_callback')
+        total_amount = form.cleaned_data['total_amount']
+
+        if self.enable_fee_lydia:
+            fee_amount = calculate_fee_lydia(
+                total_amount, self.base_fee_lydia, self.ratio_fee_lydia)
+            recharging_amount = total_amount - fee_amount
+            context['fee_amount'] = fee_amount
+
+        else:
+            recharging_amount = total_amount
+
+        context['total_amount'] = total_amount
+        context['recharging_amount'] = recharging_amount
         context['tel_number'] = form.cleaned_data['tel_number']
         context['message'] = (
             "Borgia - AE ENSAM - Crédit de "
@@ -648,22 +700,6 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
         return render(self.request,
                       'finances/self_lydia_button.html',
                       context=context)
-
-    def get_initial(self):
-        initial = super().get_initial()
-        initial['tel_number'] = self.request.user.phone
-        return initial
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        try:
-            if configurations_get("LYDIA_API_TOKEN").get_value() in ['', 'non définie']:
-                context['no_module'] = True
-            else:
-                context['no_module'] = False
-        except:
-            context['no_module'] = True
-        return context
 
 
 class SelfLydiaConfirm(LoginRequiredMixin, BorgiaView):
@@ -735,14 +771,27 @@ def self_lydia_callback(request):
         "vendor_token": request.POST.get("vendor_token"),
         "sig": request.POST.get("sig")
     }
-    lydia_token = configurations_get("LYDIA_API_TOKEN").get_value()
+    lydia_token = configuration_get("API_TOKEN_LYDIA").get_value()
     if verify_token_algo_lydia(params_dict, lydia_token) is True:
         try:
             user = User.objects.get(pk=request.GET.get('user_pk'))
+            total_amount = decimal.Decimal(params_dict['amount'])
+            if not configuration_get('ENABLE_FEE_LYDIA').get_value():
+                fee = 0
+            else:
+                base_fee = decimal.Decimal(
+                    configuration_get('BASE_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
+                ratio_fee = decimal.Decimal(
+                    configuration_get('RATIO_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
+
+                fee = decimal.Decimal(base_fee + decimal.Decimal(ratio_fee / 100)
+                                      ).quantize(decimal.Decimal('.01'), decimal.ROUND_UP)
+
             lydia = Lydia.objects.create(
                 sender=user,
-                amount=decimal.Decimal(params_dict['amount']),
-                id_from_lydia=params_dict['transaction_identifier']
+                amount=total_amount - fee,
+                id_from_lydia=params_dict['transaction_identifier'],
+                fee=fee
             )
             recharging = Recharging.objects.create(
                 sender=user,
@@ -791,3 +840,14 @@ def verify_token_algo_lydia(params, token):
 
     except KeyError:
         return False
+
+
+def calculate_fee_lydia(total_amount, base_fee_lydia, ratio_fee_lydia):
+    """
+    Calculate the fee of lydia
+    """
+    return decimal.Decimal(base_fee_lydia +
+                           total_amount *
+                           decimal.Decimal(
+                               ratio_fee_lydia / 100)
+                           ).quantize(decimal.Decimal('.01'), decimal.ROUND_UP)

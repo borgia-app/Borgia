@@ -1,4 +1,4 @@
-#-*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 import re
 
 from django import forms
@@ -187,8 +187,8 @@ class SelfLydiaCreateForm(forms.Form):
         min_value = kwargs.pop('min_value')
         max_value = kwargs.pop('max_value')
         super().__init__(**kwargs)
-        self.fields['amount'] = forms.DecimalField(
-            label='Montant (€)',
+        self.fields['total_amount'] = forms.DecimalField(
+            label='Montant à payer (€)',
             decimal_places=2, max_digits=9,
             min_value=min_value,
             max_value=max_value)

@@ -142,11 +142,6 @@ if DEBUG:
 MEDIA_ROOT = os.path.join(BASE_DIR, 'static', 'media')
 MEDIA_URL = '/media/'
 
-# Lydia
-# https ou non selon le dns
-LYDIA_CALLBACK_URL = ''
-LYDIA_CONFIRM_URL = ''
-
 # Penser à activer 'autoriser l'acces par les applications moins sécurisées' dans Gmail
 EMAIL_USE_TLS = True
 DEFAULT_FROM_EMAIL = 'ae.ensam.assoc@gmail.com'

@@ -7,7 +7,7 @@ from django.core.exceptions import ImproperlyConfigured, ObjectDoesNotExist
 from django.core.validators import MinValueValidator, RegexValidator
 from django.db import models
 
-from configurations.utils import configurations_get
+from configurations.utils import configuration_get
 
 
 class Shop(models.Model):
@@ -155,7 +155,7 @@ class Product(models.Model):
         If there is no stock entry realisated, return 0.
         """
         try:
-            margin_profit = configurations_get('MARGIN_PROFIT').get_value()
+            margin_profit = configuration_get('MARGIN_PROFIT').get_value()
 
             last_stockentry = self.stockentryproduct_set.order_by('-stockentry__datetime').first()
             if last_stockentry is not None:

@@ -15,18 +15,32 @@ class ConfigurationProfitForm(forms.Form):
 
 
 class ConfigurationLydiaForm(forms.Form):
-    lydia_min_price = forms.DecimalField(label='Montant minimal de rechargement (€)',
+    enable_self_lydia = forms.BooleanField(label='Activer le rechargement par lydia',
+                                           required=False)
+    min_price_lydia = forms.DecimalField(label='Montant minimal de rechargement (€)',
                                          decimal_places=2, max_digits=9,
                                          validators=[
-                                             MinValueValidator(0, 'Le montant doit être positif')],
-                                         required=False)
-    lydia_max_price = forms.DecimalField(label='Montant maximal de rechargement (€)',
+                                             MinValueValidator(0.01, 'Le montant doit être strict. positif')]
+                                         )
+    max_price_lydia = forms.DecimalField(label='Montant maximal de rechargement (€)',
                                          decimal_places=2, max_digits=9,
                                          validators=[
-                                             MinValueValidator(0, 'Le montant doit être positif')],
+                                             MinValueValidator(0.01, 'Le montant doit être strict. positif')],
                                          required=False)
-    lydia_api_token = forms.CharField(label='Clé API (privée)', max_length=255)
-    lydia_vendor_token = forms.CharField(
+    enable_fee_lydia = forms.BooleanField(
+        label='Prendre en compte la commision Lydia',
+        required=False)
+    base_fee_lydia = forms.DecimalField(label='Montant de la commissions : Base (€)',
+                                        decimal_places=2, max_digits=9,
+                                        validators=[
+                                            MinValueValidator(0, 'Le montant doit être positif')],
+                                        required=False)
+    ratio_fee_lydia = forms.FloatField(label='Montant de la commissions : Pourcentage (%)',
+                                       validators=[
+                                             MinValueValidator(0, 'Le montant doit être positif')],
+                                       required=False)
+    api_token_lydia = forms.CharField(label='Clé API (privée)', max_length=255)
+    vendor_token_lydia = forms.CharField(
         label='Clé vendeur (publique)', max_length=255)
 
     def clean(self):
@@ -35,10 +49,10 @@ class ConfigurationLydiaForm(forms.Form):
             max >= min
         """
         cleaned_data = super().clean()
-        lydia_min_price = cleaned_data.get("lydia_min_price", None)
-        lydia_max_price = cleaned_data.get("lydia_max_price", None)
-        if lydia_min_price is not None and lydia_max_price is not None:
-            if lydia_max_price < lydia_min_price:
+        lydia_min_price = cleaned_data.get("lydia_min_price")
+        max_price_lydia = cleaned_data.get("max_price_lydia", None)
+        if max_price_lydia is not None:
+            if max_price_lydia < lydia_min_price:
                 raise ValidationError(
                     "Le montant maximal doit être supérieur ou égal au montant minimal")
 

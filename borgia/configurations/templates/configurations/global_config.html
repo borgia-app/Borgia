@@ -13,7 +13,7 @@
   </div>
   <table class="table table-bordered">
     <tr>
-      <td>Nom du centre Borgia</td>
+      <td>{{ center_name.description }}</td>
       <td>{{ center_name.get_value }}</td>
     </tr>
   </table>
@@ -28,7 +28,7 @@
   </div>
   <table class="table table-bordered">
     <tr>
-      <td>Marge appliquée aux prix en mode automatique</td>
+      <td>{{ margin_profit.description }}</td>
       <td>{{ margin_profit.get_value|unlocalize }} %</td>
     </tr>
   </table>
@@ -42,41 +42,97 @@
     </a>
   </div>
   <table class="table table-bordered">
-    <tr class={% if lydia_min_price.get_value %}
+    <tr class={% if min_price_lydia.get_value %}
               "success"
             {% else %}
               "danger"
             {% endif %}>
-      <td>Montant minimal de rechargement</td>
+      <td>{{ enable_self_lydia.description }}</td>
       <td>
-        {% if lydia_min_price.get_value %}
-          {{ lydia_min_price.get_value|unlocalize }} €
+        {% if enable_self_lydia.get_value %}
+          Activé
         {% else %}
-          pas de limite
+          Desactivé
         {% endif %}
       </td>
     </tr>
-    <tr class={% if lydia_max_price.get_value %}
+    <tr class={% if min_price_lydia.get_value %}
               "success"
             {% else %}
               "danger"
             {% endif %}>
-      <td>Montant maximal de rechargement</td>
+      <td>{{ min_price_lydia.description }}</td>
       <td>
-        {% if lydia_max_price.get_value %}
-          {{ lydia_max_price.get_value|unlocalize }} €
+        {% if min_price_lydia.get_value %}
+          {{ min_price_lydia.get_value|unlocalize }} €
         {% else %}
-          pas de limite
+          Pas de limite
+        {% endif %}
+      </td>
+    </tr>
+    <tr class={% if max_price_lydia.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>{{ max_price_lydia.description }}</td>
+      <td>
+        {% if max_price_lydia.get_value %}
+          {{ max_price_lydia.get_value|unlocalize }} €
+        {% else %}
+          Pas de limite
+        {% endif %}
+      </td>
+    </tr>
+        <tr class={% if min_price_lydia.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>{{ enable_fee_lydia.description }}</td>
+      <td>
+        {% if enable_fee_lydia.get_value %}
+          Activé
+        {% else %}
+          Desactivé
+        {% endif %}
+      </td>
+    </tr>
+        <tr class={% if min_price_lydia.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>{{ base_fee_lydia.description }}</td>
+      <td>
+        {% if base_fee_lydia.get_value %}
+          {{ base_fee_lydia.get_value|unlocalize }} €
+        {% else %}
+          Non défini
+        {% endif %}
+      </td>
+    </tr>
+        <tr class={% if min_price_lydia.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>{{ ratio_fee_lydia.description }}</td>
+      <td>
+        {% if ratio_fee_lydia.get_value %}
+          {{ ratio_fee_lydia.get_value|unlocalize }} %
+        {% else %}
+          Non défini
         {% endif %}
       </td>
     </tr>
     <tr>
-      <td>Clé API (privée)</td>
-      <td>{{ lydia_api_token.get_value }}</td>
+      <td>{{ api_token_lydia.description }}</td>
+      <td>{{ api_token_lydia.get_value }}</td>
     </tr>
     <tr>
-      <td>Clé vendeur (publique)</td>
-      <td>{{ lydia_vendor_token.get_value }}</td>
+      <td>{{ vendor_token_lydia.description }}</td>
+      <td>{{ vendor_token_lydia.get_value }}</td>
     </tr>
   </table>
 </div>
@@ -90,7 +146,7 @@
   </div>
   <table class="table table-bordered">
     <tr>
-      <td>Seuil pour pouvoir commander</td>
+      <td>{{ balance_threshold_purchase.description }}</td>
       <td>
           {{ balance_threshold_purchase.get_value|unlocalize }} €
       </td>

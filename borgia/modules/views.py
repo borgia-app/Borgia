@@ -8,7 +8,7 @@ from django.shortcuts import redirect, render
 from django.urls import reverse
 
 from borgia.views import BorgiaFormView, BorgiaView
-from configurations.utils import configurations_get
+from configurations.utils import configuration_get
 from modules.forms import (ModuleCategoryCreateForm,
                            ModuleCategoryCreateNameForm, ShopModuleConfigForm,
                            ShopModuleSaleForm)
@@ -58,7 +58,7 @@ class ShopModuleSaleView(ShopModuleMixin, BorgiaFormView):
         kwargs = super().get_form_kwargs()
         kwargs['module_class'] = self.module_class
         kwargs['module'] = self.module
-        kwargs['balance_threshold_purchase'] = configurations_get(
+        kwargs['balance_threshold_purchase'] = configuration_get(
             'BALANCE_THRESHOLD_PURCHASE')
 
         if self.module_class == "self_sales":
