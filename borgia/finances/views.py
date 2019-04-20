@@ -4,7 +4,6 @@ import decimal
 import hashlib
 import operator
 
-from django.conf import settings
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import (LoginRequiredMixin,
@@ -18,7 +17,6 @@ from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
 
 from borgia.views import BorgiaFormView, BorgiaView
-from configurations.models import Configuration
 from configurations.utils import configuration_get
 from finances.forms import (ExceptionnalMovementForm,
                             GenericListSearchDateForm, RechargingCreateForm,
@@ -170,6 +168,7 @@ class RechargingRetrieve(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView
     template_name = 'finances/recharging_retrieve.html'
 
     def __init__(self):
+        super().__init__()
         self.recharging = None
 
     def add_recharging_object(self):
@@ -272,6 +271,7 @@ class TransfertRetrieve(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView)
     template_name = 'finances/transfert_retrieve.html'
 
     def __init__(self):
+        super().__init__()
         self.transfert = None
 
     def add_transfert_object(self):
@@ -409,6 +409,7 @@ class ExceptionnalMovementRetrieve(LoginRequiredMixin, PermissionRequiredMixin, 
     template_name = 'finances/exceptionnalmovement_retrieve.html'
 
     def __init__(self):
+        super().__init__()
         self.exceptionnalmovement = None
 
     def add_exceptionnalmovement_object(self):
@@ -448,6 +449,10 @@ class SelfTransactionList(LoginRequiredMixin, BorgiaFormView):
     search = None
     date_begin = None
     date_end = None
+
+    def __init__(self):
+        super().__init__()
+        self.query_shop = None
 
     def get_context_data(self, **kwargs):
         context = super(SelfTransactionList, self).get_context_data(**kwargs)
@@ -491,7 +496,7 @@ class UserExceptionnalMovementCreate(UserMixin, BorgiaFormView):
         :note:: The form is assumed clean, then the couple username/password
         for the operator is right.
         """
-        operator = authenticate(
+        operator_transaction = authenticate(
             username=form.cleaned_data['operator_username'],
             password=form.cleaned_data['operator_password'])
         amount = form.cleaned_data['amount']
@@ -502,7 +507,7 @@ class UserExceptionnalMovementCreate(UserMixin, BorgiaFormView):
 
         exceptionnal_movement = ExceptionnalMovement.objects.create(
             justification=form.cleaned_data['justification'],
-            operator=operator,
+            operator=operator_transaction,
             recipient=self.user,
             is_credit=is_credit,
             amount=amount
@@ -541,7 +546,7 @@ class RechargingCreate(UserMixin, BorgiaFormView):
         :note:: The form is assumed clean, then the couple username/password
         for the operator is right.
         """
-        operator = authenticate(
+        operator_transaction = authenticate(
             username=form.cleaned_data['operator_username'],
             password=form.cleaned_data['operator_password'])
         sender = self.user
@@ -568,7 +573,7 @@ class RechargingCreate(UserMixin, BorgiaFormView):
 
         recharging = Recharging.objects.create(
             sender=sender,
-            operator=operator,
+            operator=operator_transaction,
             content_solution=recharging_solution
         )
         recharging.pay()
@@ -675,19 +680,19 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
             "VENDOR_TOKEN_LYDIA").get_value()
         context['confirm_url'] = reverse('url_self_lydia_confirm')
         context['callback_url'] = reverse('url_self_lydia_callback')
-        recharging_amount = form.cleaned_data['recharging_amount']
+        total_amount = form.cleaned_data['total_amount']
+
         if self.enable_fee_lydia:
-            total_amount = decimal.Decimal(self.base_fee_lydia +
-                                           recharging_amount *
-                                           decimal.Decimal(
-                                               1 + self.ratio_fee_lydia / 100)
-                                           ).quantize(decimal.Decimal('.01'), decimal.ROUND_UP)
+            fee_amount = calculate_fee_lydia(
+                total_amount, self.base_fee_lydia, self.ratio_fee_lydia)
+            recharging_amount = total_amount - fee_amount
+            context['fee_amount'] = fee_amount
 
         else:
-            total_amount = recharging_amount
+            recharging_amount = total_amount
 
-        context['recharging_amount'] = recharging_amount
         context['total_amount'] = total_amount
+        context['recharging_amount'] = recharging_amount
         context['tel_number'] = form.cleaned_data['tel_number']
         context['message'] = (
             "Borgia - AE ENSAM - Crédit de "
@@ -772,7 +777,6 @@ def self_lydia_callback(request):
             user = User.objects.get(pk=request.GET.get('user_pk'))
             total_amount = decimal.Decimal(params_dict['amount'])
             if not configuration_get('ENABLE_FEE_LYDIA').get_value():
-                recharging_amount = total_amount
                 fee = 0
             else:
                 base_fee = decimal.Decimal(
@@ -836,3 +840,14 @@ def verify_token_algo_lydia(params, token):
 
     except KeyError:
         return False
+
+
+def calculate_fee_lydia(total_amount, base_fee_lydia, ratio_fee_lydia):
+    """
+    Calculate the fee of lydia
+    """
+    return decimal.Decimal(base_fee_lydia +
+                           total_amount *
+                           decimal.Decimal(
+                               ratio_fee_lydia / 100)
+                           ).quantize(decimal.Decimal('.01'), decimal.ROUND_UP)
