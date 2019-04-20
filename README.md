@@ -1,7 +1,7 @@
 ![Borgia](.borgia/static/static_dirs/img/borgia-logo-light.png "Borgia")
 ==================================================================
 
-Current Version : 5.0.2
+Current Version : 5.1.0
 Licence : [GNU GPL version 3](./license.txt)
 Chat (en/fr): [Join us on Slack](https://borgia-app.slack.com)
 
