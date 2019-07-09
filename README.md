@@ -16,7 +16,7 @@ To start
 --------
 
 * Install borgia dependencies : `pip install -r requirements/dev.txt` for development. Use prod.txt for production.
-* Install LESS : `yarn global add less`.
+* Install LESS : `yarn global add less` ou `npm install -g less`
 * Update settings : `borgia/settings.py` need to be customized, depending on
 your domains, Lydia account et mails.
 
@@ -27,6 +27,7 @@ Load initial data
   + `python manage.py makemigrations configurations users shops finances events modules sales stocks`,
   + `python manage.py migrate`,
   + `python manage.py loaddata initial`.
+  + `python manage.py collectstatic`.
 * In development, you can pre-populate the db with some pre-made objects :
   + `python manage.py loaddata tests_data`,
 * Don't forget to change the passwords of users if you want to access them :
@@ -37,6 +38,7 @@ Load initial data
   + `u.save()`
   + `exit()`
 
+You will then be able to access borgia with this user (in the example : the user 1Me215 with the 'a_password' pass).
 That's it !
 
 Test
