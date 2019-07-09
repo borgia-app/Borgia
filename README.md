@@ -43,6 +43,20 @@ Test
 To run unit tests, run in a terminal : `python manage.py test`.  
 To run the unit tests only for a specific module, run : `python manage.py test nom_du_module`.
 
+Python3 commands list
+---------------------
+  + `pip3 install -r requirements.txt`
+  + `yarn global add less`
+  + `python3 manage.py makemigrations users shops finances modules settings_data notifications stocks`
+  + `python3 manage.py migrate`
+  + `python3 manage.py loaddata initial`
+  + `python3 manage.py loaddata first_member`
+  + `python3 manage.py shell`
+  + `from users.models import User`
+  + `u = User.objects.get(pk=2)`
+  + `u.set_password('admin')`
+  + `u.save()`
+
 Documentation
 -------------
 
