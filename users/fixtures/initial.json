@@ -26,7 +26,6 @@
         ["retrieve_more_user_info", "users", "user"],
         ["list_user", "users", "user"],
         ["supply_money_user", "users", "user"],
-        ["link_token_user", "users", "user"],
 
         ["add_shop", "shops", "shop"],
         ["change_shop", "shops", "shop"],
@@ -83,7 +82,6 @@
         ["retrieve_more_user_info", "users", "user"],
         ["list_user", "users", "user"],
         ["supply_money_user", "users", "user"],
-        ["link_token_user", "users", "user"],
 
         ["add_shop", "shops", "shop"],
         ["change_shop", "shops", "shop"],
@@ -140,7 +138,6 @@
         ["retrieve_more_user_info", "users", "user"],
         ["list_user", "users", "user"],
         ["supply_money_user", "users", "user"],
-        ["link_token_user", "users", "user"],
 
         ["add_shop", "shops", "shop"],
         ["change_shop", "shops", "shop"],
