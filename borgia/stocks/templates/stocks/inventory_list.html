@@ -5,6 +5,9 @@
     <div class="panel panel-primary">
         <div class="panel-heading">
           Recherche
+          {% if request.user|has_perm:"stocks.add_inventory" %}
+          <a class="btn btn-xs btn-success pull-right" href="{% url 'url_inventory_create' shop_pk=shop.pk %}">Nouvel inventaire</a>
+          {% endif %}
         </div>
         <div class="panel-body">
           <form action="" method="post" class="form-horizontal">

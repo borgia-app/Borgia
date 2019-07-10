@@ -79,10 +79,11 @@ class StockEntryCreateView(ShopMixin, BorgiaView):
         stockentry = StockEntry.objects.create(
             operator=request.user, shop=self.shop)
 
+        # TODO: Verify formset with django 2.x
         stockentry_product_form = formset_factory(StockEntryProductForm,
                                                   extra=1)
         stockentry_form = stockentry_product_form(
-            request.POST, form_kwargs={'shop': self.shop})
+            request.POST, form_kwargs={'shop': self.shop, 'empty_permitted': False})
         add_inventory_form = AdditionnalDataStockEntryForm(request.POST)
 
         if stockentry_form.is_valid() and add_inventory_form.is_valid():
@@ -228,11 +229,12 @@ class InventoryCreateView(ShopMixin, BorgiaView):
         Products in the shop (and active) but not listed in the form are
         included in the inventory with a quantity 0.
         """
+        # TODO: Verify formset with django 2.x
         inventory_product_formset = formset_factory(InventoryProductForm,
                                                     formset=BaseInventoryProductFormSet,
                                                     extra=1)
         inventory_formset = inventory_product_formset(
-            request.POST, form_kwargs={'shop': self.shop})
+            request.POST, form_kwargs={'shop': self.shop, 'empty_permitted': False})
         additionnal_data_form = AdditionnalDataInventoryForm(request.POST)
 
         if inventory_formset.is_valid() and additionnal_data_form.is_valid():
