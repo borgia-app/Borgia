@@ -1,0 +1,58 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+
+{% block content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+          Produits
+          {% if request.user|has_perm:"shops.add_product" %}
+            <a class="btn btn-xs btn-success pull-right" href="{% url 'url_product_create' shop_pk=shop.pk %}">Nouveau</a>
+          {% endif %}
+        </div>
+        <div class="panel-body">
+          <form action="" method="post" class="form-horizontal">
+            {% csrf_token %}
+            {{ form|bootstrap_horizontal }}
+            <div class="form-group">
+              <div class="col-sm-10 col-sm-offset-2">
+                <button type="submit" class="btn btn-primary">Recherche</button>
+                <a class="btn btn-warning" href="">Remise à zéro</a>
+              </div>
+            </div>
+          </form>
+        </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Résultats
+      </div>
+        <table class="table table-hover table-striped">
+          <tr>
+              <th>Nom</th>
+              <th>Type</th>
+              <th>Stock</th>
+              <th>Facteur de correction</th>
+              <th>Prix de vente</th>
+              <th>Etat</th>
+              {% if request.user|has_perm:"shops.view_product" %}<th>Détail</th>{% endif %}
+              {% if request.user|has_perm:"shops.change_price_product" %}<th>Gestion du prix</th>{% endif %}
+          </tr>
+          {% for product in product_list %}
+          <tr>
+              <td>{{ product }}</td>
+              <td>Vendu a(u) {{ product.get_unit_display }}</td>
+              <td>{{ product.get_current_stock_estimated_display }}</td>
+              <td>{{ product.correcting_factor }}</td>
+              <td>{{ product.get_price }} € / {{ product.get_upper_unit_display }} ({{ product.get_strategy_display }})</td>
+              <td>{% if product.is_active %}Activé{% else %}Désactivé{% endif %}</td>
+              {% if request.user|has_perm:"shops.view_product" %}<td>
+                <a href="{% url 'url_product_retrieve' shop_pk=shop.pk product_pk=product.pk %}">Détail</a>
+              </td>{% endif %}
+              {% if request.user|has_perm:"shops.change_price_product" %}<td>
+                {% if product.is_manual %}Manuelle, {% else %}Automatique, {% endif %}<a href="{% url 'url_product_update_price' shop_pk=shop.pk product_pk=product.pk %}">Gestion</a>
+              </td>{% endif %}
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+{% endblock %}

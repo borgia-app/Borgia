@@ -1,0 +1,178 @@
+[
+    {
+        "model": "auth.group",
+        "pk": 1,
+        "fields": {
+        "name": "members",
+        "permissions": [
+            ["use_selfsalemodule", "modules", "selfsalemodule"],
+            ["add_transfert", "finances", "transfert"],
+
+            ["add_event", "events", "event"],
+            ["view_event", "events", "event"],
+            ["view_user", "users", "user"]
+        ]
+        }
+    },
+    {
+        "model": "auth.group",
+        "pk": 2,
+        "fields": {
+        "name": "externals",
+        "permissions": []
+        }
+    },
+    {
+        "model": "auth.group",
+        "pk": 3,
+        "fields": {
+        "name": "presidents",
+        "permissions": [
+            ["manage_members_group", "users", "user"],
+            ["manage_treasurers_group", "users", "user"],
+            ["manage_vice_presidents_group", "users", "user"],
+            ["manage_presidents_group", "users", "user"],
+
+            ["add_user", "users", "user"],
+            ["change_user", "users", "user"],
+            ["delete_user", "users", "user"],
+            ["view_user", "users", "user"],
+            ["advanced_view_user", "users", "user"],
+
+            ["add_shop", "shops", "shop"],
+            ["change_shop", "shops", "shop"],
+            ["delete_shop", "shops", "shop"],
+            ["view_shop", "shops", "shop"],
+            ["add_product", "shops", "product"],
+            ["change_product", "shops", "product"],
+            ["delete_product", "shops", "product"],
+            ["view_product", "shops", "product"],
+            ["change_price_product", "shops", "product"],
+            ["view_stockentry", "stocks", "stockentry"],
+
+            ["change_configuration", "configurations", "configuration"],
+            ["view_configuration", "configurations", "configuration"],
+
+            ["add_sale", "sales", "sale"],
+            ["view_sale", "sales", "sale"],
+            ["add_recharging", "finances", "recharging"],
+            ["view_recharging", "finances", "recharging"],
+            ["add_exceptionnalmovement", "finances", "exceptionnalmovement"],
+            ["view_exceptionnalmovement", "finances", "exceptionnalmovement"],
+            ["add_transfert", "finances", "transfert"],
+            ["view_transfert", "finances", "transfert"],
+
+            ["add_event", "events", "event"],
+            ["view_event", "events", "event"],
+            ["change_event", "events", "event"],
+            ["proceed_payment_event", "events", "event"]
+        ]
+        }
+    },
+    {
+        "model": "auth.group",
+        "pk": 4,
+        "fields": {
+        "name": "vice_presidents",
+        "permissions": [
+            ["add_user", "users", "user"],
+            ["change_user", "users", "user"],
+            ["delete_user", "users", "user"],
+            ["view_user", "users", "user"],
+            ["advanced_view_user", "users", "user"],
+
+            ["add_shop", "shops", "shop"],
+            ["change_shop", "shops", "shop"],
+            ["delete_shop", "shops", "shop"],
+            ["view_shop", "shops", "shop"],
+            ["add_product", "shops", "product"],
+            ["change_product", "shops", "product"],
+            ["delete_product", "shops", "product"],
+            ["view_product", "shops", "product"],
+            ["change_price_product", "shops", "product"],
+            ["view_stockentry", "stocks", "stockentry"],
+
+            ["change_configuration", "configurations", "configuration"],
+            ["view_configuration", "configurations", "configuration"],
+
+            ["add_sale", "sales", "sale"],
+            ["view_sale", "sales", "sale"],
+            ["add_recharging", "finances", "recharging"],
+            ["view_recharging", "finances", "recharging"],
+            ["add_exceptionnalmovement", "finances", "exceptionnalmovement"],
+            ["view_exceptionnalmovement", "finances", "exceptionnalmovement"],
+            ["add_transfert", "finances", "transfert"],
+            ["view_transfert", "finances", "transfert"],
+
+            ["add_event", "events", "event"],
+            ["view_event", "events", "event"],
+            ["change_event", "events", "event"],
+            ["proceed_payment_event", "events", "event"]
+        ]
+        }
+    },
+    {
+        "model": "auth.group",
+        "pk": 5,
+        "fields": {
+        "name": "treasurers",
+        "permissions": [
+            ["add_user", "users", "user"],
+            ["change_user", "users", "user"],
+            ["delete_user", "users", "user"],
+            ["view_user", "users", "user"],
+            ["advanced_view_user", "users", "user"],
+
+            ["add_shop", "shops", "shop"],
+            ["change_shop", "shops", "shop"],
+            ["delete_shop", "shops", "shop"],
+            ["view_shop", "shops", "shop"],
+            ["add_product", "shops", "product"],
+            ["change_product", "shops", "product"],
+            ["delete_product", "shops", "product"],
+            ["view_product", "shops", "product"],
+            ["change_price_product", "shops", "product"],
+            ["view_stockentry", "stocks", "stockentry"],
+
+            ["change_configuration", "configurations", "configuration"],
+            ["view_configuration", "configurations", "configuration"],
+
+            ["add_sale", "sales", "sale"],
+            ["view_sale", "sales", "sale"],
+            ["add_recharging", "finances", "recharging"],
+            ["view_recharging", "finances", "recharging"],
+            ["add_exceptionnalmovement", "finances", "exceptionnalmovement"],
+            ["view_exceptionnalmovement", "finances", "exceptionnalmovement"],
+            ["add_transfert", "finances", "transfert"],
+
+            ["add_event", "events", "event"],
+            ["view_event", "events", "event"],
+            ["change_event", "events", "event"],
+            ["proceed_payment_event", "events", "event"]
+        ]
+        }
+    },
+    {
+        "model": "users.user",
+        "pk": 1,
+        "fields": {
+        "is_superuser": false,
+        "username": "AE_ENSAM",
+        "first_name": "AE",
+        "last_name": "ENSAM",
+        "email": "",
+        "is_staff": false,
+        "is_active": true,
+        "date_joined": "2016-02-15T13:32:56.781Z",
+        "surname": null,
+        "family": null,
+        "balance": 0.0,
+        "year": null,
+        "campus": null,
+        "phone": null,
+        "jwt_iat": "2016-02-15T13:32:56.781Z",
+        "groups": [1],
+        "user_permissions": []
+        }
+    }
+]

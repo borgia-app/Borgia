@@ -1,0 +1,49 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+
+{% block content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+          Recherche de transferts
+        </div>
+        <div class="panel-body">
+          <form action="" method="post" class="form-horizontal">
+            {% csrf_token %}
+            {{ form|bootstrap_horizontal }}
+            <div class="form-group">
+              <div class="col-sm-10 col-sm-offset-2">
+                <button type="submit" class="btn btn-primary">Recherche</button>
+                <a class="btn btn-warning" href="">Remise à zéro</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="panel panel-default">
+        <div class="panel-heading">
+          Résultats
+        </div>
+          <table class="table table-hover table-striped">
+            <tr>
+                <th>Envoyeur</th>
+                <th>Réceveur</th>
+                <th>Date</th>
+                <th>Heure</th>
+                <th>Montant</th>
+                <th>Détail</th>
+            </tr>
+            {% for transfert in transfert_list %}
+            <tr>
+                <td>{{ transfert.sender }}</td>
+                <td>{{ transfert.recipient }}</td>
+                <td>{{ transfert.datetime|date:"SHORT_DATE_FORMAT" }}</td>
+                <td>{{ transfert.datetime|time:"H:i" }}</td>
+                <td>{{ transfert.amount }}€</td>
+                <td>
+                  <a href="{% url 'url_transfert_retrieve' transfert_pk=transfert.pk %}">Détail</a>
+                </td>
+            </tr>
+            {% endfor %}
+          </table>
+        </div>
+{% endblock %}

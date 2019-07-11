@@ -1,0 +1,32 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+
+{% block content %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Se préinscrire à un évènement
+    </div>
+    <div class="panel-body">
+        <div>
+          <h1>Evenement : {{ event.description }}</h1>
+          <h3>Date : {{ event.date }}</h3>
+        </div>
+        <div>
+          <br />
+          <p>
+            {% if registeration_of_user == 0 %}
+            Non inscrit
+            {% else %}
+              Inscrit avec une ponderation de : {{ registeration_of_user }}
+            {% endif %}
+          </p>
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <button class="btn btn-success" type="submit">Se préinscrire</button>
+        </form>
+      </div>
+    </div>
+</div>
+
+{% endblock %}

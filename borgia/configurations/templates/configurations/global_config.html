@@ -1,0 +1,187 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+{% load l10n %}
+
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Centre Borgia
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_center_config' %}">
+      <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
+      Modifier
+    </a>
+  </div>
+  <table class="table table-bordered">
+    <tr>
+      <td>{{ center_name.description }}</td>
+      <td>{{ center_name.get_value }}</td>
+    </tr>
+  </table>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Prix de vente
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_price_config' %}">
+      <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
+      Modifier
+    </a>
+  </div>
+  <table class="table table-bordered">
+    <tr>
+      <td>{{ margin_profit.description }}</td>
+      <td>{{ margin_profit.get_value|unlocalize }} %</td>
+    </tr>
+  </table>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Rechargement par Lydia
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_lydia_config' %}">
+      <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
+      Modifier
+    </a>
+  </div>
+  <table class="table table-bordered">
+    <tr class={% if min_price_lydia.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>{{ enable_self_lydia.description }}</td>
+      <td>
+        {% if enable_self_lydia.get_value %}
+          Activé
+        {% else %}
+          Desactivé
+        {% endif %}
+      </td>
+    </tr>
+    <tr class={% if min_price_lydia.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>{{ min_price_lydia.description }}</td>
+      <td>
+        {% if min_price_lydia.get_value %}
+          {{ min_price_lydia.get_value|unlocalize }} €
+        {% else %}
+          Pas de limite
+        {% endif %}
+      </td>
+    </tr>
+    <tr class={% if max_price_lydia.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>{{ max_price_lydia.description }}</td>
+      <td>
+        {% if max_price_lydia.get_value %}
+          {{ max_price_lydia.get_value|unlocalize }} €
+        {% else %}
+          Pas de limite
+        {% endif %}
+      </td>
+    </tr>
+        <tr class={% if min_price_lydia.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>{{ enable_fee_lydia.description }}</td>
+      <td>
+        {% if enable_fee_lydia.get_value %}
+          Activé
+        {% else %}
+          Desactivé
+        {% endif %}
+      </td>
+    </tr>
+        <tr class={% if min_price_lydia.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>{{ base_fee_lydia.description }}</td>
+      <td>
+        {% if base_fee_lydia.get_value %}
+          {{ base_fee_lydia.get_value|unlocalize }} €
+        {% else %}
+          Non défini
+        {% endif %}
+      </td>
+    </tr>
+        <tr class={% if min_price_lydia.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>{{ ratio_fee_lydia.description }}</td>
+      <td>
+        {% if ratio_fee_lydia.get_value %}
+          {{ ratio_fee_lydia.get_value|unlocalize }} %
+        {% else %}
+          Non défini
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>{{ api_token_lydia.description }}</td>
+      <td>{{ api_token_lydia.get_value }}</td>
+    </tr>
+    <tr>
+      <td>{{ vendor_token_lydia.description }}</td>
+      <td>{{ vendor_token_lydia.get_value }}</td>
+    </tr>
+  </table>
+</div>
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Porte-monnaie
+    <a class="btn btn-default btn-xs pull-right" href="{% url 'url_balance_config' %}">
+      <i class="fa fa-pencil" aria-hidden="true" style="margin-right: 5px;"></i>
+      Modifier
+    </a>
+  </div>
+  <table class="table table-bordered">
+    <tr>
+      <td>{{ balance_threshold_purchase.description }}</td>
+      <td>
+          {{ balance_threshold_purchase.get_value|unlocalize }} €
+      </td>
+    </tr>
+    {% comment %}
+    <tr class={% if balance_threshold_mail_alert.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>Seuil d'alerte par mail</td>
+      <td>
+        {% if balance_threshold_mail_alert.get_value %}
+          {{ balance_threshold_mail_alert.get_value|unlocalize }} €
+        {% else %}
+          pas d'email
+        {% endif %}
+      </td>
+    </tr>
+    <tr class={% if balance_threshold_mail_alert.get_value and balance_frequency_mail_alert.get_value %}
+              "success"
+            {% else %}
+              "danger"
+            {% endif %}>
+      <td>Fréquence d'alerte par mail</td>
+      <td>
+        {% if balance_frequency_mail_alert.get_value %}
+          {{ balance_frequency_mail_alert.get_value|unlocalize }}
+          jour{{ balance_frequency_mail_alert.get_value|pluralize:"s" }}
+        {% else %}
+          pas d'email
+        {% endif %}
+      </td>
+    </tr>
+    {% endcomment %}
+  </table>
+</div>
+{% endblock %}

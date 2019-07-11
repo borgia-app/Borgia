@@ -1,0 +1,180 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+{% load l10n %}
+
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Liste {% if not done %}et gestion manuelle {% endif %}des utilisateurs concernés.
+  </div>
+  <div class="panel-body">
+    <form class="form-horizontal" action="{% url 'url_event_manage_users' pk=pk %}#table_users" method='get'>
+        {{ list_users_form|bootstrap_horizontal }}
+        <div class="form-group">
+          <div class="col-sm-offset-2 col-sm-10">
+            <button type="submit" class="btn btn-success">Lister</button>
+          </div>
+        </div>
+    </form>
+
+    <div class="col-sm-12"><hr></div>
+
+    {% if not done %}
+        <form class="form-horizontal" action="{% url 'url_event_manage_users' pk=pk %}" method='post'>
+            {% csrf_token %}
+            {{ form|bootstrap_horizontal }}
+            <div class="form-group">
+              <div class="col-sm-offset-2 col-sm-10">
+                <button type="submit" class="btn btn-warning">Ajouter un utilisateur</button>
+              </div>
+            </div>
+        </form>
+    {% endif %}
+
+    <a href="{% url 'url_event_update' pk=pk %}" class="btn btn-info pull-right">Retour a la gestion générale de l'évènement</a>
+
+  </div>
+</div>
+
+<div class="panel panel-default">
+  <div class="panel-heading">
+    {% if state == "users" %}Utilisateurs - Tous les concernés
+    {% elif state == "participants" %}Utilisateurs - Uniquement les participants
+    {% elif state == "registrants" %}Utilisateurs - Uniquement les préinscrits
+    {% endif %}
+  </div>
+  <div class="panel-body" id="table_users">
+    <p>
+        {% if not done %}
+            {% if state == "users" %}
+            <a class="btn btn-danger" href="{% url 'url_event_remove_user' pk=pk user_pk='ALL' %}?state={{ state }}&order_by={{ order_by }}">
+              Supprimer tous les utilisateurs
+            </a>
+            {% else %}
+              <a class="btn btn-warning"
+              href="{% url 'url_event_remove_user' pk=pk user_pk='ALL' %}?state={{ state }}&order_by={{ order_by }}">
+              RAZ de tous les users</a>
+            {% endif %}
+        {% endif %}
+    </p>
+    <table class="table table-default table-hover table-striped">
+      <thead>
+        <tr>
+            <th>Username</th>
+            <th class="hidden-sm hidden-xs">Nom Prénom</th>
+            <th class="hidden-sm hidden-xs">Bucque</th>
+            {% if state == 'users' %}
+                <th class="hidden-sm hidden-xs">Solde</th>
+                <th>Préinscrit</th>
+                <th>Pris</th>
+            {% elif state == 'participants' %}
+                <th class="hidden-sm hidden-xs">Solde</th>
+                <th>Pris</th>
+            {% elif state == 'registrants' %}
+                <th>Préinscrit</th>
+            {% elif done %}
+                <th>Pris</th>
+            {% endif %}
+            {% if state != 'registrants' %}			
+              <th>Prix</th>
+            {% endif %}
+            {% if not done %}
+              <th>Supprimer</th>
+            {% endif %}
+        </tr>
+      </thead>
+      <tbody>
+      {% for u in list_weights %}
+          <tr>
+              <td>{{ u.0.username }}</td>
+              <td class="hidden-sm hidden-xs">{{ u.0.last_name }} {{ u.0.first_name }}</td>
+              <td class="hidden-sm hidden-xs">{{ u.0.surname }}</td>
+
+                {% if done %}
+                  <td>
+                  {{ u.1 }}
+                  </td>
+                {% else %}
+                  {% if state == 'users' %}
+                    <td class="hidden-sm hidden-xs {% if u.0.balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ u.0.balance }}€</td>
+                    <td>
+                      <input id="weight_registered_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
+                    </td>
+                    <td>
+                      <input id="weight_participant_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.2 }}"/>
+                    </td>
+                  {% elif state == 'participants' %}
+			        <td class="hidden-sm hidden-xs {% if u.0.balance > 0 %}text-success{% else %}text-danger{% endif %}">{{ u.0.balance }}€</td>
+                    <td>
+                      <input id="weight_participant_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
+                    </td>
+                  {% elif state == 'registrants' %}
+                    <td>
+                      <input id="weight_registered_{{ u.0.pk }}" class="form-control" type="number" min="0" value="{{ u.1 }}"/>
+                    </td>
+                  {% endif %}
+                {% endif %}
+              </td>
+              {% if done %}
+			    {% if state == 'participants' %}
+                  <td>
+                    {% if price %}
+                      {{ u.2 }}€
+                    {% else %}
+                      Indéfini
+                    {% endif %}
+                  </td>
+                {% elif state == 'users' %}
+                  <td>
+                    {% if price %}
+                      {{ u.2 }}
+                    {% else %}
+                      Indéfini
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if price %}
+                      {{ u.3 }}€
+                    {% else %}
+                      Indéfini
+                    {% endif %}
+                  </td>
+                {% endif %}
+              {% else %}
+                {% if state != 'registrants' %}
+                  <td id="price_{{ u.0.pk }}">
+                    {% if price %}
+                      {{ u.1 }}
+                    {% else %}
+                      Indéfini
+                    {% endif %}
+                  </td>
+                {% endif %}
+              {% endif %}
+              {% if not done %}
+                <td>
+                  {% if state == 'users' %}
+                      <a class="btn btn-small btn-danger"
+                      href="{% url 'url_event_remove_user' pk=pk user_pk=u.0.pk %}?state={{ state }}&order_by={{ order_by }}">Supprimer</a>
+                  {% else %}
+                      <a class="btn btn-small btn-warning"
+                      href="{% url 'url_event_remove_user' pk=pk user_pk=u.0.pk %}?state={{ state }}&order_by={{ order_by }}">RAZ</a>
+                  {% endif %}
+                </td>
+              {% endif %}
+          </tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+{% if not done %}
+
+  {% include 'events/js/ajax_ponderation.html' with list_weights=list_weights %}
+  {% if price %}
+		{% include 'events/js/calculate_users_price.html' with price=price %}
+  {% endif %}
+{% endif %}
+
+{% endblock %}

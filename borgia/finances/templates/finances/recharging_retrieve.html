@@ -1,0 +1,19 @@
+{% extends 'base_sober.html' %}
+
+{% block content %}
+<div class="panel panel-default">
+  <div class="panel-heading">
+    Détails d'un rechargement de compte
+    <a class="btn btn-default btn-xs" href="{% url 'url_recharging_list' %}">Liste</a>
+  </div>
+  <div class="panel-body">
+    <ul>
+      <li>Opérateur : {{ recharging.operator }}</li>
+      <li>Acheteur : {{ recharging.sender }}</li>
+      <li>Date & heure : {{ recharging.datetime }}</li>
+      <li>Montant : {{ recharging.content_solution.amount }}€</li>
+      <li>Type : {{ recharging.content_solution }}
+    </ul>
+  </div>
+</div>
+{% endblock %}

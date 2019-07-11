@@ -1,0 +1,21 @@
+{% extends 'base_sober.html' %}
+{% load static %}
+{% load bootstrap %}
+
+{% block content %}
+<div class="panel panel-default">
+    <div class="panel-heading">
+        Création d'un évènement
+    </div>
+    <div class="panel-body">
+        <form action="" method="post">
+            {% csrf_token %}
+            {{ form|bootstrap }}
+            <button class="btn btn-success" type="submit">Créer</button>
+        </form>
+    </div>
+</div>
+
+<script src="{% static 'js/events/event_create.js' %}"></script>
+
+{% endblock %}

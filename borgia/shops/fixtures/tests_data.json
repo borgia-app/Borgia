@@ -1,0 +1,311 @@
+[
+    {
+        "model": "shops.shop",
+        "pk": 1,
+        "fields": {
+            "name": "firstshop",
+            "description": "ShopDescription1",
+            "color": "#ff0000"
+        }
+    },
+    {
+        "model": "shops.shop",
+        "pk": 2,
+        "fields": {
+            "name": "secondshop",
+            "description": "Shop Description 2",
+            "color": "#0000ff"
+        }
+    },
+    {
+        "model": "shops.shop",
+        "pk": 3,
+        "fields": {
+            "name": "emptyshop",
+            "description": "Third Shop. It is empty.",
+            "color": "#000000"
+        }
+    },
+    {
+        "model": "shops.product",
+        "pk": 1,
+        "fields": {
+            "name": "Shop1Product1",
+            "unit": null,
+            "shop": 1,
+            "is_manual": true,
+            "manual_price": "1.00",
+            "correcting_factor": "1.0000",
+            "is_active": true,
+            "is_removed": false
+        }
+    },
+    {
+        "model": "shops.product",
+        "pk": 2,
+        "fields": {
+            "name": "Shop1Product2",
+            "unit": "G",
+            "shop": 1,
+            "is_manual": false,
+            "manual_price": "0.00",
+            "correcting_factor": "1.0000",
+            "is_active": true,
+            "is_removed": false
+        }
+    },
+    {
+        "model": "shops.product",
+        "pk": 3,
+        "fields": {
+            "name": "Shop1Product3",
+            "unit": "CL",
+            "shop": 1,
+            "is_manual": false,
+            "manual_price": "0.00",
+            "correcting_factor": "1.0000",
+            "is_active": true,
+            "is_removed": false
+        }
+    },
+    {
+        "model": "shops.product",
+        "pk": 4,
+        "fields": {
+            "name": "Shop2Product1",
+            "unit": null,
+            "shop": 2,
+            "is_manual": false,
+            "manual_price": "0.00",
+            "correcting_factor": "1.0000",
+            "is_active": true,
+            "is_removed": false
+        }
+    },
+    {
+        "model": "shops.product",
+        "pk": 5,
+        "fields": {
+            "name": "Shop2Product2",
+            "unit": "G",
+            "shop": 2,
+            "is_manual": true,
+            "manual_price": "1.00",
+            "correcting_factor": "1.0000",
+            "is_active": true,
+            "is_removed": false
+        }
+    },
+    {
+        "model": "shops.product",
+        "pk": 6,
+        "fields": {
+            "name": "Shop2Product3",
+            "unit": "CL",
+            "shop": 2,
+            "is_manual": false,
+            "manual_price": "0.00",
+            "correcting_factor": "1.0000",
+            "is_active": true,
+            "is_removed": false
+        }
+    },
+    {
+        "model": "auth.permission",
+        "fields": {
+            "name": "Can manage chiefs of firstshop shop",
+            "content_type": 7,
+            "codename": "manage_chiefs-firstshop_group"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "fields": {
+            "name": "Can manage associates of firstshop shop",
+            "content_type": 7,
+            "codename": "manage_associates-firstshop_group"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "fields": {
+            "name": "Can manage chiefs of secondshop shop",
+            "content_type": 7,
+            "codename": "manage_chiefs-secondshop_group"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "fields": {
+            "name": "Can manage associates of secondshop shop",
+            "content_type": 7,
+            "codename": "manage_associates-secondshop_group"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "fields": {
+            "name": "Can manage chiefs of emptyshop shop",
+            "content_type": 7,
+            "codename": "manage_chiefs-emptyshop_group"
+        }
+    },
+    {
+        "model": "auth.permission",
+        "fields": {
+            "name": "Can manage associates of emptyshop shop",
+            "content_type": 7,
+            "codename": "manage_associates-emptyshop_group"
+        }
+    },
+    {
+        "model": "auth.group",
+        "fields": {
+            "name": "chiefs-firstshop",
+            "permissions": [
+                ["change_config_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["use_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["view_config_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["change_config_selfsalemodule", "modules", "selfsalemodule"],
+                ["view_config_selfsalemodule", "modules", "selfsalemodule"],
+                ["view_sale", "sales", "sale"],
+                ["add_product", "shops", "product"],
+                ["change_price_product", "shops", "product"],
+                ["change_product", "shops", "product"],
+                ["delete_product", "shops", "product"],
+                ["view_product", "shops", "product"],
+                ["change_shop", "shops", "shop"],
+                ["view_shop", "shops", "shop"],
+                ["add_inventory", "stocks", "inventory"],
+                ["view_inventory", "stocks", "inventory"],
+                ["add_stockentry", "stocks", "stockentry"],
+                ["view_stockentry", "stocks", "stockentry"],
+                ["add_user", "users", "user"],
+                ["manage_associates-firstshop_group", "users", "user"],
+                ["view_user", "users", "user"]
+            ]
+        }
+    },
+    {
+        "model": "auth.group",
+        "fields": {
+            "name": "associates-firstshop",
+            "permissions": [
+                ["use_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["view_config_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["view_config_selfsalemodule", "modules", "selfsalemodule"],
+                ["view_sale", "sales", "sale"],
+                ["add_product", "shops", "product"],
+                ["change_product", "shops", "product"],
+                ["view_product", "shops", "product"],
+                ["view_shop", "shops", "shop"],
+                ["add_inventory", "stocks", "inventory"],
+                ["view_inventory", "stocks", "inventory"],
+                ["add_stockentry", "stocks", "stockentry"],
+                ["view_stockentry", "stocks", "stockentry"],
+                ["add_user", "users", "user"],
+                ["view_user", "users", "user"]
+            ]
+        }
+    },
+    {
+        "model": "auth.group",
+        "fields": {
+            "name": "chiefs-secondshop",
+            "permissions": [
+                ["change_config_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["use_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["view_config_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["change_config_selfsalemodule", "modules", "selfsalemodule"],
+                ["view_config_selfsalemodule", "modules", "selfsalemodule"],
+                ["view_sale", "sales", "sale"],
+                ["add_product", "shops", "product"],
+                ["change_price_product", "shops", "product"],
+                ["change_product", "shops", "product"],
+                ["delete_product", "shops", "product"],
+                ["view_product", "shops", "product"],
+                ["change_shop", "shops", "shop"],
+                ["view_shop", "shops", "shop"],
+                ["add_inventory", "stocks", "inventory"],
+                ["view_inventory", "stocks", "inventory"],
+                ["add_stockentry", "stocks", "stockentry"],
+                ["view_stockentry", "stocks", "stockentry"],
+                ["add_user", "users", "user"],
+                ["manage_associates-secondshop_group", "users", "user"],
+                ["view_user", "users", "user"]
+            ]
+        }
+    },
+    {
+        "model": "auth.group",
+        "fields": {
+            "name": "associates-secondshop",
+            "permissions": [
+                ["use_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["view_config_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["view_config_selfsalemodule", "modules", "selfsalemodule"],
+                ["view_sale", "sales", "sale"],
+                ["add_product", "shops", "product"],
+                ["change_product", "shops", "product"],
+                ["view_product", "shops", "product"],
+                ["view_shop", "shops", "shop"],
+                ["add_inventory", "stocks", "inventory"],
+                ["view_inventory", "stocks", "inventory"],
+                ["add_stockentry", "stocks", "stockentry"],
+                ["view_stockentry", "stocks", "stockentry"],
+                ["add_user", "users", "user"],
+                ["view_user", "users", "user"]
+            ]
+        }
+    },
+    {
+        "model": "auth.group",
+        "fields": {
+            "name": "chiefs-emptyshop",
+            "permissions": [
+                ["change_config_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["use_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["view_config_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["change_config_selfsalemodule", "modules", "selfsalemodule"],
+                ["view_config_selfsalemodule", "modules", "selfsalemodule"],
+                ["view_sale", "sales", "sale"],
+                ["add_product", "shops", "product"],
+                ["change_price_product", "shops", "product"],
+                ["change_product", "shops", "product"],
+                ["delete_product", "shops", "product"],
+                ["view_product", "shops", "product"],
+                ["change_shop", "shops", "shop"],
+                ["view_shop", "shops", "shop"],
+                ["add_inventory", "stocks", "inventory"],
+                ["view_inventory", "stocks", "inventory"],
+                ["add_stockentry", "stocks", "stockentry"],
+                ["view_stockentry", "stocks", "stockentry"],
+                ["add_user", "users", "user"],
+                ["manage_associates-emptyshop_group", "users", "user"],
+                ["view_user", "users", "user"]
+            ]
+        }
+    },
+    {
+        "model": "auth.group",
+        "fields": {
+            "name": "associates-emptyshop",
+            "permissions": [
+                ["use_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["view_config_operatorsalemodule", "modules", "operatorsalemodule"],
+                ["view_config_selfsalemodule", "modules", "selfsalemodule"],
+                ["view_sale", "sales", "sale"],
+                ["add_product", "shops", "product"],
+                ["change_product", "shops", "product"],
+                ["view_product", "shops", "product"],
+                ["view_shop", "shops", "shop"],
+                ["add_inventory", "stocks", "inventory"],
+                ["view_inventory", "stocks", "inventory"],
+                ["add_stockentry", "stocks", "stockentry"],
+                ["view_stockentry", "stocks", "stockentry"],
+                ["add_user", "users", "user"],
+                ["view_user", "users", "user"]
+            ]
+        }
+    }
+]
