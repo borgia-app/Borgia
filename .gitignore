@@ -13,6 +13,8 @@
 
 # Local settings.py
 *settings.py
+!contrib/development/settings.py
+!contrib/production/settings.py
 
 # Dumps
 *dump_*.json
