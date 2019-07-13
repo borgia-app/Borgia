@@ -1,70 +1,85 @@
-![Borgia](.borgia/static/static_dirs/img/borgia-logo-light.png "Borgia")
-==================================================================
+# ![Borgia](./borgia/static/static_dirs/img/borgia-logo-light.png 'Borgia')
 
-Current Version : 5.1.0
+Current Version : 5.1.x
 Licence : [GNU GPL version 3](./license.txt)
 Chat (en/fr): [Join us on Slack](https://borgia-app.slack.com)
 
-Introduction
-------------
+# Introduction
 
 Borgia is a software to help you manage your student association. With it, you
 can sell products, organize events, keep track of your stocks, etc...
 It will be your best ally to develop your possibilities for your student association.
 
-To start
---------
+# Development
 
-* Install borgia dependencies : `pip install -r requirements/dev.txt` for development. Use prod.txt for production.
-* Install LESS : `yarn global add less` ou `npm install -g less`
-* Update settings : `borgia/settings.py` need to be customized, depending on
-your domains, Lydia account et mails.
+## To start
 
-Load initial data
------------------
+-   Install borgia dependencies : `pip install -r requirements/dev.txt` for development. Use prod.txt for production.
+-   Install LESS : `yarn global add less` ou `npm install -g less`
+-   Update settings : `borgia/settings.py` need to be customized, depending on
+    your domains, Lydia account et mails.
 
-* Make migrations and load some pre-made content
-  + `python manage.py makemigrations configurations users shops finances events modules sales stocks`,
-  + `python manage.py migrate`,
-  + `python manage.py loaddata initial`.
-  + `python manage.py collectstatic`.
-* In development, you can pre-populate the db with some pre-made objects :
-  + `python manage.py loaddata tests_data`,
-* Don't forget to change the passwords of users if you want to access them :
-  + `python manage.py shell`,
-  + `from users.models import User`,
-  + `u = User.objects.get(pk=2)`,
-  + `u.set_password('a_password')`.
-  + `u.save()`
-  + `exit()`
+### Gmail email configuration
+
+-   Using Gmail, the configuration may be :
+
+```python
+DEFAULT_FROM_EMAIL = 'GMAIL_EMAIL'
+SERVER_EMAIL = 'GMAIL_EMAIL'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_PORT = 587
+EMAIL_HOST_USER = 'GMAIL_EMAIL'
+EMAIL_HOST_PASSWORD = 'GMAIL_PASSWORD'
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+```
+
+-   Moreover, you must accept "less secure applications" in Gmail settings, see Google documentation for further information.
+
+## Load initial data
+
+-   Make migrations and load some pre-made content
+    -   `python manage.py makemigrations configurations users shops finances events modules sales stocks`,
+    -   `python manage.py migrate`,
+    -   `python manage.py loaddata initial`.
+    -   `python manage.py collectstatic`.
+-   In development, you can pre-populate the db with some pre-made objects :
+    -   `python manage.py loaddata tests_data`,
+-   Don't forget to change the passwords of users if you want to access them :
+    -   `python manage.py shell`,
+    -   `from users.models import User`,
+    -   `u = User.objects.get(pk=2)`,
+    -   `u.set_password('a_password')`.
+    -   `u.save()`
+    -   `exit()`
 
 You will then be able to access borgia with this user (in the example : the user 1Me215 with the 'a_password' pass).
 That's it !
 
-Test
-----
+## Tests
 
 To run unit tests, run in a terminal : `python manage.py test`.
 To run the unit tests only for a specific module, run : `python manage.py test nom_du_module`.
 
-Documentation
--------------
+# Production
+
+To be determined.
+
+# Documentation
 
 Documentation are currently in writing-phase. Some ressources are available
 [here](https://github.com/borgia-app/Borgia-docs).
 
-Dependency
-----------
+# Dependency
+
 Borgia base dependency :
 
-* Django : Borgia run with the django framework
-* django-bootstrap-form : To use bootstrap with django
-* django-static-precompiler : For static files
-* openpyxl : For excel manipulation
-* Pillow : For users images
+-   Django : Borgia run with the django framework
+-   django-bootstrap-form : To use bootstrap with django
+-   django-static-precompiler : For static files
+-   openpyxl : For excel manipulation
+-   Pillow : For users images
 
-Developing and Contributing
----------------------------
+# Developing and Contributing
 
 We'd love to get contributions from you! For a quick guide to getting your
 system setup for developing, take a look at the section "To Start".
@@ -72,8 +87,7 @@ Once you are up and running, take a look at the
 [CONTRIBUTING.md](https://github.com/borgia-app/Borgia/CONTRIBUTING.md) to see
 how to get your changes merged in.
 
-End note (French)
---------------------
+# End note (French)
 
 Borgia est un outil qui permet de construire, gérer et organiser votre vie
 étudiante ! De la vente de produits à l'organisation d'évènements en passant
