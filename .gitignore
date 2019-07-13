@@ -1,28 +1,34 @@
-staticfiles
-unit.xml
-/**/.phutil_module_cache
-/static/media/img/
-/static/static_root/
-/static/static_dirs/admin/
-/static/static_dirs/COMPILED/
+##########################################################
+# Custom
+##########################################################
 
+# Configuration of the server Nginx Wsgi
+*borgia.sql
+*borgia_nginx.conf
+*borgia_uwsgi.ini
+*uwsgi_params
+*borgia.sock
+*borgia.wsgi
+*borgia_nginx.conf.save
 
-# Dump v3
-dump_adapt.json
-dump_adapt_perm.json
-dump_adapt_groups.json
+# Local settings.py
+*settings.py
 
-##########################################################################################
-# Covers VSCode and JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio
+# Dumps
+*dump_*.json
 
-*.iml
-
-# BDD
+# Dev bdd
 *.sqlite3
 
-## Directory-based project format:
+##########################################################
+# IDE
+##########################################################
+
+# Covers VSCode and JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio
+*.iml
+
+# Directory-based project format:
 .idea/
-# if you remove the above rule, at least ignore the following:
 
 # User-specific stuff:
 .idea/workspace.xml
@@ -48,8 +54,6 @@ dump_adapt_groups.json
 *.ipr
 *.iws
 
-## Plugin-specific files:
-
 # IntelliJ
 /out/
 
@@ -70,7 +74,7 @@ fabric.properties
 
 ##########################################################
 # Django
-#########################################################
+##########################################################
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
@@ -166,7 +170,7 @@ venv.bak/
 
 #######################################################################
 # Windows, Linux, Mac
-######################################################################
+#######################################################################
 
 # Windows image file caches
 Thumbs.db
@@ -238,195 +242,9 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-##############################################################
-# LATEX
-# ###########################################################
-
-## Core latex/pdflatex auxiliary files:
-*.aux
-*.lof
-*.log
-*.lot
-*.fls
-*.out
-*.toc
-
-## Intermediate documents:
-*.dvi
-*-converted-to.*
-# these rules might exclude image files for figures etc.
-# *.ps
-# *.eps
-# *.pdf
-
-## Bibliography auxiliary files (bibtex/biblatex/biber):
-*.bbl
-*.bcf
-*.blg
-*-blx.aux
-*-blx.bib
-*.brf
-*.run.xml
-
-## Build tool auxiliary files:
-*.fdb_latexmk
-*.synctex
-*.synctex.gz
-*.synctex.gz(busy)
-*.pdfsync
-
-## Auxiliary and intermediate files from other packages:
-
-
-# algorithms
-*.alg
-*.loa
-
-# achemso
-acs-*.bib
-
-# amsthm
-*.thm
-
-# beamer
-*.nav
-*.snm
-*.vrb
-
-#(e)ledmac/(e)ledpar
-*.end
-*.[1-9]
-*.[1-9][0-9]
-*.[1-9][0-9][0-9]
-*.[1-9]R
-*.[1-9][0-9]R
-*.[1-9][0-9][0-9]R
-*.eledsec[1-9]
-*.eledsec[1-9]R
-*.eledsec[1-9][0-9]
-*.eledsec[1-9][0-9]R
-*.eledsec[1-9][0-9][0-9]
-*.eledsec[1-9][0-9][0-9]R
-
-# glossaries
-*.acn
-*.acr
-*.glg
-*.glo
-*.gls
-
-# gnuplottex
-*-gnuplottex-*
-
-# hyperref
-*.brf
-
-# knitr
-*-concordance.tex
-*.tikz
-*-tikzDictionary
-
-# listings
-*.lol
-
-# makeidx
-*.idx
-*.ilg
-*.ind
-*.ist
-
-# minitoc
-*.maf
-*.mtc
-*.mtc[0-9]
-*.mtc[1-9][0-9]
-
-# minted
-_minted*
-*.pyg
-
-# morewrites
-*.mw
-
-# mylatexformat
-*.fmt
-
-# nomencl
-*.nlo
-
-# sagetex
-*.sagetex.sage
-*.sagetex.py
-*.sagetex.scmd
-
-# sympy
-*.sout
-*.sympy
-sympy-plots-for-*.tex/
-
-# Texpad
-.texpadtmp
-
-# TikZ & PGF
-*.dpth
-*.md5
-*.auxlock
-
-# todonotes
-*.tdo
-
-# xindy
-*.xdy
-
-# WinEdt
-*.bak
-*.sav
-
-##################################################
-# Ruby
-##################################################
-
-*.gem
-*.rbc
-/.config
-/coverage/
-/InstalledFiles
-/pkg/
-/spec/reports/
-/spec/examples.txt
-/test/tmp/
-/test/version_tmp/
-/tmp/
-
-## Specific to RubyMotion:
-.dat*
-.repl_history
-build/
-
-## Documentation cache and generated files:
-/.yardoc/
-/_yardoc/
-/doc/
-/rdoc/
-
-## Environment normalisation:
-/.bundle/
-/vendor/bundle
-/lib/bundler/man/
-
-# for a library or gem, you might want to ignore these files since the code is
-# intended to run in multiple environments; otherwise, check them in:
-# Gemfile.lock
-# .ruby-version
-# .ruby-gemset
-
-# unless supporting rvm < 1.11.0 or doing something fancy, ignore this:
-.rvmrc
-
 ###################################################
 # Node JS
-##################################################
-
+###################################################
 
 # Logs
 logs
@@ -462,15 +280,3 @@ node_modules/
 
 # Optional REPL history
 .node_repl_history
-
-# Configuration of the server Nginx Wsgi
-borgia.sql
-borgia_nginx.conf
-borgia_uwsgi.ini
-uwsgi_params
-borgia.sock
-borgia.wsgi
-borgia_nginx.conf.save
-
-# Migrations
-*/migrations
