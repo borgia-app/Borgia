@@ -10,6 +10,15 @@
 *borgia.sock
 *borgia.wsgi
 *borgia_nginx.conf.save
+*wsgi.py
+!contrib/production/borgia.sql
+!contrib/production/borgia_nginx.conf
+!contrib/production/borgia_uwsgi.ini
+!contrib/production/uwsgi_params
+!contrib/production/borgia.sock
+!contrib/production/borgia.wsgi
+!contrib/production/borgia_nginx.conf.save
+!contrib/production/wsgi.py
 
 # Local settings.py
 *settings.py
