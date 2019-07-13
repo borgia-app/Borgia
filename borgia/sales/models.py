@@ -1,4 +1,3 @@
-#-*- coding: utf-8 -*-
 import decimal
 
 from django.contrib.contenttypes.fields import GenericForeignKey

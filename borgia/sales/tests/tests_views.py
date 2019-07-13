@@ -1,4 +1,3 @@
-#-*- coding: utf-8 -*-
 import decimal
 
 from django.test import Client
@@ -12,7 +11,7 @@ from sales.models import Sale, SaleProduct
 class BaseSalesViewsTest(BaseShopModuleViewsTest):
     def setUp(self):
         super().setUp()
-    
+
         self.sale1 = Sale.objects.create(
             sender=self.user1,
             recipient=self.user3,
@@ -61,7 +60,8 @@ class SaleListViewTests(BaseSalesViewsTest):
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.shop1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.shop1.pk)))
+        self.assertRedirects(response_offline_user, get_login_url_redirected(
+            self.get_url(self.shop1.pk)))
 
 
 class SaleRetrieveViewTests(BaseSalesViewsTest):
@@ -71,11 +71,13 @@ class SaleRetrieveViewTests(BaseSalesViewsTest):
         return reverse(self.url_view, kwargs={'shop_pk': shop_pk, 'sale_pk': sale_pk})
 
     def test_as_president_get(self):
-        response_client1 = self.client1.get(self.get_url(self.shop1.pk, self.sale1.pk))
+        response_client1 = self.client1.get(
+            self.get_url(self.shop1.pk, self.sale1.pk))
         self.assertEqual(response_client1.status_code, 200)
 
     def test_as_chief_get(self):
-        response_client3 = self.client3.get(self.get_url(self.shop1.pk, self.sale1.pk))
+        response_client3 = self.client3.get(
+            self.get_url(self.shop1.pk, self.sale1.pk))
         self.assertEqual(response_client3.status_code, 200)
 
     def test_not_existing_shop_get(self):
@@ -87,10 +89,12 @@ class SaleRetrieveViewTests(BaseSalesViewsTest):
         self.assertEqual(response_client1.status_code, 404)
 
     def test_not_allowed_user_get(self):
-        response_client2 = self.client2.get(self.get_url(self.shop1.pk, self.sale1.pk))
+        response_client2 = self.client2.get(
+            self.get_url(self.shop1.pk, self.sale1.pk))
         self.assertEqual(response_client2.status_code, 403)
 
     def test_offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.shop1.pk, self.sale1.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.shop1.pk, self.sale1.pk)))
+        self.assertRedirects(response_offline_user, get_login_url_redirected(
+            self.get_url(self.shop1.pk, self.sale1.pk)))

@@ -1,4 +1,3 @@
-#-*- coding: utf-8 -*-
 from django.test import TestCase
 from django.urls import NoReverseMatch, reverse
 
@@ -16,4 +15,5 @@ class SalesNamedURLTests(TestCase):
                 try:
                     reverse(name, args=args, kwargs=kwargs)
                 except NoReverseMatch:
-                    self.fail("Reversal of url named '%s' failed with NoReverseMatch" % name)
+                    self.fail(
+                        "Reversal of url named '%s' failed with NoReverseMatch" % name)

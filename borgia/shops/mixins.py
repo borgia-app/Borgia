@@ -1,5 +1,3 @@
-#-*- coding: utf-8 -*-
-
 from django.contrib.auth.mixins import LoginRequiredMixin, PermissionRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404

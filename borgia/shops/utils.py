@@ -1,5 +1,3 @@
-#-*- coding: utf-8 -*-
-
 from django.contrib.auth.models import Group
 from django.urls import reverse
 
@@ -115,7 +113,7 @@ def shops_lateral_menu(nav_tree, user, shop):
                     url=reverse(
                         'url_shop_module_sale',
                         kwargs={'shop_pk': shop.pk, 'module_class': 'operator_sales'})
-                    ))
+                ))
 
     # Sales
     if user.has_perm('finances.view_sale'):
@@ -176,7 +174,8 @@ def shops_lateral_menu(nav_tree, user, shop):
                 fa_icon='shopping-basket',
                 id_link='lm_selfsale_module',
                 url=reverse('url_shop_module_config',
-                            kwargs={'shop_pk': shop.pk, 'module_class': 'self_sales'}
+                            kwargs={'shop_pk': shop.pk,
+                                    'module_class': 'self_sales'}
                             )
             ))
 
@@ -187,13 +186,15 @@ def shops_lateral_menu(nav_tree, user, shop):
                 fa_icon='coffee',
                 id_link='lm_operatorsale_module',
                 url=reverse('url_shop_module_config',
-                            kwargs={'shop_pk': shop.pk, 'module_class': 'operator_sales'}
+                            kwargs={'shop_pk': shop.pk,
+                                    'module_class': 'operator_sales'}
                             )
             ))
 
     # Groups management
     subs = []
-    groups = [Group.objects.get(name='chiefs-'+shop.name), Group.objects.get(name='associates-'+shop.name)]
+    groups = [Group.objects.get(name='chiefs-'+shop.name),
+              Group.objects.get(name='associates-'+shop.name)]
     for group in groups:
         if user.has_perm(get_permission_name_group_managing(group)):
             subs.append(

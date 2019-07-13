@@ -1,5 +1,3 @@
-#-*- coding: utf-8 -*-
-
 from django.urls import include, path
 
 from shops.views import (ProductCreate, ProductDeactivate, ProductList,

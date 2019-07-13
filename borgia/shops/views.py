@@ -1,5 +1,3 @@
-#-*- coding: utf-8 -*-
-
 import datetime
 import decimal
 
@@ -18,7 +16,6 @@ from shops.forms import (ProductCreateForm, ProductListForm, ProductUpdateForm,
                          ShopCreateForm, ShopUpdateForm)
 from shops.mixins import ProductMixin, ShopMixin
 from shops.models import Product, Shop
-
 
 
 class ShopCreate(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):

@@ -1,5 +1,3 @@
-#-*- coding: utf-8 -*-
-
 import decimal
 
 from django.contrib.auth.models import Group
@@ -51,11 +49,13 @@ class Shop(models.Model):
     def get_managers(self):
         try:
             chiefs_group = Group.objects.get(name='chiefs-' + self.name)
-            associates_group = Group.objects.get(name='associates-' + self.name)
+            associates_group = Group.objects.get(
+                name='associates-' + self.name)
         except ObjectDoesNotExist:
             raise ImproperlyConfigured(
                 '{0} is missing the related managers groups. You should verify the name of '
-                '{0} and/or the managers groups related'.format(self.__class__.__name__)
+                '{0} and/or the managers groups related'.format(
+                    self.__class__.__name__)
             )
 
         managers = chiefs_group.user_set.union(associates_group.user_set.all())
@@ -157,7 +157,8 @@ class Product(models.Model):
         try:
             margin_profit = configuration_get('MARGIN_PROFIT').get_value()
 
-            last_stockentry = self.stockentryproduct_set.order_by('-stockentry__datetime').first()
+            last_stockentry = self.stockentryproduct_set.order_by(
+                '-stockentry__datetime').first()
             if last_stockentry is not None:
                 return round(decimal.Decimal(last_stockentry.unit_price() * self.correcting_factor * decimal.Decimal(1 + margin_profit / 100)), 4)
             else:
@@ -222,7 +223,8 @@ class Product(models.Model):
         Return all StockEntryProduct concerning the product since the last inventory
         """
         try:
-            last_inventory = self.last_inventoryproduct(offset).inventory.datetime
+            last_inventory = self.last_inventoryproduct(
+                offset).inventory.datetime
             return self.stockentryproduct_set.filter(stockentry__datetime__gte=last_inventory)
         except AttributeError:
             return self.stockentryproduct_set.all()

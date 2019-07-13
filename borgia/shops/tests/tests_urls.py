@@ -1,4 +1,3 @@
-#-*- coding: utf-8 -*-
 """
 Test for shops named urls
 """
@@ -25,13 +24,15 @@ class ShopsNamedURLTests(TestCase):
                 try:
                     reverse(name, args=args, kwargs=kwargs)
                 except NoReverseMatch:
-                    self.fail("Reversal of url named '%s' failed with NoReverseMatch" % name)
+                    self.fail(
+                        "Reversal of url named '%s' failed with NoReverseMatch" % name)
 
 
 class ShopProductsNamedURLTests(TestCase):
     """
     Test for shop products named urls
     """
+
     def test_named_urls(self):
         "Named products URLs should be reversible"
         expected_named_urls = [
@@ -39,7 +40,8 @@ class ShopProductsNamedURLTests(TestCase):
             ('url_product_create', [], {'shop_pk': 53}),
             ('url_product_retrieve', [], {'shop_pk': 53, 'product_pk': 53}),
             ('url_product_update', [], {'shop_pk': 53, 'product_pk': 53}),
-            ('url_product_update_price', [], {'shop_pk': 53, 'product_pk': 53}),
+            ('url_product_update_price', [], {
+             'shop_pk': 53, 'product_pk': 53}),
             ('url_product_deactivate', [], {'shop_pk': 53, 'product_pk': 53}),
             ('url_product_remove', [], {'shop_pk': 53, 'product_pk': 53})
         ]
@@ -48,4 +50,5 @@ class ShopProductsNamedURLTests(TestCase):
                 try:
                     reverse(name, args=args, kwargs=kwargs)
                 except NoReverseMatch:
-                    self.fail("Reversal of url named '%s' failed with NoReverseMatch" % name)
+                    self.fail(
+                        "Reversal of url named '%s' failed with NoReverseMatch" % name)

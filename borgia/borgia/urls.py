@@ -1,4 +1,3 @@
-#-*- coding: utf-8 -*-
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib.auth.views import (LogoutView, PasswordChangeDoneView,
@@ -43,7 +42,8 @@ urlpatterns = [
     ])),
     # WORKBOARDS
     path('members/', MembersWorkboard.as_view(), name='url_members_workboard'),
-    path('managers/', ManagersWorkboard.as_view(), name='url_managers_workboard'),
+    path('managers/', ManagersWorkboard.as_view(),
+         name='url_managers_workboard'),
 
     ### APPS ###
     path('', include(configurations_patterns)),

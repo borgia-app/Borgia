@@ -1,5 +1,3 @@
-#-*- coding: utf-8 -*-
-
 from borgia.tests.tests_views import BaseBorgiaViewsTestCase
 from shops.models import Product, Shop
 
@@ -48,7 +46,8 @@ class ProductTestCase(BaseShopTestCase):
         self.assertEqual(self.product1.__str__(), 'Product1 name')
         self.assertEqual(self.product2.__str__(), 'Product2 name')
         self.assertEqual(self.product3.__str__(), 'product3 name')
-        self.assertEqual(self.product4.__str__(), 'A different product for a different shop')
+        self.assertEqual(self.product4.__str__(),
+                         'A different product for a different shop')
 
     def test_get_unit_display(self):
         self.assertEqual(self.product1.get_unit_display(), 'cl')

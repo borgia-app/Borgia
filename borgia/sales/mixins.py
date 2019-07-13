@@ -1,4 +1,3 @@
-#-*- coding: utf-8 -*-
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import Http404
 
@@ -10,6 +9,7 @@ class SaleMixin(ShopMixin):
     """
     Mixin that check permission and give context for sales
     """
+
     def add_sale_object(self):
         """
         Define Sale object.
