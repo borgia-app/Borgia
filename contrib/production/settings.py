@@ -26,12 +26,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '⚠️TO BE CHANGED⚠️'
+SECRET_KEY = 'TO BE CHANGED'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = ['⚠️TO BE CHANGED⚠️']
+ALLOWED_HOSTS = ['TO BE CHANGED']
 
 
 # Application definition
@@ -88,9 +88,9 @@ WSGI_APPLICATION = 'borgia.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': '⚠️TO BE CHANGED⚠️',
-        'USER': '⚠️TO BE CHANGED⚠️',
-        'PASSWORD': '⚠️TO BE CHANGED⚠️',
+        'NAME': 'TO BE CHANGED',
+        'USER': 'TO BE CHANGED',
+        'PASSWORD': 'TO BE CHANGED',
         'HOST': 'localhost',
         'PORT': '5432',
     }
@@ -151,16 +151,16 @@ MEDIA_URL = '/media/'
 
 
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = '⚠️TO BE CHANGED⚠️'
-SERVER_EMAIL = '⚠️TO BE CHANGED⚠️'
-EMAIL_HOST = '⚠️TO BE CHANGED⚠️'
-EMAIL_PORT = '⚠️TO BE CHANGED⚠️'
-EMAIL_HOST_USER = '⚠️TO BE CHANGED⚠️'
-EMAIL_HOST_PASSWORD = '⚠️TO BE CHANGED⚠️'
-EMAIL_BACKEND = '⚠️TO BE CHANGED⚠️'
+DEFAULT_FROM_EMAIL = 'TO BE CHANGED'
+SERVER_EMAIL = 'TO BE CHANGED'
+EMAIL_HOST = 'TO BE CHANGED'
+EMAIL_PORT = 'TO BE CHANGED'
+EMAIL_HOST_USER = 'TO BE CHANGED'
+EMAIL_HOST_PASSWORD = 'TO BE CHANGED'
+EMAIL_BACKEND = 'TO BE CHANGED'
 
 
-ADMINS = ['⚠️TO BE CHANGED⚠️']
+ADMINS = ['TO BE CHANGED']
 
 
 # Password reset validity duration

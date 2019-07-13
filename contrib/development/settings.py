@@ -26,7 +26,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '⚠️TO BE CHANGED⚠️'
+SECRET_KEY = 'TO BE CHANGED'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -147,16 +147,16 @@ MEDIA_URL = '/media/'
 
 
 EMAIL_USE_TLS = True
-DEFAULT_FROM_EMAIL = '⚠️TO BE CHANGED⚠️'
-SERVER_EMAIL = '⚠️TO BE CHANGED⚠️'
-EMAIL_HOST = '⚠️TO BE CHANGED⚠️'
-EMAIL_PORT = '⚠️TO BE CHANGED⚠️'
-EMAIL_HOST_USER = '⚠️TO BE CHANGED⚠️'
-EMAIL_HOST_PASSWORD = '⚠️TO BE CHANGED⚠️'
-EMAIL_BACKEND = '⚠️TO BE CHANGED⚠️'
+DEFAULT_FROM_EMAIL = 'TO BE CHANGED'
+SERVER_EMAIL = 'TO BE CHANGED'
+EMAIL_HOST = 'TO BE CHANGED'
+EMAIL_PORT = 'TO BE CHANGED'
+EMAIL_HOST_USER = 'TO BE CHANGED'
+EMAIL_HOST_PASSWORD = 'TO BE CHANGED'
+EMAIL_BACKEND = 'TO BE CHANGED'
 
 
-ADMINS = ['⚠️TO BE CHANGED⚠️']
+ADMINS = ['TO BE CHANGED']
 
 
 # Password reset validity duration
