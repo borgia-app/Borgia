@@ -1,0 +1,20 @@
+dist: xenial
+
+language: python
+python:
+    - '3.7'
+
+install:
+    - pip install -r requirements/dev.txt
+    - npm add -g less
+
+before_script:
+    - cp contrib/development/settings.py borgia/borgia/settings.py # The file is OK for dev as it is, even with some "TO BE CHANGED"
+    - python borgia/manage.py makemigrations configurations users shops finances events modules sales stocks
+    - python borgia/manage.py migrate
+    - python borgia/manage.py loaddata initial
+    - python borgia/manage.py collectstatic --clear --noinput
+    - python borgia/manage.py loaddata tests_data
+
+script:
+    - python borgia/manage.py test borgia/
