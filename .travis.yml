@@ -18,3 +18,4 @@ before_script:
 
 script:
     - python borgia/manage.py test borgia/
+    
