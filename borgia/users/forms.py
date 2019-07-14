@@ -115,6 +115,7 @@ class UserSearchForm(forms.Form):
                                       'placeholder': "Nom / Prénom / Surnom"}))
     year = forms.ChoiceField(label='Année', required=False)
     state = forms.ChoiceField(label='Etat', choices=(('all', 'Tous les actifs'),
+                                                     ('internals', 'Uniquement les membres internes actifs'),
                                                      ('negative_balance',
                                                       'Uniquement ceux à solde négative'),
                                                      ('threshold', 'Uniquement ceux en-dessous du seuil de commande'),

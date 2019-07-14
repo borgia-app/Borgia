@@ -63,7 +63,7 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
         except KeyError:
             pass
 
-        query = User.objects.all().exclude(groups=get_members_group(is_externals=True))
+        query = User.objects.all()
         if self.sort is not None:
             context['sort'] = self.sort
             if self.headers[self.sort] == "des":
@@ -95,6 +95,8 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
                 year=self.year)
 
         if self.state and self.state != 'all':
+            if self.state == 'internals':
+                query = query.exclude(groups=get_members_group(is_externals=True)).filter(is_active=True)
             if self.state == 'negative_balance':
                 query = query.filter(balance__lt=0.0, is_active=True)
             elif self.state == 'threshold':

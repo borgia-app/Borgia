@@ -6,8 +6,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 
 ## [Unreleased]
+### Changed
+- User list default view now include externals members. New option to only display internals members.
+
 ### Fix
 - Missing link to stockentry and inventory creation.
+- Redirection after user self update.
+
 
 ## [5.1.0] - 2019-04-20
 ### Added
