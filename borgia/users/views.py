@@ -332,6 +332,9 @@ class UserSelfUpdateView(LoginRequiredMixin, BorgiaFormView):
     def get_success_message(self, cleaned_data):
         return "Vos infos ont bien été mises à jour"
 
+    def get_success_url(self):
+        return reverse('url_members_workboard')
+
 
 class GroupUpdateView(GroupMixin, BorgiaFormView):
     menu_type = 'managers'
