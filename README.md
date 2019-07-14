@@ -1,8 +1,10 @@
 # ![Borgia](./borgia/static/static_dirs/img/borgia-logo-light.png 'Borgia')
 
-Current Version : 5.1.x
-Licence : [GNU GPL version 3](./license.txt)
-Chat (en/fr): [Join us on Slack](https://borgia-app.slack.com)
+Current Version : 5.1.x 
+Licence : [GNU GPL version 3](./license.txt)  
+Chat (en/fr): [Join us on Slack](https://borgia-app.slack.com)  
+Master branch: [![Build Status](https://travis-ci.org/borgia-app/Borgia.svg?branch=master)](https://travis-ci.org/borgia-app/Borgia)  
+Develop branch: [![Build Status](https://travis-ci.org/borgia-app/Borgia.svg?branch=develop)](https://travis-ci.org/borgia-app/Borgia)  
 
 # Introduction
 
