@@ -14,7 +14,11 @@
     </title>
     <link href="https://fonts.googleapis.com/css?family=Lato|Roboto" rel="stylesheet">
     <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
-    {% set_template request.user.theme as template %}
+    {% if request.user.theme %}
+      {% set_template request.user.theme as template %}
+    {% else %}
+      {% set_default_template as template %}
+    {% endif %}
     <link rel="stylesheet" href="{% static template|compile %}" />
 
     {% include "partials/favicon_metadata.html" %}

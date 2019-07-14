@@ -50,6 +50,14 @@ def get_center_name():
     return configuration_get('CENTER_NAME').get_value()
 
 @register.simple_tag
+def set_default_template():
+    default_template = getattr(settings, "DEFAULT_TEMPLATE", None)
+    if default_template:
+        return 'less/_bootstrap-' + default_template + '.less'
+    else:
+        return 'less/_bootstrap-light.less'
+
+@register.simple_tag
 def set_template(template_name):
     default_template = getattr(settings, "DEFAULT_TEMPLATE", None)
     if template_name:

@@ -74,7 +74,7 @@ var data = {
   labels: ['Ventes', 'Achats'],
   datasets: [
     {
-      data: ['{{ sale_list.total }}', '{{ purchase_list.total }}'],
+      data: ['{% if sale_list.total %}{{ sale_list.total }}{% else %}0{% endif %}', '{% if purchase_list.total %}{{ purchase_list.total }}{% else %}0{% endif %}'],
       backgroundColor: ['{{ shop.color }}', opposite_shop_color_hex],
       hoverBackgroundColor: ['{{ shop.color }}', opposite_shop_color_hex]
     }

@@ -12,6 +12,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Fix
 - Missing link to stockentry and inventory creation.
 - Redirection after user self update.
+- Possible missing navigation menu
 
 
 ## [5.1.0] - 2019-04-20
