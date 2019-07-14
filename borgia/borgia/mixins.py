@@ -98,7 +98,7 @@ class LateralMenuMixin(ContextMixin):
 
             nav_tree.append(management_tree)
 
-            nav_tree = self.get_specific_menu(nav_tree)
+        nav_tree = self.get_specific_menu(nav_tree)
 
         if self.lm_active is not None:
             for link in nav_tree:
