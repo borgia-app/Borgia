@@ -51,7 +51,7 @@ def get_shops_tree(user, is_association_manager):
         shop_managed = Shop.objects.all()
     else:
         shop_managed = get_shops_managed(user)
-        if shop_managed:
+        if not shop_managed:
             return []
 
     for shop in shop_managed:
