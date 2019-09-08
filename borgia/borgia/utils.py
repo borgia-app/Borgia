@@ -34,7 +34,7 @@ def members_lateral_menu(nav_tree, user):
     """
     nav_tree.append(
         simple_lateral_link(
-            'Acceuil ' + INTERNALS_GROUP_NAME,
+            'Accueil ' + INTERNALS_GROUP_NAME,
             'briefcase',
             'lm_workboard',
             reverse('url_members_workboard')))
@@ -160,7 +160,7 @@ def managers_lateral_menu(nav_tree, user):
     # ExceptionnalMovements
     if user.has_perm('finances.view_exceptionnalmovement'):
         nav_tree.append(simple_lateral_link(
-            label='Exceptionnal Movements',
+            label='Mouvements exceptionnels',
             fa_icon='exclamation-triangle',
             id_link='lm_exceptionnalmovement_list',
             url=reverse('url_exceptionnalmovement_list')

@@ -57,7 +57,7 @@ def get_shops_tree(user, is_association_manager):
     for shop in shop_managed:
         shop_tree.append(
             simple_lateral_link(
-                shop.name + ' Management',
+                'Management ' + shop.name.capitalize(),
                 'briefcase',
                 'lm_workboard',
                 reverse('url_shop_workboard',
