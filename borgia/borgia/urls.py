@@ -23,7 +23,7 @@ urlpatterns = [
     # AUTHENTIFICATIONS
     path('', ModulesLoginView.as_view(), name='url_login'),
     path('auth/', include([
-        path('login/', ModulesLoginView.as_view()),
+        path('login/', ModulesLoginView.as_view(), name='url_login'),
         path('logout/', LogoutView.as_view(), name='url_logout'),
 
         path('password_change/', PasswordChangeView.as_view(),
