@@ -18,7 +18,7 @@ from django.urls import reverse
 from django.utils.encoding import force_text
 
 from borgia.utils import (get_members_group, human_unused_permissions,
-                          permission_to_manage_group)
+                          get_permission_name_group_managing)
 from borgia.views import BorgiaFormView, BorgiaView
 from configurations.utils import configuration_get
 from users.forms import (GroupUpdateForm, SelfUserUpdateForm,
@@ -352,7 +352,7 @@ class GroupUpdateView(GroupMixin, BorgiaFormView):
         Override the permission_required attribute.
         Must return an iterable.
         """
-        self.perm_manage_group = (permission_to_manage_group(self.group)[1],)
+        self.perm_manage_group = (get_permission_name_group_managing(self.group),)
         self.lm_active = 'lm_group_manage_' + self.group.name
         return self.perm_manage_group
 
@@ -371,8 +371,8 @@ class GroupUpdateView(GroupMixin, BorgiaFormView):
         if self.group.name.startswith('associates-') is True:
             chiefs_group_name = self.group.name.replace(
                 'associates', 'chiefs')
-            query = Group.objects.get(name=chiefs_group_name).exclude(
-                self.perm_manage_group)
+            query = Group.objects.get(name=chiefs_group_name).permissions.all().exclude(
+                name=self.perm_manage_group[0])
 
         else:
             query = Permission.objects.all()
