@@ -15,7 +15,7 @@ class BaseBorgiaViewsTestCase(TestCase):
     def setUp(self):
         members_group = Group.objects.get(name=INTERNALS_GROUP_NAME)
         externals_group = Group.objects.get(name=EXTERNALS_GROUP_NAME)
-        presidents_group = Group.objects.get(name='presidents')
+        presidents_group = Group.objects.get(name=PRESIDENTS_GROUP_NAME)
         presidents_group.permissions.set(Permission.objects.all())
         # Group externals NEED to be created (else raises errors) :
 

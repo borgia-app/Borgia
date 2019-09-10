@@ -7,6 +7,9 @@ from django.core.validators import RegexValidator
 from django.db import models
 from django.utils import timezone
 
+from borgia.utils import (PRESIDENTS_GROUP_NAME, VICE_PRESIDENTS_GROUP_NAME, TREASURERS_GROUP_NAME,
+                          INTERNALS_GROUP_NAME, EXTERNALS_GROUP_NAME)
+
 
 class User(AbstractUser):
     """
@@ -101,11 +104,15 @@ class User(AbstractUser):
         """
         permissions = (
             # Group management
-            ('manage_presidents_group', 'Can manage presidents group'),
-            ('manage_vice_presidents_group', 'Can manage vice presidents group'),
-            ('manage_treasurers_group', 'Can manage treasurers group'),
-            ('manage_members_group', 'Can manage members group'),
-            ('manage_externals_group', 'Can manage externals group'),
+            ("manage_" + PRESIDENTS_GROUP_NAME + \
+             "_group", 'Can manage presidents group'),
+            ("manage_" + VICE_PRESIDENTS_GROUP_NAME + \
+             "_group", 'Can manage vice presidents group'),
+            ("manage_" + TREASURERS_GROUP_NAME + \
+             "_group", 'Can manage treasurers group'),
+            ("manage_" + INTERNALS_GROUP_NAME + "_group", 'Can manage members group'),
+            ("manage_" + EXTERNALS_GROUP_NAME + \
+             "_group", 'Can manage externals group'),
 
             # User management
             # add_user
@@ -227,7 +234,8 @@ class User(AbstractUser):
         """
 
         sales = self.sender_sale.all()
-        transferts = self.recipient_transfert.union(self.sender_transfert.all())
+        transferts = self.recipient_transfert.union(
+            self.sender_transfert.all())
         rechargings = self.sender_recharging.all()
         exceptionnal_movements = self.recipient_exceptionnal_movement.all()
         events = self.event_set.filter(done=True)
@@ -241,6 +249,7 @@ class User(AbstractUser):
         )
 
         return list_transaction
+
 
 def get_list_year():
     """

@@ -189,7 +189,7 @@ class UserSelfUpdateViewTestCase(BaseBorgiaViewsTestCase):
         self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
 
 
-class ManageGroupViewTestCase(BaseBorgiaViewsTestCase):
+class UpdateGroupViewTestCase(BaseBorgiaViewsTestCase):
     url_view = 'url_group_update'
 
     def get_url(self, group_pk):

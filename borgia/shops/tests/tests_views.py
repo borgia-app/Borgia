@@ -383,3 +383,15 @@ class ProductRemoveViewTest(BaseFocusProductViewsTest):
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
+
+class UpdateGroupViewTestCase(BaseShopsViewsTest):
+    url_view = 'url_group_update'
+
+    def get_url(self, group_pk):
+        return reverse(self.url_view, kwargs={'group_pk': group_pk})
+
+    def test_chief_get(self):
+        associates1 = Group.objects.get(name='associates-' + self.shop1.name)
+        response_client1 = self.client3.get(
+            self.get_url(associates1.pk))
+        self.assertEqual(response_client1.status_code, 200)
