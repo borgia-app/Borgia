@@ -9,6 +9,9 @@ from shops.models import Shop
 
 INTERNALS_GROUP_NAME = 'members'
 EXTERNALS_GROUP_NAME = 'externals'
+PRESIDENTS_GROUP_NAME = 'presidents'
+VICE_PRESIDENTS_GROUP_NAME = 'vice_presidents'
+TREASURERS_GROUP_NAME = 'treasurers'
 ACCEPTED_MENU_TYPES = ['members', 'managers', 'shops']
 
 
@@ -235,11 +238,11 @@ def group_name_display(group):
     :returns: readable group name
     :rtype: string
     """
-    if group.name == 'treasurers':
+    if group.name == TREASURERS_GROUP_NAME:
         return 'Trésoriers'
-    elif group.name == 'presidents':
+    elif group.name == PRESIDENTS_GROUP_NAME:
         return 'Présidents'
-    elif group.name == 'vice_presidents':
+    elif group.name == VICE_PRESIDENTS_GROUP_NAME:
         return 'Vice-présidents'
     elif 'chiefs-' in group.name:
         return 'Chefs ' + group.name.split('-')[1]
@@ -387,9 +390,11 @@ def get_managers_group_from_user(user):
             if vice_presidents_query.count() == 1:
                 return vice_presidents_query.first()
             else:
-                treasurer_query = user.groups.filter(name='treasurer')
+                treasurer_query = user.groups.filter(name=TREASURERS_GROUP_NAME)
                 if treasurer_query.count() == 1:
                     return treasurer_query.first()
+                else:
+                    return None
 
 
 def is_association_manager(user):
