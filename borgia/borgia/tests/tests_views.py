@@ -5,7 +5,7 @@ from django.urls import NoReverseMatch, reverse
 
 from borgia.settings import LOGIN_REDIRECT_URL, LOGIN_URL
 from borgia.tests.utils import get_login_url_redirected
-from borgia.utils import EXTERNALS_GROUP_NAME, INTERNALS_GROUP_NAME
+from borgia.utils import EXTERNALS_GROUP_NAME, INTERNALS_GROUP_NAME, PRESIDENTS_GROUP_NAME
 from users.models import User
 
 

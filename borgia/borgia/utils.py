@@ -382,11 +382,11 @@ def get_managers_group_from_user(user):
     if user.groups.count() == 1:
         return None
     else:
-        presidents_query = user.groups.filter(name='presidents')
+        presidents_query = user.groups.filter(name=PRESIDENTS_GROUP_NAME)
         if presidents_query.count() == 1:
             return presidents_query.first()
         else:
-            vice_presidents_query = user.groups.filter(name='vice_presidents')
+            vice_presidents_query = user.groups.filter(name=VICE_PRESIDENTS_GROUP_NAME)
             if vice_presidents_query.count() == 1:
                 return vice_presidents_query.first()
             else:
