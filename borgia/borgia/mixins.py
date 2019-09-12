@@ -84,15 +84,15 @@ class LateralMenuMixin(ContextMixin):
                     reverse('url_members_workboard')
                 )
             )
-            if is_manager:
-                management_tree['subs'].append(
-                    simple_lateral_link(
-                        'Association',
-                        'briefcase',
-                        'lm_workboard',
-                        reverse('url_managers_workboard')
-                    )
+            # if is_manager:
+            management_tree['subs'].append(
+                simple_lateral_link(
+                    'Association',
+                    'briefcase',
+                    'lm_workboard',
+                    reverse('url_managers_workboard')
                 )
+            )
             for nav_shop in shop_tree:
                 management_tree['subs'].append(nav_shop)
 

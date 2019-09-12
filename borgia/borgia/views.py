@@ -26,6 +26,7 @@ from events.models import Event
 from finances.models import ExceptionnalMovement, Recharging, Transfert
 from modules.models import SelfSaleModule
 from sales.models import Sale
+from shops.utils import get_shops_managed
 from shops.models import Shop
 from users.forms import UserQuickSearchForm
 from users.models import User
@@ -76,9 +77,9 @@ class ModulesLoginView(LoginView):
             context['shop_list'].append({
                 'shop': shop,
                 'operator_module': operator_module,
-                'operator_module_link' : operator_module_link,
+                'operator_module_link': operator_module_link,
                 'self_module': self_module,
-                'self_module_link' : self_module_link
+                'self_module_link': self_module_link
             })
         return context
 
@@ -176,12 +177,19 @@ class ManagersWorkboard(LoginRequiredMixin, PermissionRequiredMixin, BorgiaView)
     lm_active = 'lm_workboard'
 
     def has_permission(self):
-        return is_association_manager(self.request.user)
+        self.managers_group = get_managers_group_from_user(self.request.user)
+        self.shops_managed = get_shops_managed(self.request.user)
+        return self.managers_group or self.shops_managed
 
     def get(self, request, **kwargs):
         context = self.get_context_data(**kwargs)
-        context['group'] = get_managers_group_from_user(request.user)
-        context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
+        if (self.managers_group):
+            context['group'] = self.managers_group
+            context['sale_list'] = Sale.objects.all().order_by('-datetime')[:5]
+        elif self.shops_managed:
+            context['group'] = self.shops_managed[0]
+            context['sale_list'] = self.shops_managed[0].sale_set.all().order_by(
+                '-datetime')[:5]
         context['events'] = []
         for event in Event.objects.all():
             context['events'].append({
