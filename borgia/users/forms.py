@@ -61,6 +61,7 @@ class UserUpdateForm(forms.Form):
         label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
     year = forms.ChoiceField(
         label='Prom\'ss', choices=User.YEAR_CHOICES, required=False)
+    username = forms.CharField(label='Username', max_length=255)
 
     def __init__(self, **kwargs):
         self.user = kwargs.pop('user')
