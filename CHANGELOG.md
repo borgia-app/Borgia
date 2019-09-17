@@ -8,11 +8,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 ### Changed
 - User list default view now include externals members. New option to only display internals members.
+- [Users] Edit form : Add username and avatar fields.
+- [Users] Include externals members in users list view
 
 ### Fix
 - Missing link to stockentry and inventory creation.
 - Redirection after user self update.
 - Possible missing navigation menu
+- Chiefs access to associate group management
+- Menu for shops manager
+- [Sales] fix 403 error on self sales
+- Small fixes in templates
 
 
 ## [5.1.0] - 2019-04-20
