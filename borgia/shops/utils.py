@@ -51,13 +51,13 @@ def get_shops_tree(user, is_association_manager):
         shop_managed = Shop.objects.all()
     else:
         shop_managed = get_shops_managed(user)
-        if shop_managed:
+        if not shop_managed:
             return []
 
     for shop in shop_managed:
         shop_tree.append(
             simple_lateral_link(
-                shop.name + ' Management',
+                'Management ' + shop.name.capitalize(),
                 'briefcase',
                 'lm_workboard',
                 reverse('url_shop_workboard',

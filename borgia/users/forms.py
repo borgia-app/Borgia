@@ -61,6 +61,8 @@ class UserUpdateForm(forms.Form):
         label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
     year = forms.ChoiceField(
         label='Prom\'ss', choices=User.YEAR_CHOICES, required=False)
+    username = forms.CharField(label='Username', max_length=255)
+    avatar = forms.ImageField(label='Avatar', required=False)
 
     def __init__(self, **kwargs):
         self.user = kwargs.pop('user')
@@ -115,6 +117,8 @@ class UserSearchForm(forms.Form):
                                       'placeholder': "Nom / Prénom / Surnom"}))
     year = forms.ChoiceField(label='Année', required=False)
     state = forms.ChoiceField(label='Etat', choices=(('all', 'Tous les actifs'),
+                                                     ('internals',
+                                                      'Uniquement les membres internes actifs'),
                                                      ('negative_balance',
                                                       'Uniquement ceux à solde négative'),
                                                      ('threshold', 'Uniquement ceux en-dessous du seuil de commande'),

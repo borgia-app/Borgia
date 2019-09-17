@@ -7,7 +7,7 @@
   <div class="panel-body">
     <section class="form-section">
 		<section>
-			<form method='post' autocomplete="off" role="login">
+			<form method='post' autocomplete="off" role="login" action="{% url 'url_login' %}">
 				{% if default_theme == 'dark' %}
 				  <img src="{% static 'img/borgia-logo-dark.png' %}" class="logo img-responsive"/>
 				{% else %}
@@ -23,11 +23,11 @@
         {% endif %}
 
 				  <div class="form-group">
-				    {{ form.username }}
+					  <input type="text" name="username" id="id_username" class="form-control autocomplete_username ui-autocomplete-input" autofocus="true" autocomplete="off" placeholder="Nom d'utilisateur" maxlength="255" required="">				    
 					  <span class="glyphicon glyphicon-user"></span>
           </div>
           <div class="form-group">
-            {{ form.password }}
+             <input type="password" name="password" id="id_password" placeholder="Mot de passe" maxlength="255" class="form-control" required="">
              <span class="glyphicon glyphicon-lock"></span>
           </div>
 				<p class="text-right password-reset-button">

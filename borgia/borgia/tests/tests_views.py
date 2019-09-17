@@ -5,7 +5,7 @@ from django.urls import NoReverseMatch, reverse
 
 from borgia.settings import LOGIN_REDIRECT_URL, LOGIN_URL
 from borgia.tests.utils import get_login_url_redirected
-from borgia.utils import EXTERNALS_GROUP_NAME, INTERNALS_GROUP_NAME
+from borgia.utils import EXTERNALS_GROUP_NAME, INTERNALS_GROUP_NAME, PRESIDENTS_GROUP_NAME
 from users.models import User
 
 
@@ -15,7 +15,7 @@ class BaseBorgiaViewsTestCase(TestCase):
     def setUp(self):
         members_group = Group.objects.get(name=INTERNALS_GROUP_NAME)
         externals_group = Group.objects.get(name=EXTERNALS_GROUP_NAME)
-        presidents_group = Group.objects.get(name='presidents')
+        presidents_group = Group.objects.get(name=PRESIDENTS_GROUP_NAME)
         presidents_group.permissions.set(Permission.objects.all())
         # Group externals NEED to be created (else raises errors) :
 

@@ -49,10 +49,10 @@ class ConfigurationLydiaForm(forms.Form):
             max >= min
         """
         cleaned_data = super().clean()
-        lydia_min_price = cleaned_data.get("lydia_min_price")
+        min_price_lydia = cleaned_data.get("min_price_lydia")
         max_price_lydia = cleaned_data.get("max_price_lydia", None)
         if max_price_lydia is not None:
-            if max_price_lydia < lydia_min_price:
+            if max_price_lydia < min_price_lydia:
                 raise ValidationError(
                     "Le montant maximal doit être supérieur ou égal au montant minimal")
 

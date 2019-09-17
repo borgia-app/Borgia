@@ -1,6 +1,7 @@
 from functools import partial, wraps
 
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.mixins import PermissionRequiredMixin
 from django.core.exceptions import ObjectDoesNotExist
 from django.forms.formsets import formset_factory
 from django.http import Http404
@@ -39,7 +40,10 @@ class ShopModuleSaleView(ShopModuleMixin, BorgiaFormView):
     form_class = ShopModuleSaleForm
 
     def has_permission(self):
-        has_perms = super().has_permission()
+        if self.kwargs['module_class'] == 'self_sales':
+            has_perms = self.has_permission_selfsales()
+        else:
+            has_perms = super().has_permission()
         if not has_perms:
             return False
         else:
@@ -47,6 +51,15 @@ class ShopModuleSaleView(ShopModuleMixin, BorgiaFormView):
                 raise Http404
             else:
                 return True
+
+    def has_permission_selfsales(self):
+        """
+        Customized permission for self_sale in shops. 
+        The user still need the use_selfsalemodule permission
+        """
+        self.add_context_objects()
+        return PermissionRequiredMixin.has_permission(self)
+
 
     def get_menu_type(self):
         if self.module_class == "self_sales":

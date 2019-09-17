@@ -144,6 +144,16 @@ class UserUpdateViewTestCase(BaseFocusUserViewsTestCase):
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
+    
+    def test_allowed_selfupdate_get(self):
+        response_client1 = self.client1.get(
+            self.get_url(self.user1.pk))
+        self.assertEqual(response_client1.status_code, 200)
+
+    def test_allowed_selfupdate2_get(self):
+        response_client2 = self.client2.get(
+            self.get_url(self.user2.pk))
+        self.assertEqual(response_client2.status_code, 200)
 
 
 class UserDeactivateViewTestCase(BaseFocusUserViewsTestCase):
@@ -166,30 +176,7 @@ class UserDeactivateViewTestCase(BaseFocusUserViewsTestCase):
         super().offline_user_redirection()
 
 
-class UserSelfUpdateViewTestCase(BaseBorgiaViewsTestCase):
-    url_view = 'url_user_self_update'
-
-    def get_url(self):
-        return reverse(self.url_view)
-
-    def test_allowed_user_get(self):
-        response_client1 = self.client1.get(
-            self.get_url())
-        self.assertEqual(response_client1.status_code, 200)
-
-    def test_other_allowed_user_get(self):
-        response_client2 = self.client2.get(
-            self.get_url())
-        self.assertEqual(response_client2.status_code, 200)
-
-    def test_offline_user_redirection(self):
-        response_offline_user = Client().get(
-            self.get_url())
-        self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
-
-
-class ManageGroupViewTestCase(BaseBorgiaViewsTestCase):
+class UpdateGroupViewTestCase(BaseBorgiaViewsTestCase):
     url_view = 'url_group_update'
 
     def get_url(self, group_pk):

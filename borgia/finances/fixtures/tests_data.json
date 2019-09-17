@@ -1,0 +1,13 @@
+[
+    {
+        "model": "finances.transfert",
+        "pk": 1,
+        "fields": {
+            "datetime": "2019-08-01T12:00:00.000Z",
+            "justification": "Transfert1",
+            "sender": 2,
+            "recipient": 3,
+            "amount": "2.92"
+        }
+    }
+]
