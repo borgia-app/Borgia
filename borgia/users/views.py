@@ -21,8 +21,7 @@ from borgia.utils import (get_members_group, human_unused_permissions,
                           get_permission_name_group_managing)
 from borgia.views import BorgiaFormView, BorgiaView
 from configurations.utils import configuration_get
-from users.forms import (GroupUpdateForm, SelfUserUpdateForm,
-                         UserCreationCustomForm, UserDownloadXlsxForm,
+from users.forms import (GroupUpdateForm, UserCreationCustomForm, UserDownloadXlsxForm,
                          UserSearchForm, UserUpdateForm, UserUploadXlsxForm)
 from users.mixins import GroupMixin, UserMixin
 from users.models import User
@@ -96,7 +95,8 @@ class UserListView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
 
         if self.state and self.state != 'all':
             if self.state == 'internals':
-                query = query.exclude(groups=get_members_group(is_externals=True)).filter(is_active=True)
+                query = query.exclude(groups=get_members_group(
+                    is_externals=True)).filter(is_active=True)
             if self.state == 'negative_balance':
                 query = query.filter(balance__lt=0.0, is_active=True)
             elif self.state == 'threshold':
@@ -210,6 +210,13 @@ class UserUpdateView(UserMixin, BorgiaFormView):
     model = User
     modified = False
 
+    def has_permission(self):
+        """
+        Override has_permission to allow self update
+        """
+        self.is_manager = super().has_permission()
+        return self.is_manager or self.user == self.request.user
+
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.user
@@ -225,7 +232,10 @@ class UserUpdateView(UserMixin, BorgiaFormView):
     def form_valid(self, form):
         user = self.user
         for k in form.fields.keys():
-            if form.cleaned_data[k] != getattr(user, k):
+            if k == "avatar" and form.cleaned_data[k] is False:
+                if user.avatar:
+                    user.avatar.delete(True)
+            elif form.cleaned_data[k] != getattr(user, k):
                 self.modified = True
                 setattr(user, k, form.cleaned_data[k])
         user.save()
@@ -236,8 +246,11 @@ class UserUpdateView(UserMixin, BorgiaFormView):
         return "Les informations ont bien été mises à jour"
 
     def get_success_url(self):
-        return reverse('url_user_retrieve',
-                       kwargs={'user_pk': self.user.pk})
+        if self.is_manager:
+            return reverse('url_user_retrieve',
+                           kwargs={'user_pk': self.user.pk})
+        else:
+            return reverse('url_members_workboard')
 
 
 class UserDeactivateView(UserMixin, BorgiaView):
@@ -301,43 +314,6 @@ class UserDeactivateView(UserMixin, BorgiaView):
         return redirect(force_text(success_url))
 
 
-class UserSelfUpdateView(LoginRequiredMixin, BorgiaFormView):
-    menu_type = 'members'
-    template_name = 'users/user_self_update.html'
-    form_class = SelfUserUpdateForm
-
-    def get_initial(self):
-        initial = super().get_initial()
-        initial['email'] = self.request.user.email
-        initial['phone'] = self.request.user.phone
-        initial['avatar'] = self.request.user.avatar
-        initial['theme'] = self.request.user.theme
-        return initial
-
-    def get_form_kwargs(self):
-        kwargs = super().get_form_kwargs()
-        kwargs['user'] = self.request.user
-        return kwargs
-
-    def form_valid(self, form):
-        self.request.user.email = form.cleaned_data['email']
-        self.request.user.phone = form.cleaned_data['phone']
-        self.request.user.theme = form.cleaned_data['theme']
-        if form.cleaned_data['avatar'] is not False:
-            setattr(self.request.user, 'avatar', form.cleaned_data['avatar'])
-        else:
-            if self.request.user.avatar:
-                self.request.user.avatar.delete(True)
-        self.request.user.save()
-        return super().form_valid(form)
-
-    def get_success_message(self, cleaned_data):
-        return "Vos infos ont bien été mises à jour"
-
-    def get_success_url(self):
-        return reverse('url_members_workboard')
-
-
 class GroupUpdateView(GroupMixin, BorgiaFormView):
     menu_type = 'managers'
     template_name = 'users/group_update.html'
@@ -352,7 +328,8 @@ class GroupUpdateView(GroupMixin, BorgiaFormView):
         Override the permission_required attribute.
         Must return an iterable.
         """
-        self.perm_manage_group = (get_permission_name_group_managing(self.group),)
+        self.perm_manage_group = (
+            get_permission_name_group_managing(self.group),)
         self.lm_active = 'lm_group_manage_' + self.group.name
         return self.perm_manage_group
 
@@ -377,7 +354,8 @@ class GroupUpdateView(GroupMixin, BorgiaFormView):
         else:
             query = Permission.objects.all()
 
-        kwargs['possible_permissions'] = query.exclude(pk__in=human_unused_permissions())
+        kwargs['possible_permissions'] = query.exclude(
+            pk__in=human_unused_permissions())
         kwargs['possible_members'] = User.objects.filter(is_active=True).exclude(
             groups=get_members_group(is_externals=True))
         return kwargs
