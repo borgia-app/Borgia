@@ -33,24 +33,6 @@ class UserCreationCustomForm(forms.Form):
         return data
 
 
-class SelfUserUpdateForm(forms.ModelForm):
-    class Meta:
-        model = User
-        fields = ['email', 'phone', 'avatar', 'theme']
-
-    def __init__(self, **kwargs):
-        self.user = kwargs.pop('user')
-        super().__init__(**kwargs)
-
-    def clean_email(self):
-        data = self.cleaned_data['email']
-        if data == '':
-            raise ValidationError('Ce champ ne peut pas être vide')
-        if User.objects.filter(email=data).exclude(pk=self.user.pk).exists():
-            raise ValidationError('Un autre utilisateur existe avec cet email')
-        return data
-
-
 class UserUpdateForm(forms.Form):
     first_name = forms.CharField(label='Prenom', max_length=255)
     last_name = forms.CharField(label='Nom', max_length=255)
@@ -61,12 +43,18 @@ class UserUpdateForm(forms.Form):
         label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
     year = forms.ChoiceField(
         label='Prom\'ss', choices=User.YEAR_CHOICES, required=False)
-    username = forms.CharField(label='Username', max_length=255)
-    avatar = forms.ImageField(label='Avatar', required=False)
 
     def __init__(self, **kwargs):
         self.user = kwargs.pop('user')
+        self.is_manager = kwargs.pop('is_manager')
+        self.is_self_update = kwargs.pop('is_self_update')
         super().__init__(**kwargs)
+        if self.is_manager:
+            self.fields['username'] = forms.CharField(label='Username', max_length=255)
+        if self.is_self_update:
+            self.fields['avatar'] = forms.ImageField(label='Avatar', required=False)
+            self.fields['theme'] = forms.ChoiceField(
+                label='Theme', choices=User.THEME_CHOICES, required=False)
 
     def clean_first_name(self):
         data = self.cleaned_data['first_name']
@@ -86,6 +74,12 @@ class UserUpdateForm(forms.Form):
             raise ValidationError('Ce champ ne peut pas être vide')
         if User.objects.filter(email=data).exclude(pk=self.user.pk).exists():
             raise ValidationError('Un autre utilisateur existe avec cet email')
+        return data
+
+    def clean_username(self):
+        data = self.cleaned_data['username']
+        if User.objects.filter(username=data).exists():
+            raise ValidationError('Un autre user existe avec cet username')
         return data
 
 

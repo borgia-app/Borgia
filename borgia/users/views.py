@@ -215,17 +215,20 @@ class UserUpdateView(UserMixin, BorgiaFormView):
         Override has_permission to allow self update
         """
         self.is_manager = super().has_permission()
-        return self.is_manager or self.user == self.request.user
+        self.is_self_update = self.user == self.request.user
+        return self.is_manager or self.is_self_update
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.user
+        kwargs['is_manager'] = self.is_manager
+        kwargs['is_self_update'] = self.is_self_update
         return kwargs
 
     def get_initial(self):
         initial = super().get_initial()
         user = self.user
-        for k in UserUpdateForm(user=user).fields.keys():
+        for k in UserUpdateForm(user=user, is_manager=self.is_manager, is_self_update=self.is_self_update).fields.keys():
             initial[k] = getattr(user, k)
         return initial
 
