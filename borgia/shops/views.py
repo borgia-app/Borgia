@@ -100,6 +100,7 @@ class ShopCheckup(ShopMixin, BorgiaFormView):
     date_begin = None
     date_end = None
     products = None
+    sales_value = None
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -114,19 +115,46 @@ class ShopCheckup(ShopMixin, BorgiaFormView):
         return kwargs_form
 
     def form_valid(self, form):
-        self.date_begin = form.cleaned_data['date_begin']
-        self.date_end = form.cleaned_data['date_end']
-        self.products = form.cleaned_data['products']
-        return super().form_valid(form)
+        if form.cleaned_data['date_begin']:
+            self.date_begin = form.cleaned_data['date_begin']
+        if form.cleaned_data['date_end']:
+            self.date_end = form.cleaned_data['date_end']
+        if form.cleaned_data['products']:
+            self.products = form.cleaned_data['products']
+
+        return self.get(self.request, self.args, self.kwargs)
+
+    def info_sales(self, q_sales):
+        current_month = False
+        if self.date_begin is None:
+            self.date_begin = datetime.date.today().replace(day=1)
+
+        if self.date_end is None:
+            self.date_end = datetime.date.today()
+
+        q_sales = q_sales.filter(datetime__gte=self.date_begin)
+        q_sales = q_sales.filter(datetime__lte=self.date_end)
+
+        if self.sales_value is None:
+            self.sales_value = sum(s.amount() for s in q_sales)
+
+        if self.date_begin == datetime.date.today().replace(day=1) and self.date_end == datetime.date.today():
+            current_month = True
+
+        return {
+            'value': self.sales_value,
+            'nb': q_sales.count(),
+            'is_current_month': current_month
+        }
 
     def info_stock(self):
         return {}
 
     def info_transaction(self):
-        # All
         q_sales = Sale.objects.filter(shop=self.shop)
-        value = sum(s.amount() for s in q_sales)
-        nb = q_sales.count()
+        info_sales = self.info_sales(q_sales)
+        value = info_sales.get('value')
+        nb = info_sales.get('nb')
         try:
             mean = round(value / nb, 2)
         except (ZeroDivisionError, decimal.DivisionByZero, decimal.DivisionUndefined):
@@ -138,22 +166,31 @@ class ShopCheckup(ShopMixin, BorgiaFormView):
         }
 
     def info_checkup(self):
-        q_sale = Sale.objects.filter(shop=self.shop)
+        q_sales = Sale.objects.filter(shop=self.shop)
         if self.products:
-            q_sale = q_sale.filter(
+            q_sales = q_sales.filter(
                 products__pk__in=[p.pk for p in self.products])
-        if self.date_begin:
-            q_sale = q_sale.filter(datetime__gte=self.date_begin)
-        if self.date_end:
-            q_sale = q_sale.filter(datetime__lte=self.date_end)
-        sale_value = sum(s.amount() for s in q_sale)
-        sale_nb = q_sale.count()
+        info_sales = self.info_sales(q_sales)
+        sale_value = info_sales.get('value')
+        sale_nb = info_sales.get('nb')
+        current_month = info_sales.get('is_current_month')
+
         return {
             'sale': {
                 'value': sale_value,
                 'nb': sale_nb
-            }
+            },
+            'is_current_month': current_month,
+            'date_begin': self.date_begin,
+            'date_end': self.date_end
         }
+
+    def get_initial(self):
+        initial = super().get_initial()
+        initial['date_begin'] = self.date_begin
+        initial['date_end'] = self.date_end
+        initial['products'] = self.products
+        return initial
 
 
 class ShopWorkboard(ShopMixin, BorgiaView):

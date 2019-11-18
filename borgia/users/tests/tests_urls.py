@@ -12,7 +12,6 @@ class UsersNamedURLTests(TestCase):
             ('url_user_retrieve', [], {'user_pk': 53}),
             ('url_user_update', [], {'user_pk': 53}),
             ('url_user_deactivate', [], {'user_pk': 53}),
-            ('url_user_self_update', [], {}),
             ('url_group_update', [], {'group_pk': 53}),
             ('url_ajax_username_from_username_part', [], {}),
             ('url_balance_from_username', [], {}),

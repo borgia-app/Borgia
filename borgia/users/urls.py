@@ -2,8 +2,7 @@ from django.urls import include, path
 
 from users.views import (GroupUpdateView, UserAddByListXlsxDownload,
                          UserCreateView, UserDeactivateView, UserListView,
-                         UserRetrieveView,
-                         UserSelfUpdateView, UserUpdateView,
+                         UserRetrieveView, UserUpdateView,
                          UserUploadXlsxView, balance_from_username,
                          username_from_username_part)
 
@@ -16,7 +15,6 @@ users_patterns = [
             path('update/', UserUpdateView.as_view(), name='url_user_update'),
             path('deactivate/', UserDeactivateView.as_view(), name='url_user_deactivate')
         ])),
-        path('self/', UserSelfUpdateView.as_view(), name='url_user_self_update'),
 
         path('add_by_list/xlsx/', UserUploadXlsxView.as_view(), name='url_add_by_list_xlsx'),
         path('add_by_list/xlsx/download/', UserAddByListXlsxDownload.as_view(), name='url_add_by_list_xlsx_download')
