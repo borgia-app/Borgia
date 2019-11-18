@@ -677,8 +677,8 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
 
         context['vendor_token'] = configuration_get(
             "VENDOR_TOKEN_LYDIA").get_value()
-        context['confirm_url'] = reverse('url_self_lydia_confirm')
-        context['callback_url'] = reverse('url_self_lydia_callback')
+        context['confirm_url'] = self.request.build_absolute_uri(reverse('url_self_lydia_confirm'))
+        context['callback_url'] = self.request.build_absolute_uri(reverse('url_self_lydia_callback'))
         total_amount = form.cleaned_data['total_amount']
 
         if self.enable_fee_lydia:
@@ -724,7 +724,6 @@ class SelfLydiaConfirm(LoginRequiredMixin, BorgiaView):
 
 
 @csrf_exempt
-@login_required
 def self_lydia_callback(request):
     """
     Function to catch the callback from Lydia after a payment.
