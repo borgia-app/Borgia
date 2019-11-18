@@ -38,6 +38,7 @@ class ConfigurationIndexView(LoginRequiredMixin, PermissionRequiredMixin, Latera
         context['enable_fee_lydia'] = configuration_get('ENABLE_FEE_LYDIA')
         context['base_fee_lydia'] = configuration_get('BASE_FEE_LYDIA')
         context['ratio_fee_lydia'] = configuration_get('RATIO_FEE_LYDIA')
+        context['tax_fee_lydia'] = configuration_get('TAX_FEE_LYDIA')
         context['balance_threshold_purchase'] = configuration_get(
             "BALANCE_THRESHOLD_PURCHASE")
         #context['balance_threshold_mail_alert'] = configuration_get("BALANCE_THRESHOLD_MAIL_ALERT")
@@ -134,6 +135,8 @@ class ConfigurationLydiaView(ConfigurationChangeBaseView):
             'BASE_FEE_LYDIA').get_value()
         initial['ratio_fee_lydia'] = configuration_get(
             'RATIO_FEE_LYDIA').get_value()
+        initial['tax_fee_lydia'] = configuration_get(
+            'TAX_FEE_LYDIA').get_value()
         return initial
 
     def form_valid(self, form):
@@ -156,20 +159,27 @@ class ConfigurationLydiaView(ConfigurationChangeBaseView):
         enable_fee_lydia = configuration_get('ENABLE_FEE_LYDIA')
         enable_fee_lydia.value = form.cleaned_data['enable_fee_lydia']
         enable_fee_lydia.save()
-        # Lydia max price
+        # Base fee
         base_fee_lydia = configuration_get('BASE_FEE_LYDIA')
         if not form.cleaned_data['base_fee_lydia']:
             base_fee_lydia.value = ''
         else:
             base_fee_lydia.value = form.cleaned_data['base_fee_lydia']
         base_fee_lydia.save()
-        # Lydia max price
+        # Ratio fee
         ratio_fee_lydia = configuration_get('RATIO_FEE_LYDIA')
         if not form.cleaned_data['ratio_fee_lydia']:
             ratio_fee_lydia.value = ''
         else:
             ratio_fee_lydia.value = form.cleaned_data['ratio_fee_lydia']
         ratio_fee_lydia.save()
+        # Tax fee
+        tax_fee_lydia = configuration_get('TAX_FEE_LYDIA')
+        if not form.cleaned_data['tax_fee_lydia']:
+            tax_fee_lydia.value = ''
+        else:
+            tax_fee_lydia.value = form.cleaned_data['tax_fee_lydia']
+        tax_fee_lydia.save()
         # Lydia api token
         api_token_lydia = configuration_get('API_TOKEN_LYDIA')
         api_token_lydia.value = form.cleaned_data['api_token_lydia']

@@ -42,25 +42,17 @@
     </a>
   </div>
   <table class="table table-bordered">
-    <tr class={% if min_price_lydia.get_value %}
-              "success"
-            {% else %}
-              "danger"
-            {% endif %}>
+    <tr class={% if enable_self_lydia.get_value %}"success"{% else %}"danger"{% endif %}>
       <td>{{ enable_self_lydia.description }}</td>
       <td>
         {% if enable_self_lydia.get_value %}
           Activé
         {% else %}
-          Desactivé
+          Désactivé
         {% endif %}
       </td>
     </tr>
-    <tr class={% if min_price_lydia.get_value %}
-              "success"
-            {% else %}
-              "danger"
-            {% endif %}>
+    <tr>
       <td>{{ min_price_lydia.description }}</td>
       <td>
         {% if min_price_lydia.get_value %}
@@ -70,11 +62,7 @@
         {% endif %}
       </td>
     </tr>
-    <tr class={% if max_price_lydia.get_value %}
-              "success"
-            {% else %}
-              "danger"
-            {% endif %}>
+    <tr>
       <td>{{ max_price_lydia.description }}</td>
       <td>
         {% if max_price_lydia.get_value %}
@@ -84,25 +72,17 @@
         {% endif %}
       </td>
     </tr>
-        <tr class={% if min_price_lydia.get_value %}
-              "success"
-            {% else %}
-              "danger"
-            {% endif %}>
+    <tr>
       <td>{{ enable_fee_lydia.description }}</td>
       <td>
         {% if enable_fee_lydia.get_value %}
           Activé
         {% else %}
-          Desactivé
+          Désactivé
         {% endif %}
       </td>
     </tr>
-        <tr class={% if min_price_lydia.get_value %}
-              "success"
-            {% else %}
-              "danger"
-            {% endif %}>
+    <tr>
       <td>{{ base_fee_lydia.description }}</td>
       <td>
         {% if base_fee_lydia.get_value %}
@@ -112,15 +92,21 @@
         {% endif %}
       </td>
     </tr>
-        <tr class={% if min_price_lydia.get_value %}
-              "success"
-            {% else %}
-              "danger"
-            {% endif %}>
+    <tr>
       <td>{{ ratio_fee_lydia.description }}</td>
       <td>
         {% if ratio_fee_lydia.get_value %}
           {{ ratio_fee_lydia.get_value|unlocalize }} %
+        {% else %}
+          Non défini
+        {% endif %}
+      </td>
+    </tr>
+    <tr>
+      <td>{{ tax_fee_lydia.description }}</td>
+      <td>
+        {% if tax_fee_lydia.get_value %}
+          {{ tax_fee_lydia.get_value|unlocalize }}
         {% else %}
           Non défini
         {% endif %}
@@ -152,11 +138,7 @@
       </td>
     </tr>
     {% comment %}
-    <tr class={% if balance_threshold_mail_alert.get_value %}
-              "success"
-            {% else %}
-              "danger"
-            {% endif %}>
+    <tr>
       <td>Seuil d'alerte par mail</td>
       <td>
         {% if balance_threshold_mail_alert.get_value %}
@@ -166,11 +148,7 @@
         {% endif %}
       </td>
     </tr>
-    <tr class={% if balance_threshold_mail_alert.get_value and balance_frequency_mail_alert.get_value %}
-              "success"
-            {% else %}
-              "danger"
-            {% endif %}>
+    <tr>
       <td>Fréquence d'alerte par mail</td>
       <td>
         {% if balance_frequency_mail_alert.get_value %}

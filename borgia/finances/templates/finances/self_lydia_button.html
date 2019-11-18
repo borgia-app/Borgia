@@ -13,12 +13,12 @@
     <div class="panel-body">
     
         <p>
-            <strong>Montant à payer (€) :</strong> {{ total_amount|unlocalize }}
+            <strong>Montant à payer :</strong> {{ total_amount|unlocalize }}€
             {% if enable_fee_lydia %}
                 <br />
-                <strong>Frais lydia :</strong> {{ fee_amount|unlocalize }}
+                <strong>Frais de commission Lydia :</strong> {{ fee_amount|unlocalize }}€
                 <br />
-                <strong>Montant rechargé :</strong> {{ recharging_amount|unlocalize }}
+                <strong>Montant rechargé :</strong> {{ recharging_amount|unlocalize }}€
             {% endif %}
         </p>
         <p>

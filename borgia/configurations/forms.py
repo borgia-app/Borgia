@@ -28,14 +28,18 @@ class ConfigurationLydiaForm(forms.Form):
                                              MinValueValidator(0.01, 'Le montant doit être strict. positif')],
                                          required=False)
     enable_fee_lydia = forms.BooleanField(
-        label='Prendre en compte la commision Lydia',
+        label='Prendre en compte la commission Lydia',
         required=False)
-    base_fee_lydia = forms.DecimalField(label='Montant de la commissions : Base (€)',
+    base_fee_lydia = forms.DecimalField(label='Montant de la commission : Base HT (€)',
                                         decimal_places=2, max_digits=9,
                                         validators=[
                                             MinValueValidator(0, 'Le montant doit être positif')],
                                         required=False)
-    ratio_fee_lydia = forms.FloatField(label='Montant de la commissions : Pourcentage (%)',
+    ratio_fee_lydia = forms.FloatField(label='Montant de la commission : Pourcentage (%)',
+                                       validators=[
+                                             MinValueValidator(0, 'Le montant doit être positif')],
+                                       required=False)
+    tax_fee_lydia = forms.FloatField(label='Montant de la commission : Taxe',
                                        validators=[
                                              MinValueValidator(0, 'Le montant doit être positif')],
                                        required=False)
