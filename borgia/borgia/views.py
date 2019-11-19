@@ -62,6 +62,21 @@ class ModulesLoginView(LoginView):
 
         return urlunparse(login_url_parts)
 
+    def humanize_next_url(self, next):
+        readable_url = ""
+        url_parts = [i for i in next.split("/") if i]
+        if "self_sales" in url_parts:
+            readable_url = "Vente directe - "
+        elif "operator_sales" in url_parts:
+            readable_url = "Vente par opérateur - "
+        if "shops" in url_parts:
+            shop = Shop.objects.get(pk=int(url_parts[1]))
+            if shop:
+               readable_url += shop.name.capitalize()
+        if readable_url == "":
+            readable_url = next
+        return readable_url
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['default_theme'] = settings.DEFAULT_TEMPLATE
@@ -81,6 +96,8 @@ class ModulesLoginView(LoginView):
                 'self_module': self_module,
                 'self_module_link': self_module_link
             })
+        if context['next']:
+            context['humanized_next'] = self.humanize_next_url(context['next'])
         return context
 
 
