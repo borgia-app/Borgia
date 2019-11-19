@@ -608,6 +608,7 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
         self.enable_fee_lydia = None
         self.base_fee_lydia = None
         self.ratio_fee_lydia = None
+        self.tax_fee_lydia = None
 
     def add_lydia_context(self):
         if not configuration_get("ENABLE_SELF_LYDIA").get_value():
@@ -618,9 +619,9 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
             self.state = "enabled"
 
             self.enable_fee_lydia = configuration_get(
-                name='ENABLE_FEE_LYDIA').get_value()
+                 name='ENABLE_FEE_LYDIA').get_value()
 
-            if (self.enable_fee_lydia):
+            if self.enable_fee_lydia:
                 base_fee_lydia = configuration_get(
                     name='BASE_FEE_LYDIA').get_value()
                 self.base_fee_lydia = decimal.Decimal(
@@ -629,17 +630,21 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
                     name='RATIO_FEE_LYDIA').get_value()
                 self.ratio_fee_lydia = decimal.Decimal(
                     ratio_fee_lydia).quantize(decimal.Decimal('.01'))
+                tax_fee_lydia = configuration_get(
+                    name='TAX_FEE_LYDIA').get_value()
+                self.tax_fee_lydia = decimal.Decimal(
+                    tax_fee_lydia).quantize(decimal.Decimal('.01'))
 
     def get_context_data(self, **kwargs):
-        print("start_get_context_data")
         context = super().get_context_data(**kwargs)
         self.add_lydia_context()
         context['state'] = self.state
         if self.state == 'enabled':
-            context['enable_fee_lydia'] = self.enable_fee_lydia
-            if (self.enable_fee_lydia):
-                context['base_fee_lydia'] = self.base_fee_lydia
-                context['ratio_fee_lydia'] = self.ratio_fee_lydia
+           context['enable_fee_lydia'] = self.enable_fee_lydia
+           if self.enable_fee_lydia:
+              context['base_fee_lydia'] = self.base_fee_lydia
+              context['ratio_fee_lydia'] = self.ratio_fee_lydia
+              context['tax_fee_lydia'] = self.tax_fee_lydia
         return context
 
     def get_form_kwargs(self):
@@ -680,15 +685,18 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
         context['confirm_url'] = self.request.build_absolute_uri(reverse('url_self_lydia_confirm'))
         context['callback_url'] = self.request.build_absolute_uri(reverse('url_self_lydia_callback'))
         total_amount = form.cleaned_data['total_amount']
+        recharging_amount = total_amount
 
         if self.enable_fee_lydia:
-            fee_amount = calculate_fee_lydia(
-                total_amount, self.base_fee_lydia, self.ratio_fee_lydia)
-            recharging_amount = total_amount - fee_amount
-            context['fee_amount'] = fee_amount
+            if self.tax_fee_lydia and self.tax_fee_lydia != 0:
+               fee_amount = calculate_fee_lydia(
+                  total_amount, self.base_fee_lydia, self.ratio_fee_lydia, self.tax_fee_lydia)
+            else:
+               fee_amount = calculate_fee_lydia(
+                  total_amount, self.base_fee_lydia, self.ratio_fee_lydia)
 
-        else:
-            recharging_amount = total_amount
+            total_amount = total_amount + fee_amount
+            context['fee_amount'] = fee_amount
 
         context['total_amount'] = total_amount
         context['recharging_amount'] = recharging_amount
@@ -773,7 +781,7 @@ def self_lydia_callback(request):
     if verify_token_algo_lydia(params_dict, lydia_token) is True:
         try:
             user = User.objects.get(pk=request.GET.get('user_pk'))
-            total_amount = decimal.Decimal(params_dict['amount'])
+            recharging_amount = decimal.Decimal(params_dict['amount'])
             if not configuration_get('ENABLE_FEE_LYDIA').get_value():
                 fee = 0
             else:
@@ -781,13 +789,15 @@ def self_lydia_callback(request):
                     configuration_get('BASE_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
                 ratio_fee = decimal.Decimal(
                     configuration_get('RATIO_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
+                tax_fee = decimal.Decimal(
+                    configuration_get('TAX_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
 
-                fee = decimal.Decimal(base_fee + decimal.Decimal(ratio_fee / 100)
-                                      ).quantize(decimal.Decimal('.01'), decimal.ROUND_UP)
+                fee = calculate_fee_lydia(
+                         recharging_amount, base_fee, ratio_fee, tax_fee)
 
             lydia = Lydia.objects.create(
                 sender=user,
-                amount=total_amount - fee,
+                amount=recharging_amount-fee,
                 id_from_lydia=params_dict['transaction_identifier'],
                 fee=fee
             )
@@ -840,12 +850,11 @@ def verify_token_algo_lydia(params, token):
         return False
 
 
-def calculate_fee_lydia(total_amount, base_fee_lydia, ratio_fee_lydia):
+def calculate_fee_lydia(total_amount, base_fee_lydia, ratio_fee_lydia, tax_fee_lydia=1):
     """
     Calculate the fee of lydia
     """
-    return decimal.Decimal(base_fee_lydia +
+    return decimal.Decimal((base_fee_lydia +
                            total_amount *
-                           decimal.Decimal(
-                               ratio_fee_lydia / 100)
-                           ).quantize(decimal.Decimal('.01'), decimal.ROUND_UP)
+                           ratio_fee_lydia / 100
+                           )*tax_fee_lydia).quantize(decimal.Decimal('.01'), decimal.ROUND_UP)

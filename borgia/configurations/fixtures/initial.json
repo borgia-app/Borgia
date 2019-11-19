@@ -54,7 +54,7 @@
         "pk": 6,
         "fields": {
             "name": "ENABLE_FEE_LYDIA",
-            "description": "Prendre en compte la commision",
+            "description": "Prendre en compte la commission",
             "value": "False",
             "value_type": "b"
         }
@@ -64,7 +64,7 @@
         "pk": 7,
         "fields": {
             "name": "BASE_FEE_LYDIA",
-            "description": "Montant de la commissions : Base",
+            "description": "Montant de la commission : Base HT",
             "value": "0",
             "value_type": "f"
         }
@@ -74,7 +74,7 @@
         "pk": 8,
         "fields": {
             "name": "RATIO_FEE_LYDIA",
-            "description": "Montant de la commissions : Pourcentage",
+            "description": "Montant de la commission : Pourcentage",
             "value": "0",
             "value_type": "f"
         }
@@ -128,5 +128,16 @@
             "value": "0",
             "value_type": "f"
         }
-    }
+    },
+    {
+        "model": "configurations.configuration",
+        "pk": 14,
+        "fields": {
+            "name": "TAX_FEE_LYDIA",
+            "description": "Montant de la commission : Taxe",
+            "value": "0",
+            "value_type": "f"
+        }
+    },
+
 ]
