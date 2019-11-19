@@ -4,9 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## Unreleased
+## [5.1.2] Unreleased
+### Changed
+- [Configuration] Add tax for Lydia fee
+- [Finances] Adjust Lydia fee calculation (the amount paid equals the desired amount + fee) 
+- [Shops] Initially checkup on current month
+
 ### Fix
 - [Users] Fix user update (username, avatar and theme)
+- [Finances] Fix Lydia callback
+- [Configuration] Fix some typo
+- [Shops] Fix checkup page latency
+- [Shops] Checkup page: Fix the possibility to change dates and filter by products
+- [Workboard] Charts only show shops that have user transactions
 
 
 ## [5.1.1] - 2019-09-17
