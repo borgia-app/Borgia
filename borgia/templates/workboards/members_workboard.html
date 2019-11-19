@@ -58,7 +58,7 @@
               <li role="presentation">
                 <a href="#events"
                   aria-controles="events"
-                  role="tab" data-toggle="tab">Evènements
+                  role="tab" data-toggle="tab">Evénements
                 </a>
               </li>
               {% endif %}
@@ -144,11 +144,10 @@
                       {% if transfert.sender == user %} vers {{ transfert.recipient }}{% else %} depuis {{ transfert.sender }}{% endif %}</td>
                       <td>
                         {% if transfert.sender == user %}
-                          -{{ transfert.amount }}
+                          - {{ transfert.amount }}€
                         {% else %}
-                          {{ transfert.amount }}
+                          {{ transfert.amount }}€
                         {% endif %}
-                        €
                       </td>
                     </tr>
                     {% endfor %}
@@ -243,9 +242,11 @@
   var data = {
     labels: [
       {% for object in transaction_list.shops %}
+      {% if object.sale_list_short %}
       "{{ object.shop.name }}"
       {% if not loop.last %}
       ,
+      {% endif %}
       {% endif %}
       {% endfor %}
     ],
@@ -253,25 +254,31 @@
         {
             data: [
               {% for object in transaction_list.shops %}
+              {% if object.sale_list_short %}
               "{{ object.total }}"
               {% if not loop.last %}
               ,
+              {% endif %}
               {% endif %}
               {% endfor %}
             ],
             backgroundColor: [
               {% for object in transaction_list.shops %}
+              {% if object.sale_list_short %}
               "{{ object.shop.color }}"
               {% if not loop.last %}
               ,
+              {% endif %}
               {% endif %}
               {% endfor %}
             ],
             hoverBackgroundColor: [
               {% for object in transaction_list.shops %}
+              {% if object.sale_list_short %}
               "{{ object.shop.color }}"
               {% if not loop.last %}
               ,
+              {% endif %}
               {% endif %}
               {% endfor %}
             ]
@@ -312,6 +319,7 @@
     ],
     datasets: [
         {% for object in transaction_list.shops %}
+        {% if object.sale_list_short %}
         {
             label: "{{ object.shop.name|capfirst }}",
             fill: false,
@@ -343,6 +351,7 @@
         }
         {% if not loop.last %}
         ,
+        {% endif %}
         {% endif %}
         {% endfor %}
     ]
