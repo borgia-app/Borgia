@@ -791,13 +791,14 @@ def self_lydia_callback(request):
                     configuration_get('RATIO_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
                 tax_fee = decimal.Decimal(
                     configuration_get('TAX_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
+                recharging_amount = calculate_recharging_amount_lydia(recharging_amount, base_fee, ratio_fee, tax_fee)
 
                 fee = calculate_fee_lydia(
                          recharging_amount, base_fee, ratio_fee, tax_fee)
 
             lydia = Lydia.objects.create(
                 sender=user,
-                amount=recharging_amount-fee,
+                amount=recharging_amount,
                 id_from_lydia=params_dict['transaction_identifier'],
                 fee=fee
             )
@@ -858,3 +859,11 @@ def calculate_fee_lydia(total_amount, base_fee_lydia, ratio_fee_lydia, tax_fee_l
                            total_amount *
                            ratio_fee_lydia / 100
                            )*tax_fee_lydia).quantize(decimal.Decimal('.01'), decimal.ROUND_UP)
+
+def calculate_recharging_amount_lydia(total_amount, base_fee_lydia, ratio_fee_lydia, tax_fee_lydia=1):
+    """
+    Calculate the recharging amount through lydia
+    """
+    return decimal.Decimal((total_amount - base_fee_lydia*tax_fee_lydia) /
+                           (1+ratio_fee_lydia * tax_fee_lydia / 100)
+                          ).quantize(decimal.Decimal('.01'))

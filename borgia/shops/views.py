@@ -135,6 +135,10 @@ class ShopCheckup(ShopMixin, BorgiaFormView):
         q_sales = q_sales.filter(datetime__gte=self.date_begin)
         q_sales = q_sales.filter(datetime__lte=self.date_end)
 
+        if self.products:
+            q_sales = q_sales.filter(
+                products__pk__in=[p.pk for p in self.products])
+
         if self.sales_value is None:
             self.sales_value = sum(s.amount() for s in q_sales)
 
@@ -167,9 +171,6 @@ class ShopCheckup(ShopMixin, BorgiaFormView):
 
     def info_checkup(self):
         q_sales = Sale.objects.filter(shop=self.shop)
-        if self.products:
-            q_sales = q_sales.filter(
-                products__pk__in=[p.pk for p in self.products])
         info_sales = self.info_sales(q_sales)
         sale_value = info_sales.get('value')
         sale_nb = info_sales.get('nb')

@@ -67,7 +67,6 @@ class ModulesLoginView(LoginView):
         operator_urls = [l['operator_module_rev_link'] for l in shop_list]
         self_urls = [l['self_module_rev_link'] for l in shop_list]
         shop_urls = operator_urls + self_urls
-        readable_url = shop_urls[0]
         if next in shop_urls:
            url_parts = [i for i in next.split("/") if i]
            if "self_sales" in url_parts:

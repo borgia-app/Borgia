@@ -84,7 +84,7 @@ class ShopModuleSaleView(ShopModuleMixin, BorgiaFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['categories'] = self.module.categories.all()
+        context['categories'] = self.module.categories.all().order_by('order')
         return context
 
     def form_valid(self, form):
@@ -125,7 +125,7 @@ class ShopModuleSaleView(ShopModuleMixin, BorgiaFormView):
 
 
         context = self.get_context_data()
-        
+
         if self.module.logout_post_purchase:
             success_url = reverse('url_logout') + '?next=' + self.get_success_url()
         else:
@@ -232,7 +232,8 @@ class ShopModuleCategoryCreateView(ShopModuleMixin, BorgiaView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         context['cat_form'] = self.form_class()
-        context['cat_name_form'] = ModuleCategoryCreateNameForm()
+        context['cat_name_form'] = ModuleCategoryCreateNameForm(
+            initial={'order': self.module.categories.all().count()})
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
@@ -240,6 +241,7 @@ class ShopModuleCategoryCreateView(ShopModuleMixin, BorgiaView):
         if cat_name_form.is_valid():
             category = Category.objects.create(
                 name=cat_name_form.cleaned_data['name'],
+                order=cat_name_form.cleaned_data['order'],
                 module=self.module
             )
 
@@ -299,13 +301,15 @@ class ShopModuleCategoryUpdateView(ShopModuleCategoryMixin, BorgiaView):
                          for category_product in self.category.categoryproduct_set.all()]
         context['cat_form'] = self.form_class(initial=cat_form_data)
         context['cat_name_form'] = ModuleCategoryCreateNameForm(
-            initial={'name': self.category.name})
+            initial={'name': self.category.name, 'order': self.category.order})
         return render(request, self.template_name, context=context)
 
     def post(self, request, *args, **kwargs):
         cat_name_form = ModuleCategoryCreateNameForm(request.POST)
         if cat_name_form.is_valid():
             self.category.name = cat_name_form.cleaned_data['name']
+            if cat_name_form.cleaned_data['order'] != self.category.order:
+               shift_category_orders(self.category,cat_name_form.cleaned_data['order'])
             self.category.save()
 
         cat_form = self.form_class(request.POST)
@@ -359,3 +363,28 @@ class ShopModuleCategoryDeleteView(ShopModuleCategoryMixin, BorgiaView):
     def get_success_url(self):
         return reverse('url_shop_module_config',
                        kwargs={'shop_pk': self.shop.pk, 'module_class': self.module_class})
+
+
+def shift_category_orders(category,new_order):
+    module_id = category.module_id
+    content_type_id = category.content_type_id
+    order = category.order
+    if new_order < order:
+       categories = Category.objects.filter(content_type_id=content_type_id,
+                                            module_id=module_id,
+                                            order__gte=new_order,order__lt=order)
+       if categories:
+          for cat in categories:
+              cat.order += 1
+              cat.save()
+    elif new_order > order:
+       categories = Category.objects.filter(content_type_id=content_type_id,
+                                            module_id=module_id,
+                                            order__lte=new_order,order__gt=order)
+       if categories:
+          for cat in categories:
+              cat.order -= 1
+              cat.save()
+    category.order = int(new_order)
+    category.save()
+

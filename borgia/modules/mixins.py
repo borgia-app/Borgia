@@ -68,6 +68,7 @@ class ShopModuleMixin(ShopMixin):
         context = super().get_context_data(**kwargs)
         context['module_class'] = self.module_class
         context['module'] = self.module
+        context['categories'] = self.module.categories.all().order_by('order')
         return context
 
     def handle_unexpected_module_class(self):
