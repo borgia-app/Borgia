@@ -65,7 +65,7 @@ class Transfert(models.Model):
         default_permissions = ('add', 'view',)
 
     def __str__(self):
-        return 'Transfert de ' + self.sender.__str__() + ', ' + self.justification
+        return 'Transfert de ' + self.sender.__str__() + ' à ' + self.recipient.__str__() +', ' + self.justification
 
     def pay(self):
         if self.sender.debit != self.recipient.credit:
