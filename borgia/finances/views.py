@@ -619,7 +619,7 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
             self.state = "enabled"
 
             self.enable_fee_lydia = configuration_get(
-                 name='ENABLE_FEE_LYDIA').get_value()
+                name='ENABLE_FEE_LYDIA').get_value()
 
             if self.enable_fee_lydia:
                 base_fee_lydia = configuration_get(
@@ -640,11 +640,11 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
         self.add_lydia_context()
         context['state'] = self.state
         if self.state == 'enabled':
-           context['enable_fee_lydia'] = self.enable_fee_lydia
-           if self.enable_fee_lydia:
-              context['base_fee_lydia'] = self.base_fee_lydia
-              context['ratio_fee_lydia'] = self.ratio_fee_lydia
-              context['tax_fee_lydia'] = self.tax_fee_lydia
+            context['enable_fee_lydia'] = self.enable_fee_lydia
+            if self.enable_fee_lydia:
+                context['base_fee_lydia'] = self.base_fee_lydia
+                context['ratio_fee_lydia'] = self.ratio_fee_lydia
+                context['tax_fee_lydia'] = self.tax_fee_lydia
         return context
 
     def get_form_kwargs(self):
@@ -676,27 +676,27 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
             user.phone = form.cleaned_data['tel_number']
             user.save()
 
-        print("before_get_context_data")
         context = self.get_context_data()
-        print("after_get_context_data")
-
         context['vendor_token'] = configuration_get(
             "VENDOR_TOKEN_LYDIA").get_value()
-        context['confirm_url'] = self.request.build_absolute_uri(reverse('url_self_lydia_confirm'))
-        context['callback_url'] = self.request.build_absolute_uri(reverse('url_self_lydia_callback'))
-        total_amount = form.cleaned_data['total_amount']
-        recharging_amount = total_amount
+        context['confirm_url'] = self.request.build_absolute_uri(
+            reverse('url_self_lydia_confirm'))
+        context['callback_url'] = self.request.build_absolute_uri(
+            reverse('url_self_lydia_callback'))
+        recharging_amount = form.cleaned_data['recharging_amount']
 
         if self.enable_fee_lydia:
             if self.tax_fee_lydia and self.tax_fee_lydia != 0:
-               fee_amount = calculate_fee_lydia(
-                  total_amount, self.base_fee_lydia, self.ratio_fee_lydia, self.tax_fee_lydia)
+                fee_amount = total_amount - calculate_recharging_amount_lydia(
+                    total_amount, self.base_fee_lydia, self.ratio_fee_lydia, self.tax_fee_lydia)
             else:
-               fee_amount = calculate_fee_lydia(
-                  total_amount, self.base_fee_lydia, self.ratio_fee_lydia)
+                fee_amount = total_amount - calculate_recharging_amount_lydia(
+                    total_amount, self.base_fee_lydia, self.ratio_fee_lydia)
 
-            total_amount = total_amount + fee_amount
+            total_amount = recharging_amount + fee_amount
             context['fee_amount'] = fee_amount
+        else:
+            total_amount = recharging_amount
 
         context['total_amount'] = total_amount
         context['recharging_amount'] = recharging_amount
@@ -724,6 +724,7 @@ class SelfLydiaConfirm(LoginRequiredMixin, BorgiaView):
 
     # TODO: check if a Lydia object exist and if it's from the current day,
     # else raise Error
+
     def get(self, request, *args, **kwargs):
         context = super().get_context_data()
         context['transaction'] = self.request.GET.get('transaction')
@@ -781,9 +782,10 @@ def self_lydia_callback(request):
     if verify_token_algo_lydia(params_dict, lydia_token) is True:
         try:
             user = User.objects.get(pk=request.GET.get('user_pk'))
-            recharging_amount = decimal.Decimal(params_dict['amount'])
+            total_amount = decimal.Decimal(params_dict['amount'])
             if not configuration_get('ENABLE_FEE_LYDIA').get_value():
                 fee = 0
+                recharging_amount = total_amount
             else:
                 base_fee = decimal.Decimal(
                     configuration_get('BASE_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
@@ -791,11 +793,9 @@ def self_lydia_callback(request):
                     configuration_get('RATIO_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
                 tax_fee = decimal.Decimal(
                     configuration_get('TAX_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
-                recharging_amount = calculate_recharging_amount_lydia(recharging_amount, base_fee, ratio_fee, tax_fee)
-
-                fee = calculate_fee_lydia(
-                         recharging_amount, base_fee, ratio_fee, tax_fee)
-
+                recharging_amount = calculate_recharging_amount_lydia(
+                    total_amount, base_fee, ratio_fee, tax_fee)
+                fee = total_amount - recharging_amount
             lydia = Lydia.objects.create(
                 sender=user,
                 amount=recharging_amount,
@@ -851,19 +851,10 @@ def verify_token_algo_lydia(params, token):
         return False
 
 
-def calculate_fee_lydia(total_amount, base_fee_lydia, ratio_fee_lydia, tax_fee_lydia=1):
-    """
-    Calculate the fee of lydia
-    """
-    return decimal.Decimal((base_fee_lydia +
-                           total_amount *
-                           ratio_fee_lydia / 100
-                           )*tax_fee_lydia).quantize(decimal.Decimal('.01'), decimal.ROUND_UP)
-
 def calculate_recharging_amount_lydia(total_amount, base_fee_lydia, ratio_fee_lydia, tax_fee_lydia=1):
     """
     Calculate the recharging amount through lydia
     """
     return decimal.Decimal((total_amount - base_fee_lydia*tax_fee_lydia) /
-                           (1+ratio_fee_lydia * tax_fee_lydia / 100)
-                          ).quantize(decimal.Decimal('.01'))
+                           (1 + ratio_fee_lydia * tax_fee_lydia / 100)
+                           ).quantize(decimal.Decimal('.01'), decimal.ROUND_DOWN)
