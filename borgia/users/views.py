@@ -230,6 +230,8 @@ class UserUpdateView(UserMixin, BorgiaFormView):
         user = self.user
         for k in UserUpdateForm(user=user, is_manager=self.is_manager, is_self_update=self.is_self_update).fields.keys():
             initial[k] = getattr(user, k)
+        if self.is_self_update:
+           self.menu_type = "members"
         return initial
 
     def form_valid(self, form):
@@ -592,17 +594,17 @@ class UserAddByListXlsxDownload(LoginRequiredMixin, PermissionRequiredMixin, Bor
         ws = wb.active
         ws.title = "users"
         ws.append(columns)
+        for col in ['A','B','C','D','E']:
+            ws.column_dimensions[col].width = 30
 
         # Return the file
         response = HttpResponse(openpyxl.writer.excel.save_virtual_workbook(wb),
-                                content_type='application/vnd.ms-excel')
+                                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename="UsersList.xlsx"'
 
         users = User.objects.all().values_list(*columns)
         for user in users:
             ws.append(user)
-
-        wb.save(response)
         return response
 
 
