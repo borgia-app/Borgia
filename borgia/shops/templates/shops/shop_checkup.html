@@ -13,6 +13,10 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         Transactions
+        <span>{% if info.is_current_month %} du mois courant
+        {% else %}<b> du {{ info.date_begin }} au {{ info.date_end }}</b>
+        {% endif %}
+        </span>
         <a class="btn btn-info btn-xs" href="{% url 'url_sale_list' shop_pk=shop.pk %}">Liste complète des ventes</a>
       </div>
       <div class="panel-body">
@@ -61,6 +65,10 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         Synthèse
+        <span>{% if info.is_current_month %} du mois courant
+        {% else %}<b> du {{ info.date_begin }} au {{ info.date_end }}</b>
+        {% endif %}
+        </span>
       </div>
       <div class="panel-body">
         <canvas id="horizontalBar" width="auto" height="100"></canvas>

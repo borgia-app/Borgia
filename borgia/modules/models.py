@@ -25,6 +25,7 @@ class Category(models.Model):
     module_id = models.PositiveIntegerField()
     module = GenericForeignKey('content_type', 'module_id')
     products = models.ManyToManyField(Product, through='CategoryProduct')
+    order = models.PositiveIntegerField(default=0)
 
     class Meta:
         """

@@ -1,0 +1,12 @@
+{% block content %}
+
+<script>
+var button = $("#sale_form button")
+$("#sale_form").submit(function (e) {
+       //disable the submit button
+       button.attr("disabled", true);
+
+       return true;
+});
+</script>
+{% endblock %}

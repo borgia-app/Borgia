@@ -215,18 +215,23 @@ class UserUpdateView(UserMixin, BorgiaFormView):
         Override has_permission to allow self update
         """
         self.is_manager = super().has_permission()
-        return self.is_manager or self.user == self.request.user
+        self.is_self_update = self.user == self.request.user
+        return self.is_manager or self.is_self_update
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.user
+        kwargs['is_manager'] = self.is_manager
+        kwargs['is_self_update'] = self.is_self_update
         return kwargs
 
     def get_initial(self):
         initial = super().get_initial()
         user = self.user
-        for k in UserUpdateForm(user=user).fields.keys():
+        for k in UserUpdateForm(user=user, is_manager=self.is_manager, is_self_update=self.is_self_update).fields.keys():
             initial[k] = getattr(user, k)
+        if self.is_self_update:
+           self.menu_type = "members"
         return initial
 
     def form_valid(self, form):
@@ -589,17 +594,17 @@ class UserAddByListXlsxDownload(LoginRequiredMixin, PermissionRequiredMixin, Bor
         ws = wb.active
         ws.title = "users"
         ws.append(columns)
+        for col in ['A','B','C','D','E']:
+            ws.column_dimensions[col].width = 30
 
         # Return the file
         response = HttpResponse(openpyxl.writer.excel.save_virtual_workbook(wb),
-                                content_type='application/vnd.ms-excel')
+                                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename="UsersList.xlsx"'
 
         users = User.objects.all().values_list(*columns)
         for user in users:
             ws.append(user)
-
-        wb.save(response)
         return response
 
 

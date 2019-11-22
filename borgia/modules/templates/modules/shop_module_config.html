@@ -37,11 +37,11 @@
       <a href="{% url 'url_shop_module_category_create' shop_pk=shop.pk module_class=module_class %}"role="button" class="btn btn-xs btn-success" style='margin-left: 10px'>Ajouter une catégorie</a>
   </div>
   <div class="panel-body">
-    {% if module.categories.all.count == 0 %}
+    {% if categories.count == 0 %}
       <p style="opacity: 0.54;">Rien n'est en vente actuellement dans ce module.</p>
     {% endif %}
     <div class="row">
-      {% for category in module.categories.all %}
+      {% for category in categories %}
       <div class="col-md-4">
         <div class="panel panel-default">
           <div class="panel-heading">

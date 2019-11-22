@@ -15,7 +15,7 @@ class ConfigurationProfitForm(forms.Form):
 
 
 class ConfigurationLydiaForm(forms.Form):
-    enable_self_lydia = forms.BooleanField(label='Activer le rechargement par lydia',
+    enable_self_lydia = forms.BooleanField(label='Activer le rechargement par Lydia',
                                            required=False)
     min_price_lydia = forms.DecimalField(label='Montant minimal de rechargement (€)',
                                          decimal_places=2, max_digits=9,
@@ -28,14 +28,18 @@ class ConfigurationLydiaForm(forms.Form):
                                              MinValueValidator(0.01, 'Le montant doit être strict. positif')],
                                          required=False)
     enable_fee_lydia = forms.BooleanField(
-        label='Prendre en compte la commision Lydia',
+        label='Prendre en compte la commission Lydia',
         required=False)
-    base_fee_lydia = forms.DecimalField(label='Montant de la commissions : Base (€)',
+    base_fee_lydia = forms.DecimalField(label='Montant de la commission : Base HT (€)',
                                         decimal_places=2, max_digits=9,
                                         validators=[
                                             MinValueValidator(0, 'Le montant doit être positif')],
                                         required=False)
-    ratio_fee_lydia = forms.FloatField(label='Montant de la commissions : Pourcentage (%)',
+    ratio_fee_lydia = forms.FloatField(label='Montant de la commission : Pourcentage (%)',
+                                       validators=[
+                                             MinValueValidator(0, 'Le montant doit être positif')],
+                                       required=False)
+    tax_fee_lydia = forms.FloatField(label='Montant de la commission : Taxe',
                                        validators=[
                                              MinValueValidator(0, 'Le montant doit être positif')],
                                        required=False)
@@ -56,6 +60,14 @@ class ConfigurationLydiaForm(forms.Form):
                 raise ValidationError(
                     "Le montant maximal doit être supérieur ou égal au montant minimal")
 
+
+        enable_self_lydia = cleaned_data.get("enable_self_lydia", None)
+        enable_fee_lydia = cleaned_data.get("enable_fee_lydia", None)
+        if enable_fee_lydia is not None:
+            if enable_self_lydia is None or not enable_self_lydia:
+                raise ValidationError(
+                   "Pour prendre en compte la commission Lydia, le rechargement"
+                  +" à distance via Lydia doit être activé")
 
 class ConfigurationBalanceForm(forms.Form):
     balance_threshold_purchase = forms.DecimalField(label='Valeur seuil (€) pour pouvoir acheter',

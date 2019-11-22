@@ -30,6 +30,7 @@
              <input type="password" name="password" id="id_password" placeholder="Mot de passe" maxlength="255" class="form-control" required="">
              <span class="glyphicon glyphicon-lock"></span>
           </div>
+          <input type="hidden" name="next" value="{{ next }}">
 				<p class="text-right password-reset-button">
 				  <a class="btn btn-warning btn-xs" href="{% url 'password_reset' %}">Mot de passe oublié ?</a>
 				</p>
@@ -43,7 +44,7 @@
   </div>
   <div class="panel-footer">
 	<p class="text-left login-footer-text">
-		{% if next %}<i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{ next }}
+		{% if next %}<i class="fa fa-long-arrow-right" aria-hidden="true"></i> {{ humanized_next }}
 		{% else %}<i class="fa fa-long-arrow-right" aria-hidden="true"></i> Accueil {% endif %}
 		{% if shop_list|length > 0 %}
 		<button type="button" class="btn btn-primary btn-xs pull-right" data-toggle="modal" data-target="#direct_links">
