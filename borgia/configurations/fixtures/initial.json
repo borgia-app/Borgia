@@ -74,7 +74,7 @@
         "pk": 8,
         "fields": {
             "name": "RATIO_FEE_LYDIA",
-            "description": "Montant de la commission : Pourcentage",
+            "description": "Montant de la commission : Pourcentage HT",
             "value": "0",
             "value_type": "f"
         }

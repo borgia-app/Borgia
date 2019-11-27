@@ -1,7 +1,5 @@
 import datetime
 import decimal
-import hashlib
-import operator
 
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required
@@ -23,6 +21,8 @@ from finances.forms import (ExceptionnalMovementForm,
                             TransfertCreateForm)
 from finances.models import (Cash, Cheque, ExceptionnalMovement, Lydia,
                              Recharging, Transfert)
+from finances.utils import (calculate_lydia_fee_from_total,
+                            calculate_total_amount_lydia)
 from users.mixins import UserMixin
 from users.models import User
 
@@ -687,13 +687,13 @@ class SelfLydiaCreate(LoginRequiredMixin, BorgiaFormView):
 
         if self.enable_fee_lydia:
             if self.tax_fee_lydia and self.tax_fee_lydia != 0:
-                fee_amount = total_amount - calculate_recharging_amount_lydia(
-                    total_amount, self.base_fee_lydia, self.ratio_fee_lydia, self.tax_fee_lydia)
+                total_amount = calculate_total_amount_lydia(
+                    recharging_amount, self.base_fee_lydia, self.ratio_fee_lydia, self.tax_fee_lydia)
             else:
-                fee_amount = total_amount - calculate_recharging_amount_lydia(
-                    total_amount, self.base_fee_lydia, self.ratio_fee_lydia)
+                total_amount = calculate_total_amount_lydia(
+                    recharging_amount, self.base_fee_lydia, self.ratio_fee_lydia)
 
-            total_amount = recharging_amount + fee_amount
+            fee_amount = total_amount - recharging_amount
             context['fee_amount'] = fee_amount
         else:
             total_amount = recharging_amount
@@ -724,7 +724,6 @@ class SelfLydiaConfirm(LoginRequiredMixin, BorgiaView):
 
     # TODO: check if a Lydia object exist and if it's from the current day,
     # else raise Error
-
     def get(self, request, *args, **kwargs):
         context = super().get_context_data()
         context['transaction'] = self.request.GET.get('transaction')
@@ -779,82 +778,44 @@ def self_lydia_callback(request):
         "sig": request.POST.get("sig")
     }
     lydia_token = configuration_get("API_TOKEN_LYDIA").get_value()
-    if verify_token_algo_lydia(params_dict, lydia_token) is True:
-        try:
-            user = User.objects.get(pk=request.GET.get('user_pk'))
-            total_amount = decimal.Decimal(params_dict['amount'])
-            if not configuration_get('ENABLE_FEE_LYDIA').get_value():
-                fee = 0
-                recharging_amount = total_amount
-            else:
-                base_fee = decimal.Decimal(
-                    configuration_get('BASE_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
-                ratio_fee = decimal.Decimal(
-                    configuration_get('RATIO_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
-                tax_fee = decimal.Decimal(
-                    configuration_get('TAX_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
-                recharging_amount = calculate_recharging_amount_lydia(
-                    total_amount, base_fee, ratio_fee, tax_fee)
-                fee = total_amount - recharging_amount
-            lydia = Lydia.objects.create(
-                sender=user,
-                amount=recharging_amount,
-                id_from_lydia=params_dict['transaction_identifier'],
-                fee=fee
-            )
-            recharging = Recharging.objects.create(
-                sender=user,
-                operator=user,
-                content_solution=lydia
-            )
-            recharging.pay()
-        except KeyError:
-            return HttpResponse('300')
-        except ObjectDoesNotExist:
-            return HttpResponse('300')
-        return HttpResponse('200')
-    else:
+
+    if verify_token_lydia(params_dict, lydia_token) is False:
         raise PermissionDenied
+    else:
+        try:
+            user_pk = request.GET.get('user_pk')
+        except KeyError:
+            return PermissionDenied
 
+        try:
+            user = User.objects.get(pk=user_pk)
+        except ObjectDoesNotExist:
+            raise Http404
 
-def verify_token_algo_lydia(params, token):
-    """
-    Verify request parameters according to Lydia's algorithm.
+        total_amount = decimal.Decimal(params_dict['amount'])
+        if not configuration_get('ENABLE_FEE_LYDIA').get_value():
+            fee = 0
+            recharging_amount = total_amount
+        else:
+            base_fee = configuration_get('BASE_FEE_LYDIA').get_value()
+            ratio_fee = configuration_get('RATIO_FEE_LYDIA').get_value()
+            tax_fee = configuration_get('TAX_FEE_LYDIA').get_value()
 
-    If parameters are valid, the request is authenticated to be from Lydia and
-    can be safely used.
-    :note:: sig must be contained in the parameters dictionary.
+            fee = calculate_lydia_fee_from_total(
+                total_amount, base_fee, ratio_fee, tax_fee)
+            recharging_amount = total_amount - fee
 
-    :warning:: token is private and must never be revealed.
+        lydia = Lydia.objects.create(
+            sender=user,
+            amount=recharging_amount,
+            id_from_lydia=params_dict['transaction_identifier'],
+            fee=fee
+        )
+        recharging = Recharging.objects.create(
+            sender=user,
+            operator=user,
+            content_solution=lydia
+        )
+        recharging.pay()
 
-    :param params: all parameters, including sig, mandatory.
-    :type params: python dictionary
-    :param token: token to be compared, mandatory.
-    :type token: string
-
-    :returns: True if parameters are valid, False else.
-    :rtype: Boolean
-    """
-    try:
-        sig = params['sig']
-        del params['sig']
-        h_sig_table = []
-        sorted_params = sorted(params.items(), key=operator.itemgetter(0))
-        for param in sorted_params:
-            h_sig_table.append(param[0] + '=' + param[1])
-        h_sig = '&'.join(h_sig_table)
-        h_sig += '&' + token
-        h_sig_hash = hashlib.md5(h_sig.encode())
-        return h_sig_hash.hexdigest() == sig
-
-    except KeyError:
-        return False
-
-
-def calculate_recharging_amount_lydia(total_amount, base_fee_lydia, ratio_fee_lydia, tax_fee_lydia=1):
-    """
-    Calculate the recharging amount through lydia
-    """
-    return decimal.Decimal((total_amount - base_fee_lydia*tax_fee_lydia) /
-                           (1 + ratio_fee_lydia * tax_fee_lydia / 100)
-                           ).quantize(decimal.Decimal('.01'), decimal.ROUND_DOWN)
+        return HttpResponse('200')
