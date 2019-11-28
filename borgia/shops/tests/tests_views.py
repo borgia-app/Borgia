@@ -201,8 +201,44 @@ class ProductListViewTest(BaseGeneralProductViewsTest):
     def test_not_allowed_user_get(self):
         super().not_allowed_user_get()
 
-    def test_offline_user_redirection(self):
+    def test_offline_user_redirection_get(self):
         super().offline_user_redirection()
+
+    def test_president_post(self):
+        response_client1 = self.client1.post(self.get_url(self.shop1.pk))
+        self.assertEqual(response_client1.status_code, 200)
+
+        response_client3 = self.client3.post(
+            self.get_url(self.shop1.pk), {'search': 'skoll'})
+        self.assertEqual(response_client3.status_code, 200)
+
+    def test_chief_post(self):
+        response_client3 = self.client3.post(self.get_url(self.shop1.pk))
+        self.assertEqual(response_client3.status_code, 200)
+
+        response_client3 = self.client3.post(
+            self.get_url(self.shop1.pk), {'search': 'skoll'})
+        self.assertEqual(response_client3.status_code, 200)
+
+    def test_not_allowed_user_post(self):
+        response_client2 = self.client2.post(self.get_url(self.shop1.pk))
+        self.assertEqual(response_client2.status_code, 403)
+
+        response_client2 = self.client2.post(
+            self.get_url(self.shop1.pk), {'search': 'skoll'})
+        self.assertEqual(response_client2.status_code, 403)
+
+    def test_offline_user_redirection_post(self):
+        response_offline_user = Client().post(self.get_url(self.shop1.pk))
+        self.assertEqual(response_offline_user.status_code, 302)
+        self.assertRedirects(response_offline_user, get_login_url_redirected(
+            self.get_url(self.shop1.pk)))
+
+        response_offline_user = Client().post(
+            self.get_url(self.shop1.pk), {'search': 'skoll'})
+        self.assertEqual(response_offline_user.status_code, 302)
+        self.assertRedirects(response_offline_user, get_login_url_redirected(
+            self.get_url(self.shop1.pk)))
 
 
 class ProductCreateViewTest(BaseGeneralProductViewsTest):
@@ -383,6 +419,7 @@ class ProductRemoveViewTest(BaseFocusProductViewsTest):
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
+
 
 class UpdateGroupViewTestCase(BaseShopsViewsTest):
     url_view = 'url_group_update'
