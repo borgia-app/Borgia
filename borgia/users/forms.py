@@ -50,9 +50,11 @@ class UserUpdateForm(forms.Form):
         self.is_self_update = kwargs.pop('is_self_update')
         super().__init__(**kwargs)
         if self.is_manager:
-            self.fields['username'] = forms.CharField(label='Username', max_length=255)
+            self.fields['username'] = forms.CharField(
+                label='Username', max_length=255)
         if self.is_self_update:
-            self.fields['avatar'] = forms.ImageField(label='Avatar', required=False)
+            self.fields['avatar'] = forms.ImageField(
+                label='Avatar', required=False)
             self.fields['theme'] = forms.ChoiceField(
                 label='Theme', choices=User.THEME_CHOICES, required=False)
 
@@ -72,14 +74,17 @@ class UserUpdateForm(forms.Form):
         data = self.cleaned_data['email']
         if data == '':
             raise ValidationError('Ce champ ne peut pas être vide')
-        if User.objects.filter(email=data).exclude(pk=self.user.pk).exists():
-            raise ValidationError('Un autre utilisateur existe avec cet email')
+        elif data != self.user.email:
+            if User.objects.filter(email=data).exists():
+                raise ValidationError(
+                    'Un autre utilisateur existe avec cet email')
         return data
 
     def clean_username(self):
         data = self.cleaned_data['username']
-        if User.objects.filter(username=data).exists():
-            raise ValidationError('Un autre user existe avec cet username')
+        if data != self.user.username:
+            if User.objects.filter(username=data).exists():
+                raise ValidationError('Un autre user existe avec cet username')
         return data
 
 
