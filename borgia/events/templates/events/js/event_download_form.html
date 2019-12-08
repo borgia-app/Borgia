@@ -1,0 +1,14 @@
+{% block content %}
+<script type="text/javascript">
+$(function(){
+  $("#id_download_form #id_state").change(function() {
+     var type = $(this).children("option:selected").val()
+     if (type == "year") {
+        $("#id_years").parent().parent().show()
+     } else {
+        $("#id_years").parent().parent().hide()
+     }
+  });
+});
+</script>
+{% endblock %}

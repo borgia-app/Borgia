@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [5.1.3] 2019-12-05
+### Fix
+- [Lydia] Fix fee calculation
+- [Lydia] Wording / refactoring of self-creation
+- [Users] Repair downloaded excel files / Fix members menu in edit page
+- [Users] Fix #115 - Can't validate user edition
+- [Shops] Fix product list form
+- [Contrib] Bump to django 2.1.11 for security reasons
+- [Finances/Users] Fix transaction list page with exceptionnal movements
+- [Events] Fix Xlsx upload/download 
+- [Events] Add JS for forms
+- [Users] Fix lateral menu in user retrieve view
+
+### Changed
+- [Events] Event list set initial begin date to 1st day of month
+
+
 ## [5.1.2] 2019-11-21
 ### Changed
 - [Configuration] Add tax for Lydia fee

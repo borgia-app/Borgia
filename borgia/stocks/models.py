@@ -25,8 +25,8 @@ class StockEntry(models.Model):
 
     def string_products(self):
         string = ''
-        for spe in self.stockentryproduct_set.all():
-            string += spe.__str__() + ', '
+        for sep in self.stockentryproduct_set.all():
+            string += sep.__str__() + ', '
         string = string[0: len(string)-2]
         return string
 

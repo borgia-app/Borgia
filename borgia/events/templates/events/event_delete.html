@@ -9,7 +9,7 @@
   <div class="panel-body">
     <form action="" method="post">
       {% csrf_token %}
-      <h3>Supprimer l'événement ""{{ se.description }}"" ?</h3>
+      <h3>Supprimer l'événement ""{{ event.description }}"" ?</h3>
       <br>
         {{ form|bootstrap }}
         <br>
