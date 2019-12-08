@@ -193,7 +193,12 @@ class UserRetrieveView(UserMixin, BorgiaView):
     menu_type = "managers"
     template_name = 'users/user_retrieve.html'
 
+
     def get(self, request, *args, **kwargs):
+        if self.user == self.request.user:
+           self.menu_type = "members"
+        elif self.user.has_perm('users.change_user'):
+           self.menu_type = "managers"   
         context = self.get_context_data(**kwargs)
         return render(request, self.template_name, context=context)
 
