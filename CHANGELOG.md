@@ -13,6 +13,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - [Users] Fix #115 - Can't validate user edition
 - [Shops] Fix product list form
 - [Contrib] Bump to django 2.1.11 for security reasons
+- [Finances/Users] Fix transaction list page with exceptionnal movements
+- [Events] Fix Xlsx upload/download 
+- [Events] Add JS for forms
+- [Users] Fix lateral menu in user retrieve view
+
+### Changed
+- [Events] Event list set initial begin date to 1st day of month
 
 
 ## [5.1.2] 2019-11-21
