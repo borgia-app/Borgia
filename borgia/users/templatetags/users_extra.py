@@ -40,6 +40,8 @@ def get_transaction_label(transaction):
     elif name == "Sale":
        return ("Achat"+" "+ transaction.shop.name,
                transaction.string_products())
+    elif name == "ExceptionnalMovement":
+       return ("Mouvement exceptionnel", 'De '+transaction.operator.__str__()+' le '+ transaction.datetime.strftime("%d %h %Y"))
 
 @register.inclusion_tag('breadcrumbs.html', takes_context=True)
 def breadcrumbs(context):

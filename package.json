@@ -1,7 +1,7 @@
 {
-  "name": "borgia",
-  "version": "5.1.2",
-  "dependencies": {
-    "less": "^3.9.0"
-  }
+    "name": "borgia",
+    "version": "5.1.3",
+    "dependencies": {
+        "less": "^3.9.0"
+    }
 }

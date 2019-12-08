@@ -10,8 +10,7 @@ class ShopCreateForm(forms.ModelForm):
 
     def clean(self):
         cleaned_data = super().clean()
-        count = Shop.objects.filter(name=cleaned_data.get('name')).count()
-        if count != 0:
+        if Shop.objects.filter(name=cleaned_data.get('name')).exists():
             raise forms.ValidationError('Le code de magasin est déjà utilisé')
 
 

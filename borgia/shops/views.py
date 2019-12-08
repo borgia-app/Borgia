@@ -266,31 +266,25 @@ class ProductList(ShopMixin, BorgiaFormView):
     lm_active = 'lm_product_list'
 
     search = None
-    shop_query = None
+
+    def get_initial(self):
+        initial = super().get_initial()
+        if self.search:
+            initial['search'] = self.search
+        return initial
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['product_list'] = self.form_query(
-            Product.objects.filter(is_removed=False))
+        query = self.shop.product_set.filter(is_removed=False)
+        if self.search:
+            query = query.filter(name__icontains=self.search)
+        context['product_list'] = query
         return context
 
     def form_valid(self, form):
         if form.cleaned_data['search']:
             self.search = form.cleaned_data['search']
-
-        return super().form_valid(form)
-
-    def form_query(self, query):
-        if self.shop:
-            query = query.filter(shop=self.shop)
-        else:
-            if self.shop_query:
-                query = query.filter(shop=self.shop_query)
-        if self.search:
-            query = query.filter(
-                Q(name__icontains=self.search)
-            )
-        return query
+        return self.get(self.request, self.args, self.kwargs)
 
 
 class ProductCreate(ShopMixin, BorgiaFormView):

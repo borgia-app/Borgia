@@ -193,7 +193,12 @@ class UserRetrieveView(UserMixin, BorgiaView):
     menu_type = "managers"
     template_name = 'users/user_retrieve.html'
 
+
     def get(self, request, *args, **kwargs):
+        if self.user == self.request.user:
+           self.menu_type = "members"
+        elif self.user.has_perm('users.change_user'):
+           self.menu_type = "managers"   
         context = self.get_context_data(**kwargs)
         return render(request, self.template_name, context=context)
 
@@ -240,15 +245,19 @@ class UserUpdateView(UserMixin, BorgiaFormView):
             if k == "avatar" and form.cleaned_data[k] is False:
                 if user.avatar:
                     user.avatar.delete(True)
+                    self.modified = True
             elif form.cleaned_data[k] != getattr(user, k):
-                self.modified = True
                 setattr(user, k, form.cleaned_data[k])
+                self.modified = True
         user.save()
 
         return super().form_valid(form)
 
     def get_success_message(self, cleaned_data):
-        return "Les informations ont bien été mises à jour"
+        if self.modified :
+            return "Les informations ont bien été mises à jour"
+        else:
+            return "Pas de modification"
 
     def get_success_url(self):
         if self.is_manager:

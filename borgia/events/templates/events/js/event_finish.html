@@ -1,0 +1,24 @@
+{% block content %}
+<script type="text/javascript">
+$(function(){
+  $("#id_remark").parent().parent().hide()
+  $("#id_ponderation_price").parent().parent().hide()
+  $("#id_type_payment").change(function() {
+     var type = $(this).children("option:selected").val()
+     if (type == "pay_by_total") {
+        $("#id_remark").parent().parent().hide()
+        $("#id_total_price").parent().parent().show()
+        $("#id_ponderation_price").parent().parent().hide()
+     } else if (type == "pay_by_ponderation") {
+        $("#id_remark").parent().parent().hide()
+        $("#id_total_price").parent().parent().hide()
+        $("#id_ponderation_price").parent().parent().show()
+     } else {
+        $("#id_remark").parent().parent().show()
+        $("#id_total_price").parent().parent().hide()
+        $("#id_ponderation_price").parent().parent().hide()
+     }
+  });
+});
+</script>
+{% endblock %}
