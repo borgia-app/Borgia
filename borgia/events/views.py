@@ -34,7 +34,7 @@ class EventList(LoginRequiredMixin, PermissionRequiredMixin, BorgiaFormView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         events = Event.objects.filter(
-            date__gte=datetime.date.today(), done=False).order_by('-date')
+            date__gte=datetime.date.today().replace(day=1), done=False).order_by('-date')
 
         for event in events:  # Duplicate
             # Si fini, on recupere la participation, sinon la preinscription
@@ -156,6 +156,7 @@ class EventUpdate(EventMixin, BorgiaFormView):
 
     def get_initial(self):
         initial = super().get_initial()
+        initial['price'] = self.event.price
         initial['bills'] = self.event.bills
         initial['manager'] = self.event.manager.username
         initial['allow_self_registeration'] = self.event.allow_self_registeration
@@ -280,6 +281,7 @@ class EventFinish(EventMixin, BorgiaFormView):
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        context['total_price'] = self.event.price
         context['total_weights_participants'] = self.total_weights_participants
         context['ponderation_price'] = self.ponderation_price
         return context
@@ -560,32 +562,36 @@ class EventRemoveUser(EventMixin, BorgiaView):
         ) + "?state=" + state + "&order_by=" + order_by + "#table_users")
 
 
-class EventDownloadXlsx(EventMixin, BorgiaFormView):
+class EventDownloadXlsx(EventMixin, LoginRequiredMixin, BorgiaView):
     """
     Download Excel.
     """
     permission_required = 'events.change_event'
     menu_type = 'members'
-    form_class = EventDownloadXlsxForm
     allow_manager = True
 
-    def form_valid(self, form):
+    def post(self, request, *args, **kwargs):
 
         wb = Workbook()
         # grab the active worksheet
         ws = wb.active
-        ws.title = "Test"
-        ws.append(['Username', 'Pondération',
-                   'Infos (Non utilisées) ->', 'Nom Prénom', 'Bucque'])
+        ws.title = "event"
+        columns = ['Username', 'Pondération',
+                   'Infos (Non utilisées) ->', 'Nom Prénom', 'Bucque']
+        ws.append(columns)
+        for col in ['A','B','C','D','E']:
+            ws.column_dimensions[col].width = 30
 
-        if form.cleaned_data['state'] == 'year':
+        state = request.POST.get("state", "")
+        years = request.POST.getlist("years", "")
 
-            if form.cleaned_data['years']:
+        if state == 'year':
+
+            if years:
                 # Contains the years selected
-                list_year_result = form.cleaned_data['years']
-
+                list_year_result = years
                 users = User.objects.filter(year__in=list_year_result, is_active=True).exclude(
-                    groups=get_members_group(is_externals=True)).order_by('username')
+                    groups=get_members_group(is_externals=True)).order_by('-year','username')
                 for u in users:
                     ws.append([u.username, '', '', u.last_name +
                                ' ' + u.first_name, u.surname])
@@ -593,27 +599,26 @@ class EventDownloadXlsx(EventMixin, BorgiaFormView):
             else:
                 raise Http404
 
-        elif form.cleaned_data['state'] == 'participants':
+        elif state == 'participants':
             list_participants_weight = self.event.list_participants_weight()
             for e in list_participants_weight:
                 u = e[0]
-                ws.append([u.username, e[1], u.last_name +
+                ws.append([u.username, e[1], '', u.last_name +
                            ' ' + u.first_name, u.surname])
 
-        elif form.cleaned_data['state'] == 'registrants':
+        elif state == 'registrants':
             list_registrants_weight = self.event.list_registrants_weight()
             for e in list_registrants_weight:
                 u = e[0]
-                ws.append([u.username, e[1], u.last_name +
+                ws.append([u.username, e[1], '', u.last_name +
                            ' ' + u.first_name, u.surname])
         else:
             raise Http404
 
         # Return the file
-        response = HttpResponse(save_virtual_workbook(
-            wb), content_type='application/vnd.ms-excel')
-        response['Content-Disposition'] = (
-            'attachment; filename="' + self.event.__str__() + '.xlsx"')
+        response = HttpResponse(save_virtual_workbook(wb),
+                   content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=event-'+str(self.event.datetime.date())+".xlsx"
         return response
 
 
@@ -621,7 +626,7 @@ class EventUploadXlsx(EventMixin, BorgiaFormView):
     """
     Upload Excel.
     """
-    perm_codename = 'events.change_event'
+    permission_required = 'events.change_event'
     menu_type = 'members'
     form_class = EventUploadXlsxForm
     allow_manager = True

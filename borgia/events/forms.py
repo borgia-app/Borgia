@@ -8,7 +8,7 @@ from users.models import User, get_list_year
 
 
 class EventListForm(forms.Form):
-    date_begin = forms.DateField(label="Depuis", required=False, initial=datetime.date.today(),
+    date_begin = forms.DateField(label="Depuis", required=False, initial=datetime.date.today().replace(day=1),
                                  widget=forms.DateInput(
                                      attrs={'class': 'datepicker'})
                                  )
@@ -138,10 +138,10 @@ class EventAddWeightForm(forms.Form):
 
 
 class EventDownloadXlsxForm(forms.Form):
-    state = forms.ChoiceField(label='Selection',
+    state = forms.ChoiceField(label='Sélection',
                               choices=(
                                   ('year', 'Listes de promotions'),
-                                  ('registrants', 'Préinscrit'),
+                                  ('registrants', 'Préinscrits'),
                                   ('participants', 'Participants')))
     years = forms.MultipleChoiceField(
         label='Année(s) à inclure', required=False)
