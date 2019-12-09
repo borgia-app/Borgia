@@ -21,7 +21,8 @@ from finances.forms import (ExceptionnalMovementForm,
                             TransfertCreateForm)
 from finances.models import (Cash, Cheque, ExceptionnalMovement, Lydia,
                              Recharging, Transfert)
-from finances.utils import (calculate_lydia_fee_from_total,
+from finances.utils import (verify_token_lydia, 
+                            calculate_lydia_fee_from_total,
                             calculate_total_amount_lydia)
 from users.mixins import UserMixin
 from users.models import User
@@ -797,9 +798,9 @@ def self_lydia_callback(request):
             fee = 0
             recharging_amount = total_amount
         else:
-            base_fee = configuration_get('BASE_FEE_LYDIA').get_value()
-            ratio_fee = configuration_get('RATIO_FEE_LYDIA').get_value()
-            tax_fee = configuration_get('TAX_FEE_LYDIA').get_value()
+            base_fee = decimal.Decimal(configuration_get('BASE_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
+            ratio_fee = decimal.Decimal(configuration_get('RATIO_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
+            tax_fee = decimal.Decimal(configuration_get('TAX_FEE_LYDIA').get_value()).quantize(decimal.Decimal('.01'))
 
             fee = calculate_lydia_fee_from_total(
                 total_amount, base_fee, ratio_fee, tax_fee)

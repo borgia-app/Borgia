@@ -64,7 +64,7 @@ class ConfigurationLydiaForm(forms.Form):
         enable_self_lydia = cleaned_data.get("enable_self_lydia", None)
         enable_fee_lydia = cleaned_data.get("enable_fee_lydia", None)
         if enable_fee_lydia is not None:
-            if enable_self_lydia is None or not enable_self_lydia:
+            if enable_fee_lydia and (enable_self_lydia is None or not enable_self_lydia):
                 raise ValidationError(
                    "Pour prendre en compte la commission Lydia, le rechargement"
                   +" à distance via Lydia doit être activé")
