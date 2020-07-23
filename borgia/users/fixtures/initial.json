@@ -171,7 +171,7 @@
         "campus": null,
         "phone": null,
         "jwt_iat": "2016-02-15T13:32:56.781Z",
-        "groups": [1],
+        "groups": [1, 3],
         "user_permissions": []
         }
     }
