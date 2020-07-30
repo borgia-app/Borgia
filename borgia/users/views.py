@@ -455,22 +455,24 @@ class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaForm
         columns = form.cleaned_data['xlsx_columns']
         # Setting column numbers
         for col in range(min_col, max_col+1):
-            if sheet.cell(None, sheet.min_row, col).value == 'username':
+            if sheet.cell(sheet.min_row, col).value == 'username':
                 col_username = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'first_name':
+            elif sheet.cell(sheet.min_row, col).value == 'first_name':
                 col_first_name = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'last_name':
+            elif sheet.cell(sheet.min_row, col).value == 'last_name':
                 col_last_name = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'email':
+            elif sheet.cell(sheet.min_row, col).value == 'email':
                 col_email = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'surname':
+            elif sheet.cell(sheet.min_row, col).value == 'surname':
                 col_surname = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'family':
+            elif sheet.cell(sheet.min_row, col).value == 'family':
                 col_family = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'campus':
+            elif sheet.cell(sheet.min_row, col).value == 'campus':
                 col_campus = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'year':
+            elif sheet.cell(sheet.min_row, col).value == 'year':
                 col_year = col - min_row
+            elif sheet.cell(sheet.min_row, col).value == 'balance':
+                col_balance = col - min_row
 
         for _ in range(min_row):
             next(rows)
@@ -543,6 +545,13 @@ class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaForm
                     except:
                         errors_on_required_columns.append('year')
 
+                if 'balance' in columns:
+                    try:
+                        if row[col_year].value:
+                            user_dict['balance'] = int(row[col_balance].value)
+                    except:
+                        errors_on_required_columns.append('balance')
+
                 if not skipped_row:
                     username = user_dict['username']
                     if User.objects.filter(username=username).count() > 0:
@@ -606,14 +615,15 @@ class UserAddByListXlsxDownload(LoginRequiredMixin, PermissionRequiredMixin, Bor
         for col in ['A','B','C','D','E']:
             ws.column_dimensions[col].width = 30
 
+        users = User.objects.all().values_list(*columns)
+        for user in users:
+            ws.append(user)
+
         # Return the file
         response = HttpResponse(openpyxl.writer.excel.save_virtual_workbook(wb),
                                 content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename="UsersList.xlsx"'
-
-        users = User.objects.all().values_list(*columns)
-        for user in users:
-            ws.append(user)
+        
         return response
 
 
