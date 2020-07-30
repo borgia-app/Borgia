@@ -471,6 +471,8 @@ class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaForm
                 col_campus = col - min_row
             elif sheet.cell(sheet.min_row, col).value == 'year':
                 col_year = col - min_row
+            elif sheet.cell(sheet.min_row, col).value == 'balance':
+                col_balance = col - min_row
 
         for _ in range(min_row):
             next(rows)
@@ -546,7 +548,7 @@ class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaForm
                 if 'balance' in columns:
                     try:
                         if row[col_year].value:
-                            user_dict['balance'] = int(row[col_year].value)
+                            user_dict['balance'] = int(row[col_balance].value)
                     except:
                         errors_on_required_columns.append('balance')
 
