@@ -615,14 +615,15 @@ class UserAddByListXlsxDownload(LoginRequiredMixin, PermissionRequiredMixin, Bor
         for col in ['A','B','C','D','E']:
             ws.column_dimensions[col].width = 30
 
+        users = User.objects.all().values_list(*columns)
+        for user in users:
+            ws.append(user)
+
         # Return the file
         response = HttpResponse(openpyxl.writer.excel.save_virtual_workbook(wb),
                                 content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
         response['Content-Disposition'] = 'attachment; filename="UsersList.xlsx"'
-
-        users = User.objects.all().values_list(*columns)
-        for user in users:
-            ws.append(user)
+        
         return response
 
 
