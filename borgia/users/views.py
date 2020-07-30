@@ -455,21 +455,21 @@ class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaForm
         columns = form.cleaned_data['xlsx_columns']
         # Setting column numbers
         for col in range(min_col, max_col+1):
-            if sheet.cell(None, sheet.min_row, col).value == 'username':
+            if sheet.cell(sheet.min_row, col).value == 'username':
                 col_username = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'first_name':
+            elif sheet.cell(sheet.min_row, col).value == 'first_name':
                 col_first_name = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'last_name':
+            elif sheet.cell(sheet.min_row, col).value == 'last_name':
                 col_last_name = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'email':
+            elif sheet.cell(sheet.min_row, col).value == 'email':
                 col_email = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'surname':
+            elif sheet.cell(sheet.min_row, col).value == 'surname':
                 col_surname = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'family':
+            elif sheet.cell(sheet.min_row, col).value == 'family':
                 col_family = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'campus':
+            elif sheet.cell(sheet.min_row, col).value == 'campus':
                 col_campus = col - min_row
-            elif sheet.cell(None, sheet.min_row, col).value == 'year':
+            elif sheet.cell(sheet.min_row, col).value == 'year':
                 col_year = col - min_row
 
         for _ in range(min_row):
