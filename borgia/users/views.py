@@ -543,6 +543,13 @@ class UserUploadXlsxView(LoginRequiredMixin, PermissionRequiredMixin, BorgiaForm
                     except:
                         errors_on_required_columns.append('year')
 
+                if 'balance' in columns:
+                    try:
+                        if row[col_year].value:
+                            user_dict['balance'] = int(row[col_year].value)
+                    except:
+                        errors_on_required_columns.append('balance')
+
                 if not skipped_row:
                     username = user_dict['username']
                     if User.objects.filter(username=username).count() > 0:
