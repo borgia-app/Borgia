@@ -25,7 +25,7 @@ import os
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 # Upgrading to Django 3
-DEFAULT_AUTO_FIELD = 'django.db.models.AutoField' #aaaaa
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = 'TO BE CHANGED'
