@@ -1,5 +1,5 @@
-Django==2.1.11
+Django==3.2.2
 django-bootstrap-form==3.4
-django-static-precompiler==1.8.2
+django-static-precompiler==2.0
 openpyxl==2.5.12
-Pillow==6.2.1
+Pillow==8.2.0
