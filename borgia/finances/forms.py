@@ -170,7 +170,7 @@ class RechargingCreateForm(forms.Form):
             operator_username = cleaned_data['operator_username']
             operator_password = cleaned_data['operator_password']
 
-            if operator_password and operator_password:
+            if operator_password:
                 if (authenticate(
                         username=operator_username,
                         password=operator_password) is None):
