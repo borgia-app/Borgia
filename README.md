@@ -2,9 +2,8 @@
 
 Current Version : 5.1.x   
 Licence : [GNU GPL version 3](./license.txt)  
-Chat (en/fr): [Join us on Slack](https://borgia-app.slack.com)  
-Master branch: [![Build Status](https://travis-ci.org/borgia-app/Borgia.svg?branch=master)](https://travis-ci.org/borgia-app/Borgia)  
-Develop branch: [![Build Status](https://travis-ci.org/borgia-app/Borgia.svg?branch=develop)](https://travis-ci.org/borgia-app/Borgia)  
+Master branch: ![Build Status](https://github.com/borgia-app/Borgia/actions/workflows/main.yml/badge.svg?branch=master)  
+Develop branch: ![Build Status](https://github.com/borgia-app/Borgia/actions/workflows/main.yml/badge.svg?branch=master)  
 
 # Introduction
 
