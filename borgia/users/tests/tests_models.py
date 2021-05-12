@@ -2,7 +2,7 @@ import random
 from django.test import TestCase
 
 from users.models import User, get_list_year
-from users.tests_utils import fake_User
+from borgia.tests.utils import fake_User
 
 
 class UserTest(TestCase):
