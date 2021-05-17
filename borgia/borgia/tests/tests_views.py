@@ -1,38 +1,47 @@
 from django.contrib.auth import get_user
 from django.contrib.auth.models import Group, Permission
 from django.test import Client, TestCase
-from django.urls import NoReverseMatch, reverse
+from django.urls import NoReverseMatch, reverse, resolve
 
 from borgia.settings import LOGIN_REDIRECT_URL, LOGIN_URL
 from borgia.tests.utils import get_login_url_redirected, fake_User
 from borgia.utils import EXTERNALS_GROUP_NAME, INTERNALS_GROUP_NAME, PRESIDENTS_GROUP_NAME
 from users.models import User
 
+'''
+TODO:
+- gather all groups
+- create an user for each group
+- for group, check that the user doesn't have access only if the group has permission_required
+- if not check that the user doesn't have access
 
-class BaseBorgiaViewsTestCase(TestCase):
+Permissions should be tested, not groups
+Views should be tested, not urls (use reverse to call the url) ???
+Because views are also called by another view, not only by url ...
+'''
+
+
+class BaseBorgiaViewsTestCase(object):
     fixtures = ['initial', 'tests_data']
 
-    url_view = None  # Tested view url
-    groups_names_that_must_be_granted = []  # Granted group list
-    # If true, all groups are granted except externals
-    grant_all_members_groups = False
+    url_view = None  # Test the view corresponding to this url
 
     def setUp(self):
+        # Create an user for each group and one without any group
         self.groups_names = [group.name for group in Group.objects.all()]
-
-        # Create an user for each group
         self.users = {}
+
         for group_name in self.groups_names:
             user = fake_User(['username', 'balance'])  # balance needed ?
-            user.add_group(Group.objects.get(name=group_name))
+            user.groups.add(Group.objects.get(name=group_name))
 
             # If the group is not EXTERNAL, add the INTERNAL group
-            if group_name != "EXTERNALS_GROUP_NAME":
-                user.add_group(Group.objects.get(name="INTERNALS_GROUP_NAME"))
+            if group_name != EXTERNALS_GROUP_NAME:
+                user.groups.add(Group.objects.get(name=INTERNALS_GROUP_NAME))
 
             user.save()
             self.users[group_name] = user
-        # User without any group
+
         self.users["void"] = fake_User(['username', 'balance'])
 
         # Simulate sessions for each user
@@ -41,15 +50,18 @@ class BaseBorgiaViewsTestCase(TestCase):
             self.clients[group_name] = Client()
             self.clients[group_name].force_login(self.users[group_name])
 
-    def grantAllGroupsExcept(self, denied_group_names):
-        self.groups_names_that_must_be_granted = self.groups_names
-        for group_name in denied_group_names:
-            if group_name in denied_group_names:
-                self.groups_names_that_must_be_granted = list(
-                    set(self.groups_names_that_must_be_granted.remove(group_name)))
+    def test_granted_users_get(self):
+        for group_name in self.groups_names:
+            user = self.users[group_name]
+            response = self.clients[group_name].get(self.get_url())
 
-    def grantOnlyGroups(self, granted_group_names):
-        self.groups_names_that_must_be_granted = list(set(granted_group_names))
+            view = resolve(self.get_url()).func  # ex: UserListView
+            print(resolve(self.get_url()).view_name)
+            print(view.expose_permission_required())
+            if user.has_perm(view.permission_required):
+                self.assertEqual(response.status_code, 200)
+            else:
+                self.assertEqual(response.status_code, 403)
 
     def get_url(self):
         return reverse(self.url_view)
