@@ -1,3 +1,4 @@
+from django.http import response
 from django.test import Client
 from django.urls import reverse
 
@@ -7,31 +8,31 @@ from borgia.utils import get_members_group
 from users.models import User
 
 
-class BaseGeneralUserViewsTestCase(BaseBorgiaViewsTestCase):
-    url_view = None
+class BaseGeneralUsersViewsTestCase(BaseBorgiaViewsTestCase):
 
-    def get_url(self):
-        return reverse(self.url_view)
+    def granted_groups_get(self):
+        # Test that for every group in the granted list, the corresponding user is granted to the url
 
-    def allowed_user_get(self):
-        response_client1 = self.client1.get(
-            self.get_url())
-        self.assertEqual(response_client1.status_code, 200)
+        for group_name in self.groups_names_that_must_be_granted:
+            user = self.users[group_name]
+            self.assertEqual(self.get_url(user.get_url()).status_code, 200)
 
-    def not_allowed_user_get(self):
-        response_client2 = self.client2.get(
-            self.get_url())
-        self.assertEqual(response_client2.status_code, 403)
+    def denied_groups_get(self):
+        # Test that for every group not in the list, the corresponding user is denied from the url
 
-    def offline_user_redirection(self):
-        response_offline_user = Client().get(
-            reverse(self.url_view))
-        self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
+        for group_name in self.groups_names not in self.groups_names_that_must_be_granted:
+            user = self.users[group_name]
+            self.assertEqual(self.get_url(user.get_url()).status_code, 403)
 
 
-class UserListViewTestCase(BaseGeneralUserViewsTestCase):
+class UserListViewTestCase(BaseGeneralUsersViewsTestCase):
     url_view = 'url_user_list'
+
+    def setUp(self):
+        super()
+        # Granted : all except EXTERNAL
+        # Denied : EXTERNAL
+        self.addGrantedGroups(self.groups_names.remove())
 
     def test_allowed_user_get(self):
         super().allowed_user_get()
@@ -39,11 +40,11 @@ class UserListViewTestCase(BaseGeneralUserViewsTestCase):
     def test_not_allowed_user_get(self):
         super().not_allowed_user_get()
 
-    def test_offline_user_redirection(self):
-        super().offline_user_redirection()
+    # def test_offline_user_redirection(self):
+    #    super().offline_user_redirection()
 
 
-class UserCreateViewTestCase(BaseGeneralUserViewsTestCase):
+class UserCreateViewTestCase(BaseGeneralUsersViewsTestCase):
     url_view = 'url_user_create'
 
     def test_allowed_user_get(self):
@@ -66,9 +67,10 @@ class UserCreateViewTestCase(BaseGeneralUserViewsTestCase):
              'campus': 'ME',
              'username': '53Me215',
              'password': 'password'})
-        
+
         self.assertEqual(response_creation.status_code, 302)
-        self.assertTrue(Client().login(username='53Me215', password='password'))
+        self.assertTrue(Client().login(
+            username='53Me215', password='password'))
         user = User.objects.get(username='53Me215')
         self.assertEqual(user.groups.count(), 1)
         self.assertEqual(user.groups.first(), get_members_group())
@@ -83,12 +85,14 @@ class UserCreateViewTestCase(BaseGeneralUserViewsTestCase):
              'username': 'External',
              'is_external_member': True,
              'password': 'password'})
-        
+
         self.assertEqual(response_creation.status_code, 302)
-        self.assertTrue(Client().login(username='External', password='password'))
+        self.assertTrue(Client().login(
+            username='External', password='password'))
         user = User.objects.get(username='External')
         self.assertEqual(user.groups.count(), 1)
-        self.assertEqual(user.groups.first(), get_members_group(is_externals=True))
+        self.assertEqual(user.groups.first(),
+                         get_members_group(is_externals=True))
 
 
 class BaseFocusUserViewsTestCase(BaseBorgiaViewsTestCase):
@@ -112,7 +116,9 @@ class BaseFocusUserViewsTestCase(BaseBorgiaViewsTestCase):
     def offline_user_redirection(self):
         response_offline_user = Client().get(self.get_url(self.user2.pk))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(self.user2.pk)))
+        self.assertRedirects(response_offline_user, get_login_url_redirected(
+            self.get_url(self.user2.pk)))
+
 
 class UserRetrieveViewTestCase(BaseFocusUserViewsTestCase):
     url_view = 'url_user_retrieve'
@@ -144,7 +150,7 @@ class UserUpdateViewTestCase(BaseFocusUserViewsTestCase):
 
     def test_offline_user_redirection(self):
         super().offline_user_redirection()
-    
+
     def test_allowed_selfupdate_get(self):
         response_client1 = self.client1.get(
             self.get_url(self.user1.pk))
@@ -202,4 +208,5 @@ class UpdateGroupViewTestCase(BaseBorgiaViewsTestCase):
         response_offline_user = Client().get(
             self.get_url(1))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url(1)))
+        self.assertRedirects(response_offline_user,
+                             get_login_url_redirected(self.get_url(1)))

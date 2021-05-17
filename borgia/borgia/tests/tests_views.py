@@ -4,7 +4,7 @@ from django.test import Client, TestCase
 from django.urls import NoReverseMatch, reverse
 
 from borgia.settings import LOGIN_REDIRECT_URL, LOGIN_URL
-from borgia.tests.utils import get_login_url_redirected
+from borgia.tests.utils import get_login_url_redirected, fake_User
 from borgia.utils import EXTERNALS_GROUP_NAME, INTERNALS_GROUP_NAME, PRESIDENTS_GROUP_NAME
 from users.models import User
 
@@ -12,27 +12,47 @@ from users.models import User
 class BaseBorgiaViewsTestCase(TestCase):
     fixtures = ['initial', 'tests_data']
 
-    def setUp(self):
-        members_group = Group.objects.get(name=INTERNALS_GROUP_NAME)
-        externals_group = Group.objects.get(name=EXTERNALS_GROUP_NAME)
-        presidents_group = Group.objects.get(name=PRESIDENTS_GROUP_NAME)
-        presidents_group.permissions.set(Permission.objects.all())
-        # Group externals NEED to be created (else raises errors) :
+    url_view = None  # Tested view url
+    groups_names_that_must_be_granted = []  # Granted group list
+    # If true, all groups are granted except externals
+    grant_all_members_groups = False
 
-        self.user1 = User.objects.create(username='user1', balance=53)
-        self.user1.groups.add(members_group)
-        self.user1.groups.add(presidents_group)
-        self.user1.save()
-        self.user2 = User.objects.create(username='user2', balance=144)
-        self.user2.groups.add(externals_group)
-        self.user2.save()
-        self.user3 = User.objects.create(username='user3')
-        self.client1 = Client()
-        self.client1.force_login(self.user1)
-        self.client2 = Client()
-        self.client2.force_login(self.user2)
-        self.client3 = Client()
-        self.client3.force_login(self.user3)
+    def setUp(self):
+        self.groups_names = [group.name for group in Group.objects.all()]
+
+        # Create an user for each group
+        self.users = {}
+        for group_name in self.groups_names:
+            user = fake_User(['username', 'balance'])  # balance needed ?
+            user.add_group(Group.objects.get(name=group_name))
+
+            # If the group is not EXTERNAL, add the INTERNAL group
+            if group_name != "EXTERNALS_GROUP_NAME":
+                user.add_group(Group.objects.get(name="INTERNALS_GROUP_NAME"))
+
+            user.save()
+            self.users[group_name] = user
+        # User without any group
+        self.users["void"] = fake_User(['username', 'balance'])
+
+        # Simulate sessions for each user
+        self.clients = {}
+        for group_name in self.groups_names:
+            self.clients[group_name] = Client()
+            self.clients[group_name].force_login(self.users[group_name])
+
+    def grantAllGroupsExcept(self, denied_group_names):
+        self.groups_names_that_must_be_granted = self.groups_names
+        for group_name in denied_group_names:
+            if group_name in denied_group_names:
+                self.groups_names_that_must_be_granted = list(
+                    set(self.groups_names_that_must_be_granted.remove(group_name)))
+
+    def grantOnlyGroups(self, granted_group_names):
+        self.groups_names_that_must_be_granted = list(set(granted_group_names))
+
+    def get_url(self):
+        return reverse(self.url_view)
 
 
 class AuthViewNamedURLTests(TestCase):
@@ -57,7 +77,8 @@ class AuthViewNamedURLTests(TestCase):
                 try:
                     reverse(name, args=args, kwargs=kwargs)
                 except NoReverseMatch:
-                    self.fail("Reversal of url named '%s' failed with NoReverseMatch" % name)
+                    self.fail(
+                        "Reversal of url named '%s' failed with NoReverseMatch" % name)
 
 
 class BaseAuthViewsTestCase(TestCase):
@@ -73,7 +94,8 @@ class BaseAuthViewsTestCase(TestCase):
         response_offline_user = Client().get(
             reverse(self.url_view))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
+        self.assertRedirects(response_offline_user,
+                             get_login_url_redirected(self.get_url()))
 
     def get_url(self):
         return reverse(self.url_view)
@@ -103,7 +125,8 @@ class LoginViewTests(BaseAuthViewsTestCase):
         self.assertTrue(user_logged.is_authenticated)
 
         self.assertEqual(response.status_code, 302)
-        self.assertRedirects(response, LOGIN_REDIRECT_URL, fetch_redirect_response=False)
+        self.assertRedirects(response, LOGIN_REDIRECT_URL,
+                             fetch_redirect_response=False)
 
     def test_wrong_credentials(self):
         client = Client()
@@ -243,8 +266,9 @@ class BaseWorkboardsTestCase(BaseBorgiaViewsTestCase):
         response_offline_user = Client().get(
             reverse(self.url_view))
         self.assertEqual(response_offline_user.status_code, 302)
-        self.assertRedirects(response_offline_user, get_login_url_redirected(self.get_url()))
-   
+        self.assertRedirects(response_offline_user,
+                             get_login_url_redirected(self.get_url()))
+
     def get_url(self):
         return reverse(self.url_view)
 
