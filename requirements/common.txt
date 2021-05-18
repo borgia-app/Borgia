@@ -3,4 +3,4 @@ django-bootstrap-form==3.4
 django-static-precompiler==2.0
 openpyxl==2.5.12
 Pillow==8.2.0
-faker=8.1.2
+faker==8.1.2
