@@ -30,25 +30,26 @@ class BaseBorgiaViewsTestCase(object):
         # Create an user for each group and one without any group
         self.groups_names = [group.name for group in Group.objects.all()]
         self.users = {}
+        self.clients = {}
 
         for group_name in self.groups_names:
             user = fake_User(['username', 'balance'])  # balance needed ?
             user.groups.add(Group.objects.get(name=group_name))
 
             # If the group is not EXTERNAL, add the INTERNAL group
-            if group_name != EXTERNALS_GROUP_NAME:
+            if group_name != EXTERNALS_GROUP_NAME and group_name != INTERNALS_GROUP_NAME:
                 user.groups.add(Group.objects.get(name=INTERNALS_GROUP_NAME))
 
             user.save()
             self.users[group_name] = user
 
-        self.users["void"] = fake_User(['username', 'balance'])
-
-        # Simulate sessions for each user
-        self.clients = {}
-        for group_name in self.groups_names:
+            # Simulate sessions for each user
             self.clients[group_name] = Client()
             self.clients[group_name].force_login(self.users[group_name])
+
+        self.users["void"] = fake_User(['username', 'balance'])
+        self.clients["void"] = Client()
+        self.clients["void"].force_login(self.users["void"])
 
     def test_granted_users_get(self):
         for group_name in self.groups_names:
