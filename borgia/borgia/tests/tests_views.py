@@ -54,7 +54,7 @@ class BaseBorgiaViewsTestCase(object):
     def test_granted_users_get(self):
 
         permission_required = self.get_url_class_view(
-        ).permission_required  # ex: users.list_users
+        )().permission_required  # ex: users.list_users
 
         # permission_required must be defined
         self.assertIsNotNone(permission_required)
@@ -75,7 +75,7 @@ class BaseBorgiaViewsTestCase(object):
         return reverse(self.url_view)
 
     def get_url_class_view(self):
-        return resolve(self.get_url()).func.view_class()
+        return resolve(self.get_url()).func.view_class
 
 
 class AuthViewNamedURLTests(TestCase):
