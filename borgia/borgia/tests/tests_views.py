@@ -52,20 +52,30 @@ class BaseBorgiaViewsTestCase(object):
         self.clients["void"].force_login(self.users["void"])
 
     def test_granted_users_get(self):
+
+        permission_required = self.get_url_class_view(
+        ).permission_required  # ex: users.list_users
+
+        # permission_required must be defined
+        self.assertIsNotNone(permission_required)
+
         for group_name in self.groups_names:
             user = self.users[group_name]
             response = self.clients[group_name].get(self.get_url())
 
-            view = resolve(self.get_url()).func  # ex: UserListView
-            print(resolve(self.get_url()).view_name)
-            print(view.expose_permission_required())
-            if user.has_perm(view.permission_required):
+            # Test permissions to access the content
+            if user.has_perm(permission_required):
+                print('granted')
                 self.assertEqual(response.status_code, 200)
             else:
+                print('denied')
                 self.assertEqual(response.status_code, 403)
 
     def get_url(self):
         return reverse(self.url_view)
+
+    def get_url_class_view(self):
+        return resolve(self.get_url()).func.view_class()
 
 
 class AuthViewNamedURLTests(TestCase):
