@@ -1,6 +1,6 @@
 # ![Borgia](./borgia/static/static_dirs/img/borgia-logo-light.png 'Borgia')
 
-Current Version : 5.1.x   
+Current Version : 5.2.0
 Licence : [GNU GPL version 3](./license.txt)  
 Master branch: ![Build Status](https://github.com/borgia-app/Borgia/actions/workflows/main.yml/badge.svg?branch=master)  
 Develop branch: ![Build Status](https://github.com/borgia-app/Borgia/actions/workflows/main.yml/badge.svg?branch=master)  
