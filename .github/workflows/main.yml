@@ -31,6 +31,7 @@ jobs:
       # Runs a set of commands using the runners shell
       - name: Install dependencies
         run: |
+          pip install setuptools==67.7.1
           pip install -r requirements/dev.txt
           npm add -g less
           cp contrib/development/settings.py borgia/borgia/settings.py
