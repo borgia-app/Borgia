@@ -1,10 +1,9 @@
-# ![Borgia](./borgia/static/static_dirs/img/borgia-logo-light.png 'Borgia')
+# ![Borgia](./borgia/static/static_dirs/img/borgia-logo-light.png "Borgia")
 
-Current Version : 5.1.x   
+Current Version : 5.1.4
 Licence : [GNU GPL version 3](./license.txt)  
-Chat (en/fr): [Join us on Slack](https://borgia-app.slack.com)  
-Master branch: [![Build Status](https://travis-ci.org/borgia-app/Borgia.svg?branch=master)](https://travis-ci.org/borgia-app/Borgia)  
-Develop branch: [![Build Status](https://travis-ci.org/borgia-app/Borgia.svg?branch=develop)](https://travis-ci.org/borgia-app/Borgia)  
+Master branch: ![Build Status](https://github.com/borgia-app/Borgia/actions/workflows/main.yml/badge.svg?branch=master)  
+Develop branch: ![Build Status](https://github.com/borgia-app/Borgia/actions/workflows/main.yml/badge.svg?branch=master)
 
 # Introduction
 
@@ -14,8 +13,8 @@ It will be your best ally to develop your possibilities for your student associa
 
 # Installation
 
--   Development : [here](https://github.com/borgia-app/Borgia-docs/blob/master/tutorials/dev_install.md)
--   Production : [here](https://github.com/borgia-app/Borgia-docs/blob/master/tutorials/prod_install.md)
+- Development : [here](https://github.com/borgia-app/Borgia-docs/blob/master/tutorials/dev_install.md)
+- Production : [here](https://github.com/borgia-app/Borgia-docs/blob/master/tutorials/prod_install.md)
 
 # Documentation
 
@@ -26,18 +25,18 @@ Documentation are currently in writing-phase. Some ressources are available
 
 Borgia base dependency :
 
--   Django : Borgia run with the django framework
--   django-bootstrap-form : To use bootstrap with django
--   django-static-precompiler : For static files
--   openpyxl : For excel manipulation
--   Pillow : For users images
+- Django : Borgia run with the django framework
+- django-bootstrap-form : To use bootstrap with django
+- django-static-precompiler : For static files
+- openpyxl : For excel manipulation
+- Pillow : For users images
 
 # Developing and Contributing
 
 We'd love to get contributions from you! For a quick guide to getting your
 system setup for developing, take a look at the section "To Start".
 Once you are up and running, take a look at the
-[CONTRIBUTING.md](https://github.com/borgia-app/Borgia/CONTRIBUTING.md) to see
+[CONTRIBUTING.md](https://github.com/borgia-app/Borgia/blob/master/CONTRIBUTING.md) to see
 how to get your changes merged in.
 
 # End note (French)
