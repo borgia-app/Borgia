@@ -36,7 +36,7 @@ Borgia base dependency :
 We'd love to get contributions from you! For a quick guide to getting your
 system setup for developing, take a look at the section "To Start".
 Once you are up and running, take a look at the
-[CONTRIBUTING.md](https://github.com/borgia-app/Borgia/CONTRIBUTING.md) to see
+[CONTRIBUTING.md](https://github.com/borgia-app/Borgia/blob/master/CONTRIBUTING.md) to see
 how to get your changes merged in.
 
 # End note (French)
