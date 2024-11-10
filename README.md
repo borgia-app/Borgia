@@ -1,9 +1,9 @@
-# ![Borgia](./borgia/static/static_dirs/img/borgia-logo-light.png 'Borgia')
+# ![Borgia](./borgia/static/static_dirs/img/borgia-logo-light.png "Borgia")
 
-Current Version : 5.2.0
+Current Version : 5.1.4
 Licence : [GNU GPL version 3](./license.txt)  
 Master branch: ![Build Status](https://github.com/borgia-app/Borgia/actions/workflows/main.yml/badge.svg?branch=master)  
-Develop branch: ![Build Status](https://github.com/borgia-app/Borgia/actions/workflows/main.yml/badge.svg?branch=master)  
+Develop branch: ![Build Status](https://github.com/borgia-app/Borgia/actions/workflows/main.yml/badge.svg?branch=master)
 
 # Introduction
 
@@ -13,8 +13,8 @@ It will be your best ally to develop your possibilities for your student associa
 
 # Installation
 
--   Development : [here](https://github.com/borgia-app/Borgia-docs/blob/master/tutorials/dev_install.md)
--   Production : [here](https://github.com/borgia-app/Borgia-docs/blob/master/tutorials/prod_install.md)
+- Development : [here](https://github.com/borgia-app/Borgia-docs/blob/master/tutorials/dev_install.md)
+- Production : [here](https://github.com/borgia-app/Borgia-docs/blob/master/tutorials/prod_install.md)
 
 # Documentation
 
@@ -25,11 +25,11 @@ Documentation are currently in writing-phase. Some ressources are available
 
 Borgia base dependency :
 
--   Django : Borgia run with the django framework
--   django-bootstrap-form : To use bootstrap with django
--   django-static-precompiler : For static files
--   openpyxl : For excel manipulation
--   Pillow : For users images
+- Django : Borgia run with the django framework
+- django-bootstrap-form : To use bootstrap with django
+- django-static-precompiler : For static files
+- openpyxl : For excel manipulation
+- Pillow : For users images
 
 # Developing and Contributing
 
