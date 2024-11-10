@@ -1,9 +1,8 @@
-import datetime
 import decimal
 import itertools
 
 from django.contrib.auth.models import AbstractUser
-from django.core.validators import RegexValidator
+from django.core.validators import RegexValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
@@ -63,9 +62,6 @@ class User(AbstractUser):
         ('KA', 'Ka'),
         ('KIN', 'Kin')
     )
-    YEAR_CHOICES = []
-    for i in range(1953, datetime.datetime.now().year + 1):
-        YEAR_CHOICES.append((i, i))
 
     THEME_CHOICES = (
         ('light', 'Light'),
@@ -79,7 +75,7 @@ class User(AbstractUser):
                                   decimal_places=2)
     virtual_balance = models.DecimalField('Solde prévisionnel', default=0, max_digits=9,
                                           decimal_places=2)
-    year = models.IntegerField('Prom\'ss', choices=YEAR_CHOICES, blank=True,
+    year = models.IntegerField('Prom\'ss', validators=[MinValueValidator(1953)], blank=True,
                                null=True)
     campus = models.CharField('Tabagn\'ss', choices=CAMPUS_CHOICES,
                               max_length=3, blank=True, null=True)

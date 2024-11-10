@@ -1,9 +1,9 @@
+import datetime
 from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.widgets import PasswordInput
 
 from users.models import User, get_list_year
-
 
 class UserCreationCustomForm(forms.Form):
     first_name = forms.CharField(label='Prenom', max_length=255)
@@ -14,7 +14,7 @@ class UserCreationCustomForm(forms.Form):
     campus = forms.ChoiceField(
         label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
     year = forms.ChoiceField(
-        label='Prom\'ss', choices=User.YEAR_CHOICES[::-1], required=True)
+        label='Prom\'ss', choices=tuple((year,year) for year in list(range(1953, datetime.datetime.now().year + 2))[::-1]), required=True) # +2 as last item is omitted
     username = forms.CharField(label='Username', max_length=255)
     is_external_member = forms.BooleanField(
         label='Externe à l\'association', required=False)
@@ -42,7 +42,7 @@ class UserUpdateForm(forms.Form):
     campus = forms.ChoiceField(
         label='Tabagn\'s', choices=User.CAMPUS_CHOICES, required=False)
     year = forms.ChoiceField(
-        label='Prom\'ss', choices=User.YEAR_CHOICES, required=False)
+        label='Prom\'ss', choices=tuple((year,year) for year in list(range(1953, datetime.datetime.now().year + 2))[::-1]), required=False) # +2 as last item is omitted
 
     def __init__(self, **kwargs):
         self.user = kwargs.pop('user')
