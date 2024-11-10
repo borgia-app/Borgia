@@ -16,54 +16,54 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
- #        migrations.AddField(
- #           model_name='transfert',
- #           name='recipient',
- #           field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recipient_transfert', to=settings.AUTH_USER_MODEL),
- #       ),
- #       migrations.AddField(
- #           model_name='transfert',
- #           name='sender',
- #           field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sender_transfert', to=settings.AUTH_USER_MODEL),
- #       ),
+        migrations.AddField(
+            model_name='transfert',
+            name='recipient',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recipient_transfert', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AddField(
+            model_name='transfert',
+            name='sender',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sender_transfert', to=settings.AUTH_USER_MODEL),
+        ),
         migrations.AddField(
             model_name='recharging',
             name='content_type',
             field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='contenttypes.ContentType'),
         ),
-#        migrations.AddField(
-#            model_name='recharging',
-#            name='operator',
-#            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='operator_recharging', to=settings.AUTH_USER_MODEL),
-#        ),
-#        migrations.AddField(
-#            model_name='recharging',
-#            name='sender',
-#            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sender_recharging', to=settings.AUTH_USER_MODEL),
-#        ),
-#        migrations.AddField(
-#            model_name='lydia',
-#            name='sender',
-#            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
-#        ),
-#        migrations.AddField(
-#            model_name='exceptionnalmovement',
-#            name='operator',
-#            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sender_exceptionnal_movement', to=settings.AUTH_USER_MODEL),
-#        ),
-#        migrations.AddField(
-#            model_name='exceptionnalmovement',
-#            name='recipient',
-#            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recipient_exceptionnal_movement', to=settings.AUTH_USER_MODEL),
-#        ),
-#        migrations.AddField(
-#            model_name='cheque',
-#            name='sender',
-#            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
-#        ),
-#        migrations.AddField(
-#            model_name='cash',
-#            name='sender',
-#            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
-#        ),
+        migrations.AddField(
+            model_name='recharging',
+            name='operator',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='operator_recharging', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AddField(
+            model_name='recharging',
+            name='sender',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sender_recharging', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AddField(
+            model_name='lydia',
+            name='sender',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AddField(
+            model_name='exceptionnalmovement',
+            name='operator',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sender_exceptionnal_movement', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AddField(
+            model_name='exceptionnalmovement',
+            name='recipient',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='recipient_exceptionnal_movement', to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AddField(
+            model_name='cheque',
+            name='sender',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+        ),
+        migrations.AddField(
+            model_name='cash',
+            name='sender',
+            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+        ),
     ]

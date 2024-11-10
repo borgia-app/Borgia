@@ -1,12 +1,19 @@
+import datetime
+
 from django.core.paginator import EmptyPage, PageNotAnInteger, Paginator
 from django.db.models import Q
-from django.shortcuts import render
+from django.shortcuts import HttpResponse, render
+from django.utils.timezone import now
+from openpyxl import Workbook
+from openpyxl.writer.excel import save_virtual_workbook
 
 from borgia.views import BorgiaFormView, BorgiaView
 from sales.forms import SaleListSearchDateForm
 from sales.mixins import SaleMixin
 from sales.models import Sale
 from shops.mixins import ShopMixin
+
+from .models import Sale
 
 
 class SaleList(ShopMixin, BorgiaFormView):
@@ -129,3 +136,83 @@ class SaleRetrieve(SaleMixin, BorgiaView):
     def get(self, request, *args, **kwargs):
         context = self.get_context_data(**kwargs)
         return render(request, self.template_name, context=context)
+
+
+class Saledownload_xlsx(ShopMixin, BorgiaView):
+    """
+    Download sales (Jquery with SaleListSearchDateForm) from a shop in a xlsx file
+
+    """
+    permission_required = 'sales.view_sale'
+    menu_type = 'shops'
+    template_name = 'sales/sale_shop_list.html'
+    form_class = SaleListSearchDateForm
+
+    search = None
+    date_begin = None
+    date_end = None
+
+    def post(self, request, *args, **kwargs):
+
+        if request.POST['search'] != '':
+            self.search = request.POST['search']
+
+        if request.POST['date_begin'] != '':
+            self.date_begin = datetime.datetime.strptime(
+                request.POST['date_begin'], "%d/%m/%Y")
+
+        if request.POST['date_end'] != '':
+            self.date_end = datetime.datetime.strptime(
+                request.POST['date_end'], "%d/%m/%Y")
+
+        wb = Workbook()
+        # grab the active worksheet
+        ws = wb.active
+        ws.title = "sales"
+        columns = ['Opérateur', 'Acheteur',
+                   'Date', 'Produits', 'Prix']
+        ws.append(columns)
+        for col in ['A', 'B', 'C', 'D', 'E']:
+            ws.column_dimensions[col].width = 30
+
+        sales_list = Sale.objects.filter(shop=self.shop).order_by('-datetime')
+        sales_list = self.form_query(sales_list)
+        for s in sales_list:
+            operator = s.operator.last_name + ' ' + s.operator.first_name
+            sender = s.sender.last_name + ' ' + s.sender.first_name
+            ws.append([operator, sender, s.datetime.strftime(
+                '%c'), s.string_products(), s.amount()])
+
+        # Return the file
+        response = HttpResponse(save_virtual_workbook(wb),
+                                content_type='application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+        response['Content-Disposition'] = 'attachment; filename=sales-' + \
+            str(now().date()) + ".xlsx"
+        return response
+
+    def form_query(self, query):
+        if self.search:
+            query = query.filter(
+                Q(operator__last_name__icontains=self.search)
+                | Q(operator__first_name__icontains=self.search)
+                | Q(operator__surname__icontains=self.search)
+                | Q(operator__username__icontains=self.search)
+                | Q(recipient__last_name__icontains=self.search)
+                | Q(recipient__first_name__icontains=self.search)
+                | Q(recipient__surname__icontains=self.search)
+                | Q(recipient__username__icontains=self.search)
+                | Q(sender__last_name__icontains=self.search)
+                | Q(sender__first_name__icontains=self.search)
+                | Q(sender__surname__icontains=self.search)
+
+            )
+
+        if self.date_begin:
+            query = query.filter(
+                datetime__gte=self.date_begin)
+
+        if self.date_end:
+            query = query.filter(
+                datetime__lte=self.date_end)
+
+        return query

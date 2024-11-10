@@ -1,9 +1,8 @@
-{% extends 'base_sober.html' %}
-{% load l10n %}
-{% load bootstrap %}
-
-{% block content %}
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css">
+{% extends 'base_sober.html' %} {% load l10n %} {% load bootstrap %} {% block content %}
+<link
+  rel="stylesheet"
+  href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/css/bootstrap-select.min.css"
+/>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/bootstrap-select.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.12.1/js/i18n/defaults-fr_FR.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.5.0/Chart.min.js"></script>
@@ -13,9 +12,11 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         Transactions
-        <span>{% if info.is_current_month %} du mois courant
-        {% else %}<b> du {{ info.date_begin }} au {{ info.date_end }}</b>
-        {% endif %}
+        <span
+          >{% if info.is_current_month %} du mois courant {% else %}<b>
+            du {{ info.date_begin }} au {{ info.date_end }}</b
+          >
+          {% endif %}
         </span>
         <a class="btn btn-info btn-xs" href="{% url 'url_sale_list' shop_pk=shop.pk %}">Liste complète des ventes</a>
       </div>
@@ -31,14 +32,25 @@
   <div class="col-md-6">
     <div class="panel panel-default">
       <div class="panel-heading">
-        Stocks
-        <a class="btn btn-info btn-xs" href="{% url 'url_product_list' shop_pk=shop.pk %}">Liste complète des produits</a>
-        <a class="btn btn-info btn-xs" href="{% url 'url_stockentry_list' shop_pk=shop.pk %}">Liste complète des entrées de stock</a>
+        Factures
+        <span
+          >{% if info.is_current_month %} du mois courant {% else %}<b>
+            du {{ info.date_begin }} au {{ info.date_end }}</b
+          >
+          {% endif %}
+        </span>
+        <a class="btn btn-info btn-xs" href="{% url 'url_billsentry_list' shop_pk=shop.pk %}"
+          >Liste complète des factures</a
+        >
       </div>
       <div class="panel-body">
         <ul>
-          <li>Produits en stock : {% if stock %}{{ stock.nb }}{% else %}0{% endif %}</li>
-          <li>Montant cumulé : {% if stock %}{{ stock.value }}{% else %}0{% endif %}€</li>
+          <li>Nombre de facture entrées : {% if bills %}{{ bills.nb }}{% else %}0{% endif %}</li>
+          <li>Montant cumulé des factures : {% if bills %}{{ bills.value }}{% else %}0{% endif %}€</li>
+          <li>
+            Solde du magasin :
+            <span style="color: {% if info.balance < 0 %}red{% else %}green{% endif %}">{{ info.balance }}€</span>
+          </li>
         </ul>
       </div>
     </div>
@@ -47,16 +59,13 @@
 <div class="row">
   <div class="col-md-3">
     <div class="panel panel-default">
-      <div class="panel-heading">
-        Paramètres de synthèse
-      </div>
+      <div class="panel-heading">Paramètres de synthèse</div>
       <div class="panel-body">
         <h2>{{ shop }}</h2>
-        <form action= "" method="post">
-            {% csrf_token %}
-            {{ form|bootstrap }}
-            <button type="submit" class="btn btn-success">Valider</button>
-            <a class="btn btn-warning" href="">Reset</a>
+        <form action="" method="post">
+          {% csrf_token %} {{ form|bootstrap }}
+          <button type="submit" class="btn btn-success">Valider</button>
+          <a class="btn btn-warning" href="">Reset</a>
         </form>
       </div>
     </div>
@@ -65,9 +74,11 @@
     <div class="panel panel-default">
       <div class="panel-heading">
         Synthèse
-        <span>{% if info.is_current_month %} du mois courant
-        {% else %}<b> du {{ info.date_begin }} au {{ info.date_end }}</b>
-        {% endif %}
+        <span
+          >{% if info.is_current_month %} du mois courant {% else %}<b>
+            du {{ info.date_begin }} au {{ info.date_end }}</b
+          >
+          {% endif %}
         </span>
       </div>
       <div class="panel-body">
@@ -80,13 +91,13 @@
 <script>
   var ctx = "horizontalBar";
   var data = {
-      labels: ["Achats", "Ventes"],
+      labels: ["Achats (Entrées factures)", "Ventes"],
       datasets: [
           {
               label: "Synthèse",
               backgroundColor: [
                   'rgba(255, 0, 0, 0.2)',
-                  'rgba(255, 0, 0, 0.2)',
+                  'rgba(0, 255, 0, 0.2)',
                   'rgba(75, 192, 192, 0.2)',
                   'rgba(75, 192, 192, 0.2)',
                   'rgba(153, 102, 255, 0.2)',
@@ -94,7 +105,7 @@
               ],
               borderColor: [
                   'rgba(255,0 ,0 ,1)',
-                  'rgba(255, 0, 0, 1)',
+                  'rgba(0, 255, 0, 1)',
                   'rgba(75, 192, 192, 1)',
                   'rgba(75, 192, 192, 1)',
                   'rgba(153, 102, 255, 1)',
@@ -102,7 +113,7 @@
               ],
               borderWidth: 1,
               data: [
-                {{ info.buy.value|unlocalize }}, {{ info.sale.value|unlocalize }}
+                {{ bills.value|unlocalize }}, {{ info.sale.value|unlocalize }}
               ],
           }
       ]

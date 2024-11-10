@@ -1,0 +1,11 @@
+  <script>
+    var time = {{ delay }}
+    function decreaseTime(){
+      time = time - 1
+      if (time == 0) {
+        clearInterval(refreshIntervalId)
+        history.back()
+      }
+    }
+    var refreshIntervalId = setInterval(decreaseTime, 1000);
+  </script>

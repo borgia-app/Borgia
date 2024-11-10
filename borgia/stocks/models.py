@@ -14,9 +14,10 @@ class StockEntry(models.Model):
 
     :note:: Initial Django Permission (add, change, delete, view) are added.
     """
-    datetime = models.DateTimeField('Date', default=now)
+
+    datetime = models.DateTimeField("Date", default=now)
     operator = models.ForeignKey(User, on_delete=models.CASCADE)
-    products = models.ManyToManyField(Product, through='StockEntryProduct')
+    products = models.ManyToManyField(Product, through="StockEntryProduct")
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
     def total(self):
@@ -24,10 +25,10 @@ class StockEntry(models.Model):
         return total
 
     def string_products(self):
-        string = ''
+        string = ""
         for sep in self.stockentryproduct_set.all():
-            string += sep.__str__() + ', '
-        string = string[0: len(string)-2]
+            string += sep.__str__() + ", "
+        string = string[0 : len(string) - 2]
         return string
 
 
@@ -36,30 +37,41 @@ class StockEntryProduct(models.Model):
     quantity -> in CL/G (even if L/KG is possible in the form)
     price -> price for the whole quantity (even if price for L/KG is possible in the form)
     """
+
     stockentry = models.ForeignKey(StockEntry, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
-    price = models.DecimalField('Prix', default=0, decimal_places=2,
-                                max_digits=9,
-                                validators=[MinValueValidator(Decimal(0))])
+    price = models.DecimalField(
+        "Prix",
+        default=0,
+        decimal_places=2,
+        max_digits=9,
+        validators=[MinValueValidator(Decimal(0))],
+    )
 
     class Meta:
         """
         Remove default permissions for StockEntryProduct
         """
+
         default_permissions = ()
 
     def __str__(self):
         if self.product.unit:
-            return self.product.__str__() + ' x ' + str(self.quantity) + self.product.get_unit_display()
+            return (
+                self.product.__str__()
+                + " x "
+                + str(self.quantity)
+                + self.product.get_unit_display()
+            )
         else:
-            return self.product.__str__() + ' x ' + str(self.quantity)
+            return self.product.__str__() + " x " + str(self.quantity)
 
     def unit_price(self):
         if self.product.unit:
-            if self.product.unit == 'G':
+            if self.product.unit == "G":
                 return Decimal(1000 * self.price / self.quantity)
-            if self.product.unit == 'CL':
+            if self.product.unit == "CL":
                 return Decimal(100 * self.price / self.quantity)
         else:
             return Decimal(self.price / self.quantity)
@@ -72,21 +84,21 @@ class Inventory(models.Model):
     :note:: Initial Django Permission (add, change, delete, view) are added.
     """
 
-    datetime = models.DateTimeField('Date', default=now)
+    datetime = models.DateTimeField("Date", default=now)
     operator = models.ForeignKey(User, on_delete=models.CASCADE)
-    products = models.ManyToManyField(Product, through='InventoryProduct')
+    products = models.ManyToManyField(Product, through="InventoryProduct")
     shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
 
     def update_correcting_factors(self):
         for inventoryproduct in self.inventoryproduct_set.all():
-            inventoryproduct.product.update_correcting_factor(
-                inventoryproduct.quantity)
+            inventoryproduct.product.update_correcting_factor(inventoryproduct.quantity)
 
 
 class InventoryProduct(models.Model):
     """
     quantity -> in CL/G (even if L/KG is possible in the form)
     """
+
     inventory = models.ForeignKey(Inventory, on_delete=models.CASCADE)
     product = models.ForeignKey(Product, on_delete=models.CASCADE)
     quantity = models.PositiveIntegerField()
@@ -95,7 +107,43 @@ class InventoryProduct(models.Model):
         """
         Remove default permissions for InventoryProduct
         """
+
         default_permissions = ()
 
     def get_quantity_display(self):
         return self.product.get_quantity_display(self.quantity)
+
+
+#: Creation of a new model : BillsEntry
+
+
+class BillsEntry(models.Model):
+    """
+    Define a BillEntry object.
+    Used to add a bill link to a shop
+
+    :param datetime: Date and time
+    :param operator: Operator that enter the bill
+    :param shop: Shop related to the bill
+    :param billname: Name of the bill
+    :param billamount: Amount of the bill entered
+    :type datetime: DateTimeField
+    :type operator: ForeignKey
+    :type shop: ForeignKey
+    :type billname: TextField
+    :type billamount: DecimalField
+    """
+
+    datetime = models.DateTimeField("Date", default=now)
+    operator = models.ForeignKey(User, on_delete=models.CASCADE)
+    shop = models.ForeignKey(Shop, on_delete=models.CASCADE)
+    billname = models.TextField("Bill name")
+    billamount = models.DecimalField(
+        "Montant de la facture",
+        default=0,
+        decimal_places=2,
+        max_digits=9,
+        validators=[MinValueValidator(Decimal(0))],
+    )
+
+    # TODO champ image ?

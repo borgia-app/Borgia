@@ -1,0 +1,46 @@
+{% extends 'base_sober.html' %}
+{% load bootstrap %}
+
+{% block content %}
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+          Recherche de factures
+          {% if request.user|has_perm:"stocks.add_stockentry" %}
+            <a class="btn btn-xs btn-success pull-right" href="{% url 'url_billsentry_create' shop_pk=shop.pk %}">Nouvelle saisie de facture</a>
+          {% endif %}
+        </div>
+        <div class="panel-body">
+          <form action="" method="post" class="form-horizontal">
+            {% csrf_token %}
+            {{ form|bootstrap_horizontal }}
+            <div class="form-group">
+              <div class="col-sm-10 col-sm-offset-2">
+                <button type="submit" class="btn btn-primary">Recherche</button>
+                <a class="btn btn-warning" href="">Remise à zéro</a>
+              </div>
+            </div>
+          </form>
+        </div>
+    </div>
+    <div class="panel panel-default">
+      <div class="panel-heading">
+        Résultats
+      </div>
+        <table class="table table-hover table-striped">
+          <tr>
+              <th>Date</th>
+              <th>Nom facture</th>
+              <th>Montant facture</th>
+              <th>Détail</th>
+          </tr>
+          {% for billsentry in billsentry_list %}
+          <tr>
+            <td>{{ billsentry.datetime|date:"SHORT_DATE_FORMAT" }}</td>
+            <td>{{ billsentry.billname }}</td>
+            <td>{{ billsentry.billamount }}€</td>
+            <td><a href="{% url 'url_billsentry_retrieve' shop_pk=shop.pk billsentry_pk=billsentry.pk %}">Détail</a></td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+{% endblock %}

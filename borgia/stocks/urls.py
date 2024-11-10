@@ -1,21 +1,102 @@
 from django.urls import include, path
 
-from stocks.views import (InventoryListView, InventoryRetrieveView,
-                          InventoryCreateView, StockEntryCreateView,
-                          StockEntryListView, StockEntryRetrieveView)
+from stocks.views import (
+    BillsEntryCreateView,
+    BillsEntryDeleteView,
+    BillsEntryEditView,
+    BillsEntryListView,
+    BillsEntryRetrieveView,
+    InventoryListView,
+    InventoryRetrieveView,
+    InventoryCreateView,
+    StockEntryCreateView,
+    StockEntryListView,
+    StockEntryRetrieveView,
+)
 
 
 stocks_patterns = [
-    path('shops/<int:shop_pk>/stocks/', include([
-        path('entries/', include([
-            path('', StockEntryListView.as_view(), name='url_stockentry_list'),
-            path('create/', StockEntryCreateView.as_view(), name='url_stockentry_create'),
-            path('<int:stockentry_pk>/', StockEntryRetrieveView.as_view(), name='url_stockentry_retrieve'),
-        ])),
-        path('inventories/', include([
-            path('', InventoryListView.as_view(), name='url_inventory_list'),
-            path('create/', InventoryCreateView.as_view(), name='url_inventory_create'),
-            path('<int:inventory_pk>/', InventoryRetrieveView.as_view(), name='url_inventory_retrieve'),
-        ]))
-    ]))
+    path(
+        "shops/<int:shop_pk>/stocks/",
+        include(
+            [
+                path(
+                    "entries/",
+                    include(
+                        [
+                            path(
+                                "",
+                                StockEntryListView.as_view(),
+                                name="url_stockentry_list",
+                            ),
+                            path(
+                                "create/",
+                                StockEntryCreateView.as_view(),
+                                name="url_stockentry_create",
+                            ),
+                            path(
+                                "<int:stockentry_pk>/",
+                                StockEntryRetrieveView.as_view(),
+                                name="url_stockentry_retrieve",
+                            ),
+                        ]
+                    ),
+                ),
+                path(
+                    "bills/",
+                    include(
+                        [
+                            path(
+                                "",
+                                BillsEntryListView.as_view(),
+                                name="url_billsentry_list",
+                            ),
+                            path(
+                                "create/",
+                                BillsEntryCreateView.as_view(),
+                                name="url_billsentry_create",
+                            ),
+                            path(
+                                "<int:billsentry_pk>/",
+                                BillsEntryRetrieveView.as_view(),
+                                name="url_billsentry_retrieve",
+                            ),
+                            path(
+                                "<int:billsentry_pk>/edit",
+                                BillsEntryEditView.as_view(),
+                                name="url_billsentry_edit",
+                            ),
+                            path(
+                                "<int:billsentry_pk>/delete",
+                                BillsEntryDeleteView.as_view(),
+                                name="url_billsentry_delete",
+                            ),
+                        ]
+                    ),
+                ),
+                path(
+                    "inventories/",
+                    include(
+                        [
+                            path(
+                                "",
+                                InventoryListView.as_view(),
+                                name="url_inventory_list",
+                            ),
+                            path(
+                                "create/",
+                                InventoryCreateView.as_view(),
+                                name="url_inventory_create",
+                            ),
+                            path(
+                                "<int:inventory_pk>/",
+                                InventoryRetrieveView.as_view(),
+                                name="url_inventory_retrieve",
+                            ),
+                        ]
+                    ),
+                ),
+            ]
+        ),
+    )
 ]
