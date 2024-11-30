@@ -1,7 +1,7 @@
 {
   "name": "borgia",
   "version": "5.1.4",
-  "dependencies": {
-    "less": "^3.9.0"
+  "devDependencies": {
+    "tailwindcss": "^3.4.15"
   }
 }

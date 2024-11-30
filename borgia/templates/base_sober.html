@@ -1,4 +1,3 @@
-{% load compile_static %}
 {% load static %}
 {% load users_extra %}
 {% load bootstrap %}
@@ -16,7 +15,7 @@
     <link rel="stylesheet" href="{% static 'css/font-awesome.min.css' %}"/>
 
     {% set_template request.user.theme as template %}
-    <link rel="stylesheet" href="{% static template|compile %}" />
+    <link rel="stylesheet" href="{% static 'css/tailwindcss-output.css' %}" />
 
 	{% include "partials/favicon_metadata.html" %}
 

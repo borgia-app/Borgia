@@ -1,4 +1,3 @@
-{% load compile_static %}
 {% load static %}
 {% load users_extra %}
 {% load bootstrap %}
@@ -19,7 +18,7 @@
     {% else %}
       {% set_default_template as template %}
     {% endif %}
-    <link rel="stylesheet" href="{% static template|compile %}" />
+    <link rel="stylesheet" href="{% static 'css/tailwindcss-output.css' %}" />
 
     {% include "partials/favicon_metadata.html" %}
 
